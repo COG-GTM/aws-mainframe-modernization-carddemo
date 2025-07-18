@@ -44,25 +44,16 @@ To install this repository on the mainframe please follow the following steps
 
 1. Clone this repository to your local development environment
 
-2. Create datasets on the mainframe  hold the code
+2. Create datasets on the mainframe
    * It is recommended to group them under a High Level Qualifier (HLQ)for all your datasets. 
    * Upload the following application source folders from the main branch of git repository on to your mainframe
       using $INDFILE or your preferred upload tool.
-   * If you have used AWS.M2 as your HLQ, you should end up with the below code structure on the mainframe
-   
-      | HLQ    | Name          | Format | Length |
-      | :----- | :------------ | :----- | -----: |
-      | AWS.M2 | CARDDEMO.JCL  | FB     |     80 |
-      | AWS.M2 | CARDDEMO.PROC | FB     |     80 |
-      | AWS.M2 | CARDDEMO.CBL  | FB     |     80 |
-      | AWS.M2 | CARDDEMO.CPY  | FB     |     80 |
-      | AWS.M2 | CARDDEMO.BMS  | FB     |     80 |
       
 3. Use data for testing using either of the below approaches
 
    ** Use the supplied sample data**
    
-      * Upload the sample data provided in the main/-/data/EBCDIC/ folder to the mainframe. Ensure that you use transfer mode binary
+      * Upload the sample data provided in the main/-/data/EBCDIC/ folder to the mainframe. Ensure that you use transfer mode binary (e.g.)
 
          | Dataset name                      | Name                                             | Copybook (Layout) | Format | Length | Name of equivalent ascii file |
          | :---------------------------------| :----------------------------------------------- | :-----            | :----- | -----: | :---------------------------- |
