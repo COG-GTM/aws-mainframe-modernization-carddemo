@@ -95,7 +95,8 @@ SYSID   DFHMDF ATTRB=(FSET,NORM,PROT),                                 -
                COLOR=NEUTRAL,                                          -
                LENGTH=66,                                              -
                POS=(5,6),                                              -
-               INITIAL='This is a Credit Card Demo Application'
+               INITIAL='This is a Credit Card Demo Application for Main-
+               frame Modernization'
         DFHMDF ATTRB=(ASKIP,NORM),                                     -
                COLOR=BLUE,                                             -
                LENGTH=42,                                              -
