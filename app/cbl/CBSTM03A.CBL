@@ -25,7 +25,7 @@
       ******************************************************************
       * This program is to create statement based on the data in
       * transaction file. The following features are excercised
-      * to help create excercise modernization tooling
+      * to help exercise mainframe coding scenarios
       ******************************************************************
       *  1. Mainframe Control block addressing
       *  2. Alter and GO TO statements
