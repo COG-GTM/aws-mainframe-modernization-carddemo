@@ -1,0 +1,20 @@
+spring:
+  application:
+    name: carddemo-interest-calculator
+  # The batch job itself is file based (the VSAM datasets are read and written as fixed-width
+  # files). This datasource only backs the Spring Batch job repository; it holds no business
+  # data. Credentials come from the environment - nothing is hardcoded here.
+  datasource:
+    url: ${BATCH_DB_URL:jdbc:h2:mem:carddemo-batch;DB_CLOSE_DELAY=-1}
+    driver-class-name: ${BATCH_DB_DRIVER:org.h2.Driver}
+    username: ${BATCH_DB_USERNAME:sa}
+    password: ${BATCH_DB_PASSWORD:}
+  batch:
+    jdbc:
+      initialize-schema: always
+    job:
+      enabled: true
+
+logging:
+  level:
+    org.springframework.batch: INFO
