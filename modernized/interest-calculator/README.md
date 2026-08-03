@@ -34,6 +34,11 @@ cd modernized/interest-calculator
 | `//TCATBAL`, `//XREFFILE`, `//ACCTFILE`, `//DISCGRP` DDs | `inputDirectory` (`tcatbal.txt`, `cardxref.txt`, `acctdata.txt`, `discgrp.txt`) |
 | `//TRANSACT` DD, and the updated `//ACCTFILE` | `outputDirectory` (`transact.dat`, `acctdata-after.dat`) |
 
+The process return code stands in for the step's RC: `0` when the job completes, `5`
+(`BatchStatus.FAILED`) when it fails or the program abends, with no TRANSACT file written.
+`ProcessExitCodeTest` asserts this on a real forked JVM, because `BatchStatus` is not what a
+scheduler sees.
+
 ---
 
 ## Traceability: COBOL paragraph → Java method

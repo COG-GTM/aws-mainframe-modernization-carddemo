@@ -16,12 +16,16 @@ import org.springframework.context.annotation.Bean;
  *      inputDirectory=app/data/ASCII \
  *      outputDirectory=target/run
  * </pre>
+ *
+ * <p>The process return code carries the job outcome, the way a JES step's RC does: 0 when the
+ * job COMPLETEs, and {@code BatchStatus.FAILED.ordinal()} (5) when it fails or the program
+ * abends, so a scheduler can condition the next step on it.
  */
 @SpringBootApplication
 public class InterestCalculatorApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(InterestCalculatorApplication.class, args);
+        System.exit(SpringApplication.exit(SpringApplication.run(InterestCalculatorApplication.class, args)));
     }
 
     /**
