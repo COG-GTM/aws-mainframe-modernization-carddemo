@@ -1,0 +1,92 @@
+name: modernized/interest-calculator
+
+on:
+  pull_request:
+    paths:
+      - 'modernized/**'
+      - 'app/cbl/CBACT04C.cbl'
+      - 'app/cpy/CVTRA01Y.cpy'
+      - 'app/cpy/CVTRA02Y.cpy'
+      - 'app/cpy/CVTRA05Y.cpy'
+      - 'app/cpy/CVACT01Y.cpy'
+      - 'app/cpy/CVACT03Y.cpy'
+      - 'app/data/ASCII/**'
+      - '.github/workflows/modernized-interest-calculator.yml'
+  push:
+    branches:
+      - main
+    paths:
+      - 'modernized/**'
+      - '.github/workflows/modernized-interest-calculator.yml'
+  workflow_dispatch:
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  build:
+    name: Build and test (JDK 21)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: maven
+
+      - name: Build and run the parity harness
+        working-directory: modernized/interest-calculator
+        run: ./mvnw -B --no-transfer-progress clean verify
+
+      - name: Upload test reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: surefire-reports
+          path: modernized/interest-calculator/target/surefire-reports/
+          if-no-files-found: ignore
+
+  cobol-oracle:
+    name: Reproduce the COBOL golden master (GnuCOBOL)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install GnuCOBOL
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends gnucobol3 \
+            || sudo apt-get install -y --no-install-recommends gnucobol
+          cobc --version
+
+      - name: The legacy sources must be untouched by this pull request
+        if: github.event_name == 'pull_request'
+        run: |
+          git diff --stat ${{ github.event.pull_request.base.sha }} HEAD \
+            -- app/ asm/ proc/ csd/ ctl/ maclib/ scheduler/
+          git diff --quiet ${{ github.event.pull_request.base.sha }} HEAD \
+            -- app/ asm/ proc/ csd/ ctl/ maclib/ scheduler/
+
+      - name: The edge dataset must be reproducible from its generator
+        run: |
+          python3 modernized/interest-calculator/oracle/make-edge-dataset.py
+          git diff --exit-code -- modernized/interest-calculator/oracle/datasets
+
+      - name: Run the unmodified CBACT04C against both datasets
+        run: |
+          oracle=modernized/interest-calculator/oracle
+          "$oracle/run-cobol-oracle.sh" app/data/ASCII "$RUNNER_TEMP/oracle-base"
+          "$oracle/run-cobol-oracle.sh" "$oracle/datasets/edge" "$RUNNER_TEMP/oracle-edge"
+
+      - name: The committed golden files must still match the COBOL
+        run: |
+          oracle=modernized/interest-calculator/oracle
+          golden=modernized/interest-calculator/src/test/resources/golden
+          python3 "$oracle/verify-golden.py" "$RUNNER_TEMP/oracle-base" "$golden/base"
+          python3 "$oracle/verify-golden.py" "$RUNNER_TEMP/oracle-edge" "$golden/edge"
