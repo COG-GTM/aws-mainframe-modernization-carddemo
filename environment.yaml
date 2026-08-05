@@ -1,0 +1,38 @@
+clone:
+  ref: feature/cloud-blueprint
+
+initialize:
+  - name: "Install Java 17 (Temurin)"
+    uses: github.com/actions/setup-java@v4
+    with:
+      java-version: "17"
+      distribution: "temurin"
+
+  - name: "Install Maven 3.9.9"
+    run: |
+      set -e
+      MAVEN_VERSION=3.9.9
+      INSTALL_DIR="$HOME/.maven"
+      mkdir -p "$INSTALL_DIR"
+      curl -fsSL "https://archive.apache.org/dist/maven/maven-3/${MAVEN_VERSION}/binaries/apache-maven-${MAVEN_VERSION}-bin.tar.gz" \
+        | tar -xz -C "$INSTALL_DIR" --strip-components=1
+      echo "export PATH=\"$INSTALL_DIR/bin:\$PATH\"" >> "$ENVRC"
+      "$INSTALL_DIR/bin/mvn" -version
+
+maintenance:
+  - name: "Build and test modern Java migration"
+    run: |
+      set -e
+      cd modern
+      mvn -B clean test
+
+knowledge:
+  - name: build
+    contents: |
+      Build the modernized Java migration:
+      cd modern && mvn -B clean package
+
+  - name: test
+    contents: |
+      Run tests for the modernized Java migration:
+      cd modern && mvn -B clean test
