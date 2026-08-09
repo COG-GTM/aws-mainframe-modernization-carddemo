@@ -7,7 +7,7 @@ import com.carddemo.interest.io.codec.TransactionCodec;
 import com.carddemo.interest.repository.InMemoryAccountRepository;
 import com.carddemo.interest.repository.InMemoryCardXrefRepository;
 import com.carddemo.interest.repository.InMemoryDisclosureGroupRepository;
-import com.carddemo.interest.rules.Db2TimestampFormatter;
+import com.carddemo.mainframe.cobol.Db2TimestampFormatter;
 import com.carddemo.interest.rules.DisclosureGroupRateResolver;
 import com.carddemo.interest.rules.InterestTransactionFactory;
 import com.carddemo.interest.rules.MonthlyInterestCalculator;

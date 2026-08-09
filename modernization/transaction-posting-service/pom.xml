@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>com.carddemo.modernization</groupId>
+    <artifactId>carddemo-modernization</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
+  </parent>
+
+  <artifactId>transaction-posting-service</artifactId>
+  <packaging>jar</packaging>
+
+  <name>CardDemo Transaction Posting Service</name>
+  <description>
+    Idiomatic Java re-implementation of the CardDemo daily transaction posting sliver
+    (COBOL batch program CBTRN02C, JCL job POSTTRAN).
+  </description>
+
+  <dependencies>
+    <dependency>
+      <groupId>com.carddemo.modernization</groupId>
+      <artifactId>carddemo-mainframe-io</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter</artifactId>
+    </dependency>
+  </dependencies>
+</project>

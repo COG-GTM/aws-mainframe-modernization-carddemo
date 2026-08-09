@@ -4,7 +4,7 @@ import com.carddemo.interest.domain.Account;
 import com.carddemo.interest.domain.CardXref;
 import com.carddemo.interest.domain.DisclosureGroup;
 import com.carddemo.interest.domain.TransactionCategoryBalance;
-import com.carddemo.interest.io.FixedLengthRecordReader;
+import com.carddemo.mainframe.io.FixedLengthRecordReader;
 import com.carddemo.interest.io.codec.AccountCodec;
 import com.carddemo.interest.io.codec.CardXrefCodec;
 import com.carddemo.interest.io.codec.DisclosureGroupCodec;

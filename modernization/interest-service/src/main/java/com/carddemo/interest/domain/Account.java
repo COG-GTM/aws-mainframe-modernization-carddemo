@@ -1,6 +1,6 @@
 package com.carddemo.interest.domain;
 
-import com.carddemo.interest.io.CobolFixedPoint;
+import com.carddemo.mainframe.io.CobolFixedPoint;
 
 import java.math.BigDecimal;
 

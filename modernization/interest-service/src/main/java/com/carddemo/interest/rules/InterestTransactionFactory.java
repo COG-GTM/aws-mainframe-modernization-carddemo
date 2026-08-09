@@ -3,6 +3,7 @@ package com.carddemo.interest.rules;
 import com.carddemo.interest.domain.Account;
 import com.carddemo.interest.domain.CardXref;
 import com.carddemo.interest.domain.InterestTransaction;
+import com.carddemo.mainframe.cobol.Db2TimestampFormatter;
 
 import java.math.BigDecimal;
 
