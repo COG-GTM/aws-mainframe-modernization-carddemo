@@ -54,6 +54,9 @@ class ParityHarnessTest {
     private static final Path EBCDIC_DIRECTORY = Path.of("..", "..", "app", "data", "EBCDIC");
     private static final Path PARITY_REPORT = Path.of("..", "PARITY-REPORT.md");
 
+    /** Number of scenarios a full run records; the report is only written when all are present. */
+    private static final int SCENARIO_COUNT = 2;
+
     private static final List<ScenarioResult> RESULTS = new ArrayList<>();
 
     private record ScenarioResult(String name, String population, int categoryBalances,
@@ -93,6 +96,22 @@ class ParityHarnessTest {
                 .allMatch(account -> account.pricingGroupId().isEmpty());
         assertTrue(everyAccountGroupBlank,
                 "every shipped account has a blank ACCT-GROUP-ID, so every rate lookup falls back to DEFAULT");
+    }
+
+    @Test
+    @Order(4)
+    @DisplayName("Derived population reaches a non-zero exact pricing-group match, not only the fallback")
+    void derivedPopulationReachesExactGroupMatch() {
+        InterestDatasets datasets = DerivedPopulation.build(EBCDIC_DIRECTORY);
+        List<String> groups = datasets.accounts().stream().map(Account::pricingGroupId).distinct().toList();
+        assertTrue(groups.contains("A000000000"),
+                "the derived accounts must use a pricing group that really exists in DISCGRP");
+
+        boolean nonZeroExactRate = datasets.disclosureGroups().stream()
+                .anyMatch(group -> group.key().accountGroupId().equals("A000000000")
+                        && !group.isZeroRate());
+        assertTrue(nonZeroExactRate,
+                "A000000000 must price at least one category at a non-zero rate");
     }
 
     private static ScenarioResult compare(String scenarioName, String populationDescription,
@@ -145,7 +164,7 @@ class ParityHarnessTest {
     }
 
     @Test
-    @Order(4)
+    @Order(5)
     @DisplayName("Java job leaves untouched accounts byte-identical in the rewritten master")
     void accountMasterKeepsUntouchedAccounts() {
         InterestDatasets datasets = InterestDatasets.fromDirectory(EBCDIC_DIRECTORY);
@@ -160,7 +179,9 @@ class ParityHarnessTest {
 
     @AfterAll
     static void writeParityReport() throws IOException {
-        if (RESULTS.isEmpty()) {
+        if (RESULTS.size() != SCENARIO_COUNT) {
+            // A partial run (a single -Dtest method, an IDE run) must not overwrite the committed
+            // deliverable with an incomplete table.
             return;
         }
         StringBuilder report = new StringBuilder();

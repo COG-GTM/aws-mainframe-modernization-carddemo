@@ -13,6 +13,7 @@ public final class TransactionIdSequence {
 
     private static final int RUN_DATE_LENGTH = 10;
     private static final int SUFFIX_DIGITS = 6;
+    private static final int SUFFIX_MODULUS = 1_000_000;
 
     private final String runDate;
     private int suffix;
@@ -25,9 +26,16 @@ public final class TransactionIdSequence {
         this.runDate = runDate;
     }
 
-    /** Returns the next id, e.g. {@code 2022071800000001}. */
+    /**
+     * Returns the next id, e.g. {@code 2022071800000001}.
+     *
+     * <p>The suffix wraps back to {@code 000000} after {@code 999999}: {@code ADD 1 TO
+     * WS-TRANID-SUFFIX} carries no {@code ON SIZE ERROR} ({@code app/cbl/CBACT04C.cbl:474}), so the
+     * high-order digit is discarded and {@code TRAN-ID} stays exactly 16 characters. Ids repeat in
+     * a run of more than a million transactions, on the mainframe as here.
+     */
     public String next() {
-        suffix++;
+        suffix = (suffix + 1) % SUFFIX_MODULUS;
         return runDate + ("%0" + SUFFIX_DIGITS + "d").formatted(suffix);
     }
 }

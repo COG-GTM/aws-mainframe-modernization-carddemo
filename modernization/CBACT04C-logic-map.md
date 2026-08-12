@@ -73,7 +73,7 @@ Copybook fields, their COBOL picture clauses, and the Java type used in
 
 | Field | PIC | Meaning | Java |
 | --- | --- | --- | --- |
-| `DIS-ACCT-GROUP-ID` | `X(10)` | pricing group, e.g. `A000000001`, `ZEROAPR`, `DEFAULT` | `DisclosureGroupKey.accountGroupId` |
+| `DIS-ACCT-GROUP-ID` | `X(10)` | pricing group: `A000000000`, `ZEROAPR` or `DEFAULT` in the shipped rate card | `DisclosureGroupKey.accountGroupId` |
 | `DIS-TRAN-TYPE-CD` | `X(02)` | transaction type | `DisclosureGroupKey.category` |
 | `DIS-TRAN-CAT-CD` | `9(04)` | transaction category | `DisclosureGroupKey.category` |
 | `DIS-INT-RATE` | `S9(04)V99` | **annual** rate as a percentage — `15.00` means 15% APR | `DisclosureGroup.annualRatePercent` (`BigDecimal`) |
@@ -152,9 +152,10 @@ literal `DEFAULT` (`app/cbl/CBACT04C.cbl:427-435` and `1200-A-GET-DEFAULT-INT-RA
 Note the fallback is per **category**, not per account: an account can take its own rate for
 purchases and the `DEFAULT` rate for a category its group does not price.
 
-In the shipped data (`app/data/EBCDIC/AWS.M2.CARDDEMO.DISCGRP.PS`, 51 rows) the pricing groups are
-`A000000001`…`A00000000n`, `ZEROAPR` and `DEFAULT`; every shipped account has a **blank**
-`ACCT-GROUP-ID`, so in practice today every rate comes from `DEFAULT`.
+In the shipped data (`app/data/EBCDIC/AWS.M2.CARDDEMO.DISCGRP.PS`, 51 rows) the only pricing
+groups on the rate card are `A000000000`, `ZEROAPR` and `DEFAULT`; every shipped account has a
+**blank** `ACCT-GROUP-ID`, so in practice today every rate comes from `DEFAULT` and the
+`A000000000` and `ZEROAPR` rows are dormant.
 
 *Java:* `DisclosureGroupRateResolver` (`RateResolver` interface), backed by
 `DisclosureGroupRepository`, throwing `DisclosureGroupNotFoundException`.

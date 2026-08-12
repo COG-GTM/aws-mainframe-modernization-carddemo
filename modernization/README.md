@@ -22,8 +22,8 @@ mvn test          # runs the parity harness and regenerates ../PARITY-REPORT.md
 To run the job itself, the Java equivalent of `//STEP15 EXEC PGM=CBACT04C,PARM='2022071800'`:
 
 ```bash
-mvn -q compile exec:java 2>/dev/null || \
-mvn -q compile && java -cp target/classes \
+mvn -q compile
+java -cp target/classes \
   com.carddemo.interest.batch.InterestCalculationJob ../../app/data/EBCDIC target/output 2022071800
 ```
 

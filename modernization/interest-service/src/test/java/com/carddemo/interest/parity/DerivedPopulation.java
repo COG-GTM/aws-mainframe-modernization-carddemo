@@ -19,8 +19,13 @@ import java.util.List;
  * through the rate rules. This helper keeps the real {@code ACCTDATA}, {@code CARDXREF} and
  * {@code DISCGRP} datasets and rewrites two things: the pricing group on each account, and the
  * category balances, covering positive, negative, zero, capacity-stressing and
- * truncate-not-round amounts across the {@code A0000000nn}, {@code ZEROAPR} and blank
- * (i.e. {@code DEFAULT}) pricing groups.
+ * truncate-not-round amounts.
+ *
+ * <p>The shipped rate card holds exactly three pricing groups — {@code A000000000},
+ * {@code ZEROAPR} and {@code DEFAULT} — so the groups injected here are chosen to reach every
+ * path: {@code A000000000} for a non-zero exact match, {@code ZEROAPR} for the zero-rate
+ * suppression, a blank group for the {@code DEFAULT} fallback, and {@code A000000099}, which is
+ * absent from the rate card, for the unknown-group fallback.
  *
  * <p>The encoding here is written independently of the production record reader, on purpose.
  */
@@ -32,7 +37,7 @@ final class DerivedPopulation {
     private static final int ACCOUNT_GROUP_OFFSET = 112;
 
     private static final List<String> PRICING_GROUPS =
-            List.of("A000000001", "ZEROAPR", "", "A000000002", "A000000004");
+            List.of("A000000000", "ZEROAPR", "", "A000000099", "A000000000");
 
     private static final List<String> BALANCES =
             List.of("79.60", "-1234.56", "0.00", "9999999.99", "100.07", "-0.01");

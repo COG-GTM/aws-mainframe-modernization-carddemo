@@ -86,7 +86,7 @@ public final class InterestAccrualService {
     /**
      * Accrues one account's interest across its category balances.
      *
-     * <p>Business rule BR-4a — a disclosed rate of zero suppresses accrual entirely: no interest
+     * <p>Business rule BR-4 — a disclosed rate of zero suppresses accrual entirely: no interest
      * is added and no transaction is written ({@code IF DIS-INT-RATE NOT = 0} at
      * {@code app/cbl/CBACT04C.cbl:214-217}). This is what the {@code ZEROAPR} disclosure group
      * exists for.

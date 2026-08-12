@@ -148,7 +148,8 @@ final class Cbact04cReferenceModel {
 
     /** 1300-B-WRITE-TX, app/cbl/CBACT04C.cbl:473-500. */
     private void paragraph1300BWriteTx() {
-        wsTranidSuffix++;
+        // WS-TRANID-SUFFIX PIC 9(06), ADD 1 without ON SIZE ERROR: wraps at one million.
+        wsTranidSuffix = (wsTranidSuffix + 1) % 1_000_000;
         byte[] record = blank(TRANSACTION_LENGTH);
         putText(record, 0, 16, parmDate + "%06d".formatted(wsTranidSuffix));
         putText(record, 16, 2, "01");
