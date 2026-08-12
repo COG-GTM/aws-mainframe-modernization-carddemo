@@ -12,6 +12,11 @@ import java.math.BigInteger;
  * {@code 0xF} for unsigned. In EBCDIC that renders as {@code {ABCDEFGHI} for +0..+9 and
  * }JKLMNOPQR} for -0..-9}. The implied decimal point ({@code V}) carries no byte, so the
  * scale must come from the copybook.
+ *
+ * <p>Spaces inside a numeric field are read as zero. That is deliberate leniency for dumps of
+ * never-initialised records; a mainframe {@code COMPUTE} over a blank {@code DISPLAY} field would
+ * normally raise a data exception (S0C7) instead. No shipped record exercises it — see open
+ * question 6 of {@code modernization/CBACT04C-logic-map.md}.
  */
 public final class ZonedDecimalCodec {
 

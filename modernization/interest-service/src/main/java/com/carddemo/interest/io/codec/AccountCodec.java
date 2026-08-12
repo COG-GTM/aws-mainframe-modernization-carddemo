@@ -8,9 +8,12 @@ import com.carddemo.interest.io.layout.CardDemoLayouts;
 /**
  * Maps {@code CVACT01Y} account-master records to {@link Account} instances and back.
  *
- * <p>Encoding is the Java equivalent of {@code REWRITE FD-ACCTFILE-REC FROM ACCOUNT-RECORD}
- * ({@code app/cbl/CBACT04C.cbl:356}): the whole 300-byte record area is rewritten from the
- * in-memory structure, so every field is re-encoded rather than patched in place.
+ * <p>{@link #patch} is the Java equivalent of {@code REWRITE FD-ACCTFILE-REC FROM ACCOUNT-RECORD}
+ * ({@code app/cbl/CBACT04C.cbl:356}). The COBOL record area was filled by {@code READ ... INTO},
+ * a group move, so a rewrite carries back every byte the program never assigned — including the
+ * {@code FILLER PIC X(178)} of {@code app/cpy/CVACT01Y.cpy:16} and any non-canonical digit or sign
+ * representation. {@link #encode} builds a record from scratch instead and is only appropriate
+ * where no source record exists.
  */
 public final class AccountCodec {
 
@@ -53,6 +56,21 @@ public final class AccountCodec {
         LAYOUT.putDecimal(record, "currentCycleDebit", account.currentCycleDebit());
         LAYOUT.putText(record, "addressZip", account.addressZip());
         LAYOUT.putText(record, "groupId", account.groupId());
+        return record;
+    }
+
+    /**
+     * Rewrites the three fields the interest cycle changes into a clone of the account's own
+     * source record, leaving every other byte exactly as the dataset held it.
+     *
+     * <p>{@code 1050-UPDATE-ACCOUNT} ({@code app/cbl/CBACT04C.cbl:350-356}) only assigns
+     * {@code ACCT-CURR-BAL}, {@code ACCT-CURR-CYC-CREDIT} and {@code ACCT-CURR-CYC-DEBIT}.
+     */
+    public static byte[] patch(byte[] sourceRecord, Account account) {
+        byte[] record = sourceRecord.clone();
+        LAYOUT.putDecimal(record, "currentBalance", account.currentBalance());
+        LAYOUT.putDecimal(record, "currentCycleCredit", account.currentCycleCredit());
+        LAYOUT.putDecimal(record, "currentCycleDebit", account.currentCycleDebit());
         return record;
     }
 }

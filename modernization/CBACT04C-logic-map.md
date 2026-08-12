@@ -289,9 +289,20 @@ Recorded honestly, because a disconnected engagement must be explicit about its 
 
 1. **Is the final-account defect (BR-8) already known and compensated downstream?** `COMBTRAN`
    runs next in the Control-M chain; whether it re-derives balances is out of this sliver's scope.
-2. **Are `ACCT-GROUP-ID` values really blank in production?** They are blank in every shipped
-   account record, which would mean the whole `A0000000nn` rate card is dormant. This looks like
-   demo data rather than reality and should be confirmed with the business.
+2. **Are `ACCT-GROUP-ID` values really blank in production, or is the export misaligned?**
+   `ACCT-GROUP-ID` (offset 112) is blank in every shipped account record, which would mean the
+   `A000000000` and `ZEROAPR` rate rows are dormant and everything prices off `DEFAULT`. Note that
+   the value `A000000000` does appear one field earlier, in `ACCT-ADDR-ZIP` (offset 102), on every
+   record — so the pricing group may be present but shifted. Confirm with the business whether the
+   blank group is real or an artefact of the dump.
 3. **Is negative (credit-balance) interest intended?** The code computes it without comment.
 4. **Should interest be truncated rather than rounded?** It is today, to the cent, in the customer's
    favour on debit balances. Reproduced deliberately; worth a policy decision.
+5. **Which duplicate does the card cross-reference alternate index return?** An account can hold
+   several cards. `1110-GET-XREF-DATA` takes whatever the `XREFFIL1` `NONUNIQUEKEY` path returns
+   first; VSAM holds duplicates in insertion order, which the static export does not record. Both
+   the Java repository and the parity oracle assume the lowest card number. The shipped `CARDXREF`
+   has one card per account, so the assumption is currently untestable.
+6. **Should a blank zoned numeric field be tolerated?** `ZonedDecimalCodec` reads spaces as zero;
+   a mainframe `COMPUTE` over a blank `DISPLAY` field normally raises a data exception (S0C7). No
+   shipped record is blank, so the two behaviours are indistinguishable on this data.

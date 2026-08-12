@@ -25,8 +25,4 @@ public final class InMemoryAccountRepository implements AccountRepository {
         return Optional.ofNullable(accountsById.get(accountId));
     }
 
-    /** All accounts in dataset order, used when rewriting the account master. */
-    public Collection<Account> all() {
-        return accountsById.values();
-    }
 }

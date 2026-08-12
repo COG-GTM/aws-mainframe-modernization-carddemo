@@ -23,8 +23,11 @@ import java.time.Instant;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -127,8 +130,10 @@ class ParityHarnessTest {
 
         List<byte[]> javaTransactions = javaResult.transactions().stream()
                 .map(TransactionCodec::encode).toList();
+        Map<String, byte[]> sourceRecordsById = sourceAccountRecords(datasets.rawAccountImage());
         List<byte[]> javaAccounts = javaResult.updatedAccounts().stream()
-                .map(AccountCodec::encode).toList();
+                .map(account -> AccountCodec.patch(sourceRecordsById.get(account.id().value()), account))
+                .toList();
 
         assertEquals(cobolResult.transactionRecords().size(), javaTransactions.size(),
                 scenarioName + ": number of generated interest transactions");
@@ -147,6 +152,17 @@ class ParityHarnessTest {
                 javaResult.categoryBalancesProcessed(),
                 javaTransactions.size(), transactionsMatched,
                 javaAccounts.size(), accountsMatched);
+    }
+
+    /** The shipped {@code ACCTFILE} image split into records, keyed by account id. */
+    private static Map<String, byte[]> sourceAccountRecords(byte[] accountImage) {
+        int length = AccountCodec.recordLength();
+        Map<String, byte[]> byId = new LinkedHashMap<>();
+        for (int offset = 0; offset + length <= accountImage.length; offset += length) {
+            byte[] record = Arrays.copyOfRange(accountImage, offset, offset + length);
+            byId.put(AccountCodec.decode(record).id().value(), record);
+        }
+        return byId;
     }
 
     private static int countMatches(List<byte[]> expected, List<byte[]> actual, String what) {
@@ -171,10 +187,39 @@ class ParityHarnessTest {
         InterestCalculationJob job = new InterestCalculationJob(
                 Clock.fixed(FIXED_INSTANT, ZoneOffset.UTC), FinalAccountPolicy.MAINFRAME_PARITY);
         InterestAccrualResult result = job.run(datasets, RUN_DATE);
-        List<Account> original = datasets.accounts();
-        byte[] rewritten = InterestCalculationJob.encodeAccountMaster(original, result.updatedAccounts());
+        byte[] rewritten = InterestCalculationJob.encodeAccountMaster(
+                datasets.rawAccountImage(), result.updatedAccounts());
         assertEquals(datasets.rawAccountImage().length, rewritten.length,
                 "the rewritten account master must keep the same record count");
+    }
+
+    @Test
+    @Order(6)
+    @DisplayName("Bytes the copybook does not model survive the rewrite untouched")
+    void accountMasterPreservesUnmodelledBytes() {
+        InterestDatasets shipped = InterestDatasets.fromDirectory(EBCDIC_DIRECTORY);
+        int length = AccountCodec.recordLength();
+
+        // Stamp a marker into the CVACT01Y FILLER X(178) of every account record. COBOL READs the
+        // record INTO the structure and REWRITEs it whole, so the filler comes back verbatim.
+        byte[] image = shipped.rawAccountImage();
+        byte[] marker = "FILLER-KEPT".getBytes(CP037);
+        for (int offset = 0; offset + length <= image.length; offset += length) {
+            System.arraycopy(marker, 0, image, offset + 122, marker.length);
+        }
+        InterestDatasets datasets = new InterestDatasets(shipped.rawTransactionCategoryBalanceImage(),
+                shipped.rawCardXrefImage(), image, shipped.rawDisclosureGroupImage());
+
+        InterestCalculationJob job = new InterestCalculationJob(
+                Clock.fixed(FIXED_INSTANT, ZoneOffset.UTC), FinalAccountPolicy.MAINFRAME_PARITY);
+        InterestAccrualResult result = job.run(datasets, RUN_DATE);
+        byte[] rewritten = InterestCalculationJob.encodeAccountMaster(image, result.updatedAccounts());
+
+        for (int offset = 0; offset + length <= image.length; offset += length) {
+            assertArrayEquals(Arrays.copyOfRange(image, offset + 122, offset + 122 + marker.length),
+                    Arrays.copyOfRange(rewritten, offset + 122, offset + 122 + marker.length),
+                    "the unmodelled filler of record at offset " + offset + " must be copied through");
+        }
     }
 
     @AfterAll
