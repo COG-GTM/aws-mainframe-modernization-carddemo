@@ -2,8 +2,8 @@ package com.carddemo.interest.io.codec;
 
 import com.carddemo.interest.domain.Account;
 import com.carddemo.interest.domain.AccountId;
-import com.carddemo.interest.io.RecordLayout;
-import com.carddemo.interest.io.layout.CardDemoLayouts;
+import com.carddemo.mainframe.io.RecordLayout;
+import com.carddemo.mainframe.io.layout.CardDemoLayouts;
 
 /**
  * Maps {@code CVACT01Y} account-master records to {@link Account} instances and back.

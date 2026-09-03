@@ -11,6 +11,7 @@ import com.carddemo.interest.repository.InMemoryCardXrefRepository;
 import com.carddemo.interest.service.FinalAccountPolicy;
 import com.carddemo.interest.service.InterestAccrualResult;
 import com.carddemo.interest.service.InterestAccrualService;
+import com.carddemo.mainframe.cobol.Db2TimestampFormatter;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 

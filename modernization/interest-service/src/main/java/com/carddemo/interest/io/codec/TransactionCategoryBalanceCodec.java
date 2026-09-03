@@ -3,8 +3,8 @@ package com.carddemo.interest.io.codec;
 import com.carddemo.interest.domain.AccountId;
 import com.carddemo.interest.domain.TransactionCategory;
 import com.carddemo.interest.domain.TransactionCategoryBalance;
-import com.carddemo.interest.io.RecordLayout;
-import com.carddemo.interest.io.layout.CardDemoLayouts;
+import com.carddemo.mainframe.io.RecordLayout;
+import com.carddemo.mainframe.io.layout.CardDemoLayouts;
 
 /** Maps {@code CVTRA01Y} records to {@link TransactionCategoryBalance} instances. */
 public final class TransactionCategoryBalanceCodec {

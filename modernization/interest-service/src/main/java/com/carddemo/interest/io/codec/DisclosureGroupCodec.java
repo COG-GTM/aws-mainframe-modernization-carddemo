@@ -3,8 +3,8 @@ package com.carddemo.interest.io.codec;
 import com.carddemo.interest.domain.DisclosureGroup;
 import com.carddemo.interest.domain.DisclosureGroupKey;
 import com.carddemo.interest.domain.TransactionCategory;
-import com.carddemo.interest.io.RecordLayout;
-import com.carddemo.interest.io.layout.CardDemoLayouts;
+import com.carddemo.mainframe.io.RecordLayout;
+import com.carddemo.mainframe.io.layout.CardDemoLayouts;
 
 /** Maps {@code CVTRA02Y} records to {@link DisclosureGroup} instances. */
 public final class DisclosureGroupCodec {
