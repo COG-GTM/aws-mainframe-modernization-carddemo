@@ -22,6 +22,7 @@ import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Clock;
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -69,16 +70,24 @@ public final class InterestCalculationJob {
     }
 
     /**
-     * Encodes the account master after the run: the accounts the cycle rewrote, in their original
-     * dataset order, with untouched accounts left as they were. This is the file-level effect of
-     * the COBOL {@code REWRITE} against the keyed {@code ACCTFILE}.
+     * Encodes the account master after the run: the file-level effect of the COBOL {@code REWRITE}
+     * against the keyed {@code ACCTFILE}.
+     *
+     * <p>Accounts the cycle posted are produced by patching their changed fields into their own
+     * source record; every other record is copied through byte for byte, exactly as a keyed
+     * rewrite leaves the records it never touches.
      */
-    public static byte[] encodeAccountMaster(List<Account> originalAccounts, List<Account> updatedAccounts) {
-        Map<AccountId, Account> byId = new LinkedHashMap<>();
-        originalAccounts.forEach(account -> byId.put(account.id(), account));
-        updatedAccounts.forEach(account -> byId.put(account.id(), account));
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        byId.values().forEach(account -> out.writeBytes(AccountCodec.encode(account)));
+    public static byte[] encodeAccountMaster(byte[] accountImage, List<Account> updatedAccounts) {
+        Map<AccountId, Account> updatedById = new LinkedHashMap<>();
+        updatedAccounts.forEach(account -> updatedById.put(account.id(), account));
+
+        int recordLength = AccountCodec.recordLength();
+        ByteArrayOutputStream out = new ByteArrayOutputStream(accountImage.length);
+        for (int offset = 0; offset + recordLength <= accountImage.length; offset += recordLength) {
+            byte[] record = Arrays.copyOfRange(accountImage, offset, offset + recordLength);
+            Account updated = updatedById.get(AccountCodec.decode(record).id());
+            out.writeBytes(updated == null ? record : AccountCodec.patch(record, updated));
+        }
         return out.toByteArray();
     }
 
@@ -108,11 +117,10 @@ public final class InterestCalculationJob {
                 FinalAccountPolicy.MAINFRAME_PARITY);
         InterestDatasets datasets = InterestDatasets.fromDirectory(inputDirectory);
         InterestAccrualResult result = job.run(datasets, runDate);
-        List<Account> originalAccounts = datasets.accounts();
         try {
             Files.createDirectories(outputDirectory);
             Files.write(outputDirectory.resolve(InterestDatasets.ACCTFILE_DATASET),
-                    encodeAccountMaster(originalAccounts, result.updatedAccounts()));
+                    encodeAccountMaster(datasets.rawAccountImage(), result.updatedAccounts()));
             Files.write(outputDirectory.resolve(TRANSACT_DATASET), encodeTransactions(result));
         } catch (IOException e) {
             throw new UncheckedIOException("Cannot write output datasets to " + outputDirectory, e);

@@ -19,7 +19,7 @@ public final class MonthlyInterestCalculator {
     private static final int RESULT_SCALE = 2;
 
     /**
-     * Business rule BR-4 — monthly interest for one transaction-category balance.
+     * Business rule BR-5 — monthly interest for one transaction-category balance.
      *
      * <p>COBOL paragraph {@code 1300-COMPUTE-INTEREST}
      * ({@code app/cbl/CBACT04C.cbl:462-467}):
@@ -39,7 +39,7 @@ public final class MonthlyInterestCalculator {
     }
 
     /**
-     * Business rule BR-5 — accumulation of category interest into the account total.
+     * Business rule BR-5 (continued) — accumulation of category interest into the account total.
      *
      * <p>COBOL {@code ADD WS-MONTHLY-INT TO WS-TOTAL-INT} ({@code app/cbl/CBACT04C.cbl:467}),
      * where {@code WS-TOTAL-INT} is also {@code PIC S9(09)V99}

@@ -7,7 +7,7 @@ import java.math.BigDecimal;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-/** Business-rule tests for BR-4 (monthly interest) and BR-5 (accumulation). */
+/** Business-rule tests for BR-5 (monthly interest and its accumulation). */
 class MonthlyInterestCalculatorTest {
 
     private final MonthlyInterestCalculator calculator = new MonthlyInterestCalculator();

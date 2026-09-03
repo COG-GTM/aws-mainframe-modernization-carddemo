@@ -23,8 +23,11 @@ import java.time.Instant;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -53,6 +56,9 @@ class ParityHarnessTest {
 
     private static final Path EBCDIC_DIRECTORY = Path.of("..", "..", "app", "data", "EBCDIC");
     private static final Path PARITY_REPORT = Path.of("..", "PARITY-REPORT.md");
+
+    /** Number of scenarios a full run records; the report is only written when all are present. */
+    private static final int SCENARIO_COUNT = 2;
 
     private static final List<ScenarioResult> RESULTS = new ArrayList<>();
 
@@ -95,6 +101,22 @@ class ParityHarnessTest {
                 "every shipped account has a blank ACCT-GROUP-ID, so every rate lookup falls back to DEFAULT");
     }
 
+    @Test
+    @Order(4)
+    @DisplayName("Derived population reaches a non-zero exact pricing-group match, not only the fallback")
+    void derivedPopulationReachesExactGroupMatch() {
+        InterestDatasets datasets = DerivedPopulation.build(EBCDIC_DIRECTORY);
+        List<String> groups = datasets.accounts().stream().map(Account::pricingGroupId).distinct().toList();
+        assertTrue(groups.contains("A000000000"),
+                "the derived accounts must use a pricing group that really exists in DISCGRP");
+
+        boolean nonZeroExactRate = datasets.disclosureGroups().stream()
+                .anyMatch(group -> group.key().accountGroupId().equals("A000000000")
+                        && !group.isZeroRate());
+        assertTrue(nonZeroExactRate,
+                "A000000000 must price at least one category at a non-zero rate");
+    }
+
     private static ScenarioResult compare(String scenarioName, String populationDescription,
                                           InterestDatasets datasets) {
         InterestCalculationJob job = new InterestCalculationJob(
@@ -108,8 +130,10 @@ class ParityHarnessTest {
 
         List<byte[]> javaTransactions = javaResult.transactions().stream()
                 .map(TransactionCodec::encode).toList();
+        Map<String, byte[]> sourceRecordsById = sourceAccountRecords(datasets.rawAccountImage());
         List<byte[]> javaAccounts = javaResult.updatedAccounts().stream()
-                .map(AccountCodec::encode).toList();
+                .map(account -> AccountCodec.patch(sourceRecordsById.get(account.id().value()), account))
+                .toList();
 
         assertEquals(cobolResult.transactionRecords().size(), javaTransactions.size(),
                 scenarioName + ": number of generated interest transactions");
@@ -130,6 +154,17 @@ class ParityHarnessTest {
                 javaAccounts.size(), accountsMatched);
     }
 
+    /** The shipped {@code ACCTFILE} image split into records, keyed by account id. */
+    private static Map<String, byte[]> sourceAccountRecords(byte[] accountImage) {
+        int length = AccountCodec.recordLength();
+        Map<String, byte[]> byId = new LinkedHashMap<>();
+        for (int offset = 0; offset + length <= accountImage.length; offset += length) {
+            byte[] record = Arrays.copyOfRange(accountImage, offset, offset + length);
+            byId.put(AccountCodec.decode(record).id().value(), record);
+        }
+        return byId;
+    }
+
     private static int countMatches(List<byte[]> expected, List<byte[]> actual, String what) {
         int matched = 0;
         for (int index = 0; index < expected.size(); index++) {
@@ -145,22 +180,53 @@ class ParityHarnessTest {
     }
 
     @Test
-    @Order(4)
+    @Order(5)
     @DisplayName("Java job leaves untouched accounts byte-identical in the rewritten master")
     void accountMasterKeepsUntouchedAccounts() {
         InterestDatasets datasets = InterestDatasets.fromDirectory(EBCDIC_DIRECTORY);
         InterestCalculationJob job = new InterestCalculationJob(
                 Clock.fixed(FIXED_INSTANT, ZoneOffset.UTC), FinalAccountPolicy.MAINFRAME_PARITY);
         InterestAccrualResult result = job.run(datasets, RUN_DATE);
-        List<Account> original = datasets.accounts();
-        byte[] rewritten = InterestCalculationJob.encodeAccountMaster(original, result.updatedAccounts());
+        byte[] rewritten = InterestCalculationJob.encodeAccountMaster(
+                datasets.rawAccountImage(), result.updatedAccounts());
         assertEquals(datasets.rawAccountImage().length, rewritten.length,
                 "the rewritten account master must keep the same record count");
     }
 
+    @Test
+    @Order(6)
+    @DisplayName("Bytes the copybook does not model survive the rewrite untouched")
+    void accountMasterPreservesUnmodelledBytes() {
+        InterestDatasets shipped = InterestDatasets.fromDirectory(EBCDIC_DIRECTORY);
+        int length = AccountCodec.recordLength();
+
+        // Stamp a marker into the CVACT01Y FILLER X(178) of every account record. COBOL READs the
+        // record INTO the structure and REWRITEs it whole, so the filler comes back verbatim.
+        byte[] image = shipped.rawAccountImage();
+        byte[] marker = "FILLER-KEPT".getBytes(CP037);
+        for (int offset = 0; offset + length <= image.length; offset += length) {
+            System.arraycopy(marker, 0, image, offset + 122, marker.length);
+        }
+        InterestDatasets datasets = new InterestDatasets(shipped.rawTransactionCategoryBalanceImage(),
+                shipped.rawCardXrefImage(), image, shipped.rawDisclosureGroupImage());
+
+        InterestCalculationJob job = new InterestCalculationJob(
+                Clock.fixed(FIXED_INSTANT, ZoneOffset.UTC), FinalAccountPolicy.MAINFRAME_PARITY);
+        InterestAccrualResult result = job.run(datasets, RUN_DATE);
+        byte[] rewritten = InterestCalculationJob.encodeAccountMaster(image, result.updatedAccounts());
+
+        for (int offset = 0; offset + length <= image.length; offset += length) {
+            assertArrayEquals(Arrays.copyOfRange(image, offset + 122, offset + 122 + marker.length),
+                    Arrays.copyOfRange(rewritten, offset + 122, offset + 122 + marker.length),
+                    "the unmodelled filler of record at offset " + offset + " must be copied through");
+        }
+    }
+
     @AfterAll
     static void writeParityReport() throws IOException {
-        if (RESULTS.isEmpty()) {
+        if (RESULTS.size() != SCENARIO_COUNT) {
+            // A partial run (a single -Dtest method, an IDE run) must not overwrite the committed
+            // deliverable with an incomplete table.
             return;
         }
         StringBuilder report = new StringBuilder();

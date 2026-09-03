@@ -73,7 +73,7 @@ Copybook fields, their COBOL picture clauses, and the Java type used in
 
 | Field | PIC | Meaning | Java |
 | --- | --- | --- | --- |
-| `DIS-ACCT-GROUP-ID` | `X(10)` | pricing group, e.g. `A000000001`, `ZEROAPR`, `DEFAULT` | `DisclosureGroupKey.accountGroupId` |
+| `DIS-ACCT-GROUP-ID` | `X(10)` | pricing group: `A000000000`, `ZEROAPR` or `DEFAULT` in the shipped rate card | `DisclosureGroupKey.accountGroupId` |
 | `DIS-TRAN-TYPE-CD` | `X(02)` | transaction type | `DisclosureGroupKey.category` |
 | `DIS-TRAN-CAT-CD` | `9(04)` | transaction category | `DisclosureGroupKey.category` |
 | `DIS-INT-RATE` | `S9(04)V99` | **annual** rate as a percentage — `15.00` means 15% APR | `DisclosureGroup.annualRatePercent` (`BigDecimal`) |
@@ -152,9 +152,10 @@ literal `DEFAULT` (`app/cbl/CBACT04C.cbl:427-435` and `1200-A-GET-DEFAULT-INT-RA
 Note the fallback is per **category**, not per account: an account can take its own rate for
 purchases and the `DEFAULT` rate for a category its group does not price.
 
-In the shipped data (`app/data/EBCDIC/AWS.M2.CARDDEMO.DISCGRP.PS`, 51 rows) the pricing groups are
-`A000000001`…`A00000000n`, `ZEROAPR` and `DEFAULT`; every shipped account has a **blank**
-`ACCT-GROUP-ID`, so in practice today every rate comes from `DEFAULT`.
+In the shipped data (`app/data/EBCDIC/AWS.M2.CARDDEMO.DISCGRP.PS`, 51 rows) the only pricing
+groups on the rate card are `A000000000`, `ZEROAPR` and `DEFAULT`; every shipped account has a
+**blank** `ACCT-GROUP-ID`, so in practice today every rate comes from `DEFAULT` and the
+`A000000000` and `ZEROAPR` rows are dormant.
 
 *Java:* `DisclosureGroupRateResolver` (`RateResolver` interface), backed by
 `DisclosureGroupRepository`, throwing `DisclosureGroupNotFoundException`.
@@ -288,9 +289,20 @@ Recorded honestly, because a disconnected engagement must be explicit about its 
 
 1. **Is the final-account defect (BR-8) already known and compensated downstream?** `COMBTRAN`
    runs next in the Control-M chain; whether it re-derives balances is out of this sliver's scope.
-2. **Are `ACCT-GROUP-ID` values really blank in production?** They are blank in every shipped
-   account record, which would mean the whole `A0000000nn` rate card is dormant. This looks like
-   demo data rather than reality and should be confirmed with the business.
+2. **Are `ACCT-GROUP-ID` values really blank in production, or is the export misaligned?**
+   `ACCT-GROUP-ID` (offset 112) is blank in every shipped account record, which would mean the
+   `A000000000` and `ZEROAPR` rate rows are dormant and everything prices off `DEFAULT`. Note that
+   the value `A000000000` does appear one field earlier, in `ACCT-ADDR-ZIP` (offset 102), on every
+   record — so the pricing group may be present but shifted. Confirm with the business whether the
+   blank group is real or an artefact of the dump.
 3. **Is negative (credit-balance) interest intended?** The code computes it without comment.
 4. **Should interest be truncated rather than rounded?** It is today, to the cent, in the customer's
    favour on debit balances. Reproduced deliberately; worth a policy decision.
+5. **Which duplicate does the card cross-reference alternate index return?** An account can hold
+   several cards. `1110-GET-XREF-DATA` takes whatever the `XREFFIL1` `NONUNIQUEKEY` path returns
+   first; VSAM holds duplicates in insertion order, which the static export does not record. Both
+   the Java repository and the parity oracle assume the lowest card number. The shipped `CARDXREF`
+   has one card per account, so the assumption is currently untestable.
+6. **Should a blank zoned numeric field be tolerated?** `ZonedDecimalCodec` reads spaces as zero;
+   a mainframe `COMPUTE` over a blank `DISPLAY` field normally raises a data exception (S0C7). No
+   shipped record is blank, so the two behaviours are indistinguishable on this data.
