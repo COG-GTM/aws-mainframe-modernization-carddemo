@@ -125,6 +125,9 @@ public final class FixedLengthRecordReader implements Closeable {
         while (c != -1 && c != '\n') {
             if (c != '\r') {
                 if (n >= recordLength) {
+                    while (c != -1 && c != '\n') {
+                        c = in.read();
+                    }
                     status = FileStatus.IO_ERROR;
                     return null;
                 }
@@ -157,6 +160,10 @@ public final class FixedLengthRecordReader implements Closeable {
         } finally {
             in = null;
         }
+    }
+
+    public boolean isOpen() {
+        return in != null;
     }
 
     /** Last FILE STATUS set by open/read/close. */

@@ -1,7 +1,9 @@
 package com.carddemo.poc.batch;
 
 import com.carddemo.poc.SampleData;
+import com.carddemo.poc.io.FixedLengthRecordReader;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -13,6 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -74,5 +77,21 @@ class Cbact03cTest {
                 "FILE STATUS IS: NNNN0035",
                 "ABENDING PROGRAM"), out);
         assertTrue(out.stream().noneMatch(l -> l.startsWith("END OF EXECUTION")));
+    }
+
+    @Test
+    void closesXreffileWhenReadAbends(@TempDir Path dir) throws IOException {
+        Path truncated = dir.resolve("short.PS");
+        byte[] full = Files.readAllBytes(SampleData.ebcdic("AWS.M2.CARDDEMO.CARDXREF.PS"));
+        Files.write(truncated, java.util.Arrays.copyOf(full, 50 + 10));
+        FixedLengthRecordReader reader = FixedLengthRecordReader.forDataFile(truncated, 50);
+        ByteArrayOutputStream buf = new ByteArrayOutputStream();
+        Cbact03c program = new Cbact03c(reader, new PrintStream(buf, true, StandardCharsets.ISO_8859_1));
+
+        AbendException abend = assertThrows(AbendException.class, program::run);
+
+        assertEquals("READ XREFFILE status 30", abend.getMessage());
+        assertFalse(reader.isOpen());
+        assertTrue(buf.toString(StandardCharsets.ISO_8859_1).contains("ERROR READING XREFFILE"));
     }
 }

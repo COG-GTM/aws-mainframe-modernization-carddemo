@@ -48,11 +48,16 @@ public final class Cbact01c extends BatchProgram {
         display("START OF EXECUTION OF PROGRAM " + PROGRAM_ID);
         openAcctFile();
 
-        while (!endOfFile) {
-            getNextAcctRecord();
-            if (!endOfFile) {
-                display(accountRecord.toDisplayString());
+        try {
+            while (!endOfFile) {
+                getNextAcctRecord();
+                if (!endOfFile) {
+                    display(accountRecord.toDisplayString());
+                }
             }
+        } catch (AbendException e) {
+            acctFile.close();
+            throw e;
         }
 
         closeAcctFile();

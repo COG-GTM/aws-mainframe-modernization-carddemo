@@ -52,11 +52,16 @@ public final class Cbact03c extends BatchProgram {
         display("START OF EXECUTION OF PROGRAM " + PROGRAM_ID);
         openXrefFile();
 
-        while (!endOfFile) {
-            getNextXrefRecord();
-            if (!endOfFile) {
-                display(cardXrefRecord.toDisplayString());
+        try {
+            while (!endOfFile) {
+                getNextXrefRecord();
+                if (!endOfFile) {
+                    display(cardXrefRecord.toDisplayString());
+                }
             }
+        } catch (AbendException e) {
+            xrefFile.close();
+            throw e;
         }
 
         closeXrefFile();
