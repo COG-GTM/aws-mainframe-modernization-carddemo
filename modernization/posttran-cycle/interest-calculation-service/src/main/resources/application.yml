@@ -1,0 +1,21 @@
+spring:
+  application:
+    name: interest-calculation-service
+  batch:
+    job:
+      name: monthlyInterestJob
+    jdbc:
+      initialize-schema: always
+  datasource:
+    url: jdbc:h2:mem:interest;DB_CLOSE_DELAY=-1
+    driver-class-name: org.h2.Driver
+
+carddemo:
+  interest:
+    encoding: EBCDIC
+    run-date: "2022071800"
+    category-balances: ${CARDDEMO_WORK:./work}/AWS.M2.CARDDEMO.TCATBALF.VSAM.KSDS
+    card-xref: ${CARDDEMO_DATA:../../../app/data/EBCDIC}/AWS.M2.CARDDEMO.CARDXREF.PS
+    account-master: ${CARDDEMO_WORK:./work}/AWS.M2.CARDDEMO.ACCTDATA.VSAM.KSDS
+    disclosure-groups: ${CARDDEMO_DATA:../../../app/data/EBCDIC}/AWS.M2.CARDDEMO.DISCGRP.PS
+    system-transactions: ${CARDDEMO_WORK:./work}/AWS.M2.CARDDEMO.SYSTRAN

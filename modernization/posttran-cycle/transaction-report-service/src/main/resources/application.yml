@@ -1,0 +1,24 @@
+spring:
+  application:
+    name: transaction-report-service
+  batch:
+    job:
+      name: dailyTransactionReportJob
+    jdbc:
+      initialize-schema: always
+  datasource:
+    url: jdbc:h2:mem:report;DB_CLOSE_DELAY=-1
+    driver-class-name: org.h2.Driver
+
+carddemo:
+  report:
+    encoding: EBCDIC
+    transaction-master: ${CARDDEMO_WORK:./work}/AWS.M2.CARDDEMO.TRANSACT.VSAM.KSDS
+    sort-start-date: "2022-01-01"
+    sort-end-date: "2022-07-06"
+    date-parm: ${CARDDEMO_WORK:./work}/AWS.M2.CARDDEMO.DATEPARM
+    card-xref: ${CARDDEMO_DATA:../../../app/data/EBCDIC}/AWS.M2.CARDDEMO.CARDXREF.PS
+    transaction-types: ${CARDDEMO_DATA:../../../app/data/EBCDIC}/AWS.M2.CARDDEMO.TRANTYPE.PS
+    transaction-categories: ${CARDDEMO_DATA:../../../app/data/EBCDIC}/AWS.M2.CARDDEMO.TRANCATG.PS
+    report: ${CARDDEMO_WORK:./work}/AWS.M2.CARDDEMO.TRANREPT
+    out-of-range-policy: STOP_LIKE_COBOL
