@@ -204,8 +204,9 @@ maps), and the **Rocket Software (Micro Focus)** managed runtime, which recompil
 runs it largely unchanged.
 
 Pros:
-- The 31 programs, 38 jobs and 17 maps move as a unit; behaviour is preserved by construction, so
-  parity testing is comparison rather than re-specification.
+- The 31 programs, 38 jobs and 17 maps move as a unit. The tooling aims to preserve behaviour
+  rather than re-specify it, so parity testing is comparison against the existing outputs — but
+  equivalence still has to be proven per program, not assumed (see section 7).
 - Existing knowledge of the application stays valid; the JCL-shaped batch cycle and the
   `POSTTRAN` → `TRANBKP` → `COMBTRAN` → `CREASTMT` sequencing survive.
 - `REDEFINES`, `OCCURS DEPENDING ON`, COMP-3 and zoned decimal are handled by the toolchain's data
@@ -263,8 +264,9 @@ CRUD over two tables).
 Stack proposal: Java 21 + Spring Boot services per functional domain; REST APIs with OpenAPI
 contracts; a React single-page application replacing the 17 BMS maps; Amazon RDS for PostgreSQL
 replacing the VSAM KSDS files and the DB2 transaction-type tables; Amazon DynamoDB for the
-authorization store that IMS holds today (hierarchical parent/child access by card number, no
-joins needed); Amazon MQ or SQS replacing the IBM MQ request/response queues; AWS Batch or Spring
+authorization store that IMS holds today (`DBPAUTP0` is a two-level hierarchy: root `PAUTSUM0`
+keyed by `ACCNTID`, child `PAUTDTL1` keyed by the timestamp `PAUT9CTS`, so access is by account
+and then timestamp order — no joins needed); Amazon MQ or SQS replacing the IBM MQ request/response queues; AWS Batch or Spring
 Batch on ECS replacing JCL, with EventBridge Scheduler or Step Functions replacing the CA7 and
 Control-M definitions in `app/scheduler`.
 
@@ -358,7 +360,7 @@ Notes on the mapping:
 | `CVTRA04Y` / `TRANCATG` | `tran_category` | Composite PK (`tran_type_cd`, `tran_cat_cd`); converges with `DCLTRCAT`. |
 | `CSUSR01Y` / `USRSEC` | `app_user` | PK `usr_id CHAR(8)`. `SEC-USR-PWD PIC X(08)` is a plaintext password today — migration must not carry it over; issue password resets or federate to an identity provider. |
 | `CVEXPORT` / `EXPORT.DATA` | no table | The `CBEXPORT`/`CBIMPORT` multi-record file is a transport format; in the target it is replaced by the API/ETL path and does not need a schema. |
-| IMS `DBPAUTP0` (optional) | `pending_authorization` (DynamoDB) | Partition key card number, sort key authorization timestamp — matching the parent/child access pattern of the HIDAM database. |
+| IMS `DBPAUTP0` (optional) | `pending_authorization` (DynamoDB) | Partition key account id, sort key authorization timestamp — matching the DBD, where `PAUTSUM0` has `FIELD NAME=(ACCNTID,SEQ,U) … TYPE=P` as its unique root sequence field and child `PAUTDTL1` has `FIELD NAME=(PAUT9CTS,SEQ,U)`. Card-number lookup needs a GSI on card number, and the timestamp sort key must be made unique (for example by suffixing an authorization id) because DynamoDB rejects duplicate sort keys within a partition. |
 | DB2 `AUTHFRDS` (optional) | `fraud_authorization` | Migrated with the DDL in `app-authorization-ims-db2-mq/ddl`. |
 
 ### 5.2 Encoding and numeric conversion
@@ -459,9 +461,11 @@ still need messaging.
 `app-authorization-ims-db2-mq`. The IMS HIDAM database (`DBPAUTP0`) becomes the DynamoDB
 pending-authorization store, the fraud DB2 table migrates with its DDL, the MQ trigger for
 `COPAUA0C` becomes a queue consumer, `COPAUS0C`/`COPAUS1C` become UI screens, `CBPAUP0C` becomes a
-scheduled purge, and the two-phase commit across IMS and DB2 must be redesigned — most likely as a
-single transactional write plus an outbox, since no distributed transaction manager spans DynamoDB
-and RDS.
+scheduled purge, and the two-phase commit across IMS and DB2 must be redesigned. Proposal, to be validated during that
+phase: make one store the transactional system of record for the authorization write and publish
+the second update through an outbox, since no distributed transaction manager spans DynamoDB and
+RDS. Keeping both stores in one relational database is the alternative and removes the problem
+entirely.
 
 ---
 
