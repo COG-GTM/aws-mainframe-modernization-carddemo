@@ -4,6 +4,23 @@ Every inventory item, file name, program name and data layout in this document w
 repository at the commit on which this file was added. Where a claim is an architectural proposal
 rather than an observation of the code, it is marked as a proposal.
 
+The counts below can be re-derived at any commit, so a later source change does not silently
+invalidate them:
+
+```bash
+ls app/cbl | wc -l          # COBOL programs      (31)
+ls app/jcl | wc -l          # JCL members         (38)
+ls app/proc | wc -l         # procs               (2)
+ls app/cpy | wc -l          # copybooks           (30)
+ls app/bms | wc -l          # BMS mapsets         (17)
+ls app/asm | wc -l          # Assembler modules   (2)
+ls app/data/EBCDIC | wc -l  # EBCDIC datasets     (13)
+grep -rl REDEFINES app/cbl | wc -l        # programs using REDEFINES      (16)
+grep -rl "DEPENDING ON" app/cbl | wc -l   # programs with OCCURS … DEPENDING ON (18)
+grep -rl "COMP-3" app/cbl | wc -l         # programs using packed decimal (6)
+grep -rn "EXEC PGM=" app/jcl/*.jcl app/jcl/*.JCL       # job → program mapping
+```
+
 ---
 
 ## 1. Executive summary and modernization goals
@@ -349,13 +366,21 @@ Notes on the mapping:
 | Copybook / file | Target table | Key and notable columns |
 |:--|:--|:--|
 | `CVCUS01Y` / `CUSTDATA` | `customer` | PK `cust_id` from `CUST-ID PIC 9(09)`; 500-byte record, name/address/phone fields as `varchar`. |
-| `CVACT01Y` / `ACCTDATA` | `account` | PK `acct_id` from `ACCT-ID PIC 9(11)`; `numeric(12,2)` for `ACCT-CURR-BAL`, `ACCT-CREDIT-LIMIT`, `ACCT-CASH-CREDIT-LIMIT`, `ACCT-CURR-CYC-CREDIT`, `ACCT-CURR-CYC-DEBIT`; `date` for the three `PIC X(10)` date fields; `acct_group_id` FK to disclosure group. The 178-byte `FILLER` is dropped. |
+| `CVACT01Y` / `ACCTDATA` | `account` | PK `acct_id` from `ACCT-ID PIC 9(11)`; `numeric(12,2)` for `ACCT-CURR-BAL`, `ACCT-CREDIT-LIMIT`, `ACCT-CASH-CREDIT-LIMIT`, `ACCT-CURR-CYC-CREDIT`, `ACCT-CURR-CYC-DEBIT`; `date` for the three `PIC X(10)` date fields; `acct_group_id` references the disclosure group **set**, not a single `disclosure_group` row — see the note below the table. The 178-byte `FILLER` is dropped. |
 | `CVACT02Y` / `CARDDATA` | `card` | PK `card_num CHAR(16)`; FK `card_acct_id`; `card_cvv_cd` must be treated as sensitive at load time. |
 | `CVACT03Y` / `CARDXREF` | `card_xref` | PK `xref_card_num`; FKs to `customer` and `account`. The VSAM AIX (`CARDXREF.VSAM.AIX.PATH`, used by `CBACT04C` and `CBTRN02C`) becomes a secondary index on `xref_acct_id`. |
-| `CVTRA05Y` / `TRANSACT` | `transaction` | PK `tran_id CHAR(16)`; `tran_amt numeric(11,2)`; `tran_orig_ts`/`tran_proc_ts` (`PIC X(26)`) parsed to `timestamp`; the `TRANIDX` AIX becomes an index on `tran_card_num`. |
+| `CVTRA05Y` / `TRANSACT` | `transaction` | PK `tran_id CHAR(16)`; `tran_amt numeric(11,2)`; `tran_orig_ts`/`tran_proc_ts` (`PIC X(26)`) parsed to `timestamp`; the `TRANIDX` AIX becomes an index on `tran_proc_ts` — `app/jcl/TRANIDX.jcl` defines `KEYS(26 304)`, i.e. the 26-byte `TRAN-PROC-TS` at offset 304, not the card number. Add a `tran_card_num` index separately if the target access patterns need one. |
 | `CVTRA06Y` / `DALYTRAN` | staging `daily_transaction` | Same 350-byte layout as `TRAN-RECORD`; loaded per cycle from S3, truncated after posting. |
 | `CVTRA01Y` / `TCATBALF` | `tran_category_balance` | Composite PK (`acct_id`, `type_cd`, `cat_cd`) from `TRAN-CAT-KEY`. |
 | `CVTRA02Y` / `DISCGRP` | `disclosure_group` | Composite PK (`group_id`, `tran_type_cd`, `tran_cat_cd`); interest rate column. |
+
+Note on the account → disclosure-group relationship: `ACCT-GROUP-ID` is a ten-character group
+identifier, while a disclosure-group row is keyed by group + transaction type + transaction
+category (that is how `CBACT04C` reads it — it builds the full three-part key per category
+balance). A single-column foreign key from `account` to `disclosure_group` is therefore not valid,
+since `group_id` alone is not unique. Introduce a parent `disclosure_group_set(group_id)` table
+referenced by both `account.acct_group_id` and `disclosure_group.group_id`, keeping the
+three-column primary key on `disclosure_group`.
 | `CVTRA03Y` / `TRANTYPE` | `tran_type` | PK `tran_type CHAR(2)`; converges with the DB2 table from `app-transaction-type-db2` (`DCLTRTYP`). |
 | `CVTRA04Y` / `TRANCATG` | `tran_category` | Composite PK (`tran_type_cd`, `tran_cat_cd`); converges with `DCLTRCAT`. |
 | `CSUSR01Y` / `USRSEC` | `app_user` | PK `usr_id CHAR(8)`. `SEC-USR-PWD PIC X(08)` is a plaintext password today — migration must not carry it over; issue password resets or federate to an identity provider. |
@@ -399,10 +424,20 @@ record lengths and key positions.
    `DALYTRAN` input; compare `TRANSACT`, `ACCTDATA` and `TCATBALF` after each nightly cycle, and
    compare `CBSTM03A` statement output byte for byte after normalizing timestamps.
 3. **Read cutover** — point the new UI and APIs at the new store for inquiry (`COACTVWC`,
-   `COCRDLIC`, `COTRN00C` equivalents) while updates still flow through the mainframe.
+   `COCRDLIC`, `COTRN00C` equivalents) while updates still flow through the mainframe. This stage
+   only works with a defined forward-replication path: online updates captured from the VSAM side
+   (CDC or a change journal written by the updating transactions) applied to the target, a stated
+   maximum replication lag, screens that surface data older than that lag as stale, and a
+   reconciliation job per cycle comparing target rows against the mainframe files. Inquiry
+   functions whose lag tolerance is zero stay on the mainframe until stage 4.
 4. **Write cutover** — move the online update transactions (`CAUP`, `CCUP`, `CT02`, `CB00`) and
-   then the batch cycle, one job at a time in the order `POSTTRAN` → `INTCALC` → `CREASTMT` →
-   `TRANREPT`.
+   then the batch cycle, one job at a time, preserving the dependency chain that exists today:
+   `POSTTRAN` → `INTCALC` → `TRANBKP` → `COMBTRAN` → `TRANIDX` → `CREASTMT` / `TRANREPT`.
+   `INTCALC` does not write to the transaction master: `CBACT04C` writes interest transactions to
+   a new `SYSTRAN` generation, `TRANBKP` backs up and recreates `TRANSACT`, and `COMBTRAN` sorts
+   the backup together with `SYSTRAN(0)` and `REPRO`s the result into the master before statements
+   and reports read it. Any target equivalent must merge generated interest (and rebuild the
+   transaction index) before `CREASTMT`/`TRANREPT` run, or statements omit newly accrued interest.
 5. **Decommission** — retire the CICS region, the VSAM files and the GDG bases defined by
    `DEFGDGB`/`DEFGDGD` only after a full statement cycle has run clean on the target.
 
