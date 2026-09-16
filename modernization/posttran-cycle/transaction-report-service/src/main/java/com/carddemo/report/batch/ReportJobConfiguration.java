@@ -35,6 +35,7 @@ import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Job {@code dailyTransactionReportJob} = TRANREPT.jcl as two steps:
@@ -75,7 +76,13 @@ public class ReportJobConfiguration {
             var sortedPath = java.nio.file.Path.of(ctx.getString(SORTED_KEY));
             List<Transaction> daily = FixedWidthFile.readAll(sortedPath, TransactionLayout.INSTANCE, enc);
 
-            ReportDateRange range = readDateParm(p, enc);
+            Optional<ReportDateRange> dateParm = readDateParm(p, enc);
+            if (dateParm.isEmpty()) {
+                LOG.warn("DATEPARM is empty: CBTRN03C ends with an empty report (EOF on first read sets END-OF-FILE)");
+                FixedWidthFile.write(p.report(), List.of());
+                return RepeatStatus.FINISHED;
+            }
+            ReportDateRange range = dateParm.get();
             LOG.info("Reporting from {} to {}", range.startDate(), range.endDate());
             ReportLookups lookups = new ReportLookups(
                     KeyedRecordStore.load("CARDXREF", p.cardXref(), CardXrefLayout.INSTANCE, enc, CardXref::cardNumber),
@@ -95,14 +102,12 @@ public class ReportJobConfiguration {
         };
     }
 
-    private static ReportDateRange readDateParm(ReportProperties p, RecordEncoding enc) {
+    /** First DATEPARM record (CBTRN03C 0550-READ-DATEPARM reads exactly one); empty when the file has no records. */
+    private static Optional<ReportDateRange> readDateParm(ReportProperties p, RecordEncoding enc) {
         try {
             byte[] bytes = Files.readAllBytes(p.dateParm());
             List<FixedWidthRecord> records = FixedWidthFile.split(bytes, ReportDateRange.RECORD_LENGTH, enc);
-            if (records.isEmpty()) {
-                throw new IllegalStateException("DATEPARM is empty: CBTRN03C would end without producing a report");
-            }
-            return ReportDateRange.parse(records.get(0));
+            return records.isEmpty() ? Optional.empty() : Optional.of(ReportDateRange.parse(records.get(0)));
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }

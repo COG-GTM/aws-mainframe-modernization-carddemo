@@ -31,7 +31,7 @@ class TransactionPostingServiceTest {
 
     @Test
     void postedTransactionCarriesDb2StyleProcessingTimestamp() {
-        PostingOutcome out = service.process(daily("T1", CARD_OK, "10.00", "2022-06-10"));
+        PostingOutcome out = service.process(item(daily("T1", CARD_OK, "10.00", "2022-06-10")));
         assertThat(out).isInstanceOf(PostingOutcome.Posted.class);
         assertThat(out.transaction().processingTimestamp()).isEqualTo("2022-07-18-13.45.12.340000");
         assertThat(out.transaction().processingTimestamp()).hasSize(26);
@@ -39,7 +39,7 @@ class TransactionPostingServiceTest {
 
     @Test
     void existingCategoryBalanceIsIncremented() {
-        service.process(daily("T1", CARD_OK, "10.50", "2022-06-10"));
+        service.process(item(daily("T1", CARD_OK, "10.50", "2022-06-10")));
         TransactionCategoryBalance b = ledger.categoryBalances().read(ACCT_OK + "010001").orElseThrow();
         assertThat(b.balance()).isEqualByComparingTo("110.50");
         assertThat(ledger.categoryBalances().size()).isEqualTo(1);
@@ -47,7 +47,7 @@ class TransactionPostingServiceTest {
 
     @Test
     void missingCategoryBalanceIsCreatedWithTheAmount() {
-        service.process(daily("T1", CARD_OK, "01", 2, "-7.25", "2022-06-10"));
+        service.process(item(daily("T1", CARD_OK, "01", 2, "-7.25", "2022-06-10")));
         TransactionCategoryBalance b = ledger.categoryBalances().read(ACCT_OK + "010002").orElseThrow();
         assertThat(b.balance()).isEqualByComparingTo("-7.25");
         assertThat(ledger.categoryBalances().size()).isEqualTo(2);
@@ -55,13 +55,13 @@ class TransactionPostingServiceTest {
 
     @Test
     void positiveAmountGoesToCycleCredit_negativeIsAddedToCycleDebitWithoutNegation() {
-        service.process(daily("T1", CARD_OK, "10.00", "2022-06-10"));
+        service.process(item(daily("T1", CARD_OK, "10.00", "2022-06-10")));
         Account a = ledger.findAccount(ACCT_OK).orElseThrow();
         assertThat(a.currentBalance()).isEqualByComparingTo("260.00");
         assertThat(a.currentCycleCredit()).isEqualByComparingTo("610.00");
         assertThat(a.currentCycleDebit()).isEqualByComparingTo("100.00");
 
-        service.process(daily("T2", CARD_OK, "-30.00", "2022-06-10"));
+        service.process(item(daily("T2", CARD_OK, "-30.00", "2022-06-10")));
         a = ledger.findAccount(ACCT_OK).orElseThrow();
         assertThat(a.currentBalance()).isEqualByComparingTo("230.00");
         assertThat(a.currentCycleCredit()).isEqualByComparingTo("610.00");
@@ -70,23 +70,23 @@ class TransactionPostingServiceTest {
 
     @Test
     void laterTransactionSeesEarlierOnesCycleTotals() {
-        assertThat(service.process(daily("T1", CARD_OK, "400.00", "2022-06-10"))).isInstanceOf(PostingOutcome.Posted.class);
+        assertThat(service.process(item(daily("T1", CARD_OK, "400.00", "2022-06-10")))).isInstanceOf(PostingOutcome.Posted.class);
         // headroom was 500, now 100 -> 100.01 is over limit
-        PostingOutcome second = service.process(daily("T2", CARD_OK, "100.01", "2022-06-10"));
+        PostingOutcome second = service.process(item(daily("T2", CARD_OK, "100.01", "2022-06-10")));
         assertThat(second).isInstanceOf(PostingOutcome.Rejected.class);
         assertThat(((PostingOutcome.Rejected) second).reason()).isEqualTo(RejectReason.OVER_LIMIT);
     }
 
     @Test
     void rejectDoesNotTouchAnyMaster() {
-        service.process(daily("T1", CARD_UNKNOWN, "10.00", "2022-06-10"));
+        service.process(item(daily("T1", CARD_UNKNOWN, "10.00", "2022-06-10")));
         assertThat(ledger.findAccount(ACCT_OK).orElseThrow().currentBalance()).isEqualByComparingTo("250.00");
         assertThat(ledger.categoryBalances().size()).isEqualTo(1);
     }
 
     @Test
     void rewrittenAccountKeepsUntouchedBytesAndLength() {
-        service.process(daily("T1", CARD_OK, "10.00", "2022-06-10"));
+        service.process(item(daily("T1", CARD_OK, "10.00", "2022-06-10")));
         FixedWidthRecord image = ledger.accounts().images().get(0);
         assertThat(image.length()).isEqualTo(Account.LENGTH);
         assertThat(image.text(112, 10)).isEqualTo("DEFAULT   ");
@@ -95,10 +95,22 @@ class TransactionPostingServiceTest {
     @Test
     void rejectRecordIs430BytesWithCodeAndDescriptionTrailer() {
         var daily = daily("T1", CARD_UNKNOWN, "10.00", "2022-06-10");
-        var rejected = (PostingOutcome.Rejected) service.process(daily);
-        FixedWidthRecord r = RejectRecordLayout.encode(rejected, ENC);
+        var rejected = (PostingOutcome.Rejected) service.process(item(daily));
+        FixedWidthRecord r = RejectRecordLayout.encode(rejected);
         assertThat(r.length()).isEqualTo(430);
         assertThat(r.bytes()).startsWith(TransactionLayout.INSTANCE.encode(daily, ENC).bytes());
+        assertThat(r.text(350, 4)).isEqualTo("0100");
+        assertThat(r.trimmedText(354, 76)).isEqualTo("INVALID CARD NUMBER FOUND");
+    }
+
+    @Test
+    void rejectRecordKeepsUndecodedInputBytesSuchAsFiller() {
+        FixedWidthRecord image = TransactionLayout.INSTANCE.encode(daily("T1", CARD_UNKNOWN, "10.00", "2022-06-10"), ENC);
+        image.setText(330, 20, "ABC");
+        var rejected = (PostingOutcome.Rejected) service.process(DailyTransaction.decode(image));
+        FixedWidthRecord r = RejectRecordLayout.encode(rejected);
+        assertThat(java.util.Arrays.copyOf(r.bytes(), 350)).isEqualTo(image.bytes());
+        assertThat(r.text(330, 3)).isEqualTo("ABC");
         assertThat(r.text(350, 4)).isEqualTo("0100");
         assertThat(r.trimmedText(354, 76)).isEqualTo("INVALID CARD NUMBER FOUND");
     }

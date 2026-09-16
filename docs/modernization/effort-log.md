@@ -12,7 +12,7 @@ numbers below sum to more than the elapsed time.
 | 2. Module docs (three files, line-cited) | 12:12 | 12:36 | ~20 min (interleaved) | CBTRN03C's `NEXT SENTENCE` and EOF re-add cost the most time: re-read the loop three times before accepting the source really does that (OQ-17/18/19). |
 | 3. Data model DDL + normalization notes | 12:33 | 12:38 | 5 min | Fast because no REDEFINES/OCCURS/COMP-3 exist in these copybooks — verified by grep, stated in §3.0. |
 | 4. Implementation: recordio (codec, 7 layouts, keyed store), posting, interest, reporting services and jobs | 12:03 | 12:27 | ~24 min (interleaved) | See failed iterations. |
-| 5. Tests (13 classes, 78 tests) incl. shipped-data round trips and malformed input; `mvn test`; GnuCOBOL syntax checks | 12:09 | 12:32 | ~20 min (interleaved) | Six red→green cycles listed below. |
+| 5. Tests (15 classes, 81 tests) incl. shipped-data round trips and malformed input; `mvn test`; GnuCOBOL syntax checks | 12:09 | 12:32 | ~20 min (interleaved) | Six red→green cycles listed below. |
 | 6. Equivalence evidence, open questions, effort log, implementation notes | 12:36 | 12:45 | ~9 min | |
 | 7. Diff review, commit, PR | 12:45 | — | | |
 
@@ -56,6 +56,20 @@ could not perform at all — that gap is not time, it is access (see `05-equival
    for an all-`Z` picture is all spaces. Doc and test aligned. (2 min)
 
 No iteration required rolling back a design decision; all were expectation or wiring errors.
+
+## Post-PR review fixes (Devin Review on PR #9, ~25 min)
+
+Three behavioural findings were valid and fixed; three were analysis notes answered on the PR.
+
+10. Posting outputs were persisted in a `StepExecutionListener.afterStep`; a write failure there is
+    logged by Spring Batch but does not fail the step, so the job could report success with partial
+    datasets. Moved persistence into its own tasklet step (`closeDatasets`), added
+    `PostingJobOutputFailureTest`. This *was* a design error, not a wiring error.
+11. Rejected records were rebuilt from the decoded `Transaction`, so the 20-byte filler of the input
+    image was replaced by spaces. The reader now carries the raw `FixedWidthRecord` alongside the
+    decoded value (`DailyTransaction`) and the reject path copies it byte for byte; test added.
+12. An empty DATEPARM threw and failed the report job, whereas CBTRN03C ends normally with an empty
+    report (lines 235-236). Now writes an empty TRANREPT and completes; test added.
 
 ## Not done
 

@@ -7,7 +7,7 @@ Three different levels of evidence exist in this pass. They are not interchangea
 | Level | Meaning | Available here? |
 |---|---|---|
 | **A. Source syntax** | The three COBOL programs compile under GnuCOBOL 3.1.2 `-fsyntax-only -std=ibm`. | Yes — all three: 0 errors. Proves the source is what we read, nothing about runtime. |
-| **B. Java behaviour vs documented COBOL behaviour** | JUnit tests assert that the Java produces the outputs that `02-module-*.md` says the COBOL produces, for the cases below. The oracle is our *reading* of the COBOL, not a COBOL execution. | Yes — 78 tests, all passing. |
+| **B. Java behaviour vs documented COBOL behaviour** | JUnit tests assert that the Java produces the outputs that `02-module-*.md` says the COBOL produces, for the cases below. The oracle is our *reading* of the COBOL, not a COBOL execution. | Yes — 81 tests, all passing. |
 | **C. Java output vs actual mainframe output** | Byte comparison of `TRANSACT`, `DALYREJS`, `SYSTRAN`, `TRANREPT`, `ACCTDATA`, `TCATBALF` after running both implementations on the same input. | **No.** There is no mainframe, CICS, VSAM or Enterprise COBOL runtime in this environment and the repository ships no output datasets. |
 
 Every claim below is level B unless marked otherwise. **Level C equivalence is not claimed.**
@@ -15,7 +15,7 @@ Every claim below is level B unless marked otherwise. **Level C equivalence is n
 ## 5.2 Test matrix (level B)
 
 Run: `export JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64 && cd modernization/posttran-cycle && mvn test`
-Result at time of writing: `Tests run: 78, Failures: 0, Errors: 0, Skipped: 0` across 13 classes.
+Result at time of writing: `Tests run: 81, Failures: 0, Errors: 0, Skipped: 0` across 15 classes.
 
 ### Record layouts and encoding (`carddemo-recordio`)
 
@@ -45,8 +45,10 @@ Result at time of writing: `Tests run: 78, Failures: 0, Errors: 0, Skipped: 0` a
 | Reject touches no master | `rejectDoesNotTouchAnyMaster` | 211-216 |
 | Rewritten ACCTDATA record keeps its 300 bytes and untouched filler | `rewrittenAccountKeepsUntouchedBytesAndLength` | REWRITE semantics |
 | Reject = 430 bytes = original 350 + `9(04)` code + `X(76)` text | `rejectRecordIs430BytesWithCodeAndDescriptionTrailer` | 128-139, 446-449 |
+| Reject keeps input bytes the layout does not decode (the `X(20)` filler) | `rejectRecordKeepsUndecodedInputBytesSuchAsFiller` | 446-449 (group MOVE) |
 | Amounts stored with truncation not rounding | `amountsAreStoredWithCobolTruncationNotRounding` | COMPUTE/ADD rules |
 | End-to-end on shipped data: 300 in → N posted + M rejected, all outputs fixed-width, exit `COMPLETED_WITH_REJECTS` when M>0 | `PostingJobTest` | whole program |
+| Unwritable output dataset → job `FAILED` (COBOL: CLOSE/WRITE error abends 999), never `COMPLETED` | `PostingJobOutputFailureTest` | 9000-*-CLOSE, 9999-ABEND |
 
 ### Interest (`CBACT04C`)
 
@@ -75,6 +77,7 @@ Result at time of writing: `Tests run: 78, Failures: 0, Errors: 0, Skipped: 0` a
 | SORT step: inclusive date window on bytes 305-314, ascending card | `sortStepFiltersByProcessingDateAndOrdersByCardNumber` | TRANREPT.jcl 40-50 |
 | `-ZZZ,ZZZ,ZZZ.ZZ` / `+ZZZ,ZZZ,ZZZ.ZZ` editing: floating sign, 15 chars, zero → spaces, truncation | `CobolEditedAmountTest` (5) | CVTRA07Y |
 | End-to-end: synthesized TRANSACT from shipped DALYTRAN (proc-ts stamped in-window) → EBCDIC 133-byte report with 300 details, headers, grand total, and the intermediate sorted file | `ReportJobTest` | whole job |
+| Empty DATEPARM → job completes with an empty TRANREPT (EOF on the single read sets END-OF-FILE) | `ReportJobEmptyDateParmTest` | 220-243 |
 
 ## 5.3 What is *not* proven, and what would prove it
 

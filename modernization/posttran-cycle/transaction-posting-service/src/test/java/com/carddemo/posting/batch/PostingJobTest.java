@@ -64,7 +64,7 @@ class PostingJobTest {
                 .addLong("run", System.nanoTime()).toJobParameters());
         assertThat(exec.getStatus()).isEqualTo(BatchStatus.COMPLETED);
 
-        var ctx = exec.getStepExecutions().iterator().next().getExecutionContext();
+        var ctx = exec.getExecutionContext();
         long total = ctx.getLong("transactionCount");
         long rejects = ctx.getLong("rejectCount");
         assertThat(total).isEqualTo(300);

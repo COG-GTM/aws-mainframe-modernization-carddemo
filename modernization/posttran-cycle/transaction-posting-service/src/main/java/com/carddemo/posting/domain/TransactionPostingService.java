@@ -30,11 +30,12 @@ public final class TransactionPostingService {
         this.clock = clock;
     }
 
-    public PostingOutcome process(Transaction daily) {
+    public PostingOutcome process(DailyTransaction item) {
+        Transaction daily = item.transaction();
         Optional<CardXref> card = ledger.findCard(daily.cardNumber());
         Optional<RejectReason> reason = TransactionValidator.validate(daily, card, ledger::findAccount);
         if (reason.isPresent()) {
-            return new PostingOutcome.Rejected(daily, reason.get());
+            return new PostingOutcome.Rejected(daily, item.image(), reason.get());
         }
         String accountId = card.orElseThrow().accountId();
         Transaction posted = daily.withProcessingTimestamp(LocalDateTime.now(clock).format(DB2_TS));

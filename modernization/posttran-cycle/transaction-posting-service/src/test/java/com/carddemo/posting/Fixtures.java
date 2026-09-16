@@ -1,5 +1,6 @@
 package com.carddemo.posting;
 
+import com.carddemo.posting.domain.DailyTransaction;
 import com.carddemo.recordio.codec.RecordEncoding;
 import com.carddemo.recordio.layout.Account;
 import com.carddemo.recordio.layout.AccountLayout;
@@ -63,5 +64,9 @@ public final class Fixtures {
     public static Transaction daily(String id, String card, String type, int category, String amount, String originalDate) {
         return new Transaction(id, type, category, "POS TERM", "Test purchase", new BigDecimal(amount), 123456789L,
                 "Merchant", "City", "12345", card, originalDate + "-10.00.00.000000", " ".repeat(26));
+    }
+
+    public static DailyTransaction item(Transaction t) {
+        return DailyTransaction.of(t, ENC);
     }
 }

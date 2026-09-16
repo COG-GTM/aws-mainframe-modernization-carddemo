@@ -1,8 +1,6 @@
 package com.carddemo.posting.domain;
 
 import com.carddemo.recordio.codec.FixedWidthRecord;
-import com.carddemo.recordio.codec.RecordEncoding;
-import com.carddemo.recordio.layout.TransactionLayout;
 
 import java.math.BigDecimal;
 
@@ -21,20 +19,16 @@ public final class RejectRecordLayout {
     private RejectRecordLayout() {
     }
 
-    /**
-     * The COBOL moves the raw DALYTRAN record area into the reject record, so the first 350 bytes
-     * are the input image untouched. When only the decoded value is available the image is
-     * re-encoded, which is byte-identical for well-formed input (see ShippedDatasetRoundTripTest).
-     */
+    /** The COBOL moves the raw DALYTRAN record area into the reject record: the first 350 bytes are the input image untouched. */
     public static FixedWidthRecord encode(FixedWidthRecord dailyImage, RejectReason reason) {
         FixedWidthRecord out = FixedWidthRecord.blank(LENGTH, dailyImage.encoding());
-        out.setText(0, TRAILER, dailyImage.text(0, TRAILER));
+        out.setBytes(0, dailyImage);
         out.setZoned(REASON_CODE, 4, 0, false, BigDecimal.valueOf(reason.code()));
         out.setText(REASON_DESC, 76, reason.description());
         return out;
     }
 
-    public static FixedWidthRecord encode(PostingOutcome.Rejected rejected, RecordEncoding encoding) {
-        return encode(TransactionLayout.INSTANCE.encode(rejected.transaction(), encoding), rejected.reason());
+    public static FixedWidthRecord encode(PostingOutcome.Rejected rejected) {
+        return encode(rejected.image(), rejected.reason());
     }
 }

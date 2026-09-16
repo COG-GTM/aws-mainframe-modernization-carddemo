@@ -68,7 +68,7 @@ public class PostingRunState {
             case PostingOutcome.Posted posted -> transactionMaster.write(posted.transaction());
             case PostingOutcome.Rejected rejected -> {
                 rejectCount++;
-                rejects.add(RejectRecordLayout.encode(rejected, encoding));
+                rejects.add(RejectRecordLayout.encode(rejected));
             }
         }
     }

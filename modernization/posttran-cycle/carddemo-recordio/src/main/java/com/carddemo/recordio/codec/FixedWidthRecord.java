@@ -50,6 +50,11 @@ public final class FixedWidthRecord {
         return new FixedWidthRecord(image.clone(), encoding);
     }
 
+    /** MOVE of a group item: copies {@code source}'s bytes verbatim into this record at {@code offset}. */
+    public void setBytes(int offset, FixedWidthRecord source) {
+        System.arraycopy(source.image, 0, image, offset, source.image.length);
+    }
+
     /** PIC X(n): raw text, trailing spaces preserved (COBOL semantics), no trimming. */
     public String text(int offset, int length) {
         return new String(image, offset, length, encoding.charset());
