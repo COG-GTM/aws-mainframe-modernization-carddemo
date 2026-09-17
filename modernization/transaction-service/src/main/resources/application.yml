@@ -21,7 +21,9 @@ spring:
     create-schemas: true
   batch:
     jdbc:
-      initialize-schema: always
+      # The tables are created by Flyway (V3) inside the transaction schema; the Boot initializer
+      # would create them unqualified in the default schema instead.
+      initialize-schema: never
       table-prefix: transaction.BATCH_
     job:
       enabled: false
