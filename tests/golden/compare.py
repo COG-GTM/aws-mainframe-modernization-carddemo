@@ -24,7 +24,9 @@ Exit codes:
      (never reachable without --tolerance; the reports carry a banner)
   1  any missing/extra record, any field difference, any control-total
      mismatch, any RETURN-CODE difference or missing RETURN-CODE, missing
-     record file or malformed record
+     record file or malformed record, or a missing/malformed input DALYTRAN
+     (default <expected_dir>/../input, override with --input-dir) so that
+     records_in and the identity in = accepted + rejected cannot be formed
 
 SYSOUT (the program's operator log: DISPLAY output) is compared and reported
 but is informational only, because it is not a posting-cycle data output;
@@ -356,7 +358,12 @@ def render_md(r: dict) -> str:
     L.append("| RETURN-CODE | %s |" % ("**MISMATCH**" if r["summary"]["return_code_mismatch"] else "same"))
     L.append("| tolerances in effect | %s |" % (
         ", ".join("`%s` ±%s" % (k, v) for k, v in r["tolerances"]["abs"].items()) or "**none** (default)"))
+    L.append("| input (records in) | `%s`%s |" % (r["input_dir"], "" if not r["input_errors"] else " **ERROR**"))
     L.append("")
+    for e in r["input_errors"]:
+        L.append("* INPUT ERROR: %s" % e)
+    if r["input_errors"]:
+        L.append("")
     if r["tolerances"]["abs"]:
         L.append("> **Tolerance policy in effect:** %d field difference(s) and %d control-total difference(s) "
                  "were accepted as within the named tolerances above and do not affect the verdict."
@@ -464,7 +471,7 @@ def main(argv=None) -> int:
     ap.add_argument("candidate_dir")
     ap.add_argument("--out-dir", help="where to write reconciliation.json/.md (default: candidate_dir)")
     ap.add_argument("--input-dir", help="directory holding the DALYTRAN input, for the 'records in' total "
-                                        "(default: <expected_dir>/../input)")
+                                        "(default: <expected_dir>/../input); missing or malformed is a mismatch")
     ap.add_argument("--tolerance", action="append", default=[], metavar="FIELD=ABS",
                     help="absolute tolerance for a numeric field; NONE by default; named in the report")
     ap.add_argument("--strict-sysout", action="store_true",
@@ -484,8 +491,15 @@ def main(argv=None) -> int:
 
     input_dir = args.input_dir or os.path.join(os.path.dirname(exp_dir), "input")
     records_in = None
+    input_errors: List[str] = []
     daly = read_bytes(os.path.join(input_dir, "DALYTRAN"))
-    if daly is not None and len(daly) % DALYTRAN.length == 0:
+    if daly is None:
+        input_errors.append("input DALYTRAN missing in %s (pass --input-dir); records_in and the identity "
+                            "in = accepted + rejected cannot be reconciled" % shown(input_dir))
+    elif len(daly) % DALYTRAN.length != 0:
+        input_errors.append("input DALYTRAN in %s is %d bytes, not a multiple of the %d-byte %s record"
+                            % (shown(input_dir), len(daly), DALYTRAN.length, DALYTRAN.name))
+    else:
         records_in = len(daly) // DALYTRAN.length
 
     files = []
@@ -529,7 +543,7 @@ def main(argv=None) -> int:
                    and not f["byte_identical"]]
     all_bytes = all(f["byte_identical"] for f in rec_files) and not rc_mismatch
 
-    if fatal or n_diff or n_missing or n_extra or n_err or tot_mismatch or rc_mismatch:
+    if fatal or input_errors or n_diff or n_missing or n_extra or n_err or tot_mismatch or rc_mismatch:
         exit_code, verdict = 1, "MISMATCH"
     elif order_only:
         exit_code, verdict = 2, "SAME RECORDS, DIFFERENT ORDER"
@@ -545,6 +559,7 @@ def main(argv=None) -> int:
     report = {
         "tool": "tests/golden/compare.py",
         "expected_dir": shown(exp_dir), "candidate_dir": shown(got_dir), "input_dir": shown(input_dir),
+        "input_errors": input_errors,
         "verdict": verdict, "exit_code": exit_code,
         "summary": {
             "records_reconciled": n_recs, "fields_reconciled": n_fields,
@@ -568,6 +583,8 @@ def main(argv=None) -> int:
 
     if not args.quiet:
         print("compare: %s vs %s" % (shown(exp_dir), shown(got_dir)))
+        for e in input_errors:
+            print("  INPUT ERROR: %s" % e)
         for f in rec_files:
             print("  %-9s recs expected=%d candidate=%d matched=%d fields=%s diffs=%d missing=%d extra=%d byte-identical=%s%s" % (
                 f["file"], f["records_expected"], f["records_candidate"], f["records_matched"],
@@ -593,7 +610,8 @@ def main(argv=None) -> int:
                 ", ".join("%s=%s" % kv for kv in tol.abs.items()), len(tol.used), len(tot_absorbed)))
         print("  %s records, %s fields reconciled, %s differences%s; verdict %s (exit %d)" % (
             format(n_recs, ","), format(n_fields, ","), format(n_diff + n_missing + n_extra + len(tot_mismatch), ","),
-            " + RETURN-CODE mismatch" if rc_mismatch else "", verdict, exit_code))
+            (" + RETURN-CODE mismatch" if rc_mismatch else "") + (" + input error" if input_errors else ""),
+            verdict, exit_code))
         print("  reports: %s" % os.path.join(shown(out_dir), "reconciliation.{json,md}"))
     return exit_code
 

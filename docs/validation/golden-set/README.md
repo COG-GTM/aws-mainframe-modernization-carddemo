@@ -20,6 +20,7 @@ block is stale.
 - **volume set, reference vs reference:** 1,945 records, **22,167 fields reconciled, 0 differences** (GnuCOBOL primary run vs GnuCOBOL variant run; verdict `EXACT MATCH`, exit 0).
 - **Injected defects:** 9 mutant classes x 2 sets = 18 injected, 18 caught (`tests/golden/selftest.sh`, recorded in `tests/golden/sets/selftest-result.json`).
 - **Tolerance path:** 4 of 4 checks passed (a bound that covers the one-cent defect gives `MATCH WITHIN TOLERANCE`, exit 3; a bound that does not still gives `MISMATCH`, exit 1).
+- **Absence path:** 4 of 4 checks passed (an exact copy with no input `DALYTRAN` reachable, and an exact copy missing its `RETURN-CODE`, both give `MISMATCH`, exit 1).
 
 | Metric | Value | Derived from |
 |---|---|---|
@@ -131,7 +132,11 @@ read by key) and is not represented in any golden set.
 4. `TRANSACT`: `WRITE` (`:564`).
 
 The program ends with `RETURN-CODE 4` when any reject was written (`:229-231`),
-after displaying the processed / rejected counts (`:227-228`).
+after displaying the processed / rejected counts (`:227-228`); otherwise 0.
+Any other status is an abnormal end (open/read/rewrite failures go through
+`CEE3ABD`, `:707-711`), and `run_reference.sh` refuses to publish a set whose
+run ended with anything but 0 or 4 (it prints the tail of `SYSOUT` and exits
+70), so a partial run can never become golden output.
 
 ## Environment adaptations (program byte-identical)
 
@@ -169,7 +174,10 @@ python3 tests/golden/compare.py tests/golden/sets/volume/expected <candidate-dir
 #    exit 0 = record files and RETURN-CODE byte-identical, 2 = same records in a
 #    different order, 3 = every difference inside a named --tolerance bound,
 #    1 = any other field / control-total / return-code difference, a missing or
-#    malformed file, or a missing RETURN-CODE.  Writes reconciliation.{json,md}.
+#    malformed output file, a missing RETURN-CODE, or a missing/malformed input
+#    DALYTRAN (<expected>/../input by default, --input-dir to override) since
+#    without it records_in and in = accepted + rejected cannot be reconciled.
+#    Writes reconciliation.{json,md}.
 #    SYSOUT (the operator log) is reported but informational unless --strict-sysout.
 
 # 4. generate a set by hand (the runner does this for you)
@@ -236,6 +244,8 @@ golden-set comparator self-test (compare.py vs mutate.py)
   named    two_records_swapped          exit 2 (expected 2)  named: TRANSACT DIFFERENT ORDER  CAUGHT
   named    tolerance TRAN-AMT=0.01      exit 3 (expected 3)  named: MATCH WITHIN TOLERANCE Tolerance policy in effect WITHIN TOLERANCE ±0.01 TRAN-AMT sum_accepted_amount  PASS
   named    tolerance TRAN-AMT=0.001     exit 1 (expected 1)  named: MISMATCH ±0.001 TRAN-AMT sum_accepted_amount  PASS
+  named    missing input DALYTRAN       exit 1 (expected 1)  named: MISMATCH INPUT ERROR input DALYTRAN missing  PASS
+  named    missing RETURN-CODE          exit 1 (expected 1)  named: MISMATCH RETURN-CODE | **MISMATCH**  PASS
   volume   exact-copy                   exit 0 (expected 0)  EXACT MATCH  PASS
   volume   amount_off_by_one_cent       exit 1 (expected 1)  named: TRAN-AMT GS03150000000001 sum_accepted_amount  CAUGHT
   volume   category_row_dropped         exit 1 (expected 1)  named: missing in candidate 90000000166020003 closing_category_balances  CAUGHT
@@ -248,10 +258,12 @@ golden-set comparator self-test (compare.py vs mutate.py)
   volume   two_records_swapped          exit 2 (expected 2)  named: TRANSACT DIFFERENT ORDER  CAUGHT
   volume   tolerance TRAN-AMT=0.01      exit 3 (expected 3)  named: MATCH WITHIN TOLERANCE Tolerance policy in effect WITHIN TOLERANCE ±0.01 TRAN-AMT sum_accepted_amount  PASS
   volume   tolerance TRAN-AMT=0.001     exit 1 (expected 1)  named: MISMATCH ±0.001 TRAN-AMT sum_accepted_amount  PASS
+  volume   missing input DALYTRAN       exit 1 (expected 1)  named: MISMATCH INPUT ERROR input DALYTRAN missing  PASS
+  volume   missing RETURN-CODE          exit 1 (expected 1)  named: MISMATCH RETURN-CODE | **MISMATCH**  PASS
   docs     docs_numbers.py --check      exit 0 (expected 0)  README/layouts/findings blocks current  PASS
   mutants defined: 9; sets: named volume
-  checks passed: 25 of 25  (exact-copy x2 + 9 mutants x2 + 2 tolerance-path x2 + docs sync)
-  RESULT: PASS - 18 of 18 injected defects caught; exact copy compares clean; tolerance path 4 of 4
+  checks passed: 29 of 29  (exact-copy x2 + 9 mutants x2 + 2 tolerance-path x2 + 2 absence x2 + docs sync)
+  RESULT: PASS - 18 of 18 injected defects caught; exact copy compares clean; tolerance path 4 of 4; absence 4 of 4
 ```
 
 ### Output of the reference-vs-reference and exact-copy comparisons
@@ -354,7 +366,7 @@ were skipped (`-DskipTests`) because this harness is the external check.
 | `tests/golden/run_reference.sh` | compile, load, run, dump, record toolchain, check predictions |
 | `tests/golden/check_prediction.py` | generator prediction vs. program outcome per record (the program wins) |
 | `tests/golden/compare.py` | byte / field / control-total / order reconciliation; `reconciliation.{json,md}` |
-| `tests/golden/mutate.py`, `selftest.sh` | single-defect mutants, the proof the comparator catches them, and the tolerance-path checks |
+| `tests/golden/mutate.py`, `selftest.sh` | single-defect mutants, the proof the comparator catches them, and the tolerance-path and absence checks |
 | `tests/golden/run_candidate_pr9.sh` | rebuilds the external candidate from a clean `target` (recording its commit and JAR sha256), runs it against the golden inputs and reconciles |
 | `tests/golden/docs_numbers.py` | derives every number in this README, `layouts.md` and the disagreement table in `findings.md` from the artefacts; `--check` guards drift |
 | `tests/golden/sets/<set>/{input,expected,expected-variant}/` | the committed golden sets |

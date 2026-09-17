@@ -1,4 +1,16 @@
 {
+  "absence_checks": [
+    "named/missing input DALYTRAN",
+    "named/missing RETURN-CODE",
+    "volume/missing input DALYTRAN",
+    "volume/missing RETURN-CODE"
+  ],
+  "absence_checks_passed": [
+    "named/missing input DALYTRAN",
+    "named/missing RETURN-CODE",
+    "volume/missing input DALYTRAN",
+    "volume/missing RETURN-CODE"
+  ],
   "caught": [
     "named/amount_off_by_one_cent",
     "named/category_row_dropped",

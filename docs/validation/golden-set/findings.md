@@ -160,6 +160,17 @@ the fraction advanced during the run and every `TRANSACT` record differed in
 `TRAN-PROC-TS`.  This is recorded here because it is exactly the kind of
 difference a reconciliation must be able to attribute: a clock, not logic.
 
+### 3.6 Abnormal ends return status 1 under GnuCOBOL
+
+The program's abnormal-end path calls `CEE3ABD` (`:707-711`), a z/OS Language
+Environment service that GnuCOBOL does not provide: the run stops with
+`libcob: error: module 'CEE3ABD' not found` and process status 1, not the
+abend code the mainframe would report.  `run_reference.sh` therefore treats
+every status other than the program's two defined completions (0, and 4 when
+`WS-REJECT-COUNT > 0`, `:229-231`) as abnormal and does not publish that run.
+**Inferred - needs owner confirmation**: which abend codes the production job
+scheduler treats as restartable is not derivable from the source.
+
 ## 4. Candidate finding (pull request #9), as the comparator reported it
 
 Both sets: every `TRANSACT`, `DALYREJS`, `ACCTFILE` and `TCATBALF` record

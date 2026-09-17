@@ -3,7 +3,9 @@
 # (b) catches every injected defect from mutate.py with the right exit code and
 # names the right field / total / record key in reconciliation.md, and (c) that
 # the explicit --tolerance path absorbs exactly what it names (exit 3 with a
-# banner) and nothing more (exit 1 when the bound is too small).
+# banner) and nothing more (exit 1 when the bound is too small), and (d) that
+# absence is a mismatch: no reachable input DALYTRAN, or a missing RETURN-CODE,
+# each give exit 1 on an otherwise exact copy.
 #
 #   bash tests/golden/selftest.sh [--set named|volume|all] [--work DIR]
 #
@@ -49,15 +51,24 @@ check() {  # check <label> <expected_exit> <actual_exit> <report> <markers...>
   fi
 }
 
+abs_all=()      # absence checks run (missing input DALYTRAN, missing RETURN-CODE)
+abs_pass=()     # absence checks that produced the expected exit code and markers
+
 tcheck() {  # tcheck <label> <expected_exit> <actual_exit> <report> <markers...>
   local label="$1" want="$2" got="$3" report="$4"; shift 4
   local missing=()
   for m in "$@"; do grep -qF -- "$m" "$report" || missing+=("$m"); done
   total=$((total+1))
-  tol_all+=("$SETNAME/$label")
+  case "$label" in
+    tolerance*) tol_all+=("$SETNAME/$label") ;;
+    *)          abs_all+=("$SETNAME/$label") ;;
+  esac
   if [ "$want" = "$got" ] && [ ${#missing[@]} -eq 0 ]; then
     caught=$((caught+1))
-    tol_pass+=("$SETNAME/$label")
+    case "$label" in
+      tolerance*) tol_pass+=("$SETNAME/$label") ;;
+      *)          abs_pass+=("$SETNAME/$label") ;;
+    esac
     lines+=("$(printf '  %-8s %-28s exit %s (expected %s)  named: %s  PASS' "$SETNAME" "$label" "$got" "$want" "$*")")
   else
     fail=1
@@ -109,6 +120,18 @@ for SETNAME in $SETS; do
   python3 "$HERE/compare.py" "$EXP" "$onecent" --tolerance TRAN-AMT=0.001 --out-dir "$W/tolerance-too-small" --quiet
   tcheck "tolerance TRAN-AMT=0.001" 1 $? "$W/tolerance-too-small/reconciliation.md" \
     "MISMATCH" "±0.001" "TRAN-AMT" "sum_accepted_amount"
+
+  # (d) absence is a mismatch, never a silent pass: an exact copy compared with no
+  #     input DALYTRAN reachable (so records_in / in = accepted + rejected cannot be
+  #     formed), and an exact copy whose RETURN-CODE file is missing.
+  mkdir -p "$W/no-input"
+  python3 "$HERE/compare.py" "$EXP" "$W/exact-copy" --input-dir "$W/no-input" --out-dir "$W/absent-input" --quiet
+  tcheck "missing input DALYTRAN" 1 $? "$W/absent-input/reconciliation.md" \
+    "MISMATCH" "INPUT ERROR" "input DALYTRAN missing"
+  cp -r "$W/exact-copy" "$W/no-rc"; rm -f "$W/no-rc/RETURN-CODE"
+  python3 "$HERE/compare.py" "$EXP" "$W/no-rc" --out-dir "$W/absent-rc" --quiet
+  tcheck "missing RETURN-CODE" 1 $? "$W/absent-rc/reconciliation.md" \
+    "MISMATCH" "RETURN-CODE | **MISMATCH**"
 done
 
 # (c) record the evidence the documentation numbers are derived from (only for a
@@ -117,7 +140,7 @@ RESULT_JSON="$HERE/sets/selftest-result.json"
 docs_line=""
 if [ "$SETS" = "named volume" ]; then
   python3 - "$RESULT_JSON" "$(cd "$HERE/../.." && pwd)" "${#exact_pass[@]}" \
-      "${mut_all[@]}" -- "${mut_caught[@]}" -- "${tol_all[@]}" -- "${tol_pass[@]}" <<'PY'
+      "${mut_all[@]}" -- "${mut_caught[@]}" -- "${tol_all[@]}" -- "${tol_pass[@]}" -- "${abs_all[@]}" -- "${abs_pass[@]}" <<'PY'
 import json, os, sys
 out, repo, n_exact, rest = sys.argv[1], sys.argv[2], int(sys.argv[3]), sys.argv[4:]
 groups, cur = [], []
@@ -127,7 +150,7 @@ for a in rest:
     else:
         cur.append(a)
 groups.append(cur)
-mutants, caught, tol_all, tol_pass = groups
+mutants, caught, tol_all, tol_pass, abs_all, abs_pass = groups
 doc = {
     "produced_by": "tests/golden/selftest.sh",
     "sets": ["named", "volume"],
@@ -136,6 +159,8 @@ doc = {
     "caught": caught,
     "tolerance_checks": tol_all,
     "tolerance_checks_passed": tol_pass,
+    "absence_checks": abs_all,
+    "absence_checks_passed": abs_pass,
 }
 with open(out, "w") as fh:
     json.dump(doc, fh, indent=2, sort_keys=True); fh.write("\n")
@@ -154,9 +179,9 @@ printf '%s\n' "${lines[@]}"
 n_mut=$(python3 "$HERE/mutate.py" --list | wc -l | tr -d ' ')
 n_sets=$(echo $SETS | wc -w | tr -d ' ')
 echo "  mutants defined: $n_mut; sets: $SETS"
-echo "  checks passed: $caught of $total  (exact-copy x$n_sets + $n_mut mutants x$n_sets + 2 tolerance-path x$n_sets$docs_line)"
+echo "  checks passed: $caught of $total  (exact-copy x$n_sets + $n_mut mutants x$n_sets + 2 tolerance-path x$n_sets + 2 absence x$n_sets$docs_line)"
 if [ $fail -eq 0 ]; then
-  echo "  RESULT: PASS - ${#mut_caught[@]} of ${#mut_all[@]} injected defects caught; exact copy compares clean; tolerance path ${#tol_pass[@]} of ${#tol_all[@]}"
+  echo "  RESULT: PASS - ${#mut_caught[@]} of ${#mut_all[@]} injected defects caught; exact copy compares clean; tolerance path ${#tol_pass[@]} of ${#tol_all[@]}; absence ${#abs_pass[@]} of ${#abs_all[@]}"
   echo "  work dir: $WORK"
   exit 0
 else

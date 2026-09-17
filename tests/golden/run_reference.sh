@@ -95,6 +95,15 @@ run_one() {   # run_one <set> <env-file> <expected-subdir>
     rc=0
     "$REPO/$BUILD/CBTRN02C" >"$out/SYSOUT" 2>&1 || rc=$?
     echo "$rc" > "$out/RETURN-CODE"
+    # CBTRN02C.cbl:227-231 defines exactly two normal completions: 0 (no rejects)
+    # and 4 (at least one reject).  Anything else is an abnormal end (runtime
+    # error, CEE3ABD path :707-711) and must never be published as golden output.
+    if [ "$rc" -ne 0 ] && [ "$rc" -ne 4 ]; then
+      echo "CBTRN02C ended abnormally with status $rc (expected 0 or 4); see $out/SYSOUT; not publishing $out" >&2
+      tail -20 "$out/SYSOUT" >&2
+      rm -rf "$out"
+      exit 70
+    fi
 
     dump_idx TRAN "$out/TRANSACT"  >"$work/dump.log"
     dump_idx ACCT "$out/ACCTFILE"  >>"$work/dump.log"

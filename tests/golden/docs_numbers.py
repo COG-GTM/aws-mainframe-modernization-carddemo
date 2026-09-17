@@ -114,6 +114,9 @@ def numbers_block(d):
     L.append("- **Tolerance path:** %d of %d checks passed (a bound that covers the one-cent defect gives"
              " `MATCH WITHIN TOLERANCE`, exit 3; a bound that does not still gives `MISMATCH`, exit 1)."
              % (len(st["tolerance_checks_passed"]), len(st["tolerance_checks"])))
+    L.append("- **Absence path:** %d of %d checks passed (an exact copy with no input `DALYTRAN` reachable, and"
+             " an exact copy missing its `RETURN-CODE`, both give `MISMATCH`, exit 1)."
+             % (len(st["absence_checks_passed"]), len(st["absence_checks"])))
     L.append("")
     L.append("| Metric | Value | Derived from |")
     L.append("|---|---|---|")
