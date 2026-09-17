@@ -1,0 +1,28 @@
+{
+  "name": "@carddemo/batch-readers",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "bin": {
+    "cbact01c": "./dist/bin/cbact01c.js",
+    "cbact02c": "./dist/bin/cbact02c.js",
+    "cbact03c": "./dist/bin/cbact03c.js",
+    "cbcus01c": "./dist/bin/cbcus01c.js"
+  },
+  "scripts": {
+    "build": "tsc --build"
+  },
+  "dependencies": {
+    "@carddemo/copybook": "0.1.0",
+    "@carddemo/domain": "0.1.0",
+    "@carddemo/vsam": "0.1.0"
+  }
+}

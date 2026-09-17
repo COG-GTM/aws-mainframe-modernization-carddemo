@@ -11,6 +11,7 @@ themselves land in later phases.
 | `@carddemo/copybook` | COBOL `PICTURE` / `USAGE` semantics | Fixed-width record codec: zoned decimal with sign overpunch, packed decimal (`COMP-3`), implied decimal scaling, `OCCURS`, `FILLER` |
 | `@carddemo/domain` | copybooks in `app/cpy` | Record layouts and typed records for account, customer, card, xref, transaction, daily transaction, category balance, disclosure group, transaction type/category and user security, plus their VSAM key builders |
 | `@carddemo/vsam` | VSAM KSDS / QSAM access | Key-ordered `Ksds` store and `SequentialReader`/`SequentialWriter`, reporting COBOL file status codes (`00`, `10`, `22`, `23`, `42`, …), wired to the sample data in `app/data/ASCII` |
+| `@carddemo/batch-readers` | `CBACT01C`, `CBACT02C`, `CBACT03C`, `CBCUS01C` | Batch readers for the account, card, card xref and customer masters: each is a function plus a CLI entry point that displays the records it reads |
 
 ## Usage
 
@@ -34,6 +35,22 @@ npm run build    # tsc project references
 npm test         # vitest, including round-trip checks against app/data/ASCII
 npm run lint
 ```
+
+## Running the batch programs
+
+```bash
+npm run cbact01c                       # app/data/ASCII/acctdata.txt
+npm run cbact02c -- /path/to/carddata.txt
+```
+
+The first argument replaces the DD statement in the JCL. A file status other
+than `00` on open, read or close displays the COBOL diagnostics (`FILE STATUS
+IS: NNNN…`, `ABENDING PROGRAM`) and exits non-zero, standing in for
+`CALL 'CEE3ABD'`.
+
+`CBACT01C` additionally writes the OUTFILE, ARRYFILE and VBRCFILE extracts via
+the `COBDATFT` assembler date routine; that side of the program is not ported
+yet, so only its reader and display behaviour is reproduced.
 
 ## Conventions for migrated programs
 
