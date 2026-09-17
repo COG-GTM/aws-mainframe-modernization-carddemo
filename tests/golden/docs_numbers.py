@@ -112,11 +112,15 @@ def numbers_block(d):
              " (`tests/golden/selftest.sh`, recorded in `%s`)."
              % (n_mut, n_sets, len(st["mutants"]), len(st["caught"]), rel(SELFTEST_RESULT)))
     L.append("- **Tolerance path:** %d of %d checks passed (a bound that covers the one-cent defect gives"
-             " `MATCH WITHIN TOLERANCE`, exit 3; a bound that does not still gives `MISMATCH`, exit 1)."
+             " `MATCH WITHIN TOLERANCE`, exit 3; a bound that does not still gives `MISMATCH`, exit 1;"
+             " a tolerance naming an unknown field or a non-finite bound is refused, exit 64, no report)."
              % (len(st["tolerance_checks_passed"]), len(st["tolerance_checks"])))
     L.append("- **Absence path:** %d of %d checks passed (an exact copy with no input `DALYTRAN` reachable, and"
              " an exact copy missing its `RETURN-CODE`, both give `MISMATCH`, exit 1)."
              % (len(st["absence_checks_passed"]), len(st["absence_checks"])))
+    L.append("- **SYSOUT policy:** %d of %d checks passed (an operator log differing only by edge whitespace is"
+             " informational by default, exit 0, and a byte-for-byte `MISMATCH`, exit 1, under `--strict-sysout`)."
+             % (len(st["sysout_policy_checks_passed"]), len(st["sysout_policy_checks"])))
     L.append("")
     L.append("| Metric | Value | Derived from |")
     L.append("|---|---|---|")

@@ -27,10 +27,14 @@ Exit codes:
      record file or malformed record, or a missing/malformed input DALYTRAN
      (default <expected_dir>/../input, override with --input-dir) so that
      records_in and the identity in = accepted + rejected cannot be formed
+  64 usage error: a --tolerance that names a field which is not a numeric
+     field of the record outputs, or whose bound is not a finite non-negative
+     decimal; nothing is compared and no report is written
 
 SYSOUT (the program's operator log: DISPLAY output) is compared and reported
 but is informational only, because it is not a posting-cycle data output;
---strict-sysout makes a SYSOUT difference a mismatch (exit 1).
+--strict-sysout makes any SYSOUT difference, byte-for-byte, a mismatch (exit 1).
+RETURN-CODE is compared as a number (surrounding whitespace ignored).
 
 There are NO tolerances by default.  --tolerance FIELD=ABS makes differences
 of at most ABS in the named numeric field non-fatal, and a control total
@@ -56,6 +60,7 @@ from layouts import DALYREJS, DALYTRAN, OUTPUT_LAYOUTS, TEXT_OUTPUTS, decode_zon
 
 RECORD_FILES = ("TRANSACT", "DALYREJS", "ACCTFILE", "TCATBALF")
 MAX_LISTED_DIFFS = 200
+EXIT_USAGE = 64
 
 
 # ---------------------------------------------------------------------------
@@ -103,14 +108,37 @@ def classify_text_diff(exp: bytes, got: bytes) -> str:
 # record-level comparison
 # ---------------------------------------------------------------------------
 
+def tolerable_fields() -> Dict[str, str]:
+    """Numeric fields of the record outputs that --tolerance may name -> the file they belong to."""
+    out: Dict[str, str] = {}
+    for file_name in RECORD_FILES:
+        for f in OUTPUT_LAYOUTS[file_name].fields:
+            if f.is_numeric:
+                out.setdefault(f.name, file_name)
+    return out
+
+
 class Tolerances:
     def __init__(self, specs: List[str]):
         self.abs: Dict[str, Decimal] = {}
+        known = tolerable_fields()
         for s in specs:
             if "=" not in s:
-                raise SystemExit("--tolerance expects FIELD=ABS, got %r" % s)
+                raise ValueError("--tolerance expects FIELD=ABS, got %r" % s)
             name, val = s.split("=", 1)
-            self.abs[name.strip()] = abs(Decimal(val))
+            name = name.strip()
+            if name not in known:
+                raise ValueError("--tolerance names %r, which is not a numeric field of %s; known fields: %s"
+                                 % (name, "/".join(RECORD_FILES), ", ".join(sorted(known))))
+            try:
+                bound = Decimal(val.strip())
+            except InvalidOperation:
+                raise ValueError("--tolerance %s: %r is not a decimal number" % (name, val))
+            if not bound.is_finite() or bound < 0:
+                raise ValueError("--tolerance %s: bound must be a finite, non-negative decimal, got %r" % (name, val))
+            if name in self.abs:
+                raise ValueError("--tolerance %s given more than once" % name)
+            self.abs[name] = bound
         self.used: List[dict] = []
 
     def within(self, field: str, exp: Optional[Decimal], got: Optional[Decimal]) -> bool:
@@ -487,7 +515,11 @@ def main(argv=None) -> int:
         beneath it, so committed reports do not embed one machine's absolute paths."""
         rel = os.path.relpath(p)
         return rel if not rel.startswith("..") else p
-    tol = Tolerances(args.tolerance)
+    try:
+        tol = Tolerances(args.tolerance)
+    except ValueError as e:
+        print("compare.py: %s" % e, file=sys.stderr)
+        return EXIT_USAGE
 
     input_dir = args.input_dir or os.path.join(os.path.dirname(exp_dir), "input")
     records_in = None
@@ -513,14 +545,19 @@ def main(argv=None) -> int:
         et = eb.decode("utf-8", "replace").strip() if eb is not None else None
         gt = gb.decode("utf-8", "replace").strip() if gb is not None else None
         missing = eb is None or gb is None
-        same = not missing and et == gt
+        # RETURN-CODE is a number, so surrounding whitespace is not a difference;
+        # under --strict-sysout the operator log must match byte-for-byte.
+        same = not missing and (eb == gb if name == "SYSOUT" and args.strict_sysout else et == gt)
         if name == "RETURN-CODE":
             status = "match" if same else ("**MISMATCH** (missing)" if missing else "**MISMATCH**")
             if not same:
                 fatal = True
         else:
-            status = "match" if same else ("**MISMATCH** (--strict-sysout)" if args.strict_sysout
-                                           else "differs (informational; operator log)")
+            if same:
+                status = "match" if eb == gb else "match ignoring edge whitespace (informational; operator log)"
+            else:
+                status = ("**MISMATCH** (--strict-sysout)" if args.strict_sysout
+                          else "differs (informational; operator log)")
             if not same and args.strict_sysout:
                 fatal = True
         files.append({"file": name, "text": True, "status": status, "byte_identical": eb is not None and eb == gb,

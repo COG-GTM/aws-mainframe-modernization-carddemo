@@ -3,9 +3,12 @@
 # (b) catches every injected defect from mutate.py with the right exit code and
 # names the right field / total / record key in reconciliation.md, and (c) that
 # the explicit --tolerance path absorbs exactly what it names (exit 3 with a
-# banner) and nothing more (exit 1 when the bound is too small), and (d) that
-# absence is a mismatch: no reachable input DALYTRAN, or a missing RETURN-CODE,
-# each give exit 1 on an otherwise exact copy.
+# banner) and nothing more (exit 1 when the bound is too small), refusing a
+# tolerance that names an unknown field or a non-finite bound (exit 64, no
+# report), (d) that absence is a mismatch: no reachable input DALYTRAN, or a
+# missing RETURN-CODE, each give exit 1 on an otherwise exact copy, and (e) that
+# --strict-sysout makes a SYSOUT difference of only edge whitespace a mismatch
+# while the default still treats SYSOUT as informational.
 #
 #   bash tests/golden/selftest.sh [--set named|volume|all] [--work DIR]
 #
@@ -53,6 +56,8 @@ check() {  # check <label> <expected_exit> <actual_exit> <report> <markers...>
 
 abs_all=()      # absence checks run (missing input DALYTRAN, missing RETURN-CODE)
 abs_pass=()     # absence checks that produced the expected exit code and markers
+sys_all=()      # SYSOUT policy checks run (edge whitespace: default informational, --strict-sysout fatal)
+sys_pass=()     # SYSOUT policy checks that passed
 
 tcheck() {  # tcheck <label> <expected_exit> <actual_exit> <report> <markers...>
   local label="$1" want="$2" got="$3" report="$4"; shift 4
@@ -61,12 +66,14 @@ tcheck() {  # tcheck <label> <expected_exit> <actual_exit> <report> <markers...>
   total=$((total+1))
   case "$label" in
     tolerance*) tol_all+=("$SETNAME/$label") ;;
+    sysout*)    sys_all+=("$SETNAME/$label") ;;
     *)          abs_all+=("$SETNAME/$label") ;;
   esac
   if [ "$want" = "$got" ] && [ ${#missing[@]} -eq 0 ]; then
     caught=$((caught+1))
     case "$label" in
       tolerance*) tol_pass+=("$SETNAME/$label") ;;
+      sysout*)    sys_pass+=("$SETNAME/$label") ;;
       *)          abs_pass+=("$SETNAME/$label") ;;
     esac
     lines+=("$(printf '  %-8s %-28s exit %s (expected %s)  named: %s  PASS' "$SETNAME" "$label" "$got" "$want" "$*")")
@@ -120,6 +127,17 @@ for SETNAME in $SETS; do
   python3 "$HERE/compare.py" "$EXP" "$onecent" --tolerance TRAN-AMT=0.001 --out-dir "$W/tolerance-too-small" --quiet
   tcheck "tolerance TRAN-AMT=0.001" 1 $? "$W/tolerance-too-small/reconciliation.md" \
     "MISMATCH" "±0.001" "TRAN-AMT" "sum_accepted_amount"
+  #     a tolerance must name a numeric output field and a finite bound; anything else
+  #     is a usage error (exit 64) and no report is written
+  mkdir -p "$W/tolerance-unknown" "$W/tolerance-nan"
+  python3 "$HERE/compare.py" "$EXP" "$onecent" --tolerance NO-SUCH-FIELD=0.01 --out-dir "$W/tolerance-unknown" --quiet 2>"$W/tolerance-unknown/stderr.txt"
+  rc=$?; [ -e "$W/tolerance-unknown/reconciliation.md" ] && rc="$rc+report-written"
+  tcheck "tolerance NO-SUCH-FIELD=0.01" 64 "$rc" "$W/tolerance-unknown/stderr.txt" \
+    "not a numeric field" "NO-SUCH-FIELD"
+  python3 "$HERE/compare.py" "$EXP" "$onecent" --tolerance TRAN-AMT=NaN --out-dir "$W/tolerance-nan" --quiet 2>"$W/tolerance-nan/stderr.txt"
+  rc=$?; [ -e "$W/tolerance-nan/reconciliation.md" ] && rc="$rc+report-written"
+  tcheck "tolerance TRAN-AMT=NaN" 64 "$rc" "$W/tolerance-nan/stderr.txt" \
+    "finite" "TRAN-AMT"
 
   # (d) absence is a mismatch, never a silent pass: an exact copy compared with no
   #     input DALYTRAN reachable (so records_in / in = accepted + rejected cannot be
@@ -132,6 +150,17 @@ for SETNAME in $SETS; do
   python3 "$HERE/compare.py" "$EXP" "$W/no-rc" --out-dir "$W/absent-rc" --quiet
   tcheck "missing RETURN-CODE" 1 $? "$W/absent-rc/reconciliation.md" \
     "MISMATCH" "RETURN-CODE | **MISMATCH**"
+
+  # (e) SYSOUT policy: an exact copy whose operator log differs only by edge
+  #     whitespace is informational by default (exit 0) but a byte-for-byte
+  #     mismatch under --strict-sysout (exit 1).
+  cp -r "$W/exact-copy" "$W/sysout-ws"; printf ' ' >> "$W/sysout-ws/SYSOUT"
+  python3 "$HERE/compare.py" "$EXP" "$W/sysout-ws" --out-dir "$W/sysout-default" --quiet
+  tcheck "sysout whitespace, default" 0 $? "$W/sysout-default/reconciliation.md" \
+    "EXACT MATCH" "match ignoring edge whitespace (informational; operator log)"
+  python3 "$HERE/compare.py" "$EXP" "$W/sysout-ws" --strict-sysout --out-dir "$W/sysout-strict" --quiet
+  tcheck "sysout whitespace, --strict" 1 $? "$W/sysout-strict/reconciliation.md" \
+    "MISMATCH" "**MISMATCH** (--strict-sysout)"
 done
 
 # (c) record the evidence the documentation numbers are derived from (only for a
@@ -140,7 +169,8 @@ RESULT_JSON="$HERE/sets/selftest-result.json"
 docs_line=""
 if [ "$SETS" = "named volume" ]; then
   python3 - "$RESULT_JSON" "$(cd "$HERE/../.." && pwd)" "${#exact_pass[@]}" \
-      "${mut_all[@]}" -- "${mut_caught[@]}" -- "${tol_all[@]}" -- "${tol_pass[@]}" -- "${abs_all[@]}" -- "${abs_pass[@]}" <<'PY'
+      "${mut_all[@]}" -- "${mut_caught[@]}" -- "${tol_all[@]}" -- "${tol_pass[@]}" -- "${abs_all[@]}" -- "${abs_pass[@]}" \
+      -- "${sys_all[@]}" -- "${sys_pass[@]}" <<'PY'
 import json, os, sys
 out, repo, n_exact, rest = sys.argv[1], sys.argv[2], int(sys.argv[3]), sys.argv[4:]
 groups, cur = [], []
@@ -150,7 +180,7 @@ for a in rest:
     else:
         cur.append(a)
 groups.append(cur)
-mutants, caught, tol_all, tol_pass, abs_all, abs_pass = groups
+mutants, caught, tol_all, tol_pass, abs_all, abs_pass, sys_all, sys_pass = groups
 doc = {
     "produced_by": "tests/golden/selftest.sh",
     "sets": ["named", "volume"],
@@ -161,6 +191,8 @@ doc = {
     "tolerance_checks_passed": tol_pass,
     "absence_checks": abs_all,
     "absence_checks_passed": abs_pass,
+    "sysout_policy_checks": sys_all,
+    "sysout_policy_checks_passed": sys_pass,
 }
 with open(out, "w") as fh:
     json.dump(doc, fh, indent=2, sort_keys=True); fh.write("\n")
@@ -179,9 +211,9 @@ printf '%s\n' "${lines[@]}"
 n_mut=$(python3 "$HERE/mutate.py" --list | wc -l | tr -d ' ')
 n_sets=$(echo $SETS | wc -w | tr -d ' ')
 echo "  mutants defined: $n_mut; sets: $SETS"
-echo "  checks passed: $caught of $total  (exact-copy x$n_sets + $n_mut mutants x$n_sets + 2 tolerance-path x$n_sets + 2 absence x$n_sets$docs_line)"
+echo "  checks passed: $caught of $total  (exact-copy x$n_sets + $n_mut mutants x$n_sets + 4 tolerance-path x$n_sets + 2 absence x$n_sets + 2 sysout-policy x$n_sets$docs_line)"
 if [ $fail -eq 0 ]; then
-  echo "  RESULT: PASS - ${#mut_caught[@]} of ${#mut_all[@]} injected defects caught; exact copy compares clean; tolerance path ${#tol_pass[@]} of ${#tol_all[@]}; absence ${#abs_pass[@]} of ${#abs_all[@]}"
+  echo "  RESULT: PASS - ${#mut_caught[@]} of ${#mut_all[@]} injected defects caught; exact copy compares clean; tolerance path ${#tol_pass[@]} of ${#tol_all[@]}; absence ${#abs_pass[@]} of ${#abs_all[@]}; sysout policy ${#sys_pass[@]} of ${#sys_all[@]}"
   echo "  work dir: $WORK"
   exit 0
 else

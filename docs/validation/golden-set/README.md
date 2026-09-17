@@ -19,8 +19,9 @@ block is stale.
 - **named set, reference vs reference:** 52 records, **610 fields reconciled, 0 differences** (GnuCOBOL primary run vs GnuCOBOL variant run; verdict `EXACT MATCH`, exit 0).
 - **volume set, reference vs reference:** 1,945 records, **22,167 fields reconciled, 0 differences** (GnuCOBOL primary run vs GnuCOBOL variant run; verdict `EXACT MATCH`, exit 0).
 - **Injected defects:** 9 mutant classes x 2 sets = 18 injected, 18 caught (`tests/golden/selftest.sh`, recorded in `tests/golden/sets/selftest-result.json`).
-- **Tolerance path:** 4 of 4 checks passed (a bound that covers the one-cent defect gives `MATCH WITHIN TOLERANCE`, exit 3; a bound that does not still gives `MISMATCH`, exit 1).
+- **Tolerance path:** 8 of 8 checks passed (a bound that covers the one-cent defect gives `MATCH WITHIN TOLERANCE`, exit 3; a bound that does not still gives `MISMATCH`, exit 1; a tolerance naming an unknown field or a non-finite bound is refused, exit 64, no report).
 - **Absence path:** 4 of 4 checks passed (an exact copy with no input `DALYTRAN` reachable, and an exact copy missing its `RETURN-CODE`, both give `MISMATCH`, exit 1).
+- **SYSOUT policy:** 4 of 4 checks passed (an operator log differing only by edge whitespace is informational by default, exit 0, and a byte-for-byte `MISMATCH`, exit 1, under `--strict-sysout`).
 
 | Metric | Value | Derived from |
 |---|---|---|
@@ -178,7 +179,10 @@ python3 tests/golden/compare.py tests/golden/sets/volume/expected <candidate-dir
 #    DALYTRAN (<expected>/../input by default, --input-dir to override) since
 #    without it records_in and in = accepted + rejected cannot be reconciled.
 #    Writes reconciliation.{json,md}.
-#    SYSOUT (the operator log) is reported but informational unless --strict-sysout.
+#    64 = usage error: --tolerance names a field that is not a numeric field of
+#    the record outputs, or a bound that is not a finite non-negative decimal.
+#    SYSOUT (the operator log) is reported but informational unless
+#    --strict-sysout, which makes any byte-level SYSOUT difference exit 1.
 
 # 4. generate a set by hand (the runner does this for you)
 python3 tests/golden/generate.py --set named  --seed 20260315 --out tests/golden/sets/named/input
@@ -198,7 +202,12 @@ every difference it absorbed, and a control total fed by a tolerated field
 (`sum_accepted_amount` from `TRAN-AMT`, `closing_category_balances` from
 `TRAN-CAT-BAL`) is absorbed only when every contributing difference was itself
 within the bound.  A difference outside the bound stays `MISMATCH`, exit 1.
-`selftest.sh` exercises both directions on every set.
+A tolerance must name a numeric field of `TRANSACT`/`DALYREJS`/`ACCTFILE`/
+`TCATBALF` (the copybook-derived layouts decide which) and a finite,
+non-negative bound; anything else is refused with exit 64 before any file is
+read, so a typo cannot silently become a tolerance that never fires.
+`selftest.sh` exercises both directions, the refusal, and the `--strict-sysout`
+policy on every set.
 
 ### Output of `bash tests/golden/run_reference.sh --variant`
 
@@ -244,8 +253,12 @@ golden-set comparator self-test (compare.py vs mutate.py)
   named    two_records_swapped          exit 2 (expected 2)  named: TRANSACT DIFFERENT ORDER  CAUGHT
   named    tolerance TRAN-AMT=0.01      exit 3 (expected 3)  named: MATCH WITHIN TOLERANCE Tolerance policy in effect WITHIN TOLERANCE ±0.01 TRAN-AMT sum_accepted_amount  PASS
   named    tolerance TRAN-AMT=0.001     exit 1 (expected 1)  named: MISMATCH ±0.001 TRAN-AMT sum_accepted_amount  PASS
+  named    tolerance NO-SUCH-FIELD=0.01 exit 64 (expected 64)  named: not a numeric field NO-SUCH-FIELD  PASS
+  named    tolerance TRAN-AMT=NaN       exit 64 (expected 64)  named: finite TRAN-AMT  PASS
   named    missing input DALYTRAN       exit 1 (expected 1)  named: MISMATCH INPUT ERROR input DALYTRAN missing  PASS
   named    missing RETURN-CODE          exit 1 (expected 1)  named: MISMATCH RETURN-CODE | **MISMATCH**  PASS
+  named    sysout whitespace, default   exit 0 (expected 0)  named: EXACT MATCH match ignoring edge whitespace (informational; operator log)  PASS
+  named    sysout whitespace, --strict  exit 1 (expected 1)  named: MISMATCH **MISMATCH** (--strict-sysout)  PASS
   volume   exact-copy                   exit 0 (expected 0)  EXACT MATCH  PASS
   volume   amount_off_by_one_cent       exit 1 (expected 1)  named: TRAN-AMT GS03150000000001 sum_accepted_amount  CAUGHT
   volume   category_row_dropped         exit 1 (expected 1)  named: missing in candidate 90000000166020003 closing_category_balances  CAUGHT
@@ -258,12 +271,16 @@ golden-set comparator self-test (compare.py vs mutate.py)
   volume   two_records_swapped          exit 2 (expected 2)  named: TRANSACT DIFFERENT ORDER  CAUGHT
   volume   tolerance TRAN-AMT=0.01      exit 3 (expected 3)  named: MATCH WITHIN TOLERANCE Tolerance policy in effect WITHIN TOLERANCE ±0.01 TRAN-AMT sum_accepted_amount  PASS
   volume   tolerance TRAN-AMT=0.001     exit 1 (expected 1)  named: MISMATCH ±0.001 TRAN-AMT sum_accepted_amount  PASS
+  volume   tolerance NO-SUCH-FIELD=0.01 exit 64 (expected 64)  named: not a numeric field NO-SUCH-FIELD  PASS
+  volume   tolerance TRAN-AMT=NaN       exit 64 (expected 64)  named: finite TRAN-AMT  PASS
   volume   missing input DALYTRAN       exit 1 (expected 1)  named: MISMATCH INPUT ERROR input DALYTRAN missing  PASS
   volume   missing RETURN-CODE          exit 1 (expected 1)  named: MISMATCH RETURN-CODE | **MISMATCH**  PASS
+  volume   sysout whitespace, default   exit 0 (expected 0)  named: EXACT MATCH match ignoring edge whitespace (informational; operator log)  PASS
+  volume   sysout whitespace, --strict  exit 1 (expected 1)  named: MISMATCH **MISMATCH** (--strict-sysout)  PASS
   docs     docs_numbers.py --check      exit 0 (expected 0)  README/layouts/findings blocks current  PASS
   mutants defined: 9; sets: named volume
-  checks passed: 29 of 29  (exact-copy x2 + 9 mutants x2 + 2 tolerance-path x2 + 2 absence x2 + docs sync)
-  RESULT: PASS - 18 of 18 injected defects caught; exact copy compares clean; tolerance path 4 of 4; absence 4 of 4
+  checks passed: 37 of 37  (exact-copy x2 + 9 mutants x2 + 4 tolerance-path x2 + 2 absence x2 + 2 sysout-policy x2 + docs sync)
+  RESULT: PASS - 18 of 18 injected defects caught; exact copy compares clean; tolerance path 8 of 8; absence 4 of 4; sysout policy 4 of 4
 ```
 
 ### Output of the reference-vs-reference and exact-copy comparisons

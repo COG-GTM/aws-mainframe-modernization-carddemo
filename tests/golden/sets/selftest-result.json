@@ -57,16 +57,36 @@
     "named",
     "volume"
   ],
+  "sysout_policy_checks": [
+    "named/sysout whitespace, default",
+    "named/sysout whitespace, --strict",
+    "volume/sysout whitespace, default",
+    "volume/sysout whitespace, --strict"
+  ],
+  "sysout_policy_checks_passed": [
+    "named/sysout whitespace, default",
+    "named/sysout whitespace, --strict",
+    "volume/sysout whitespace, default",
+    "volume/sysout whitespace, --strict"
+  ],
   "tolerance_checks": [
     "named/tolerance TRAN-AMT=0.01",
     "named/tolerance TRAN-AMT=0.001",
+    "named/tolerance NO-SUCH-FIELD=0.01",
+    "named/tolerance TRAN-AMT=NaN",
     "volume/tolerance TRAN-AMT=0.01",
-    "volume/tolerance TRAN-AMT=0.001"
+    "volume/tolerance TRAN-AMT=0.001",
+    "volume/tolerance NO-SUCH-FIELD=0.01",
+    "volume/tolerance TRAN-AMT=NaN"
   ],
   "tolerance_checks_passed": [
     "named/tolerance TRAN-AMT=0.01",
     "named/tolerance TRAN-AMT=0.001",
+    "named/tolerance NO-SUCH-FIELD=0.01",
+    "named/tolerance TRAN-AMT=NaN",
     "volume/tolerance TRAN-AMT=0.01",
-    "volume/tolerance TRAN-AMT=0.001"
+    "volume/tolerance TRAN-AMT=0.001",
+    "volume/tolerance NO-SUCH-FIELD=0.01",
+    "volume/tolerance TRAN-AMT=NaN"
   ]
 }
