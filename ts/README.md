@@ -12,6 +12,7 @@ themselves land in later phases.
 | `@carddemo/domain` | copybooks in `app/cpy` | Record layouts and typed records for account, customer, card, xref, transaction, daily transaction, category balance, disclosure group, transaction type/category and user security, plus their VSAM key builders |
 | `@carddemo/vsam` | VSAM KSDS / QSAM access | Key-ordered `Ksds` store and `SequentialReader`/`SequentialWriter`, reporting COBOL file status codes (`00`, `10`, `22`, `23`, `42`, …), wired to the sample data in `app/data/ASCII` |
 | `@carddemo/utilities` | `CSUTLDTC`, `CSUTLDPY`/`CSUTLDWY`, `COBSWAIT`, `CBEXPORT`/`CBIMPORT` | Date validation with the CEEDAYS feedback codes, the online date edits, the wait utility and the 500 byte branch migration export/import |
+| `@carddemo/terminal-ui` | the BMS maps in `app/bms` and the 3270 terminal | React + Vite green screen: screen definitions generated from the BMS source, 24x80 rendering with the BMS field attributes, the AID keys and one typed screen exchange call to the online API |
 
 ## Usage
 
