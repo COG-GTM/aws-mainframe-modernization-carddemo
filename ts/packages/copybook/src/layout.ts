@@ -5,10 +5,11 @@
  * a record can be decoded from, and encoded back to, its fixed-width form.
  */
 
+import { binaryLength } from "./binary.js";
 import { parsePic, type PicClause } from "./pic.js";
 import { packedLength } from "./zoned.js";
 
-export type Usage = "display" | "comp-3";
+export type Usage = "display" | "comp" | "comp-3";
 
 export interface FieldSpec {
   /** Property name on the decoded record; `undefined` for `FILLER`. */
@@ -40,6 +41,9 @@ export interface Layout {
 function elementWidth(pic: PicClause, usage: Usage): number {
   if (usage === "comp-3") {
     return packedLength(pic.integerDigits + pic.decimalDigits);
+  }
+  if (usage === "comp") {
+    return binaryLength(pic.integerDigits + pic.decimalDigits);
   }
   return pic.length;
 }

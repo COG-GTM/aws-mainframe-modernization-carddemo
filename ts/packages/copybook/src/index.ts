@@ -1,4 +1,5 @@
 export { parsePic, type PicCategory, type PicClause } from "./pic.js";
+export { binaryLength, decodeBinary, encodeBinary } from "./binary.js";
 export {
   decodePacked,
   decodeZoned,

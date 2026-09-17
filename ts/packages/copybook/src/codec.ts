@@ -5,6 +5,7 @@
  * sample data files drop trailing `FILLER`.
  */
 
+import { decodeBinary, encodeBinary } from "./binary.js";
 import type { Field, Layout } from "./layout.js";
 import { decodePacked, decodeZoned, encodePacked, encodeZoned } from "./zoned.js";
 
@@ -28,6 +29,9 @@ function decodeElement(field: Field, raw: string): FieldValue {
   if (field.usage === "comp-3") {
     return decodePacked(Uint8Array.from(Buffer.from(raw, LATIN1)), options);
   }
+  if (field.usage === "comp") {
+    return decodeBinary(Uint8Array.from(Buffer.from(raw, LATIN1)), options);
+  }
   return decodeZoned(raw, options);
 }
 
@@ -49,6 +53,9 @@ function encodeElement(field: Field, value: FieldValue | undefined): string {
 
   if (field.usage === "comp-3") {
     return Buffer.from(encodePacked(numeric, options)).toString(LATIN1);
+  }
+  if (field.usage === "comp") {
+    return Buffer.from(encodeBinary(numeric, options)).toString(LATIN1);
   }
   return encodeZoned(numeric, options);
 }
