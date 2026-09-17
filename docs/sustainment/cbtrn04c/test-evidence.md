@@ -54,8 +54,8 @@ OK: committed fixtures match the generator
 == Reference files: standard set (tests/cbtrn04c/refdata/standard)
 LOADIDX: TRANTYPE RECORDS LOADED 0000003
 LOADIDX: TRANCATG RECORDS LOADED 0000004
-LOADIDX: XREFFILE RECORDS LOADED 0000008
-LOADIDX: ACCTFILE RECORDS LOADED 0000007
+LOADIDX: XREFFILE RECORDS LOADED 0000014
+LOADIDX: ACCTFILE RECORDS LOADED 0000013
 LOADIDX: TCATBALF RECORDS LOADED 0000004
 
 == Reference files: sample set (app/data/ASCII)
@@ -112,14 +112,22 @@ PASS  rule13_acct_reject_not_projected (rc=4)
 PASS  rule13_credit_limit_at (rc=0)
 PASS  rule13_credit_limit_over (rc=4)
 PASS  rule13_credit_projection (rc=4)
+PASS  rule14_curr_bal_at_max (rc=0)
+PASS  rule14_curr_bal_below_min (rc=4)
+PASS  rule14_curr_bal_one_cent_over (rc=4)
+PASS  rule14_curr_bal_projection (rc=4)
+PASS  rule14_cyc_credit_over (rc=4)
+PASS  rule14_cyc_debit_over (rc=4)
+PASS  rule14_limit_test_at_s9_09 (rc=0)
+PASS  rule14_limit_test_over_s9_09 (rc=4)
 PASS  sample_data (rc=4)
 
 == Docs/source synchronisation check
-check_docs_sync: 14 rules, 66 citations, 47 cases, 6 confirmed / 8 inferred, 12 decisions, sample totals agree
+check_docs_sync: 15 rules, 69 citations, 55 cases, 6 confirmed / 9 inferred, 13 decisions, sample totals agree
 OK
 
 == Summary
-cases passed: 47
+cases passed: 55
 cases failed: 0
 ALL TESTS PASSED
 ```
@@ -165,6 +173,7 @@ removed:
    0207 PROCESSING TIMESTAMP DATE INVALID                 :           0
    0208 ORIGINATION DATE AFTER PROCESSING DATE            :           0
    0209 TRANSACTION DATE AFTER RUN DATE                   :           0
+   0210 AMOUNT WOULD OVERFLOW ACCOUNT FIELDS S9(10)V99    :           0
 
  ACCEPTED AMOUNT TOTAL                             :                 77,954.70
  REJECTED AMOUNT TOTAL (NUMERIC AMOUNTS ONLY)      :                 26,846.84
@@ -209,6 +218,7 @@ accepted, one unknown card, one origination after processing):
    0207 PROCESSING TIMESTAMP DATE INVALID                 :           0
    0208 ORIGINATION DATE AFTER PROCESSING DATE            :           1
    0209 TRANSACTION DATE AFTER RUN DATE                   :           0
+   0210 AMOUNT WOULD OVERFLOW ACCOUNT FIELDS S9(10)V99    :           0
 
  ACCEPTED AMOUNT TOTAL                             :                  1,105.49
  REJECTED AMOUNT TOTAL (NUMERIC AMOUNTS ONLY)      :                     40.00

@@ -109,8 +109,8 @@ def tcatbal(acct: str, code: str, cat: str, bal: str) -> bytes:  # CVTRA01Y, 50
 
 
 def acct(acct_id: str, credit_limit: str, expires: str, cyc_credit: str,
-         cyc_debit: str) -> bytes:                       # CVACT01Y, 300 bytes
-    return (fit(acct_id, 11, "acct") + b"Y" + zoned(0, 12)
+         cyc_debit: str, curr_bal: str = "0.00") -> bytes:  # CVACT01Y, 300
+    return (fit(acct_id, 11, "acct") + b"Y" + zoned(cents(curr_bal), 12)
             + zoned(cents(credit_limit), 12) + zoned(cents(credit_limit), 12)
             + fit("2020-01-01", 10, "open") + fit(expires, 10, "expires")
             + fit("2020-01-01", 10, "reissue") + zoned(cents(cyc_credit), 12)
@@ -136,6 +136,25 @@ CARD_EXPIRED_NO_LIMIT = "4000000000000008"  # account 8: expired
 CARD_EXP_CAT = "4000000000000007"     # account 7: limit 1000.00, expired
                                       # 2024-03-10, category balance
                                       # 999999000.00
+CARD_BAL_NEAR_MAX = "4000000000000009"  # account 9: ACCT-CURR-BAL
+                                      # 9999999998.99, one 1.00 short of
+                                      # the S9(10)V99 maximum
+CARD_BAL_AT_MIN = "4000000000000010"  # account 10: ACCT-CURR-BAL at the
+                                      # S9(10)V99 minimum -9999999999.99
+CARD_CYC_CREDIT_MAX = "4000000000000011"  # account 11: cycle credit at
+                                      # the S9(10)V99 maximum, cycle debit
+                                      # +9999999999.00 so the limit test
+                                      # (credit - debit + amt) stays small
+CARD_CYC_DEBIT_MIN = "4000000000000012"  # account 12: cycle debit at the
+                                      # S9(10)V99 minimum, cycle credit
+                                      # -9999999999.00 for the same reason
+CARD_LIMIT_TEST_OVER = "4000000000000013"  # account 13: cycle debit
+                                      # -9999999999.99 so credit - debit
+                                      # exceeds CBTRN02C's S9(09)V99
+                                      # WS-TEMP-BAL
+CARD_LIMIT_TEST_AT = "4000000000000014"  # account 14: cycle credit
+                                      # 999999998.99, 1.00 short of the
+                                      # S9(09)V99 WS-TEMP-BAL maximum
 CARD_UNKNOWN = "4999999999999999"
 
 STANDARD_REFSET = {
@@ -159,6 +178,12 @@ STANDARD_REFSET = {
         cardxref(CARD_EXPIRED, "000000006", "00000000006"),
         cardxref(CARD_EXP_CAT, "000000007", "00000000007"),
         cardxref(CARD_EXPIRED_NO_LIMIT, "000000008", "00000000008"),
+        cardxref(CARD_BAL_NEAR_MAX, "000000009", "00000000009"),
+        cardxref(CARD_BAL_AT_MIN, "000000010", "00000000010"),
+        cardxref(CARD_CYC_CREDIT_MAX, "000000011", "00000000011"),
+        cardxref(CARD_CYC_DEBIT_MIN, "000000012", "00000000012"),
+        cardxref(CARD_LIMIT_TEST_OVER, "000000013", "00000000013"),
+        cardxref(CARD_LIMIT_TEST_AT, "000000014", "00000000014"),
     ],
     "acctdata.txt": [
         acct("00000000001", NO_LIMIT, FAR_FUTURE, "0.00", "0.00"),
@@ -168,6 +193,16 @@ STANDARD_REFSET = {
         acct("00000000006", "0.00", "2024-02-28", "0.00", "0.00"),
         acct("00000000007", "1000.00", "2024-03-10", "0.00", "0.00"),
         acct("00000000008", NO_LIMIT, "2024-02-28", "0.00", "0.00"),
+        acct("00000000009", NO_LIMIT, FAR_FUTURE, "0.00", "0.00",
+             curr_bal="9999999998.99"),
+        acct("00000000010", NO_LIMIT, FAR_FUTURE, "0.00", "0.00",
+             curr_bal="-9999999999.99"),
+        acct("00000000011", NO_LIMIT, FAR_FUTURE, "9999999999.99",
+             "9999999999.00"),
+        acct("00000000012", NO_LIMIT, FAR_FUTURE, "-9999999999.00",
+             "-9999999999.99"),
+        acct("00000000013", NO_LIMIT, FAR_FUTURE, "0.00", "-9999999999.99"),
+        acct("00000000014", NO_LIMIT, FAR_FUTURE, "999999998.99", "0.00"),
     ],
     "tcatbal.txt": [
         tcatbal("00000000001", "01", "0001", "0.00"),
@@ -344,17 +379,56 @@ CASES: List[Case] = [
           record(id="TX00000000000404", amt="0.01", card=CARD_EXP_CAT),
           record(id="TX00000000000405", amt="0.02", type="02",
                  card=CARD_EXP_CAT)]),
-    Case("precedence_type_and_card", "R14",
+    Case("rule14_curr_bal_at_max", "R14",
+         "account 9: ACCT-CURR-BAL 9999999998.99 + 1.00 = 9999999999.99, "
+         "the S9(10)V99 maximum",
+         "accepted, RC 0", [record(card=CARD_BAL_NEAR_MAX, amt="1.00")]),
+    Case("rule14_curr_bal_one_cent_over", "R14",
+         "account 9: 9999999998.99 + 1.01 cannot be held by ACCT-CURR-BAL",
+         "reject 0210", [record(card=CARD_BAL_NEAR_MAX, amt="1.01")]),
+    Case("rule14_curr_bal_below_min", "R14",
+         "account 10: -9999999999.99 - 0.01 cannot be held by ACCT-CURR-BAL",
+         "reject 0210", [record(card=CARD_BAL_AT_MIN, amt="-0.01")]),
+    Case("rule14_curr_bal_projection", "R14",
+         "account 9, six records: 0.50 and 0.50 land ACCT-CURR-BAL on "
+         "9999999999.99; 0.01 overflows; -1.00 and 1.00 return to the "
+         "maximum (the reject advanced nothing); 0.01 overflows again",
+         "accepted, accepted, reject 0210, accepted, accepted, reject 0210",
+         [record(id="TX00000000000501", amt="0.50", card=CARD_BAL_NEAR_MAX),
+          record(id="TX00000000000502", amt="0.50", card=CARD_BAL_NEAR_MAX),
+          record(id="TX00000000000503", amt="0.01", card=CARD_BAL_NEAR_MAX),
+          record(id="TX00000000000504", amt="-1.00", card=CARD_BAL_NEAR_MAX),
+          record(id="TX00000000000505", amt="1.00", card=CARD_BAL_NEAR_MAX),
+          record(id="TX00000000000506", amt="0.01",
+                 card=CARD_BAL_NEAR_MAX)]),
+    Case("rule14_cyc_credit_over", "R14",
+         "account 11: cycle credit 9999999999.99 + 1.00 cannot be held by "
+         "ACCT-CURR-CYC-CREDIT (limit test 1.99 and ACCT-CURR-BAL 1.00 fit)",
+         "reject 0210", [record(card=CARD_CYC_CREDIT_MAX, amt="1.00")]),
+    Case("rule14_cyc_debit_over", "R14",
+         "account 12: cycle debit -9999999999.99 - 1.00 cannot be held by "
+         "ACCT-CURR-CYC-DEBIT (limit test -0.01 and ACCT-CURR-BAL -1.00 fit)",
+         "reject 0210", [record(card=CARD_CYC_DEBIT_MIN, amt="-1.00")]),
+    Case("rule14_limit_test_over_s9_09", "R14",
+         "account 13: 0.00 - (-9999999999.99) - 1.00 = 9999999998.99 is "
+         "under the credit limit but exceeds CBTRN02C's S9(09)V99 "
+         "WS-TEMP-BAL",
+         "reject 0210", [record(card=CARD_LIMIT_TEST_OVER, amt="-1.00")]),
+    Case("rule14_limit_test_at_s9_09", "R14",
+         "account 14: 999999998.99 - 0.00 + 1.00 = 999999999.99, the "
+         "S9(09)V99 WS-TEMP-BAL maximum",
+         "accepted, RC 0", [record(card=CARD_LIMIT_TEST_AT, amt="1.00")]),
+    Case("precedence_type_and_card", "R15",
          "type 99 and unknown card on one record",
          "reject 0202 only", [record(type="99", card=CARD_UNKNOWN)]),
-    Case("precedence_id_and_amount", "R14",
+    Case("precedence_id_and_amount", "R15",
          "blank id and non-numeric amount on one record",
          "reject 0201 only", [record(id=" " * 16, amt=b"ABCDEFGHIJK")]),
-    Case("precedence_expired_and_overlimit", "R14",
+    Case("precedence_expired_and_overlimit", "R15",
          "account 6 is expired and has credit limit 0.00, amount 125.50",
          "reject 0103 only (the code CBTRN02C ends with when both fail)",
          [record(card=CARD_EXPIRED, amt="125.50")]),
-    Case("precedence_amount_and_date", "R14",
+    Case("precedence_amount_and_date", "R15",
          "non-numeric amount and 30 February on one record",
          "reject 0204 only",
          [record(amt=b"ABCDEFGHIJK", orig_ts="2024-02-30 10:15:30.000000")]),

@@ -38,16 +38,20 @@ three account checks `CBTRN02C` makes at posting time (`1500-B-LOOKUP-ACCT`:
 account exists, credit limit, account expiration) are repeated here with the same
 reason codes 0101-0103, so a feed that passes validation posts without account
 rejects. Two balance checks work from projections, not from the files alone,
-because `CBTRN02C` rewrites `TRAN-CAT-BAL`, `ACCT-CURR-CYC-CREDIT` and
-`ACCT-CURR-CYC-DEBIT` after every posting: the first record for an
+because `CBTRN02C` rewrites `TRAN-CAT-BAL`, `ACCT-CURR-BAL`,
+`ACCT-CURR-CYC-CREDIT` and `ACCT-CURR-CYC-DEBIT` after every posting: the first record for an
 account/type/category key starts from the `TCATBALF` balance and the first record
-for an account starts from the account master's cycle credit and debit; every
+for an account starts from the account master's current balance and cycle
+credit and debit; every
 accepted record advances the in-storage projection for its key
 (`1950-UPDATE-BAL-PROJECTION`, `1960-UPDATE-ACCT-PROJECTION`) so later records in
 the same feed are checked against the balance the posting step will actually
 have by then; rejected records leave both projections untouched because posting
 never sees them. Each projection table holds 20,000 keys and a larger feed ends
-with RC 12 rather than validating against a stale balance. The expiration and
+with RC 12 rather than validating against a stale balance. The same account
+projection feeds R14, which rejects a record whose posting arithmetic would leave
+the picture of `WS-TEMP-BAL` (`S9(09)V99`) or of the three `S9(10)V99` account
+fields, none of which `CBTRN02C` guards with `ON SIZE ERROR`. The expiration and
 credit-limit checks run after the date rules so that both operands of the
 expiration compare are known-valid `YYYY-MM-DD` strings (a character compare of
 two such strings is chronological in any collating sequence; `CBTRN02C` compares
@@ -69,7 +73,7 @@ representation can be inspected on the report.
 flowchart TD
     P["PARM=YYYYMMDD<br/>0050-VALIDATE-PARM<br/>Gregorian check, Julian YYYYDDD"] --> R
     D[(DALYTRAN 350)] --> R["1000-DALYTRAN-GET-NEXT<br/>1400-ACCUMULATE-READ-AMT (COMP-3)"]
-    R --> V["1500-VALIDATE-TRAN<br/>R01 id → R02 type → R03 type/category → R04 amount numeric<br/>→ R05 card in XREF → R06 account in ACCTFILE → R07 category balance range<br/>→ R08 orig date → R09 proc date → R10 orig ≤ proc → R11 not after run date<br/>→ R12 account not expired → R13 credit limit"]
+    R --> V["1500-VALIDATE-TRAN<br/>R01 id → R02 type → R03 type/category → R04 amount numeric<br/>→ R05 card in XREF → R06 account in ACCTFILE → R07 category balance range<br/>→ R08 orig date → R09 proc date → R10 orig ≤ proc → R11 not after run date<br/>→ R12 account not expired → R13 credit limit → R14 account fields fit S9(10)V99"]
     T[(TRANTYPE)] -.-> V
     C[(TRANCATG)] -.-> V
     X[(XREFFILE)] -.-> V
@@ -94,8 +98,8 @@ two GDG bases in the same shape as `DALYREJS.jcl`.
 
 ## 3. Numbers
 
-Headline: **14 validation rules implemented, each traced to a source line and each
-proven by at least one named test case; 47 test cases; control totals reconcile.**
+Headline: **15 validation rules implemented, each traced to a source line and each
+proven by at least one named test case; 55 test cases; control totals reconcile.**
 
 The table below is checked against the source, the test fixtures and the other
 documents by `tests/cbtrn04c/tools/check_docs_sync.py`, which `run_tests.sh` runs.
@@ -103,12 +107,12 @@ documents by `tests/cbtrn04c/tools/check_docs_sync.py`, which `run_tests.sh` run
 <!-- numbers:begin -->
 | Measure | Value |
 |---------|-------|
-| Validation rules implemented | 14 |
-| Source citations (distinct `path:line`) | 66 |
-| Test cases | 47 |
+| Validation rules implemented | 15 |
+| Source citations (distinct `path:line`) | 69 |
+| Test cases | 55 |
 | Rules confirmed by repository source | 6 |
-| Rules inferred (need owner confirmation) | 8 |
-| Government decisions listed | 12 |
+| Rules inferred (need owner confirmation) | 9 |
+| Government decisions listed | 13 |
 | Sample-data records read | 300 |
 | Sample-data records accepted | 262 |
 | Sample-data records rejected | 38 |
@@ -121,7 +125,7 @@ documents by `tests/cbtrn04c/tools/check_docs_sync.py`, which `run_tests.sh` run
 
 ## 4. Validation rules
 
-Reason codes `0201`–`0209` are new. `0100`–`0103` are the codes `CBTRN02C`
+Reason codes `0201`–`0210` are new. `0100`–`0103` are the codes `CBTRN02C`
 already assigns to an unknown card (`app/cbl/CBTRN02C.cbl:385`), a missing account
 (`:397`), an over-limit transaction (`:410`) and an expired account (`:417`); they
 are reused unchanged with the same text so both programs agree, and the new codes
@@ -134,20 +138,21 @@ they run; the report lists reason codes grouped by code.
 <!-- rules:begin -->
 | # | Rule | Reason code | Source citation (`path:line`) | Confirmed / Inferred | Test case that proves it |
 |---|------|-------------|-------------------------------|----------------------|--------------------------|
-| R01 | `DALYTRAN-ID` present: not all spaces and not all LOW-VALUES | 0201 | `app/cpy/CVTRA06Y.cpy:5`; `app/cbl/CBTRN04C.cbl:868` | Inferred — needs owner confirmation | `rule01_id_spaces`, `rule01_id_low_values` |
-| R02 | `DALYTRAN-TYPE-CD` exists as `TRAN-TYPE` in `TRANTYPE` | 0202 | `app/cpy/CVTRA06Y.cpy:6`; `app/cpy/CVTRA03Y.cpy:5`; `app/cbl/CBTRN04C.cbl:877` | Inferred — needs owner confirmation | `rule02_type_unknown` |
-| R03 | `DALYTRAN-TYPE-CD` + `DALYTRAN-CAT-CD` exists as `TRAN-CAT-KEY` in `TRANCATG` (the category is only meaningful with its type: the file key is the pair, and posting keys the balance record on the same pair) | 0203 | `app/cpy/CVTRA06Y.cpy:7`; `app/cpy/CVTRA04Y.cpy:5`; `app/cpy/CVTRA04Y.cpy:6`; `app/cpy/CVTRA04Y.cpy:7`; `app/cbl/CBTRN02C.cbl:506`; `app/cbl/CBTRN04C.cbl:900` | Inferred — needs owner confirmation | `rule03_category_unknown` |
-| R04 | `DALYTRAN-AMT` passes the NUMERIC class test for `PIC S9(09)V99` (digits with a valid overpunched sign); the value is carried in a `COMP-3` field | 0204 | `app/cpy/CVTRA06Y.cpy:10`; `app/cbl/CBTRN04C.cbl:810`; `app/cbl/CBTRN04C.cbl:924` | Confirmed | `rule04_amount_alpha`, `rule04_amount_invalid_sign`, `rule04_amount_spaces` |
-| R05 | `DALYTRAN-CARD-NUM` exists as `XREF-CARD-NUM` in `XREFFILE`; same lookup and same reason code as `CBTRN02C` | 0100 | `app/cbl/CBTRN02C.cbl:380`; `app/cbl/CBTRN02C.cbl:385`; `app/cpy/CVACT03Y.cpy:5`; `app/cpy/CVTRA06Y.cpy:15`; `app/cbl/CBTRN04C.cbl:937` | Confirmed | `rule05_card_unknown` |
-| R06 | The account the card cross-reference points to (`XREF-ACCT-ID`) exists in `ACCTFILE`; same keyed read and same reason code as `CBTRN02C` | 0101 | `app/cbl/CBTRN02C.cbl:394`; `app/cbl/CBTRN02C.cbl:395`; `app/cbl/CBTRN02C.cbl:397`; `app/cpy/CVACT03Y.cpy:7`; `app/cpy/CVACT01Y.cpy:5`; `app/cbl/CBTRN04C.cbl:966`; `app/cbl/CBTRN04C.cbl:970` | Confirmed | `rule06_acct_missing` |
-| R07 | Amount fits downstream: projected `TRAN-CAT-BAL` + amount must stay within `S9(09)V99` (the narrowest target; `CBTRN02C` adds to it with no `SIZE ERROR` and rewrites it after every posting, so the projection carries every earlier accepted amount for the same account/type/category key). `TRAN-AMT` is also `S9(09)V99`, so a lone amount always fits it; `ACCT-CURR-BAL` is `S9(10)V99`, wider than the feed | 0205 | `app/cpy/CVTRA01Y.cpy:9`; `app/cpy/CVTRA05Y.cpy:10`; `app/cpy/CVACT01Y.cpy:7`; `app/cbl/CBTRN02C.cbl:508`; `app/cbl/CBTRN02C.cbl:527`; `app/cbl/CBTRN02C.cbl:547`; `app/cbl/CBTRN04C.cbl:1016`; `app/cbl/CBTRN04C.cbl:1172` | Inferred — needs owner confirmation | `rule07_amount_max_downstream`, `rule07_amount_one_cent_over`, `rule07_amount_negative_max`, `rule07_amount_negative_floor`, `rule07_batch_second_record_overflows`, `rule07_batch_reject_not_projected` |
-| R08 | `DALYTRAN-ORIG-TS` bytes 1-10 are a valid Gregorian `YYYY-MM-DD` (real month and day, leap years by the 4/100/400 rule); converted to Julian `YYYYDDD` | 0206 | `app/cpy/CVTRA06Y.cpy:16`; `app/cbl/CBTRN02C.cbl:414`; `app/cbl/CBTRN04C.cbl:1064`; `app/cbl/CBTRN04C.cbl:1434`; `app/cbl/CBTRN04C.cbl:1484` | Inferred — needs owner confirmation | `rule08_orig_feb30`, `rule08_orig_leap_day_valid`, `rule08_orig_leap_day_nonleap`, `rule08_orig_century_leap`, `rule08_orig_century_nonleap`, `rule08_orig_month_13`, `rule08_orig_not_numeric` |
-| R09 | `DALYTRAN-PROC-TS`, when present, has a valid Gregorian date in bytes 1-10; a blank value is accepted because `CBTRN02C` overwrites `TRAN-PROC-TS` with the posting timestamp | 0207 | `app/cpy/CVTRA06Y.cpy:17`; `app/cbl/CBTRN02C.cbl:438`; `app/cbl/CBTRN04C.cbl:1082` | Inferred — needs owner confirmation | `rule09_proc_apr31`, `rule09_proc_blank_accepted` |
-| R10 | Origination date is not after the processing date (when a processing timestamp is present); dates only, the time of day is not compared | 0208 | `app/cbl/CBTRN02C.cbl:436`; `app/cbl/CBTRN04C.cbl:1096` | Inferred — needs owner confirmation | `rule10_orig_after_proc` |
-| R11 | Neither date is after the run date passed as `PARM='YYYYMMDD'` (the `INTCALC.jcl` / `CBACT04C` way of passing a date) | 0209 | `app/jcl/INTCALC.jcl:22`; `app/cbl/CBACT04C.cbl:178`; `app/cbl/CBTRN04C.cbl:575`; `app/cbl/CBTRN04C.cbl:1108` | Inferred — needs owner confirmation | `rule11_orig_future`, `rule11_proc_future`, `rule11_dates_equal_run_date` |
-| R12 | `ACCT-EXPIRAION-DATE >= DALYTRAN-ORIG-TS (1:10)`, the same character compare as `CBTRN02C`, evaluated once the origination date is known valid (R08) so the compare is chronological in any collating sequence | 0103 | `app/cbl/CBTRN02C.cbl:414`; `app/cbl/CBTRN02C.cbl:417`; `app/cpy/CVACT01Y.cpy:11`; `app/cbl/CBTRN04C.cbl:1132`; `app/cbl/CBTRN04C.cbl:1133` | Confirmed | `rule12_acct_expired`, `rule12_acct_expiry_boundary` |
-| R13 | `ACCT-CREDIT-LIMIT >= ACCT-CURR-CYC-CREDIT - ACCT-CURR-CYC-DEBIT + amount`, the `CBTRN02C` credit-limit test, evaluated against a per-account projection: the first record for an account starts from the master values and every accepted record advances the projection the way `2800-UPDATE-ACCOUNT-REC` will (credit for amounts >= 0, debit otherwise); rejected records do not advance it. Runs after R12 because `CBTRN02C` evaluates both and the later 103 overwrites 102 when both fail | 0102 | `app/cbl/CBTRN02C.cbl:403`; `app/cbl/CBTRN02C.cbl:407`; `app/cbl/CBTRN02C.cbl:410`; `app/cbl/CBTRN02C.cbl:549`; `app/cbl/CBTRN02C.cbl:551`; `app/cpy/CVACT01Y.cpy:8`; `app/cpy/CVACT01Y.cpy:13`; `app/cpy/CVACT01Y.cpy:14`; `app/cbl/CBTRN04C.cbl:988`; `app/cbl/CBTRN04C.cbl:1144`; `app/cbl/CBTRN04C.cbl:1196` | Confirmed | `rule13_credit_limit_at`, `rule13_credit_limit_over`, `rule13_credit_projection`, `rule13_acct_reject_not_projected` |
-| R14 | A record failing several rules is rejected once with the first failing rule's code, in the order R01…R13 (the sequential `IF WS-VALIDATION-FAIL-REASON = 0` chain of `CBTRN02C`) | — | `app/cbl/CBTRN02C.cbl:208`; `app/cbl/CBTRN02C.cbl:372`; `app/cbl/CBTRN04C.cbl:830` | Confirmed | `precedence_type_and_card`, `precedence_id_and_amount`, `precedence_amount_and_date`, `precedence_expired_and_overlimit` |
+| R01 | `DALYTRAN-ID` present: not all spaces and not all LOW-VALUES | 0201 | `app/cpy/CVTRA06Y.cpy:5`; `app/cbl/CBTRN04C.cbl:885` | Inferred — needs owner confirmation | `rule01_id_spaces`, `rule01_id_low_values` |
+| R02 | `DALYTRAN-TYPE-CD` exists as `TRAN-TYPE` in `TRANTYPE` | 0202 | `app/cpy/CVTRA06Y.cpy:6`; `app/cpy/CVTRA03Y.cpy:5`; `app/cbl/CBTRN04C.cbl:894` | Inferred — needs owner confirmation | `rule02_type_unknown` |
+| R03 | `DALYTRAN-TYPE-CD` + `DALYTRAN-CAT-CD` exists as `TRAN-CAT-KEY` in `TRANCATG` (the category is only meaningful with its type: the file key is the pair, and posting keys the balance record on the same pair) | 0203 | `app/cpy/CVTRA06Y.cpy:7`; `app/cpy/CVTRA04Y.cpy:5`; `app/cpy/CVTRA04Y.cpy:6`; `app/cpy/CVTRA04Y.cpy:7`; `app/cbl/CBTRN02C.cbl:506`; `app/cbl/CBTRN04C.cbl:917` | Inferred — needs owner confirmation | `rule03_category_unknown` |
+| R04 | `DALYTRAN-AMT` passes the NUMERIC class test for `PIC S9(09)V99` (digits with a valid overpunched sign); the value is carried in a `COMP-3` field | 0204 | `app/cpy/CVTRA06Y.cpy:10`; `app/cbl/CBTRN04C.cbl:824`; `app/cbl/CBTRN04C.cbl:941` | Confirmed | `rule04_amount_alpha`, `rule04_amount_invalid_sign`, `rule04_amount_spaces` |
+| R05 | `DALYTRAN-CARD-NUM` exists as `XREF-CARD-NUM` in `XREFFILE`; same lookup and same reason code as `CBTRN02C` | 0100 | `app/cbl/CBTRN02C.cbl:380`; `app/cbl/CBTRN02C.cbl:385`; `app/cpy/CVACT03Y.cpy:5`; `app/cpy/CVTRA06Y.cpy:15`; `app/cbl/CBTRN04C.cbl:954` | Confirmed | `rule05_card_unknown` |
+| R06 | The account the card cross-reference points to (`XREF-ACCT-ID`) exists in `ACCTFILE`; same keyed read and same reason code as `CBTRN02C` | 0101 | `app/cbl/CBTRN02C.cbl:394`; `app/cbl/CBTRN02C.cbl:395`; `app/cbl/CBTRN02C.cbl:397`; `app/cpy/CVACT03Y.cpy:7`; `app/cpy/CVACT01Y.cpy:5`; `app/cbl/CBTRN04C.cbl:983`; `app/cbl/CBTRN04C.cbl:987` | Confirmed | `rule06_acct_missing` |
+| R07 | Amount fits downstream: projected `TRAN-CAT-BAL` + amount must stay within `S9(09)V99` (the narrowest target; `CBTRN02C` adds to it with no `SIZE ERROR` and rewrites it after every posting, so the projection carries every earlier accepted amount for the same account/type/category key). `TRAN-AMT` is also `S9(09)V99`, so a lone amount always fits it; `ACCT-CURR-BAL` is `S9(10)V99`, wider than the feed; the account fields are projected separately under R14 | 0205 | `app/cpy/CVTRA01Y.cpy:9`; `app/cpy/CVTRA05Y.cpy:10`; `app/cpy/CVACT01Y.cpy:7`; `app/cbl/CBTRN02C.cbl:508`; `app/cbl/CBTRN02C.cbl:527`; `app/cbl/CBTRN02C.cbl:547`; `app/cbl/CBTRN04C.cbl:1036`; `app/cbl/CBTRN04C.cbl:1232` | Inferred — needs owner confirmation | `rule07_amount_max_downstream`, `rule07_amount_one_cent_over`, `rule07_amount_negative_max`, `rule07_amount_negative_floor`, `rule07_batch_second_record_overflows`, `rule07_batch_reject_not_projected` |
+| R08 | `DALYTRAN-ORIG-TS` bytes 1-10 are a valid Gregorian `YYYY-MM-DD` (real month and day, leap years by the 4/100/400 rule); converted to Julian `YYYYDDD` | 0206 | `app/cpy/CVTRA06Y.cpy:16`; `app/cbl/CBTRN02C.cbl:414`; `app/cbl/CBTRN04C.cbl:1084`; `app/cbl/CBTRN04C.cbl:1502`; `app/cbl/CBTRN04C.cbl:1552` | Inferred — needs owner confirmation | `rule08_orig_feb30`, `rule08_orig_leap_day_valid`, `rule08_orig_leap_day_nonleap`, `rule08_orig_century_leap`, `rule08_orig_century_nonleap`, `rule08_orig_month_13`, `rule08_orig_not_numeric` |
+| R09 | `DALYTRAN-PROC-TS`, when present, has a valid Gregorian date in bytes 1-10; a blank value is accepted because `CBTRN02C` overwrites `TRAN-PROC-TS` with the posting timestamp | 0207 | `app/cpy/CVTRA06Y.cpy:17`; `app/cbl/CBTRN02C.cbl:438`; `app/cbl/CBTRN04C.cbl:1102` | Inferred — needs owner confirmation | `rule09_proc_apr31`, `rule09_proc_blank_accepted` |
+| R10 | Origination date is not after the processing date (when a processing timestamp is present); dates only, the time of day is not compared | 0208 | `app/cbl/CBTRN02C.cbl:436`; `app/cbl/CBTRN04C.cbl:1116` | Inferred — needs owner confirmation | `rule10_orig_after_proc` |
+| R11 | Neither date is after the run date passed as `PARM='YYYYMMDD'` (the `INTCALC.jcl` / `CBACT04C` way of passing a date) | 0209 | `app/jcl/INTCALC.jcl:22`; `app/cbl/CBACT04C.cbl:178`; `app/cbl/CBTRN04C.cbl:589`; `app/cbl/CBTRN04C.cbl:1128` | Inferred — needs owner confirmation | `rule11_orig_future`, `rule11_proc_future`, `rule11_dates_equal_run_date` |
+| R12 | `ACCT-EXPIRAION-DATE >= DALYTRAN-ORIG-TS (1:10)`, the same character compare as `CBTRN02C`, evaluated once the origination date is known valid (R08) so the compare is chronological in any collating sequence | 0103 | `app/cbl/CBTRN02C.cbl:414`; `app/cbl/CBTRN02C.cbl:417`; `app/cpy/CVACT01Y.cpy:11`; `app/cbl/CBTRN04C.cbl:1152`; `app/cbl/CBTRN04C.cbl:1153` | Confirmed | `rule12_acct_expired`, `rule12_acct_expiry_boundary` |
+| R13 | `ACCT-CREDIT-LIMIT >= ACCT-CURR-CYC-CREDIT - ACCT-CURR-CYC-DEBIT + amount`, the `CBTRN02C` credit-limit test, evaluated against a per-account projection: the first record for an account starts from the master values and every accepted record advances the projection the way `2800-UPDATE-ACCOUNT-REC` will (credit for amounts >= 0, debit otherwise); rejected records do not advance it. Runs after R12 because `CBTRN02C` evaluates both and the later 103 overwrites 102 when both fail | 0102 | `app/cbl/CBTRN02C.cbl:403`; `app/cbl/CBTRN02C.cbl:407`; `app/cbl/CBTRN02C.cbl:410`; `app/cbl/CBTRN02C.cbl:549`; `app/cbl/CBTRN02C.cbl:551`; `app/cpy/CVACT01Y.cpy:8`; `app/cpy/CVACT01Y.cpy:13`; `app/cpy/CVACT01Y.cpy:14`; `app/cbl/CBTRN04C.cbl:1005`; `app/cbl/CBTRN04C.cbl:1164`; `app/cbl/CBTRN04C.cbl:1256` | Confirmed | `rule13_credit_limit_at`, `rule13_credit_limit_over`, `rule13_credit_projection`, `rule13_acct_reject_not_projected` |
+| R14 | Posting arithmetic fits the account master: `CBTRN02C` computes the limit test into `WS-TEMP-BAL` `S9(09)V99` and `2800-UPDATE-ACCOUNT-REC` adds the amount to `ACCT-CURR-BAL` and to `ACCT-CURR-CYC-CREDIT` (amount >= 0) or `ACCT-CURR-CYC-DEBIT`, all `S9(10)V99`, none with `ON SIZE ERROR`. The projected limit-test value must stay within `S9(09)V99` and each projected account field within `S9(10)V99`; the projection is per account and carries `ACCT-CURR-BAL` and both cycle fields forward from every earlier accepted record (rejected records do not advance it). Runs last so 0102/0103 stay what `CBTRN02C` would report when they also fail | 0210 | `app/cbl/CBTRN02C.cbl:187`; `app/cbl/CBTRN02C.cbl:403`; `app/cbl/CBTRN02C.cbl:547`; `app/cbl/CBTRN02C.cbl:549`; `app/cbl/CBTRN02C.cbl:551`; `app/cpy/CVACT01Y.cpy:7`; `app/cpy/CVACT01Y.cpy:13`; `app/cpy/CVACT01Y.cpy:14`; `app/cbl/CBTRN04C.cbl:1185`; `app/cbl/CBTRN04C.cbl:1021` | Inferred — needs owner confirmation | `rule14_curr_bal_at_max`, `rule14_curr_bal_one_cent_over`, `rule14_curr_bal_below_min`, `rule14_curr_bal_projection`, `rule14_cyc_credit_over`, `rule14_cyc_debit_over`, `rule14_limit_test_over_s9_09`, `rule14_limit_test_at_s9_09` |
+| R15 | A record failing several rules is rejected once with the first failing rule's code, in the order R01…R14 (the sequential `IF WS-VALIDATION-FAIL-REASON = 0` chain of `CBTRN02C`) | — | `app/cbl/CBTRN02C.cbl:208`; `app/cbl/CBTRN02C.cbl:372`; `app/cbl/CBTRN04C.cbl:844` | Confirmed | `precedence_type_and_card`, `precedence_id_and_amount`, `precedence_amount_and_date`, `precedence_expired_and_overlimit` |
 <!-- rules:end -->
 
 Cases not tied to one rule: `clean_record` (all rules pass), `empty_input`,
@@ -161,12 +166,12 @@ repository's own feed). The generated list is
 
 | Convention | `CBTRN02C` | `CBTRN04C` |
 |------------|------------|------------|
-| Reject record = 350-byte record + 80-byte trailer (`PIC 9(04)` code + `PIC X(76)` text) | `app/cbl/CBTRN02C.cbl:83`, `app/cbl/CBTRN02C.cbl:180`, `app/cbl/CBTRN02C.cbl:446` | `app/cbl/CBTRN04C.cbl:1269` |
-| Return code 4 when anything was rejected | `app/cbl/CBTRN02C.cbl:229` | `app/cbl/CBTRN04C.cbl:548` |
-| File errors stop the program (`CBTRN02C` abends with `CEE3ABD` 999; `CBTRN04C` sets RC 12 and ends, which JCL `COND` can test) | `app/cbl/CBTRN02C.cbl:707` | `app/cbl/CBTRN04C.cbl:1695` |
-| Reset reason, validate, then post or reject | `app/cbl/CBTRN02C.cbl:208` | `app/cbl/CBTRN04C.cbl:535` |
+| Reject record = 350-byte record + 80-byte trailer (`PIC 9(04)` code + `PIC X(76)` text) | `app/cbl/CBTRN02C.cbl:83`, `app/cbl/CBTRN02C.cbl:180`, `app/cbl/CBTRN02C.cbl:446` | `app/cbl/CBTRN04C.cbl:1337` |
+| Return code 4 when anything was rejected | `app/cbl/CBTRN02C.cbl:229` | `app/cbl/CBTRN04C.cbl:562` |
+| File errors stop the program (`CBTRN02C` abends with `CEE3ABD` 999; `CBTRN04C` sets RC 12 and ends, which JCL `COND` can test) | `app/cbl/CBTRN02C.cbl:707` | `app/cbl/CBTRN04C.cbl:1763` |
+| Reset reason, validate, then post or reject | `app/cbl/CBTRN02C.cbl:208` | `app/cbl/CBTRN04C.cbl:549` |
 | File Section records are key-plus-filler skeletons sized to the data set; every production layout is brought in with `COPY` in Working-Storage and filled with `READ ... INTO` (no copybook layout is retyped) | `app/cbl/CBTRN02C.cbl:66`, `app/cbl/CBTRN02C.cbl:91`, `app/cbl/CBTRN02C.cbl:102` | `app/cbl/CBTRN04C.cbl:91`, `app/cbl/CBTRN04C.cbl:118`, `app/cbl/CBTRN04C.cbl:140` |
-| Close all data files, then report the final return code | `CBTRN02C` has no report; `DISPLAY` totals follow the closes (`app/cbl/CBTRN02C.cbl:229`) | `app/cbl/CBTRN04C.cbl:560` |
+| Close all data files, then report the final return code | `CBTRN02C` has no report; `DISPLAY` totals follow the closes (`app/cbl/CBTRN02C.cbl:229`) | `app/cbl/CBTRN04C.cbl:574` |
 | GDG reject output `DALYREJS(+1)`, `LRECL=430` | `app/jcl/POSTTRAN.jcl:36`, `app/jcl/POSTTRAN.jcl:38` | `app/jcl/VALDTRAN.jcl`, `app/jcl/POSTTRN2.jcl` |
 | Account master read by `XREF-ACCT-ID` (`ACCTFILE`, `DISP=SHR`) | `app/cbl/CBTRN02C.cbl:394`, `app/jcl/POSTTRAN.jcl` | `app/cbl/CBTRN04C.cbl:61`, `app/jcl/VALDTRAN.jcl`, `app/jcl/POSTTRN2.jcl` |
 | Conditional cleanup of a failed step's GDG generations | — (new) | `app/jcl/POSTTRN2.jcl:84`, `app/jcl/VALDTRAN.jcl:74` (`IEFBR14`, `COND=(4,GE,STEP10)`, `DISP=(MOD,DELETE,DELETE)`) |
@@ -177,8 +182,8 @@ repository's own feed). The generated list is
 
 All money in `CBTRN04C` working storage is `COMP-3`: the per-record amount
 (`WS-TRAN-AMT-P PIC S9(09)V99 COMP-3`), the projected category balance
-(`S9(11)V99 COMP-3`), the projected account cycle credit/debit (`S9(13)V99
-COMP-3`) and the accepted / rejected / total accumulators (`S9(16)V99 COMP-3`,
+(`S9(11)V99 COMP-3`), the projected account balance and cycle credit/debit
+(`S9(13)V99 COMP-3`) and the accepted / rejected / total accumulators (`S9(16)V99 COMP-3`,
 enough for 10^7 records at the feed maximum). Every `ADD`/`COMPUTE` into these
 fields carries `ON SIZE ERROR`, which ends the run with RC 12
 (`9980-TOTAL-OVERFLOW`) rather than a silently wrapped total. The report prints

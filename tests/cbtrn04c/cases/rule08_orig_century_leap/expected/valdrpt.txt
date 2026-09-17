@@ -19,6 +19,7 @@
    0207 PROCESSING TIMESTAMP DATE INVALID                 :           0                                                              
    0208 ORIGINATION DATE AFTER PROCESSING DATE            :           0                                                              
    0209 TRANSACTION DATE AFTER RUN DATE                   :           0                                                              
+   0210 AMOUNT WOULD OVERFLOW ACCOUNT FIELDS S9(10)V99    :           0                                                              
                                                                                                                                      
  ACCEPTED AMOUNT TOTAL                             :                    125.50                                                       
  REJECTED AMOUNT TOTAL (NUMERIC AMOUNTS ONLY)      :                      0.00                                                       

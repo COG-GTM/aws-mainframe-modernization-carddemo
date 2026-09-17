@@ -223,7 +223,7 @@
       * order the rules run in 1500-VALIDATE-TRAN). 0100-0103 are the
       * codes and texts CBTRN02C assigns to an unknown card, a missing
       * account, an overlimit transaction and an expired account; they
-      * are reused unchanged. New codes use 0201-0209 so they stay
+      * are reused unchanged. New codes use 0201-0210 so they stay
       * clear of the 0100-0109 range CBTRN02C uses for posting rejects.
       *----------------------------------------------------------------
        01  WS-REASON-TABLE-DATA.
@@ -253,11 +253,13 @@
               '0208ORIGINATION DATE AFTER PROCESSING DATE            '.
            05 FILLER PIC X(54) VALUE
               '0209TRANSACTION DATE AFTER RUN DATE                   '.
+           05 FILLER PIC X(54) VALUE
+              '0210AMOUNT WOULD OVERFLOW ACCOUNT FIELDS S9(10)V99    '.
        01  WS-REASON-TABLE REDEFINES WS-REASON-TABLE-DATA.
-           05 WS-REASON-ENTRY OCCURS 13 TIMES.
+           05 WS-REASON-ENTRY OCCURS 14 TIMES.
               10 WS-RSN-CODE                    PIC 9(04).
               10 WS-RSN-DESC                    PIC X(50).
-       01  WS-REASON-MAX                        PIC 9(02) VALUE 13.
+       01  WS-REASON-MAX                        PIC 9(02) VALUE 14.
        01  WS-RSN-IX                            PIC 9(02).
        01  WS-RSN-FOUND                         PIC X(01).
 
@@ -283,7 +285,7 @@
            05 WS-CHECK-COUNT                    PIC 9(09) COMP-3
                                                 VALUE 0.
        01  WS-REASON-COUNTS.
-           05 WS-RSN-COUNT OCCURS 13 TIMES      PIC 9(09) COMP-3.
+           05 WS-RSN-COUNT OCCURS 14 TIMES      PIC 9(09) COMP-3.
 
        01  WS-AMOUNTS.
            05 WS-TRAN-AMT-P                     PIC S9(09)V99 COMP-3
@@ -292,6 +294,10 @@
                                                 VALUE 999999999.99.
            05 WS-AMT-FLOOR                      PIC S9(09)V99 COMP-3
                                                 VALUE -999999999.99.
+           05 WS-ACCT-FLD-CEILING               PIC S9(10)V99 COMP-3
+                                                VALUE 9999999999.99.
+           05 WS-ACCT-FLD-FLOOR                 PIC S9(10)V99 COMP-3
+                                                VALUE -9999999999.99.
            05 WS-PROJ-CAT-BAL                   PIC S9(11)V99 COMP-3
                                                 VALUE 0.
            05 WS-TOTAL-AMT                      PIC S9(16)V99 COMP-3
@@ -311,10 +317,13 @@
       * Projected account cycle credit and debit for accounts already
       * accepted in this run. CBTRN02C tests the credit limit against
       * ACCT-CURR-CYC-CREDIT - ACCT-CURR-CYC-DEBIT + amount and then
-      * rewrites those two fields after every posting
-      * (2800-UPDATE-ACCOUNT-REC), so a second record for the same
-      * account must be tested against the values the first one will
-      * leave behind. Rejected records do not advance the projection.
+      * adds the amount to ACCT-CURR-BAL and to one of those two
+      * fields after every posting (2800-UPDATE-ACCOUNT-REC), so a
+      * second record for the same account must be tested against the
+      * values the first one will leave behind. All three fields are
+      * S9(10)V99 and CBTRN02C adds to them without ON SIZE ERROR, so
+      * the projections are carried wider and checked against that
+      * picture (1598). Rejected records do not advance the projection.
       *----------------------------------------------------------------
        01  WS-ACCT-TABLE-MAX                    PIC 9(05) VALUE 20000.
        01  WS-ACCT-TABLE-COUNT                  PIC 9(05) VALUE 0.
@@ -322,15 +331,20 @@
        01  WS-ACCT-FOUND-IX                     PIC 9(05) VALUE 0.
        01  WS-ACCT-SEARCH-ID                    PIC 9(11).
        01  WS-ACCT-PROJECTION.
+           05 WS-PROJ-CURR-BAL                  PIC S9(13)V99 COMP-3
+                                                VALUE 0.
            05 WS-PROJ-CYC-CREDIT                PIC S9(13)V99 COMP-3
                                                 VALUE 0.
            05 WS-PROJ-CYC-DEBIT                 PIC S9(13)V99 COMP-3
                                                 VALUE 0.
            05 WS-PROJ-TEMP-BAL                  PIC S9(13)V99 COMP-3
                                                 VALUE 0.
+           05 WS-PROJ-CYC-WORK                  PIC S9(13)V99 COMP-3
+                                                VALUE 0.
        01  WS-ACCT-TABLE.
            05 WS-ACCT-ENTRY OCCURS 20000 TIMES.
               10 WS-ACCT-KEY                    PIC 9(11).
+              10 WS-ACCT-PROJ-BAL               PIC S9(13)V99 COMP-3.
               10 WS-ACCT-PROJ-CREDIT            PIC S9(13)V99 COMP-3.
               10 WS-ACCT-PROJ-DEBIT             PIC S9(13)V99 COMP-3.
 
@@ -862,6 +876,9 @@
            IF  WS-VALIDATION-FAIL-REASON = 0
                PERFORM 1596-CHECK-CREDIT-LIMIT
            END-IF
+           IF  WS-VALIDATION-FAIL-REASON = 0
+               PERFORM 1598-CHECK-ACCT-FIELD-RANGE
+           END-IF
            EXIT.
 
       *---------------------------------------------------------------*
@@ -994,11 +1011,14 @@
                END-IF
            END-PERFORM
            IF  WS-ACCT-FOUND-IX > 0
+               MOVE WS-ACCT-PROJ-BAL (WS-ACCT-FOUND-IX)
+                 TO WS-PROJ-CURR-BAL
                MOVE WS-ACCT-PROJ-CREDIT (WS-ACCT-FOUND-IX)
                  TO WS-PROJ-CYC-CREDIT
                MOVE WS-ACCT-PROJ-DEBIT (WS-ACCT-FOUND-IX)
                  TO WS-PROJ-CYC-DEBIT
            ELSE
+               MOVE ACCT-CURR-BAL        TO WS-PROJ-CURR-BAL
                MOVE ACCT-CURR-CYC-CREDIT TO WS-PROJ-CYC-CREDIT
                MOVE ACCT-CURR-CYC-DEBIT  TO WS-PROJ-CYC-DEBIT
            END-IF
@@ -1154,6 +1174,46 @@
            EXIT.
 
       *---------------------------------------------------------------*
+      * CBTRN02C computes the limit test into WS-TEMP-BAL, S9(09)V99,
+      * and 2800-UPDATE-ACCOUNT-REC adds the amount to ACCT-CURR-BAL
+      * and to ACCT-CURR-CYC-CREDIT or ACCT-CURR-CYC-DEBIT, all
+      * S9(10)V99, none with ON SIZE ERROR. Reject when any of those
+      * results cannot be held, so posting never truncates the limit
+      * test or the account balances. Runs last: 0102/0103 are what
+      * CBTRN02C would report when they also fail.
+      *---------------------------------------------------------------*
+       1598-CHECK-ACCT-FIELD-RANGE.
+           IF  WS-PROJ-TEMP-BAL > WS-AMT-CEILING
+           OR  WS-PROJ-TEMP-BAL < WS-AMT-FLOOR
+               MOVE 14 TO WS-RSN-IX
+               PERFORM 1900-SET-REASON
+           END-IF
+           IF  WS-VALIDATION-FAIL-REASON = 0
+               COMPUTE WS-PROJ-CYC-WORK = WS-PROJ-CURR-BAL
+                                        + WS-TRAN-AMT-P
+               IF  WS-PROJ-CYC-WORK > WS-ACCT-FLD-CEILING
+               OR  WS-PROJ-CYC-WORK < WS-ACCT-FLD-FLOOR
+                   MOVE 14 TO WS-RSN-IX
+                   PERFORM 1900-SET-REASON
+               END-IF
+           END-IF
+           IF  WS-VALIDATION-FAIL-REASON = 0
+               IF  WS-TRAN-AMT-P >= 0
+                   COMPUTE WS-PROJ-CYC-WORK = WS-PROJ-CYC-CREDIT
+                                            + WS-TRAN-AMT-P
+               ELSE
+                   COMPUTE WS-PROJ-CYC-WORK = WS-PROJ-CYC-DEBIT
+                                            + WS-TRAN-AMT-P
+               END-IF
+               IF  WS-PROJ-CYC-WORK > WS-ACCT-FLD-CEILING
+               OR  WS-PROJ-CYC-WORK < WS-ACCT-FLD-FLOOR
+                   MOVE 14 TO WS-RSN-IX
+                   PERFORM 1900-SET-REASON
+               END-IF
+           END-IF
+           EXIT.
+
+      *---------------------------------------------------------------*
        1900-SET-REASON.
            MOVE WS-RSN-CODE (WS-RSN-IX)
                 TO WS-VALIDATION-FAIL-REASON
@@ -1194,6 +1254,10 @@
       * 2800-UPDATE-ACCOUNT-REC will (amount >= 0 is credit).
       *---------------------------------------------------------------*
        1960-UPDATE-ACCT-PROJECTION.
+           ADD WS-TRAN-AMT-P TO WS-PROJ-CURR-BAL
+               ON SIZE ERROR
+               PERFORM 9980-TOTAL-OVERFLOW
+           END-ADD
            IF  WS-TRAN-AMT-P >= 0
                ADD WS-TRAN-AMT-P TO WS-PROJ-CYC-CREDIT
                    ON SIZE ERROR
@@ -1206,6 +1270,8 @@
                END-ADD
            END-IF
            IF  WS-ACCT-FOUND-IX > 0
+               MOVE WS-PROJ-CURR-BAL
+                 TO WS-ACCT-PROJ-BAL (WS-ACCT-FOUND-IX)
                MOVE WS-PROJ-CYC-CREDIT
                  TO WS-ACCT-PROJ-CREDIT (WS-ACCT-FOUND-IX)
                MOVE WS-PROJ-CYC-DEBIT
@@ -1215,6 +1281,8 @@
                    ADD 1 TO WS-ACCT-TABLE-COUNT
                    MOVE WS-ACCT-SEARCH-ID
                      TO WS-ACCT-KEY (WS-ACCT-TABLE-COUNT)
+                   MOVE WS-PROJ-CURR-BAL
+                     TO WS-ACCT-PROJ-BAL (WS-ACCT-TABLE-COUNT)
                    MOVE WS-PROJ-CYC-CREDIT
                      TO WS-ACCT-PROJ-CREDIT (WS-ACCT-TABLE-COUNT)
                    MOVE WS-PROJ-CYC-DEBIT
