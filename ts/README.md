@@ -12,6 +12,7 @@ themselves land in later phases.
 | `@carddemo/domain` | copybooks in `app/cpy` | Record layouts and typed records for account, customer, card, xref, transaction, daily transaction, category balance, disclosure group, transaction type/category and user security, plus their VSAM key builders |
 | `@carddemo/vsam` | VSAM KSDS / QSAM access | Key-ordered `Ksds` store and `SequentialReader`/`SequentialWriter`, reporting COBOL file status codes (`00`, `10`, `22`, `23`, `42`, …), wired to the sample data in `app/data/ASCII` |
 | `@carddemo/utilities` | `CSUTLDTC`, `CSUTLDPY`/`CSUTLDWY`, `COBSWAIT`, `CBEXPORT`/`CBIMPORT` | Date validation with the CEEDAYS feedback codes, the online date edits, the wait utility and the 500 byte branch migration export/import |
+| `@carddemo/online-cards` | `COCRDLIC`, `COCRDSLC`, `COCRDUPC` | Card list (paging and filters), card detail and card update as typed handlers over the COMMAREA, plus a thin Express transport |
 
 ## Usage
 
