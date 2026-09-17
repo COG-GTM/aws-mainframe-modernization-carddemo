@@ -103,6 +103,17 @@ class TestControlTotals(unittest.TestCase):
         self.s = self.data["summary"]
         self.readme = md("README.md")
 
+    def test_pinned_control_totals(self):
+        """Pinned to the current source tree so a change in any total is deliberate."""
+        self.assertEqual(self.s["artifact_total"], 237)
+        self.assertEqual(self.s["headline"]["resolved_edges"], 534)
+        self.assertEqual(self.s["headline"]["unresolved_edges"], 112)
+        self.assertEqual(self.s["construct_total"], 2658)
+        self.assertEqual(self.s["orphans"]["total"], 186)
+        self.assertEqual({k: self.s["lineage"][k] for k in ("hops", "confirmed", "inferred")},
+                         {"hops": 37, "confirmed": 30, "inferred": 7})
+        self.assertEqual(self.s["government_decisions"], 17)
+
     def test_headline_edges_match_edge_list(self):
         edges = self.data["edges"]
         seen = {}
