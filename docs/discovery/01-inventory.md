@@ -85,8 +85,8 @@ A dataset is counted once per normalised DSN (GDG relative generations and quote
 | VSAM component (DATA/INDEX) | 33 |
 | library (PDS/PDSE) | 33 |
 | sequential | 149 |
-| unknown | 38 |
-| **Total** | **282** |
+| unknown | 37 |
+| **Total** | **281** |
 
 ### Scheduler definitions
 
@@ -313,19 +313,19 @@ One row per artifact. `Depends on` lists `COPY`/`INCLUDE` targets for COBOL, the
 | `app/data/ASCII/tcatbal.txt` | data_sample | TCATBAL | 50 |  |  |  |  |  |
 | `app/data/ASCII/trancatg.txt` | data_sample | TRANCATG | 18 |  |  |  |  |  |
 | `app/data/ASCII/trantype.txt` | data_sample | TRANTYPE | 7 |  |  |  |  |  |
-| `app/data/EBCDIC/AWS.M2.CARDDEMO.ACCDATA.PS` | data_sample | AWS.M2.CARDDEMO.ACCDATA | n/a |  |  |  |  |  |
-| `app/data/EBCDIC/AWS.M2.CARDDEMO.ACCTDATA.PS` | data_sample | AWS.M2.CARDDEMO.ACCTDATA | n/a |  |  |  |  |  |
-| `app/data/EBCDIC/AWS.M2.CARDDEMO.CARDDATA.PS` | data_sample | AWS.M2.CARDDEMO.CARDDATA | n/a |  |  |  |  |  |
-| `app/data/EBCDIC/AWS.M2.CARDDEMO.CARDXREF.PS` | data_sample | AWS.M2.CARDDEMO.CARDXREF | n/a |  |  |  |  |  |
-| `app/data/EBCDIC/AWS.M2.CARDDEMO.CUSTDATA.PS` | data_sample | AWS.M2.CARDDEMO.CUSTDATA | n/a |  |  |  |  |  |
-| `app/data/EBCDIC/AWS.M2.CARDDEMO.DALYTRAN.PS` | data_sample | AWS.M2.CARDDEMO.DALYTRAN | n/a |  |  |  |  |  |
-| `app/data/EBCDIC/AWS.M2.CARDDEMO.DALYTRAN.PS.INIT` | data_sample | AWS.M2.CARDDEMO.DALYTRAN.PS | n/a |  |  |  |  |  |
-| `app/data/EBCDIC/AWS.M2.CARDDEMO.DISCGRP.PS` | data_sample | AWS.M2.CARDDEMO.DISCGRP | n/a |  |  |  |  |  |
-| `app/data/EBCDIC/AWS.M2.CARDDEMO.EXPORT.DATA.PS` | data_sample | AWS.M2.CARDDEMO.EXPORT.DATA | 6 |  |  |  |  |  |
-| `app/data/EBCDIC/AWS.M2.CARDDEMO.TCATBALF.PS` | data_sample | AWS.M2.CARDDEMO.TCATBALF | n/a |  |  |  |  |  |
-| `app/data/EBCDIC/AWS.M2.CARDDEMO.TRANCATG.PS` | data_sample | AWS.M2.CARDDEMO.TRANCATG | n/a |  |  |  |  |  |
-| `app/data/EBCDIC/AWS.M2.CARDDEMO.TRANTYPE.PS` | data_sample | AWS.M2.CARDDEMO.TRANTYPE | n/a |  |  |  |  |  |
-| `app/data/EBCDIC/AWS.M2.CARDDEMO.USRSEC.PS` | data_sample | AWS.M2.CARDDEMO.USRSEC | n/a |  |  |  |  |  |
+| `app/data/EBCDIC/AWS.M2.CARDDEMO.ACCDATA.PS` | data_sample | AWS.M2.CARDDEMO.ACCDATA.PS | n/a |  |  |  |  |  |
+| `app/data/EBCDIC/AWS.M2.CARDDEMO.ACCTDATA.PS` | data_sample | AWS.M2.CARDDEMO.ACCTDATA.PS | n/a |  |  |  |  |  |
+| `app/data/EBCDIC/AWS.M2.CARDDEMO.CARDDATA.PS` | data_sample | AWS.M2.CARDDEMO.CARDDATA.PS | n/a |  |  |  |  |  |
+| `app/data/EBCDIC/AWS.M2.CARDDEMO.CARDXREF.PS` | data_sample | AWS.M2.CARDDEMO.CARDXREF.PS | n/a |  |  |  |  |  |
+| `app/data/EBCDIC/AWS.M2.CARDDEMO.CUSTDATA.PS` | data_sample | AWS.M2.CARDDEMO.CUSTDATA.PS | n/a |  |  |  |  |  |
+| `app/data/EBCDIC/AWS.M2.CARDDEMO.DALYTRAN.PS` | data_sample | AWS.M2.CARDDEMO.DALYTRAN.PS | n/a |  |  |  |  |  |
+| `app/data/EBCDIC/AWS.M2.CARDDEMO.DALYTRAN.PS.INIT` | data_sample | AWS.M2.CARDDEMO.DALYTRAN.PS.INIT | n/a |  |  |  |  |  |
+| `app/data/EBCDIC/AWS.M2.CARDDEMO.DISCGRP.PS` | data_sample | AWS.M2.CARDDEMO.DISCGRP.PS | n/a |  |  |  |  |  |
+| `app/data/EBCDIC/AWS.M2.CARDDEMO.EXPORT.DATA.PS` | data_sample | AWS.M2.CARDDEMO.EXPORT.DATA.PS | 6 |  |  |  |  |  |
+| `app/data/EBCDIC/AWS.M2.CARDDEMO.TCATBALF.PS` | data_sample | AWS.M2.CARDDEMO.TCATBALF.PS | n/a |  |  |  |  |  |
+| `app/data/EBCDIC/AWS.M2.CARDDEMO.TRANCATG.PS` | data_sample | AWS.M2.CARDDEMO.TRANCATG.PS | n/a |  |  |  |  |  |
+| `app/data/EBCDIC/AWS.M2.CARDDEMO.TRANTYPE.PS` | data_sample | AWS.M2.CARDDEMO.TRANTYPE.PS | n/a |  |  |  |  |  |
+| `app/data/EBCDIC/AWS.M2.CARDDEMO.USRSEC.PS` | data_sample | AWS.M2.CARDDEMO.USRSEC.PS | n/a |  |  |  |  |  |
 | `app/jcl/ACCTFILE.jcl` | jcl_job | ACCTFILE | 65 | STEP05→IDCAMS; STEP10→IDCAMS; STEP15→IDCAMS |  |  |  |  |
 | `app/jcl/CARDFILE.jcl` | jcl_job | CARDFILE | 128 | CLCIFIL→SDSF; STEP05→IDCAMS; STEP10→IDCAMS; STEP15→IDCAMS; STEP40→IDCAMS; STEP50→IDCAMS; STEP60→IDCAMS; OPCIFIL→SDSF |  |  |  |  |
 | `app/jcl/CBADMCDJ.jcl` | jcl_job | CBADMCDJ | 167 | STEP1→DFHCSDUP |  |  |  |  |

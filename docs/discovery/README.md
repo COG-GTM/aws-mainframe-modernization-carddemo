@@ -60,8 +60,8 @@ python3 -m pytest tests/test_discovery.py
 |   Money field: TRAN-AMT | 18 (15 Confirmed / 3 Inferred) |
 |   Date field: TRAN-PROC-TS | 19 (15 Confirmed / 4 Inferred) |
 | Government decisions | 17 |
-| Orphans | 186 (1 programs, 1 copybooks, 184 datasets) |
-| Distinct datasets seen | 282 |
+| Orphans | 185 (1 programs, 1 copybooks, 183 datasets) |
+| Distinct datasets seen | 281 |
 | CSD DEFINE statements | 134 |
 | Scheduler job definitions | 32 |
 

@@ -109,7 +109,7 @@ class TestControlTotals(unittest.TestCase):
         self.assertEqual(self.s["headline"]["resolved_edges"], 547)
         self.assertEqual(self.s["headline"]["unresolved_edges"], 126)
         self.assertEqual(self.s["construct_total"], 2658)
-        self.assertEqual(self.s["orphans"]["total"], 186)
+        self.assertEqual(self.s["orphans"]["total"], 185)
         self.assertEqual({k: self.s["lineage"][k] for k in ("hops", "confirmed", "inferred")},
                          {"hops": 37, "confirmed": 30, "inferred": 7})
         self.assertEqual(self.s["government_decisions"], 17)
@@ -263,7 +263,8 @@ class TestRealDependencyEdges(unittest.TestCase):
 
 class TestInventoryArtifactFields(unittest.TestCase):
     def setUp(self):
-        self.arts = {a["path"]: a for a in load_json()["artifacts"]}
+        self.inv = load_json()
+        self.arts = {a["path"]: a for a in self.inv["artifacts"]}
 
     def test_cbtrn02c_record(self):
         a = self.arts["app/cbl/CBTRN02C.cbl"]
@@ -295,6 +296,17 @@ class TestInventoryArtifactFields(unittest.TestCase):
         for a in self.arts.values():
             for c in a.get("call_targets", []):
                 self.assertNotIn("offset", c)
+
+    def test_sample_data_file_joins_the_dataset_its_jcl_names(self):
+        # the .dat extension is not a dataset qualifier; .PS / .INIT are
+        self.assertEqual(bd.sample_file_dsn("AWS.M2.CARDDEMO.IMSDATA.DBPAUTP0.dat"), "AWS.M2.CARDDEMO.IMSDATA.DBPAUTP0")
+        self.assertEqual(bd.sample_file_dsn("AWS.M2.CARDDEMO.DALYTRAN.PS.INIT"), "AWS.M2.CARDDEMO.DALYTRAN.PS.INIT")
+        self.assertEqual(bd.sample_file_dsn("AWS.M2.CARDDEMO.ACCTDATA.PS"), "AWS.M2.CARDDEMO.ACCTDATA.PS")
+        by_dsn = {d["dsn"]: d for d in self.inv["datasets"]}
+        self.assertNotIn("AWS.M2.CARDDEMO.IMSDATA.DBPAUTP0.DAT", by_dsn)
+        ims = by_dsn["AWS.M2.CARDDEMO.IMSDATA.DBPAUTP0"]
+        self.assertEqual(ims["sample_files"], ["app/app-authorization-ims-db2-mq/data/EBCDIC/AWS.M2.CARDDEMO.IMSDATA.DBPAUTP0.dat"])
+        self.assertTrue(ims["jcl_refs"])
 
     def test_no_hand_typed_count_drift_in_type_labels(self):
         # every type label the generator knows about is either used or absent from the counts table

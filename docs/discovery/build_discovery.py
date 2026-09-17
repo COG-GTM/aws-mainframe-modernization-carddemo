@@ -209,6 +209,19 @@ def normalize_dsn(dsn: str) -> str:
     return strip_gdg(dsn)
 
 
+DSN_QUALIFIER_RE = re.compile(r"^[A-Z@#$][A-Z0-9@#$-]{0,7}$")
+
+
+def sample_file_dsn(filename: str) -> str:
+    """Dataset name carried by a sample data file name: trailing components that are
+    not valid (upper-case, 1-8 character) qualifiers are filesystem extensions
+    (``.dat``, ``.txt``) and are dropped; ``.PS`` / ``.INIT`` are kept."""
+    parts = filename.split(".")
+    while len(parts) > 1 and not DSN_QUALIFIER_RE.match(parts[-1]):
+        parts.pop()
+    return ".".join(parts).upper()
+
+
 # ---------------------------------------------------------------------------
 # COBOL source model
 # ---------------------------------------------------------------------------
@@ -1304,6 +1317,8 @@ class Estate:
             if m:
                 art["notes"].append(f"RUN PROGRAM({m.group(1).upper()})")
         elif atype == "data_sample":
+            if "." in path.name and DSN_QUALIFIER_RE.match(path.name.split(".")[0]):
+                art["name"] = sample_file_dsn(path.name)
             if b"\n" not in data:
                 art["line_count"] = None
                 art["notes"].append("no line terminators (fixed-length records); line count not applicable")
@@ -1783,9 +1798,8 @@ class Estate:
             d = self.dataset(e["dsn"])
             d["catalog_types"].add(e["entry_type"])
         for art in self.artifacts:
-            if art["type"] == "data_sample" and art["name"].startswith("AWS."):
-                base = Path(art["path"]).name.upper()
-                d = self.dataset(base)
+            if art["type"] == "data_sample" and "." in art["name"]:
+                d = self.dataset(art["name"])
                 d["sample_files"].append(art["path"])
 
     def _finish_datasets(self):

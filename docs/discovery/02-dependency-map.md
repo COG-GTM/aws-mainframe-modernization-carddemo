@@ -463,8 +463,7 @@ Mode is taken from the COBOL verbs (`READ`, `WRITE`, `REWRITE`, `DELETE`, `START
 | AWS.M2.CARDDEMO.ESDSRRDS.PS | VSAM |  | IEFBR14: unknown `app/jcl/ESDSRRDS.jcl:26`<br>IEBGENER: unknown `app/jcl/ESDSRRDS.jcl:47`<br>IDCAMS: unknown `app/jcl/ESDSRRDS.jcl:81` | utility step only, JCL DD/control statement |
 | AWS.M2.CARDDEMO.EXPORT.DATA.PS | sequential |  | — (no program opens it) | sample data file |
 | AWS.M2.CARDDEMO.IMPORT.ERRORS | sequential |  | CBIMPORT: write `app/cbl/CBIMPORT.cbl:68` | application program, JCL DD/control statement |
-| AWS.M2.CARDDEMO.IMSDATA.DBPAUTP0 | unknown |  | IEFBR14: unknown `app/app-authorization-ims-db2-mq/jcl/DBPAUTP0.jcl:9`<br>DFSRRC00: unknown `app/app-authorization-ims-db2-mq/jcl/DBPAUTP0.jcl:25`<br>DFSURGU0: unknown `app/app-authorization-ims-db2-mq/jcl/DBPAUTP0.jcl:25` | utility step only, JCL DD/control statement |
-| AWS.M2.CARDDEMO.IMSDATA.DBPAUTP0.DAT | unknown |  | — (no program opens it) | sample data file |
+| AWS.M2.CARDDEMO.IMSDATA.DBPAUTP0 | unknown |  | IEFBR14: unknown `app/app-authorization-ims-db2-mq/jcl/DBPAUTP0.jcl:9`<br>DFSRRC00: unknown `app/app-authorization-ims-db2-mq/jcl/DBPAUTP0.jcl:25`<br>DFSURGU0: unknown `app/app-authorization-ims-db2-mq/jcl/DBPAUTP0.jcl:25` | utility step only, JCL DD/control statement, sample data file |
 | AWS.M2.CARDDEMO.JCL.UTIL | unknown | NONVSAM | — (no program opens it) | catalog listing |
 | AWS.M2.CARDDEMO.LISTCAT | unknown | NONVSAM | — (no program opens it) | catalog listing |
 | AWS.M2.CARDDEMO.LST | unknown | NONVSAM | — (no program opens it) | catalog listing |
@@ -715,7 +714,7 @@ Mode is taken from the COBOL verbs (`READ`, `WRITE`, `REWRITE`, `DELETE`, `START
 
 ## Orphans
 
-**186 orphans**: 1 program(s) nothing references, 1 copybook(s) nothing copies, 184 data-bearing dataset(s) no application program opens. Whether an orphan is dead, seasonal, or driven from outside the repository is a system-owner question (see `05-government-decisions.md`).
+**185 orphans**: 1 program(s) nothing references, 1 copybook(s) nothing copies, 183 data-bearing dataset(s) no application program opens. Whether an orphan is dead, seasonal, or driven from outside the repository is a system-owner question (see `05-government-decisions.md`).
 
 ### Programs no JCL, CSD, or resolved call references
 
@@ -769,7 +768,7 @@ Includes utility-only datasets (backup generations, REPRO targets), catalog-only
 | AWS.M2.LBD.TXT2PDF.EXEC | unknown | utility step only, JCL DD/control statement | `app/jcl/TXT2PDF1.JCL:31` |
 | AWS.M2.CARDDEMO.CARDXREF.VSAM.AIX | VSAM | JCL DD/control statement, catalog listing | `app/jcl/XREFFILE.jcl:28` |
 | AWS.M2.CARDDEMO.CARDXREF.PS | sequential | utility step only, JCL DD/control statement, catalog listing, sample data file | `app/jcl/XREFFILE.jcl:59` |
-| AWS.M2.CARDDEMO.IMSDATA.DBPAUTP0 | unknown | utility step only, JCL DD/control statement | `app/app-authorization-ims-db2-mq/jcl/DBPAUTP0.jcl:9` |
+| AWS.M2.CARDDEMO.IMSDATA.DBPAUTP0 | unknown | utility step only, JCL DD/control statement, sample data file | `app/app-authorization-ims-db2-mq/jcl/DBPAUTP0.jcl:9` |
 | OEM.IMS.IMSP.PAUTHDB | unknown | utility step only, JCL DD/control statement | `app/app-authorization-ims-db2-mq/jcl/DBPAUTP0.jcl:31` |
 | OEM.IMS.IMSP.PAUTHDBX | unknown | utility step only, JCL DD/control statement | `app/app-authorization-ims-db2-mq/jcl/DBPAUTP0.jcl:32` |
 | OEM.IMS.IMSP.RECON1 | unknown | utility step only, JCL DD/control statement | `app/app-authorization-ims-db2-mq/jcl/DBPAUTP0.jcl:40` |
@@ -916,7 +915,6 @@ Includes utility-only datasets (backup generations, REPRO targets), catalog-only
 | AWS.M2.CARDDEMO.TRANSACT.DALY.G0023V00 | sequential | catalog listing | `app/catlg/LISTCAT.txt` |
 | AWS.M2.CARDDEMO.TRANSACT.DALY.G0024V00 | sequential | catalog listing | `app/catlg/LISTCAT.txt` |
 | AWS.M2.CARDDEMO.TRANSACT.DALY.G0025V00 | sequential | catalog listing | `app/catlg/LISTCAT.txt` |
-| AWS.M2.CARDDEMO.IMSDATA.DBPAUTP0.DAT | unknown | sample data file | `app/app-authorization-ims-db2-mq/data/EBCDIC/AWS.M2.CARDDEMO.IMSDATA.DBPAUTP0.dat` |
 | AWS.M2.CARDDEMO.ACCDATA.PS | sequential | sample data file | `app/data/EBCDIC/AWS.M2.CARDDEMO.ACCDATA.PS` |
 | AWS.M2.CARDDEMO.EXPORT.DATA.PS | sequential | sample data file | `app/data/EBCDIC/AWS.M2.CARDDEMO.EXPORT.DATA.PS` |
 

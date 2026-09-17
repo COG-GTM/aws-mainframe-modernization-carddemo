@@ -139,17 +139,17 @@
   "orphans": {
    "programs": 1,
    "copybooks": 1,
-   "datasets": 184,
-   "total": 186
+   "datasets": 183,
+   "total": 185
   },
-  "dataset_total": 282,
+  "dataset_total": 281,
   "dataset_kinds": {
    "GDG / sequential": 7,
    "VSAM": 22,
    "VSAM component (DATA/INDEX)": 33,
    "library (PDS/PDSE)": 33,
    "sequential": 149,
-   "unknown": 38
+   "unknown": 37
   },
   "csd_entry_counts": {
    "DB2ENTRY": 2,
@@ -10919,7 +10919,7 @@
    "type": "data_sample",
    "subtype": null,
    "module": "core",
-   "name": "AWS.M2.CARDDEMO.ACCDATA",
+   "name": "AWS.M2.CARDDEMO.ACCDATA.PS",
    "line_count": null,
    "byte_size": 15000,
    "copy_targets": [],
@@ -10941,7 +10941,7 @@
    "type": "data_sample",
    "subtype": null,
    "module": "core",
-   "name": "AWS.M2.CARDDEMO.ACCTDATA",
+   "name": "AWS.M2.CARDDEMO.ACCTDATA.PS",
    "line_count": null,
    "byte_size": 15000,
    "copy_targets": [],
@@ -10963,7 +10963,7 @@
    "type": "data_sample",
    "subtype": null,
    "module": "core",
-   "name": "AWS.M2.CARDDEMO.CARDDATA",
+   "name": "AWS.M2.CARDDEMO.CARDDATA.PS",
    "line_count": null,
    "byte_size": 7500,
    "copy_targets": [],
@@ -10985,7 +10985,7 @@
    "type": "data_sample",
    "subtype": null,
    "module": "core",
-   "name": "AWS.M2.CARDDEMO.CARDXREF",
+   "name": "AWS.M2.CARDDEMO.CARDXREF.PS",
    "line_count": null,
    "byte_size": 2500,
    "copy_targets": [],
@@ -11007,7 +11007,7 @@
    "type": "data_sample",
    "subtype": null,
    "module": "core",
-   "name": "AWS.M2.CARDDEMO.CUSTDATA",
+   "name": "AWS.M2.CARDDEMO.CUSTDATA.PS",
    "line_count": null,
    "byte_size": 25000,
    "copy_targets": [],
@@ -11029,7 +11029,7 @@
    "type": "data_sample",
    "subtype": null,
    "module": "core",
-   "name": "AWS.M2.CARDDEMO.DALYTRAN",
+   "name": "AWS.M2.CARDDEMO.DALYTRAN.PS",
    "line_count": null,
    "byte_size": 105000,
    "copy_targets": [],
@@ -11051,7 +11051,7 @@
    "type": "data_sample",
    "subtype": null,
    "module": "core",
-   "name": "AWS.M2.CARDDEMO.DALYTRAN.PS",
+   "name": "AWS.M2.CARDDEMO.DALYTRAN.PS.INIT",
    "line_count": null,
    "byte_size": 350,
    "copy_targets": [],
@@ -11073,7 +11073,7 @@
    "type": "data_sample",
    "subtype": null,
    "module": "core",
-   "name": "AWS.M2.CARDDEMO.DISCGRP",
+   "name": "AWS.M2.CARDDEMO.DISCGRP.PS",
    "line_count": null,
    "byte_size": 2550,
    "copy_targets": [],
@@ -11095,7 +11095,7 @@
    "type": "data_sample",
    "subtype": null,
    "module": "core",
-   "name": "AWS.M2.CARDDEMO.EXPORT.DATA",
+   "name": "AWS.M2.CARDDEMO.EXPORT.DATA.PS",
    "line_count": 6,
    "byte_size": 250000,
    "copy_targets": [],
@@ -11115,7 +11115,7 @@
    "type": "data_sample",
    "subtype": null,
    "module": "core",
-   "name": "AWS.M2.CARDDEMO.TCATBALF",
+   "name": "AWS.M2.CARDDEMO.TCATBALF.PS",
    "line_count": null,
    "byte_size": 2500,
    "copy_targets": [],
@@ -11137,7 +11137,7 @@
    "type": "data_sample",
    "subtype": null,
    "module": "core",
-   "name": "AWS.M2.CARDDEMO.TRANCATG",
+   "name": "AWS.M2.CARDDEMO.TRANCATG.PS",
    "line_count": null,
    "byte_size": 1080,
    "copy_targets": [],
@@ -11159,7 +11159,7 @@
    "type": "data_sample",
    "subtype": null,
    "module": "core",
-   "name": "AWS.M2.CARDDEMO.TRANTYPE",
+   "name": "AWS.M2.CARDDEMO.TRANTYPE.PS",
    "line_count": null,
    "byte_size": 420,
    "copy_targets": [],
@@ -11181,7 +11181,7 @@
    "type": "data_sample",
    "subtype": null,
    "module": "core",
-   "name": "AWS.M2.CARDDEMO.USRSEC",
+   "name": "AWS.M2.CARDDEMO.USRSEC.PS",
    "line_count": null,
    "byte_size": 800,
    "copy_targets": [],
@@ -27930,7 +27930,8 @@
    "catalog_types": [],
    "reference_sources": [
     "utility step only",
-    "JCL DD/control statement"
+    "JCL DD/control statement",
+    "sample data file"
    ],
    "program_access": [
     {
@@ -27990,18 +27991,6 @@
      "program": "DFSRRC00"
     }
    ],
-   "csd_files": [],
-   "sample_files": []
-  },
-  {
-   "dsn": "AWS.M2.CARDDEMO.IMSDATA.DBPAUTP0.DAT",
-   "kind": "unknown",
-   "catalog_types": [],
-   "reference_sources": [
-    "sample data file"
-   ],
-   "program_access": [],
-   "jcl_refs": [],
    "csd_files": [],
    "sample_files": [
     "app/app-authorization-ims-db2-mq/data/EBCDIC/AWS.M2.CARDDEMO.IMSDATA.DBPAUTP0.dat"
