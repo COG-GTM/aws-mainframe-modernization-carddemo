@@ -1,0 +1,8 @@
+{
+  "files": [],
+  "references": [
+    { "path": "packages/copybook" },
+    { "path": "packages/domain" },
+    { "path": "packages/vsam" }
+  ]
+}
