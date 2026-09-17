@@ -1,0 +1,10 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`CBTRN03C over the sample data > renders the last page of the report 1`] = `
+"0000000731515153 00000000040 03-Credit          0001-Credit to Account             OPERATOR      -         25.99                     
+0000000884070277 00000000040 01-Purchase        0001-Regular Sales Draft           POS TERM               194.33                     
+0000000982241353 00000000040 01-Purchase        0001-Regular Sales Draft           POS TERM               765.66                     
+Page Total ......................................................................................+      5,349.85                     
+-------------------------------------------------------------------------------------------------------------------------------------
+Grand Total......................................................................................+    105,567.20                     "
+`;
