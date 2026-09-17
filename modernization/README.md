@@ -58,6 +58,8 @@ docker compose up --build
 ```
 
 This starts PostgreSQL and all five services; Flyway creates and seeds each schema on startup.
+On networks that cannot reach Maven Central directly, set `MAVEN_MIRROR_URL` before `docker compose
+up --build` and the image build uses it as the `central` mirror.
 Without Docker, start PostgreSQL yourself and run a single service with:
 
 ```bash

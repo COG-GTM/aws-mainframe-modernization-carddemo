@@ -18,6 +18,7 @@ services:
       context: .
       args:
         MODULE: auth-service
+        MAVEN_MIRROR_URL: ${MAVEN_MIRROR_URL:-}
     environment:
       AUTH_DB_URL: jdbc:postgresql://postgres:5432/carddemo
     ports:
@@ -31,6 +32,7 @@ services:
       context: .
       args:
         MODULE: customer-service
+        MAVEN_MIRROR_URL: ${MAVEN_MIRROR_URL:-}
     environment:
       CUSTOMER_DB_URL: jdbc:postgresql://postgres:5432/carddemo
     ports:
@@ -44,6 +46,7 @@ services:
       context: .
       args:
         MODULE: account-service
+        MAVEN_MIRROR_URL: ${MAVEN_MIRROR_URL:-}
     environment:
       ACCOUNT_DB_URL: jdbc:postgresql://postgres:5432/carddemo
     ports:
@@ -57,6 +60,7 @@ services:
       context: .
       args:
         MODULE: card-service
+        MAVEN_MIRROR_URL: ${MAVEN_MIRROR_URL:-}
     environment:
       CARD_DB_URL: jdbc:postgresql://postgres:5432/carddemo
     ports:
@@ -70,6 +74,7 @@ services:
       context: .
       args:
         MODULE: transaction-service
+        MAVEN_MIRROR_URL: ${MAVEN_MIRROR_URL:-}
     environment:
       TRANSACTION_DB_URL: jdbc:postgresql://postgres:5432/carddemo
       ACCOUNT_SERVICE_URL: http://account-service:8082
