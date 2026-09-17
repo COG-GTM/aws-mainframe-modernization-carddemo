@@ -6054,7 +6054,9 @@
      "select": "CUSTOMER-OUTPUT",
      "ddname": "CUSTOUT",
      "line": 43,
-     "modes": [],
+     "modes": [
+      "write"
+     ],
      "open_modes": [
       "open output"
      ],
@@ -6073,7 +6075,9 @@
      "select": "ACCOUNT-OUTPUT",
      "ddname": "ACCTOUT",
      "line": 48,
-     "modes": [],
+     "modes": [
+      "write"
+     ],
      "open_modes": [
       "open output"
      ],
@@ -6092,7 +6096,9 @@
      "select": "XREF-OUTPUT",
      "ddname": "XREFOUT",
      "line": 53,
-     "modes": [],
+     "modes": [
+      "write"
+     ],
      "open_modes": [
       "open output"
      ],
@@ -6111,7 +6117,9 @@
      "select": "TRANSACTION-OUTPUT",
      "ddname": "TRNXOUT",
      "line": 58,
-     "modes": [],
+     "modes": [
+      "write"
+     ],
      "open_modes": [
       "open output"
      ],
@@ -6130,7 +6138,9 @@
      "select": "CARD-OUTPUT",
      "ddname": "CARDOUT",
      "line": 63,
-     "modes": [],
+     "modes": [
+      "write"
+     ],
      "open_modes": [
       "open output"
      ],
@@ -23674,7 +23684,7 @@
    "status": "resolved",
    "detail": "DD CUSTOUT in CBIMPORT/STEP01 at app/jcl/CBIMPORT.jcl:33",
    "modes": [
-    "unknown"
+    "write"
    ]
   },
   {
@@ -23686,7 +23696,7 @@
    "status": "resolved",
    "detail": "DD ACCTOUT in CBIMPORT/STEP01 at app/jcl/CBIMPORT.jcl:38",
    "modes": [
-    "unknown"
+    "write"
    ]
   },
   {
@@ -23698,7 +23708,7 @@
    "status": "resolved",
    "detail": "DD XREFOUT in CBIMPORT/STEP01 at app/jcl/CBIMPORT.jcl:43",
    "modes": [
-    "unknown"
+    "write"
    ]
   },
   {
@@ -23710,7 +23720,7 @@
    "status": "resolved",
    "detail": "DD TRNXOUT in CBIMPORT/STEP01 at app/jcl/CBIMPORT.jcl:48",
    "modes": [
-    "unknown"
+    "write"
    ]
   },
   {
@@ -23722,7 +23732,7 @@
    "status": "unresolved",
    "detail": "no DD statement for CARDOUT in step CBIMPORT/STEP01",
    "modes": [
-    "unknown"
+    "write"
    ]
   },
   {
@@ -25579,7 +25589,7 @@
     {
      "program": "CBIMPORT",
      "modes": [
-      "unknown"
+      "write"
      ],
      "via": "CBIMPORT/STEP01",
      "path": "app/cbl/CBIMPORT.cbl",
@@ -26629,7 +26639,7 @@
     {
      "program": "CBIMPORT",
      "modes": [
-      "unknown"
+      "write"
      ],
      "via": "CBIMPORT/STEP01",
      "path": "app/cbl/CBIMPORT.cbl",
@@ -27566,7 +27576,7 @@
     {
      "program": "CBIMPORT",
      "modes": [
-      "unknown"
+      "write"
      ],
      "via": "CBIMPORT/STEP01",
      "path": "app/cbl/CBIMPORT.cbl",
@@ -32876,7 +32886,7 @@
     {
      "program": "CBIMPORT",
      "modes": [
-      "unknown"
+      "write"
      ],
      "via": "CBIMPORT/STEP01",
      "path": "app/cbl/CBIMPORT.cbl",

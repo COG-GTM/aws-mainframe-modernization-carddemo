@@ -413,6 +413,8 @@ class CobolProgram:
         self.sql: list[dict] = []
         self.selects: list[dict] = []     # SELECT file ASSIGN TO ddname
         self.fd_records: dict[str, str] = {}  # record name -> file name
+        self.fd_copies: list[tuple[str, str]] = []   # (copybook, file name) for COPY inside an FD
+        self.record_writes: list[tuple[str, str, int]] = []  # (mode, record name, line) not yet bound to a file
         self.file_modes: dict[str, set] = defaultdict(set)
         self.file_mode_lines: dict[str, list] = defaultdict(list)
         self.data_items: list[dict] = []
@@ -512,11 +514,31 @@ class CobolProgram:
             ddname = m.group(2)
             ddname = ddname.split("-")[-1] if "-" in ddname and ddname.upper().startswith(("UT-", "DA-", "S-")) else ddname
             self.selects.append({"file": m.group(1), "ddname": ddname, "line": self.src.line_of(m.start())})
-        # FD file -> 01 record names
+        # FD file -> 01 record names; a COPY inside the FD carries the record layout
         for m in self.src.finditer(r"\bFD\s+([A-Z0-9][A-Z0-9-]*)(.*?)(?=\bFD\s|\bSD\s|\bWORKING-STORAGE\b|\bLINKAGE\b|\bPROCEDURE\b|$)", re.S):
             fname = m.group(1)
             for r in re.finditer(r"(?:^|\s)01\s+([A-Z0-9][A-Z0-9-]*)", m.group(2)):
                 self.fd_records[r.group(1)] = fname
+            for c in re.finditer(r"(?<![A-Z0-9-])COPY\s+([A-Z0-9][A-Z0-9-]*)", m.group(2)):
+                self.fd_copies.append((c.group(1), fname))
+
+    def bind_copied_records(self, copybook_items: dict[str, list]):
+        """Bind ``WRITE``/``REWRITE`` operands whose level-01 record is declared in a
+        copybook named inside the FD (``copybook_items`` maps copybook name -> its
+        parsed data items)."""
+        for cb_name, fname in self.fd_copies:
+            for it in copybook_items.get(cb_name, []):
+                if it["level"] == 1 and it["name"] != "FILLER":
+                    self.fd_records.setdefault(it["name"], fname)
+        still_open = []
+        for mode, record, line in self.record_writes:
+            fname = self.fd_records.get(record)
+            if fname:
+                self.file_modes[fname].add(mode)
+                self.file_mode_lines[fname].append((mode, line))
+            else:
+                still_open.append((mode, record, line))
+        self.record_writes = still_open
 
     def _parse_calls(self):
         for m in self.src.finditer(r"(?<![A-Z0-9-])CALL\s+('[^']*'|\"[^\"]*\"|[A-Z0-9][A-Z0-9-]*)"):
@@ -642,8 +664,11 @@ class CobolProgram:
         for m in re.finditer(r"(?<![A-Z0-9-])READ\s+([A-Z0-9][A-Z0-9-]*)", text):
             rec("read", m.group(1), m.start())
         for m in re.finditer(r"(?<![A-Z0-9-])(WRITE|REWRITE)\s+([A-Z0-9][A-Z0-9-]*)", text):
-            fname = self.fd_records.get(m.group(2), m.group(2))
-            rec(m.group(1).lower(), fname, m.start())
+            fname = self.fd_records.get(m.group(2))
+            if fname:
+                rec(m.group(1).lower(), fname, m.start())
+            else:
+                self.record_writes.append((m.group(1).lower(), m.group(2), self.src.line_of(proc_off + m.start())))
         for m in re.finditer(r"(?<![A-Z0-9-])DELETE\s+([A-Z0-9][A-Z0-9-]*)(?!\s*\()", text):
             if m.group(1) in self.fd_records.values() or m.group(1) in {s["file"] for s in self.selects}:
                 rec("delete", m.group(1), m.start())
@@ -1532,6 +1557,7 @@ class Estate:
         return None
 
     def build(self):
+        self._bind_copied_fd_records()
         self._link_copybooks()
         self._link_asm_macros()
         self._link_calls()
@@ -1541,6 +1567,28 @@ class Estate:
         self._link_scheduler()
         self._link_catalog()
         self._finish_datasets()
+
+    def _bind_copied_fd_records(self):
+        """A program whose FD names its record through ``COPY`` has no level-01 inside the
+        FD, so its ``WRITE record`` operands are bound here through the copybook's items."""
+        for art in self.artifacts:
+            if art["type"] != "cobol_program":
+                continue
+            prog = self.cobol[art["path"]]
+            if not prog.fd_copies:
+                continue
+            items = {}
+            for cb_name, _ in prog.fd_copies:
+                cb = self.find_copybook(cb_name)
+                if cb and cb["path"] in self.cobol:
+                    items[cb_name] = self.cobol[cb["path"]].data_items
+            prog.bind_copied_records(items)
+            for f in art["files"]:
+                modes = prog.file_modes.get(f["select"], set())
+                f["modes"] = sorted(m for m in modes if not m.startswith("open"))
+                f["open_modes"] = sorted(m for m in modes if m.startswith("open"))
+            for mode, record, line in prog.record_writes:
+                art["notes"].append(f"{mode.upper()} {record} at line {line} names a record no FD or FD copybook declares")
 
     def _link_copybooks(self):
         for art in self.artifacts:

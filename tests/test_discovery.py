@@ -457,6 +457,27 @@ class TestInventoryArtifactFields(unittest.TestCase):
         self.assertEqual(ims["sample_files"], ["app/app-authorization-ims-db2-mq/data/EBCDIC/AWS.M2.CARDDEMO.IMSDATA.DBPAUTP0.dat"])
         self.assertTrue(ims["jcl_refs"])
 
+    def test_cbimport_output_files_declared_through_fd_copybooks_have_write_mode(self):
+        # CBIMPORT's FDs carry no level-01; each names its record via COPY (CVCUS01Y, CVACT01Y,
+        # CVACT03Y, CVTRA05Y, CVACT02Y) and the procedure writes the copybook's record name.
+        art = self.arts["app/cbl/CBIMPORT.cbl"]
+        outputs = {f["select"]: f for f in art["files"] if f["select"].endswith("-OUTPUT")}
+        self.assertEqual({"CUSTOMER-OUTPUT", "ACCOUNT-OUTPUT", "XREF-OUTPUT", "TRANSACTION-OUTPUT",
+                          "CARD-OUTPUT", "ERROR-OUTPUT"}, set(outputs))
+        for f in outputs.values():
+            self.assertEqual(["write"], f["modes"], f["select"])
+        self.assertEqual([], [n for n in art["notes"] if "names a record" in n])
+        by_dsn = {d["dsn"]: d for d in self.inv["datasets"]}
+        for dsn in ("AWS.M2.CARDDEMO.CUSTDATA.IMPORT", "AWS.M2.CARDDEMO.ACCTDATA.IMPORT",
+                    "AWS.M2.CARDDEMO.CARDXREF.IMPORT", "AWS.M2.CARDDEMO.TRANSACT.IMPORT"):
+            self.assertEqual([("CBIMPORT", ["write"])],
+                             [(a["program"], a["modes"]) for a in by_dsn[dsn]["program_access"]], dsn)
+        rows = md_table_rows(md("02-dependency-map.md"), "## Reverse view: dataset → programs (with access mode)")
+        by_dsn_row = {r[0]: r for r in rows}
+        self.assertIn("CBIMPORT: write `app/cbl/CBIMPORT.cbl:43`", by_dsn_row["AWS.M2.CARDDEMO.CUSTDATA.IMPORT"][3])
+        # CARDOUT has no DD in app/jcl/CBIMPORT.jcl, so CARD-OUTPUT binds to no dataset
+        self.assertEqual([], outputs["CARD-OUTPUT"]["datasets"])
+
     def test_no_hand_typed_count_drift_in_type_labels(self):
         # every type label the generator knows about is either used or absent from the counts table
         used = {a["type"] for a in self.arts.values()}
@@ -644,6 +665,41 @@ class TestParserFixtures(unittest.TestCase):
             "TRAN-FILE": {"open input", "read"},
             "ACCT-FILE": {"open output", "write", "rewrite", "delete"},
         })
+
+    def test_fd_record_declared_through_copy_binds_write_to_the_selected_file(self):
+        p = self.parse_cobol(
+            " IDENTIFICATION DIVISION.",
+            " PROGRAM-ID. FIXTURE.",
+            " ENVIRONMENT DIVISION.",
+            " INPUT-OUTPUT SECTION.",
+            " FILE-CONTROL.",
+            "     SELECT CUST-OUT ASSIGN TO CUSTOUT.",
+            "     SELECT ERR-OUT ASSIGN TO ERROUT.",
+            " DATA DIVISION.",
+            " FILE SECTION.",
+            " FD  CUST-OUT",
+            "     RECORDING MODE F.",
+            "     COPY CVCUS01Y.",
+            " FD  ERR-OUT.",
+            " 01  ERR-REC                   PIC X(80).",
+            " WORKING-STORAGE SECTION.",
+            " PROCEDURE DIVISION.",
+            "     OPEN OUTPUT CUST-OUT ERR-OUT.",
+            "     WRITE CUSTOMER-RECORD.",
+            "     WRITE ERR-REC.",
+            "     WRITE NOT-A-RECORD.",
+        )
+        self.assertEqual(p.fd_copies, [("CVCUS01Y", "CUST-OUT")])
+        self.assertEqual(p.fd_records, {"ERR-REC": "ERR-OUT"})
+        self.assertEqual([("write", "CUSTOMER-RECORD", 18), ("write", "NOT-A-RECORD", 20)], p.record_writes)
+        self.assertEqual(dict(p.file_modes), {"CUST-OUT": {"open output"}, "ERR-OUT": {"open output", "write"}})
+        cvcus = bd.CobolProgram(bd.CobolSource(bd.ROOT / "app" / "cpy" / "CVCUS01Y.cpy",
+                                                (bd.ROOT / "app" / "cpy" / "CVCUS01Y.cpy").read_text("latin-1")))
+        p.bind_copied_records({"CVCUS01Y": cvcus.data_items})
+        self.assertEqual(p.fd_records, {"ERR-REC": "ERR-OUT", "CUSTOMER-RECORD": "CUST-OUT"})
+        self.assertEqual(dict(p.file_modes), {"CUST-OUT": {"open output", "write"}, "ERR-OUT": {"open output", "write"}})
+        self.assertEqual([("open output", 17), ("write", 18)], p.file_mode_lines["CUST-OUT"])
+        self.assertEqual([("write", "NOT-A-RECORD", 20)], p.record_writes)
 
     def test_cobol_cics_and_sql_statements(self):
         p = self.parse_cobol(
