@@ -356,6 +356,51 @@ def picture_is_signed_zoned(pic: str, usage: str | None) -> bool:
     return not picture_is_edited(pic)
 
 
+def picture_bytes(pic: str, usage: str | None) -> int:
+    """Storage bytes of an elementary item: PICTURE symbols expanded (``X(08)``),
+    ``S``/``V``/``P`` take no storage, packed and binary items use their digit count."""
+    pic = pic.rstrip(".").upper()
+    expanded = re.sub(r"(.)\((\d+)\)", lambda m: m.group(1) * int(m.group(2)), pic)
+    expanded = re.sub(r"CR|DB", "..", expanded)
+    positions = len(re.sub(r"[SVP]", "", expanded))
+    digits = expanded.count("9")
+    if usage in ("COMP-3", "COMPUTATIONAL-3", "PACKED-DECIMAL"):
+        return (digits + 2) // 2
+    if usage in ("COMP", "COMPUTATIONAL", "COMP-4", "COMPUTATIONAL-4", "COMP-5", "COMPUTATIONAL-5", "BINARY"):
+        return 2 if digits <= 4 else 4 if digits <= 9 else 8
+    if usage in ("COMP-1", "COMPUTATIONAL-1"):
+        return 4
+    if usage in ("COMP-2", "COMPUTATIONAL-2"):
+        return 8
+    return positions
+
+
+FIGURATIVE_CONSTANTS = {"SPACE", "SPACES", "ZERO", "ZEROS", "ZEROES", "LOW-VALUE", "LOW-VALUES",
+                        "HIGH-VALUE", "HIGH-VALUES", "NULL", "NULLS", "QUOTE", "QUOTES"}
+
+
+def data_layout(items: list[dict], gi: int) -> tuple[list[dict], int]:
+    """Elementary items below ``items[gi]`` with their byte offset from the start of that
+    group, and the group's total size.  ``REDEFINES`` overlays and level-88 conditions
+    take no storage; an elementary ``OCCURS`` counts once per repetition."""
+    group_level = items[gi]["level"]
+    out, pos, i, overlay = [], 0, gi + 1, None
+    while i < len(items) and items[i]["level"] > group_level and items[i]["level"] not in (66, 77):
+        it = items[i]
+        i += 1
+        if it["level"] == 88 or (overlay is not None and it["level"] > overlay):
+            continue
+        overlay = None
+        if it["redefines"]:
+            overlay = it["level"]
+            continue
+        if it["pic"]:
+            size = picture_bytes(it["pic"], it["usage"])
+            out.append({"item": it, "offset": pos, "size": size})
+            pos += size * (it["occurs"] or 1)
+    return out, pos
+
+
 class CobolProgram:
     """Facts extracted from one COBOL program or copybook."""
 
@@ -448,9 +493,12 @@ class CobolProgram:
                 if value[:1] in "'\"":
                     value = value[1:-1]
             line = self.src.line_of(start + (len(stmt) - len(stmt.lstrip())))
+            redef_m = re.search(r"\bREDEFINES\s+([A-Z0-9][A-Z0-9-]*)", rest)
+            occurs_m = re.search(r"\bOCCURS\s+(\d+)", rest)
             item = {"level": int(level), "name": name, "pic": pic, "usage": usage,
                     "value": value, "line": line, "offset": start,
-                    "redefines": bool(re.search(r"\bREDEFINES\b", rest)),
+                    "redefines": redef_m.group(1) if redef_m else None,
+                    "occurs": int(occurs_m.group(1)) if occurs_m else None,
                     "occurs_depending": bool(re.search(r"\bOCCURS\b.*\bDEPENDING\s+ON\b", rest, re.S))}
             self.data_items.append(item)
             if value is not None and name != "FILLER":
@@ -483,7 +531,7 @@ class CobolProgram:
         for m in self.src.finditer(r"\bEXEC\s+CICS\s+(.*?)\bEND-EXEC\b", re.S):
             body = m.group(1)
             self.has_cics = True
-            words = body.split()
+            words = re.sub(r"\(", " (", body).split()
             if not words:
                 continue
             verb = words[0]
@@ -492,7 +540,8 @@ class CobolProgram:
             if verb == "HANDLE" and len(words) > 1:
                 verb = verb + " " + words[1]
             entry = {"verb": verb, "line": self.src.line_of(m.start()), "options": {}, "offset": m.start()}
-            for om in re.finditer(r"\b(PROGRAM|DATASET|FILE|MAP|MAPSET|TRANSID|QUEUE|CHANNEL|CONTAINER|RIDFLD|INTO|FROM|COMMAREA|ABCODE)\s*\(\s*([^)]*?)\s*\)", body):
+            for om in re.finditer(r"\b(PROGRAM|DATASET|FILE|MAP|MAPSET|TRANSID|QUEUE|CHANNEL|CONTAINER|RIDFLD|INTO|FROM|COMMAREA|ABCODE)"
+                                  r"\s*\(\s*((?:[^()]|\([^()]*\))*?)\s*\)", body):
                 key = om.group(1)
                 raw = self.src.raw_slice(m.start(1) + om.start(2), m.start(1) + om.end(2)).strip()
                 masked = om.group(2).strip()
@@ -1416,19 +1465,62 @@ class Estate:
             sites.append({"prog": prog, "path": cb["path"], "values": values, "copybook": cb["name"]})
         return sites
 
-    def table_candidates(self, art: dict) -> list[tuple[str, str]]:
-        """Program-name literals held in VALUE clauses of the program or its copybooks."""
-        out = []
-        sources = [art["path"]] + [cb["path"] for cb in self.included_copybooks(art)]
-        for p in sources:
-            prog = self.cobol.get(p)
+    def table_values(self, art: dict, var: str) -> dict | None:
+        """Literals a subscripted reference such as ``OPT-PGMNAME(WS-OPTION)`` can take
+        when the table is a ``REDEFINES`` of a group initialised by ``VALUE`` clauses:
+        the element field is located by byte offset inside one OCCURS entry and every
+        VALUE literal at that offset in the redefined data is one possible value."""
+        field = re.sub(r"\s*\(.*", "", var).strip().upper()
+        for path in [art["path"]] + [cb["path"] for cb in self.included_copybooks(art)]:
+            prog = self.cobol.get(path)
             if not prog:
                 continue
-            for name, vals in prog.values.items():
-                for lit, _ in vals:
-                    if isinstance(lit, str) and self.find_program(lit) and lit.strip().upper() != art["name"]:
-                        out.append((lit.strip().upper(), p))
-        return sorted(set(out))
+            items = prog.data_items
+            for fi, it in enumerate(items):
+                if it["name"] != field or not it["pic"]:
+                    continue
+                ancestors, level = [], it["level"]
+                for j in range(fi - 1, -1, -1):
+                    if items[j]["level"] < level:
+                        ancestors.append(j)
+                        level = items[j]["level"]
+                        if level == 1:
+                            break
+                occ = next((j for j in ancestors if items[j]["occurs"]), None)
+                if occ is None:
+                    continue
+                redef = next((j for j in [occ] + ancestors[ancestors.index(occ):] if items[j]["redefines"]), None)
+                if redef is None:
+                    continue
+                entry_fields, entry_size = data_layout(items, occ)
+                fld = next((f for f in entry_fields if f["item"] is it), None)
+                if fld is None or not entry_size:
+                    continue
+                data_name = items[redef]["redefines"]
+                di = next((j for j in range(redef - 1, -1, -1) if items[j]["name"] == data_name), None)
+                if di is None:
+                    continue
+                data_fields, _ = data_layout(items, di)
+                literals = [(f["item"]["value"], f["item"]["line"]) for f in data_fields
+                            if f["offset"] % entry_size == fld["offset"] and f["size"] == fld["size"]
+                            and isinstance(f["item"]["value"], str)
+                            and f["item"]["value"].upper() not in FIGURATIVE_CONSTANTS]
+                if not literals:
+                    continue
+                occurs = items[occ]["occurs"]
+                top = ancestors[-1]
+                count_field = None
+                for f in data_layout(items, top)[0]:
+                    v = f["item"]["value"]
+                    if f["item"]["name"] != "FILLER" and "9" in (f["item"]["pic"] or "") \
+                            and isinstance(v, str) and v.isdigit() and int(v) == len(literals):
+                        count_field = f["item"]["name"]
+                        break
+                return {"field": field, "table": items[occ]["name"], "data": data_name, "source": path,
+                        "line": items[occ]["line"], "literals": literals, "initialised": len(literals),
+                        "occurs": occurs, "count_field": count_field,
+                        "complete": len(literals) == occurs or count_field is not None}
+        return None
 
     def build(self):
         self._link_copybooks()
@@ -1471,8 +1563,16 @@ class Estate:
         out = [(v.upper(), "dynamic", how)
                for v in sorted(vals) if v.strip()]
         if not out and "(" in var:
-            for cand, src in self.table_candidates(art):
-                out.append((cand, "dynamic", f"table-driven: VALUE literal in {src}"))
+            tbl = self.table_values(art, var)
+            if tbl:
+                how = (f"table-driven: {tbl['field']} is an element of {tbl['table']} OCCURS {tbl['occurs']} "
+                       f"({tbl['source']}:{tbl['line']}); {tbl['initialised']} entries initialised by VALUE literals in "
+                       f"{tbl['data']}")
+                how += (f"; populated-entry count held in {tbl['count_field']} VALUE {tbl['initialised']}"
+                        if tbl["count_field"] else
+                        f"; entries beyond {tbl['initialised']} are not initialised by VALUE")
+                out = [(lit.strip().upper(), "dynamic", how) for lit in sorted({l for l, _ in tbl["literals"]})]
+                complete = tbl["complete"]
         return out, complete
 
     def _unreached_detail(self, site: dict, var: str, what: str) -> str:
@@ -1841,7 +1941,7 @@ class Estate:
                     else:
                         self.add_edge("program->dataset", art["name"], f"CICS file {fname}", path, cx["line"], "unresolved",
                                       "no DEFINE FILE with DSNAME for this file name in any CSD source", modes=[mode])
-            if verb in ("SEND", "RECEIVE") and "MAPSET" in cx["options"]:
+            if verb in ("SEND MAP", "RECEIVE MAP") and "MAPSET" in cx["options"]:
                 opt = cx["options"]["MAPSET"]
                 if not opt:
                     continue
@@ -1852,7 +1952,7 @@ class Estate:
                 for ms in names:
                     target = self.bms_by_mapset.get(ms)
                     if target:
-                        self.add_edge("program->bmsmap", art["name"], target["name"], path, cx["line"], "resolved", f"{verb} MAP MAPSET {ms}")
+                        self.add_edge("program->bmsmap", art["name"], target["name"], path, cx["line"], "resolved", f"{verb} MAPSET {ms}")
                     else:
                         self.add_edge("program->bmsmap", art["name"], ms, path, cx["line"], "unresolved", "mapset source not in repository")
 

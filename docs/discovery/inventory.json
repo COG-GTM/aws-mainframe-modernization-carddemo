@@ -58,7 +58,7 @@
   },
   "headline": {
    "resolved_edges": 548,
-   "unresolved_edges": 127,
+   "unresolved_edges": 125,
    "categories": [
     "program->copybook",
     "program->dataset",
@@ -85,7 +85,7 @@
     },
     "program->program": {
      "resolved": 66,
-     "unresolved": 49
+     "unresolved": 47
     }
    }
   },
@@ -168,7 +168,7 @@
   },
   "csd_entry_total": 134,
   "scheduler_job_total": 32,
-  "dynamic_calls_unresolved": 23,
+  "dynamic_calls_unresolved": 20,
   "datasets_jcl_only": 8,
   "lineage": {
    "hops": 37,
@@ -601,9 +601,9 @@
    "call_targets": [],
    "cics_verbs": {
     "READ": 3,
-    "RECEIVE": 1,
+    "RECEIVE MAP": 1,
     "RETURN": 1,
-    "SEND": 2,
+    "SEND MAP": 2,
     "SYNCPOINT": 1,
     "XCTL": 2
    },
@@ -723,9 +723,9 @@
    "call_targets": [],
    "cics_verbs": {
     "LINK": 1,
-    "RECEIVE": 1,
+    "RECEIVE MAP": 1,
     "RETURN": 1,
-    "SEND": 2,
+    "SEND MAP": 2,
     "SYNCPOINT": 2,
     "XCTL": 1
    },
@@ -2720,9 +2720,9 @@
     }
    ],
    "cics_verbs": {
-    "RECEIVE": 1,
+    "RECEIVE MAP": 1,
     "RETURN": 3,
-    "SEND": 1,
+    "SEND MAP": 1,
     "SEND TEXT": 2,
     "SYNCPOINT": 3,
     "XCTL": 2
@@ -2858,9 +2858,10 @@
    "cics_verbs": {
     "ABEND": 1,
     "HANDLE ABEND": 2,
-    "RECEIVE": 1,
+    "RECEIVE MAP": 1,
     "RETURN": 1,
-    "SEND": 2,
+    "SEND": 1,
+    "SEND MAP": 1,
     "SYNCPOINT": 4,
     "XCTL": 1
    },
@@ -7065,10 +7066,11 @@
     "ABEND": 1,
     "HANDLE ABEND": 2,
     "READ": 5,
-    "RECEIVE": 1,
+    "RECEIVE MAP": 1,
     "RETURN": 1,
     "REWRITE": 2,
-    "SEND": 2,
+    "SEND": 1,
+    "SEND MAP": 1,
     "SYNCPOINT": 2,
     "XCTL": 1
    },
@@ -7253,9 +7255,10 @@
     "ABEND": 1,
     "HANDLE ABEND": 2,
     "READ": 3,
-    "RECEIVE": 1,
+    "RECEIVE MAP": 1,
     "RETURN": 3,
-    "SEND": 2,
+    "SEND": 1,
+    "SEND MAP": 1,
     "SEND TEXT": 2,
     "XCTL": 1
    },
@@ -7371,9 +7374,9 @@
    "call_targets": [],
    "cics_verbs": {
     "HANDLE CONDITION": 1,
-    "RECEIVE": 1,
+    "RECEIVE MAP": 1,
     "RETURN": 2,
-    "SEND": 1,
+    "SEND MAP": 1,
     "XCTL": 2
    },
    "exec_sql": false,
@@ -7470,10 +7473,10 @@
     "FORMATTIME": 1,
     "READ": 2,
     "READPREV": 1,
-    "RECEIVE": 1,
+    "RECEIVE MAP": 1,
     "RETURN": 1,
     "REWRITE": 1,
-    "SEND": 1,
+    "SEND MAP": 1,
     "STARTBR": 1,
     "WRITE": 1,
     "XCTL": 1
@@ -7662,9 +7665,9 @@
     "ENDBR": 2,
     "READNEXT": 2,
     "READPREV": 2,
-    "RECEIVE": 1,
+    "RECEIVE MAP": 1,
     "RETURN": 3,
-    "SEND": 1,
+    "SEND MAP": 1,
     "SEND TEXT": 2,
     "STARTBR": 2,
     "XCTL": 3
@@ -7829,9 +7832,10 @@
     "ABEND": 1,
     "HANDLE ABEND": 2,
     "READ": 2,
-    "RECEIVE": 1,
+    "RECEIVE MAP": 1,
     "RETURN": 3,
-    "SEND": 2,
+    "SEND": 1,
+    "SEND MAP": 1,
     "SEND TEXT": 2,
     "XCTL": 1
    },
@@ -7963,10 +7967,11 @@
     "ABEND": 1,
     "HANDLE ABEND": 2,
     "READ": 2,
-    "RECEIVE": 1,
+    "RECEIVE MAP": 1,
     "RETURN": 1,
     "REWRITE": 1,
-    "SEND": 2,
+    "SEND": 1,
+    "SEND MAP": 1,
     "SYNCPOINT": 1,
     "XCTL": 1
    },
@@ -8079,9 +8084,9 @@
    "call_targets": [],
    "cics_verbs": {
     "INQUIRE": 1,
-    "RECEIVE": 1,
+    "RECEIVE MAP": 1,
     "RETURN": 1,
-    "SEND": 1,
+    "SEND MAP": 1,
     "XCTL": 3
    },
    "exec_sql": false,
@@ -8182,9 +8187,9 @@
     }
    ],
    "cics_verbs": {
-    "RECEIVE": 1,
+    "RECEIVE MAP": 1,
     "RETURN": 2,
-    "SEND": 2,
+    "SEND MAP": 2,
     "WRITEQ": 1,
     "XCTL": 1
    },
@@ -8267,9 +8272,9 @@
    "cics_verbs": {
     "ASSIGN": 2,
     "READ": 1,
-    "RECEIVE": 1,
+    "RECEIVE MAP": 1,
     "RETURN": 2,
-    "SEND": 1,
+    "SEND MAP": 1,
     "SEND TEXT": 1,
     "XCTL": 2
    },
@@ -8364,9 +8369,9 @@
     "ENDBR": 1,
     "READNEXT": 1,
     "READPREV": 1,
-    "RECEIVE": 1,
+    "RECEIVE MAP": 1,
     "RETURN": 1,
-    "SEND": 2,
+    "SEND MAP": 2,
     "STARTBR": 1,
     "XCTL": 2
    },
@@ -8474,9 +8479,9 @@
    "call_targets": [],
    "cics_verbs": {
     "READ": 1,
-    "RECEIVE": 1,
+    "RECEIVE MAP": 1,
     "RETURN": 1,
-    "SEND": 1,
+    "SEND MAP": 1,
     "XCTL": 1
    },
    "exec_sql": false,
@@ -8601,9 +8606,9 @@
     "ENDBR": 1,
     "READ": 2,
     "READPREV": 1,
-    "RECEIVE": 1,
+    "RECEIVE MAP": 1,
     "RETURN": 2,
-    "SEND": 1,
+    "SEND MAP": 1,
     "STARTBR": 1,
     "WRITE": 1,
     "XCTL": 1
@@ -8729,9 +8734,9 @@
     "ENDBR": 1,
     "READNEXT": 1,
     "READPREV": 1,
-    "RECEIVE": 1,
+    "RECEIVE MAP": 1,
     "RETURN": 1,
-    "SEND": 2,
+    "SEND MAP": 2,
     "STARTBR": 1,
     "XCTL": 3
    },
@@ -8837,9 +8842,9 @@
    ],
    "call_targets": [],
    "cics_verbs": {
-    "RECEIVE": 1,
+    "RECEIVE MAP": 1,
     "RETURN": 1,
-    "SEND": 1,
+    "SEND MAP": 1,
     "WRITE": 1,
     "XCTL": 1
    },
@@ -8930,10 +8935,10 @@
    "call_targets": [],
    "cics_verbs": {
     "READ": 1,
-    "RECEIVE": 1,
+    "RECEIVE MAP": 1,
     "RETURN": 1,
     "REWRITE": 1,
-    "SEND": 1,
+    "SEND MAP": 1,
     "XCTL": 1
    },
    "exec_sql": false,
@@ -9032,9 +9037,9 @@
    "cics_verbs": {
     "DELETE": 1,
     "READ": 1,
-    "RECEIVE": 1,
+    "RECEIVE MAP": 1,
     "RETURN": 1,
-    "SEND": 1,
+    "SEND MAP": 1,
     "XCTL": 1
    },
    "exec_sql": false,
@@ -20188,21 +20193,11 @@
   {
    "category": "program->program",
    "from": "COADM01C",
-   "to": "EXEC CICS XCTL via CDEMO-ADMIN-OPT-PGMNAME(WS-OPTION (value from outside this program)",
-   "path": "app/cbl/COADM01C.cbl",
-   "line": 145,
-   "status": "unresolved",
-   "detail": "EXEC CICS XCTL through CDEMO-ADMIN-OPT-PGMNAME(WS-OPTION: on at least one path the value comes from data this program does not set (caller commarea, terminal input or a record); the resolved targets at this line are the literals visible on the other paths",
-   "kind": "dynamic"
-  },
-  {
-   "category": "program->program",
-   "from": "COADM01C",
    "to": "COTRTLIC",
    "path": "app/cbl/COADM01C.cbl",
    "line": 145,
    "status": "resolved",
-   "detail": "EXEC CICS XCTL dynamic (table-driven: VALUE literal in app/cpy/COADM02Y.cpy)",
+   "detail": "EXEC CICS XCTL dynamic (table-driven: CDEMO-ADMIN-OPT-PGMNAME is an element of CDEMO-ADMIN-OPT OCCURS 9 (app/cpy/COADM02Y.cpy:56); 6 entries initialised by VALUE literals in CDEMO-ADMIN-OPTIONS-DATA; populated-entry count held in CDEMO-ADMIN-OPT-COUNT VALUE 6)",
    "kind": "dynamic"
   },
   {
@@ -20212,7 +20207,7 @@
    "path": "app/cbl/COADM01C.cbl",
    "line": 145,
    "status": "resolved",
-   "detail": "EXEC CICS XCTL dynamic (table-driven: VALUE literal in app/cpy/COADM02Y.cpy)",
+   "detail": "EXEC CICS XCTL dynamic (table-driven: CDEMO-ADMIN-OPT-PGMNAME is an element of CDEMO-ADMIN-OPT OCCURS 9 (app/cpy/COADM02Y.cpy:56); 6 entries initialised by VALUE literals in CDEMO-ADMIN-OPTIONS-DATA; populated-entry count held in CDEMO-ADMIN-OPT-COUNT VALUE 6)",
    "kind": "dynamic"
   },
   {
@@ -20222,7 +20217,7 @@
    "path": "app/cbl/COADM01C.cbl",
    "line": 145,
    "status": "resolved",
-   "detail": "EXEC CICS XCTL dynamic (table-driven: VALUE literal in app/cpy/COADM02Y.cpy)",
+   "detail": "EXEC CICS XCTL dynamic (table-driven: CDEMO-ADMIN-OPT-PGMNAME is an element of CDEMO-ADMIN-OPT OCCURS 9 (app/cpy/COADM02Y.cpy:56); 6 entries initialised by VALUE literals in CDEMO-ADMIN-OPTIONS-DATA; populated-entry count held in CDEMO-ADMIN-OPT-COUNT VALUE 6)",
    "kind": "dynamic"
   },
   {
@@ -20232,7 +20227,7 @@
    "path": "app/cbl/COADM01C.cbl",
    "line": 145,
    "status": "resolved",
-   "detail": "EXEC CICS XCTL dynamic (table-driven: VALUE literal in app/cpy/COADM02Y.cpy)",
+   "detail": "EXEC CICS XCTL dynamic (table-driven: CDEMO-ADMIN-OPT-PGMNAME is an element of CDEMO-ADMIN-OPT OCCURS 9 (app/cpy/COADM02Y.cpy:56); 6 entries initialised by VALUE literals in CDEMO-ADMIN-OPTIONS-DATA; populated-entry count held in CDEMO-ADMIN-OPT-COUNT VALUE 6)",
    "kind": "dynamic"
   },
   {
@@ -20242,7 +20237,7 @@
    "path": "app/cbl/COADM01C.cbl",
    "line": 145,
    "status": "resolved",
-   "detail": "EXEC CICS XCTL dynamic (table-driven: VALUE literal in app/cpy/COADM02Y.cpy)",
+   "detail": "EXEC CICS XCTL dynamic (table-driven: CDEMO-ADMIN-OPT-PGMNAME is an element of CDEMO-ADMIN-OPT OCCURS 9 (app/cpy/COADM02Y.cpy:56); 6 entries initialised by VALUE literals in CDEMO-ADMIN-OPTIONS-DATA; populated-entry count held in CDEMO-ADMIN-OPT-COUNT VALUE 6)",
    "kind": "dynamic"
   },
   {
@@ -20252,7 +20247,7 @@
    "path": "app/cbl/COADM01C.cbl",
    "line": 145,
    "status": "resolved",
-   "detail": "EXEC CICS XCTL dynamic (table-driven: VALUE literal in app/cpy/COADM02Y.cpy)",
+   "detail": "EXEC CICS XCTL dynamic (table-driven: CDEMO-ADMIN-OPT-PGMNAME is an element of CDEMO-ADMIN-OPT OCCURS 9 (app/cpy/COADM02Y.cpy:56); 6 entries initialised by VALUE literals in CDEMO-ADMIN-OPTIONS-DATA; populated-entry count held in CDEMO-ADMIN-OPT-COUNT VALUE 6)",
    "kind": "dynamic"
   },
   {
@@ -20388,21 +20383,11 @@
   {
    "category": "program->program",
    "from": "COMEN01C",
-   "to": "EXEC CICS XCTL via CDEMO-MENU-OPT-PGMNAME(WS-OPTION (value from outside this program)",
-   "path": "app/cbl/COMEN01C.cbl",
-   "line": 156,
-   "status": "unresolved",
-   "detail": "EXEC CICS XCTL through CDEMO-MENU-OPT-PGMNAME(WS-OPTION: on at least one path the value comes from data this program does not set (caller commarea, terminal input or a record); the resolved targets at this line are the literals visible on the other paths",
-   "kind": "dynamic"
-  },
-  {
-   "category": "program->program",
-   "from": "COMEN01C",
    "to": "COACTUPC",
    "path": "app/cbl/COMEN01C.cbl",
    "line": 156,
    "status": "resolved",
-   "detail": "EXEC CICS XCTL dynamic (table-driven: VALUE literal in app/cpy/COMEN02Y.cpy)",
+   "detail": "EXEC CICS XCTL dynamic (table-driven: CDEMO-MENU-OPT-PGMNAME is an element of CDEMO-MENU-OPT OCCURS 12 (app/cpy/COMEN02Y.cpy:94); 11 entries initialised by VALUE literals in CDEMO-MENU-OPTIONS-DATA; populated-entry count held in CDEMO-MENU-OPT-COUNT VALUE 11)",
    "kind": "dynamic"
   },
   {
@@ -20412,7 +20397,7 @@
    "path": "app/cbl/COMEN01C.cbl",
    "line": 156,
    "status": "resolved",
-   "detail": "EXEC CICS XCTL dynamic (table-driven: VALUE literal in app/cpy/COMEN02Y.cpy)",
+   "detail": "EXEC CICS XCTL dynamic (table-driven: CDEMO-MENU-OPT-PGMNAME is an element of CDEMO-MENU-OPT OCCURS 12 (app/cpy/COMEN02Y.cpy:94); 11 entries initialised by VALUE literals in CDEMO-MENU-OPTIONS-DATA; populated-entry count held in CDEMO-MENU-OPT-COUNT VALUE 11)",
    "kind": "dynamic"
   },
   {
@@ -20422,7 +20407,7 @@
    "path": "app/cbl/COMEN01C.cbl",
    "line": 156,
    "status": "resolved",
-   "detail": "EXEC CICS XCTL dynamic (table-driven: VALUE literal in app/cpy/COMEN02Y.cpy)",
+   "detail": "EXEC CICS XCTL dynamic (table-driven: CDEMO-MENU-OPT-PGMNAME is an element of CDEMO-MENU-OPT OCCURS 12 (app/cpy/COMEN02Y.cpy:94); 11 entries initialised by VALUE literals in CDEMO-MENU-OPTIONS-DATA; populated-entry count held in CDEMO-MENU-OPT-COUNT VALUE 11)",
    "kind": "dynamic"
   },
   {
@@ -20432,7 +20417,7 @@
    "path": "app/cbl/COMEN01C.cbl",
    "line": 156,
    "status": "resolved",
-   "detail": "EXEC CICS XCTL dynamic (table-driven: VALUE literal in app/cpy/COMEN02Y.cpy)",
+   "detail": "EXEC CICS XCTL dynamic (table-driven: CDEMO-MENU-OPT-PGMNAME is an element of CDEMO-MENU-OPT OCCURS 12 (app/cpy/COMEN02Y.cpy:94); 11 entries initialised by VALUE literals in CDEMO-MENU-OPTIONS-DATA; populated-entry count held in CDEMO-MENU-OPT-COUNT VALUE 11)",
    "kind": "dynamic"
   },
   {
@@ -20442,7 +20427,7 @@
    "path": "app/cbl/COMEN01C.cbl",
    "line": 156,
    "status": "resolved",
-   "detail": "EXEC CICS XCTL dynamic (table-driven: VALUE literal in app/cpy/COMEN02Y.cpy)",
+   "detail": "EXEC CICS XCTL dynamic (table-driven: CDEMO-MENU-OPT-PGMNAME is an element of CDEMO-MENU-OPT OCCURS 12 (app/cpy/COMEN02Y.cpy:94); 11 entries initialised by VALUE literals in CDEMO-MENU-OPTIONS-DATA; populated-entry count held in CDEMO-MENU-OPT-COUNT VALUE 11)",
    "kind": "dynamic"
   },
   {
@@ -20452,7 +20437,7 @@
    "path": "app/cbl/COMEN01C.cbl",
    "line": 156,
    "status": "resolved",
-   "detail": "EXEC CICS XCTL dynamic (table-driven: VALUE literal in app/cpy/COMEN02Y.cpy)",
+   "detail": "EXEC CICS XCTL dynamic (table-driven: CDEMO-MENU-OPT-PGMNAME is an element of CDEMO-MENU-OPT OCCURS 12 (app/cpy/COMEN02Y.cpy:94); 11 entries initialised by VALUE literals in CDEMO-MENU-OPTIONS-DATA; populated-entry count held in CDEMO-MENU-OPT-COUNT VALUE 11)",
    "kind": "dynamic"
   },
   {
@@ -20462,7 +20447,7 @@
    "path": "app/cbl/COMEN01C.cbl",
    "line": 156,
    "status": "resolved",
-   "detail": "EXEC CICS XCTL dynamic (table-driven: VALUE literal in app/cpy/COMEN02Y.cpy)",
+   "detail": "EXEC CICS XCTL dynamic (table-driven: CDEMO-MENU-OPT-PGMNAME is an element of CDEMO-MENU-OPT OCCURS 12 (app/cpy/COMEN02Y.cpy:94); 11 entries initialised by VALUE literals in CDEMO-MENU-OPTIONS-DATA; populated-entry count held in CDEMO-MENU-OPT-COUNT VALUE 11)",
    "kind": "dynamic"
   },
   {
@@ -20472,7 +20457,7 @@
    "path": "app/cbl/COMEN01C.cbl",
    "line": 156,
    "status": "resolved",
-   "detail": "EXEC CICS XCTL dynamic (table-driven: VALUE literal in app/cpy/COMEN02Y.cpy)",
+   "detail": "EXEC CICS XCTL dynamic (table-driven: CDEMO-MENU-OPT-PGMNAME is an element of CDEMO-MENU-OPT OCCURS 12 (app/cpy/COMEN02Y.cpy:94); 11 entries initialised by VALUE literals in CDEMO-MENU-OPTIONS-DATA; populated-entry count held in CDEMO-MENU-OPT-COUNT VALUE 11)",
    "kind": "dynamic"
   },
   {
@@ -20482,7 +20467,7 @@
    "path": "app/cbl/COMEN01C.cbl",
    "line": 156,
    "status": "resolved",
-   "detail": "EXEC CICS XCTL dynamic (table-driven: VALUE literal in app/cpy/COMEN02Y.cpy)",
+   "detail": "EXEC CICS XCTL dynamic (table-driven: CDEMO-MENU-OPT-PGMNAME is an element of CDEMO-MENU-OPT OCCURS 12 (app/cpy/COMEN02Y.cpy:94); 11 entries initialised by VALUE literals in CDEMO-MENU-OPTIONS-DATA; populated-entry count held in CDEMO-MENU-OPT-COUNT VALUE 11)",
    "kind": "dynamic"
   },
   {
@@ -20492,7 +20477,7 @@
    "path": "app/cbl/COMEN01C.cbl",
    "line": 156,
    "status": "resolved",
-   "detail": "EXEC CICS XCTL dynamic (table-driven: VALUE literal in app/cpy/COMEN02Y.cpy)",
+   "detail": "EXEC CICS XCTL dynamic (table-driven: CDEMO-MENU-OPT-PGMNAME is an element of CDEMO-MENU-OPT OCCURS 12 (app/cpy/COMEN02Y.cpy:94); 11 entries initialised by VALUE literals in CDEMO-MENU-OPTIONS-DATA; populated-entry count held in CDEMO-MENU-OPT-COUNT VALUE 11)",
    "kind": "dynamic"
   },
   {
@@ -20502,17 +20487,7 @@
    "path": "app/cbl/COMEN01C.cbl",
    "line": 156,
    "status": "resolved",
-   "detail": "EXEC CICS XCTL dynamic (table-driven: VALUE literal in app/cpy/COMEN02Y.cpy)",
-   "kind": "dynamic"
-  },
-  {
-   "category": "program->program",
-   "from": "COMEN01C",
-   "to": "EXEC CICS XCTL via CDEMO-MENU-OPT-PGMNAME(WS-OPTION (value from outside this program)",
-   "path": "app/cbl/COMEN01C.cbl",
-   "line": 184,
-   "status": "unresolved",
-   "detail": "EXEC CICS XCTL through CDEMO-MENU-OPT-PGMNAME(WS-OPTION: on at least one path the value comes from data this program does not set (caller commarea, terminal input or a record); the resolved targets at this line are the literals visible on the other paths",
+   "detail": "EXEC CICS XCTL dynamic (table-driven: CDEMO-MENU-OPT-PGMNAME is an element of CDEMO-MENU-OPT OCCURS 12 (app/cpy/COMEN02Y.cpy:94); 11 entries initialised by VALUE literals in CDEMO-MENU-OPTIONS-DATA; populated-entry count held in CDEMO-MENU-OPT-COUNT VALUE 11)",
    "kind": "dynamic"
   },
   {
@@ -20522,7 +20497,7 @@
    "path": "app/cbl/COMEN01C.cbl",
    "line": 184,
    "status": "resolved",
-   "detail": "EXEC CICS XCTL dynamic (table-driven: VALUE literal in app/cpy/COMEN02Y.cpy)",
+   "detail": "EXEC CICS XCTL dynamic (table-driven: CDEMO-MENU-OPT-PGMNAME is an element of CDEMO-MENU-OPT OCCURS 12 (app/cpy/COMEN02Y.cpy:94); 11 entries initialised by VALUE literals in CDEMO-MENU-OPTIONS-DATA; populated-entry count held in CDEMO-MENU-OPT-COUNT VALUE 11)",
    "kind": "dynamic"
   },
   {
@@ -20532,7 +20507,7 @@
    "path": "app/cbl/COMEN01C.cbl",
    "line": 184,
    "status": "resolved",
-   "detail": "EXEC CICS XCTL dynamic (table-driven: VALUE literal in app/cpy/COMEN02Y.cpy)",
+   "detail": "EXEC CICS XCTL dynamic (table-driven: CDEMO-MENU-OPT-PGMNAME is an element of CDEMO-MENU-OPT OCCURS 12 (app/cpy/COMEN02Y.cpy:94); 11 entries initialised by VALUE literals in CDEMO-MENU-OPTIONS-DATA; populated-entry count held in CDEMO-MENU-OPT-COUNT VALUE 11)",
    "kind": "dynamic"
   },
   {
@@ -20542,7 +20517,7 @@
    "path": "app/cbl/COMEN01C.cbl",
    "line": 184,
    "status": "resolved",
-   "detail": "EXEC CICS XCTL dynamic (table-driven: VALUE literal in app/cpy/COMEN02Y.cpy)",
+   "detail": "EXEC CICS XCTL dynamic (table-driven: CDEMO-MENU-OPT-PGMNAME is an element of CDEMO-MENU-OPT OCCURS 12 (app/cpy/COMEN02Y.cpy:94); 11 entries initialised by VALUE literals in CDEMO-MENU-OPTIONS-DATA; populated-entry count held in CDEMO-MENU-OPT-COUNT VALUE 11)",
    "kind": "dynamic"
   },
   {
@@ -20552,7 +20527,7 @@
    "path": "app/cbl/COMEN01C.cbl",
    "line": 184,
    "status": "resolved",
-   "detail": "EXEC CICS XCTL dynamic (table-driven: VALUE literal in app/cpy/COMEN02Y.cpy)",
+   "detail": "EXEC CICS XCTL dynamic (table-driven: CDEMO-MENU-OPT-PGMNAME is an element of CDEMO-MENU-OPT OCCURS 12 (app/cpy/COMEN02Y.cpy:94); 11 entries initialised by VALUE literals in CDEMO-MENU-OPTIONS-DATA; populated-entry count held in CDEMO-MENU-OPT-COUNT VALUE 11)",
    "kind": "dynamic"
   },
   {
@@ -20562,7 +20537,7 @@
    "path": "app/cbl/COMEN01C.cbl",
    "line": 184,
    "status": "resolved",
-   "detail": "EXEC CICS XCTL dynamic (table-driven: VALUE literal in app/cpy/COMEN02Y.cpy)",
+   "detail": "EXEC CICS XCTL dynamic (table-driven: CDEMO-MENU-OPT-PGMNAME is an element of CDEMO-MENU-OPT OCCURS 12 (app/cpy/COMEN02Y.cpy:94); 11 entries initialised by VALUE literals in CDEMO-MENU-OPTIONS-DATA; populated-entry count held in CDEMO-MENU-OPT-COUNT VALUE 11)",
    "kind": "dynamic"
   },
   {
@@ -20572,7 +20547,7 @@
    "path": "app/cbl/COMEN01C.cbl",
    "line": 184,
    "status": "resolved",
-   "detail": "EXEC CICS XCTL dynamic (table-driven: VALUE literal in app/cpy/COMEN02Y.cpy)",
+   "detail": "EXEC CICS XCTL dynamic (table-driven: CDEMO-MENU-OPT-PGMNAME is an element of CDEMO-MENU-OPT OCCURS 12 (app/cpy/COMEN02Y.cpy:94); 11 entries initialised by VALUE literals in CDEMO-MENU-OPTIONS-DATA; populated-entry count held in CDEMO-MENU-OPT-COUNT VALUE 11)",
    "kind": "dynamic"
   },
   {
@@ -20582,7 +20557,7 @@
    "path": "app/cbl/COMEN01C.cbl",
    "line": 184,
    "status": "resolved",
-   "detail": "EXEC CICS XCTL dynamic (table-driven: VALUE literal in app/cpy/COMEN02Y.cpy)",
+   "detail": "EXEC CICS XCTL dynamic (table-driven: CDEMO-MENU-OPT-PGMNAME is an element of CDEMO-MENU-OPT OCCURS 12 (app/cpy/COMEN02Y.cpy:94); 11 entries initialised by VALUE literals in CDEMO-MENU-OPTIONS-DATA; populated-entry count held in CDEMO-MENU-OPT-COUNT VALUE 11)",
    "kind": "dynamic"
   },
   {
@@ -20592,7 +20567,7 @@
    "path": "app/cbl/COMEN01C.cbl",
    "line": 184,
    "status": "resolved",
-   "detail": "EXEC CICS XCTL dynamic (table-driven: VALUE literal in app/cpy/COMEN02Y.cpy)",
+   "detail": "EXEC CICS XCTL dynamic (table-driven: CDEMO-MENU-OPT-PGMNAME is an element of CDEMO-MENU-OPT OCCURS 12 (app/cpy/COMEN02Y.cpy:94); 11 entries initialised by VALUE literals in CDEMO-MENU-OPTIONS-DATA; populated-entry count held in CDEMO-MENU-OPT-COUNT VALUE 11)",
    "kind": "dynamic"
   },
   {
@@ -20602,7 +20577,7 @@
    "path": "app/cbl/COMEN01C.cbl",
    "line": 184,
    "status": "resolved",
-   "detail": "EXEC CICS XCTL dynamic (table-driven: VALUE literal in app/cpy/COMEN02Y.cpy)",
+   "detail": "EXEC CICS XCTL dynamic (table-driven: CDEMO-MENU-OPT-PGMNAME is an element of CDEMO-MENU-OPT OCCURS 12 (app/cpy/COMEN02Y.cpy:94); 11 entries initialised by VALUE literals in CDEMO-MENU-OPTIONS-DATA; populated-entry count held in CDEMO-MENU-OPT-COUNT VALUE 11)",
    "kind": "dynamic"
   },
   {
@@ -20612,7 +20587,7 @@
    "path": "app/cbl/COMEN01C.cbl",
    "line": 184,
    "status": "resolved",
-   "detail": "EXEC CICS XCTL dynamic (table-driven: VALUE literal in app/cpy/COMEN02Y.cpy)",
+   "detail": "EXEC CICS XCTL dynamic (table-driven: CDEMO-MENU-OPT-PGMNAME is an element of CDEMO-MENU-OPT OCCURS 12 (app/cpy/COMEN02Y.cpy:94); 11 entries initialised by VALUE literals in CDEMO-MENU-OPTIONS-DATA; populated-entry count held in CDEMO-MENU-OPT-COUNT VALUE 11)",
    "kind": "dynamic"
   },
   {
@@ -20622,7 +20597,7 @@
    "path": "app/cbl/COMEN01C.cbl",
    "line": 184,
    "status": "resolved",
-   "detail": "EXEC CICS XCTL dynamic (table-driven: VALUE literal in app/cpy/COMEN02Y.cpy)",
+   "detail": "EXEC CICS XCTL dynamic (table-driven: CDEMO-MENU-OPT-PGMNAME is an element of CDEMO-MENU-OPT OCCURS 12 (app/cpy/COMEN02Y.cpy:94); 11 entries initialised by VALUE literals in CDEMO-MENU-OPTIONS-DATA; populated-entry count held in CDEMO-MENU-OPT-COUNT VALUE 11)",
    "kind": "dynamic"
   },
   {
@@ -46749,21 +46724,21 @@
    "construct": "EXEC CICS",
    "path": "app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl",
    "line": 695,
-   "detail": "SEND",
+   "detail": "SEND MAP",
    "snippet": "EXEC CICS SEND"
   },
   {
    "construct": "EXEC CICS",
    "path": "app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl",
    "line": 703,
-   "detail": "SEND",
+   "detail": "SEND MAP",
    "snippet": "EXEC CICS SEND"
   },
   {
    "construct": "EXEC CICS",
    "path": "app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl",
    "line": 715,
-   "detail": "RECEIVE",
+   "detail": "RECEIVE MAP",
    "snippet": "EXEC CICS RECEIVE"
   },
   {
@@ -46812,21 +46787,21 @@
    "construct": "EXEC CICS",
    "path": "app/app-authorization-ims-db2-mq/cbl/COPAUS1C.cbl",
    "line": 381,
-   "detail": "SEND",
+   "detail": "SEND MAP",
    "snippet": "EXEC CICS SEND"
   },
   {
    "construct": "EXEC CICS",
    "path": "app/app-authorization-ims-db2-mq/cbl/COPAUS1C.cbl",
    "line": 389,
-   "detail": "SEND",
+   "detail": "SEND MAP",
    "snippet": "EXEC CICS SEND"
   },
   {
    "construct": "EXEC CICS",
    "path": "app/app-authorization-ims-db2-mq/cbl/COPAUS1C.cbl",
    "line": 400,
-   "detail": "RECEIVE",
+   "detail": "RECEIVE MAP",
    "snippet": "EXEC CICS RECEIVE"
   },
   {
@@ -46896,14 +46871,14 @@
    "construct": "EXEC CICS",
    "path": "app/app-transaction-type-db2/cbl/COTRTLIC.cbl",
    "line": 931,
-   "detail": "RECEIVE",
+   "detail": "RECEIVE MAP",
    "snippet": "EXEC CICS RECEIVE MAP(LIT-THISMAP)"
   },
   {
    "construct": "EXEC CICS",
    "path": "app/app-transaction-type-db2/cbl/COTRTLIC.cbl",
    "line": 1588,
-   "detail": "SEND",
+   "detail": "SEND MAP",
    "snippet": "EXEC CICS SEND MAP(LIT-THISMAP)"
   },
   {
@@ -46980,14 +46955,14 @@
    "construct": "EXEC CICS",
    "path": "app/app-transaction-type-db2/cbl/COTRTUPC.cbl",
    "line": 642,
-   "detail": "RECEIVE",
+   "detail": "RECEIVE MAP",
    "snippet": "EXEC CICS RECEIVE MAP(LIT-THISMAP)"
   },
   {
    "construct": "EXEC CICS",
    "path": "app/app-transaction-type-db2/cbl/COTRTUPC.cbl",
    "line": 1433,
-   "detail": "SEND",
+   "detail": "SEND MAP",
    "snippet": "EXEC CICS SEND MAP(CCARD-NEXT-MAP)"
   },
   {
@@ -47127,14 +47102,14 @@
    "construct": "EXEC CICS",
    "path": "app/cbl/COACTUPC.cbl",
    "line": 1040,
-   "detail": "RECEIVE",
+   "detail": "RECEIVE MAP",
    "snippet": "EXEC CICS RECEIVE MAP(LIT-THISMAP)"
   },
   {
    "construct": "EXEC CICS",
    "path": "app/cbl/COACTUPC.cbl",
    "line": 3594,
-   "detail": "SEND",
+   "detail": "SEND MAP",
    "snippet": "EXEC CICS SEND MAP(CCARD-NEXT-MAP)"
   },
   {
@@ -47239,14 +47214,14 @@
    "construct": "EXEC CICS",
    "path": "app/cbl/COACTVWC.cbl",
    "line": 583,
-   "detail": "SEND",
+   "detail": "SEND MAP",
    "snippet": "EXEC CICS SEND MAP(CCARD-NEXT-MAP)"
   },
   {
    "construct": "EXEC CICS",
    "path": "app/cbl/COACTVWC.cbl",
    "line": 611,
-   "detail": "RECEIVE",
+   "detail": "RECEIVE MAP",
    "snippet": "EXEC CICS RECEIVE MAP(LIT-THISMAP)"
   },
   {
@@ -47351,14 +47326,14 @@
    "construct": "EXEC CICS",
    "path": "app/cbl/COADM01C.cbl",
    "line": 182,
-   "detail": "SEND",
+   "detail": "SEND MAP",
    "snippet": "EXEC CICS SEND"
   },
   {
    "construct": "EXEC CICS",
    "path": "app/cbl/COADM01C.cbl",
    "line": 194,
-   "detail": "RECEIVE",
+   "detail": "RECEIVE MAP",
    "snippet": "EXEC CICS RECEIVE"
   },
   {
@@ -47400,14 +47375,14 @@
    "construct": "EXEC CICS",
    "path": "app/cbl/COBIL00C.cbl",
    "line": 295,
-   "detail": "SEND",
+   "detail": "SEND MAP",
    "snippet": "EXEC CICS SEND"
   },
   {
    "construct": "EXEC CICS",
    "path": "app/cbl/COBIL00C.cbl",
    "line": 308,
-   "detail": "RECEIVE",
+   "detail": "RECEIVE MAP",
    "snippet": "EXEC CICS RECEIVE"
   },
   {
@@ -47491,14 +47466,14 @@
    "construct": "EXEC CICS",
    "path": "app/cbl/COCRDLIC.cbl",
    "line": 939,
-   "detail": "SEND",
+   "detail": "SEND MAP",
    "snippet": "EXEC CICS SEND MAP(LIT-THISMAP)"
   },
   {
    "construct": "EXEC CICS",
    "path": "app/cbl/COCRDLIC.cbl",
    "line": 963,
-   "detail": "RECEIVE",
+   "detail": "RECEIVE MAP",
    "snippet": "EXEC CICS RECEIVE MAP(LIT-THISMAP)"
   },
   {
@@ -47610,14 +47585,14 @@
    "construct": "EXEC CICS",
    "path": "app/cbl/COCRDSLC.cbl",
    "line": 569,
-   "detail": "SEND",
+   "detail": "SEND MAP",
    "snippet": "EXEC CICS SEND MAP(CCARD-NEXT-MAP)"
   },
   {
    "construct": "EXEC CICS",
    "path": "app/cbl/COCRDSLC.cbl",
    "line": 597,
-   "detail": "RECEIVE",
+   "detail": "RECEIVE MAP",
    "snippet": "EXEC CICS RECEIVE MAP(LIT-THISMAP)"
   },
   {
@@ -47715,14 +47690,14 @@
    "construct": "EXEC CICS",
    "path": "app/cbl/COCRDUPC.cbl",
    "line": 579,
-   "detail": "RECEIVE",
+   "detail": "RECEIVE MAP",
    "snippet": "EXEC CICS RECEIVE MAP(LIT-THISMAP)"
   },
   {
    "construct": "EXEC CICS",
    "path": "app/cbl/COCRDUPC.cbl",
    "line": 1329,
-   "detail": "SEND",
+   "detail": "SEND MAP",
    "snippet": "EXEC CICS SEND MAP(CCARD-NEXT-MAP)"
   },
   {
@@ -47806,14 +47781,14 @@
    "construct": "EXEC CICS",
    "path": "app/cbl/COMEN01C.cbl",
    "line": 215,
-   "detail": "SEND",
+   "detail": "SEND MAP",
    "snippet": "EXEC CICS SEND"
   },
   {
    "construct": "EXEC CICS",
    "path": "app/cbl/COMEN01C.cbl",
    "line": 227,
-   "detail": "RECEIVE",
+   "detail": "RECEIVE MAP",
    "snippet": "EXEC CICS RECEIVE"
   },
   {
@@ -47841,14 +47816,14 @@
    "construct": "EXEC CICS",
    "path": "app/cbl/CORPT00C.cbl",
    "line": 563,
-   "detail": "SEND",
+   "detail": "SEND MAP",
    "snippet": "EXEC CICS SEND"
   },
   {
    "construct": "EXEC CICS",
    "path": "app/cbl/CORPT00C.cbl",
    "line": 571,
-   "detail": "SEND",
+   "detail": "SEND MAP",
    "snippet": "EXEC CICS SEND"
   },
   {
@@ -47862,7 +47837,7 @@
    "construct": "EXEC CICS",
    "path": "app/cbl/CORPT00C.cbl",
    "line": 598,
-   "detail": "RECEIVE",
+   "detail": "RECEIVE MAP",
    "snippet": "EXEC CICS RECEIVE"
   },
   {
@@ -47876,14 +47851,14 @@
    "construct": "EXEC CICS",
    "path": "app/cbl/COSGN00C.cbl",
    "line": 110,
-   "detail": "RECEIVE",
+   "detail": "RECEIVE MAP",
    "snippet": "EXEC CICS RECEIVE"
   },
   {
    "construct": "EXEC CICS",
    "path": "app/cbl/COSGN00C.cbl",
    "line": 151,
-   "detail": "SEND",
+   "detail": "SEND MAP",
    "snippet": "EXEC CICS SEND"
   },
   {
@@ -47960,21 +47935,21 @@
    "construct": "EXEC CICS",
    "path": "app/cbl/COTRN00C.cbl",
    "line": 534,
-   "detail": "SEND",
+   "detail": "SEND MAP",
    "snippet": "EXEC CICS SEND"
   },
   {
    "construct": "EXEC CICS",
    "path": "app/cbl/COTRN00C.cbl",
    "line": 542,
-   "detail": "SEND",
+   "detail": "SEND MAP",
    "snippet": "EXEC CICS SEND"
   },
   {
    "construct": "EXEC CICS",
    "path": "app/cbl/COTRN00C.cbl",
    "line": 556,
-   "detail": "RECEIVE",
+   "detail": "RECEIVE MAP",
    "snippet": "EXEC CICS RECEIVE"
   },
   {
@@ -48023,14 +47998,14 @@
    "construct": "EXEC CICS",
    "path": "app/cbl/COTRN01C.cbl",
    "line": 219,
-   "detail": "SEND",
+   "detail": "SEND MAP",
    "snippet": "EXEC CICS SEND"
   },
   {
    "construct": "EXEC CICS",
    "path": "app/cbl/COTRN01C.cbl",
    "line": 232,
-   "detail": "RECEIVE",
+   "detail": "RECEIVE MAP",
    "snippet": "EXEC CICS RECEIVE"
   },
   {
@@ -48058,7 +48033,7 @@
    "construct": "EXEC CICS",
    "path": "app/cbl/COTRN02C.cbl",
    "line": 522,
-   "detail": "SEND",
+   "detail": "SEND MAP",
    "snippet": "EXEC CICS SEND"
   },
   {
@@ -48072,7 +48047,7 @@
    "construct": "EXEC CICS",
    "path": "app/cbl/COTRN02C.cbl",
    "line": 541,
-   "detail": "RECEIVE",
+   "detail": "RECEIVE MAP",
    "snippet": "EXEC CICS RECEIVE"
   },
   {
@@ -48149,21 +48124,21 @@
    "construct": "EXEC CICS",
    "path": "app/cbl/COUSR00C.cbl",
    "line": 529,
-   "detail": "SEND",
+   "detail": "SEND MAP",
    "snippet": "EXEC CICS SEND"
   },
   {
    "construct": "EXEC CICS",
    "path": "app/cbl/COUSR00C.cbl",
    "line": 537,
-   "detail": "SEND",
+   "detail": "SEND MAP",
    "snippet": "EXEC CICS SEND"
   },
   {
    "construct": "EXEC CICS",
    "path": "app/cbl/COUSR00C.cbl",
    "line": 551,
-   "detail": "RECEIVE",
+   "detail": "RECEIVE MAP",
    "snippet": "EXEC CICS RECEIVE"
   },
   {
@@ -48212,14 +48187,14 @@
    "construct": "EXEC CICS",
    "path": "app/cbl/COUSR01C.cbl",
    "line": 190,
-   "detail": "SEND",
+   "detail": "SEND MAP",
    "snippet": "EXEC CICS SEND"
   },
   {
    "construct": "EXEC CICS",
    "path": "app/cbl/COUSR01C.cbl",
    "line": 203,
-   "detail": "RECEIVE",
+   "detail": "RECEIVE MAP",
    "snippet": "EXEC CICS RECEIVE"
   },
   {
@@ -48247,14 +48222,14 @@
    "construct": "EXEC CICS",
    "path": "app/cbl/COUSR02C.cbl",
    "line": 272,
-   "detail": "SEND",
+   "detail": "SEND MAP",
    "snippet": "EXEC CICS SEND"
   },
   {
    "construct": "EXEC CICS",
    "path": "app/cbl/COUSR02C.cbl",
    "line": 285,
-   "detail": "RECEIVE",
+   "detail": "RECEIVE MAP",
    "snippet": "EXEC CICS RECEIVE"
   },
   {
@@ -48289,14 +48264,14 @@
    "construct": "EXEC CICS",
    "path": "app/cbl/COUSR03C.cbl",
    "line": 219,
-   "detail": "SEND",
+   "detail": "SEND MAP",
    "snippet": "EXEC CICS SEND"
   },
   {
    "construct": "EXEC CICS",
    "path": "app/cbl/COUSR03C.cbl",
    "line": 232,
-   "detail": "RECEIVE",
+   "detail": "RECEIVE MAP",
    "snippet": "EXEC CICS RECEIVE"
   },
   {

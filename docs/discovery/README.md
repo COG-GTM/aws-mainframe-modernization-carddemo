@@ -1,6 +1,6 @@
 # Estate discovery dossier
 
-**Headline: the generator resolved 548 distinct dependency edges and could not resolve 127** (categories: program→copybook, program→dataset, JCL step→program, transaction→program, program→program; distinct per category/from/to). Every number in this folder is computed by `build_discovery.py` from the source under `app/`; none is hand-typed.
+**Headline: the generator resolved 548 distinct dependency edges and could not resolve 125** (categories: program→copybook, program→dataset, JCL step→program, transaction→program, program→program; distinct per category/from/to). Every number in this folder is computed by `build_discovery.py` from the source under `app/`; none is hand-typed.
 
 ## What is in this folder
 
@@ -28,12 +28,12 @@ python3 -m pytest tests/test_discovery.py
 | Measure | Value |
 | --- | --- |
 | Dependency edges resolved (headline) | 548 |
-| Dependency edges unresolved (headline) | 127 |
+| Dependency edges unresolved (headline) | 125 |
 |   program->copybook | 253 resolved / 64 unresolved |
 |   program->dataset | 77 resolved / 7 unresolved |
 |   jclstep->program | 126 resolved / 0 unresolved |
 |   transaction->program | 26 resolved / 7 unresolved |
-|   program->program | 66 resolved / 49 unresolved |
+|   program->program | 66 resolved / 47 unresolved |
 | Artifacts (total) | 237 |
 |   COBOL program | 44 |
 |   Copybook (COBOL) | 41 |

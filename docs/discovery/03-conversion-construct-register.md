@@ -2715,9 +2715,9 @@
 | `app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl:322` | XCTL | `EXEC CICS` |
 | `app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl:674` | XCTL | `EXEC CICS` |
 | `app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl:686` | SYNCPOINT | `EXEC CICS SYNCPOINT` |
-| `app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl:695` | SEND | `EXEC CICS SEND` |
-| `app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl:703` | SEND | `EXEC CICS SEND` |
-| `app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl:715` | RECEIVE | `EXEC CICS RECEIVE` |
+| `app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl:695` | SEND MAP | `EXEC CICS SEND` |
+| `app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl:703` | SEND MAP | `EXEC CICS SEND` |
+| `app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl:715` | RECEIVE MAP | `EXEC CICS RECEIVE` |
 | `app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl:818` | READ | `EXEC CICS READ` |
 | `app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl:869` | READ | `EXEC CICS READ` |
 | `app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl:920` | READ | `EXEC CICS READ` |
@@ -2729,9 +2729,9 @@
 | `app/app-authorization-ims-db2-mq/cbl/COPAUS1C.cbl:202` | RETURN | `EXEC CICS RETURN` |
 | `app/app-authorization-ims-db2-mq/cbl/COPAUS1C.cbl:248` | LINK | `EXEC CICS LINK` |
 | `app/app-authorization-ims-db2-mq/cbl/COPAUS1C.cbl:367` | XCTL | `EXEC CICS` |
-| `app/app-authorization-ims-db2-mq/cbl/COPAUS1C.cbl:381` | SEND | `EXEC CICS SEND` |
-| `app/app-authorization-ims-db2-mq/cbl/COPAUS1C.cbl:389` | SEND | `EXEC CICS SEND` |
-| `app/app-authorization-ims-db2-mq/cbl/COPAUS1C.cbl:400` | RECEIVE | `EXEC CICS RECEIVE` |
+| `app/app-authorization-ims-db2-mq/cbl/COPAUS1C.cbl:381` | SEND MAP | `EXEC CICS SEND` |
+| `app/app-authorization-ims-db2-mq/cbl/COPAUS1C.cbl:389` | SEND MAP | `EXEC CICS SEND` |
+| `app/app-authorization-ims-db2-mq/cbl/COPAUS1C.cbl:400` | RECEIVE MAP | `EXEC CICS RECEIVE` |
 | `app/app-authorization-ims-db2-mq/cbl/COPAUS1C.cbl:558` | SYNCPOINT | `EXEC CICS SYNCPOINT` |
 | `app/app-authorization-ims-db2-mq/cbl/COPAUS1C.cbl:566` | SYNCPOINT | `EXEC CICS` |
 
@@ -2751,8 +2751,8 @@
 | `app/app-transaction-type-db2/cbl/COTRTLIC.cbl:620` | XCTL | `EXEC CICS XCTL` |
 | `app/app-transaction-type-db2/cbl/COTRTLIC.cbl:648` | XCTL | `EXEC CICS XCTL` |
 | `app/app-transaction-type-db2/cbl/COTRTLIC.cbl:910` | RETURN | `EXEC CICS RETURN` |
-| `app/app-transaction-type-db2/cbl/COTRTLIC.cbl:931` | RECEIVE | `EXEC CICS RECEIVE MAP(LIT-THISMAP)` |
-| `app/app-transaction-type-db2/cbl/COTRTLIC.cbl:1588` | SEND | `EXEC CICS SEND MAP(LIT-THISMAP)` |
+| `app/app-transaction-type-db2/cbl/COTRTLIC.cbl:931` | RECEIVE MAP | `EXEC CICS RECEIVE MAP(LIT-THISMAP)` |
+| `app/app-transaction-type-db2/cbl/COTRTLIC.cbl:1588` | SEND MAP | `EXEC CICS SEND MAP(LIT-THISMAP)` |
 | `app/app-transaction-type-db2/cbl/COTRTLIC.cbl:1856` | SYNCPOINT | `EXEC CICS SYNCPOINT END-EXEC` |
 | `app/app-transaction-type-db2/cbl/COTRTLIC.cbl:1909` | SYNCPOINT | `EXEC CICS SYNCPOINT END-EXEC` |
 | `app/app-transaction-type-db2/cbl/COTRTLIC.cbl:2067` | SEND TEXT | `EXEC CICS SEND TEXT` |
@@ -2768,8 +2768,8 @@
 | `app/app-transaction-type-db2/cbl/COTRTUPC.cbl:453` | SYNCPOINT | `EXEC CICS` |
 | `app/app-transaction-type-db2/cbl/COTRTUPC.cbl:457` | XCTL | `EXEC CICS XCTL` |
 | `app/app-transaction-type-db2/cbl/COTRTUPC.cbl:567` | RETURN | `EXEC CICS RETURN` |
-| `app/app-transaction-type-db2/cbl/COTRTUPC.cbl:642` | RECEIVE | `EXEC CICS RECEIVE MAP(LIT-THISMAP)` |
-| `app/app-transaction-type-db2/cbl/COTRTUPC.cbl:1433` | SEND | `EXEC CICS SEND MAP(CCARD-NEXT-MAP)` |
+| `app/app-transaction-type-db2/cbl/COTRTUPC.cbl:642` | RECEIVE MAP | `EXEC CICS RECEIVE MAP(LIT-THISMAP)` |
+| `app/app-transaction-type-db2/cbl/COTRTUPC.cbl:1433` | SEND MAP | `EXEC CICS SEND MAP(CCARD-NEXT-MAP)` |
 | `app/app-transaction-type-db2/cbl/COTRTUPC.cbl:1557` | SYNCPOINT | `EXEC CICS SYNCPOINT END-EXEC` |
 | `app/app-transaction-type-db2/cbl/COTRTUPC.cbl:1606` | SYNCPOINT | `EXEC CICS SYNCPOINT END-EXEC` |
 | `app/app-transaction-type-db2/cbl/COTRTUPC.cbl:1637` | SYNCPOINT | `EXEC CICS SYNCPOINT END-EXEC` |
@@ -2804,8 +2804,8 @@
 | `app/cbl/COACTUPC.cbl:952` | SYNCPOINT | `EXEC CICS` |
 | `app/cbl/COACTUPC.cbl:956` | XCTL | `EXEC CICS XCTL` |
 | `app/cbl/COACTUPC.cbl:1015` | RETURN | `EXEC CICS RETURN` |
-| `app/cbl/COACTUPC.cbl:1040` | RECEIVE | `EXEC CICS RECEIVE MAP(LIT-THISMAP)` |
-| `app/cbl/COACTUPC.cbl:3594` | SEND | `EXEC CICS SEND MAP(CCARD-NEXT-MAP)` |
+| `app/cbl/COACTUPC.cbl:1040` | RECEIVE MAP | `EXEC CICS RECEIVE MAP(LIT-THISMAP)` |
+| `app/cbl/COACTUPC.cbl:3594` | SEND MAP | `EXEC CICS SEND MAP(CCARD-NEXT-MAP)` |
 | `app/cbl/COACTUPC.cbl:3654` | READ | `EXEC CICS READ` |
 | `app/cbl/COACTUPC.cbl:3703` | READ | `EXEC CICS READ` |
 | `app/cbl/COACTUPC.cbl:3753` | READ | `EXEC CICS READ` |
@@ -2825,8 +2825,8 @@
 | `app/cbl/COACTVWC.cbl:264` | HANDLE ABEND | `EXEC CICS HANDLE ABEND` |
 | `app/cbl/COACTVWC.cbl:349` | XCTL | `EXEC CICS XCTL` |
 | `app/cbl/COACTVWC.cbl:402` | RETURN | `EXEC CICS RETURN` |
-| `app/cbl/COACTVWC.cbl:583` | SEND | `EXEC CICS SEND MAP(CCARD-NEXT-MAP)` |
-| `app/cbl/COACTVWC.cbl:611` | RECEIVE | `EXEC CICS RECEIVE MAP(LIT-THISMAP)` |
+| `app/cbl/COACTVWC.cbl:583` | SEND MAP | `EXEC CICS SEND MAP(CCARD-NEXT-MAP)` |
+| `app/cbl/COACTVWC.cbl:611` | RECEIVE MAP | `EXEC CICS RECEIVE MAP(LIT-THISMAP)` |
 | `app/cbl/COACTVWC.cbl:727` | READ | `EXEC CICS READ` |
 | `app/cbl/COACTVWC.cbl:776` | READ | `EXEC CICS READ` |
 | `app/cbl/COACTVWC.cbl:826` | READ | `EXEC CICS READ` |
@@ -2846,8 +2846,8 @@
 | `app/cbl/COADM01C.cbl:111` | RETURN | `EXEC CICS RETURN` |
 | `app/cbl/COADM01C.cbl:145` | XCTL | `EXEC CICS` |
 | `app/cbl/COADM01C.cbl:168` | XCTL | `EXEC CICS` |
-| `app/cbl/COADM01C.cbl:182` | SEND | `EXEC CICS SEND` |
-| `app/cbl/COADM01C.cbl:194` | RECEIVE | `EXEC CICS RECEIVE` |
+| `app/cbl/COADM01C.cbl:182` | SEND MAP | `EXEC CICS SEND` |
+| `app/cbl/COADM01C.cbl:194` | RECEIVE MAP | `EXEC CICS RECEIVE` |
 | `app/cbl/COADM01C.cbl:280` | RETURN | `EXEC CICS RETURN` |
 
 #### `app/cbl/COBIL00C.cbl` (13)
@@ -2858,8 +2858,8 @@
 | `app/cbl/COBIL00C.cbl:251` | ASKTIME | `EXEC CICS ASKTIME` |
 | `app/cbl/COBIL00C.cbl:255` | FORMATTIME | `EXEC CICS FORMATTIME` |
 | `app/cbl/COBIL00C.cbl:281` | XCTL | `EXEC CICS` |
-| `app/cbl/COBIL00C.cbl:295` | SEND | `EXEC CICS SEND` |
-| `app/cbl/COBIL00C.cbl:308` | RECEIVE | `EXEC CICS RECEIVE` |
+| `app/cbl/COBIL00C.cbl:295` | SEND MAP | `EXEC CICS SEND` |
+| `app/cbl/COBIL00C.cbl:308` | RECEIVE MAP | `EXEC CICS RECEIVE` |
 | `app/cbl/COBIL00C.cbl:345` | READ | `EXEC CICS READ` |
 | `app/cbl/COBIL00C.cbl:379` | REWRITE | `EXEC CICS REWRITE` |
 | `app/cbl/COBIL00C.cbl:410` | READ | `EXEC CICS READ` |
@@ -2876,8 +2876,8 @@
 | `app/cbl/COCRDLIC.cbl:538` | XCTL | `EXEC CICS XCTL` |
 | `app/cbl/COCRDLIC.cbl:566` | XCTL | `EXEC CICS XCTL` |
 | `app/cbl/COCRDLIC.cbl:615` | RETURN | `EXEC CICS RETURN` |
-| `app/cbl/COCRDLIC.cbl:939` | SEND | `EXEC CICS SEND MAP(LIT-THISMAP)` |
-| `app/cbl/COCRDLIC.cbl:963` | RECEIVE | `EXEC CICS RECEIVE MAP(LIT-THISMAP)` |
+| `app/cbl/COCRDLIC.cbl:939` | SEND MAP | `EXEC CICS SEND MAP(LIT-THISMAP)` |
+| `app/cbl/COCRDLIC.cbl:963` | RECEIVE MAP | `EXEC CICS RECEIVE MAP(LIT-THISMAP)` |
 | `app/cbl/COCRDLIC.cbl:1129` | STARTBR | `EXEC CICS STARTBR` |
 | `app/cbl/COCRDLIC.cbl:1146` | READNEXT | `EXEC CICS READNEXT` |
 | `app/cbl/COCRDLIC.cbl:1197` | READNEXT | `EXEC CICS READNEXT` |
@@ -2898,8 +2898,8 @@
 | `app/cbl/COCRDSLC.cbl:250` | HANDLE ABEND | `EXEC CICS HANDLE ABEND` |
 | `app/cbl/COCRDSLC.cbl:331` | XCTL | `EXEC CICS XCTL` |
 | `app/cbl/COCRDSLC.cbl:402` | RETURN | `EXEC CICS RETURN` |
-| `app/cbl/COCRDSLC.cbl:569` | SEND | `EXEC CICS SEND MAP(CCARD-NEXT-MAP)` |
-| `app/cbl/COCRDSLC.cbl:597` | RECEIVE | `EXEC CICS RECEIVE MAP(LIT-THISMAP)` |
+| `app/cbl/COCRDSLC.cbl:569` | SEND MAP | `EXEC CICS SEND MAP(CCARD-NEXT-MAP)` |
+| `app/cbl/COCRDSLC.cbl:597` | RECEIVE MAP | `EXEC CICS RECEIVE MAP(LIT-THISMAP)` |
 | `app/cbl/COCRDSLC.cbl:742` | READ | `EXEC CICS READ` |
 | `app/cbl/COCRDSLC.cbl:783` | READ | `EXEC CICS READ` |
 | `app/cbl/COCRDSLC.cbl:821` | SEND TEXT | `EXEC CICS SEND TEXT` |
@@ -2918,8 +2918,8 @@
 | `app/cbl/COCRDUPC.cbl:469` | SYNCPOINT | `EXEC CICS` |
 | `app/cbl/COCRDUPC.cbl:473` | XCTL | `EXEC CICS XCTL` |
 | `app/cbl/COCRDUPC.cbl:554` | RETURN | `EXEC CICS RETURN` |
-| `app/cbl/COCRDUPC.cbl:579` | RECEIVE | `EXEC CICS RECEIVE MAP(LIT-THISMAP)` |
-| `app/cbl/COCRDUPC.cbl:1329` | SEND | `EXEC CICS SEND MAP(CCARD-NEXT-MAP)` |
+| `app/cbl/COCRDUPC.cbl:579` | RECEIVE MAP | `EXEC CICS RECEIVE MAP(LIT-THISMAP)` |
+| `app/cbl/COCRDUPC.cbl:1329` | SEND MAP | `EXEC CICS SEND MAP(CCARD-NEXT-MAP)` |
 | `app/cbl/COCRDUPC.cbl:1382` | READ | `EXEC CICS READ` |
 | `app/cbl/COCRDUPC.cbl:1427` | READ | `EXEC CICS READ` |
 | `app/cbl/COCRDUPC.cbl:1477` | REWRITE | `EXEC CICS` |
@@ -2936,8 +2936,8 @@
 | `app/cbl/COMEN01C.cbl:156` | XCTL | `EXEC CICS XCTL` |
 | `app/cbl/COMEN01C.cbl:184` | XCTL | `EXEC CICS` |
 | `app/cbl/COMEN01C.cbl:201` | XCTL | `EXEC CICS` |
-| `app/cbl/COMEN01C.cbl:215` | SEND | `EXEC CICS SEND` |
-| `app/cbl/COMEN01C.cbl:227` | RECEIVE | `EXEC CICS RECEIVE` |
+| `app/cbl/COMEN01C.cbl:215` | SEND MAP | `EXEC CICS SEND` |
+| `app/cbl/COMEN01C.cbl:227` | RECEIVE MAP | `EXEC CICS RECEIVE` |
 
 #### `app/cbl/CORPT00C.cbl` (7)
 
@@ -2946,18 +2946,18 @@
 | `app/cbl/CORPT00C.cbl:199` | RETURN | `EXEC CICS RETURN` |
 | `app/cbl/CORPT00C.cbl:517` | WRITEQ | `EXEC CICS WRITEQ TD` |
 | `app/cbl/CORPT00C.cbl:548` | XCTL | `EXEC CICS` |
-| `app/cbl/CORPT00C.cbl:563` | SEND | `EXEC CICS SEND` |
-| `app/cbl/CORPT00C.cbl:571` | SEND | `EXEC CICS SEND` |
+| `app/cbl/CORPT00C.cbl:563` | SEND MAP | `EXEC CICS SEND` |
+| `app/cbl/CORPT00C.cbl:571` | SEND MAP | `EXEC CICS SEND` |
 | `app/cbl/CORPT00C.cbl:587` | RETURN | `EXEC CICS RETURN` |
-| `app/cbl/CORPT00C.cbl:598` | RECEIVE | `EXEC CICS RECEIVE` |
+| `app/cbl/CORPT00C.cbl:598` | RECEIVE MAP | `EXEC CICS RECEIVE` |
 
 #### `app/cbl/COSGN00C.cbl` (10)
 
 | Line | Detail | Source text |
 | --- | --- | --- |
 | `app/cbl/COSGN00C.cbl:98` | RETURN | `EXEC CICS RETURN` |
-| `app/cbl/COSGN00C.cbl:110` | RECEIVE | `EXEC CICS RECEIVE` |
-| `app/cbl/COSGN00C.cbl:151` | SEND | `EXEC CICS SEND` |
+| `app/cbl/COSGN00C.cbl:110` | RECEIVE MAP | `EXEC CICS RECEIVE` |
+| `app/cbl/COSGN00C.cbl:151` | SEND MAP | `EXEC CICS SEND` |
 | `app/cbl/COSGN00C.cbl:164` | SEND TEXT | `EXEC CICS SEND TEXT` |
 | `app/cbl/COSGN00C.cbl:171` | RETURN | `EXEC CICS RETURN` |
 | `app/cbl/COSGN00C.cbl:198` | ASSIGN | `EXEC CICS ASSIGN` |
@@ -2973,9 +2973,9 @@
 | `app/cbl/COTRN00C.cbl:138` | RETURN | `EXEC CICS RETURN` |
 | `app/cbl/COTRN00C.cbl:192` | XCTL | `EXEC CICS` |
 | `app/cbl/COTRN00C.cbl:518` | XCTL | `EXEC CICS` |
-| `app/cbl/COTRN00C.cbl:534` | SEND | `EXEC CICS SEND` |
-| `app/cbl/COTRN00C.cbl:542` | SEND | `EXEC CICS SEND` |
-| `app/cbl/COTRN00C.cbl:556` | RECEIVE | `EXEC CICS RECEIVE` |
+| `app/cbl/COTRN00C.cbl:534` | SEND MAP | `EXEC CICS SEND` |
+| `app/cbl/COTRN00C.cbl:542` | SEND MAP | `EXEC CICS SEND` |
+| `app/cbl/COTRN00C.cbl:556` | RECEIVE MAP | `EXEC CICS RECEIVE` |
 | `app/cbl/COTRN00C.cbl:593` | STARTBR | `EXEC CICS STARTBR` |
 | `app/cbl/COTRN00C.cbl:626` | READNEXT | `EXEC CICS READNEXT` |
 | `app/cbl/COTRN00C.cbl:660` | READPREV | `EXEC CICS READPREV` |
@@ -2987,8 +2987,8 @@
 | --- | --- | --- |
 | `app/cbl/COTRN01C.cbl:136` | RETURN | `EXEC CICS RETURN` |
 | `app/cbl/COTRN01C.cbl:205` | XCTL | `EXEC CICS` |
-| `app/cbl/COTRN01C.cbl:219` | SEND | `EXEC CICS SEND` |
-| `app/cbl/COTRN01C.cbl:232` | RECEIVE | `EXEC CICS RECEIVE` |
+| `app/cbl/COTRN01C.cbl:219` | SEND MAP | `EXEC CICS SEND` |
+| `app/cbl/COTRN01C.cbl:232` | RECEIVE MAP | `EXEC CICS RECEIVE` |
 | `app/cbl/COTRN01C.cbl:269` | READ | `EXEC CICS READ` |
 
 #### `app/cbl/COTRN02C.cbl` (11)
@@ -2997,9 +2997,9 @@
 | --- | --- | --- |
 | `app/cbl/COTRN02C.cbl:156` | RETURN | `EXEC CICS RETURN` |
 | `app/cbl/COTRN02C.cbl:508` | XCTL | `EXEC CICS` |
-| `app/cbl/COTRN02C.cbl:522` | SEND | `EXEC CICS SEND` |
+| `app/cbl/COTRN02C.cbl:522` | SEND MAP | `EXEC CICS SEND` |
 | `app/cbl/COTRN02C.cbl:530` | RETURN | `EXEC CICS RETURN` |
-| `app/cbl/COTRN02C.cbl:541` | RECEIVE | `EXEC CICS RECEIVE` |
+| `app/cbl/COTRN02C.cbl:541` | RECEIVE MAP | `EXEC CICS RECEIVE` |
 | `app/cbl/COTRN02C.cbl:578` | READ | `EXEC CICS READ` |
 | `app/cbl/COTRN02C.cbl:611` | READ | `EXEC CICS READ` |
 | `app/cbl/COTRN02C.cbl:644` | STARTBR | `EXEC CICS STARTBR` |
@@ -3015,9 +3015,9 @@
 | `app/cbl/COUSR00C.cbl:196` | XCTL | `EXEC CICS` |
 | `app/cbl/COUSR00C.cbl:206` | XCTL | `EXEC CICS` |
 | `app/cbl/COUSR00C.cbl:514` | XCTL | `EXEC CICS` |
-| `app/cbl/COUSR00C.cbl:529` | SEND | `EXEC CICS SEND` |
-| `app/cbl/COUSR00C.cbl:537` | SEND | `EXEC CICS SEND` |
-| `app/cbl/COUSR00C.cbl:551` | RECEIVE | `EXEC CICS RECEIVE` |
+| `app/cbl/COUSR00C.cbl:529` | SEND MAP | `EXEC CICS SEND` |
+| `app/cbl/COUSR00C.cbl:537` | SEND MAP | `EXEC CICS SEND` |
+| `app/cbl/COUSR00C.cbl:551` | RECEIVE MAP | `EXEC CICS RECEIVE` |
 | `app/cbl/COUSR00C.cbl:588` | STARTBR | `EXEC CICS STARTBR` |
 | `app/cbl/COUSR00C.cbl:621` | READNEXT | `EXEC CICS READNEXT` |
 | `app/cbl/COUSR00C.cbl:655` | READPREV | `EXEC CICS READPREV` |
@@ -3029,8 +3029,8 @@
 | --- | --- | --- |
 | `app/cbl/COUSR01C.cbl:107` | RETURN | `EXEC CICS RETURN` |
 | `app/cbl/COUSR01C.cbl:175` | XCTL | `EXEC CICS` |
-| `app/cbl/COUSR01C.cbl:190` | SEND | `EXEC CICS SEND` |
-| `app/cbl/COUSR01C.cbl:203` | RECEIVE | `EXEC CICS RECEIVE` |
+| `app/cbl/COUSR01C.cbl:190` | SEND MAP | `EXEC CICS SEND` |
+| `app/cbl/COUSR01C.cbl:203` | RECEIVE MAP | `EXEC CICS RECEIVE` |
 | `app/cbl/COUSR01C.cbl:240` | WRITE | `EXEC CICS WRITE` |
 
 #### `app/cbl/COUSR02C.cbl` (6)
@@ -3039,8 +3039,8 @@
 | --- | --- | --- |
 | `app/cbl/COUSR02C.cbl:135` | RETURN | `EXEC CICS RETURN` |
 | `app/cbl/COUSR02C.cbl:258` | XCTL | `EXEC CICS` |
-| `app/cbl/COUSR02C.cbl:272` | SEND | `EXEC CICS SEND` |
-| `app/cbl/COUSR02C.cbl:285` | RECEIVE | `EXEC CICS RECEIVE` |
+| `app/cbl/COUSR02C.cbl:272` | SEND MAP | `EXEC CICS SEND` |
+| `app/cbl/COUSR02C.cbl:285` | RECEIVE MAP | `EXEC CICS RECEIVE` |
 | `app/cbl/COUSR02C.cbl:322` | READ | `EXEC CICS READ` |
 | `app/cbl/COUSR02C.cbl:360` | REWRITE | `EXEC CICS REWRITE` |
 
@@ -3050,8 +3050,8 @@
 | --- | --- | --- |
 | `app/cbl/COUSR03C.cbl:134` | RETURN | `EXEC CICS RETURN` |
 | `app/cbl/COUSR03C.cbl:205` | XCTL | `EXEC CICS` |
-| `app/cbl/COUSR03C.cbl:219` | SEND | `EXEC CICS SEND` |
-| `app/cbl/COUSR03C.cbl:232` | RECEIVE | `EXEC CICS RECEIVE` |
+| `app/cbl/COUSR03C.cbl:219` | SEND MAP | `EXEC CICS SEND` |
+| `app/cbl/COUSR03C.cbl:232` | RECEIVE MAP | `EXEC CICS RECEIVE` |
 | `app/cbl/COUSR03C.cbl:269` | READ | `EXEC CICS READ` |
 | `app/cbl/COUSR03C.cbl:307` | DELETE | `EXEC CICS DELETE` |
 
