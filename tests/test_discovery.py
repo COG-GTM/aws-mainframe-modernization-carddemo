@@ -536,6 +536,24 @@ class TestStaleDetection(unittest.TestCase):
             self.assertNotEqual(r.returncode, 0)
             self.assertIn(bd.DECISIONS_FILE, r.stdout + r.stderr)
 
+    def test_check_fails_when_an_authored_file_is_missing(self):
+        for name in (bd.LINEAGE_FILE, bd.DECISIONS_FILE):
+            with tempfile.TemporaryDirectory() as tmp:
+                self._copy_tree(tmp)
+                script = Path(tmp) / "docs/discovery/build_discovery.py"
+                (Path(tmp) / "docs/discovery" / name).unlink()
+                r = subprocess.run([sys.executable, str(script), "--check"], cwd=tmp, capture_output=True, text=True)
+                self.assertNotEqual(r.returncode, 0, name)
+                self.assertIn(name, r.stdout + r.stderr)
+                self.assertNotIn("OK:", r.stdout)
+                # plain regeneration must not fabricate the authored file either
+                r2 = subprocess.run([sys.executable, str(script)], cwd=tmp, capture_output=True, text=True)
+                self.assertNotEqual(r2.returncode, 0, name)
+                self.assertFalse((Path(tmp) / "docs/discovery" / name).exists())
+
+    def test_generate_emits_exactly_the_declared_generated_files(self):
+        self.assertEqual(sorted(bd.GENERATED_FILES), sorted(bd.generate()))
+
     def test_check_fails_when_source_changes(self):
         with tempfile.TemporaryDirectory() as tmp:
             self._copy_tree(tmp)

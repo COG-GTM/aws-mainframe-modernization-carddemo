@@ -2195,13 +2195,20 @@ MARK_BEGIN = "<!-- generated:{tag} -->"
 MARK_END = "<!-- /generated:{tag} -->"
 
 
+def require_authored(path: Path) -> Path:
+    """The lineage and decision documents are authored, not generated; a missing one
+    is an error, never an empty dossier section."""
+    if not path.is_file():
+        raise SystemExit(f"MISSING: authored file {path.relative_to(ROOT)} is required; "
+                         "restore it from version control")
+    return path
+
+
 def lineage_stats(path: Path) -> dict:
     """Count hop rows (a table row whose last cell is Confirmed or Inferred) per lineage section."""
     stats = OrderedDict()
     section = None
-    if not path.exists():
-        return stats
-    for line in path.read_text(encoding="utf-8").splitlines():
+    for line in require_authored(path).read_text(encoding="utf-8").splitlines():
         if line.startswith("## "):
             section = line[3:].strip()
             continue
@@ -2214,9 +2221,8 @@ def lineage_stats(path: Path) -> dict:
 
 
 def decision_count(path: Path) -> int:
-    if not path.exists():
-        return 0
-    return sum(1 for l in path.read_text(encoding="utf-8").splitlines() if re.match(r"^\|\s*D\d+\s*\|", l))
+    return sum(1 for l in require_authored(path).read_text(encoding="utf-8").splitlines()
+               if re.match(r"^\|\s*D\d+\s*\|", l))
 
 
 def summarize(estate: Estate) -> dict:
@@ -2844,9 +2850,10 @@ def generate() -> dict[str, str]:
     files["README.md"] = render_readme(estate, s)
     for name, tag, body in ((LINEAGE_FILE, "lineage-summary", lineage_summary_block(s)),
                             (DECISIONS_FILE, "decision-count", decisions_summary_block(s))):
-        p = OUT_DIR / name
-        if p.exists():
-            files[name] = replace_marked_block(p.read_text(encoding="utf-8"), tag, body)
+        p = require_authored(OUT_DIR / name)
+        files[name] = replace_marked_block(p.read_text(encoding="utf-8"), tag, body)
+    if sorted(files) != sorted(GENERATED_FILES):
+        raise SystemExit(f"generated file set {sorted(files)} does not match GENERATED_FILES")
     return files
 
 
