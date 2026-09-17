@@ -36,8 +36,4 @@ public class CategoryBalance {
     public void add(BigDecimal amount) {
         this.balance = this.balance.add(amount);
     }
-
-    public void reset() {
-        this.balance = BigDecimal.ZERO;
-    }
 }

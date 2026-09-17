@@ -29,7 +29,8 @@ Not built (documented, deliberately left as stubs): reports (CORPT00C, CBTRN03C)
 ## Design notes
 
 - One schema per service (`auth`, `customer`, `account`, `card`, `transaction`) in a single
-  Aurora PostgreSQL cluster; no cross service foreign keys, relationships are carried by id.
+  Aurora PostgreSQL cluster. Foreign keys are used inside a schema (for example `card_xref.card_num`
+  to `cards.card_num`); relationships that cross a service boundary are carried by id only.
 - VSAM KSDS keys become primary keys, alternate indexes (CXACAIX, CARDAIX) become secondary
   indexes or lookup endpoints.
 - `S9(n)V99` fields are `NUMERIC(n+2,2)` and `BigDecimal`; no floating point touches money.
@@ -39,6 +40,29 @@ Not built (documented, deliberately left as stubs): reports (CORPT00C, CBTRN03C)
   posting flow moves to events.
 - Legacy plaintext `SEC-USR-PWD` is not carried over: passwords are BCrypt hashes. The seeded
   demo hash is a throwaway local value and must be replaced before any real deployment.
+- `TRAN-ID` came from a counter in the transaction file. A counter cannot be shared by several
+  service replicas, so ids are 16 random base 36 characters (about 2^82.7 values).
+
+## Security boundary of this checkout
+
+This stack is a migration reference that runs on a laptop, not a deployable system. Before any
+non-local use it needs:
+
+- Authentication and authorisation on every endpoint. Signon verifies a BCrypt hash but issues no
+  token, so user administration, account updates, postings, bill payments and the batch triggers
+  are currently open to anyone who can reach the port.
+- TLS (ideally mTLS or a service mesh) between transaction-service and account/card-service; the
+  gateways speak plain HTTP today.
+- Real database credentials. The services read `*_DB_USER` and `*_DB_PASSWORD` from the
+  environment with no fallback; `docker-compose.yml` fills them with `carddemo`/`carddemo` for the
+  local demo only and publishes PostgreSQL on `127.0.0.1` alone.
+
+## Known limitation: cross service batch retries
+
+Transaction posting updates account-service over HTTP and then writes its own rows. If the local
+write fails after the remote update committed, a retry posts the amount twice. Making this safe
+needs an idempotency key on the posting endpoint plus an outbox or saga; the `AccountGateway` seam
+is where that belongs.
 
 ## Build and test
 

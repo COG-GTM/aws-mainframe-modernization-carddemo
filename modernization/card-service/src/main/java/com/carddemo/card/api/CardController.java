@@ -6,6 +6,8 @@ import com.carddemo.card.api.dto.CardXrefResponse;
 import com.carddemo.card.service.CardService;
 import com.carddemo.common.api.PageResponse;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -14,11 +16,15 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
+@Validated
 @RequestMapping("/api/v1/cards")
 public class CardController {
+
+    private static final int MAX_PAGE_SIZE = 200;
 
     private final CardService cardService;
 
@@ -30,8 +36,8 @@ public class CardController {
     @GetMapping
     public PageResponse<CardResponse> list(@RequestParam(required = false) Long accountId,
                                            @RequestParam(required = false) Long customerId,
-                                           @RequestParam(defaultValue = "0") int page,
-                                           @RequestParam(defaultValue = "20") int size) {
+                                           @RequestParam(defaultValue = "0") @Min(0) int page,
+                                           @RequestParam(defaultValue = "20") @Min(1) @Max(MAX_PAGE_SIZE) int size) {
         return PageResponse.of(cardService
                 .list(accountId, customerId, PageRequest.of(page, size, Sort.by("cardNum")))
                 .map(CardResponse::from));

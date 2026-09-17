@@ -8,6 +8,8 @@ import com.carddemo.account.api.dto.PostingResponse;
 import com.carddemo.account.service.AccountService;
 import com.carddemo.common.api.PageResponse;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
@@ -18,11 +20,15 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
+@Validated
 @RequestMapping("/api/v1/accounts")
 public class AccountController {
+
+    private static final int MAX_PAGE_SIZE = 200;
 
     private final AccountService accountService;
 
@@ -38,8 +44,8 @@ public class AccountController {
 
     /** Replaces the READACCT batch dump (CBACT01C) and the account browse of the admin screens. */
     @GetMapping
-    public PageResponse<AccountResponse> list(@RequestParam(defaultValue = "0") int page,
-                                              @RequestParam(defaultValue = "20") int size) {
+    public PageResponse<AccountResponse> list(@RequestParam(defaultValue = "0") @Min(0) int page,
+                                              @RequestParam(defaultValue = "20") @Min(1) @Max(MAX_PAGE_SIZE) int size) {
         return PageResponse.of(accountService.list(PageRequest.of(page, size, Sort.by("acctId")))
                 .map(AccountResponse::from));
     }

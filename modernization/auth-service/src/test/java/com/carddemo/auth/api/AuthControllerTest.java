@@ -41,13 +41,13 @@ class AuthControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"userId\": \"ADMIN001\", \"password\": \"Password1\"}"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.menu").value("ADMIN"));
+                .andExpect(jsonPath("$.nextScreen").value("ADMIN"));
 
         mockMvc.perform(post("/api/v1/auth/signon")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"userId\": \"USER0001\", \"password\": \"Password1\"}"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.menu").value("MAIN"));
+                .andExpect(jsonPath("$.nextScreen").value("MAIN"));
     }
 
     @Test

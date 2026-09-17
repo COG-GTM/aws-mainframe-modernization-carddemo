@@ -89,9 +89,9 @@ public class InterestCalculationService {
             interestByAccount.merge(accountId, monthlyInterest, BigDecimal::add);
         }
 
+        // 1050-UPDATE-ACCOUNT adds the interest to ACCT-CURR-BAL and zeroes the cycle buckets on the
+        // account record; TCATBAL is opened INPUT by CBACT04C, so category principal is left alone.
         interestByAccount.forEach(accounts::settleInterest);
-        balances.forEach(CategoryBalance::reset);
-        categoryBalances.saveAll(balances);
         return new InterestReport(interestByAccount.size(), interestByAccount.values().stream()
                 .reduce(BigDecimal.ZERO, BigDecimal::add));
     }
@@ -107,14 +107,15 @@ public class InterestCalculationService {
                 .orElse(BigDecimal.ZERO);
     }
 
-    /** Paragraph 1300-WRITE-TRANSACTION-FILE. */
+    /**
+     * Paragraph 1300-WRITE-TRANSACTION-FILE. 1110-GET-XREF-DATA abends the job when the account has
+     * no cross reference, so a missing xref fails the run rather than settling interest silently.
+     */
     private void writeInterestTransaction(Long accountId, BigDecimal monthlyInterest) {
         String cardNumber = cards.xrefByAccount(accountId)
                 .map(CardXrefView::cardNumber)
-                .orElse(null);
-        if (cardNumber == null) {
-            return;
-        }
+                .orElseThrow(() -> new IllegalStateException(
+                        "No card cross reference for account " + accountId));
         LocalDateTime now = LocalDateTime.now(clock);
         Transaction transaction = new Transaction(idGenerator.next(), cardNumber,
                 INTEREST_TYPE_CD, INTEREST_CAT_CD, monthlyInterest);
