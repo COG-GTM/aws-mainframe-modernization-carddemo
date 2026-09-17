@@ -1,6 +1,6 @@
 # Estate discovery dossier
 
-**Headline: the generator resolved 534 distinct dependency edges and could not resolve 112** (categories: program→copybook, program→dataset, JCL step→program, transaction→program, program→program; distinct per category/from/to). Every number in this folder is computed by `build_discovery.py` from the source under `app/`; none is hand-typed.
+**Headline: the generator resolved 547 distinct dependency edges and could not resolve 126** (categories: program→copybook, program→dataset, JCL step→program, transaction→program, program→program; distinct per category/from/to). Every number in this folder is computed by `build_discovery.py` from the source under `app/`; none is hand-typed.
 
 ## What is in this folder
 
@@ -27,13 +27,13 @@ python3 -m pytest tests/test_discovery.py
 
 | Measure | Value |
 | --- | --- |
-| Dependency edges resolved (headline) | 534 |
-| Dependency edges unresolved (headline) | 112 |
+| Dependency edges resolved (headline) | 547 |
+| Dependency edges unresolved (headline) | 126 |
 |   program->copybook | 253 resolved / 64 unresolved |
 |   program->dataset | 77 resolved / 7 unresolved |
 |   jclstep->program | 126 resolved / 0 unresolved |
 |   transaction->program | 26 resolved / 7 unresolved |
-|   program->program | 52 resolved / 34 unresolved |
+|   program->program | 65 resolved / 48 unresolved |
 | Artifacts (total) | 237 |
 |   COBOL program | 44 |
 |   Copybook (COBOL) | 41 |
@@ -73,7 +73,7 @@ python3 -m pytest tests/test_discovery.py
 
 ## Limits of this analysis
 
-- **Static analysis only.** No program was executed, no runtime trace was taken, no CICS region or batch scheduler was queried. Dynamic `CALL`/`XCTL` targets are resolved only when a literal can be followed through `MOVE`/`VALUE` chains in the same program or in the menu copybooks.
+- **Static analysis only.** No program was executed, no runtime trace was taken, no CICS region or batch scheduler was queried. Dynamic `CALL`/`XCTL` targets are resolved only when a literal can be followed through the `MOVE`/`VALUE` definitions that reach the statement (same paragraph, or its `PERFORM`/`GO TO`/fall-through entry points) or through the menu copybooks; a value-dependent branch is not evaluated, so a resolved dynamic target is a static over-approximation.
 - **No production data.** Only the sample data files committed in `app/data` were inventoried, by name; their contents were not read.
 - **Sample repository, not a customer estate.** The source is a public sample application. Dataset qualifiers, transaction ids and program names are reproduced verbatim as identifiers; they are evidence, not endorsements.
 - **Heuristic parsing.** The COBOL, JCL, CSD, BMS and scheduler readers are purpose-built and lexical, not full compilers. Utility control statements (IDCAMS, SORT) are read only for dataset names. Where a rule was applied (for example, the `online`/`batch`/`utility` classification) it is stated next to the table it produced.

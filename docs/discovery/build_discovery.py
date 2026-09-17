@@ -179,6 +179,8 @@ def md_escape(text) -> str:
 
 
 def md_table(headers, rows) -> str:
+    if not rows:
+        return "_None found in this source tree._"
     out = ["| " + " | ".join(md_escape(h) for h in headers) + " |",
            "|" + "|".join(" --- " for _ in headers) + "|"]
     for row in rows:
@@ -347,7 +349,9 @@ class CobolProgram:
         self.file_mode_lines: dict[str, list] = defaultdict(list)
         self.data_items: list[dict] = []
         self.values: dict[str, list] = defaultdict(list)   # var -> [(literal, line)]
-        self.moves: dict[str, list] = defaultdict(list)    # dst -> [(src, line)]
+        self.moves: dict[str, list] = defaultdict(list)    # dst -> [(src, line, offset)]
+        self.paragraphs: list[dict] = []                   # {name, start, end} in source order
+        self.perform_sites: list[dict] = []                # {targets: [names], offset}
         self.constructs: list[dict] = []
         self.has_cics = False
         self.has_sql = False
@@ -387,12 +391,13 @@ class CobolProgram:
         self._parse_calls()
         self._parse_cics()
         self._parse_sql()
+        self._parse_paragraphs(proc_off)
         self._parse_moves(proc_off)
         self._parse_file_verbs(proc_off)
         self._parse_constructs(proc_off, data_off)
 
     def _parse_copies(self):
-        for m in self.src.finditer(r"(?<![A-Z0-9-])COPY\s++('[^']*'|\"[^\"]*\"|[A-Z0-9][A-Z0-9-]*)"):
+        for m in self.src.finditer(r"(?<![A-Z0-9-])COPY\s+('[^']*'|\"[^\"]*\"|[A-Z0-9][A-Z0-9-]*)"):
             name = self.literal_at(m, 1)
             if not name:
                 continue
@@ -431,7 +436,7 @@ class CobolProgram:
                 self.values["FILLER"].append((value, line))
 
     def _parse_selects(self):
-        for m in self.src.finditer(r"(?<![A-Z0-9-])SELECT\s++(?:OPTIONAL\s+)?([A-Z0-9][A-Z0-9-]*)\s+ASSIGN\s+TO\s+([A-Z0-9][A-Z0-9-]*)"):
+        for m in self.src.finditer(r"(?<![A-Z0-9-])SELECT\s+(?:OPTIONAL\s+)?([A-Z0-9][A-Z0-9-]*)\s+ASSIGN\s+TO\s+([A-Z0-9][A-Z0-9-]*)"):
             ddname = m.group(2)
             ddname = ddname.split("-")[-1] if "-" in ddname and ddname.upper().startswith(("UT-", "DA-", "S-")) else ddname
             self.selects.append({"file": m.group(1), "ddname": ddname, "line": self.src.line_of(m.start())})
@@ -442,7 +447,7 @@ class CobolProgram:
                 self.fd_records[r.group(1)] = fname
 
     def _parse_calls(self):
-        for m in self.src.finditer(r"(?<![A-Z0-9-])CALL\s++('[^']*'|\"[^\"]*\"|[A-Z0-9][A-Z0-9-]*)"):
+        for m in self.src.finditer(r"(?<![A-Z0-9-])CALL\s+('[^']*'|\"[^\"]*\"|[A-Z0-9][A-Z0-9-]*)"):
             tok = self.src.upper[m.start(1):m.end(1)]
             line = self.src.line_of(m.start())
             if tok[:1] in "'\"":
@@ -486,22 +491,62 @@ class CobolProgram:
             self.sql.append({"statement": stmt, "detail": detail, "line": self.src.line_of(m.start()), "offset": m.start()})
 
     def _parse_moves(self, proc_off: int):
+        """Record MOVE statements as dst -> (src, line, offset).  The destination list
+        is read token by token and stops at the first reserved word or period, so the
+        next statement is not swallowed into this one."""
         if proc_off < 0:
             return
         text = self.src.upper
-        for m in re.finditer(r"(?<![A-Z0-9-])MOVE\s++('[^']*'|\"[^\"]*\"|[A-Z0-9][A-Z0-9-]*(?:\s*\([^)]*\))?)\s+TO\s+((?:[A-Z0-9][A-Z0-9-]*(?:\s*\([^)]*\))?\s*)+)", text[proc_off:]):
-            start = proc_off + m.start()
+        head = re.compile(r"(?<![A-Z0-9-])MOVE\s+('[^']*'|\"[^\"]*\"|[A-Z0-9][A-Z0-9-]*(?:\s*\([^)]*\))?)\s+TO\s+")
+        dst_tok = re.compile(r"\s*([A-Z0-9][A-Z0-9-]*)(?:\s*\([^)]*\))?(?:\s+(?:OF|IN)\s+[A-Z0-9][A-Z0-9-]*(?:\s*\([^)]*\))?)*")
+        pos = proc_off
+        while True:
+            m = head.search(text, pos)
+            if not m:
+                break
+            start = m.start()
             tok = m.group(1)
             if tok[:1] in "'\"":
-                src_val = ("lit", self.src.raw_slice(proc_off + m.start(1) + 1, proc_off + m.end(1) - 1))
+                src_val = ("lit", self.src.raw_slice(m.start(1) + 1, m.end(1) - 1))
             else:
                 src_val = ("var", re.sub(r"\s*\(.*", "", tok))
             line = self.src.line_of(start)
-            for d in re.finditer(r"[A-Z0-9][A-Z0-9-]*", re.sub(r"\([^)]*\)", " ", m.group(2))):
-                dst = d.group(0)
+            pos = m.end()
+            while True:
+                d = dst_tok.match(text, pos)
+                if not d:
+                    break
+                dst = d.group(1)
                 if dst in COBOL_RESERVED or dst.isdigit():
                     break
-                self.moves[dst].append((src_val, line))
+                self.moves[dst].append((src_val, line, start))
+                pos = d.end()
+
+    def _parse_paragraphs(self, proc_off: int):
+        """Index paragraph/section headers (Area A names) and PERFORM / GO TO sites."""
+        if proc_off < 0:
+            return
+        up = self.src.upper
+        heads = []
+        for idx, (_, body) in enumerate(self.src.code):
+            off = self.src.offsets[idx]
+            if off < proc_off or not body[:1].strip():
+                continue
+            hm = re.match(r"^([A-Z0-9][A-Z0-9-]*)\s*(?:SECTION\s*)?\.", body.strip().upper())
+            if hm and hm.group(1) not in ("PROCEDURE", "DECLARATIVES", "END"):
+                heads.append((hm.group(1), off))
+        for i, (name, start) in enumerate(heads):
+            end = heads[i + 1][1] if i + 1 < len(heads) else len(up)
+            self.paragraphs.append({"name": name, "start": start, "end": end})
+        names = [p["name"] for p in self.paragraphs]
+        for m in re.finditer(r"(?<![A-Z0-9-])(?:PERFORM|GO\s+TO)\s+([A-Z0-9][A-Z0-9-]*)(?:\s+(?:THRU|THROUGH)\s+([A-Z0-9][A-Z0-9-]*))?", up[proc_off:]):
+            first, last = m.group(1), m.group(2)
+            if first in COBOL_RESERVED or first not in names:
+                continue
+            targets = [first]
+            if last and last in names and names.index(last) > names.index(first):
+                targets = names[names.index(first):names.index(last) + 1]
+            self.perform_sites.append({"targets": targets, "offset": proc_off + m.start()})
 
     def _parse_file_verbs(self, proc_off: int):
         if proc_off < 0:
@@ -512,7 +557,7 @@ class CobolProgram:
             self.file_modes[fname].add(mode)
             self.file_mode_lines[fname].append((mode, self.src.line_of(proc_off + off)))
 
-        for m in re.finditer(r"(?<![A-Z0-9-])OPEN\s++((?:(?:INPUT|OUTPUT|I-O|EXTEND)\s+(?:[A-Z0-9][A-Z0-9-]*\s*)+)+)", text):
+        for m in re.finditer(r"(?<![A-Z0-9-])OPEN\s+((?:(?:INPUT|OUTPUT|I-O|EXTEND)\s+(?:[A-Z0-9][A-Z0-9-]*\s*)+)+)", text):
             mode = None
             for tok in m.group(1).split():
                 if tok in ("INPUT", "OUTPUT", "I-O", "EXTEND"):
@@ -521,22 +566,22 @@ class CobolProgram:
                     break
                 elif mode:
                     rec(mode, tok, m.start())
-        for m in re.finditer(r"(?<![A-Z0-9-])READ\s++([A-Z0-9][A-Z0-9-]*)", text):
+        for m in re.finditer(r"(?<![A-Z0-9-])READ\s+([A-Z0-9][A-Z0-9-]*)", text):
             rec("read", m.group(1), m.start())
-        for m in re.finditer(r"(?<![A-Z0-9-])(WRITE|REWRITE)\s++([A-Z0-9][A-Z0-9-]*)", text):
+        for m in re.finditer(r"(?<![A-Z0-9-])(WRITE|REWRITE)\s+([A-Z0-9][A-Z0-9-]*)", text):
             fname = self.fd_records.get(m.group(2), m.group(2))
             rec(m.group(1).lower(), fname, m.start())
-        for m in re.finditer(r"(?<![A-Z0-9-])DELETE\s++([A-Z0-9][A-Z0-9-]*)(?!\s*\()", text):
+        for m in re.finditer(r"(?<![A-Z0-9-])DELETE\s+([A-Z0-9][A-Z0-9-]*)(?!\s*\()", text):
             if m.group(1) in self.fd_records.values() or m.group(1) in {s["file"] for s in self.selects}:
                 rec("delete", m.group(1), m.start())
-        for m in re.finditer(r"(?<![A-Z0-9-])START\s++([A-Z0-9][A-Z0-9-]*)", text):
+        for m in re.finditer(r"(?<![A-Z0-9-])START\s+([A-Z0-9][A-Z0-9-]*)", text):
             if m.group(1) in {s["file"] for s in self.selects}:
                 rec("read", m.group(1), m.start())
 
     def _parse_constructs(self, proc_off: int, data_off: int):
         src = self.src
         up = src.upper
-        for m in src.finditer(r"(?<![A-Z0-9-])REDEFINES\s++([A-Z0-9][A-Z0-9-]*)"):
+        for m in src.finditer(r"(?<![A-Z0-9-])REDEFINES\s+([A-Z0-9][A-Z0-9-]*)"):
             self.add_construct("REDEFINES", m.start(), m.group(1))
         for item in self.data_items:
             if item["occurs_depending"]:
@@ -553,9 +598,9 @@ class CobolProgram:
         if proc_off >= 0:
             for m in re.finditer(r"(?<![A-Z0-9-])GO\s+TO(?![A-Z0-9-])\s*([A-Z0-9][A-Z0-9-]*)?", up[proc_off:]):
                 self.add_construct("GO TO", proc_off + m.start(), m.group(1) or "")
-            for m in re.finditer(r"(?<![A-Z0-9-])ALTER\s++([A-Z0-9][A-Z0-9-]*)", up[proc_off:]):
+            for m in re.finditer(r"(?<![A-Z0-9-])ALTER\s+([A-Z0-9][A-Z0-9-]*)", up[proc_off:]):
                 self.add_construct("ALTER", proc_off + m.start(), m.group(1))
-            for m in re.finditer(r"(?<![A-Z0-9-])PERFORM\s++([A-Z0-9][A-Z0-9-]*)\s+(?:THRU|THROUGH)\s+([A-Z0-9][A-Z0-9-]*)", up[proc_off:]):
+            for m in re.finditer(r"(?<![A-Z0-9-])PERFORM\s+([A-Z0-9][A-Z0-9-]*)\s+(?:THRU|THROUGH)\s+([A-Z0-9][A-Z0-9-]*)", up[proc_off:]):
                 self.add_construct("PERFORM ... THRU", proc_off + m.start(), f"{m.group(1)} THRU {m.group(2)}")
             for m in re.finditer(r"(?<![A-Z0-9-])NEXT\s+SENTENCE(?![A-Z0-9-])", up[proc_off:]):
                 self.add_construct("NEXT SENTENCE", proc_off + m.start(), "")
@@ -567,7 +612,7 @@ class CobolProgram:
         date_intrinsics = r"\bFUNCTION\s+(CURRENT-DATE|INTEGER-OF-DATE|DATE-OF-INTEGER|INTEGER-OF-DAY|DAY-OF-INTEGER|WHEN-COMPILED)\b"
         for m in src.finditer(date_intrinsics):
             self.add_construct("Date handling", m.start(), "FUNCTION " + m.group(1))
-        for m in src.finditer(r"(?<![A-Z0-9-])ACCEPT\s++[A-Z0-9][A-Z0-9-]*\s+FROM\s+(DATE|DAY|TIME|DAY-OF-WEEK)(\s+YYYYMMDD|\s+YYYYDDD)?\b"):
+        for m in src.finditer(r"(?<![A-Z0-9-])ACCEPT\s+[A-Z0-9][A-Z0-9-]*\s+FROM\s+(DATE|DAY|TIME|DAY-OF-WEEK)(\s+YYYYMMDD|\s+YYYYDDD)?\b"):
             self.add_construct("Date handling", m.start(), "ACCEPT FROM " + m.group(1) + (m.group(2) or ""))
         for c in self.cics:
             if c["verb"] in ("ASKTIME", "FORMATTIME"):
@@ -586,7 +631,7 @@ class CobolProgram:
                         continue
                     self.add_construct("Hard-coded amount / numeric literal", proc_off + m.start(),
                                        f"{m.group(1)} literal {lit}")
-            for m in re.finditer(r"(?<![A-Z0-9-])MOVE\s++([-+]?\d+\.\d+)\s+TO\s+([A-Z0-9][A-Z0-9-]*)", up[proc_off:]):
+            for m in re.finditer(r"(?<![A-Z0-9-])MOVE\s+([-+]?\d+\.\d+)\s+TO\s+([A-Z0-9][A-Z0-9-]*)", up[proc_off:]):
                 self.add_construct("Hard-coded amount / numeric literal", proc_off + m.start(),
                                    f"MOVE {m.group(1)} TO {m.group(2)}")
         for item in self.data_items:
@@ -605,23 +650,96 @@ class CobolProgram:
             self.add_construct("CALL (static or dynamic)", c["offset"], c["target"] or f"dynamic via {c['via']}")
 
     # -- resolution ------------------------------------------------------
-    def resolve_var(self, var: str, extra_values: dict, depth: int = 0, seen=None) -> set:
-        """Resolve a data name to the literal values it can hold (VALUE clauses and MOVEs)."""
-        seen = seen or set()
+    def paragraph_at(self, offset: int) -> dict | None:
+        for p in self.paragraphs:
+            if p["start"] <= offset < p["end"]:
+                return p
+        return None
+
+    def _def_is_conditional(self, def_off: int, ref_off: int) -> bool:
+        """True when a block (IF / EVALUATE / WHEN / ELSE) opened before the MOVE closes
+        before the reference, i.e. the MOVE does not dominate the reference."""
+        depth = 0
+        for t in re.finditer(r"(?<![A-Z0-9-])(IF|EVALUATE|END-IF|END-EVALUATE|ELSE|WHEN)(?![A-Z0-9-])", self.src.upper[def_off:ref_off]):
+            tok = t.group(1)
+            if tok in ("IF", "EVALUATE"):
+                depth += 1
+            elif tok in ("END-IF", "END-EVALUATE"):
+                depth -= 1
+                if depth < 0:
+                    return True
+            elif depth == 0:
+                return True
+        return False
+
+    def reaching_defs(self, var: str, ref_off: int, depth: int = 0, seen=None) -> tuple[list, bool]:
+        """MOVEs to ``var`` that can reach ``ref_off``: the MOVEs earlier in the same
+        paragraph, and, unless one of those dominates the reference, the MOVEs that
+        reach each PERFORM / GO TO of that paragraph (or its fall-through entry).
+        Returns (defs, dominated) where dominated means every path carries a MOVE."""
+        seen = seen if seen is not None else set()
+        key = (var, ref_off)
+        if key in seen or depth > 8:
+            return [], False
+        seen.add(key)
+        para = self.paragraph_at(ref_off)
+        if para is None:
+            return [d for d in self.moves.get(var, []) if d[2] < ref_off], False
+        local = [d for d in self.moves.get(var, []) if para["start"] <= d[2] < ref_off]
+        dominating = [d[2] for d in local if not self._def_is_conditional(d[2], ref_off)]
+        if dominating:
+            last = max(dominating)          # kills every earlier MOVE to the same name
+            return [d for d in local if d[2] >= last], True
+        defs = list(local)
+        entry_points = [s["offset"] for s in self.perform_sites if para["name"] in s["targets"]]
+        idx = self.paragraphs.index(para)
+        if idx > 0:
+            entry_points.append(self.paragraphs[idx - 1]["end"] - 1)   # fall-through
+        all_dominated = bool(entry_points)
+        for off in entry_points:
+            sub, dom = self.reaching_defs(var, off, depth + 1, seen)
+            defs.extend(sub)
+            all_dominated = all_dominated and dom
+        return defs, all_dominated
+
+    def resolve_var(self, var: str, extra_values: dict, ref_off: int | None = None,
+                    depth: int = 0, seen=None) -> set:
+        """Literal values ``var`` can hold at ``ref_off``: VALUE clauses (own and copybook)
+        unless a MOVE dominates the reference, plus the reaching MOVEs.  Without
+        ``ref_off`` every MOVE in the program is taken (flow-insensitive)."""
+        return self.resolve_var_ex(var, extra_values, ref_off, depth, seen)[0]
+
+    def resolve_var_ex(self, var: str, extra_values: dict, ref_off: int | None = None,
+                       depth: int = 0, seen=None) -> tuple[set, bool]:
+        """As ``resolve_var`` but also returns whether every path to ``ref_off`` gives
+        ``var`` a literal.  False means some path leaves it with a value not visible in
+        this program (caller commarea, terminal input, a file record, ...)."""
+        seen = seen if seen is not None else set()
         var = re.sub(r"\s*\(.*", "", var).strip().upper()
-        if not var or var in seen or depth > 4:
-            return set()
-        seen.add(var)
+        if not var or (var, ref_off) in seen or depth > 4:
+            return set(), True
+        seen.add((var, ref_off))
         out = set()
-        for lit, _ in self.values.get(var, []) + extra_values.get(var, []):
-            if isinstance(lit, str):
-                out.add(lit.strip())
-        for (kind, val), _ in self.moves.get(var, []):
+        if ref_off is None:
+            defs, dominated = self.moves.get(var, []), False
+        else:
+            defs, dominated = self.reaching_defs(var, ref_off)
+        has_initial = False
+        if not dominated:
+            for lit, _ in self.values.get(var, []) + extra_values.get(var, []):
+                if isinstance(lit, str):
+                    out.add(lit.strip())
+                    has_initial = True
+        complete = dominated or has_initial
+        for (kind, val), _, off in defs:
             if kind == "lit":
                 out.add(val.strip())
             else:
-                out |= self.resolve_var(val, extra_values, depth + 1, seen)
-        return out
+                sub, sub_complete = self.resolve_var_ex(val, extra_values, None if ref_off is None else off,
+                                                        depth + 1, seen)
+                out |= sub
+                complete = complete and sub_complete
+        return out, complete
 
 
 # ---------------------------------------------------------------------------
@@ -1100,7 +1218,7 @@ class Estate:
                     art["copy_targets"].append({"name": inc, "line": s["line"], "resolved": None, "path": None,
                                                 "via": "EXEC SQL INCLUDE"})
             art["call_targets"] = [{"target": c["target"], "kind": c["kind"], "via": c["via"], "line": c["line"],
-                                    "resolved": None, "resolved_to": []} for c in prog.calls]
+                                    "offset": c["offset"], "resolved": None, "resolved_to": []} for c in prog.calls]
             art["cics_verbs"] = dict(sorted(Counter(c["verb"] for c in prog.cics).items()))
             art["exec_sql"] = prog.has_sql
             art["exec_sql_statements"] = len(prog.sql)
@@ -1269,17 +1387,40 @@ class Estate:
                     fam = "system-supplied (CICS/MQ/SQL) include" if re.match(r"^(DFH|CMQ|SQLCA|SQLDA|DSN)", c["name"]) else "not found in repository"
                     self.add_edge(cat, art["name"], c["name"], art["path"], c["line"], "unresolved", fam)
 
-    def _resolve_program_ref(self, art: dict, literal, var, line, path):
-        """Return (list of (name, kind, detail)) for a program reference."""
+    def _resolve_program_ref(self, art: dict, literal, var, offset):
+        """Return (list of (name, kind, detail), complete) for a program reference at
+        ``offset``.  ``complete`` is False when some control-flow path reaches the
+        statement with a value the program never assigns from a literal."""
         if literal:
-            return [(literal.strip().upper(), "static", "literal")]
+            return [(literal.strip().upper(), "static", "literal")], True
         prog = self.cobol[art["path"]]
-        vals = prog.resolve_var(var, self.program_values(art))
-        out = [(v.upper(), "dynamic", f"resolved through VALUE/MOVE of {var}") for v in sorted(vals) if v.strip()]
+        vals, complete = prog.resolve_var_ex(var, self.program_values(art), offset)
+        how = f"resolved through VALUE/MOVE of {var} reaching this statement"
+        if not complete:
+            how += "; on another path the value is not set in this program"
+        out = [(v.upper(), "dynamic", how)
+               for v in sorted(vals) if v.strip()]
         if not out and "(" in var:
             for cand, src in self.table_candidates(art):
                 out.append((cand, "dynamic", f"table-driven: VALUE literal in {src}"))
-        return out
+        return out, complete
+
+    def _unreached_detail(self, art: dict, var: str, what: str) -> str:
+        """Explain an unresolved variable reference, listing literals assigned to the
+        variable elsewhere in the program that control flow does not carry to it."""
+        prog = self.cobol[art["path"]]
+        elsewhere = sorted(v for v in prog.resolve_var(var, self.program_values(art)) if v.strip())
+        if elsewhere:
+            return (f"{what} through {var}: no VALUE/MOVE literal reaches this statement; "
+                    f"assigned elsewhere in the program (not established by control flow): {', '.join(elsewhere)}")
+        return f"{what} through {var}: no VALUE/MOVE literal assigns it"
+
+    def _add_runtime_value_edge(self, art: dict, var: str, what: str, line: int):
+        self.add_edge("program->program", art["name"], f"{what} via {var} (value from outside this program)",
+                      art["path"], line, "unresolved",
+                      f"{what} through {var}: on at least one path the value comes from data this program does not set "
+                      f"(caller commarea, terminal input or a record); the resolved targets at this line are the literals "
+                      f"visible on the other paths", kind="dynamic")
 
     def _link_calls(self):
         for art in self.artifacts:
@@ -1287,12 +1428,14 @@ class Estate:
                 continue
             prog = self.cobol[art["path"]]
             for c in art["call_targets"]:
-                refs = self._resolve_program_ref(art, c["target"], c["via"], c["line"], art["path"])
+                refs, complete = self._resolve_program_ref(art, c["target"], c["via"], c["offset"])
                 if not refs:
                     c["resolved"] = False
                     self.add_edge("program->program", art["name"], f"dynamic via {c['via']}", art["path"], c["line"],
-                                  "unresolved", "CALL through a variable that no VALUE/MOVE literal assigns", kind="dynamic")
+                                  "unresolved", self._unreached_detail(art, c["via"], "CALL"), kind="dynamic")
                     continue
+                if not complete:
+                    self._add_runtime_value_edge(art, c["via"], "CALL", c["line"])
                 for name, kind, how in refs:
                     target = self.find_program(name)
                     if target:
@@ -1313,11 +1456,13 @@ class Estate:
                     self.add_edge("program->program", art["name"], f"{cx['verb']} without PROGRAM option", art["path"],
                                   cx["line"], "unresolved", "PROGRAM option not parsed", kind="dynamic")
                     continue
-                refs = self._resolve_program_ref(art, opt["literal"], opt["var"], cx["line"], art["path"])
+                refs, complete = self._resolve_program_ref(art, opt["literal"], opt["var"], cx["offset"])
                 if not refs:
                     self.add_edge("program->program", art["name"], f"{cx['verb']} via {opt['var']}", art["path"], cx["line"],
-                                  "unresolved", f"EXEC CICS {cx['verb']} through a variable with no resolvable literal", kind="dynamic")
+                                  "unresolved", self._unreached_detail(art, opt["var"], f"EXEC CICS {cx['verb']}"), kind="dynamic")
                     continue
+                if not complete:
+                    self._add_runtime_value_edge(art, opt["var"], f"EXEC CICS {cx['verb']}", cx["line"])
                 for name, kind, how in refs:
                     target = self.find_program(name)
                     if target:
@@ -1585,11 +1730,11 @@ class Estate:
                     mode = CICS_FILE_VERBS[verb]
                     if mode is None:
                         continue
-                    names = sorted({opt["literal"].strip().upper()} if opt["literal"] else {v.strip().upper() for v in prog.resolve_var(opt["var"], values)})
+                    names = sorted({opt["literal"].strip().upper()} if opt["literal"] else {v.strip().upper() for v in prog.resolve_var(opt["var"], values, cx["offset"])})
                     if not names:
                         art["cics_files"].append({"file": None, "var": opt["var"], "verb": verb, "mode": mode, "line": cx["line"], "dsn": None})
                         self.add_edge("program->dataset", art["name"], f"CICS file via {opt['var']}", art["path"], cx["line"], "unresolved",
-                                      f"EXEC CICS {verb} on a file name held in a variable with no resolvable literal", modes=[mode])
+                                      self._unreached_detail(art, opt["var"], f"EXEC CICS {verb} file name"), modes=[mode])
                         continue
                     for fname in names:
                         entry = csd_files.get(fname)
@@ -1609,10 +1754,10 @@ class Estate:
                     opt = cx["options"]["MAPSET"]
                     if not opt:
                         continue
-                    names = sorted({opt["literal"].strip().upper()} if opt["literal"] else {v.strip().upper() for v in prog.resolve_var(opt["var"], values)})
+                    names = sorted({opt["literal"].strip().upper()} if opt["literal"] else {v.strip().upper() for v in prog.resolve_var(opt["var"], values, cx["offset"])})
                     if not names:
                         self.add_edge("program->bmsmap", art["name"], f"mapset via {opt['var']}", art["path"], cx["line"], "unresolved",
-                                      "MAPSET held in a variable with no resolvable literal")
+                                      self._unreached_detail(art, opt["var"], "MAPSET"))
                     for ms in names:
                         target = self.bms_by_mapset.get(ms)
                         if target:
@@ -1841,6 +1986,8 @@ def serialize(estate: Estate, summary: dict) -> dict:
         for k, v in a.items():
             if k == "bms" and v:
                 o[k] = {"mapsets": v["mapsets"], "maps": v["maps"]}
+            elif k == "call_targets":
+                o[k] = [{kk: vv for kk, vv in c.items() if kk != "offset"} for c in v]
             else:
                 o[k] = v
         arts.append(o)
@@ -1957,9 +2104,11 @@ def render_inventory(estate: Estate, s: dict) -> str:
 
     out.append("## What the script could not resolve\n")
     unres_dyn = [e for e in estate.edges if e["category"] == "program->program" and e["status"] == "unresolved" and e.get("kind") == "dynamic"]
-    out.append(f"### Dynamic `CALL` / `LINK` / `XCTL` through a variable with no resolvable literal ({fmt_int(len(unres_dyn))})\n")
-    out.append("The generator follows `MOVE`/`VALUE` chains inside the program and the menu tables in `COMEN02Y`/`COADM02Y`; "
-               "these targets are set only at run time (or from a caller's commarea) and cannot be determined statically.\n")
+    out.append(f"### Dynamic `CALL` / `LINK` / `XCTL` through a variable whose value is not fully established in the program ({fmt_int(len(unres_dyn))})\n")
+    out.append("The generator follows the `MOVE`/`VALUE` definitions that reach each statement (earlier in the same paragraph, "
+               "or through the `PERFORM`/`GO TO` sites and fall-through that enter it) and the menu tables in `COMEN02Y`/`COADM02Y`; "
+               "a statement is listed here when no literal reaches it, or when at least one path reaches it with a value the program "
+               "never sets (typically the caller's commarea).  Literal targets found on the other paths are reported as resolved edges.\n")
     out.append(md_table(["Program", "Statement", "Source", "Reason"],
                         [(e["from"], e["to"], cite(e["path"], e["line"]), e["detail"]) for e in unres_dyn]) + "\n")
     ext = [e for e in estate.distinct_edges(["program->program"], "unresolved") if e.get("kind") != "dynamic"]
@@ -2319,8 +2468,9 @@ def render_readme(estate: Estate, s: dict) -> str:
                "the generator found the reference but could not bind it to a source artifact.\n")
     out.append("## Limits of this analysis\n")
     out.append("- **Static analysis only.** No program was executed, no runtime trace was taken, no CICS region or batch scheduler was "
-               "queried. Dynamic `CALL`/`XCTL` targets are resolved only when a literal can be followed through `MOVE`/`VALUE` chains in the "
-               "same program or in the menu copybooks.\n"
+               "queried. Dynamic `CALL`/`XCTL` targets are resolved only when a literal can be followed through the `MOVE`/`VALUE` "
+               "definitions that reach the statement (same paragraph, or its `PERFORM`/`GO TO`/fall-through entry points) or through "
+               "the menu copybooks; a value-dependent branch is not evaluated, so a resolved dynamic target is a static over-approximation.\n"
                "- **No production data.** Only the sample data files committed in `app/data` were inventoried, by name; their contents were not read.\n"
                "- **Sample repository, not a customer estate.** The source is a public sample application. Dataset qualifiers, transaction ids and "
                "program names are reproduced verbatim as identifiers; they are evidence, not endorsements.\n"

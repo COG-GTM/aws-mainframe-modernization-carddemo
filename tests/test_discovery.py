@@ -106,8 +106,8 @@ class TestControlTotals(unittest.TestCase):
     def test_pinned_control_totals(self):
         """Pinned to the current source tree so a change in any total is deliberate."""
         self.assertEqual(self.s["artifact_total"], 237)
-        self.assertEqual(self.s["headline"]["resolved_edges"], 534)
-        self.assertEqual(self.s["headline"]["unresolved_edges"], 112)
+        self.assertEqual(self.s["headline"]["resolved_edges"], 547)
+        self.assertEqual(self.s["headline"]["unresolved_edges"], 126)
         self.assertEqual(self.s["construct_total"], 2658)
         self.assertEqual(self.s["orphans"]["total"], 186)
         self.assertEqual({k: self.s["lineage"][k] for k in ("hops", "confirmed", "inferred")},
@@ -220,9 +220,45 @@ class TestRealDependencyEdges(unittest.TestCase):
         self.assertEqual(e["kind"], "static")
         self.assertRegex(self.source_line(e), r"CALL\s+'CSUTLDTC'")
 
-    def test_unresolved_dynamic_xctl_is_reported(self):
-        e = self.find("program->program", "COCRDLIC", "XCTL via CCARD-NEXT-PROG", status="unresolved")
-        self.assertEqual(e["path"], "app/cbl/COCRDLIC.cbl")
+    def targets_at(self, frm, line):
+        return sorted(e["to"] for e in self.edges
+                      if e["category"] == "program->program" and e["from"] == frm and e["line"] == line
+                      and e["status"] == "resolved")
+
+    def test_dynamic_xctl_uses_only_definitions_that_reach_the_statement(self):
+        # COPAUS0C.cbl:316 MOVE WS-PGM-AUTH-DTL TO CDEMO-TO-PROGRAM dominates the XCTL at :322;
+        # the MOVEs at :192 and :669 sit in other paragraphs and must not produce edges here.
+        self.assertEqual(self.targets_at("COPAUS0C", 322), ["COPAUS1C"])
+        # COTRN00C.cbl:188 MOVE 'COTRN01C' dominates the EXEC CICS XCTL at :192 ('COSGN00C' is set elsewhere).
+        self.assertEqual(self.targets_at("COTRN00C", 192), ["COTRN01C"])
+        # RETURN-TO-PREV-SCREEN (:665) sets 'COSGN00C' only conditionally, so the MOVEs before
+        # its PERFORM at :237 (WS-PGM-MENU = 'COMEN01C') also reach the XCTL at :674.
+        self.assertIn("COMEN01C", self.targets_at("COPAUS0C", 674))
+        self.assertIn("COSGN00C", self.targets_at("COPAUS0C", 674))
+
+    def test_move_inside_if_else_is_seen_by_the_parser(self):
+        # COACTVWC.cbl:336 MOVE LIT-MENUPGM TO CDEMO-TO-PROGRAM follows an earlier MOVE ... ELSE;
+        # the destination list of the earlier MOVE must not swallow it.
+        self.assertEqual(self.targets_at("COACTVWC", 349), ["COMEN01C"])
+        src = (ROOT / "app/cbl/COACTVWC.cbl").read_text(encoding="utf-8").splitlines()
+        self.assertRegex(src[335], r"MOVE LIT-MENUPGM\s+TO CDEMO-TO-PROGRAM")
+        self.assertRegex(src[167] + src[168], r"LIT-MENUPGM.*COMEN01C")
+
+    def test_dynamic_edge_detail_names_the_variable(self):
+        e = self.find("program->program", "COPAUS0C", "COPAUS1C")
+        self.assertEqual(e["kind"], "dynamic")
+        self.assertIn("CDEMO-TO-PROGRAM", e["detail"])
+
+    def test_value_from_caller_commarea_is_reported_unresolved(self):
+        # COTRTLIC.cbl:605 MOVE CDEMO-FROM-PROGRAM TO CDEMO-TO-PROGRAM in the ELSE branch: the
+        # commarea field is never given a literal, so the XCTL at :620 is only partly resolved.
+        e = self.find("program->program", "COTRTLIC",
+                      "EXEC CICS XCTL via CDEMO-TO-PROGRAM (value from outside this program)", status="unresolved")
+        self.assertEqual((e["path"], e["line"], e["kind"]), ("app/app-transaction-type-db2/cbl/COTRTLIC.cbl", 620, "dynamic"))
+        self.assertIn("COADM01C", self.targets_at("COTRTLIC", 620))
+        # COPAUS0C.cbl:322 is dominated by the MOVE at :316, so it gets no such edge.
+        unres = [e["to"] for e in self.edges if e["from"] == "COPAUS0C" and e["line"] == 322 and e["status"] == "unresolved"]
+        self.assertEqual(unres, [])
 
 
 class TestInventoryArtifactFields(unittest.TestCase):
@@ -255,11 +291,24 @@ class TestInventoryArtifactFields(unittest.TestCase):
         steps = {(s["step"], s["driving_program"]) for s in a["jcl_steps"]}
         self.assertIn(("STEP15", "CBTRN02C"), steps)
 
+    def test_call_targets_do_not_leak_internal_offsets(self):
+        for a in self.arts.values():
+            for c in a.get("call_targets", []):
+                self.assertNotIn("offset", c)
+
     def test_no_hand_typed_count_drift_in_type_labels(self):
         # every type label the generator knows about is either used or absent from the counts table
         used = {a["type"] for a in self.arts.values()}
         for t in used:
             self.assertIn(t, bd.TYPE_LABELS)
+
+
+class TestGeneratorPortability(unittest.TestCase):
+    def test_no_possessive_quantifiers_in_regexes(self):
+        """`\\s++`, `)*+`, `]?+` need Python 3.11; the generator must run on 3.10."""
+        src = SCRIPT.read_text(encoding="utf-8")
+        hit = re.search(r"(\\[sdwSDW.]|[)\]])(\+\+|\*\+|\?\+)", src)
+        self.assertIsNone(hit, f"possessive quantifier in a regex: {hit and hit.group(0)}")
 
 
 class TestStaleDetection(unittest.TestCase):

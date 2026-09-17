@@ -57,8 +57,8 @@
    "core": 166
   },
   "headline": {
-   "resolved_edges": 534,
-   "unresolved_edges": 112,
+   "resolved_edges": 547,
+   "unresolved_edges": 126,
    "categories": [
     "program->copybook",
     "program->dataset",
@@ -84,8 +84,8 @@
      "unresolved": 7
     },
     "program->program": {
-     "resolved": 52,
-     "unresolved": 34
+     "resolved": 65,
+     "unresolved": 48
     }
    }
   },
@@ -163,7 +163,7 @@
   },
   "csd_entry_total": 134,
   "scheduler_job_total": 32,
-  "dynamic_calls_unresolved": 8,
+  "dynamic_calls_unresolved": 22,
   "datasets_jcl_only": 8,
   "lineage": {
    "hops": 37,
@@ -19429,11 +19429,41 @@
   {
    "category": "program->program",
    "from": "COPAUS0C",
-   "to": "COPAUS0C",
+   "to": "COPAUS1C",
    "path": "app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl",
    "line": 322,
    "status": "resolved",
-   "detail": "EXEC CICS XCTL dynamic (resolved through VALUE/MOVE of CDEMO-TO-PROGRAM)",
+   "detail": "EXEC CICS XCTL dynamic (resolved through VALUE/MOVE of CDEMO-TO-PROGRAM reaching this statement)",
+   "kind": "dynamic"
+  },
+  {
+   "category": "program->program",
+   "from": "COPAUS0C",
+   "to": "EXEC CICS XCTL via CDEMO-TO-PROGRAM (value from outside this program)",
+   "path": "app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl",
+   "line": 674,
+   "status": "unresolved",
+   "detail": "EXEC CICS XCTL through CDEMO-TO-PROGRAM: on at least one path the value comes from data this program does not set (caller commarea, terminal input or a record); the resolved targets at this line are the literals visible on the other paths",
+   "kind": "dynamic"
+  },
+  {
+   "category": "program->program",
+   "from": "COPAUS0C",
+   "to": "COMEN01C",
+   "path": "app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl",
+   "line": 674,
+   "status": "resolved",
+   "detail": "EXEC CICS XCTL dynamic (resolved through VALUE/MOVE of CDEMO-TO-PROGRAM reaching this statement; on another path the value is not set in this program)",
+   "kind": "dynamic"
+  },
+  {
+   "category": "program->program",
+   "from": "COPAUS0C",
+   "to": "COPAUS0C",
+   "path": "app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl",
+   "line": 674,
+   "status": "resolved",
+   "detail": "EXEC CICS XCTL dynamic (resolved through VALUE/MOVE of CDEMO-TO-PROGRAM reaching this statement; on another path the value is not set in this program)",
    "kind": "dynamic"
   },
   {
@@ -19441,39 +19471,9 @@
    "from": "COPAUS0C",
    "to": "COPAUS1C",
    "path": "app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl",
-   "line": 322,
-   "status": "resolved",
-   "detail": "EXEC CICS XCTL dynamic (resolved through VALUE/MOVE of CDEMO-TO-PROGRAM)",
-   "kind": "dynamic"
-  },
-  {
-   "category": "program->program",
-   "from": "COPAUS0C",
-   "to": "COSGN00C",
-   "path": "app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl",
-   "line": 322,
-   "status": "resolved",
-   "detail": "EXEC CICS XCTL dynamic (resolved through VALUE/MOVE of CDEMO-TO-PROGRAM)",
-   "kind": "dynamic"
-  },
-  {
-   "category": "program->program",
-   "from": "COPAUS0C",
-   "to": "COPAUS0C",
-   "path": "app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl",
    "line": 674,
    "status": "resolved",
-   "detail": "EXEC CICS XCTL dynamic (resolved through VALUE/MOVE of CDEMO-TO-PROGRAM)",
-   "kind": "dynamic"
-  },
-  {
-   "category": "program->program",
-   "from": "COPAUS0C",
-   "to": "COPAUS1C",
-   "path": "app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl",
-   "line": 674,
-   "status": "resolved",
-   "detail": "EXEC CICS XCTL dynamic (resolved through VALUE/MOVE of CDEMO-TO-PROGRAM)",
+   "detail": "EXEC CICS XCTL dynamic (resolved through VALUE/MOVE of CDEMO-TO-PROGRAM reaching this statement; on another path the value is not set in this program)",
    "kind": "dynamic"
   },
   {
@@ -19483,7 +19483,7 @@
    "path": "app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl",
    "line": 674,
    "status": "resolved",
-   "detail": "EXEC CICS XCTL dynamic (resolved through VALUE/MOVE of CDEMO-TO-PROGRAM)",
+   "detail": "EXEC CICS XCTL dynamic (resolved through VALUE/MOVE of CDEMO-TO-PROGRAM reaching this statement; on another path the value is not set in this program)",
    "kind": "dynamic"
   },
   {
@@ -19493,7 +19493,17 @@
    "path": "app/app-authorization-ims-db2-mq/cbl/COPAUS1C.cbl",
    "line": 248,
    "status": "resolved",
-   "detail": "EXEC CICS LINK dynamic (resolved through VALUE/MOVE of WS-PGM-AUTH-FRAUD)",
+   "detail": "EXEC CICS LINK dynamic (resolved through VALUE/MOVE of WS-PGM-AUTH-FRAUD reaching this statement)",
+   "kind": "dynamic"
+  },
+  {
+   "category": "program->program",
+   "from": "COPAUS1C",
+   "to": "EXEC CICS XCTL via CDEMO-TO-PROGRAM (value from outside this program)",
+   "path": "app/app-authorization-ims-db2-mq/cbl/COPAUS1C.cbl",
+   "line": 367,
+   "status": "unresolved",
+   "detail": "EXEC CICS XCTL through CDEMO-TO-PROGRAM: on at least one path the value comes from data this program does not set (caller commarea, terminal input or a record); the resolved targets at this line are the literals visible on the other paths",
    "kind": "dynamic"
   },
   {
@@ -19503,7 +19513,7 @@
    "path": "app/app-authorization-ims-db2-mq/cbl/COPAUS1C.cbl",
    "line": 367,
    "status": "resolved",
-   "detail": "EXEC CICS XCTL dynamic (resolved through VALUE/MOVE of CDEMO-TO-PROGRAM)",
+   "detail": "EXEC CICS XCTL dynamic (resolved through VALUE/MOVE of CDEMO-TO-PROGRAM reaching this statement; on another path the value is not set in this program)",
    "kind": "dynamic"
   },
   {
@@ -19599,11 +19609,31 @@
   {
    "category": "program->program",
    "from": "COTRTLIC",
-   "to": "XCTL via CDEMO-TO-PROGRAM",
+   "to": "EXEC CICS XCTL via CDEMO-TO-PROGRAM (value from outside this program)",
    "path": "app/app-transaction-type-db2/cbl/COTRTLIC.cbl",
    "line": 620,
    "status": "unresolved",
-   "detail": "EXEC CICS XCTL through a variable with no resolvable literal",
+   "detail": "EXEC CICS XCTL through CDEMO-TO-PROGRAM: on at least one path the value comes from data this program does not set (caller commarea, terminal input or a record); the resolved targets at this line are the literals visible on the other paths",
+   "kind": "dynamic"
+  },
+  {
+   "category": "program->program",
+   "from": "COTRTLIC",
+   "to": "COADM01C",
+   "path": "app/app-transaction-type-db2/cbl/COTRTLIC.cbl",
+   "line": 620,
+   "status": "resolved",
+   "detail": "EXEC CICS XCTL dynamic (resolved through VALUE/MOVE of CDEMO-TO-PROGRAM reaching this statement; on another path the value is not set in this program)",
+   "kind": "dynamic"
+  },
+  {
+   "category": "program->program",
+   "from": "COTRTLIC",
+   "to": "COTRTLIC",
+   "path": "app/app-transaction-type-db2/cbl/COTRTLIC.cbl",
+   "line": 620,
+   "status": "resolved",
+   "detail": "EXEC CICS XCTL dynamic (resolved through VALUE/MOVE of CDEMO-TO-PROGRAM reaching this statement; on another path the value is not set in this program)",
    "kind": "dynamic"
   },
   {
@@ -19613,17 +19643,27 @@
    "path": "app/app-transaction-type-db2/cbl/COTRTLIC.cbl",
    "line": 648,
    "status": "resolved",
-   "detail": "EXEC CICS XCTL dynamic (resolved through VALUE/MOVE of LIT-ADDTPGM)",
+   "detail": "EXEC CICS XCTL dynamic (resolved through VALUE/MOVE of LIT-ADDTPGM reaching this statement)",
    "kind": "dynamic"
   },
   {
    "category": "program->program",
    "from": "COTRTUPC",
-   "to": "XCTL via CDEMO-TO-PROGRAM",
+   "to": "EXEC CICS XCTL via CDEMO-TO-PROGRAM (value from outside this program)",
    "path": "app/app-transaction-type-db2/cbl/COTRTUPC.cbl",
    "line": 457,
    "status": "unresolved",
-   "detail": "EXEC CICS XCTL through a variable with no resolvable literal",
+   "detail": "EXEC CICS XCTL through CDEMO-TO-PROGRAM: on at least one path the value comes from data this program does not set (caller commarea, terminal input or a record); the resolved targets at this line are the literals visible on the other paths",
+   "kind": "dynamic"
+  },
+  {
+   "category": "program->program",
+   "from": "COTRTUPC",
+   "to": "COADM01C",
+   "path": "app/app-transaction-type-db2/cbl/COTRTUPC.cbl",
+   "line": 457,
+   "status": "resolved",
+   "detail": "EXEC CICS XCTL dynamic (resolved through VALUE/MOVE of CDEMO-TO-PROGRAM reaching this statement; on another path the value is not set in this program)",
    "kind": "dynamic"
   },
   {
@@ -20059,21 +20099,51 @@
   {
    "category": "program->program",
    "from": "COACTUPC",
-   "to": "XCTL via CDEMO-TO-PROGRAM",
+   "to": "EXEC CICS XCTL via CDEMO-TO-PROGRAM (value from outside this program)",
    "path": "app/cbl/COACTUPC.cbl",
    "line": 956,
    "status": "unresolved",
-   "detail": "EXEC CICS XCTL through a variable with no resolvable literal",
+   "detail": "EXEC CICS XCTL through CDEMO-TO-PROGRAM: on at least one path the value comes from data this program does not set (caller commarea, terminal input or a record); the resolved targets at this line are the literals visible on the other paths",
+   "kind": "dynamic"
+  },
+  {
+   "category": "program->program",
+   "from": "COACTUPC",
+   "to": "COMEN01C",
+   "path": "app/cbl/COACTUPC.cbl",
+   "line": 956,
+   "status": "resolved",
+   "detail": "EXEC CICS XCTL dynamic (resolved through VALUE/MOVE of CDEMO-TO-PROGRAM reaching this statement; on another path the value is not set in this program)",
    "kind": "dynamic"
   },
   {
    "category": "program->program",
    "from": "COACTVWC",
-   "to": "XCTL via CDEMO-TO-PROGRAM",
+   "to": "EXEC CICS XCTL via CDEMO-TO-PROGRAM (value from outside this program)",
    "path": "app/cbl/COACTVWC.cbl",
    "line": 349,
    "status": "unresolved",
-   "detail": "EXEC CICS XCTL through a variable with no resolvable literal",
+   "detail": "EXEC CICS XCTL through CDEMO-TO-PROGRAM: on at least one path the value comes from data this program does not set (caller commarea, terminal input or a record); the resolved targets at this line are the literals visible on the other paths",
+   "kind": "dynamic"
+  },
+  {
+   "category": "program->program",
+   "from": "COACTVWC",
+   "to": "COMEN01C",
+   "path": "app/cbl/COACTVWC.cbl",
+   "line": 349,
+   "status": "resolved",
+   "detail": "EXEC CICS XCTL dynamic (resolved through VALUE/MOVE of CDEMO-TO-PROGRAM reaching this statement; on another path the value is not set in this program)",
+   "kind": "dynamic"
+  },
+  {
+   "category": "program->program",
+   "from": "COADM01C",
+   "to": "EXEC CICS XCTL via CDEMO-ADMIN-OPT-PGMNAME(WS-OPTION (value from outside this program)",
+   "path": "app/cbl/COADM01C.cbl",
+   "line": 145,
+   "status": "unresolved",
+   "detail": "EXEC CICS XCTL through CDEMO-ADMIN-OPT-PGMNAME(WS-OPTION: on at least one path the value comes from data this program does not set (caller commarea, terminal input or a record); the resolved targets at this line are the literals visible on the other paths",
    "kind": "dynamic"
   },
   {
@@ -20139,11 +20209,31 @@
   {
    "category": "program->program",
    "from": "COADM01C",
+   "to": "EXEC CICS XCTL via CDEMO-TO-PROGRAM (value from outside this program)",
+   "path": "app/cbl/COADM01C.cbl",
+   "line": 168,
+   "status": "unresolved",
+   "detail": "EXEC CICS XCTL through CDEMO-TO-PROGRAM: on at least one path the value comes from data this program does not set (caller commarea, terminal input or a record); the resolved targets at this line are the literals visible on the other paths",
+   "kind": "dynamic"
+  },
+  {
+   "category": "program->program",
+   "from": "COADM01C",
    "to": "COSGN00C",
    "path": "app/cbl/COADM01C.cbl",
    "line": 168,
    "status": "resolved",
-   "detail": "EXEC CICS XCTL dynamic (resolved through VALUE/MOVE of CDEMO-TO-PROGRAM)",
+   "detail": "EXEC CICS XCTL dynamic (resolved through VALUE/MOVE of CDEMO-TO-PROGRAM reaching this statement; on another path the value is not set in this program)",
+   "kind": "dynamic"
+  },
+  {
+   "category": "program->program",
+   "from": "COBIL00C",
+   "to": "EXEC CICS XCTL via CDEMO-TO-PROGRAM (value from outside this program)",
+   "path": "app/cbl/COBIL00C.cbl",
+   "line": 281,
+   "status": "unresolved",
+   "detail": "EXEC CICS XCTL through CDEMO-TO-PROGRAM: on at least one path the value comes from data this program does not set (caller commarea, terminal input or a record); the resolved targets at this line are the literals visible on the other paths",
    "kind": "dynamic"
   },
   {
@@ -20153,7 +20243,7 @@
    "path": "app/cbl/COBIL00C.cbl",
    "line": 281,
    "status": "resolved",
-   "detail": "EXEC CICS XCTL dynamic (resolved through VALUE/MOVE of CDEMO-TO-PROGRAM)",
+   "detail": "EXEC CICS XCTL dynamic (resolved through VALUE/MOVE of CDEMO-TO-PROGRAM reaching this statement; on another path the value is not set in this program)",
    "kind": "dynamic"
   },
   {
@@ -20163,7 +20253,7 @@
    "path": "app/cbl/COBIL00C.cbl",
    "line": 281,
    "status": "resolved",
-   "detail": "EXEC CICS XCTL dynamic (resolved through VALUE/MOVE of CDEMO-TO-PROGRAM)",
+   "detail": "EXEC CICS XCTL dynamic (resolved through VALUE/MOVE of CDEMO-TO-PROGRAM reaching this statement; on another path the value is not set in this program)",
    "kind": "dynamic"
   },
   {
@@ -20183,47 +20273,77 @@
    "path": "app/cbl/COCRDLIC.cbl",
    "line": 402,
    "status": "resolved",
-   "detail": "EXEC CICS XCTL dynamic (resolved through VALUE/MOVE of LIT-MENUPGM)",
+   "detail": "EXEC CICS XCTL dynamic (resolved through VALUE/MOVE of LIT-MENUPGM reaching this statement)",
    "kind": "dynamic"
   },
   {
    "category": "program->program",
    "from": "COCRDLIC",
-   "to": "XCTL via CCARD-NEXT-PROG",
+   "to": "COCRDSLC",
    "path": "app/cbl/COCRDLIC.cbl",
    "line": 538,
-   "status": "unresolved",
-   "detail": "EXEC CICS XCTL through a variable with no resolvable literal",
+   "status": "resolved",
+   "detail": "EXEC CICS XCTL dynamic (resolved through VALUE/MOVE of CCARD-NEXT-PROG reaching this statement)",
    "kind": "dynamic"
   },
   {
    "category": "program->program",
    "from": "COCRDLIC",
-   "to": "XCTL via CCARD-NEXT-PROG",
+   "to": "COCRDUPC",
    "path": "app/cbl/COCRDLIC.cbl",
    "line": 566,
-   "status": "unresolved",
-   "detail": "EXEC CICS XCTL through a variable with no resolvable literal",
+   "status": "resolved",
+   "detail": "EXEC CICS XCTL dynamic (resolved through VALUE/MOVE of CCARD-NEXT-PROG reaching this statement)",
    "kind": "dynamic"
   },
   {
    "category": "program->program",
    "from": "COCRDSLC",
-   "to": "XCTL via CDEMO-TO-PROGRAM",
+   "to": "EXEC CICS XCTL via CDEMO-TO-PROGRAM (value from outside this program)",
    "path": "app/cbl/COCRDSLC.cbl",
    "line": 331,
    "status": "unresolved",
-   "detail": "EXEC CICS XCTL through a variable with no resolvable literal",
+   "detail": "EXEC CICS XCTL through CDEMO-TO-PROGRAM: on at least one path the value comes from data this program does not set (caller commarea, terminal input or a record); the resolved targets at this line are the literals visible on the other paths",
+   "kind": "dynamic"
+  },
+  {
+   "category": "program->program",
+   "from": "COCRDSLC",
+   "to": "COMEN01C",
+   "path": "app/cbl/COCRDSLC.cbl",
+   "line": 331,
+   "status": "resolved",
+   "detail": "EXEC CICS XCTL dynamic (resolved through VALUE/MOVE of CDEMO-TO-PROGRAM reaching this statement; on another path the value is not set in this program)",
    "kind": "dynamic"
   },
   {
    "category": "program->program",
    "from": "COCRDUPC",
-   "to": "XCTL via CDEMO-TO-PROGRAM",
+   "to": "EXEC CICS XCTL via CDEMO-TO-PROGRAM (value from outside this program)",
    "path": "app/cbl/COCRDUPC.cbl",
    "line": 473,
    "status": "unresolved",
-   "detail": "EXEC CICS XCTL through a variable with no resolvable literal",
+   "detail": "EXEC CICS XCTL through CDEMO-TO-PROGRAM: on at least one path the value comes from data this program does not set (caller commarea, terminal input or a record); the resolved targets at this line are the literals visible on the other paths",
+   "kind": "dynamic"
+  },
+  {
+   "category": "program->program",
+   "from": "COCRDUPC",
+   "to": "COMEN01C",
+   "path": "app/cbl/COCRDUPC.cbl",
+   "line": 473,
+   "status": "resolved",
+   "detail": "EXEC CICS XCTL dynamic (resolved through VALUE/MOVE of CDEMO-TO-PROGRAM reaching this statement; on another path the value is not set in this program)",
+   "kind": "dynamic"
+  },
+  {
+   "category": "program->program",
+   "from": "COMEN01C",
+   "to": "EXEC CICS XCTL via CDEMO-MENU-OPT-PGMNAME(WS-OPTION (value from outside this program)",
+   "path": "app/cbl/COMEN01C.cbl",
+   "line": 156,
+   "status": "unresolved",
+   "detail": "EXEC CICS XCTL through CDEMO-MENU-OPT-PGMNAME(WS-OPTION: on at least one path the value comes from data this program does not set (caller commarea, terminal input or a record); the resolved targets at this line are the literals visible on the other paths",
    "kind": "dynamic"
   },
   {
@@ -20339,6 +20459,16 @@
   {
    "category": "program->program",
    "from": "COMEN01C",
+   "to": "EXEC CICS XCTL via CDEMO-MENU-OPT-PGMNAME(WS-OPTION (value from outside this program)",
+   "path": "app/cbl/COMEN01C.cbl",
+   "line": 184,
+   "status": "unresolved",
+   "detail": "EXEC CICS XCTL through CDEMO-MENU-OPT-PGMNAME(WS-OPTION: on at least one path the value comes from data this program does not set (caller commarea, terminal input or a record); the resolved targets at this line are the literals visible on the other paths",
+   "kind": "dynamic"
+  },
+  {
+   "category": "program->program",
+   "from": "COMEN01C",
    "to": "COACTUPC",
    "path": "app/cbl/COMEN01C.cbl",
    "line": 184,
@@ -20444,6 +20574,16 @@
    "line": 184,
    "status": "resolved",
    "detail": "EXEC CICS XCTL dynamic (table-driven: VALUE literal in app/cpy/COMEN02Y.cpy)",
+   "kind": "dynamic"
+  },
+  {
+   "category": "program->program",
+   "from": "COMEN01C",
+   "to": "EXEC CICS XCTL via CDEMO-TO-PROGRAM (value from outside this program)",
+   "path": "app/cbl/COMEN01C.cbl",
+   "line": 201,
+   "status": "unresolved",
+   "detail": "EXEC CICS XCTL through CDEMO-TO-PROGRAM: on at least one path the value comes from data this program does not set (caller commarea, terminal input or a record); the resolved targets at this line are the literals visible on the other paths",
    "kind": "dynamic"
   },
   {
@@ -20453,7 +20593,7 @@
    "path": "app/cbl/COMEN01C.cbl",
    "line": 201,
    "status": "resolved",
-   "detail": "EXEC CICS XCTL dynamic (resolved through VALUE/MOVE of CDEMO-TO-PROGRAM)",
+   "detail": "EXEC CICS XCTL dynamic (resolved through VALUE/MOVE of CDEMO-TO-PROGRAM reaching this statement; on another path the value is not set in this program)",
    "kind": "dynamic"
   },
   {
@@ -20479,11 +20619,21 @@
   {
    "category": "program->program",
    "from": "CORPT00C",
+   "to": "EXEC CICS XCTL via CDEMO-TO-PROGRAM (value from outside this program)",
+   "path": "app/cbl/CORPT00C.cbl",
+   "line": 548,
+   "status": "unresolved",
+   "detail": "EXEC CICS XCTL through CDEMO-TO-PROGRAM: on at least one path the value comes from data this program does not set (caller commarea, terminal input or a record); the resolved targets at this line are the literals visible on the other paths",
+   "kind": "dynamic"
+  },
+  {
+   "category": "program->program",
+   "from": "CORPT00C",
    "to": "COMEN01C",
    "path": "app/cbl/CORPT00C.cbl",
    "line": 548,
    "status": "resolved",
-   "detail": "EXEC CICS XCTL dynamic (resolved through VALUE/MOVE of CDEMO-TO-PROGRAM)",
+   "detail": "EXEC CICS XCTL dynamic (resolved through VALUE/MOVE of CDEMO-TO-PROGRAM reaching this statement; on another path the value is not set in this program)",
    "kind": "dynamic"
   },
   {
@@ -20493,7 +20643,7 @@
    "path": "app/cbl/CORPT00C.cbl",
    "line": 548,
    "status": "resolved",
-   "detail": "EXEC CICS XCTL dynamic (resolved through VALUE/MOVE of CDEMO-TO-PROGRAM)",
+   "detail": "EXEC CICS XCTL dynamic (resolved through VALUE/MOVE of CDEMO-TO-PROGRAM reaching this statement; on another path the value is not set in this program)",
    "kind": "dynamic"
   },
   {
@@ -20519,21 +20669,31 @@
   {
    "category": "program->program",
    "from": "COTRN00C",
-   "to": "COSGN00C",
+   "to": "COTRN01C",
    "path": "app/cbl/COTRN00C.cbl",
    "line": 192,
    "status": "resolved",
-   "detail": "EXEC CICS XCTL dynamic (resolved through VALUE/MOVE of CDEMO-TO-PROGRAM)",
+   "detail": "EXEC CICS XCTL dynamic (resolved through VALUE/MOVE of CDEMO-TO-PROGRAM reaching this statement)",
    "kind": "dynamic"
   },
   {
    "category": "program->program",
    "from": "COTRN00C",
-   "to": "COTRN01C",
+   "to": "EXEC CICS XCTL via CDEMO-TO-PROGRAM (value from outside this program)",
    "path": "app/cbl/COTRN00C.cbl",
-   "line": 192,
+   "line": 518,
+   "status": "unresolved",
+   "detail": "EXEC CICS XCTL through CDEMO-TO-PROGRAM: on at least one path the value comes from data this program does not set (caller commarea, terminal input or a record); the resolved targets at this line are the literals visible on the other paths",
+   "kind": "dynamic"
+  },
+  {
+   "category": "program->program",
+   "from": "COTRN00C",
+   "to": "COMEN01C",
+   "path": "app/cbl/COTRN00C.cbl",
+   "line": 518,
    "status": "resolved",
-   "detail": "EXEC CICS XCTL dynamic (resolved through VALUE/MOVE of CDEMO-TO-PROGRAM)",
+   "detail": "EXEC CICS XCTL dynamic (resolved through VALUE/MOVE of CDEMO-TO-PROGRAM reaching this statement; on another path the value is not set in this program)",
    "kind": "dynamic"
   },
   {
@@ -20543,7 +20703,7 @@
    "path": "app/cbl/COTRN00C.cbl",
    "line": 518,
    "status": "resolved",
-   "detail": "EXEC CICS XCTL dynamic (resolved through VALUE/MOVE of CDEMO-TO-PROGRAM)",
+   "detail": "EXEC CICS XCTL dynamic (resolved through VALUE/MOVE of CDEMO-TO-PROGRAM reaching this statement; on another path the value is not set in this program)",
    "kind": "dynamic"
   },
   {
@@ -20553,7 +20713,17 @@
    "path": "app/cbl/COTRN00C.cbl",
    "line": 518,
    "status": "resolved",
-   "detail": "EXEC CICS XCTL dynamic (resolved through VALUE/MOVE of CDEMO-TO-PROGRAM)",
+   "detail": "EXEC CICS XCTL dynamic (resolved through VALUE/MOVE of CDEMO-TO-PROGRAM reaching this statement; on another path the value is not set in this program)",
+   "kind": "dynamic"
+  },
+  {
+   "category": "program->program",
+   "from": "COTRN01C",
+   "to": "EXEC CICS XCTL via CDEMO-TO-PROGRAM (value from outside this program)",
+   "path": "app/cbl/COTRN01C.cbl",
+   "line": 205,
+   "status": "unresolved",
+   "detail": "EXEC CICS XCTL through CDEMO-TO-PROGRAM: on at least one path the value comes from data this program does not set (caller commarea, terminal input or a record); the resolved targets at this line are the literals visible on the other paths",
    "kind": "dynamic"
   },
   {
@@ -20563,7 +20733,7 @@
    "path": "app/cbl/COTRN01C.cbl",
    "line": 205,
    "status": "resolved",
-   "detail": "EXEC CICS XCTL dynamic (resolved through VALUE/MOVE of CDEMO-TO-PROGRAM)",
+   "detail": "EXEC CICS XCTL dynamic (resolved through VALUE/MOVE of CDEMO-TO-PROGRAM reaching this statement; on another path the value is not set in this program)",
    "kind": "dynamic"
   },
   {
@@ -20573,7 +20743,17 @@
    "path": "app/cbl/COTRN01C.cbl",
    "line": 205,
    "status": "resolved",
-   "detail": "EXEC CICS XCTL dynamic (resolved through VALUE/MOVE of CDEMO-TO-PROGRAM)",
+   "detail": "EXEC CICS XCTL dynamic (resolved through VALUE/MOVE of CDEMO-TO-PROGRAM reaching this statement; on another path the value is not set in this program)",
+   "kind": "dynamic"
+  },
+  {
+   "category": "program->program",
+   "from": "COTRN01C",
+   "to": "COTRN00C",
+   "path": "app/cbl/COTRN01C.cbl",
+   "line": 205,
+   "status": "resolved",
+   "detail": "EXEC CICS XCTL dynamic (resolved through VALUE/MOVE of CDEMO-TO-PROGRAM reaching this statement; on another path the value is not set in this program)",
    "kind": "dynamic"
   },
   {
@@ -20599,11 +20779,21 @@
   {
    "category": "program->program",
    "from": "COTRN02C",
+   "to": "EXEC CICS XCTL via CDEMO-TO-PROGRAM (value from outside this program)",
+   "path": "app/cbl/COTRN02C.cbl",
+   "line": 508,
+   "status": "unresolved",
+   "detail": "EXEC CICS XCTL through CDEMO-TO-PROGRAM: on at least one path the value comes from data this program does not set (caller commarea, terminal input or a record); the resolved targets at this line are the literals visible on the other paths",
+   "kind": "dynamic"
+  },
+  {
+   "category": "program->program",
+   "from": "COTRN02C",
    "to": "COMEN01C",
    "path": "app/cbl/COTRN02C.cbl",
    "line": 508,
    "status": "resolved",
-   "detail": "EXEC CICS XCTL dynamic (resolved through VALUE/MOVE of CDEMO-TO-PROGRAM)",
+   "detail": "EXEC CICS XCTL dynamic (resolved through VALUE/MOVE of CDEMO-TO-PROGRAM reaching this statement; on another path the value is not set in this program)",
    "kind": "dynamic"
   },
   {
@@ -20613,17 +20803,7 @@
    "path": "app/cbl/COTRN02C.cbl",
    "line": 508,
    "status": "resolved",
-   "detail": "EXEC CICS XCTL dynamic (resolved through VALUE/MOVE of CDEMO-TO-PROGRAM)",
-   "kind": "dynamic"
-  },
-  {
-   "category": "program->program",
-   "from": "COUSR00C",
-   "to": "COSGN00C",
-   "path": "app/cbl/COUSR00C.cbl",
-   "line": 196,
-   "status": "resolved",
-   "detail": "EXEC CICS XCTL dynamic (resolved through VALUE/MOVE of CDEMO-TO-PROGRAM)",
+   "detail": "EXEC CICS XCTL dynamic (resolved through VALUE/MOVE of CDEMO-TO-PROGRAM reaching this statement; on another path the value is not set in this program)",
    "kind": "dynamic"
   },
   {
@@ -20633,37 +20813,7 @@
    "path": "app/cbl/COUSR00C.cbl",
    "line": 196,
    "status": "resolved",
-   "detail": "EXEC CICS XCTL dynamic (resolved through VALUE/MOVE of CDEMO-TO-PROGRAM)",
-   "kind": "dynamic"
-  },
-  {
-   "category": "program->program",
-   "from": "COUSR00C",
-   "to": "COUSR03C",
-   "path": "app/cbl/COUSR00C.cbl",
-   "line": 196,
-   "status": "resolved",
-   "detail": "EXEC CICS XCTL dynamic (resolved through VALUE/MOVE of CDEMO-TO-PROGRAM)",
-   "kind": "dynamic"
-  },
-  {
-   "category": "program->program",
-   "from": "COUSR00C",
-   "to": "COSGN00C",
-   "path": "app/cbl/COUSR00C.cbl",
-   "line": 206,
-   "status": "resolved",
-   "detail": "EXEC CICS XCTL dynamic (resolved through VALUE/MOVE of CDEMO-TO-PROGRAM)",
-   "kind": "dynamic"
-  },
-  {
-   "category": "program->program",
-   "from": "COUSR00C",
-   "to": "COUSR02C",
-   "path": "app/cbl/COUSR00C.cbl",
-   "line": 206,
-   "status": "resolved",
-   "detail": "EXEC CICS XCTL dynamic (resolved through VALUE/MOVE of CDEMO-TO-PROGRAM)",
+   "detail": "EXEC CICS XCTL dynamic (resolved through VALUE/MOVE of CDEMO-TO-PROGRAM reaching this statement)",
    "kind": "dynamic"
   },
   {
@@ -20673,7 +20823,27 @@
    "path": "app/cbl/COUSR00C.cbl",
    "line": 206,
    "status": "resolved",
-   "detail": "EXEC CICS XCTL dynamic (resolved through VALUE/MOVE of CDEMO-TO-PROGRAM)",
+   "detail": "EXEC CICS XCTL dynamic (resolved through VALUE/MOVE of CDEMO-TO-PROGRAM reaching this statement)",
+   "kind": "dynamic"
+  },
+  {
+   "category": "program->program",
+   "from": "COUSR00C",
+   "to": "EXEC CICS XCTL via CDEMO-TO-PROGRAM (value from outside this program)",
+   "path": "app/cbl/COUSR00C.cbl",
+   "line": 514,
+   "status": "unresolved",
+   "detail": "EXEC CICS XCTL through CDEMO-TO-PROGRAM: on at least one path the value comes from data this program does not set (caller commarea, terminal input or a record); the resolved targets at this line are the literals visible on the other paths",
+   "kind": "dynamic"
+  },
+  {
+   "category": "program->program",
+   "from": "COUSR00C",
+   "to": "COADM01C",
+   "path": "app/cbl/COUSR00C.cbl",
+   "line": 514,
+   "status": "resolved",
+   "detail": "EXEC CICS XCTL dynamic (resolved through VALUE/MOVE of CDEMO-TO-PROGRAM reaching this statement; on another path the value is not set in this program)",
    "kind": "dynamic"
   },
   {
@@ -20683,7 +20853,7 @@
    "path": "app/cbl/COUSR00C.cbl",
    "line": 514,
    "status": "resolved",
-   "detail": "EXEC CICS XCTL dynamic (resolved through VALUE/MOVE of CDEMO-TO-PROGRAM)",
+   "detail": "EXEC CICS XCTL dynamic (resolved through VALUE/MOVE of CDEMO-TO-PROGRAM reaching this statement; on another path the value is not set in this program)",
    "kind": "dynamic"
   },
   {
@@ -20693,7 +20863,7 @@
    "path": "app/cbl/COUSR00C.cbl",
    "line": 514,
    "status": "resolved",
-   "detail": "EXEC CICS XCTL dynamic (resolved through VALUE/MOVE of CDEMO-TO-PROGRAM)",
+   "detail": "EXEC CICS XCTL dynamic (resolved through VALUE/MOVE of CDEMO-TO-PROGRAM reaching this statement; on another path the value is not set in this program)",
    "kind": "dynamic"
   },
   {
@@ -20703,7 +20873,17 @@
    "path": "app/cbl/COUSR00C.cbl",
    "line": 514,
    "status": "resolved",
-   "detail": "EXEC CICS XCTL dynamic (resolved through VALUE/MOVE of CDEMO-TO-PROGRAM)",
+   "detail": "EXEC CICS XCTL dynamic (resolved through VALUE/MOVE of CDEMO-TO-PROGRAM reaching this statement; on another path the value is not set in this program)",
+   "kind": "dynamic"
+  },
+  {
+   "category": "program->program",
+   "from": "COUSR01C",
+   "to": "EXEC CICS XCTL via CDEMO-TO-PROGRAM (value from outside this program)",
+   "path": "app/cbl/COUSR01C.cbl",
+   "line": 175,
+   "status": "unresolved",
+   "detail": "EXEC CICS XCTL through CDEMO-TO-PROGRAM: on at least one path the value comes from data this program does not set (caller commarea, terminal input or a record); the resolved targets at this line are the literals visible on the other paths",
    "kind": "dynamic"
   },
   {
@@ -20713,7 +20893,7 @@
    "path": "app/cbl/COUSR01C.cbl",
    "line": 175,
    "status": "resolved",
-   "detail": "EXEC CICS XCTL dynamic (resolved through VALUE/MOVE of CDEMO-TO-PROGRAM)",
+   "detail": "EXEC CICS XCTL dynamic (resolved through VALUE/MOVE of CDEMO-TO-PROGRAM reaching this statement; on another path the value is not set in this program)",
    "kind": "dynamic"
   },
   {
@@ -20723,7 +20903,17 @@
    "path": "app/cbl/COUSR01C.cbl",
    "line": 175,
    "status": "resolved",
-   "detail": "EXEC CICS XCTL dynamic (resolved through VALUE/MOVE of CDEMO-TO-PROGRAM)",
+   "detail": "EXEC CICS XCTL dynamic (resolved through VALUE/MOVE of CDEMO-TO-PROGRAM reaching this statement; on another path the value is not set in this program)",
+   "kind": "dynamic"
+  },
+  {
+   "category": "program->program",
+   "from": "COUSR02C",
+   "to": "EXEC CICS XCTL via CDEMO-TO-PROGRAM (value from outside this program)",
+   "path": "app/cbl/COUSR02C.cbl",
+   "line": 258,
+   "status": "unresolved",
+   "detail": "EXEC CICS XCTL through CDEMO-TO-PROGRAM: on at least one path the value comes from data this program does not set (caller commarea, terminal input or a record); the resolved targets at this line are the literals visible on the other paths",
    "kind": "dynamic"
   },
   {
@@ -20733,7 +20923,7 @@
    "path": "app/cbl/COUSR02C.cbl",
    "line": 258,
    "status": "resolved",
-   "detail": "EXEC CICS XCTL dynamic (resolved through VALUE/MOVE of CDEMO-TO-PROGRAM)",
+   "detail": "EXEC CICS XCTL dynamic (resolved through VALUE/MOVE of CDEMO-TO-PROGRAM reaching this statement; on another path the value is not set in this program)",
    "kind": "dynamic"
   },
   {
@@ -20743,7 +20933,17 @@
    "path": "app/cbl/COUSR02C.cbl",
    "line": 258,
    "status": "resolved",
-   "detail": "EXEC CICS XCTL dynamic (resolved through VALUE/MOVE of CDEMO-TO-PROGRAM)",
+   "detail": "EXEC CICS XCTL dynamic (resolved through VALUE/MOVE of CDEMO-TO-PROGRAM reaching this statement; on another path the value is not set in this program)",
+   "kind": "dynamic"
+  },
+  {
+   "category": "program->program",
+   "from": "COUSR03C",
+   "to": "EXEC CICS XCTL via CDEMO-TO-PROGRAM (value from outside this program)",
+   "path": "app/cbl/COUSR03C.cbl",
+   "line": 205,
+   "status": "unresolved",
+   "detail": "EXEC CICS XCTL through CDEMO-TO-PROGRAM: on at least one path the value comes from data this program does not set (caller commarea, terminal input or a record); the resolved targets at this line are the literals visible on the other paths",
    "kind": "dynamic"
   },
   {
@@ -20753,7 +20953,7 @@
    "path": "app/cbl/COUSR03C.cbl",
    "line": 205,
    "status": "resolved",
-   "detail": "EXEC CICS XCTL dynamic (resolved through VALUE/MOVE of CDEMO-TO-PROGRAM)",
+   "detail": "EXEC CICS XCTL dynamic (resolved through VALUE/MOVE of CDEMO-TO-PROGRAM reaching this statement; on another path the value is not set in this program)",
    "kind": "dynamic"
   },
   {
@@ -20763,7 +20963,7 @@
    "path": "app/cbl/COUSR03C.cbl",
    "line": 205,
    "status": "resolved",
-   "detail": "EXEC CICS XCTL dynamic (resolved through VALUE/MOVE of CDEMO-TO-PROGRAM)",
+   "detail": "EXEC CICS XCTL dynamic (resolved through VALUE/MOVE of CDEMO-TO-PROGRAM reaching this statement; on another path the value is not set in this program)",
    "kind": "dynamic"
   },
   {

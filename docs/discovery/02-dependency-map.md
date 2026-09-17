@@ -3,7 +3,7 @@
 
 # 02 - Dependency map
 
-**534 distinct dependency edges resolved, 112 unresolved** across the five headline categories (program→copybook, program→dataset, JCL step→program, transaction→program, program→program). An edge is *distinct* per (category, from, to); the same `COPY` in two places counts once.
+**547 distinct dependency edges resolved, 126 unresolved** across the five headline categories (program→copybook, program→dataset, JCL step→program, transaction→program, program→program). An edge is *distinct* per (category, from, to); the same `COPY` in two places counts once.
 
 | Edge category | Resolved | Unresolved |
 | --- | --- | --- |
@@ -11,8 +11,8 @@
 | program->dataset | 77 | 7 |
 | jclstep->program | 126 | 0 |
 | transaction->program | 26 | 7 |
-| program->program | 52 | 34 |
-| **Total** | **534** | **112** |
+| program->program | 65 | 48 |
+| **Total** | **547** | **126** |
 
 Supporting edge categories (not in the headline count):
 
@@ -278,23 +278,23 @@ Transactions come from `DEFINE TRANSACTION ... PROGRAM(...)` in the CSD sources;
 | CDRA `app/app-vsam-mq/csd/CRDDEMOM.csd:17`, CDRA `app/app-vsam-mq/csd/CRDDEMOM.csd:1` | COACCT01 | `app/app-vsam-mq/cbl/COACCT01.cbl` |  | CVACT01Y | ACCTDAT → AWS.M2.CARDDEMO.ACCTDATA.VSAM.KSDS (read) |  |  |
 | CAUP `app/csd/CARDDEMO.CSD:306` | COACTUPC | `app/cbl/COACTUPC.cbl` | COACTUP | COACTUP, COCOM01Y, COTTL01Y, CSDAT01Y, CSLKPCDY, CSMSG01Y, CSMSG02Y, CSSETATY, CSSTRPFY, CSUSR01Y, CSUTLDPY, CSUTLDWY, CVACT01Y, CVACT03Y, CVCRD01Y, CVCUS01Y | CXACAIX → AWS.M2.CARDDEMO.CARDXREF.VSAM.AIX.PATH (read)<br>ACCTDAT → AWS.M2.CARDDEMO.ACCTDATA.VSAM.KSDS (read/rewrite)<br>CUSTDAT → AWS.M2.CARDDEMO.CUSTDATA.VSAM.KSDS (read/rewrite) |  | COMEN01C |
 | CAVW `app/csd/CARDDEMO.CSD:181`, CAVW `app/csd/CARDDEMO.CSD:317` | COACTVWC | `app/cbl/COACTVWC.cbl` | COACTVW | COACTVW, COCOM01Y, COTTL01Y, CSDAT01Y, CSMSG01Y, CSMSG02Y, CSSTRPFY, CSUSR01Y, CVACT01Y, CVACT02Y, CVACT03Y, CVCRD01Y, CVCUS01Y | CXACAIX → AWS.M2.CARDDEMO.CARDXREF.VSAM.AIX.PATH (read)<br>ACCTDAT → AWS.M2.CARDDEMO.ACCTDATA.VSAM.KSDS (read)<br>CUSTDAT → AWS.M2.CARDDEMO.CUSTDATA.VSAM.KSDS (read) |  | COMEN01C |
-| CA00 `app/csd/CARDDEMO.CSD:327` | COADM01C | `app/cbl/COADM01C.cbl` | COADM01 | COADM01, COADM02Y, COCOM01Y, COTTL01Y, CSDAT01Y, CSMSG01Y, CSUSR01Y |  |  | COSGN00C, COUSR01C, COUSR02C, COUSR03C |
+| CA00 `app/csd/CARDDEMO.CSD:327` | COADM01C | `app/cbl/COADM01C.cbl` | COADM01 | COADM01, COADM02Y, COCOM01Y, COTTL01Y, CSDAT01Y, CSMSG01Y, CSUSR01Y |  |  | COSGN00C, COTRTLIC, COTRTUPC, COUSR00C, COUSR01C, COUSR02C, COUSR03C |
 | CB00 `app/csd/CARDDEMO.CSD:337` | COBIL00C | `app/cbl/COBIL00C.cbl` | COBIL00 | COBIL00, COCOM01Y, COTTL01Y, CSDAT01Y, CSMSG01Y, CVACT01Y, CVACT03Y, CVTRA05Y | ACCTDAT → AWS.M2.CARDDEMO.ACCTDATA.VSAM.KSDS (read/rewrite)<br>CXACAIX → AWS.M2.CARDDEMO.CARDXREF.VSAM.AIX.PATH (read)<br>TRANSACT → AWS.M2.CARDDEMO.TRANSACT.VSAM.KSDS (read/write) |  | COMEN01C |
 | CC00 `app/csd/CARDDEMO.CSD:203`, CCLI `app/csd/CARDDEMO.CSD:357` | COCRDLIC | `app/cbl/COCRDLIC.cbl` | COCRDLI | COCOM01Y, COCRDLI, COTTL01Y, CSDAT01Y, CSMSG01Y, CSSTRPFY, CSUSR01Y, CVACT02Y, CVCRD01Y | CARDDAT → AWS.M2.CARDDEMO.CARDDATA.VSAM.KSDS (read) |  | COMEN01C |
-| CCDL `app/csd/CARDDEMO.CSD:219`, CCDL `app/csd/CARDDEMO.CSD:347` | COCRDSLC | `app/cbl/COCRDSLC.cbl` | COCRDSL | COCOM01Y, COCRDSL, COTTL01Y, CSDAT01Y, CSMSG01Y, CSMSG02Y, CSSTRPFY, CSUSR01Y, CVACT02Y, CVCRD01Y, CVCUS01Y | CARDDAT → AWS.M2.CARDDEMO.CARDDATA.VSAM.KSDS (read)<br>CARDAIX → AWS.M2.CARDDEMO.CARDDATA.VSAM.AIX.PATH (read) |  | COMEN01C |
-| CCUP `app/csd/CARDDEMO.CSD:367` | COCRDUPC | `app/cbl/COCRDUPC.cbl` | COCRDUP | COCOM01Y, COCRDUP, COTTL01Y, CSDAT01Y, CSMSG01Y, CSMSG02Y, CSSTRPFY, CSUSR01Y, CVACT02Y, CVCRD01Y, CVCUS01Y | CARDDAT → AWS.M2.CARDDEMO.CARDDATA.VSAM.KSDS (read/rewrite) |  | COMEN01C |
+| CCDL `app/csd/CARDDEMO.CSD:219`, CCDL `app/csd/CARDDEMO.CSD:347` | COCRDSLC | `app/cbl/COCRDSLC.cbl` | COCRDSL | COCOM01Y, COCRDSL, COTTL01Y, CSDAT01Y, CSMSG01Y, CSMSG02Y, CSSTRPFY, CSUSR01Y, CVACT02Y, CVCRD01Y, CVCUS01Y | CARDDAT → AWS.M2.CARDDEMO.CARDDATA.VSAM.KSDS (read)<br>CARDAIX → AWS.M2.CARDDEMO.CARDDATA.VSAM.AIX.PATH (read) |  | COCRDLIC, COMEN01C |
+| CCUP `app/csd/CARDDEMO.CSD:367` | COCRDUPC | `app/cbl/COCRDUPC.cbl` | COCRDUP | COCOM01Y, COCRDUP, COTTL01Y, CSDAT01Y, CSMSG01Y, CSMSG02Y, CSSTRPFY, CSUSR01Y, CVACT02Y, CVCRD01Y, CVCUS01Y | CARDDAT → AWS.M2.CARDDEMO.CARDDATA.VSAM.KSDS (read/rewrite) |  | COCRDLIC, COMEN01C |
 | CDRD `app/app-vsam-mq/csd/CRDDEMOM.csd:27`, CDRD `app/app-vsam-mq/csd/CRDDEMOM.csd:9` | CODATE01 | `app/app-vsam-mq/cbl/CODATE01.cbl` |  |  |  |  |  |
-| CM00 `app/csd/CARDDEMO.CSD:399` | COMEN01C | `app/cbl/COMEN01C.cbl` | COMEN01 | COCOM01Y, COMEN01, COMEN02Y, COTTL01Y, CSDAT01Y, CSMSG01Y, CSUSR01Y |  |  | COBIL00C, COCRDLIC, CORPT00C, COSGN00C, COTRN01C, COTRN02C |
+| CM00 `app/csd/CARDDEMO.CSD:399` | COMEN01C | `app/cbl/COMEN01C.cbl` | COMEN01 | COCOM01Y, COMEN01, COMEN02Y, COTTL01Y, CSDAT01Y, CSMSG01Y, CSUSR01Y |  |  | COACTUPC, COACTVWC, COBIL00C, COCRDLIC, COCRDSLC, COCRDUPC, COPAUS0C, CORPT00C, COSGN00C, COTRN00C, COTRN01C, COTRN02C |
 | CP00 `app/app-authorization-ims-db2-mq/csd/CRDDEMO2.csd:11`, CP00 `app/app-authorization-ims-db2-mq/csd/CRDDEMO2.csd:59` | COPAUA0C | `app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl` |  | CCPAUERY, CCPAURLY, CCPAURQY, CIPAUDTY, CIPAUSMY, CVACT01Y, CVACT03Y, CVCUS01Y | CCXREF → AWS.M2.CARDDEMO.CARDXREF.VSAM.KSDS (read)<br>ACCTDAT → AWS.M2.CARDDEMO.ACCTDATA.VSAM.KSDS (read)<br>CUSTDAT → AWS.M2.CARDDEMO.CUSTDATA.VSAM.KSDS (read) |  |  |
 | CPVS `app/app-authorization-ims-db2-mq/csd/CRDDEMO2.csd:18`, CPVS `app/app-authorization-ims-db2-mq/csd/CRDDEMO2.csd:49` | COPAUS0C | `app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl` | COPAU00 | CIPAUDTY, CIPAUSMY, COCOM01Y, COPAU00, COTTL01Y, CSDAT01Y, CSMSG01Y, CSMSG02Y, CVACT01Y, CVACT02Y, CVACT03Y, CVCUS01Y | CXACAIX → AWS.M2.CARDDEMO.CARDXREF.VSAM.AIX.PATH (read)<br>ACCTDAT → AWS.M2.CARDDEMO.ACCTDATA.VSAM.KSDS (read)<br>CUSTDAT → AWS.M2.CARDDEMO.CUSTDATA.VSAM.KSDS (read) |  | COMEN01C, COPAUS0C, COPAUS1C |
 | CPVD `app/app-authorization-ims-db2-mq/csd/CRDDEMO2.csd:25`, CPVD `app/app-authorization-ims-db2-mq/csd/CRDDEMO2.csd:39` | COPAUS1C | `app/app-authorization-ims-db2-mq/cbl/COPAUS1C.cbl` | COPAU01 | CIPAUDTY, CIPAUSMY, COCOM01Y, COPAU01, COTTL01Y, CSDAT01Y, CSMSG01Y, CSMSG02Y |  |  | COPAUS0C |
 | CPVD `app/app-authorization-ims-db2-mq/csd/CRDDEMO2.csd:32` | COPAUS2C | `app/app-authorization-ims-db2-mq/cbl/COPAUS2C.cbl` |  | AUTHFRDS, CIPAUDTY |  | yes | COPAUS1C |
 | CR00 `app/csd/CARDDEMO.CSD:409` | CORPT00C | `app/cbl/CORPT00C.cbl` | CORPT00 | COCOM01Y, CORPT00, COTTL01Y, CSDAT01Y, CSMSG01Y, CVTRA05Y |  |  | COMEN01C |
 | CC00 `app/csd/CARDDEMO.CSD:249`, CC00 `app/csd/CARDDEMO.CSD:378`, CC00 `app/jcl/CBADMCDJ.jcl:98` | COSGN00C | `app/cbl/COSGN00C.cbl` | COSGN00 | COCOM01Y, COSGN00, COTTL01Y, CSDAT01Y, CSMSG01Y, CSUSR01Y | USRSEC → AWS.M2.CARDDEMO.USRSEC.VSAM.KSDS (read) |  | COADM01C, COBIL00C, COMEN01C, COPAUS0C, CORPT00C, COTRN00C, COTRN01C, COTRN02C, COUSR00C, COUSR01C, COUSR02C, COUSR03C |
-| CT00 `app/csd/CARDDEMO.CSD:419` | COTRN00C | `app/cbl/COTRN00C.cbl` | COTRN00 | COCOM01Y, COTRN00, COTTL01Y, CSDAT01Y, CSMSG01Y, CVTRA05Y | TRANSACT → AWS.M2.CARDDEMO.TRANSACT.VSAM.KSDS (read) |  | COMEN01C |
+| CT00 `app/csd/CARDDEMO.CSD:419` | COTRN00C | `app/cbl/COTRN00C.cbl` | COTRN00 | COCOM01Y, COTRN00, COTTL01Y, CSDAT01Y, CSMSG01Y, CVTRA05Y | TRANSACT → AWS.M2.CARDDEMO.TRANSACT.VSAM.KSDS (read) |  | COMEN01C, COTRN01C |
 | CT01 `app/csd/CARDDEMO.CSD:429` | COTRN01C | `app/cbl/COTRN01C.cbl` | COTRN01 | COCOM01Y, COTRN01, COTTL01Y, CSDAT01Y, CSMSG01Y, CVTRA05Y | TRANSACT → AWS.M2.CARDDEMO.TRANSACT.VSAM.KSDS (read) |  | COMEN01C, COTRN00C |
 | CT02 `app/csd/CARDDEMO.CSD:439` | COTRN02C | `app/cbl/COTRN02C.cbl` | COTRN02 | COCOM01Y, COTRN02, COTTL01Y, CSDAT01Y, CSMSG01Y, CVACT01Y, CVACT03Y, CVTRA05Y | CXACAIX → AWS.M2.CARDDEMO.CARDXREF.VSAM.AIX.PATH (read)<br>CCXREF → AWS.M2.CARDDEMO.CARDXREF.VSAM.KSDS (read)<br>TRANSACT → AWS.M2.CARDDEMO.TRANSACT.VSAM.KSDS (read/write) |  | COMEN01C |
-| CTLI `app/app-transaction-type-db2/csd/CRDDEMOD.csd:11`, CTLI `app/app-transaction-type-db2/csd/CRDDEMOD.csd:25` | COTRTLIC | `app/app-transaction-type-db2/cbl/COTRTLIC.cbl` | COTRTLI | COCOM01Y, COTRTLI, COTTL01Y, CSDAT01Y, CSDB2RPY, CSDB2RWY, CSMSG01Y, CSSTRPFY, CSUSR01Y, CVACT02Y, CVCRD01Y, DCLTRTYP |  | yes | COADM01C |
+| CTLI `app/app-transaction-type-db2/csd/CRDDEMOD.csd:11`, CTLI `app/app-transaction-type-db2/csd/CRDDEMOD.csd:25` | COTRTLIC | `app/app-transaction-type-db2/cbl/COTRTLIC.cbl` | COTRTLI | COCOM01Y, COTRTLI, COTTL01Y, CSDAT01Y, CSDB2RPY, CSDB2RWY, CSMSG01Y, CSSTRPFY, CSUSR01Y, CVACT02Y, CVCRD01Y, DCLTRTYP |  | yes | COADM01C, COTRTLIC |
 | CTTU `app/app-transaction-type-db2/csd/CRDDEMOD.csd:18`, CTTU `app/app-transaction-type-db2/csd/CRDDEMOD.csd:35` | COTRTUPC | `app/app-transaction-type-db2/cbl/COTRTUPC.cbl` | COTRTUP | COCOM01Y, COTRTUP, COTTL01Y, CSDAT01Y, CSMSG01Y, CSMSG02Y, CSSETATY, CSSTRPFY, CSUSR01Y, CSUTLDWY, CVCRD01Y, DCLTRCAT, DCLTRTYP |  | yes | COADM01C, COTRTLIC |
 | CU00 `app/csd/CARDDEMO.CSD:449` | COUSR00C | `app/cbl/COUSR00C.cbl` | COUSR00 | COCOM01Y, COTTL01Y, COUSR00, CSDAT01Y, CSMSG01Y, CSUSR01Y | USRSEC → AWS.M2.CARDDEMO.USRSEC.VSAM.KSDS (read) |  | COADM01C |
 | CU01 `app/csd/CARDDEMO.CSD:459` | COUSR01C | `app/cbl/COUSR01C.cbl` | COUSR01 | COCOM01Y, COTTL01Y, COUSR01, CSDAT01Y, CSMSG01Y, CSUSR01Y | USRSEC → AWS.M2.CARDDEMO.USRSEC.VSAM.KSDS (write) |  | COADM01C |
@@ -305,25 +305,35 @@ Transactions come from `DEFINE TRANSACTION ... PROGRAM(...)` in the CSD sources;
 
 | From | To | Kind | Status | Source | Detail |
 | --- | --- | --- | --- | --- | --- |
-| COPAUS0C | COPAUS0C | dynamic | resolved | `app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl:322` | EXEC CICS XCTL dynamic (resolved through VALUE/MOVE of CDEMO-TO-PROGRAM) |
-| COPAUS0C | COPAUS1C | dynamic | resolved | `app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl:322` | EXEC CICS XCTL dynamic (resolved through VALUE/MOVE of CDEMO-TO-PROGRAM) |
-| COPAUS0C | COSGN00C | dynamic | resolved | `app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl:322` | EXEC CICS XCTL dynamic (resolved through VALUE/MOVE of CDEMO-TO-PROGRAM) |
-| COPAUS1C | COPAUS2C | dynamic | resolved | `app/app-authorization-ims-db2-mq/cbl/COPAUS1C.cbl:248` | EXEC CICS LINK dynamic (resolved through VALUE/MOVE of WS-PGM-AUTH-FRAUD) |
-| COPAUS1C | COPAUS0C | dynamic | resolved | `app/app-authorization-ims-db2-mq/cbl/COPAUS1C.cbl:367` | EXEC CICS XCTL dynamic (resolved through VALUE/MOVE of CDEMO-TO-PROGRAM) |
-| COTRTLIC | COTRTUPC | dynamic | resolved | `app/app-transaction-type-db2/cbl/COTRTLIC.cbl:648` | EXEC CICS XCTL dynamic (resolved through VALUE/MOVE of LIT-ADDTPGM) |
+| COPAUS0C | COPAUS1C | dynamic | resolved | `app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl:322` | EXEC CICS XCTL dynamic (resolved through VALUE/MOVE of CDEMO-TO-PROGRAM reaching this statement) |
+| COPAUS0C | COMEN01C | dynamic | resolved | `app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl:674` | EXEC CICS XCTL dynamic (resolved through VALUE/MOVE of CDEMO-TO-PROGRAM reaching this statement; on another path the value is not set in this program) |
+| COPAUS0C | COPAUS0C | dynamic | resolved | `app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl:674` | EXEC CICS XCTL dynamic (resolved through VALUE/MOVE of CDEMO-TO-PROGRAM reaching this statement; on another path the value is not set in this program) |
+| COPAUS0C | COSGN00C | dynamic | resolved | `app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl:674` | EXEC CICS XCTL dynamic (resolved through VALUE/MOVE of CDEMO-TO-PROGRAM reaching this statement; on another path the value is not set in this program) |
+| COPAUS1C | COPAUS2C | dynamic | resolved | `app/app-authorization-ims-db2-mq/cbl/COPAUS1C.cbl:248` | EXEC CICS LINK dynamic (resolved through VALUE/MOVE of WS-PGM-AUTH-FRAUD reaching this statement) |
+| COPAUS1C | COPAUS0C | dynamic | resolved | `app/app-authorization-ims-db2-mq/cbl/COPAUS1C.cbl:367` | EXEC CICS XCTL dynamic (resolved through VALUE/MOVE of CDEMO-TO-PROGRAM reaching this statement; on another path the value is not set in this program) |
+| COTRTLIC | COADM01C | dynamic | resolved | `app/app-transaction-type-db2/cbl/COTRTLIC.cbl:620` | EXEC CICS XCTL dynamic (resolved through VALUE/MOVE of CDEMO-TO-PROGRAM reaching this statement; on another path the value is not set in this program) |
+| COTRTLIC | COTRTLIC | dynamic | resolved | `app/app-transaction-type-db2/cbl/COTRTLIC.cbl:620` | EXEC CICS XCTL dynamic (resolved through VALUE/MOVE of CDEMO-TO-PROGRAM reaching this statement; on another path the value is not set in this program) |
+| COTRTLIC | COTRTUPC | dynamic | resolved | `app/app-transaction-type-db2/cbl/COTRTLIC.cbl:648` | EXEC CICS XCTL dynamic (resolved through VALUE/MOVE of LIT-ADDTPGM reaching this statement) |
+| COTRTUPC | COADM01C | dynamic | resolved | `app/app-transaction-type-db2/cbl/COTRTUPC.cbl:457` | EXEC CICS XCTL dynamic (resolved through VALUE/MOVE of CDEMO-TO-PROGRAM reaching this statement; on another path the value is not set in this program) |
 | CBACT01C | COBDATFT | static | resolved | `app/cbl/CBACT01C.cbl:231` | CALL static (literal); target type assembler |
 | CBSTM03A | CBSTM03B | static | resolved | `app/cbl/CBSTM03A.CBL:351` | CALL static (literal); target type cobol_program |
+| COACTUPC | COMEN01C | dynamic | resolved | `app/cbl/COACTUPC.cbl:956` | EXEC CICS XCTL dynamic (resolved through VALUE/MOVE of CDEMO-TO-PROGRAM reaching this statement; on another path the value is not set in this program) |
+| COACTVWC | COMEN01C | dynamic | resolved | `app/cbl/COACTVWC.cbl:349` | EXEC CICS XCTL dynamic (resolved through VALUE/MOVE of CDEMO-TO-PROGRAM reaching this statement; on another path the value is not set in this program) |
 | COADM01C | COTRTLIC | dynamic | resolved | `app/cbl/COADM01C.cbl:145` | EXEC CICS XCTL dynamic (table-driven: VALUE literal in app/cpy/COADM02Y.cpy) |
 | COADM01C | COTRTUPC | dynamic | resolved | `app/cbl/COADM01C.cbl:145` | EXEC CICS XCTL dynamic (table-driven: VALUE literal in app/cpy/COADM02Y.cpy) |
 | COADM01C | COUSR00C | dynamic | resolved | `app/cbl/COADM01C.cbl:145` | EXEC CICS XCTL dynamic (table-driven: VALUE literal in app/cpy/COADM02Y.cpy) |
 | COADM01C | COUSR01C | dynamic | resolved | `app/cbl/COADM01C.cbl:145` | EXEC CICS XCTL dynamic (table-driven: VALUE literal in app/cpy/COADM02Y.cpy) |
 | COADM01C | COUSR02C | dynamic | resolved | `app/cbl/COADM01C.cbl:145` | EXEC CICS XCTL dynamic (table-driven: VALUE literal in app/cpy/COADM02Y.cpy) |
 | COADM01C | COUSR03C | dynamic | resolved | `app/cbl/COADM01C.cbl:145` | EXEC CICS XCTL dynamic (table-driven: VALUE literal in app/cpy/COADM02Y.cpy) |
-| COADM01C | COSGN00C | dynamic | resolved | `app/cbl/COADM01C.cbl:168` | EXEC CICS XCTL dynamic (resolved through VALUE/MOVE of CDEMO-TO-PROGRAM) |
-| COBIL00C | COMEN01C | dynamic | resolved | `app/cbl/COBIL00C.cbl:281` | EXEC CICS XCTL dynamic (resolved through VALUE/MOVE of CDEMO-TO-PROGRAM) |
-| COBIL00C | COSGN00C | dynamic | resolved | `app/cbl/COBIL00C.cbl:281` | EXEC CICS XCTL dynamic (resolved through VALUE/MOVE of CDEMO-TO-PROGRAM) |
+| COADM01C | COSGN00C | dynamic | resolved | `app/cbl/COADM01C.cbl:168` | EXEC CICS XCTL dynamic (resolved through VALUE/MOVE of CDEMO-TO-PROGRAM reaching this statement; on another path the value is not set in this program) |
+| COBIL00C | COMEN01C | dynamic | resolved | `app/cbl/COBIL00C.cbl:281` | EXEC CICS XCTL dynamic (resolved through VALUE/MOVE of CDEMO-TO-PROGRAM reaching this statement; on another path the value is not set in this program) |
+| COBIL00C | COSGN00C | dynamic | resolved | `app/cbl/COBIL00C.cbl:281` | EXEC CICS XCTL dynamic (resolved through VALUE/MOVE of CDEMO-TO-PROGRAM reaching this statement; on another path the value is not set in this program) |
 | COBSWAIT | MVSWAIT | static | resolved | `app/cbl/COBSWAIT.cbl:38` | CALL static (literal); target type assembler |
-| COCRDLIC | COMEN01C | dynamic | resolved | `app/cbl/COCRDLIC.cbl:402` | EXEC CICS XCTL dynamic (resolved through VALUE/MOVE of LIT-MENUPGM) |
+| COCRDLIC | COMEN01C | dynamic | resolved | `app/cbl/COCRDLIC.cbl:402` | EXEC CICS XCTL dynamic (resolved through VALUE/MOVE of LIT-MENUPGM reaching this statement) |
+| COCRDLIC | COCRDSLC | dynamic | resolved | `app/cbl/COCRDLIC.cbl:538` | EXEC CICS XCTL dynamic (resolved through VALUE/MOVE of CCARD-NEXT-PROG reaching this statement) |
+| COCRDLIC | COCRDUPC | dynamic | resolved | `app/cbl/COCRDLIC.cbl:566` | EXEC CICS XCTL dynamic (resolved through VALUE/MOVE of CCARD-NEXT-PROG reaching this statement) |
+| COCRDSLC | COMEN01C | dynamic | resolved | `app/cbl/COCRDSLC.cbl:331` | EXEC CICS XCTL dynamic (resolved through VALUE/MOVE of CDEMO-TO-PROGRAM reaching this statement; on another path the value is not set in this program) |
+| COCRDUPC | COMEN01C | dynamic | resolved | `app/cbl/COCRDUPC.cbl:473` | EXEC CICS XCTL dynamic (resolved through VALUE/MOVE of CDEMO-TO-PROGRAM reaching this statement; on another path the value is not set in this program) |
 | COMEN01C | COACTUPC | dynamic | resolved | `app/cbl/COMEN01C.cbl:156` | EXEC CICS XCTL dynamic (table-driven: VALUE literal in app/cpy/COMEN02Y.cpy) |
 | COMEN01C | COACTVWC | dynamic | resolved | `app/cbl/COMEN01C.cbl:156` | EXEC CICS XCTL dynamic (table-driven: VALUE literal in app/cpy/COMEN02Y.cpy) |
 | COMEN01C | COBIL00C | dynamic | resolved | `app/cbl/COMEN01C.cbl:156` | EXEC CICS XCTL dynamic (table-driven: VALUE literal in app/cpy/COMEN02Y.cpy) |
@@ -335,37 +345,42 @@ Transactions come from `DEFINE TRANSACTION ... PROGRAM(...)` in the CSD sources;
 | COMEN01C | COTRN00C | dynamic | resolved | `app/cbl/COMEN01C.cbl:156` | EXEC CICS XCTL dynamic (table-driven: VALUE literal in app/cpy/COMEN02Y.cpy) |
 | COMEN01C | COTRN01C | dynamic | resolved | `app/cbl/COMEN01C.cbl:156` | EXEC CICS XCTL dynamic (table-driven: VALUE literal in app/cpy/COMEN02Y.cpy) |
 | COMEN01C | COTRN02C | dynamic | resolved | `app/cbl/COMEN01C.cbl:156` | EXEC CICS XCTL dynamic (table-driven: VALUE literal in app/cpy/COMEN02Y.cpy) |
-| COMEN01C | COSGN00C | dynamic | resolved | `app/cbl/COMEN01C.cbl:201` | EXEC CICS XCTL dynamic (resolved through VALUE/MOVE of CDEMO-TO-PROGRAM) |
+| COMEN01C | COSGN00C | dynamic | resolved | `app/cbl/COMEN01C.cbl:201` | EXEC CICS XCTL dynamic (resolved through VALUE/MOVE of CDEMO-TO-PROGRAM reaching this statement; on another path the value is not set in this program) |
 | CORPT00C | CSUTLDTC | static | resolved | `app/cbl/CORPT00C.cbl:392` | CALL static (literal); target type cobol_program |
-| CORPT00C | COMEN01C | dynamic | resolved | `app/cbl/CORPT00C.cbl:548` | EXEC CICS XCTL dynamic (resolved through VALUE/MOVE of CDEMO-TO-PROGRAM) |
-| CORPT00C | COSGN00C | dynamic | resolved | `app/cbl/CORPT00C.cbl:548` | EXEC CICS XCTL dynamic (resolved through VALUE/MOVE of CDEMO-TO-PROGRAM) |
+| CORPT00C | COMEN01C | dynamic | resolved | `app/cbl/CORPT00C.cbl:548` | EXEC CICS XCTL dynamic (resolved through VALUE/MOVE of CDEMO-TO-PROGRAM reaching this statement; on another path the value is not set in this program) |
+| CORPT00C | COSGN00C | dynamic | resolved | `app/cbl/CORPT00C.cbl:548` | EXEC CICS XCTL dynamic (resolved through VALUE/MOVE of CDEMO-TO-PROGRAM reaching this statement; on another path the value is not set in this program) |
 | COSGN00C | COADM01C | static | resolved | `app/cbl/COSGN00C.cbl:231` | EXEC CICS XCTL static (literal) |
 | COSGN00C | COMEN01C | static | resolved | `app/cbl/COSGN00C.cbl:236` | EXEC CICS XCTL static (literal) |
-| COTRN00C | COSGN00C | dynamic | resolved | `app/cbl/COTRN00C.cbl:192` | EXEC CICS XCTL dynamic (resolved through VALUE/MOVE of CDEMO-TO-PROGRAM) |
-| COTRN00C | COTRN01C | dynamic | resolved | `app/cbl/COTRN00C.cbl:192` | EXEC CICS XCTL dynamic (resolved through VALUE/MOVE of CDEMO-TO-PROGRAM) |
-| COTRN01C | COMEN01C | dynamic | resolved | `app/cbl/COTRN01C.cbl:205` | EXEC CICS XCTL dynamic (resolved through VALUE/MOVE of CDEMO-TO-PROGRAM) |
-| COTRN01C | COSGN00C | dynamic | resolved | `app/cbl/COTRN01C.cbl:205` | EXEC CICS XCTL dynamic (resolved through VALUE/MOVE of CDEMO-TO-PROGRAM) |
+| COTRN00C | COTRN01C | dynamic | resolved | `app/cbl/COTRN00C.cbl:192` | EXEC CICS XCTL dynamic (resolved through VALUE/MOVE of CDEMO-TO-PROGRAM reaching this statement) |
+| COTRN00C | COMEN01C | dynamic | resolved | `app/cbl/COTRN00C.cbl:518` | EXEC CICS XCTL dynamic (resolved through VALUE/MOVE of CDEMO-TO-PROGRAM reaching this statement; on another path the value is not set in this program) |
+| COTRN00C | COSGN00C | dynamic | resolved | `app/cbl/COTRN00C.cbl:518` | EXEC CICS XCTL dynamic (resolved through VALUE/MOVE of CDEMO-TO-PROGRAM reaching this statement; on another path the value is not set in this program) |
+| COTRN01C | COMEN01C | dynamic | resolved | `app/cbl/COTRN01C.cbl:205` | EXEC CICS XCTL dynamic (resolved through VALUE/MOVE of CDEMO-TO-PROGRAM reaching this statement; on another path the value is not set in this program) |
+| COTRN01C | COSGN00C | dynamic | resolved | `app/cbl/COTRN01C.cbl:205` | EXEC CICS XCTL dynamic (resolved through VALUE/MOVE of CDEMO-TO-PROGRAM reaching this statement; on another path the value is not set in this program) |
+| COTRN01C | COTRN00C | dynamic | resolved | `app/cbl/COTRN01C.cbl:205` | EXEC CICS XCTL dynamic (resolved through VALUE/MOVE of CDEMO-TO-PROGRAM reaching this statement; on another path the value is not set in this program) |
 | COTRN02C | CSUTLDTC | static | resolved | `app/cbl/COTRN02C.cbl:393` | CALL static (literal); target type cobol_program |
-| COTRN02C | COMEN01C | dynamic | resolved | `app/cbl/COTRN02C.cbl:508` | EXEC CICS XCTL dynamic (resolved through VALUE/MOVE of CDEMO-TO-PROGRAM) |
-| COTRN02C | COSGN00C | dynamic | resolved | `app/cbl/COTRN02C.cbl:508` | EXEC CICS XCTL dynamic (resolved through VALUE/MOVE of CDEMO-TO-PROGRAM) |
-| COUSR00C | COSGN00C | dynamic | resolved | `app/cbl/COUSR00C.cbl:196` | EXEC CICS XCTL dynamic (resolved through VALUE/MOVE of CDEMO-TO-PROGRAM) |
-| COUSR00C | COUSR02C | dynamic | resolved | `app/cbl/COUSR00C.cbl:196` | EXEC CICS XCTL dynamic (resolved through VALUE/MOVE of CDEMO-TO-PROGRAM) |
-| COUSR00C | COUSR03C | dynamic | resolved | `app/cbl/COUSR00C.cbl:196` | EXEC CICS XCTL dynamic (resolved through VALUE/MOVE of CDEMO-TO-PROGRAM) |
-| COUSR01C | COADM01C | dynamic | resolved | `app/cbl/COUSR01C.cbl:175` | EXEC CICS XCTL dynamic (resolved through VALUE/MOVE of CDEMO-TO-PROGRAM) |
-| COUSR01C | COSGN00C | dynamic | resolved | `app/cbl/COUSR01C.cbl:175` | EXEC CICS XCTL dynamic (resolved through VALUE/MOVE of CDEMO-TO-PROGRAM) |
-| COUSR02C | COADM01C | dynamic | resolved | `app/cbl/COUSR02C.cbl:258` | EXEC CICS XCTL dynamic (resolved through VALUE/MOVE of CDEMO-TO-PROGRAM) |
-| COUSR02C | COSGN00C | dynamic | resolved | `app/cbl/COUSR02C.cbl:258` | EXEC CICS XCTL dynamic (resolved through VALUE/MOVE of CDEMO-TO-PROGRAM) |
-| COUSR03C | COADM01C | dynamic | resolved | `app/cbl/COUSR03C.cbl:205` | EXEC CICS XCTL dynamic (resolved through VALUE/MOVE of CDEMO-TO-PROGRAM) |
-| COUSR03C | COSGN00C | dynamic | resolved | `app/cbl/COUSR03C.cbl:205` | EXEC CICS XCTL dynamic (resolved through VALUE/MOVE of CDEMO-TO-PROGRAM) |
+| COTRN02C | COMEN01C | dynamic | resolved | `app/cbl/COTRN02C.cbl:508` | EXEC CICS XCTL dynamic (resolved through VALUE/MOVE of CDEMO-TO-PROGRAM reaching this statement; on another path the value is not set in this program) |
+| COTRN02C | COSGN00C | dynamic | resolved | `app/cbl/COTRN02C.cbl:508` | EXEC CICS XCTL dynamic (resolved through VALUE/MOVE of CDEMO-TO-PROGRAM reaching this statement; on another path the value is not set in this program) |
+| COUSR00C | COUSR02C | dynamic | resolved | `app/cbl/COUSR00C.cbl:196` | EXEC CICS XCTL dynamic (resolved through VALUE/MOVE of CDEMO-TO-PROGRAM reaching this statement) |
+| COUSR00C | COUSR03C | dynamic | resolved | `app/cbl/COUSR00C.cbl:206` | EXEC CICS XCTL dynamic (resolved through VALUE/MOVE of CDEMO-TO-PROGRAM reaching this statement) |
+| COUSR00C | COADM01C | dynamic | resolved | `app/cbl/COUSR00C.cbl:514` | EXEC CICS XCTL dynamic (resolved through VALUE/MOVE of CDEMO-TO-PROGRAM reaching this statement; on another path the value is not set in this program) |
+| COUSR00C | COSGN00C | dynamic | resolved | `app/cbl/COUSR00C.cbl:514` | EXEC CICS XCTL dynamic (resolved through VALUE/MOVE of CDEMO-TO-PROGRAM reaching this statement; on another path the value is not set in this program) |
+| COUSR01C | COADM01C | dynamic | resolved | `app/cbl/COUSR01C.cbl:175` | EXEC CICS XCTL dynamic (resolved through VALUE/MOVE of CDEMO-TO-PROGRAM reaching this statement; on another path the value is not set in this program) |
+| COUSR01C | COSGN00C | dynamic | resolved | `app/cbl/COUSR01C.cbl:175` | EXEC CICS XCTL dynamic (resolved through VALUE/MOVE of CDEMO-TO-PROGRAM reaching this statement; on another path the value is not set in this program) |
+| COUSR02C | COADM01C | dynamic | resolved | `app/cbl/COUSR02C.cbl:258` | EXEC CICS XCTL dynamic (resolved through VALUE/MOVE of CDEMO-TO-PROGRAM reaching this statement; on another path the value is not set in this program) |
+| COUSR02C | COSGN00C | dynamic | resolved | `app/cbl/COUSR02C.cbl:258` | EXEC CICS XCTL dynamic (resolved through VALUE/MOVE of CDEMO-TO-PROGRAM reaching this statement; on another path the value is not set in this program) |
+| COUSR03C | COADM01C | dynamic | resolved | `app/cbl/COUSR03C.cbl:205` | EXEC CICS XCTL dynamic (resolved through VALUE/MOVE of CDEMO-TO-PROGRAM reaching this statement; on another path the value is not set in this program) |
+| COUSR03C | COSGN00C | dynamic | resolved | `app/cbl/COUSR03C.cbl:205` | EXEC CICS XCTL dynamic (resolved through VALUE/MOVE of CDEMO-TO-PROGRAM reaching this statement; on another path the value is not set in this program) |
 | COPAUA0C | MQOPEN | static | unresolved | `app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl:262` | CALL static: Message queuing API |
 | COPAUA0C | MQGET | static | unresolved | `app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl:400` | CALL static: Message queuing API |
 | COPAUA0C | MQPUT1 | static | unresolved | `app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl:758` | CALL static: Message queuing API |
 | COPAUA0C | MQCLOSE | static | unresolved | `app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl:956` | CALL static: Message queuing API |
+| COPAUS0C | EXEC CICS XCTL via CDEMO-TO-PROGRAM (value from outside this program) | dynamic | unresolved | `app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl:674` | EXEC CICS XCTL through CDEMO-TO-PROGRAM: on at least one path the value comes from data this program does not set (caller commarea, terminal input or a record); the resolved targets at this line are the literals visible on the other paths |
+| COPAUS1C | EXEC CICS XCTL via CDEMO-TO-PROGRAM (value from outside this program) | dynamic | unresolved | `app/app-authorization-ims-db2-mq/cbl/COPAUS1C.cbl:367` | EXEC CICS XCTL through CDEMO-TO-PROGRAM: on at least one path the value comes from data this program does not set (caller commarea, terminal input or a record); the resolved targets at this line are the literals visible on the other paths |
 | DBUNLDGS | CBLTDLI | static | unresolved | `app/app-authorization-ims-db2-mq/cbl/DBUNLDGS.CBL:222` | CALL static: IMS DL/I interface |
 | PAUDBLOD | CBLTDLI | static | unresolved | `app/app-authorization-ims-db2-mq/cbl/PAUDBLOD.CBL:244` | CALL static: IMS DL/I interface |
 | PAUDBUNL | CBLTDLI | static | unresolved | `app/app-authorization-ims-db2-mq/cbl/PAUDBUNL.CBL:213` | CALL static: IMS DL/I interface |
-| COTRTLIC | XCTL via CDEMO-TO-PROGRAM | dynamic | unresolved | `app/app-transaction-type-db2/cbl/COTRTLIC.cbl:620` | EXEC CICS XCTL through a variable with no resolvable literal |
-| COTRTUPC | XCTL via CDEMO-TO-PROGRAM | dynamic | unresolved | `app/app-transaction-type-db2/cbl/COTRTUPC.cbl:457` | EXEC CICS XCTL through a variable with no resolvable literal |
+| COTRTLIC | EXEC CICS XCTL via CDEMO-TO-PROGRAM (value from outside this program) | dynamic | unresolved | `app/app-transaction-type-db2/cbl/COTRTLIC.cbl:620` | EXEC CICS XCTL through CDEMO-TO-PROGRAM: on at least one path the value comes from data this program does not set (caller commarea, terminal input or a record); the resolved targets at this line are the literals visible on the other paths |
+| COTRTUPC | EXEC CICS XCTL via CDEMO-TO-PROGRAM (value from outside this program) | dynamic | unresolved | `app/app-transaction-type-db2/cbl/COTRTUPC.cbl:457` | EXEC CICS XCTL through CDEMO-TO-PROGRAM: on at least one path the value comes from data this program does not set (caller commarea, terminal input or a record); the resolved targets at this line are the literals visible on the other paths |
 | COACCT01 | MQOPEN | static | unresolved | `app/app-vsam-mq/cbl/COACCT01.cbl:233` | CALL static: Message queuing API |
 | COACCT01 | MQGET | static | unresolved | `app/app-vsam-mq/cbl/COACCT01.cbl:352` | CALL static: Message queuing API |
 | COACCT01 | MQPUT | static | unresolved | `app/app-vsam-mq/cbl/COACCT01.cbl:479` | CALL static: Message queuing API |
@@ -385,11 +400,23 @@ Transactions come from `DEFINE TRANSACTION ... PROGRAM(...)` in the CSD sources;
 | CBTRN01C | CEE3ABD | static | unresolved | `app/cbl/CBTRN01C.cbl:473` | CALL static: Language Environment |
 | CBTRN02C | CEE3ABD | static | unresolved | `app/cbl/CBTRN02C.cbl:711` | CALL static: Language Environment |
 | CBTRN03C | CEE3ABD | static | unresolved | `app/cbl/CBTRN03C.cbl:630` | CALL static: Language Environment |
-| COACTUPC | XCTL via CDEMO-TO-PROGRAM | dynamic | unresolved | `app/cbl/COACTUPC.cbl:956` | EXEC CICS XCTL through a variable with no resolvable literal |
-| COACTVWC | XCTL via CDEMO-TO-PROGRAM | dynamic | unresolved | `app/cbl/COACTVWC.cbl:349` | EXEC CICS XCTL through a variable with no resolvable literal |
-| COCRDLIC | XCTL via CCARD-NEXT-PROG | dynamic | unresolved | `app/cbl/COCRDLIC.cbl:538` | EXEC CICS XCTL through a variable with no resolvable literal |
-| COCRDSLC | XCTL via CDEMO-TO-PROGRAM | dynamic | unresolved | `app/cbl/COCRDSLC.cbl:331` | EXEC CICS XCTL through a variable with no resolvable literal |
-| COCRDUPC | XCTL via CDEMO-TO-PROGRAM | dynamic | unresolved | `app/cbl/COCRDUPC.cbl:473` | EXEC CICS XCTL through a variable with no resolvable literal |
+| COACTUPC | EXEC CICS XCTL via CDEMO-TO-PROGRAM (value from outside this program) | dynamic | unresolved | `app/cbl/COACTUPC.cbl:956` | EXEC CICS XCTL through CDEMO-TO-PROGRAM: on at least one path the value comes from data this program does not set (caller commarea, terminal input or a record); the resolved targets at this line are the literals visible on the other paths |
+| COACTVWC | EXEC CICS XCTL via CDEMO-TO-PROGRAM (value from outside this program) | dynamic | unresolved | `app/cbl/COACTVWC.cbl:349` | EXEC CICS XCTL through CDEMO-TO-PROGRAM: on at least one path the value comes from data this program does not set (caller commarea, terminal input or a record); the resolved targets at this line are the literals visible on the other paths |
+| COADM01C | EXEC CICS XCTL via CDEMO-ADMIN-OPT-PGMNAME(WS-OPTION (value from outside this program) | dynamic | unresolved | `app/cbl/COADM01C.cbl:145` | EXEC CICS XCTL through CDEMO-ADMIN-OPT-PGMNAME(WS-OPTION: on at least one path the value comes from data this program does not set (caller commarea, terminal input or a record); the resolved targets at this line are the literals visible on the other paths |
+| COADM01C | EXEC CICS XCTL via CDEMO-TO-PROGRAM (value from outside this program) | dynamic | unresolved | `app/cbl/COADM01C.cbl:168` | EXEC CICS XCTL through CDEMO-TO-PROGRAM: on at least one path the value comes from data this program does not set (caller commarea, terminal input or a record); the resolved targets at this line are the literals visible on the other paths |
+| COBIL00C | EXEC CICS XCTL via CDEMO-TO-PROGRAM (value from outside this program) | dynamic | unresolved | `app/cbl/COBIL00C.cbl:281` | EXEC CICS XCTL through CDEMO-TO-PROGRAM: on at least one path the value comes from data this program does not set (caller commarea, terminal input or a record); the resolved targets at this line are the literals visible on the other paths |
+| COCRDSLC | EXEC CICS XCTL via CDEMO-TO-PROGRAM (value from outside this program) | dynamic | unresolved | `app/cbl/COCRDSLC.cbl:331` | EXEC CICS XCTL through CDEMO-TO-PROGRAM: on at least one path the value comes from data this program does not set (caller commarea, terminal input or a record); the resolved targets at this line are the literals visible on the other paths |
+| COCRDUPC | EXEC CICS XCTL via CDEMO-TO-PROGRAM (value from outside this program) | dynamic | unresolved | `app/cbl/COCRDUPC.cbl:473` | EXEC CICS XCTL through CDEMO-TO-PROGRAM: on at least one path the value comes from data this program does not set (caller commarea, terminal input or a record); the resolved targets at this line are the literals visible on the other paths |
+| COMEN01C | EXEC CICS XCTL via CDEMO-MENU-OPT-PGMNAME(WS-OPTION (value from outside this program) | dynamic | unresolved | `app/cbl/COMEN01C.cbl:156` | EXEC CICS XCTL through CDEMO-MENU-OPT-PGMNAME(WS-OPTION: on at least one path the value comes from data this program does not set (caller commarea, terminal input or a record); the resolved targets at this line are the literals visible on the other paths |
+| COMEN01C | EXEC CICS XCTL via CDEMO-TO-PROGRAM (value from outside this program) | dynamic | unresolved | `app/cbl/COMEN01C.cbl:201` | EXEC CICS XCTL through CDEMO-TO-PROGRAM: on at least one path the value comes from data this program does not set (caller commarea, terminal input or a record); the resolved targets at this line are the literals visible on the other paths |
+| CORPT00C | EXEC CICS XCTL via CDEMO-TO-PROGRAM (value from outside this program) | dynamic | unresolved | `app/cbl/CORPT00C.cbl:548` | EXEC CICS XCTL through CDEMO-TO-PROGRAM: on at least one path the value comes from data this program does not set (caller commarea, terminal input or a record); the resolved targets at this line are the literals visible on the other paths |
+| COTRN00C | EXEC CICS XCTL via CDEMO-TO-PROGRAM (value from outside this program) | dynamic | unresolved | `app/cbl/COTRN00C.cbl:518` | EXEC CICS XCTL through CDEMO-TO-PROGRAM: on at least one path the value comes from data this program does not set (caller commarea, terminal input or a record); the resolved targets at this line are the literals visible on the other paths |
+| COTRN01C | EXEC CICS XCTL via CDEMO-TO-PROGRAM (value from outside this program) | dynamic | unresolved | `app/cbl/COTRN01C.cbl:205` | EXEC CICS XCTL through CDEMO-TO-PROGRAM: on at least one path the value comes from data this program does not set (caller commarea, terminal input or a record); the resolved targets at this line are the literals visible on the other paths |
+| COTRN02C | EXEC CICS XCTL via CDEMO-TO-PROGRAM (value from outside this program) | dynamic | unresolved | `app/cbl/COTRN02C.cbl:508` | EXEC CICS XCTL through CDEMO-TO-PROGRAM: on at least one path the value comes from data this program does not set (caller commarea, terminal input or a record); the resolved targets at this line are the literals visible on the other paths |
+| COUSR00C | EXEC CICS XCTL via CDEMO-TO-PROGRAM (value from outside this program) | dynamic | unresolved | `app/cbl/COUSR00C.cbl:514` | EXEC CICS XCTL through CDEMO-TO-PROGRAM: on at least one path the value comes from data this program does not set (caller commarea, terminal input or a record); the resolved targets at this line are the literals visible on the other paths |
+| COUSR01C | EXEC CICS XCTL via CDEMO-TO-PROGRAM (value from outside this program) | dynamic | unresolved | `app/cbl/COUSR01C.cbl:175` | EXEC CICS XCTL through CDEMO-TO-PROGRAM: on at least one path the value comes from data this program does not set (caller commarea, terminal input or a record); the resolved targets at this line are the literals visible on the other paths |
+| COUSR02C | EXEC CICS XCTL via CDEMO-TO-PROGRAM (value from outside this program) | dynamic | unresolved | `app/cbl/COUSR02C.cbl:258` | EXEC CICS XCTL through CDEMO-TO-PROGRAM: on at least one path the value comes from data this program does not set (caller commarea, terminal input or a record); the resolved targets at this line are the literals visible on the other paths |
+| COUSR03C | EXEC CICS XCTL via CDEMO-TO-PROGRAM (value from outside this program) | dynamic | unresolved | `app/cbl/COUSR03C.cbl:205` | EXEC CICS XCTL through CDEMO-TO-PROGRAM: on at least one path the value comes from data this program does not set (caller commarea, terminal input or a record); the resolved targets at this line are the literals visible on the other paths |
 | CSUTLDTC | CEEDAYS | static | unresolved | `app/cbl/CSUTLDTC.cbl:116` | CALL static: Language Environment |
 
 ## Reverse view: dataset → programs (with access mode)
