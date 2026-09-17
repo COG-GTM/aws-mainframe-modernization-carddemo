@@ -1,0 +1,40 @@
+server:
+  port: 8084
+
+spring:
+  application:
+    name: transaction-service
+  datasource:
+    url: ${TRANSACTION_DB_URL:jdbc:postgresql://localhost:5432/carddemo}
+    username: ${TRANSACTION_DB_USER}
+    password: ${TRANSACTION_DB_PASSWORD}
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        default_schema: transaction
+  flyway:
+    schemas: transaction
+    default-schema: transaction
+    create-schemas: true
+  batch:
+    jdbc:
+      # The tables are created by Flyway (V3) inside the transaction schema; the Boot initializer
+      # would create them unqualified in the default schema instead.
+      initialize-schema: never
+      table-prefix: transaction.BATCH_
+    job:
+      enabled: false
+
+carddemo:
+  services:
+    account-url: ${ACCOUNT_SERVICE_URL:http://localhost:8082}
+    card-url: ${CARD_SERVICE_URL:http://localhost:8083}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics

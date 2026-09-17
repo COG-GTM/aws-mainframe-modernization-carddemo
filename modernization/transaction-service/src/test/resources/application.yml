@@ -1,0 +1,24 @@
+spring:
+  datasource:
+    url: jdbc:h2:mem:transactions;MODE=PostgreSQL;DB_CLOSE_DELAY=-1
+    username: sa
+    password:
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    properties:
+      hibernate:
+        default_schema: PUBLIC
+  flyway:
+    enabled: false
+  batch:
+    jdbc:
+      initialize-schema: always
+      table-prefix: BATCH_
+    job:
+      enabled: false
+
+carddemo:
+  services:
+    account-url: http://localhost:18082
+    card-url: http://localhost:18083
