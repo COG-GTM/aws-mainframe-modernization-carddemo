@@ -54,7 +54,33 @@ describe("Ksds", () => {
     expect(reloaded.read("00000000001").record?.acctCurrBal).toBe(123.45);
   });
 
+  it("browses backwards from the positioned record", () => {
+    const accounts = openAccountFile();
+    accounts.openFile();
+    const keys = accounts.toArray().map((record) => record.acctId);
+
+    expect(accounts.startBrowse("00000000005")).toBe(FileStatus.ok);
+    expect(accounts.readPrev().record?.acctId).toBe(keys[4]);
+    expect(accounts.readPrev().record?.acctId).toBe(keys[3]);
+    expect(accounts.readPrev().record?.acctId).toBe(keys[2]);
+  });
+
+  it("re-reads the current record when the browse changes direction", () => {
+    const accounts = openAccountFile();
+    accounts.openFile();
+    const keys = accounts.toArray().map((record) => record.acctId);
+
+    accounts.startBrowse();
+    expect(accounts.readNext().record?.acctId).toBe(keys[0]);
+    expect(accounts.readNext().record?.acctId).toBe(keys[1]);
+    expect(accounts.readPrev().record?.acctId).toBe(keys[1]);
+    expect(accounts.readPrev().record?.acctId).toBe(keys[0]);
+    expect(accounts.readPrev().status).toBe(FileStatus.endOfFile);
+    expect(accounts.readNext().record?.acctId).toBe(keys[0]);
+  });
+
   it("reports file status 42 before the file is opened", () => {
+    expect(openAccountFile().readPrev().status).toBe(FileStatus.fileNotOpen);
     expect(openAccountFile().read("00000000001").status).toBe(FileStatus.fileNotOpen);
   });
 });

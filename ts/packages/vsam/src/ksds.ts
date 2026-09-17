@@ -3,8 +3,8 @@
  * store loaded from and persisted to a fixed-width flat file.
  *
  * The API mirrors the COBOL verbs the batch and CICS programs use — `read`,
- * `startBrowse`/`readNext`, `write`, `rewrite`, `delete` — and reports outcomes
- * as file status codes rather than throwing.
+ * `startBrowse`/`readNext`/`readPrev`, `write`, `rewrite`, `delete` — and
+ * reports outcomes as file status codes rather than throwing.
  */
 
 import { readFileSync, writeFileSync } from "node:fs";
@@ -24,6 +24,8 @@ export class Ksds<T> {
   private readonly records = new Map<string, T>();
   private orderedKeys: string[] = [];
   private cursor = 0;
+  private lastRead: number | null = null;
+  private backwards = false;
   private open = false;
 
   constructor(private readonly options: KsdsOptions<T>) {}
@@ -49,7 +51,7 @@ export class Ksds<T> {
       this.records.set(this.options.keyOf(record), record);
     }
     this.reindex();
-    this.cursor = 0;
+    this.resetBrowse(0);
     this.open = true;
     return FileStatus.ok;
   }
@@ -73,15 +75,15 @@ export class Ksds<T> {
       return FileStatus.fileNotOpen;
     }
     if (key === undefined) {
-      this.cursor = 0;
+      this.resetBrowse(0);
       return FileStatus.ok;
     }
     const index = this.orderedKeys.findIndex((candidate) => candidate >= key);
     if (index < 0) {
-      this.cursor = this.orderedKeys.length;
+      this.resetBrowse(this.orderedKeys.length);
       return FileStatus.notFound;
     }
-    this.cursor = index;
+    this.resetBrowse(index);
     return FileStatus.ok;
   }
 
@@ -92,8 +94,35 @@ export class Ksds<T> {
     if (this.cursor >= this.orderedKeys.length) {
       return failure(FileStatus.endOfFile);
     }
-    const key = this.orderedKeys[this.cursor] as string;
-    this.cursor += 1;
+    const index = this.cursor;
+    const key = this.orderedKeys[index] as string;
+    this.cursor = index + 1;
+    this.lastRead = index;
+    this.backwards = false;
+    return ok(this.records.get(key) as T);
+  }
+
+  /**
+   * `READPREV`; reads the browse in descending key order.
+   *
+   * The first read after a `startBrowse` returns the record the browse is
+   * positioned on, and the first read after a `readNext` returns that same
+   * record again — the direction switch CICS performs — so callers walking a
+   * page backwards discard one record before filling the screen, as
+   * `COCRDLIC` does.
+   */
+  readPrev(): IoResult<T> {
+    if (!this.open) {
+      return failure(FileStatus.fileNotOpen);
+    }
+    const index = this.lastRead === null ? this.cursor : this.lastRead - (this.backwards ? 1 : 0);
+    if (index < 0 || index >= this.orderedKeys.length) {
+      return failure(FileStatus.endOfFile);
+    }
+    const key = this.orderedKeys[index] as string;
+    this.cursor = index;
+    this.lastRead = index;
+    this.backwards = true;
     return ok(this.records.get(key) as T);
   }
 
@@ -141,6 +170,12 @@ export class Ksds<T> {
   save(path = this.options.path): void {
     const lines = this.toArray().map((record) => this.options.codec.encode(record));
     writeFileSync(path, `${lines.join("\n")}\n`, "latin1");
+  }
+
+  private resetBrowse(cursor: number): void {
+    this.cursor = cursor;
+    this.lastRead = null;
+    this.backwards = false;
   }
 
   private reindex(): void {
