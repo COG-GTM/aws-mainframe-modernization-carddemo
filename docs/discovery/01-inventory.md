@@ -129,7 +129,7 @@ A dataset is counted once per normalised DSN (GDG relative generations and quote
 
 ## Full inventory
 
-One row per artifact. `Depends on` lists `COPY`/`INCLUDE` targets for COBOL, the driving program per step for JCL, and `DEFINE` counts for CSD. `Calls` marks each `CALL`/`LINK`/`XCTL` target as static (literal) or dynamic (variable); `(from COPY x)` marks a call that a procedural copybook carries into the program.
+One row per artifact. `Depends on` lists `COPY`/`INCLUDE` targets for COBOL, `COPY` members and repository macros for Assembler, the driving program per step for JCL, and `DEFINE` counts for CSD. `Calls` marks each `CALL`/`LINK`/`XCTL` target as static (literal) or dynamic (variable); `(from COPY x)` marks a call that a procedural copybook carries into the program.
 
 | Path | Type | Program-id / member | Lines | Depends on | Calls | EXEC CICS verbs | EXEC SQL | CICS tran id |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -204,8 +204,8 @@ One row per artifact. `Depends on` lists `COPY`/`INCLUDE` targets for COBOL, the
 | `app/app-vsam-mq/cbl/COACCT01.cbl` | cobol_program / online | COACCT01 | 620 | CMQGMOV (unresolved), CMQPMOV (unresolved), CMQMDV (unresolved), CMQODV (unresolved), CMQV (unresolved), CMQTML (unresolved), CVACT01Y | MQOPEN [static], MQOPEN [static], MQOPEN [static], MQGET [static], MQPUT [static], MQPUT [static], MQCLOSE [static], MQCLOSE [static], MQCLOSE [static] | READ×1, RETRIEVE×1, RETURN×1, SYNCPOINT×1 |  | CDRA, CDRA |
 | `app/app-vsam-mq/cbl/CODATE01.cbl` | cobol_program / online | CODATE01 | 524 | CMQGMOV (unresolved), CMQPMOV (unresolved), CMQMDV (unresolved), CMQODV (unresolved), CMQV (unresolved), CMQTML (unresolved) | MQOPEN [static], MQOPEN [static], MQOPEN [static], MQGET [static], MQPUT [static], MQPUT [static], MQCLOSE [static], MQCLOSE [static], MQCLOSE [static] | ASKTIME×1, FORMATTIME×1, RETRIEVE×1, RETURN×1, SYNCPOINT×1 |  | CDRD, CDRD |
 | `app/app-vsam-mq/csd/CRDDEMOM.csd` | csd | CRDDEMOM | 41 | 5 DEFINE statements |  |  |  |  |
-| `app/asm/COBDATFT.asm` | assembler | COBDATFT | 84 |  |  |  |  |  |
-| `app/asm/MVSWAIT.asm` | assembler | MVSWAIT | 30 |  |  |  |  |  |
+| `app/asm/COBDATFT.asm` | assembler | COBDATFT | 84 | COCDATFT (COPY) |  |  |  |  |
+| `app/asm/MVSWAIT.asm` | assembler | MVSWAIT | 30 | ASMWAIT (macro instruction) |  |  |  |  |
 | `app/bms/COACTUP.bms` | bms_map | COACTUP | 512 | mapset COACTUP; maps CACTUPA |  |  |  |  |
 | `app/bms/COACTVW.bms` | bms_map | COACTVW | 378 | mapset COACTVW; maps CACTVWA |  |  |  |  |
 | `app/bms/COADM01.bms` | bms_map | COADM01 | 167 | mapset COADM01; maps COADM1A |  |  |  |  |

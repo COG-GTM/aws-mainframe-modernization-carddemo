@@ -5,6 +5,8 @@
 
 **2,658 occurrences** of constructs that matter for maintenance and for any future conversion, each with `path:line`. Occurrences are counted per statement or per data item (a `REDEFINES` inside a copybook counts once in the copybook, not once per program that copies it). Detection is lexical on comment-stripped, literal-masked source; the `Detail` column shows what was matched so a reader can verify or discount it.
 
+**Scope of the literal constructs.** *Hard-coded amount / numeric literal* covers numeric literals in arithmetic statements (`COMPUTE`, `ADD`, `SUBTRACT`, `MULTIPLY`, `DIVIDE`; `0` and `1` excluded), decimal literals in `MOVE`, and decimal `VALUE` clauses. Integer `MOVE` literals and integer `VALUE` clauses (counters, lengths, limits, wait intervals, placeholder identifiers) are not counted: they are far more numerous than the amounts and would swamp the register, so a reader looking for them must read the source. *Hard-coded date* covers `VALUE` clauses and quoted literals in the forms `YYYY-MM-DD`, `YYYY-MM-DD-HH.MM.SS`, `YYYY/MM/DD` and `MM/DD/YYYY` only.
+
 ## Counts per construct
 
 | Construct | Occurrences | Programs / copybooks |

@@ -260,6 +260,24 @@ class TestRealDependencyEdges(unittest.TestCase):
         self.assertEqual(sorted({c["library"] for c in by_dsn["AWS.M2.CARDDEMO.LOADLIB"]["csd_libraries"]}),
                          ["CARDDLIB", "COM2DOLL"])
 
+    def test_assembler_source_links_to_repository_macros(self):
+        # COBDATFT.asm:66  COPY COCDATFT      MVSWAIT.asm:23  ASMWAIT BINLBL (macro instruction)
+        hits = sorted(((e["from"], e["to"], e["path"], e["line"], e["status"], e["detail"])
+                       for e in self.edges if e["category"] == "assembler->macro"))
+        self.assertEqual(hits, [
+            ("COBDATFT", "COCDATFT", "app/asm/COBDATFT.asm", 66, "resolved", "COPY"),
+            ("MVSWAIT", "ASMWAIT", "app/asm/MVSWAIT.asm", 23, "resolved", "macro instruction"),
+        ])
+        for e in self.edges:
+            if e["category"] == "assembler->macro":
+                self.assertRegex(self.source_line(e), r"(COPY\s+COCDATFT|\bASMWAIT\b)")
+        orphan_section = md("02-dependency-map.md").split("### Copybooks nobody copies", 1)[1].split("### ", 1)[0]
+        self.assertNotRegex(orphan_section, r"ASMWAIT|COCDATFT")
+        self.assertIn("UNUSED1Y", orphan_section)
+        # the COBOL callers of the two Assembler modules stay resolved program->program edges
+        self.assertEqual(self.find("program->program", "COBSWAIT", "MVSWAIT")["line"], 38)
+        self.assertEqual(self.find("program->program", "CBACT01C", "COBDATFT")["line"], 231)
+
     def test_nested_jcl_symbols_resolve_to_a_fixed_point(self):
         # CREADB21.jcl:28-29  SET CODER=AWS / SET LBNM=&CODER..M2.CARDDEMO
         sets = {"CODER": "AWS", "LBNM": "&CODER..M2.CARDDEMO"}
@@ -807,6 +825,20 @@ class TestParserFixtures(unittest.TestCase):
         self.assertEqual(entries[0]["attrs"]["PROGRAM"], "COSGN00C")
         self.assertEqual(entries[2]["attrs"]["DSNAME"], "AWS.M2.CARDDEMO.ACCTDATA.VSAM.KSDS")
         self.assertEqual(entries[3]["attrs"]["DSNAME01"], "AWS.M2.CARDDEMO.LOADLIB")
+
+    def test_assembler_csect_copy_and_macro_instructions(self):
+        asm = bd.parse_asm("\n".join([
+            "* comment line",
+            "FIXTURE  CSECT",
+            "         STM   R14,R12,12(R13)      * STANDARD ENTRY",
+            "         COPY  COCDATFT",
+            "LBL      ASMWAIT BINLBL              START INTERVAL CONTROL TIMER",
+            "         MYMAC (R2),X'01'",
+            "         END   FIXTURE",
+        ]))
+        self.assertEqual(asm["csects"], [{"name": "FIXTURE", "line": 2}])
+        self.assertEqual(asm["copies"], [{"name": "COCDATFT", "line": 4}])
+        self.assertEqual([(o["op"], o["line"]) for o in asm["ops"]], [("STM", 3), ("ASMWAIT", 5), ("MYMAC", 6)])
 
 
 if __name__ == "__main__":

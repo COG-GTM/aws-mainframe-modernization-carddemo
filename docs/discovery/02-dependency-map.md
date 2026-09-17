@@ -19,6 +19,7 @@ Supporting edge categories (not in the headline count):
 | Edge category | Resolved | Unresolved | Ambiguous |
 | --- | --- | --- | --- |
 | program->bmsmap | 21 | 0 | 0 |
+| assembler->macro | 2 | 0 | 0 |
 | jclstep->proc | 4 | 0 | 0 |
 | scheduler->job | 32 | 0 | 0 |
 | csdfile->dataset | 8 | 0 | 0 |

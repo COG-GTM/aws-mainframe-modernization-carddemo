@@ -1085,7 +1085,7 @@ def parse_bms(text: str) -> dict:
 
 
 def parse_asm(text: str) -> dict:
-    csects, calls = [], []
+    csects, copies, ops = [], [], []
     for lineno, raw in enumerate(text.split("\n"), 1):
         line = raw.rstrip("\r")[:71]
         if line.startswith("*") or not line.strip():
@@ -1093,10 +1093,17 @@ def parse_asm(text: str) -> dict:
         parts = line.split()
         if line[0] != " " and len(parts) > 1 and parts[1].upper() in ("CSECT", "START", "RSECT"):
             csects.append({"name": parts[0].upper(), "line": lineno})
-        op = parts[1].upper() if (line[0] != " " and len(parts) > 1) else parts[0].upper()
-        if op in ("ASMWAIT", "COCDATFT"):
-            calls.append({"macro": op, "line": lineno})
-    return {"csects": csects, "macro_invocations": calls}
+        if line[0] != " ":
+            if len(parts) < 2:
+                continue
+            op, operands = parts[1].upper(), parts[2:]
+        else:
+            op, operands = parts[0].upper(), parts[1:]
+        if op == "COPY" and operands:
+            copies.append({"name": operands[0].upper().rstrip(","), "line": lineno})
+        elif op not in ("MACRO", "MEND", "DSECT", "CSECT", "START", "RSECT", "END"):
+            ops.append({"op": op, "line": lineno})
+    return {"csects": csects, "copies": copies, "ops": ops}
 
 
 def parse_listcat(text: str) -> list[dict]:
@@ -1191,6 +1198,7 @@ HEADLINE_CATEGORIES = [
 ]
 EXTRA_CATEGORIES = [
     "program->bmsmap",
+    "assembler->macro",
     "jclstep->proc",
     "scheduler->job",
     "csdfile->dataset",
@@ -1525,6 +1533,7 @@ class Estate:
 
     def build(self):
         self._link_copybooks()
+        self._link_asm_macros()
         self._link_calls()
         self._link_csd()
         self._link_jcl()
@@ -1548,6 +1557,33 @@ class Estate:
                     c["resolved"] = False
                     fam = "system-supplied (CICS/MQ/SQL) include" if re.match(r"^(DFH|CMQ|SQLCA|SQLDA|DSN)", c["name"]) else "not found in repository"
                     self.add_edge(cat, art["name"], c["name"], art["path"], c["line"], "unresolved", fam)
+
+    def _link_asm_macros(self):
+        """Assembler source -> macro library member: explicit ``COPY member`` and macro
+        instructions whose opcode is a member of ``app/maclib``.  Opcodes that are not a
+        repository macro are treated as machine or system instructions and not reported."""
+        macros = {a["name"]: a for a in self.artifacts if a["type"] == "asm_macro"}
+        for art in self.artifacts:
+            if art["type"] != "assembler":
+                continue
+            asm = art["asm"]
+            art["copy_targets"] = []
+            for c in asm["copies"]:
+                target = macros.get(c["name"])
+                art["copy_targets"].append({"name": c["name"], "line": c["line"], "resolved": bool(target),
+                                            "path": target["path"] if target else None, "via": "COPY"})
+                if target:
+                    self.add_edge("assembler->macro", art["name"], target["name"], art["path"], c["line"], "resolved", "COPY")
+                else:
+                    self.add_edge("assembler->macro", art["name"], c["name"], art["path"], c["line"], "unresolved",
+                                  "not found in repository")
+            for o in asm["ops"]:
+                target = macros.get(o["op"])
+                if target:
+                    art["copy_targets"].append({"name": o["op"], "line": o["line"], "resolved": True,
+                                                "path": target["path"], "via": "macro instruction"})
+                    self.add_edge("assembler->macro", art["name"], target["name"], art["path"], o["line"], "resolved",
+                                  "macro instruction")
 
     def _resolve_program_ref(self, art: dict, site: dict, literal, var, offset):
         """Return (list of (name, kind, detail), complete) for a program reference at
@@ -2054,8 +2090,10 @@ class Estate:
         for art in self.artifacts:
             if art["type"] in ("cobol_program", "assembler") and art["name"] not in refs:
                 programs.append(art)
-        copied = {e["to"] for e in self.edges if e["category"] in ("program->copybook", "copybook->copybook") and e["status"] == "resolved"}
-        copybooks = [a for a in self.artifacts if a["type"] in ("copybook", "bms_copybook", "sql_dclgen") and a["name"] not in copied]
+        copied = {e["to"] for e in self.edges
+                  if e["category"] in ("program->copybook", "copybook->copybook", "assembler->macro") and e["status"] == "resolved"}
+        copybooks = [a for a in self.artifacts
+                     if a["type"] in ("copybook", "bms_copybook", "sql_dclgen", "asm_macro") and a["name"] not in copied]
         datasets = [d for d in self.datasets.values()
                     if d["kind"] in self.DATA_BEARING_KINDS and not any(not a.get("utility") for a in d["program_access"])]
         return {"programs": programs, "copybooks": copybooks, "datasets": datasets}
@@ -2284,7 +2322,8 @@ def render_inventory(estate: Estate, s: dict) -> str:
     out.append(md_table(["Scheduler", "Job", "Folder / schedule id", "JCL member", "Source"], rows) + "\n")
 
     out.append("## Full inventory\n")
-    out.append("One row per artifact. `Depends on` lists `COPY`/`INCLUDE` targets for COBOL, the driving program per step for JCL, "
+    out.append("One row per artifact. `Depends on` lists `COPY`/`INCLUDE` targets for COBOL, `COPY` members and repository macros for "
+               "Assembler, the driving program per step for JCL, "
                "and `DEFINE` counts for CSD. `Calls` marks each `CALL`/`LINK`/`XCTL` target as static (literal) or dynamic (variable); "
                "`(from COPY x)` marks a call that a procedural copybook carries into the program.\n")
     rows = []
@@ -2296,6 +2335,8 @@ def render_inventory(estate: Estate, s: dict) -> str:
             calls = ", ".join((c["target"] or f"via {c['via']}") + f" [{c['kind']}]"
                               + (f" (from COPY {c['included_from']})" if c.get("included_from") else "")
                               for c in a["call_targets"])
+        elif a["type"] == "assembler":
+            dep = ", ".join(f"{c['name']} ({c['via']})" + ("" if c["resolved"] else " (unresolved)") for c in a["copy_targets"])
         elif a["type"] in ("jcl_job", "jcl_proc"):
             dep = "; ".join(f"{st['step'] or '?'}→{st.get('driving_program') or '?'}" for st in a["jcl_steps"])
         elif a["type"] == "csd":
@@ -2619,6 +2660,12 @@ def render_constructs(estate: Estate, s: dict) -> str:
                "`path:line`. Occurrences are counted per statement or per data item (a `REDEFINES` inside a copybook counts once in the "
                "copybook, not once per program that copies it). Detection is lexical on comment-stripped, literal-masked source; "
                "the `Detail` column shows what was matched so a reader can verify or discount it.\n")
+    out.append("**Scope of the literal constructs.** *Hard-coded amount / numeric literal* covers numeric literals in arithmetic "
+               "statements (`COMPUTE`, `ADD`, `SUBTRACT`, `MULTIPLY`, `DIVIDE`; `0` and `1` excluded), decimal literals in `MOVE`, and "
+               "decimal `VALUE` clauses. Integer `MOVE` literals and integer `VALUE` clauses (counters, lengths, limits, wait intervals, "
+               "placeholder identifiers) are not counted: they are far more numerous than the amounts and would swamp the register, "
+               "so a reader looking for them must read the source. *Hard-coded date* covers `VALUE` clauses and quoted literals in the forms `YYYY-MM-DD`, "
+               "`YYYY-MM-DD-HH.MM.SS`, `YYYY/MM/DD` and `MM/DD/YYYY` only.\n")
     out.append("## Counts per construct\n")
     out.append(md_table(["Construct", "Occurrences", "Programs / copybooks"],
                         [(c, fmt_int(n), fmt_int(len({r['path'] for r in rows if r['construct'] == c}))) for c, n in s["construct_counts"].items()]

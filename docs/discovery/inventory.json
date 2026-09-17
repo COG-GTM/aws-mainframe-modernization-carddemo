@@ -95,6 +95,11 @@
     "unresolved": 0,
     "ambiguous": 0
    },
+   "assembler->macro": {
+    "resolved": 2,
+    "unresolved": 0,
+    "ambiguous": 0
+   },
    "jclstep->proc": {
     "resolved": 4,
     "unresolved": 0,
@@ -4339,7 +4344,15 @@
    "name": "COBDATFT",
    "line_count": 84,
    "byte_size": 2494,
-   "copy_targets": [],
+   "copy_targets": [
+    {
+     "name": "COCDATFT",
+     "line": 66,
+     "resolved": true,
+     "path": "app/maclib/COCDATFT.mac",
+     "via": "COPY"
+    }
+   ],
    "call_targets": [],
    "cics_verbs": {},
    "exec_sql": false,
@@ -4357,7 +4370,246 @@
       "line": 17
      }
     ],
-    "macro_invocations": []
+    "copies": [
+     {
+      "name": "COCDATFT",
+      "line": 66
+     }
+    ],
+    "ops": [
+     {
+      "op": "USING",
+      "line": 18
+     },
+     {
+      "op": "STM",
+      "line": 19
+     },
+     {
+      "op": "LA",
+      "line": 20
+     },
+     {
+      "op": "ST",
+      "line": 21
+     },
+     {
+      "op": "ST",
+      "line": 22
+     },
+     {
+      "op": "DROP",
+      "line": 23
+     },
+     {
+      "op": "LR",
+      "line": 24
+     },
+     {
+      "op": "LR",
+      "line": 25
+     },
+     {
+      "op": "USING",
+      "line": 26
+     },
+     {
+      "op": "L",
+      "line": 27
+     },
+     {
+      "op": "USING",
+      "line": 29
+     },
+     {
+      "op": "CLI",
+      "line": 30
+     },
+     {
+      "op": "BE",
+      "line": 31
+     },
+     {
+      "op": "CLI",
+      "line": 32
+     },
+     {
+      "op": "BE",
+      "line": 33
+     },
+     {
+      "op": "B",
+      "line": 34
+     },
+     {
+      "op": "EQU",
+      "line": 35
+     },
+     {
+      "op": "CLC",
+      "line": 36
+     },
+     {
+      "op": "BE",
+      "line": 37
+     },
+     {
+      "op": "CLI",
+      "line": 38
+     },
+     {
+      "op": "BE",
+      "line": 39
+     },
+     {
+      "op": "MVC",
+      "line": 40
+     },
+     {
+      "op": "MVI",
+      "line": 41
+     },
+     {
+      "op": "MVC",
+      "line": 42
+     },
+     {
+      "op": "MVI",
+      "line": 43
+     },
+     {
+      "op": "MVC",
+      "line": 44
+     },
+     {
+      "op": "B",
+      "line": 45
+     },
+     {
+      "op": "EQU",
+      "line": 46
+     },
+     {
+      "op": "CLI",
+      "line": 49
+     },
+     {
+      "op": "BE",
+      "line": 50
+     },
+     {
+      "op": "MVC",
+      "line": 51
+     },
+     {
+      "op": "MVC",
+      "line": 52
+     },
+     {
+      "op": "MVC",
+      "line": 53
+     },
+     {
+      "op": "B",
+      "line": 54
+     },
+     {
+      "op": "EQU",
+      "line": 55
+     },
+     {
+      "op": "MVC",
+      "line": 56
+     },
+     {
+      "op": "EQU",
+      "line": 57
+     },
+     {
+      "op": "L",
+      "line": 59
+     },
+     {
+      "op": "LM",
+      "line": 60
+     },
+     {
+      "op": "SR",
+      "line": 61
+     },
+     {
+      "op": "BR",
+      "line": 62
+     },
+     {
+      "op": "DS",
+      "line": 64
+     },
+     {
+      "op": "EQU",
+      "line": 68
+     },
+     {
+      "op": "EQU",
+      "line": 69
+     },
+     {
+      "op": "EQU",
+      "line": 70
+     },
+     {
+      "op": "EQU",
+      "line": 71
+     },
+     {
+      "op": "EQU",
+      "line": 72
+     },
+     {
+      "op": "EQU",
+      "line": 73
+     },
+     {
+      "op": "EQU",
+      "line": 74
+     },
+     {
+      "op": "EQU",
+      "line": 75
+     },
+     {
+      "op": "EQU",
+      "line": 76
+     },
+     {
+      "op": "EQU",
+      "line": 77
+     },
+     {
+      "op": "EQU",
+      "line": 78
+     },
+     {
+      "op": "EQU",
+      "line": 79
+     },
+     {
+      "op": "EQU",
+      "line": 80
+     },
+     {
+      "op": "EQU",
+      "line": 81
+     },
+     {
+      "op": "EQU",
+      "line": 82
+     },
+     {
+      "op": "EQU",
+      "line": 83
+     }
+    ]
    }
   },
   {
@@ -4368,7 +4620,15 @@
    "name": "MVSWAIT",
    "line_count": 30,
    "byte_size": 1499,
-   "copy_targets": [],
+   "copy_targets": [
+    {
+     "name": "ASMWAIT",
+     "line": 23,
+     "resolved": true,
+     "path": "app/maclib/ASMWAIT.mac",
+     "via": "macro instruction"
+    }
+   ],
    "call_targets": [],
    "cics_verbs": {},
    "exec_sql": false,
@@ -4386,10 +4646,55 @@
       "line": 17
      }
     ],
-    "macro_invocations": [
+    "copies": [],
+    "ops": [
      {
-      "macro": "ASMWAIT",
+      "op": "USING",
+      "line": 18
+     },
+     {
+      "op": "STM",
+      "line": 19
+     },
+     {
+      "op": "L",
+      "line": 20
+     },
+     {
+      "op": "L",
+      "line": 21
+     },
+     {
+      "op": "ST",
+      "line": 22
+     },
+     {
+      "op": "ASMWAIT",
       "line": 23
+     },
+     {
+      "op": "LM",
+      "line": 24
+     },
+     {
+      "op": "MVI",
+      "line": 25
+     },
+     {
+      "op": "SR",
+      "line": 26
+     },
+     {
+      "op": "BR",
+      "line": 27
+     },
+     {
+      "op": "DS",
+      "line": 28
+     },
+     {
+      "op": "LTORG",
+      "line": 29
      }
     ]
    }
@@ -19626,6 +19931,24 @@
    "line": 68,
    "status": "unresolved",
    "detail": "system-supplied (CICS/MQ/SQL) include"
+  },
+  {
+   "category": "assembler->macro",
+   "from": "COBDATFT",
+   "to": "COCDATFT",
+   "path": "app/asm/COBDATFT.asm",
+   "line": 66,
+   "status": "resolved",
+   "detail": "COPY"
+  },
+  {
+   "category": "assembler->macro",
+   "from": "MVSWAIT",
+   "to": "ASMWAIT",
+   "path": "app/asm/MVSWAIT.asm",
+   "line": 23,
+   "status": "resolved",
+   "detail": "macro instruction"
   },
   {
    "category": "program->program",
