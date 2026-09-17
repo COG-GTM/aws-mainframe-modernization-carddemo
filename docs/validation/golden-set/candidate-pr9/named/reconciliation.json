@@ -1,0 +1,399 @@
+{
+  "tool": "tests/golden/compare.py",
+  "expected_dir": "tests/golden/sets/named/expected",
+  "candidate_dir": "tests/golden/sets/named/candidate-pr9",
+  "input_dir": "tests/golden/sets/named/input",
+  "input_errors": [],
+  "verdict": "MISMATCH",
+  "exit_code": 1,
+  "summary": {
+    "records_reconciled": 52,
+    "fields_reconciled": 610,
+    "field_differences": 0,
+    "missing_records": 0,
+    "extra_records": 0,
+    "control_total_mismatches": 0,
+    "order_only_files": [],
+    "return_code_mismatch": true,
+    "files_byte_identical": [
+      "TRANSACT",
+      "DALYREJS",
+      "ACCTFILE",
+      "TCATBALF"
+    ],
+    "files_not_byte_identical": [
+      "RETURN-CODE",
+      "SYSOUT"
+    ]
+  },
+  "tolerances": {
+    "abs": {},
+    "used": []
+  },
+  "files": [
+    {
+      "file": "TRANSACT",
+      "layout": "CVTRA05Y",
+      "record_length": 350,
+      "fields_per_record": 14,
+      "expected": {
+        "present": true,
+        "bytes": 4900,
+        "sha256": "426d22b8c97e50208c6fefc3673290fb4eca2ed35b37913e885b366950b9eb7a"
+      },
+      "candidate": {
+        "present": true,
+        "bytes": 4900,
+        "sha256": "426d22b8c97e50208c6fefc3673290fb4eca2ed35b37913e885b366950b9eb7a"
+      },
+      "byte_identical": true,
+      "records_expected": 14,
+      "records_candidate": 14,
+      "records_matched": 14,
+      "fields_compared": 196,
+      "field_differences": [],
+      "within_tolerance": [],
+      "missing_records": [],
+      "extra_records": [],
+      "same_records_different_order": false,
+      "errors": []
+    },
+    {
+      "file": "DALYREJS",
+      "layout": "DALYREJS",
+      "record_length": 430,
+      "fields_per_record": 16,
+      "expected": {
+        "present": true,
+        "bytes": 3440,
+        "sha256": "bb64db71893630210ec6cc558958c5f1939c1dd2782661dbfc0124a096978477"
+      },
+      "candidate": {
+        "present": true,
+        "bytes": 3440,
+        "sha256": "bb64db71893630210ec6cc558958c5f1939c1dd2782661dbfc0124a096978477"
+      },
+      "byte_identical": true,
+      "records_expected": 8,
+      "records_candidate": 8,
+      "records_matched": 8,
+      "fields_compared": 128,
+      "field_differences": [],
+      "within_tolerance": [],
+      "missing_records": [],
+      "extra_records": [],
+      "same_records_different_order": false,
+      "errors": []
+    },
+    {
+      "file": "ACCTFILE",
+      "layout": "CVACT01Y",
+      "record_length": 300,
+      "fields_per_record": 13,
+      "expected": {
+        "present": true,
+        "bytes": 5100,
+        "sha256": "a659d03adc308f5d9a2d544f229d79adf2463d28c71e14511810a9599af84581"
+      },
+      "candidate": {
+        "present": true,
+        "bytes": 5100,
+        "sha256": "a659d03adc308f5d9a2d544f229d79adf2463d28c71e14511810a9599af84581"
+      },
+      "byte_identical": true,
+      "records_expected": 17,
+      "records_candidate": 17,
+      "records_matched": 17,
+      "fields_compared": 221,
+      "field_differences": [],
+      "within_tolerance": [],
+      "missing_records": [],
+      "extra_records": [],
+      "same_records_different_order": false,
+      "errors": []
+    },
+    {
+      "file": "TCATBALF",
+      "layout": "CVTRA01Y",
+      "record_length": 50,
+      "fields_per_record": 5,
+      "expected": {
+        "present": true,
+        "bytes": 650,
+        "sha256": "1158529d44c7189a7e27dcdd018c0a3fa4da50100ce5f3baab4bc55647940a6c"
+      },
+      "candidate": {
+        "present": true,
+        "bytes": 650,
+        "sha256": "1158529d44c7189a7e27dcdd018c0a3fa4da50100ce5f3baab4bc55647940a6c"
+      },
+      "byte_identical": true,
+      "records_expected": 13,
+      "records_candidate": 13,
+      "records_matched": 13,
+      "fields_compared": 65,
+      "field_differences": [],
+      "within_tolerance": [],
+      "missing_records": [],
+      "extra_records": [],
+      "same_records_different_order": false,
+      "errors": []
+    },
+    {
+      "file": "RETURN-CODE",
+      "text": true,
+      "status": "**MISMATCH**",
+      "mismatch": true,
+      "byte_identical": false,
+      "expected_text": "4",
+      "candidate_text": "0"
+    },
+    {
+      "file": "SYSOUT",
+      "text": true,
+      "status": "differs (informational; operator log)",
+      "mismatch": true,
+      "byte_identical": false,
+      "expected_text": "274 bytes",
+      "candidate_text": "7692 bytes"
+    }
+  ],
+  "control_totals": {
+    "expected": {
+      "records_in": 22,
+      "accepted": 14,
+      "rejected": 8,
+      "rejected_by_reason": {
+        "0100": 1,
+        "0101": 1,
+        "0102": 3,
+        "0103": 3
+      },
+      "sum_accepted_amount": "1010.95",
+      "sum_rejected_amount": "1170.00",
+      "closing_account_balances": {
+        "90000000001": {
+          "ACCT-CURR-BAL": "123.45",
+          "ACCT-CURR-CYC-CREDIT": "123.45",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000003": {
+          "ACCT-CURR-BAL": "0.00",
+          "ACCT-CURR-CYC-CREDIT": "50.00",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000004": {
+          "ACCT-CURR-BAL": "0.00",
+          "ACCT-CURR-CYC-CREDIT": "0.00",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000005": {
+          "ACCT-CURR-BAL": "0.00",
+          "ACCT-CURR-CYC-CREDIT": "0.00",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000006": {
+          "ACCT-CURR-BAL": "-250.00",
+          "ACCT-CURR-CYC-CREDIT": "0.00",
+          "ACCT-CURR-CYC-DEBIT": "-250.00"
+        },
+        "90000000007": {
+          "ACCT-CURR-BAL": "999999999.99",
+          "ACCT-CURR-CYC-CREDIT": "999999999.99",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000008": {
+          "ACCT-CURR-BAL": "-999999999.99",
+          "ACCT-CURR-CYC-CREDIT": "0.00",
+          "ACCT-CURR-CYC-DEBIT": "-999999999.99"
+        },
+        "90000000009": {
+          "ACCT-CURR-BAL": "250.00",
+          "ACCT-CURR-CYC-CREDIT": "250.00",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000010": {
+          "ACCT-CURR-BAL": "600.00",
+          "ACCT-CURR-CYC-CREDIT": "600.00",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000011": {
+          "ACCT-CURR-BAL": "300.50",
+          "ACCT-CURR-CYC-CREDIT": "300.50",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000012": {
+          "ACCT-CURR-BAL": "42.00",
+          "ACCT-CURR-CYC-CREDIT": "42.00",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000013": {
+          "ACCT-CURR-BAL": "0.00",
+          "ACCT-CURR-CYC-CREDIT": "0.00",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000014": {
+          "ACCT-CURR-BAL": "15.00",
+          "ACCT-CURR-CYC-CREDIT": "15.00",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000015": {
+          "ACCT-CURR-BAL": "0.00",
+          "ACCT-CURR-CYC-CREDIT": "0.00",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000016": {
+          "ACCT-CURR-BAL": "0.00",
+          "ACCT-CURR-CYC-CREDIT": "0.00",
+          "ACCT-CURR-CYC-DEBIT": "-500.00"
+        },
+        "90000000017": {
+          "ACCT-CURR-BAL": "50.00",
+          "ACCT-CURR-CYC-CREDIT": "150.00",
+          "ACCT-CURR-CYC-DEBIT": "-100.00"
+        },
+        "90000000018": {
+          "ACCT-CURR-BAL": "30.00",
+          "ACCT-CURR-CYC-CREDIT": "30.00",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        }
+      },
+      "closing_category_balances": {
+        "90000000001010001": "123.45",
+        "90000000005010001": "10.00",
+        "90000000006010001": "-250.00",
+        "90000000007010001": "999999999.99",
+        "90000000008010001": "-999999999.99",
+        "90000000009010001": "150.00",
+        "90000000010010001": "600.00",
+        "90000000011010001": "300.50",
+        "90000000012010002": "42.00",
+        "90000000014010001": "15.00",
+        "90000000017010001": "50.00",
+        "90000000018010001": "10.00",
+        "90000000018020003": "20.00"
+      },
+      "identity_in_equals_accepted_plus_rejected": true,
+      "errors": []
+    },
+    "candidate": {
+      "records_in": 22,
+      "accepted": 14,
+      "rejected": 8,
+      "rejected_by_reason": {
+        "0100": 1,
+        "0101": 1,
+        "0102": 3,
+        "0103": 3
+      },
+      "sum_accepted_amount": "1010.95",
+      "sum_rejected_amount": "1170.00",
+      "closing_account_balances": {
+        "90000000001": {
+          "ACCT-CURR-BAL": "123.45",
+          "ACCT-CURR-CYC-CREDIT": "123.45",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000003": {
+          "ACCT-CURR-BAL": "0.00",
+          "ACCT-CURR-CYC-CREDIT": "50.00",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000004": {
+          "ACCT-CURR-BAL": "0.00",
+          "ACCT-CURR-CYC-CREDIT": "0.00",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000005": {
+          "ACCT-CURR-BAL": "0.00",
+          "ACCT-CURR-CYC-CREDIT": "0.00",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000006": {
+          "ACCT-CURR-BAL": "-250.00",
+          "ACCT-CURR-CYC-CREDIT": "0.00",
+          "ACCT-CURR-CYC-DEBIT": "-250.00"
+        },
+        "90000000007": {
+          "ACCT-CURR-BAL": "999999999.99",
+          "ACCT-CURR-CYC-CREDIT": "999999999.99",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000008": {
+          "ACCT-CURR-BAL": "-999999999.99",
+          "ACCT-CURR-CYC-CREDIT": "0.00",
+          "ACCT-CURR-CYC-DEBIT": "-999999999.99"
+        },
+        "90000000009": {
+          "ACCT-CURR-BAL": "250.00",
+          "ACCT-CURR-CYC-CREDIT": "250.00",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000010": {
+          "ACCT-CURR-BAL": "600.00",
+          "ACCT-CURR-CYC-CREDIT": "600.00",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000011": {
+          "ACCT-CURR-BAL": "300.50",
+          "ACCT-CURR-CYC-CREDIT": "300.50",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000012": {
+          "ACCT-CURR-BAL": "42.00",
+          "ACCT-CURR-CYC-CREDIT": "42.00",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000013": {
+          "ACCT-CURR-BAL": "0.00",
+          "ACCT-CURR-CYC-CREDIT": "0.00",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000014": {
+          "ACCT-CURR-BAL": "15.00",
+          "ACCT-CURR-CYC-CREDIT": "15.00",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000015": {
+          "ACCT-CURR-BAL": "0.00",
+          "ACCT-CURR-CYC-CREDIT": "0.00",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000016": {
+          "ACCT-CURR-BAL": "0.00",
+          "ACCT-CURR-CYC-CREDIT": "0.00",
+          "ACCT-CURR-CYC-DEBIT": "-500.00"
+        },
+        "90000000017": {
+          "ACCT-CURR-BAL": "50.00",
+          "ACCT-CURR-CYC-CREDIT": "150.00",
+          "ACCT-CURR-CYC-DEBIT": "-100.00"
+        },
+        "90000000018": {
+          "ACCT-CURR-BAL": "30.00",
+          "ACCT-CURR-CYC-CREDIT": "30.00",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        }
+      },
+      "closing_category_balances": {
+        "90000000001010001": "123.45",
+        "90000000005010001": "10.00",
+        "90000000006010001": "-250.00",
+        "90000000007010001": "999999999.99",
+        "90000000008010001": "-999999999.99",
+        "90000000009010001": "150.00",
+        "90000000010010001": "600.00",
+        "90000000011010001": "300.50",
+        "90000000012010002": "42.00",
+        "90000000014010001": "15.00",
+        "90000000017010001": "50.00",
+        "90000000018010001": "10.00",
+        "90000000018020003": "20.00"
+      },
+      "identity_in_equals_accepted_plus_rejected": true,
+      "errors": []
+    },
+    "mismatches": [],
+    "within_tolerance": []
+  }
+}

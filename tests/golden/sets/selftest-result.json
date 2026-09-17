@@ -1,0 +1,112 @@
+{
+  "absence_checks": [
+    "named/missing input DALYTRAN",
+    "named/missing RETURN-CODE",
+    "volume/missing input DALYTRAN",
+    "volume/missing RETURN-CODE"
+  ],
+  "absence_checks_passed": [
+    "named/missing input DALYTRAN",
+    "named/missing RETURN-CODE",
+    "volume/missing input DALYTRAN",
+    "volume/missing RETURN-CODE"
+  ],
+  "caught": [
+    "named/amount_off_by_one_cent",
+    "named/category_row_dropped",
+    "named/reason_code_changed",
+    "named/record_dropped",
+    "named/reject_moved_to_accepted",
+    "named/return_code_changed",
+    "named/sign_flipped_on_balance",
+    "named/trailing_space_in_text",
+    "named/two_records_swapped",
+    "volume/amount_off_by_one_cent",
+    "volume/category_row_dropped",
+    "volume/reason_code_changed",
+    "volume/record_dropped",
+    "volume/reject_moved_to_accepted",
+    "volume/return_code_changed",
+    "volume/sign_flipped_on_balance",
+    "volume/trailing_space_in_text",
+    "volume/two_records_swapped"
+  ],
+  "exact_copy_sets_passed": 2,
+  "mutants": [
+    "named/amount_off_by_one_cent",
+    "named/category_row_dropped",
+    "named/reason_code_changed",
+    "named/record_dropped",
+    "named/reject_moved_to_accepted",
+    "named/return_code_changed",
+    "named/sign_flipped_on_balance",
+    "named/trailing_space_in_text",
+    "named/two_records_swapped",
+    "volume/amount_off_by_one_cent",
+    "volume/category_row_dropped",
+    "volume/reason_code_changed",
+    "volume/record_dropped",
+    "volume/reject_moved_to_accepted",
+    "volume/return_code_changed",
+    "volume/sign_flipped_on_balance",
+    "volume/trailing_space_in_text",
+    "volume/two_records_swapped"
+  ],
+  "pairing_checks": [
+    "named/return-code 04 equals 4",
+    "named/return-code non-integer",
+    "named/dup-key rejects swapped",
+    "named/dup-key extra row + tolerance",
+    "volume/return-code 04 equals 4",
+    "volume/return-code non-integer",
+    "volume/dup-key rejects swapped",
+    "volume/dup-key extra row + tolerance"
+  ],
+  "pairing_checks_passed": [
+    "named/return-code 04 equals 4",
+    "named/return-code non-integer",
+    "named/dup-key rejects swapped",
+    "named/dup-key extra row + tolerance",
+    "volume/return-code 04 equals 4",
+    "volume/return-code non-integer",
+    "volume/dup-key rejects swapped",
+    "volume/dup-key extra row + tolerance"
+  ],
+  "produced_by": "tests/golden/selftest.sh",
+  "sets": [
+    "named",
+    "volume"
+  ],
+  "sysout_policy_checks": [
+    "named/sysout whitespace, default",
+    "named/sysout whitespace, --strict",
+    "volume/sysout whitespace, default",
+    "volume/sysout whitespace, --strict"
+  ],
+  "sysout_policy_checks_passed": [
+    "named/sysout whitespace, default",
+    "named/sysout whitespace, --strict",
+    "volume/sysout whitespace, default",
+    "volume/sysout whitespace, --strict"
+  ],
+  "tolerance_checks": [
+    "named/tolerance TRAN-AMT=0.01",
+    "named/tolerance TRAN-AMT=0.001",
+    "named/tolerance NO-SUCH-FIELD=0.01",
+    "named/tolerance TRAN-AMT=NaN",
+    "volume/tolerance TRAN-AMT=0.01",
+    "volume/tolerance TRAN-AMT=0.001",
+    "volume/tolerance NO-SUCH-FIELD=0.01",
+    "volume/tolerance TRAN-AMT=NaN"
+  ],
+  "tolerance_checks_passed": [
+    "named/tolerance TRAN-AMT=0.01",
+    "named/tolerance TRAN-AMT=0.001",
+    "named/tolerance NO-SUCH-FIELD=0.01",
+    "named/tolerance TRAN-AMT=NaN",
+    "volume/tolerance TRAN-AMT=0.01",
+    "volume/tolerance TRAN-AMT=0.001",
+    "volume/tolerance NO-SUCH-FIELD=0.01",
+    "volume/tolerance TRAN-AMT=NaN"
+  ]
+}

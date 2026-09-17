@@ -1,0 +1,493 @@
+{
+  "set_name": "named",
+  "seed": 20260315,
+  "generator": "tests/golden/generate.py",
+  "cases": [
+    "clean_accept",
+    "card_not_in_xref",
+    "account_not_on_file",
+    "overlimit",
+    "expired_account",
+    "zero_amount",
+    "negative_amount_credit",
+    "max_amount",
+    "max_negative_amount",
+    "category_balance_crosses_zero",
+    "same_account_running_balance",
+    "same_account_two_accepts",
+    "category_not_in_tcatbal",
+    "overlimit_and_expired",
+    "expiry_boundary_equal",
+    "expiry_boundary_day_before",
+    "debit_sign_interaction",
+    "credit_relieves_overlimit",
+    "two_categories_one_account"
+  ],
+  "synthetic_markers": {
+    "card_prefix": "0000",
+    "cards_fail_luhn": true,
+    "account_id_prefix": "9000",
+    "customer_id_prefix": "9000",
+    "merchant_id_prefix": "9000",
+    "names": "GOLDEN MERCHANT nnnn / SYNTHETIC CITY / GOLDEN CASE <case>"
+  },
+  "posting_date": "2026-03-15",
+  "frozen_clock": {
+    "COB_CURRENT_DATE": "2026-03-15 12:00:00.00",
+    "expected_TRAN_PROC_TS": "2026-03-15-12.00.00.000000"
+  },
+  "sign_convention": "cobc -fsign=EBCDIC (trailing overpunch { A-I / } J-R)",
+  "record_counts": {
+    "DALYTRAN": 22,
+    "XREFFILE": 18,
+    "ACCTFILE": 17,
+    "TCATBALF": 11
+  },
+  "layouts": {
+    "DALYTRAN": {
+      "record_length": 350,
+      "fields": 14,
+      "source": "app/cpy/CVTRA06Y.cpy"
+    },
+    "XREFFILE": {
+      "record_length": 50,
+      "fields": 4,
+      "source": "app/cpy/CVACT03Y.cpy"
+    },
+    "ACCTFILE": {
+      "record_length": 300,
+      "fields": 13,
+      "source": "app/cpy/CVACT01Y.cpy"
+    },
+    "TCATBALF": {
+      "record_length": 50,
+      "fields": 5,
+      "source": "app/cpy/CVTRA01Y.cpy"
+    },
+    "TRANSACT": {
+      "record_length": 350,
+      "fields": 14,
+      "source": "app/cpy/CVTRA05Y.cpy"
+    },
+    "DALYREJS": {
+      "record_length": 430,
+      "fields": 16,
+      "source": "app/cpy/CVTRA06Y.cpy + app/cbl/CBTRN02C.cbl:180-182"
+    }
+  },
+  "prediction_disclaimer": "predicted_* values are the GENERATOR'S model of CBTRN02C, not the golden truth. run_reference.sh runs the program; where they disagree the program wins and the disagreement is logged in docs/validation/golden-set/findings.md.",
+  "predicted_summary": {
+    "records_in": 22,
+    "accepted": 14,
+    "rejected": 8,
+    "rejected_by_reason": {
+      "0100": 1,
+      "0101": 1,
+      "0102": 3,
+      "0103": 3
+    }
+  },
+  "predicted_closing_accounts": {
+    "90000000001": {
+      "ACCT-CURR-BAL": "123.45",
+      "ACCT-CURR-CYC-CREDIT": "123.45",
+      "ACCT-CURR-CYC-DEBIT": "0.00"
+    },
+    "90000000003": {
+      "ACCT-CURR-BAL": "0.00",
+      "ACCT-CURR-CYC-CREDIT": "50.00",
+      "ACCT-CURR-CYC-DEBIT": "0.00"
+    },
+    "90000000004": {
+      "ACCT-CURR-BAL": "0.00",
+      "ACCT-CURR-CYC-CREDIT": "0.00",
+      "ACCT-CURR-CYC-DEBIT": "0.00"
+    },
+    "90000000005": {
+      "ACCT-CURR-BAL": "0.00",
+      "ACCT-CURR-CYC-CREDIT": "0.00",
+      "ACCT-CURR-CYC-DEBIT": "0.00"
+    },
+    "90000000006": {
+      "ACCT-CURR-BAL": "-250.00",
+      "ACCT-CURR-CYC-CREDIT": "0.00",
+      "ACCT-CURR-CYC-DEBIT": "-250.00"
+    },
+    "90000000007": {
+      "ACCT-CURR-BAL": "999999999.99",
+      "ACCT-CURR-CYC-CREDIT": "999999999.99",
+      "ACCT-CURR-CYC-DEBIT": "0.00"
+    },
+    "90000000008": {
+      "ACCT-CURR-BAL": "-999999999.99",
+      "ACCT-CURR-CYC-CREDIT": "0.00",
+      "ACCT-CURR-CYC-DEBIT": "-999999999.99"
+    },
+    "90000000009": {
+      "ACCT-CURR-BAL": "250.00",
+      "ACCT-CURR-CYC-CREDIT": "250.00",
+      "ACCT-CURR-CYC-DEBIT": "0.00"
+    },
+    "90000000010": {
+      "ACCT-CURR-BAL": "600.00",
+      "ACCT-CURR-CYC-CREDIT": "600.00",
+      "ACCT-CURR-CYC-DEBIT": "0.00"
+    },
+    "90000000011": {
+      "ACCT-CURR-BAL": "300.50",
+      "ACCT-CURR-CYC-CREDIT": "300.50",
+      "ACCT-CURR-CYC-DEBIT": "0.00"
+    },
+    "90000000012": {
+      "ACCT-CURR-BAL": "42.00",
+      "ACCT-CURR-CYC-CREDIT": "42.00",
+      "ACCT-CURR-CYC-DEBIT": "0.00"
+    },
+    "90000000013": {
+      "ACCT-CURR-BAL": "0.00",
+      "ACCT-CURR-CYC-CREDIT": "0.00",
+      "ACCT-CURR-CYC-DEBIT": "0.00"
+    },
+    "90000000014": {
+      "ACCT-CURR-BAL": "15.00",
+      "ACCT-CURR-CYC-CREDIT": "15.00",
+      "ACCT-CURR-CYC-DEBIT": "0.00"
+    },
+    "90000000015": {
+      "ACCT-CURR-BAL": "0.00",
+      "ACCT-CURR-CYC-CREDIT": "0.00",
+      "ACCT-CURR-CYC-DEBIT": "0.00"
+    },
+    "90000000016": {
+      "ACCT-CURR-BAL": "0.00",
+      "ACCT-CURR-CYC-CREDIT": "0.00",
+      "ACCT-CURR-CYC-DEBIT": "-500.00"
+    },
+    "90000000017": {
+      "ACCT-CURR-BAL": "50.00",
+      "ACCT-CURR-CYC-CREDIT": "150.00",
+      "ACCT-CURR-CYC-DEBIT": "-100.00"
+    },
+    "90000000018": {
+      "ACCT-CURR-BAL": "30.00",
+      "ACCT-CURR-CYC-CREDIT": "30.00",
+      "ACCT-CURR-CYC-DEBIT": "0.00"
+    }
+  },
+  "predicted_closing_tcatbal": {
+    "90000000001|01|0001": "123.45",
+    "90000000005|01|0001": "10.00",
+    "90000000006|01|0001": "-250.00",
+    "90000000007|01|0001": "999999999.99",
+    "90000000008|01|0001": "-999999999.99",
+    "90000000009|01|0001": "150.00",
+    "90000000010|01|0001": "600.00",
+    "90000000011|01|0001": "300.50",
+    "90000000012|01|0002": "42.00",
+    "90000000014|01|0001": "15.00",
+    "90000000017|01|0001": "50.00",
+    "90000000018|01|0001": "10.00",
+    "90000000018|02|0003": "20.00"
+  },
+  "records": [
+    {
+      "tran_id": "GS03150000000001",
+      "case": "clean_accept",
+      "note": "",
+      "card": "0000000000000013",
+      "amount": "123.45",
+      "predicted_outcome": "ACCEPT",
+      "predicted_reason": 0,
+      "predicted_reason_desc": "",
+      "predicted_acct_id": "90000000001",
+      "predicted_tcatbal_created": false,
+      "predicted_acct_curr_bal_after": "123.45"
+    },
+    {
+      "tran_id": "GS03150000000002",
+      "case": "card_not_in_xref",
+      "note": "",
+      "card": "0000000000000021",
+      "amount": "10.00",
+      "predicted_outcome": "REJECT",
+      "predicted_reason": 100,
+      "predicted_reason_desc": "INVALID CARD NUMBER FOUND"
+    },
+    {
+      "tran_id": "GS03150000000003",
+      "case": "account_not_on_file",
+      "note": "",
+      "card": "0000000000000039",
+      "amount": "10.00",
+      "predicted_outcome": "REJECT",
+      "predicted_reason": 101,
+      "predicted_reason_desc": "ACCOUNT RECORD NOT FOUND"
+    },
+    {
+      "tran_id": "GS03150000000004",
+      "case": "overlimit",
+      "note": "",
+      "card": "0000000000000047",
+      "amount": "60.00",
+      "predicted_outcome": "REJECT",
+      "predicted_reason": 102,
+      "predicted_reason_desc": "OVERLIMIT TRANSACTION"
+    },
+    {
+      "tran_id": "GS03150000000005",
+      "case": "expired_account",
+      "note": "",
+      "card": "0000000000000054",
+      "amount": "25.00",
+      "predicted_outcome": "REJECT",
+      "predicted_reason": 103,
+      "predicted_reason_desc": "TRANSACTION RECEIVED AFTER ACCT EXPIRATION"
+    },
+    {
+      "tran_id": "GS03150000000006",
+      "case": "zero_amount",
+      "note": "",
+      "card": "0000000000000062",
+      "amount": "0.00",
+      "predicted_outcome": "ACCEPT",
+      "predicted_reason": 0,
+      "predicted_reason_desc": "",
+      "predicted_acct_id": "90000000005",
+      "predicted_tcatbal_created": false,
+      "predicted_acct_curr_bal_after": "0.00"
+    },
+    {
+      "tran_id": "GS03150000000007",
+      "case": "negative_amount_credit",
+      "note": "",
+      "card": "0000000000000070",
+      "amount": "-250.00",
+      "predicted_outcome": "ACCEPT",
+      "predicted_reason": 0,
+      "predicted_reason_desc": "",
+      "predicted_acct_id": "90000000006",
+      "predicted_tcatbal_created": false,
+      "predicted_acct_curr_bal_after": "-250.00"
+    },
+    {
+      "tran_id": "GS03150000000008",
+      "case": "max_amount",
+      "note": "",
+      "card": "0000000000000088",
+      "amount": "999999999.99",
+      "predicted_outcome": "ACCEPT",
+      "predicted_reason": 0,
+      "predicted_reason_desc": "",
+      "predicted_acct_id": "90000000007",
+      "predicted_tcatbal_created": false,
+      "predicted_acct_curr_bal_after": "999999999.99"
+    },
+    {
+      "tran_id": "GS03150000000009",
+      "case": "max_negative_amount",
+      "note": "",
+      "card": "0000000000000096",
+      "amount": "-999999999.99",
+      "predicted_outcome": "ACCEPT",
+      "predicted_reason": 0,
+      "predicted_reason_desc": "",
+      "predicted_acct_id": "90000000008",
+      "predicted_tcatbal_created": false,
+      "predicted_acct_curr_bal_after": "-999999999.99"
+    },
+    {
+      "tran_id": "GS03150000000010",
+      "case": "category_balance_crosses_zero",
+      "note": "",
+      "card": "0000000000000104",
+      "amount": "250.00",
+      "predicted_outcome": "ACCEPT",
+      "predicted_reason": 0,
+      "predicted_reason_desc": "",
+      "predicted_acct_id": "90000000009",
+      "predicted_tcatbal_created": false,
+      "predicted_acct_curr_bal_after": "250.00"
+    },
+    {
+      "tran_id": "GS03150000000011",
+      "case": "same_account_running_balance",
+      "note": "first",
+      "card": "0000000000000112",
+      "amount": "600.00",
+      "predicted_outcome": "ACCEPT",
+      "predicted_reason": 0,
+      "predicted_reason_desc": "",
+      "predicted_acct_id": "90000000010",
+      "predicted_tcatbal_created": false,
+      "predicted_acct_curr_bal_after": "600.00"
+    },
+    {
+      "tran_id": "GS03150000000012",
+      "case": "same_account_running_balance",
+      "note": "second; over limit after first posts",
+      "card": "0000000000000112",
+      "amount": "500.00",
+      "predicted_outcome": "REJECT",
+      "predicted_reason": 102,
+      "predicted_reason_desc": "OVERLIMIT TRANSACTION"
+    },
+    {
+      "tran_id": "GS03150000000013",
+      "case": "same_account_two_accepts",
+      "note": "first",
+      "card": "0000000000000120",
+      "amount": "100.00",
+      "predicted_outcome": "ACCEPT",
+      "predicted_reason": 0,
+      "predicted_reason_desc": "",
+      "predicted_acct_id": "90000000011",
+      "predicted_tcatbal_created": false,
+      "predicted_acct_curr_bal_after": "100.00"
+    },
+    {
+      "tran_id": "GS03150000000014",
+      "case": "same_account_two_accepts",
+      "note": "second",
+      "card": "0000000000000120",
+      "amount": "200.50",
+      "predicted_outcome": "ACCEPT",
+      "predicted_reason": 0,
+      "predicted_reason_desc": "",
+      "predicted_acct_id": "90000000011",
+      "predicted_tcatbal_created": false,
+      "predicted_acct_curr_bal_after": "300.50"
+    },
+    {
+      "tran_id": "GS03150000000015",
+      "case": "category_not_in_tcatbal",
+      "note": "",
+      "card": "0000000000000138",
+      "amount": "42.00",
+      "predicted_outcome": "ACCEPT",
+      "predicted_reason": 0,
+      "predicted_reason_desc": "",
+      "predicted_acct_id": "90000000012",
+      "predicted_tcatbal_created": true,
+      "predicted_acct_curr_bal_after": "42.00"
+    },
+    {
+      "tran_id": "GS03150000000016",
+      "case": "overlimit_and_expired",
+      "note": "",
+      "card": "0000000000000146",
+      "amount": "500.00",
+      "predicted_outcome": "REJECT",
+      "predicted_reason": 103,
+      "predicted_reason_desc": "TRANSACTION RECEIVED AFTER ACCT EXPIRATION"
+    },
+    {
+      "tran_id": "GS03150000000017",
+      "case": "expiry_boundary_equal",
+      "note": "",
+      "card": "0000000000000153",
+      "amount": "15.00",
+      "predicted_outcome": "ACCEPT",
+      "predicted_reason": 0,
+      "predicted_reason_desc": "",
+      "predicted_acct_id": "90000000014",
+      "predicted_tcatbal_created": false,
+      "predicted_acct_curr_bal_after": "15.00"
+    },
+    {
+      "tran_id": "GS03150000000018",
+      "case": "expiry_boundary_day_before",
+      "note": "",
+      "card": "0000000000000161",
+      "amount": "15.00",
+      "predicted_outcome": "REJECT",
+      "predicted_reason": 103,
+      "predicted_reason_desc": "TRANSACTION RECEIVED AFTER ACCT EXPIRATION"
+    },
+    {
+      "tran_id": "GS03150000000019",
+      "case": "debit_sign_interaction",
+      "note": "",
+      "card": "0000000000000179",
+      "amount": "50.00",
+      "predicted_outcome": "REJECT",
+      "predicted_reason": 102,
+      "predicted_reason_desc": "OVERLIMIT TRANSACTION"
+    },
+    {
+      "tran_id": "GS03150000000020",
+      "case": "credit_relieves_overlimit",
+      "note": "",
+      "card": "0000000000000187",
+      "amount": "-100.00",
+      "predicted_outcome": "ACCEPT",
+      "predicted_reason": 0,
+      "predicted_reason_desc": "",
+      "predicted_acct_id": "90000000017",
+      "predicted_tcatbal_created": false,
+      "predicted_acct_curr_bal_after": "50.00"
+    },
+    {
+      "tran_id": "GS03150000000021",
+      "case": "two_categories_one_account",
+      "note": "",
+      "card": "0000000000000195",
+      "amount": "10.00",
+      "predicted_outcome": "ACCEPT",
+      "predicted_reason": 0,
+      "predicted_reason_desc": "",
+      "predicted_acct_id": "90000000018",
+      "predicted_tcatbal_created": false,
+      "predicted_acct_curr_bal_after": "10.00"
+    },
+    {
+      "tran_id": "GS03150000000022",
+      "case": "two_categories_one_account",
+      "note": "",
+      "card": "0000000000000195",
+      "amount": "20.00",
+      "predicted_outcome": "ACCEPT",
+      "predicted_reason": 0,
+      "predicted_reason_desc": "",
+      "predicted_acct_id": "90000000018",
+      "predicted_tcatbal_created": true,
+      "predicted_acct_curr_bal_after": "30.00"
+    }
+  ],
+  "case_docs": {
+    "clean_accept": "Card and account exist, within limit, not expired, TCATBAL row exists.",
+    "card_not_in_xref": "DALYTRAN-CARD-NUM has no XREFFILE record -> reason 100 (CBTRN02C.cbl:383-387).",
+    "account_not_on_file": "XREF exists but XREF-ACCT-ID has no ACCTFILE record -> reason 101 (CBTRN02C.cbl:394-399).",
+    "overlimit": "CYC-CREDIT - CYC-DEBIT + AMT > CREDIT-LIMIT -> reason 102 (CBTRN02C.cbl:403-413).",
+    "expired_account": "ACCT-EXPIRAION-DATE < ORIG-TS(1:10) -> reason 103 (CBTRN02C.cbl:414-420).",
+    "zero_amount": "AMT = 0 posts; 0 >= 0 so it is added to CYC-CREDIT (CBTRN02C.cbl:548-552).",
+    "negative_amount_credit": "AMT < 0 posts and is ADDed to CYC-DEBIT, making it negative (CBTRN02C.cbl:551).",
+    "max_amount": "AMT = +999999999.99, the largest PIC S9(09)V99 (CVTRA06Y.cpy:10); limit large enough.",
+    "max_negative_amount": "AMT = -999999999.99 posts; added to CYC-DEBIT and to a TCATBAL row.",
+    "category_balance_crosses_zero": "TCATBAL -100.00 + AMT 250.00 -> +150.00; sign of TRAN-CAT-BAL flips (CBTRN02C.cbl:527).",
+    "same_account_running_balance": "Two records on one account: 600 posts, then 500 is over the 1000 limit only because of the first (CBTRN02C.cbl:403-407, :554).",
+    "same_account_two_accepts": "Two records on one account, both post; balances accumulate in ACCTFILE and TCATBALF.",
+    "category_not_in_tcatbal": "No TCATBALF row for (acct,type,cat): program creates one and posts (CBTRN02C.cbl:474-479, :503-510).",
+    "overlimit_and_expired": "Both 102 and 103 conditions hold; 103 is assigned last and wins (CBTRN02C.cbl:410, :417).",
+    "expiry_boundary_equal": "ACCT-EXPIRAION-DATE equal to ORIG-TS(1:10): '>=' accepts (CBTRN02C.cbl:414).",
+    "expiry_boundary_day_before": "ACCT-EXPIRAION-DATE one day before ORIG-TS(1:10) -> reason 103.",
+    "debit_sign_interaction": "CYC-DEBIT already negative (as the program leaves it); '- CYC-DEBIT' then ADDS to the temp balance and a 50.00 purchase is over a 100.00 limit (CBTRN02C.cbl:403-405).",
+    "credit_relieves_overlimit": "Account already over limit; a negative amount brings temp balance under the limit and posts.",
+    "two_categories_one_account": "Same account, two (type,cat) keys: two TCATBAL rows touched, one created."
+  },
+  "reference_runs": {
+    "expected": {
+      "gnucobol_version": "cobc (GnuCOBOL) 3.1.2.0",
+      "cobc_command_CBTRN02C": "cobc -x -std=ibm -fsign=EBCDIC -I app/cpy -o tests/golden/.work/build/CBTRN02C app/cbl/CBTRN02C.cbl",
+      "cobc_command_GSIDXUTL": "cobc -x -std=ibm -fsign=EBCDIC -o tests/golden/.work/build/GSIDXUTL tests/golden/cobol/GSIDXUTL.cbl",
+      "env_file": "tests/golden/env/posttran.env",
+      "return_code": 4
+    },
+    "expected-variant": {
+      "gnucobol_version": "cobc (GnuCOBOL) 3.1.2.0",
+      "cobc_command_CBTRN02C": "cobc -x -std=ibm -fsign=EBCDIC -I app/cpy -o tests/golden/.work/build/CBTRN02C app/cbl/CBTRN02C.cbl",
+      "cobc_command_GSIDXUTL": "cobc -x -std=ibm -fsign=EBCDIC -o tests/golden/.work/build/GSIDXUTL tests/golden/cobol/GSIDXUTL.cbl",
+      "env_file": "tests/golden/env/posttran-variant.env",
+      "return_code": 4
+    }
+  }
+}
