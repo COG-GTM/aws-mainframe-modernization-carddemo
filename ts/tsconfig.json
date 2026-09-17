@@ -4,6 +4,7 @@
     { "path": "packages/copybook" },
     { "path": "packages/domain" },
     { "path": "packages/vsam" },
-    { "path": "packages/utilities" }
+    { "path": "packages/utilities" },
+    { "path": "packages/online-usradmin" }
   ]
 }
