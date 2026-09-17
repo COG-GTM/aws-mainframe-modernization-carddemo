@@ -3,6 +3,7 @@
   "references": [
     { "path": "packages/copybook" },
     { "path": "packages/domain" },
-    { "path": "packages/vsam" }
+    { "path": "packages/vsam" },
+    { "path": "packages/utilities" }
   ]
 }
