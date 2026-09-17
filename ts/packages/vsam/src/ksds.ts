@@ -97,6 +97,23 @@ export class Ksds<T> {
     return ok(this.records.get(key) as T);
   }
 
+  /**
+   * `READPREV`; reads the record the browse cursor sits on and steps back, so
+   * a browse started past the last key walks the file in descending order.
+   */
+  readPrev(): IoResult<T> {
+    if (!this.open) {
+      return failure(FileStatus.fileNotOpen);
+    }
+    const index = Math.min(this.cursor, this.orderedKeys.length - 1);
+    if (index < 0) {
+      return failure(FileStatus.endOfFile);
+    }
+    this.cursor = index - 1;
+    const key = this.orderedKeys[index] as string;
+    return ok(this.records.get(key) as T);
+  }
+
   write(record: T): FileStatusCode {
     if (!this.open) {
       return FileStatus.fileNotOpen;
