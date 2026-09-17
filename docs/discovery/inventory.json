@@ -149,12 +149,12 @@
   },
   "dataset_total": 281,
   "dataset_kinds": {
-   "GDG / sequential": 7,
+   "GDG / sequential": 141,
    "VSAM": 22,
    "VSAM component (DATA/INDEX)": 33,
    "library (PDS/PDSE)": 33,
-   "sequential": 149,
-   "unknown": 37
+   "sequential": 25,
+   "unknown": 27
   },
   "csd_entry_counts": {
    "DB2ENTRY": 2,
@@ -24864,6 +24864,7 @@
    "dsn": "&CNTLLIB(REPROCT)",
    "kind": "library (PDS/PDSE)",
    "catalog_types": [],
+   "relative_generations": [],
    "reference_sources": [
     "JCL DD/control statement"
    ],
@@ -24887,6 +24888,7 @@
    "dsn": "AWS.CCDA.CUSTDATA.CLUSTER",
    "kind": "unknown",
    "catalog_types": [],
+   "relative_generations": [],
    "reference_sources": [
     "JCL DD/control statement"
    ],
@@ -24910,6 +24912,7 @@
    "dsn": "AWS.CUSTDATA.CLUSTER",
    "kind": "unknown",
    "catalog_types": [],
+   "relative_generations": [],
    "reference_sources": [
     "JCL DD/control statement"
    ],
@@ -24933,6 +24936,7 @@
    "dsn": "AWS.CUSTDATA.CLUSTER.DATA",
    "kind": "VSAM component (DATA/INDEX)",
    "catalog_types": [],
+   "relative_generations": [],
    "reference_sources": [
     "JCL DD/control statement"
    ],
@@ -24956,6 +24960,7 @@
    "dsn": "AWS.CUSTDATA.CLUSTER.INDEX",
    "kind": "VSAM component (DATA/INDEX)",
    "catalog_types": [],
+   "relative_generations": [],
    "reference_sources": [
     "JCL DD/control statement"
    ],
@@ -24979,6 +24984,7 @@
    "dsn": "AWS.M2.CARDDEMO.ACCDATA.PS",
    "kind": "sequential",
    "catalog_types": [],
+   "relative_generations": [],
    "reference_sources": [
     "sample data file"
    ],
@@ -24994,6 +25000,7 @@
    "dsn": "AWS.M2.CARDDEMO.ACCTDATA.ARRYPS",
    "kind": "unknown",
    "catalog_types": [],
+   "relative_generations": [],
    "reference_sources": [
     "application program",
     "JCL DD/control statement"
@@ -25051,6 +25058,7 @@
    "dsn": "AWS.M2.CARDDEMO.ACCTDATA.IMPORT",
    "kind": "sequential",
    "catalog_types": [],
+   "relative_generations": [],
    "reference_sources": [
     "application program",
     "JCL DD/control statement"
@@ -25089,6 +25097,7 @@
    "catalog_types": [
     "NONVSAM"
    ],
+   "relative_generations": [],
    "reference_sources": [
     "utility step only",
     "JCL DD/control statement",
@@ -25130,6 +25139,7 @@
    "dsn": "AWS.M2.CARDDEMO.ACCTDATA.PSCOMP",
    "kind": "unknown",
    "catalog_types": [],
+   "relative_generations": [],
    "reference_sources": [
     "application program",
     "JCL DD/control statement"
@@ -25187,6 +25197,7 @@
    "dsn": "AWS.M2.CARDDEMO.ACCTDATA.VBPS",
    "kind": "unknown",
    "catalog_types": [],
+   "relative_generations": [],
    "reference_sources": [
     "application program",
     "JCL DD/control statement"
@@ -25246,6 +25257,7 @@
    "catalog_types": [
     "CLUSTER"
    ],
+   "relative_generations": [],
    "reference_sources": [
     "application program",
     "JCL DD/control statement",
@@ -25512,6 +25524,7 @@
    "catalog_types": [
     "DATA"
    ],
+   "relative_generations": [],
    "reference_sources": [
     "JCL DD/control statement",
     "catalog listing"
@@ -25538,6 +25551,7 @@
    "catalog_types": [
     "INDEX"
    ],
+   "relative_generations": [],
    "reference_sources": [
     "JCL DD/control statement",
     "catalog listing"
@@ -25564,6 +25578,7 @@
    "catalog_types": [
     "NONVSAM"
    ],
+   "relative_generations": [],
    "reference_sources": [
     "catalog listing"
    ],
@@ -25579,6 +25594,7 @@
    "catalog_types": [
     "NONVSAM"
    ],
+   "relative_generations": [],
    "reference_sources": [
     "catalog listing"
    ],
@@ -25594,6 +25610,7 @@
    "catalog_types": [
     "NONVSAM"
    ],
+   "relative_generations": [],
    "reference_sources": [
     "utility step only",
     "JCL DD/control statement",
@@ -25637,6 +25654,7 @@
    "catalog_types": [
     "AIX"
    ],
+   "relative_generations": [],
    "reference_sources": [
     "JCL DD/control statement",
     "catalog listing"
@@ -25681,6 +25699,7 @@
    "catalog_types": [
     "DATA"
    ],
+   "relative_generations": [],
    "reference_sources": [
     "JCL DD/control statement",
     "catalog listing"
@@ -25707,6 +25726,7 @@
    "catalog_types": [
     "INDEX"
    ],
+   "relative_generations": [],
    "reference_sources": [
     "JCL DD/control statement",
     "catalog listing"
@@ -25733,6 +25753,7 @@
    "catalog_types": [
     "PATH"
    ],
+   "relative_generations": [],
    "reference_sources": [
     "application program",
     "JCL DD/control statement",
@@ -25779,6 +25800,7 @@
    "catalog_types": [
     "CLUSTER"
    ],
+   "relative_generations": [],
    "reference_sources": [
     "application program",
     "JCL DD/control statement",
@@ -26003,6 +26025,7 @@
    "catalog_types": [
     "DATA"
    ],
+   "relative_generations": [],
    "reference_sources": [
     "JCL DD/control statement",
     "catalog listing"
@@ -26029,6 +26052,7 @@
    "catalog_types": [
     "INDEX"
    ],
+   "relative_generations": [],
    "reference_sources": [
     "JCL DD/control statement",
     "catalog listing"
@@ -26053,6 +26077,7 @@
    "dsn": "AWS.M2.CARDDEMO.CARDXREF.IMPORT",
    "kind": "sequential",
    "catalog_types": [],
+   "relative_generations": [],
    "reference_sources": [
     "application program",
     "JCL DD/control statement"
@@ -26091,6 +26116,7 @@
    "catalog_types": [
     "NONVSAM"
    ],
+   "relative_generations": [],
    "reference_sources": [
     "utility step only",
     "JCL DD/control statement",
@@ -26134,6 +26160,7 @@
    "catalog_types": [
     "AIX"
    ],
+   "relative_generations": [],
    "reference_sources": [
     "JCL DD/control statement",
     "catalog listing"
@@ -26178,6 +26205,7 @@
    "catalog_types": [
     "DATA"
    ],
+   "relative_generations": [],
    "reference_sources": [
     "JCL DD/control statement",
     "catalog listing"
@@ -26204,6 +26232,7 @@
    "catalog_types": [
     "INDEX"
    ],
+   "relative_generations": [],
    "reference_sources": [
     "JCL DD/control statement",
     "catalog listing"
@@ -26230,6 +26259,7 @@
    "catalog_types": [
     "PATH"
    ],
+   "relative_generations": [],
    "reference_sources": [
     "application program",
     "JCL DD/control statement",
@@ -26329,6 +26359,7 @@
    "catalog_types": [
     "CLUSTER"
    ],
+   "relative_generations": [],
    "reference_sources": [
     "application program",
     "JCL DD/control statement",
@@ -26554,6 +26585,7 @@
    "catalog_types": [
     "DATA"
    ],
+   "relative_generations": [],
    "reference_sources": [
     "JCL DD/control statement",
     "catalog listing"
@@ -26580,6 +26612,7 @@
    "catalog_types": [
     "INDEX"
    ],
+   "relative_generations": [],
    "reference_sources": [
     "JCL DD/control statement",
     "catalog listing"
@@ -26606,6 +26639,7 @@
    "catalog_types": [
     "NONVSAM"
    ],
+   "relative_generations": [],
    "reference_sources": [
     "catalog listing"
    ],
@@ -26621,6 +26655,7 @@
    "catalog_types": [
     "NONVSAM"
    ],
+   "relative_generations": [],
    "reference_sources": [
     "catalog listing"
    ],
@@ -26634,6 +26669,7 @@
    "dsn": "AWS.M2.CARDDEMO.CNTL(DB2CREAT)",
    "kind": "library (PDS/PDSE)",
    "catalog_types": [],
+   "relative_generations": [],
    "reference_sources": [
     "utility step only",
     "JCL DD/control statement"
@@ -26671,6 +26707,7 @@
    "dsn": "AWS.M2.CARDDEMO.CNTL(DB2FREE)",
    "kind": "library (PDS/PDSE)",
    "catalog_types": [],
+   "relative_generations": [],
    "reference_sources": [
     "utility step only",
     "JCL DD/control statement"
@@ -26708,6 +26745,7 @@
    "dsn": "AWS.M2.CARDDEMO.CNTL(DB2LTCAT)",
    "kind": "library (PDS/PDSE)",
    "catalog_types": [],
+   "relative_generations": [],
    "reference_sources": [
     "utility step only",
     "JCL DD/control statement"
@@ -26745,6 +26783,7 @@
    "dsn": "AWS.M2.CARDDEMO.CNTL(DB2LTTYP)",
    "kind": "library (PDS/PDSE)",
    "catalog_types": [],
+   "relative_generations": [],
    "reference_sources": [
     "utility step only",
     "JCL DD/control statement"
@@ -26782,6 +26821,7 @@
    "dsn": "AWS.M2.CARDDEMO.CNTL(DB2TEP41)",
    "kind": "library (PDS/PDSE)",
    "catalog_types": [],
+   "relative_generations": [],
    "reference_sources": [
     "utility step only",
     "JCL DD/control statement"
@@ -26840,6 +26880,7 @@
    "dsn": "AWS.M2.CARDDEMO.CNTL(DB2TIAD1)",
    "kind": "library (PDS/PDSE)",
    "catalog_types": [],
+   "relative_generations": [],
    "reference_sources": [
     "utility step only",
     "JCL DD/control statement"
@@ -26877,6 +26918,7 @@
    "dsn": "AWS.M2.CARDDEMO.CNTL(REPROCT)",
    "kind": "library (PDS/PDSE)",
    "catalog_types": [],
+   "relative_generations": [],
    "reference_sources": [
     "utility step only"
    ],
@@ -26929,6 +26971,7 @@
    "catalog_types": [
     "NONVSAM"
    ],
+   "relative_generations": [],
    "reference_sources": [
     "catalog listing"
    ],
@@ -26942,6 +26985,7 @@
    "dsn": "AWS.M2.CARDDEMO.CUSTDATA.IMPORT",
    "kind": "sequential",
    "catalog_types": [],
+   "relative_generations": [],
    "reference_sources": [
     "application program",
     "JCL DD/control statement"
@@ -26980,6 +27024,7 @@
    "catalog_types": [
     "NONVSAM"
    ],
+   "relative_generations": [],
    "reference_sources": [
     "utility step only",
     "JCL DD/control statement",
@@ -27023,6 +27068,7 @@
    "catalog_types": [
     "CLUSTER"
    ],
+   "relative_generations": [],
    "reference_sources": [
     "application program",
     "JCL DD/control statement",
@@ -27214,6 +27260,7 @@
    "catalog_types": [
     "DATA"
    ],
+   "relative_generations": [],
    "reference_sources": [
     "JCL DD/control statement",
     "catalog listing"
@@ -27240,6 +27287,7 @@
    "catalog_types": [
     "INDEX"
    ],
+   "relative_generations": [],
    "reference_sources": [
     "JCL DD/control statement",
     "catalog listing"
@@ -27265,6 +27313,9 @@
    "kind": "GDG / sequential",
    "catalog_types": [
     "GDG BASE"
+   ],
+   "relative_generations": [
+    "+1"
    ],
    "reference_sources": [
     "application program",
@@ -27310,10 +27361,11 @@
   },
   {
    "dsn": "AWS.M2.CARDDEMO.DALYREJS.G0022V00",
-   "kind": "sequential",
+   "kind": "GDG / sequential",
    "catalog_types": [
     "NONVSAM"
    ],
+   "relative_generations": [],
    "reference_sources": [
     "catalog listing"
    ],
@@ -27325,10 +27377,11 @@
   },
   {
    "dsn": "AWS.M2.CARDDEMO.DALYREJS.G0023V00",
-   "kind": "sequential",
+   "kind": "GDG / sequential",
    "catalog_types": [
     "NONVSAM"
    ],
+   "relative_generations": [],
    "reference_sources": [
     "catalog listing"
    ],
@@ -27340,10 +27393,11 @@
   },
   {
    "dsn": "AWS.M2.CARDDEMO.DALYREJS.G0024V00",
-   "kind": "sequential",
+   "kind": "GDG / sequential",
    "catalog_types": [
     "NONVSAM"
    ],
+   "relative_generations": [],
    "reference_sources": [
     "catalog listing"
    ],
@@ -27355,10 +27409,11 @@
   },
   {
    "dsn": "AWS.M2.CARDDEMO.DALYREJS.G0025V00",
-   "kind": "sequential",
+   "kind": "GDG / sequential",
    "catalog_types": [
     "NONVSAM"
    ],
+   "relative_generations": [],
    "reference_sources": [
     "catalog listing"
    ],
@@ -27370,10 +27425,11 @@
   },
   {
    "dsn": "AWS.M2.CARDDEMO.DALYREJS.G0026V00",
-   "kind": "sequential",
+   "kind": "GDG / sequential",
    "catalog_types": [
     "NONVSAM"
    ],
+   "relative_generations": [],
    "reference_sources": [
     "catalog listing"
    ],
@@ -27389,6 +27445,7 @@
    "catalog_types": [
     "NONVSAM"
    ],
+   "relative_generations": [],
    "reference_sources": [
     "application program",
     "JCL DD/control statement",
@@ -27431,6 +27488,7 @@
    "catalog_types": [
     "NONVSAM"
    ],
+   "relative_generations": [],
    "reference_sources": [
     "utility step only",
     "JCL DD/control statement",
@@ -27474,6 +27532,7 @@
    "catalog_types": [
     "NONVSAM"
    ],
+   "relative_generations": [],
    "reference_sources": [
     "application program",
     "JCL DD/control statement",
@@ -27520,6 +27579,7 @@
    "dsn": "AWS.M2.CARDDEMO.DBRMLIB",
    "kind": "library (PDS/PDSE)",
    "catalog_types": [],
+   "relative_generations": [],
    "reference_sources": [
     "utility step only",
     "JCL DD/control statement"
@@ -27559,6 +27619,7 @@
    "catalog_types": [
     "NONVSAM"
    ],
+   "relative_generations": [],
    "reference_sources": [
     "catalog listing"
    ],
@@ -27570,8 +27631,11 @@
   },
   {
    "dsn": "AWS.M2.CARDDEMO.DISCGRP.BKUP",
-   "kind": "sequential",
+   "kind": "GDG / sequential",
    "catalog_types": [],
+   "relative_generations": [
+    "+1"
+   ],
    "reference_sources": [
     "utility step only",
     "JCL DD/control statement"
@@ -27620,6 +27684,7 @@
    "catalog_types": [
     "NONVSAM"
    ],
+   "relative_generations": [],
    "reference_sources": [
     "utility step only",
     "JCL DD/control statement",
@@ -27684,6 +27749,7 @@
    "catalog_types": [
     "CLUSTER"
    ],
+   "relative_generations": [],
    "reference_sources": [
     "application program",
     "JCL DD/control statement",
@@ -27762,6 +27828,7 @@
    "catalog_types": [
     "DATA"
    ],
+   "relative_generations": [],
    "reference_sources": [
     "JCL DD/control statement",
     "catalog listing"
@@ -27788,6 +27855,7 @@
    "catalog_types": [
     "INDEX"
    ],
+   "relative_generations": [],
    "reference_sources": [
     "JCL DD/control statement",
     "catalog listing"
@@ -27812,6 +27880,7 @@
    "dsn": "AWS.M2.CARDDEMO.ESDSRRDS.PS",
    "kind": "VSAM",
    "catalog_types": [],
+   "relative_generations": [],
    "reference_sources": [
     "utility step only",
     "JCL DD/control statement"
@@ -27912,6 +27981,7 @@
    "dsn": "AWS.M2.CARDDEMO.EXPORT.DATA",
    "kind": "VSAM component (DATA/INDEX)",
    "catalog_types": [],
+   "relative_generations": [],
    "reference_sources": [
     "application program",
     "JCL DD/control statement"
@@ -27986,6 +28056,7 @@
    "dsn": "AWS.M2.CARDDEMO.EXPORT.DATA.DATA",
    "kind": "VSAM component (DATA/INDEX)",
    "catalog_types": [],
+   "relative_generations": [],
    "reference_sources": [
     "JCL DD/control statement"
    ],
@@ -28009,6 +28080,7 @@
    "dsn": "AWS.M2.CARDDEMO.EXPORT.DATA.INDEX",
    "kind": "VSAM component (DATA/INDEX)",
    "catalog_types": [],
+   "relative_generations": [],
    "reference_sources": [
     "JCL DD/control statement"
    ],
@@ -28032,6 +28104,7 @@
    "dsn": "AWS.M2.CARDDEMO.EXPORT.DATA.PS",
    "kind": "sequential",
    "catalog_types": [],
+   "relative_generations": [],
    "reference_sources": [
     "sample data file"
    ],
@@ -28047,6 +28120,7 @@
    "dsn": "AWS.M2.CARDDEMO.IMPORT.ERRORS",
    "kind": "sequential",
    "catalog_types": [],
+   "relative_generations": [],
    "reference_sources": [
     "application program",
     "JCL DD/control statement"
@@ -28083,6 +28157,7 @@
    "dsn": "AWS.M2.CARDDEMO.IMSDATA.DBPAUTP0",
    "kind": "unknown",
    "catalog_types": [],
+   "relative_generations": [],
    "reference_sources": [
     "utility step only",
     "JCL DD/control statement",
@@ -28158,6 +28233,7 @@
    "catalog_types": [
     "NONVSAM"
    ],
+   "relative_generations": [],
    "reference_sources": [
     "catalog listing"
    ],
@@ -28171,6 +28247,7 @@
    "dsn": "AWS.M2.CARDDEMO.JCL(INTRDRJ2)",
    "kind": "library (PDS/PDSE)",
    "catalog_types": [],
+   "relative_generations": [],
    "reference_sources": [
     "utility step only",
     "JCL DD/control statement"
@@ -28210,6 +28287,7 @@
    "catalog_types": [
     "NONVSAM"
    ],
+   "relative_generations": [],
    "reference_sources": [
     "catalog listing"
    ],
@@ -28225,6 +28303,7 @@
    "catalog_types": [
     "NONVSAM"
    ],
+   "relative_generations": [],
    "reference_sources": [
     "catalog listing"
    ],
@@ -28240,6 +28319,7 @@
    "catalog_types": [
     "NONVSAM"
    ],
+   "relative_generations": [],
    "reference_sources": [
     "catalog listing"
    ],
@@ -28255,6 +28335,7 @@
    "catalog_types": [
     "NONVSAM"
    ],
+   "relative_generations": [],
    "reference_sources": [
     "JCL DD/control statement",
     "CSD LIBRARY",
@@ -28447,6 +28528,7 @@
    "catalog_types": [
     "NONVSAM"
    ],
+   "relative_generations": [],
    "reference_sources": [
     "catalog listing"
    ],
@@ -28460,6 +28542,7 @@
    "dsn": "AWS.M2.CARDDEMO.PAUTDB.CHILD.FILEO",
    "kind": "unknown",
    "catalog_types": [],
+   "relative_generations": [],
    "reference_sources": [
     "application program",
     "JCL DD/control statement"
@@ -28561,6 +28644,7 @@
    "dsn": "AWS.M2.CARDDEMO.PAUTDB.CHILD.GSAM",
    "kind": "unknown",
    "catalog_types": [],
+   "relative_generations": [],
    "reference_sources": [
     "utility step only",
     "JCL DD/control statement"
@@ -28598,6 +28682,7 @@
    "dsn": "AWS.M2.CARDDEMO.PAUTDB.ROOT.FILEO",
    "kind": "unknown",
    "catalog_types": [],
+   "relative_generations": [],
    "reference_sources": [
     "application program",
     "JCL DD/control statement"
@@ -28699,6 +28784,7 @@
    "dsn": "AWS.M2.CARDDEMO.PAUTDB.ROOT.GSAM",
    "kind": "unknown",
    "catalog_types": [],
+   "relative_generations": [],
    "reference_sources": [
     "utility step only",
     "JCL DD/control statement"
@@ -28738,6 +28824,7 @@
    "catalog_types": [
     "NONVSAM"
    ],
+   "relative_generations": [],
    "reference_sources": [
     "catalog listing"
    ],
@@ -28753,6 +28840,7 @@
    "catalog_types": [
     "NONVSAM"
    ],
+   "relative_generations": [],
    "reference_sources": [
     "catalog listing"
    ],
@@ -28768,6 +28856,7 @@
    "catalog_types": [
     "NONVSAM"
    ],
+   "relative_generations": [],
    "reference_sources": [
     "catalog listing"
    ],
@@ -28783,6 +28872,7 @@
    "catalog_types": [
     "NONVSAM"
    ],
+   "relative_generations": [],
    "reference_sources": [
     "catalog listing"
    ],
@@ -28796,6 +28886,7 @@
    "dsn": "AWS.M2.CARDDEMO.STATEMNT.HTML",
    "kind": "unknown",
    "catalog_types": [],
+   "relative_generations": [],
    "reference_sources": [
     "application program",
     "JCL DD/control statement"
@@ -28853,6 +28944,7 @@
    "dsn": "AWS.M2.CARDDEMO.STATEMNT.PS",
    "kind": "sequential",
    "catalog_types": [],
+   "relative_generations": [],
    "reference_sources": [
     "application program",
     "JCL DD/control statement"
@@ -28933,6 +29025,10 @@
    "catalog_types": [
     "GDG BASE"
    ],
+   "relative_generations": [
+    "0",
+    "+1"
+   ],
    "reference_sources": [
     "application program",
     "JCL DD/control statement",
@@ -28986,10 +29082,11 @@
   },
   {
    "dsn": "AWS.M2.CARDDEMO.SYSTRAN.G0018V00",
-   "kind": "unknown",
+   "kind": "GDG / sequential",
    "catalog_types": [
     "NONVSAM"
    ],
+   "relative_generations": [],
    "reference_sources": [
     "catalog listing"
    ],
@@ -29001,10 +29098,11 @@
   },
   {
    "dsn": "AWS.M2.CARDDEMO.SYSTRAN.G0019V00",
-   "kind": "unknown",
+   "kind": "GDG / sequential",
    "catalog_types": [
     "NONVSAM"
    ],
+   "relative_generations": [],
    "reference_sources": [
     "catalog listing"
    ],
@@ -29016,10 +29114,11 @@
   },
   {
    "dsn": "AWS.M2.CARDDEMO.SYSTRAN.G0020V00",
-   "kind": "unknown",
+   "kind": "GDG / sequential",
    "catalog_types": [
     "NONVSAM"
    ],
+   "relative_generations": [],
    "reference_sources": [
     "catalog listing"
    ],
@@ -29031,10 +29130,11 @@
   },
   {
    "dsn": "AWS.M2.CARDDEMO.SYSTRAN.G0021V00",
-   "kind": "unknown",
+   "kind": "GDG / sequential",
    "catalog_types": [
     "NONVSAM"
    ],
+   "relative_generations": [],
    "reference_sources": [
     "catalog listing"
    ],
@@ -29046,10 +29146,11 @@
   },
   {
    "dsn": "AWS.M2.CARDDEMO.SYSTRAN.G0022V00",
-   "kind": "unknown",
+   "kind": "GDG / sequential",
    "catalog_types": [
     "NONVSAM"
    ],
+   "relative_generations": [],
    "reference_sources": [
     "catalog listing"
    ],
@@ -29064,6 +29165,9 @@
    "kind": "GDG / sequential",
    "catalog_types": [
     "GDG BASE"
+   ],
+   "relative_generations": [
+    "+1"
    ],
    "reference_sources": [
     "utility step only",
@@ -29122,10 +29226,11 @@
   },
   {
    "dsn": "AWS.M2.CARDDEMO.TCATBALF.BKUP.G0005V00",
-   "kind": "sequential",
+   "kind": "GDG / sequential",
    "catalog_types": [
     "NONVSAM"
    ],
+   "relative_generations": [],
    "reference_sources": [
     "catalog listing"
    ],
@@ -29137,10 +29242,11 @@
   },
   {
    "dsn": "AWS.M2.CARDDEMO.TCATBALF.BKUP.G0006V00",
-   "kind": "sequential",
+   "kind": "GDG / sequential",
    "catalog_types": [
     "NONVSAM"
    ],
+   "relative_generations": [],
    "reference_sources": [
     "catalog listing"
    ],
@@ -29152,10 +29258,11 @@
   },
   {
    "dsn": "AWS.M2.CARDDEMO.TCATBALF.BKUP.G0007V00",
-   "kind": "sequential",
+   "kind": "GDG / sequential",
    "catalog_types": [
     "NONVSAM"
    ],
+   "relative_generations": [],
    "reference_sources": [
     "catalog listing"
    ],
@@ -29167,10 +29274,11 @@
   },
   {
    "dsn": "AWS.M2.CARDDEMO.TCATBALF.BKUP.G0008V00",
-   "kind": "sequential",
+   "kind": "GDG / sequential",
    "catalog_types": [
     "NONVSAM"
    ],
+   "relative_generations": [],
    "reference_sources": [
     "catalog listing"
    ],
@@ -29182,10 +29290,11 @@
   },
   {
    "dsn": "AWS.M2.CARDDEMO.TCATBALF.BKUP.G0009V00",
-   "kind": "sequential",
+   "kind": "GDG / sequential",
    "catalog_types": [
     "NONVSAM"
    ],
+   "relative_generations": [],
    "reference_sources": [
     "catalog listing"
    ],
@@ -29201,6 +29310,7 @@
    "catalog_types": [
     "NONVSAM"
    ],
+   "relative_generations": [],
    "reference_sources": [
     "utility step only",
     "JCL DD/control statement",
@@ -29244,6 +29354,7 @@
    "catalog_types": [
     "NONVSAM"
    ],
+   "relative_generations": [],
    "reference_sources": [
     "utility step only",
     "JCL DD/control statement",
@@ -29305,6 +29416,7 @@
    "catalog_types": [
     "CLUSTER"
    ],
+   "relative_generations": [],
    "reference_sources": [
     "application program",
     "JCL DD/control statement",
@@ -29417,6 +29529,7 @@
    "catalog_types": [
     "DATA"
    ],
+   "relative_generations": [],
    "reference_sources": [
     "JCL DD/control statement",
     "catalog listing"
@@ -29443,6 +29556,7 @@
    "catalog_types": [
     "INDEX"
    ],
+   "relative_generations": [],
    "reference_sources": [
     "JCL DD/control statement",
     "catalog listing"
@@ -29469,6 +29583,7 @@
    "catalog_types": [
     "NONVSAM"
    ],
+   "relative_generations": [],
    "reference_sources": [
     "utility step only",
     "JCL DD/control statement",
@@ -29604,8 +29719,11 @@
   },
   {
    "dsn": "AWS.M2.CARDDEMO.TRANCATG.PS.BKUP",
-   "kind": "sequential",
+   "kind": "GDG / sequential",
    "catalog_types": [],
+   "relative_generations": [
+    "+1"
+   ],
    "reference_sources": [
     "utility step only",
     "JCL DD/control statement"
@@ -29675,6 +29793,7 @@
    "catalog_types": [
     "CLUSTER"
    ],
+   "relative_generations": [],
    "reference_sources": [
     "application program",
     "JCL DD/control statement",
@@ -29762,6 +29881,7 @@
    "catalog_types": [
     "DATA"
    ],
+   "relative_generations": [],
    "reference_sources": [
     "JCL DD/control statement",
     "catalog listing"
@@ -29788,6 +29908,7 @@
    "catalog_types": [
     "INDEX"
    ],
+   "relative_generations": [],
    "reference_sources": [
     "JCL DD/control statement",
     "catalog listing"
@@ -29813,6 +29934,9 @@
    "kind": "GDG / sequential",
    "catalog_types": [
     "GDG BASE"
+   ],
+   "relative_generations": [
+    "+1"
    ],
    "reference_sources": [
     "application program",
@@ -29876,10 +30000,11 @@
   },
   {
    "dsn": "AWS.M2.CARDDEMO.TRANREPT.G0010V00",
-   "kind": "sequential",
+   "kind": "GDG / sequential",
    "catalog_types": [
     "NONVSAM"
    ],
+   "relative_generations": [],
    "reference_sources": [
     "catalog listing"
    ],
@@ -29891,10 +30016,11 @@
   },
   {
    "dsn": "AWS.M2.CARDDEMO.TRANREPT.G0011V00",
-   "kind": "sequential",
+   "kind": "GDG / sequential",
    "catalog_types": [
     "NONVSAM"
    ],
+   "relative_generations": [],
    "reference_sources": [
     "catalog listing"
    ],
@@ -29906,10 +30032,11 @@
   },
   {
    "dsn": "AWS.M2.CARDDEMO.TRANREPT.G0012V00",
-   "kind": "sequential",
+   "kind": "GDG / sequential",
    "catalog_types": [
     "NONVSAM"
    ],
+   "relative_generations": [],
    "reference_sources": [
     "catalog listing"
    ],
@@ -29921,10 +30048,11 @@
   },
   {
    "dsn": "AWS.M2.CARDDEMO.TRANREPT.G0013V00",
-   "kind": "sequential",
+   "kind": "GDG / sequential",
    "catalog_types": [
     "NONVSAM"
    ],
+   "relative_generations": [],
    "reference_sources": [
     "catalog listing"
    ],
@@ -29936,10 +30064,11 @@
   },
   {
    "dsn": "AWS.M2.CARDDEMO.TRANREPT.G0014V00",
-   "kind": "sequential",
+   "kind": "GDG / sequential",
    "catalog_types": [
     "NONVSAM"
    ],
+   "relative_generations": [],
    "reference_sources": [
     "catalog listing"
    ],
@@ -29954,6 +30083,10 @@
    "kind": "GDG / sequential",
    "catalog_types": [
     "GDG BASE"
+   ],
+   "relative_generations": [
+    "0",
+    "+1"
    ],
    "reference_sources": [
     "utility step only",
@@ -30054,10 +30187,11 @@
   },
   {
    "dsn": "AWS.M2.CARDDEMO.TRANSACT.BKUP.G0001V00",
-   "kind": "sequential",
+   "kind": "GDG / sequential",
    "catalog_types": [
     "NONVSAM"
    ],
+   "relative_generations": [],
    "reference_sources": [
     "catalog listing"
    ],
@@ -30069,10 +30203,11 @@
   },
   {
    "dsn": "AWS.M2.CARDDEMO.TRANSACT.BKUP.G0002V00",
-   "kind": "sequential",
+   "kind": "GDG / sequential",
    "catalog_types": [
     "NONVSAM"
    ],
+   "relative_generations": [],
    "reference_sources": [
     "catalog listing"
    ],
@@ -30084,10 +30219,11 @@
   },
   {
    "dsn": "AWS.M2.CARDDEMO.TRANSACT.BKUP.G0003V00",
-   "kind": "sequential",
+   "kind": "GDG / sequential",
    "catalog_types": [
     "NONVSAM"
    ],
+   "relative_generations": [],
    "reference_sources": [
     "catalog listing"
    ],
@@ -30099,10 +30235,11 @@
   },
   {
    "dsn": "AWS.M2.CARDDEMO.TRANSACT.BKUP.G0004V00",
-   "kind": "sequential",
+   "kind": "GDG / sequential",
    "catalog_types": [
     "NONVSAM"
    ],
+   "relative_generations": [],
    "reference_sources": [
     "catalog listing"
    ],
@@ -30114,10 +30251,11 @@
   },
   {
    "dsn": "AWS.M2.CARDDEMO.TRANSACT.BKUP.G0005V00",
-   "kind": "sequential",
+   "kind": "GDG / sequential",
    "catalog_types": [
     "NONVSAM"
    ],
+   "relative_generations": [],
    "reference_sources": [
     "catalog listing"
    ],
@@ -30129,10 +30267,11 @@
   },
   {
    "dsn": "AWS.M2.CARDDEMO.TRANSACT.BKUP.G0006V00",
-   "kind": "sequential",
+   "kind": "GDG / sequential",
    "catalog_types": [
     "NONVSAM"
    ],
+   "relative_generations": [],
    "reference_sources": [
     "catalog listing"
    ],
@@ -30144,10 +30283,11 @@
   },
   {
    "dsn": "AWS.M2.CARDDEMO.TRANSACT.BKUP.G0007V00",
-   "kind": "sequential",
+   "kind": "GDG / sequential",
    "catalog_types": [
     "NONVSAM"
    ],
+   "relative_generations": [],
    "reference_sources": [
     "catalog listing"
    ],
@@ -30159,10 +30299,11 @@
   },
   {
    "dsn": "AWS.M2.CARDDEMO.TRANSACT.BKUP.G0008V00",
-   "kind": "sequential",
+   "kind": "GDG / sequential",
    "catalog_types": [
     "NONVSAM"
    ],
+   "relative_generations": [],
    "reference_sources": [
     "catalog listing"
    ],
@@ -30174,10 +30315,11 @@
   },
   {
    "dsn": "AWS.M2.CARDDEMO.TRANSACT.BKUP.G0009V00",
-   "kind": "sequential",
+   "kind": "GDG / sequential",
    "catalog_types": [
     "NONVSAM"
    ],
+   "relative_generations": [],
    "reference_sources": [
     "catalog listing"
    ],
@@ -30189,10 +30331,11 @@
   },
   {
    "dsn": "AWS.M2.CARDDEMO.TRANSACT.BKUP.G0010V00",
-   "kind": "sequential",
+   "kind": "GDG / sequential",
    "catalog_types": [
     "NONVSAM"
    ],
+   "relative_generations": [],
    "reference_sources": [
     "catalog listing"
    ],
@@ -30204,10 +30347,11 @@
   },
   {
    "dsn": "AWS.M2.CARDDEMO.TRANSACT.BKUP.G0011V00",
-   "kind": "sequential",
+   "kind": "GDG / sequential",
    "catalog_types": [
     "NONVSAM"
    ],
+   "relative_generations": [],
    "reference_sources": [
     "catalog listing"
    ],
@@ -30219,10 +30363,11 @@
   },
   {
    "dsn": "AWS.M2.CARDDEMO.TRANSACT.BKUP.G0012V00",
-   "kind": "sequential",
+   "kind": "GDG / sequential",
    "catalog_types": [
     "NONVSAM"
    ],
+   "relative_generations": [],
    "reference_sources": [
     "catalog listing"
    ],
@@ -30234,10 +30379,11 @@
   },
   {
    "dsn": "AWS.M2.CARDDEMO.TRANSACT.BKUP.G0013V00",
-   "kind": "sequential",
+   "kind": "GDG / sequential",
    "catalog_types": [
     "NONVSAM"
    ],
+   "relative_generations": [],
    "reference_sources": [
     "catalog listing"
    ],
@@ -30249,10 +30395,11 @@
   },
   {
    "dsn": "AWS.M2.CARDDEMO.TRANSACT.BKUP.G0014V00",
-   "kind": "sequential",
+   "kind": "GDG / sequential",
    "catalog_types": [
     "NONVSAM"
    ],
+   "relative_generations": [],
    "reference_sources": [
     "catalog listing"
    ],
@@ -30264,10 +30411,11 @@
   },
   {
    "dsn": "AWS.M2.CARDDEMO.TRANSACT.BKUP.G0015V00",
-   "kind": "sequential",
+   "kind": "GDG / sequential",
    "catalog_types": [
     "NONVSAM"
    ],
+   "relative_generations": [],
    "reference_sources": [
     "catalog listing"
    ],
@@ -30279,10 +30427,11 @@
   },
   {
    "dsn": "AWS.M2.CARDDEMO.TRANSACT.BKUP.G0016V00",
-   "kind": "sequential",
+   "kind": "GDG / sequential",
    "catalog_types": [
     "NONVSAM"
    ],
+   "relative_generations": [],
    "reference_sources": [
     "catalog listing"
    ],
@@ -30294,10 +30443,11 @@
   },
   {
    "dsn": "AWS.M2.CARDDEMO.TRANSACT.BKUP.G0017V00",
-   "kind": "sequential",
+   "kind": "GDG / sequential",
    "catalog_types": [
     "NONVSAM"
    ],
+   "relative_generations": [],
    "reference_sources": [
     "catalog listing"
    ],
@@ -30309,10 +30459,11 @@
   },
   {
    "dsn": "AWS.M2.CARDDEMO.TRANSACT.BKUP.G0018V00",
-   "kind": "sequential",
+   "kind": "GDG / sequential",
    "catalog_types": [
     "NONVSAM"
    ],
+   "relative_generations": [],
    "reference_sources": [
     "catalog listing"
    ],
@@ -30324,10 +30475,11 @@
   },
   {
    "dsn": "AWS.M2.CARDDEMO.TRANSACT.BKUP.G0019V00",
-   "kind": "sequential",
+   "kind": "GDG / sequential",
    "catalog_types": [
     "NONVSAM"
    ],
+   "relative_generations": [],
    "reference_sources": [
     "catalog listing"
    ],
@@ -30339,10 +30491,11 @@
   },
   {
    "dsn": "AWS.M2.CARDDEMO.TRANSACT.BKUP.G0020V00",
-   "kind": "sequential",
+   "kind": "GDG / sequential",
    "catalog_types": [
     "NONVSAM"
    ],
+   "relative_generations": [],
    "reference_sources": [
     "catalog listing"
    ],
@@ -30354,10 +30507,11 @@
   },
   {
    "dsn": "AWS.M2.CARDDEMO.TRANSACT.BKUP.G0021V00",
-   "kind": "sequential",
+   "kind": "GDG / sequential",
    "catalog_types": [
     "NONVSAM"
    ],
+   "relative_generations": [],
    "reference_sources": [
     "catalog listing"
    ],
@@ -30369,10 +30523,11 @@
   },
   {
    "dsn": "AWS.M2.CARDDEMO.TRANSACT.BKUP.G0022V00",
-   "kind": "sequential",
+   "kind": "GDG / sequential",
    "catalog_types": [
     "NONVSAM"
    ],
+   "relative_generations": [],
    "reference_sources": [
     "catalog listing"
    ],
@@ -30384,10 +30539,11 @@
   },
   {
    "dsn": "AWS.M2.CARDDEMO.TRANSACT.BKUP.G0023V00",
-   "kind": "sequential",
+   "kind": "GDG / sequential",
    "catalog_types": [
     "NONVSAM"
    ],
+   "relative_generations": [],
    "reference_sources": [
     "catalog listing"
    ],
@@ -30399,10 +30555,11 @@
   },
   {
    "dsn": "AWS.M2.CARDDEMO.TRANSACT.BKUP.G0024V00",
-   "kind": "sequential",
+   "kind": "GDG / sequential",
    "catalog_types": [
     "NONVSAM"
    ],
+   "relative_generations": [],
    "reference_sources": [
     "catalog listing"
    ],
@@ -30414,10 +30571,11 @@
   },
   {
    "dsn": "AWS.M2.CARDDEMO.TRANSACT.BKUP.G0025V00",
-   "kind": "sequential",
+   "kind": "GDG / sequential",
    "catalog_types": [
     "NONVSAM"
    ],
+   "relative_generations": [],
    "reference_sources": [
     "catalog listing"
    ],
@@ -30429,10 +30587,11 @@
   },
   {
    "dsn": "AWS.M2.CARDDEMO.TRANSACT.BKUP.G0026V00",
-   "kind": "sequential",
+   "kind": "GDG / sequential",
    "catalog_types": [
     "NONVSAM"
    ],
+   "relative_generations": [],
    "reference_sources": [
     "catalog listing"
    ],
@@ -30444,10 +30603,11 @@
   },
   {
    "dsn": "AWS.M2.CARDDEMO.TRANSACT.BKUP.G0027V00",
-   "kind": "sequential",
+   "kind": "GDG / sequential",
    "catalog_types": [
     "NONVSAM"
    ],
+   "relative_generations": [],
    "reference_sources": [
     "catalog listing"
    ],
@@ -30459,10 +30619,11 @@
   },
   {
    "dsn": "AWS.M2.CARDDEMO.TRANSACT.BKUP.G0028V00",
-   "kind": "sequential",
+   "kind": "GDG / sequential",
    "catalog_types": [
     "NONVSAM"
    ],
+   "relative_generations": [],
    "reference_sources": [
     "catalog listing"
    ],
@@ -30474,10 +30635,11 @@
   },
   {
    "dsn": "AWS.M2.CARDDEMO.TRANSACT.BKUP.G0029V00",
-   "kind": "sequential",
+   "kind": "GDG / sequential",
    "catalog_types": [
     "NONVSAM"
    ],
+   "relative_generations": [],
    "reference_sources": [
     "catalog listing"
    ],
@@ -30489,10 +30651,11 @@
   },
   {
    "dsn": "AWS.M2.CARDDEMO.TRANSACT.BKUP.G0030V00",
-   "kind": "sequential",
+   "kind": "GDG / sequential",
    "catalog_types": [
     "NONVSAM"
    ],
+   "relative_generations": [],
    "reference_sources": [
     "catalog listing"
    ],
@@ -30504,10 +30667,11 @@
   },
   {
    "dsn": "AWS.M2.CARDDEMO.TRANSACT.BKUP.G0031V00",
-   "kind": "sequential",
+   "kind": "GDG / sequential",
    "catalog_types": [
     "NONVSAM"
    ],
+   "relative_generations": [],
    "reference_sources": [
     "catalog listing"
    ],
@@ -30519,10 +30683,11 @@
   },
   {
    "dsn": "AWS.M2.CARDDEMO.TRANSACT.BKUP.G0032V00",
-   "kind": "sequential",
+   "kind": "GDG / sequential",
    "catalog_types": [
     "NONVSAM"
    ],
+   "relative_generations": [],
    "reference_sources": [
     "catalog listing"
    ],
@@ -30534,10 +30699,11 @@
   },
   {
    "dsn": "AWS.M2.CARDDEMO.TRANSACT.BKUP.G0033V00",
-   "kind": "sequential",
+   "kind": "GDG / sequential",
    "catalog_types": [
     "NONVSAM"
    ],
+   "relative_generations": [],
    "reference_sources": [
     "catalog listing"
    ],
@@ -30549,10 +30715,11 @@
   },
   {
    "dsn": "AWS.M2.CARDDEMO.TRANSACT.BKUP.G0034V00",
-   "kind": "sequential",
+   "kind": "GDG / sequential",
    "catalog_types": [
     "NONVSAM"
    ],
+   "relative_generations": [],
    "reference_sources": [
     "catalog listing"
    ],
@@ -30564,10 +30731,11 @@
   },
   {
    "dsn": "AWS.M2.CARDDEMO.TRANSACT.BKUP.G0035V00",
-   "kind": "sequential",
+   "kind": "GDG / sequential",
    "catalog_types": [
     "NONVSAM"
    ],
+   "relative_generations": [],
    "reference_sources": [
     "catalog listing"
    ],
@@ -30579,10 +30747,11 @@
   },
   {
    "dsn": "AWS.M2.CARDDEMO.TRANSACT.BKUP.G0036V00",
-   "kind": "sequential",
+   "kind": "GDG / sequential",
    "catalog_types": [
     "NONVSAM"
    ],
+   "relative_generations": [],
    "reference_sources": [
     "catalog listing"
    ],
@@ -30594,10 +30763,11 @@
   },
   {
    "dsn": "AWS.M2.CARDDEMO.TRANSACT.BKUP.G0037V00",
-   "kind": "sequential",
+   "kind": "GDG / sequential",
    "catalog_types": [
     "NONVSAM"
    ],
+   "relative_generations": [],
    "reference_sources": [
     "catalog listing"
    ],
@@ -30609,10 +30779,11 @@
   },
   {
    "dsn": "AWS.M2.CARDDEMO.TRANSACT.BKUP.G0038V00",
-   "kind": "sequential",
+   "kind": "GDG / sequential",
    "catalog_types": [
     "NONVSAM"
    ],
+   "relative_generations": [],
    "reference_sources": [
     "catalog listing"
    ],
@@ -30624,10 +30795,11 @@
   },
   {
    "dsn": "AWS.M2.CARDDEMO.TRANSACT.BKUP.G0039V00",
-   "kind": "sequential",
+   "kind": "GDG / sequential",
    "catalog_types": [
     "NONVSAM"
    ],
+   "relative_generations": [],
    "reference_sources": [
     "catalog listing"
    ],
@@ -30639,10 +30811,11 @@
   },
   {
    "dsn": "AWS.M2.CARDDEMO.TRANSACT.BKUP.G0040V00",
-   "kind": "sequential",
+   "kind": "GDG / sequential",
    "catalog_types": [
     "NONVSAM"
    ],
+   "relative_generations": [],
    "reference_sources": [
     "catalog listing"
    ],
@@ -30654,10 +30827,11 @@
   },
   {
    "dsn": "AWS.M2.CARDDEMO.TRANSACT.BKUP.G0041V00",
-   "kind": "sequential",
+   "kind": "GDG / sequential",
    "catalog_types": [
     "NONVSAM"
    ],
+   "relative_generations": [],
    "reference_sources": [
     "catalog listing"
    ],
@@ -30669,10 +30843,11 @@
   },
   {
    "dsn": "AWS.M2.CARDDEMO.TRANSACT.BKUP.G0042V00",
-   "kind": "sequential",
+   "kind": "GDG / sequential",
    "catalog_types": [
     "NONVSAM"
    ],
+   "relative_generations": [],
    "reference_sources": [
     "catalog listing"
    ],
@@ -30684,10 +30859,11 @@
   },
   {
    "dsn": "AWS.M2.CARDDEMO.TRANSACT.BKUP.G0043V00",
-   "kind": "sequential",
+   "kind": "GDG / sequential",
    "catalog_types": [
     "NONVSAM"
    ],
+   "relative_generations": [],
    "reference_sources": [
     "catalog listing"
    ],
@@ -30699,10 +30875,11 @@
   },
   {
    "dsn": "AWS.M2.CARDDEMO.TRANSACT.BKUP.G0044V00",
-   "kind": "sequential",
+   "kind": "GDG / sequential",
    "catalog_types": [
     "NONVSAM"
    ],
+   "relative_generations": [],
    "reference_sources": [
     "catalog listing"
    ],
@@ -30714,10 +30891,11 @@
   },
   {
    "dsn": "AWS.M2.CARDDEMO.TRANSACT.BKUP.G0045V00",
-   "kind": "sequential",
+   "kind": "GDG / sequential",
    "catalog_types": [
     "NONVSAM"
    ],
+   "relative_generations": [],
    "reference_sources": [
     "catalog listing"
    ],
@@ -30729,10 +30907,11 @@
   },
   {
    "dsn": "AWS.M2.CARDDEMO.TRANSACT.BKUP.G0046V00",
-   "kind": "sequential",
+   "kind": "GDG / sequential",
    "catalog_types": [
     "NONVSAM"
    ],
+   "relative_generations": [],
    "reference_sources": [
     "catalog listing"
    ],
@@ -30744,10 +30923,11 @@
   },
   {
    "dsn": "AWS.M2.CARDDEMO.TRANSACT.BKUP.G0047V00",
-   "kind": "sequential",
+   "kind": "GDG / sequential",
    "catalog_types": [
     "NONVSAM"
    ],
+   "relative_generations": [],
    "reference_sources": [
     "catalog listing"
    ],
@@ -30759,10 +30939,11 @@
   },
   {
    "dsn": "AWS.M2.CARDDEMO.TRANSACT.BKUP.G0048V00",
-   "kind": "sequential",
+   "kind": "GDG / sequential",
    "catalog_types": [
     "NONVSAM"
    ],
+   "relative_generations": [],
    "reference_sources": [
     "catalog listing"
    ],
@@ -30774,10 +30955,11 @@
   },
   {
    "dsn": "AWS.M2.CARDDEMO.TRANSACT.BKUP.G0049V00",
-   "kind": "sequential",
+   "kind": "GDG / sequential",
    "catalog_types": [
     "NONVSAM"
    ],
+   "relative_generations": [],
    "reference_sources": [
     "catalog listing"
    ],
@@ -30789,10 +30971,11 @@
   },
   {
    "dsn": "AWS.M2.CARDDEMO.TRANSACT.BKUP.G0050V00",
-   "kind": "sequential",
+   "kind": "GDG / sequential",
    "catalog_types": [
     "NONVSAM"
    ],
+   "relative_generations": [],
    "reference_sources": [
     "catalog listing"
    ],
@@ -30804,10 +30987,11 @@
   },
   {
    "dsn": "AWS.M2.CARDDEMO.TRANSACT.BKUP.G0051V00",
-   "kind": "sequential",
+   "kind": "GDG / sequential",
    "catalog_types": [
     "NONVSAM"
    ],
+   "relative_generations": [],
    "reference_sources": [
     "catalog listing"
    ],
@@ -30819,10 +31003,11 @@
   },
   {
    "dsn": "AWS.M2.CARDDEMO.TRANSACT.BKUP.G0052V00",
-   "kind": "sequential",
+   "kind": "GDG / sequential",
    "catalog_types": [
     "NONVSAM"
    ],
+   "relative_generations": [],
    "reference_sources": [
     "catalog listing"
    ],
@@ -30834,10 +31019,11 @@
   },
   {
    "dsn": "AWS.M2.CARDDEMO.TRANSACT.BKUP.G0053V00",
-   "kind": "sequential",
+   "kind": "GDG / sequential",
    "catalog_types": [
     "NONVSAM"
    ],
+   "relative_generations": [],
    "reference_sources": [
     "catalog listing"
    ],
@@ -30849,10 +31035,11 @@
   },
   {
    "dsn": "AWS.M2.CARDDEMO.TRANSACT.BKUP.G0054V00",
-   "kind": "sequential",
+   "kind": "GDG / sequential",
    "catalog_types": [
     "NONVSAM"
    ],
+   "relative_generations": [],
    "reference_sources": [
     "catalog listing"
    ],
@@ -30864,10 +31051,11 @@
   },
   {
    "dsn": "AWS.M2.CARDDEMO.TRANSACT.BKUP.G0055V00",
-   "kind": "sequential",
+   "kind": "GDG / sequential",
    "catalog_types": [
     "NONVSAM"
    ],
+   "relative_generations": [],
    "reference_sources": [
     "catalog listing"
    ],
@@ -30879,10 +31067,11 @@
   },
   {
    "dsn": "AWS.M2.CARDDEMO.TRANSACT.BKUP.G0056V00",
-   "kind": "sequential",
+   "kind": "GDG / sequential",
    "catalog_types": [
     "NONVSAM"
    ],
+   "relative_generations": [],
    "reference_sources": [
     "catalog listing"
    ],
@@ -30894,10 +31083,11 @@
   },
   {
    "dsn": "AWS.M2.CARDDEMO.TRANSACT.BKUP.G0057V00",
-   "kind": "sequential",
+   "kind": "GDG / sequential",
    "catalog_types": [
     "NONVSAM"
    ],
+   "relative_generations": [],
    "reference_sources": [
     "catalog listing"
    ],
@@ -30909,10 +31099,11 @@
   },
   {
    "dsn": "AWS.M2.CARDDEMO.TRANSACT.BKUP.G0058V00",
-   "kind": "sequential",
+   "kind": "GDG / sequential",
    "catalog_types": [
     "NONVSAM"
    ],
+   "relative_generations": [],
    "reference_sources": [
     "catalog listing"
    ],
@@ -30924,10 +31115,11 @@
   },
   {
    "dsn": "AWS.M2.CARDDEMO.TRANSACT.BKUP.G0059V00",
-   "kind": "sequential",
+   "kind": "GDG / sequential",
    "catalog_types": [
     "NONVSAM"
    ],
+   "relative_generations": [],
    "reference_sources": [
     "catalog listing"
    ],
@@ -30939,10 +31131,11 @@
   },
   {
    "dsn": "AWS.M2.CARDDEMO.TRANSACT.BKUP.G0060V00",
-   "kind": "sequential",
+   "kind": "GDG / sequential",
    "catalog_types": [
     "NONVSAM"
    ],
+   "relative_generations": [],
    "reference_sources": [
     "catalog listing"
    ],
@@ -30954,10 +31147,11 @@
   },
   {
    "dsn": "AWS.M2.CARDDEMO.TRANSACT.BKUP.G0061V00",
-   "kind": "sequential",
+   "kind": "GDG / sequential",
    "catalog_types": [
     "NONVSAM"
    ],
+   "relative_generations": [],
    "reference_sources": [
     "catalog listing"
    ],
@@ -30969,10 +31163,11 @@
   },
   {
    "dsn": "AWS.M2.CARDDEMO.TRANSACT.BKUP.G0062V00",
-   "kind": "sequential",
+   "kind": "GDG / sequential",
    "catalog_types": [
     "NONVSAM"
    ],
+   "relative_generations": [],
    "reference_sources": [
     "catalog listing"
    ],
@@ -30984,10 +31179,11 @@
   },
   {
    "dsn": "AWS.M2.CARDDEMO.TRANSACT.BKUP.G0063V00",
-   "kind": "sequential",
+   "kind": "GDG / sequential",
    "catalog_types": [
     "NONVSAM"
    ],
+   "relative_generations": [],
    "reference_sources": [
     "catalog listing"
    ],
@@ -30999,10 +31195,11 @@
   },
   {
    "dsn": "AWS.M2.CARDDEMO.TRANSACT.BKUP.G0064V00",
-   "kind": "sequential",
+   "kind": "GDG / sequential",
    "catalog_types": [
     "NONVSAM"
    ],
+   "relative_generations": [],
    "reference_sources": [
     "catalog listing"
    ],
@@ -31014,10 +31211,11 @@
   },
   {
    "dsn": "AWS.M2.CARDDEMO.TRANSACT.BKUP.G0065V00",
-   "kind": "sequential",
+   "kind": "GDG / sequential",
    "catalog_types": [
     "NONVSAM"
    ],
+   "relative_generations": [],
    "reference_sources": [
     "catalog listing"
    ],
@@ -31029,10 +31227,11 @@
   },
   {
    "dsn": "AWS.M2.CARDDEMO.TRANSACT.BKUP.G0066V00",
-   "kind": "sequential",
+   "kind": "GDG / sequential",
    "catalog_types": [
     "NONVSAM"
    ],
+   "relative_generations": [],
    "reference_sources": [
     "catalog listing"
    ],
@@ -31044,10 +31243,11 @@
   },
   {
    "dsn": "AWS.M2.CARDDEMO.TRANSACT.BKUP.G0067V00",
-   "kind": "sequential",
+   "kind": "GDG / sequential",
    "catalog_types": [
     "NONVSAM"
    ],
+   "relative_generations": [],
    "reference_sources": [
     "catalog listing"
    ],
@@ -31059,10 +31259,11 @@
   },
   {
    "dsn": "AWS.M2.CARDDEMO.TRANSACT.BKUP.G0068V00",
-   "kind": "sequential",
+   "kind": "GDG / sequential",
    "catalog_types": [
     "NONVSAM"
    ],
+   "relative_generations": [],
    "reference_sources": [
     "catalog listing"
    ],
@@ -31074,10 +31275,11 @@
   },
   {
    "dsn": "AWS.M2.CARDDEMO.TRANSACT.BKUP.G0069V00",
-   "kind": "sequential",
+   "kind": "GDG / sequential",
    "catalog_types": [
     "NONVSAM"
    ],
+   "relative_generations": [],
    "reference_sources": [
     "catalog listing"
    ],
@@ -31089,10 +31291,11 @@
   },
   {
    "dsn": "AWS.M2.CARDDEMO.TRANSACT.BKUP.G0070V00",
-   "kind": "sequential",
+   "kind": "GDG / sequential",
    "catalog_types": [
     "NONVSAM"
    ],
+   "relative_generations": [],
    "reference_sources": [
     "catalog listing"
    ],
@@ -31104,10 +31307,11 @@
   },
   {
    "dsn": "AWS.M2.CARDDEMO.TRANSACT.BKUP.G0071V00",
-   "kind": "sequential",
+   "kind": "GDG / sequential",
    "catalog_types": [
     "NONVSAM"
    ],
+   "relative_generations": [],
    "reference_sources": [
     "catalog listing"
    ],
@@ -31119,10 +31323,11 @@
   },
   {
    "dsn": "AWS.M2.CARDDEMO.TRANSACT.BKUP.G0072V00",
-   "kind": "sequential",
+   "kind": "GDG / sequential",
    "catalog_types": [
     "NONVSAM"
    ],
+   "relative_generations": [],
    "reference_sources": [
     "catalog listing"
    ],
@@ -31134,10 +31339,11 @@
   },
   {
    "dsn": "AWS.M2.CARDDEMO.TRANSACT.BKUP.G0073V00",
-   "kind": "sequential",
+   "kind": "GDG / sequential",
    "catalog_types": [
     "NONVSAM"
    ],
+   "relative_generations": [],
    "reference_sources": [
     "catalog listing"
    ],
@@ -31149,10 +31355,11 @@
   },
   {
    "dsn": "AWS.M2.CARDDEMO.TRANSACT.BKUP.G0074V00",
-   "kind": "sequential",
+   "kind": "GDG / sequential",
    "catalog_types": [
     "NONVSAM"
    ],
+   "relative_generations": [],
    "reference_sources": [
     "catalog listing"
    ],
@@ -31164,10 +31371,11 @@
   },
   {
    "dsn": "AWS.M2.CARDDEMO.TRANSACT.BKUP.G0075V00",
-   "kind": "sequential",
+   "kind": "GDG / sequential",
    "catalog_types": [
     "NONVSAM"
    ],
+   "relative_generations": [],
    "reference_sources": [
     "catalog listing"
    ],
@@ -31179,10 +31387,11 @@
   },
   {
    "dsn": "AWS.M2.CARDDEMO.TRANSACT.BKUP.G0076V00",
-   "kind": "sequential",
+   "kind": "GDG / sequential",
    "catalog_types": [
     "NONVSAM"
    ],
+   "relative_generations": [],
    "reference_sources": [
     "catalog listing"
    ],
@@ -31197,6 +31406,9 @@
    "kind": "GDG / sequential",
    "catalog_types": [
     "GDG BASE"
+   ],
+   "relative_generations": [
+    "+1"
    ],
    "reference_sources": [
     "utility step only",
@@ -31264,10 +31476,11 @@
   },
   {
    "dsn": "AWS.M2.CARDDEMO.TRANSACT.COMBINED.G0015V00",
-   "kind": "unknown",
+   "kind": "GDG / sequential",
    "catalog_types": [
     "NONVSAM"
    ],
+   "relative_generations": [],
    "reference_sources": [
     "catalog listing"
    ],
@@ -31279,10 +31492,11 @@
   },
   {
    "dsn": "AWS.M2.CARDDEMO.TRANSACT.COMBINED.G0016V00",
-   "kind": "unknown",
+   "kind": "GDG / sequential",
    "catalog_types": [
     "NONVSAM"
    ],
+   "relative_generations": [],
    "reference_sources": [
     "catalog listing"
    ],
@@ -31294,10 +31508,11 @@
   },
   {
    "dsn": "AWS.M2.CARDDEMO.TRANSACT.COMBINED.G0017V00",
-   "kind": "unknown",
+   "kind": "GDG / sequential",
    "catalog_types": [
     "NONVSAM"
    ],
+   "relative_generations": [],
    "reference_sources": [
     "catalog listing"
    ],
@@ -31309,10 +31524,11 @@
   },
   {
    "dsn": "AWS.M2.CARDDEMO.TRANSACT.COMBINED.G0018V00",
-   "kind": "unknown",
+   "kind": "GDG / sequential",
    "catalog_types": [
     "NONVSAM"
    ],
+   "relative_generations": [],
    "reference_sources": [
     "catalog listing"
    ],
@@ -31324,10 +31540,11 @@
   },
   {
    "dsn": "AWS.M2.CARDDEMO.TRANSACT.COMBINED.G0019V00",
-   "kind": "unknown",
+   "kind": "GDG / sequential",
    "catalog_types": [
     "NONVSAM"
    ],
+   "relative_generations": [],
    "reference_sources": [
     "catalog listing"
    ],
@@ -31342,6 +31559,9 @@
    "kind": "GDG / sequential",
    "catalog_types": [
     "GDG BASE"
+   ],
+   "relative_generations": [
+    "+1"
    ],
    "reference_sources": [
     "application program",
@@ -31426,10 +31646,11 @@
   },
   {
    "dsn": "AWS.M2.CARDDEMO.TRANSACT.DALY.G0001V00",
-   "kind": "sequential",
+   "kind": "GDG / sequential",
    "catalog_types": [
     "NONVSAM"
    ],
+   "relative_generations": [],
    "reference_sources": [
     "catalog listing"
    ],
@@ -31441,10 +31662,11 @@
   },
   {
    "dsn": "AWS.M2.CARDDEMO.TRANSACT.DALY.G0002V00",
-   "kind": "sequential",
+   "kind": "GDG / sequential",
    "catalog_types": [
     "NONVSAM"
    ],
+   "relative_generations": [],
    "reference_sources": [
     "catalog listing"
    ],
@@ -31456,10 +31678,11 @@
   },
   {
    "dsn": "AWS.M2.CARDDEMO.TRANSACT.DALY.G0003V00",
-   "kind": "sequential",
+   "kind": "GDG / sequential",
    "catalog_types": [
     "NONVSAM"
    ],
+   "relative_generations": [],
    "reference_sources": [
     "catalog listing"
    ],
@@ -31471,10 +31694,11 @@
   },
   {
    "dsn": "AWS.M2.CARDDEMO.TRANSACT.DALY.G0004V00",
-   "kind": "sequential",
+   "kind": "GDG / sequential",
    "catalog_types": [
     "NONVSAM"
    ],
+   "relative_generations": [],
    "reference_sources": [
     "catalog listing"
    ],
@@ -31486,10 +31710,11 @@
   },
   {
    "dsn": "AWS.M2.CARDDEMO.TRANSACT.DALY.G0005V00",
-   "kind": "sequential",
+   "kind": "GDG / sequential",
    "catalog_types": [
     "NONVSAM"
    ],
+   "relative_generations": [],
    "reference_sources": [
     "catalog listing"
    ],
@@ -31501,10 +31726,11 @@
   },
   {
    "dsn": "AWS.M2.CARDDEMO.TRANSACT.DALY.G0006V00",
-   "kind": "sequential",
+   "kind": "GDG / sequential",
    "catalog_types": [
     "NONVSAM"
    ],
+   "relative_generations": [],
    "reference_sources": [
     "catalog listing"
    ],
@@ -31516,10 +31742,11 @@
   },
   {
    "dsn": "AWS.M2.CARDDEMO.TRANSACT.DALY.G0007V00",
-   "kind": "sequential",
+   "kind": "GDG / sequential",
    "catalog_types": [
     "NONVSAM"
    ],
+   "relative_generations": [],
    "reference_sources": [
     "catalog listing"
    ],
@@ -31531,10 +31758,11 @@
   },
   {
    "dsn": "AWS.M2.CARDDEMO.TRANSACT.DALY.G0008V00",
-   "kind": "sequential",
+   "kind": "GDG / sequential",
    "catalog_types": [
     "NONVSAM"
    ],
+   "relative_generations": [],
    "reference_sources": [
     "catalog listing"
    ],
@@ -31546,10 +31774,11 @@
   },
   {
    "dsn": "AWS.M2.CARDDEMO.TRANSACT.DALY.G0009V00",
-   "kind": "sequential",
+   "kind": "GDG / sequential",
    "catalog_types": [
     "NONVSAM"
    ],
+   "relative_generations": [],
    "reference_sources": [
     "catalog listing"
    ],
@@ -31561,10 +31790,11 @@
   },
   {
    "dsn": "AWS.M2.CARDDEMO.TRANSACT.DALY.G0010V00",
-   "kind": "sequential",
+   "kind": "GDG / sequential",
    "catalog_types": [
     "NONVSAM"
    ],
+   "relative_generations": [],
    "reference_sources": [
     "catalog listing"
    ],
@@ -31576,10 +31806,11 @@
   },
   {
    "dsn": "AWS.M2.CARDDEMO.TRANSACT.DALY.G0011V00",
-   "kind": "sequential",
+   "kind": "GDG / sequential",
    "catalog_types": [
     "NONVSAM"
    ],
+   "relative_generations": [],
    "reference_sources": [
     "catalog listing"
    ],
@@ -31591,10 +31822,11 @@
   },
   {
    "dsn": "AWS.M2.CARDDEMO.TRANSACT.DALY.G0012V00",
-   "kind": "sequential",
+   "kind": "GDG / sequential",
    "catalog_types": [
     "NONVSAM"
    ],
+   "relative_generations": [],
    "reference_sources": [
     "catalog listing"
    ],
@@ -31606,10 +31838,11 @@
   },
   {
    "dsn": "AWS.M2.CARDDEMO.TRANSACT.DALY.G0013V00",
-   "kind": "sequential",
+   "kind": "GDG / sequential",
    "catalog_types": [
     "NONVSAM"
    ],
+   "relative_generations": [],
    "reference_sources": [
     "catalog listing"
    ],
@@ -31621,10 +31854,11 @@
   },
   {
    "dsn": "AWS.M2.CARDDEMO.TRANSACT.DALY.G0014V00",
-   "kind": "sequential",
+   "kind": "GDG / sequential",
    "catalog_types": [
     "NONVSAM"
    ],
+   "relative_generations": [],
    "reference_sources": [
     "catalog listing"
    ],
@@ -31636,10 +31870,11 @@
   },
   {
    "dsn": "AWS.M2.CARDDEMO.TRANSACT.DALY.G0015V00",
-   "kind": "sequential",
+   "kind": "GDG / sequential",
    "catalog_types": [
     "NONVSAM"
    ],
+   "relative_generations": [],
    "reference_sources": [
     "catalog listing"
    ],
@@ -31651,10 +31886,11 @@
   },
   {
    "dsn": "AWS.M2.CARDDEMO.TRANSACT.DALY.G0016V00",
-   "kind": "sequential",
+   "kind": "GDG / sequential",
    "catalog_types": [
     "NONVSAM"
    ],
+   "relative_generations": [],
    "reference_sources": [
     "catalog listing"
    ],
@@ -31666,10 +31902,11 @@
   },
   {
    "dsn": "AWS.M2.CARDDEMO.TRANSACT.DALY.G0017V00",
-   "kind": "sequential",
+   "kind": "GDG / sequential",
    "catalog_types": [
     "NONVSAM"
    ],
+   "relative_generations": [],
    "reference_sources": [
     "catalog listing"
    ],
@@ -31681,10 +31918,11 @@
   },
   {
    "dsn": "AWS.M2.CARDDEMO.TRANSACT.DALY.G0018V00",
-   "kind": "sequential",
+   "kind": "GDG / sequential",
    "catalog_types": [
     "NONVSAM"
    ],
+   "relative_generations": [],
    "reference_sources": [
     "catalog listing"
    ],
@@ -31696,10 +31934,11 @@
   },
   {
    "dsn": "AWS.M2.CARDDEMO.TRANSACT.DALY.G0019V00",
-   "kind": "sequential",
+   "kind": "GDG / sequential",
    "catalog_types": [
     "NONVSAM"
    ],
+   "relative_generations": [],
    "reference_sources": [
     "catalog listing"
    ],
@@ -31711,10 +31950,11 @@
   },
   {
    "dsn": "AWS.M2.CARDDEMO.TRANSACT.DALY.G0020V00",
-   "kind": "sequential",
+   "kind": "GDG / sequential",
    "catalog_types": [
     "NONVSAM"
    ],
+   "relative_generations": [],
    "reference_sources": [
     "catalog listing"
    ],
@@ -31726,10 +31966,11 @@
   },
   {
    "dsn": "AWS.M2.CARDDEMO.TRANSACT.DALY.G0021V00",
-   "kind": "sequential",
+   "kind": "GDG / sequential",
    "catalog_types": [
     "NONVSAM"
    ],
+   "relative_generations": [],
    "reference_sources": [
     "catalog listing"
    ],
@@ -31741,10 +31982,11 @@
   },
   {
    "dsn": "AWS.M2.CARDDEMO.TRANSACT.DALY.G0022V00",
-   "kind": "sequential",
+   "kind": "GDG / sequential",
    "catalog_types": [
     "NONVSAM"
    ],
+   "relative_generations": [],
    "reference_sources": [
     "catalog listing"
    ],
@@ -31756,10 +31998,11 @@
   },
   {
    "dsn": "AWS.M2.CARDDEMO.TRANSACT.DALY.G0023V00",
-   "kind": "sequential",
+   "kind": "GDG / sequential",
    "catalog_types": [
     "NONVSAM"
    ],
+   "relative_generations": [],
    "reference_sources": [
     "catalog listing"
    ],
@@ -31771,10 +32014,11 @@
   },
   {
    "dsn": "AWS.M2.CARDDEMO.TRANSACT.DALY.G0024V00",
-   "kind": "sequential",
+   "kind": "GDG / sequential",
    "catalog_types": [
     "NONVSAM"
    ],
+   "relative_generations": [],
    "reference_sources": [
     "catalog listing"
    ],
@@ -31786,10 +32030,11 @@
   },
   {
    "dsn": "AWS.M2.CARDDEMO.TRANSACT.DALY.G0025V00",
-   "kind": "sequential",
+   "kind": "GDG / sequential",
    "catalog_types": [
     "NONVSAM"
    ],
+   "relative_generations": [],
    "reference_sources": [
     "catalog listing"
    ],
@@ -31801,10 +32046,11 @@
   },
   {
    "dsn": "AWS.M2.CARDDEMO.TRANSACT.DALY.G0026V00",
-   "kind": "sequential",
+   "kind": "GDG / sequential",
    "catalog_types": [
     "NONVSAM"
    ],
+   "relative_generations": [],
    "reference_sources": [
     "catalog listing"
    ],
@@ -31816,10 +32062,11 @@
   },
   {
    "dsn": "AWS.M2.CARDDEMO.TRANSACT.DALY.G0027V00",
-   "kind": "sequential",
+   "kind": "GDG / sequential",
    "catalog_types": [
     "NONVSAM"
    ],
+   "relative_generations": [],
    "reference_sources": [
     "catalog listing"
    ],
@@ -31831,10 +32078,11 @@
   },
   {
    "dsn": "AWS.M2.CARDDEMO.TRANSACT.DALY.G0028V00",
-   "kind": "sequential",
+   "kind": "GDG / sequential",
    "catalog_types": [
     "NONVSAM"
    ],
+   "relative_generations": [],
    "reference_sources": [
     "catalog listing"
    ],
@@ -31846,10 +32094,11 @@
   },
   {
    "dsn": "AWS.M2.CARDDEMO.TRANSACT.DALY.G0029V00",
-   "kind": "sequential",
+   "kind": "GDG / sequential",
    "catalog_types": [
     "NONVSAM"
    ],
+   "relative_generations": [],
    "reference_sources": [
     "catalog listing"
    ],
@@ -31861,10 +32110,11 @@
   },
   {
    "dsn": "AWS.M2.CARDDEMO.TRANSACT.DALY.G0030V00",
-   "kind": "sequential",
+   "kind": "GDG / sequential",
    "catalog_types": [
     "NONVSAM"
    ],
+   "relative_generations": [],
    "reference_sources": [
     "catalog listing"
    ],
@@ -31878,6 +32128,7 @@
    "dsn": "AWS.M2.CARDDEMO.TRANSACT.IMPORT",
    "kind": "sequential",
    "catalog_types": [],
+   "relative_generations": [],
    "reference_sources": [
     "application program",
     "JCL DD/control statement"
@@ -31916,6 +32167,7 @@
    "catalog_types": [
     "AIX"
    ],
+   "relative_generations": [],
    "reference_sources": [
     "JCL DD/control statement",
     "catalog listing"
@@ -31987,6 +32239,7 @@
    "catalog_types": [
     "DATA"
    ],
+   "relative_generations": [],
    "reference_sources": [
     "JCL DD/control statement",
     "catalog listing"
@@ -32022,6 +32275,7 @@
    "catalog_types": [
     "INDEX"
    ],
+   "relative_generations": [],
    "reference_sources": [
     "JCL DD/control statement",
     "catalog listing"
@@ -32057,6 +32311,7 @@
    "catalog_types": [
     "PATH"
    ],
+   "relative_generations": [],
    "reference_sources": [
     "JCL DD/control statement",
     "catalog listing"
@@ -32092,6 +32347,7 @@
    "catalog_types": [
     "CLUSTER"
    ],
+   "relative_generations": [],
    "reference_sources": [
     "application program",
     "JCL DD/control statement",
@@ -32409,6 +32665,7 @@
    "catalog_types": [
     "DATA"
    ],
+   "relative_generations": [],
    "reference_sources": [
     "JCL DD/control statement",
     "catalog listing"
@@ -32444,6 +32701,7 @@
    "catalog_types": [
     "INDEX"
    ],
+   "relative_generations": [],
    "reference_sources": [
     "JCL DD/control statement",
     "catalog listing"
@@ -32475,8 +32733,11 @@
   },
   {
    "dsn": "AWS.M2.CARDDEMO.TRANTYPE.BKUP",
-   "kind": "sequential",
+   "kind": "GDG / sequential",
    "catalog_types": [],
+   "relative_generations": [
+    "+1"
+   ],
    "reference_sources": [
     "utility step only",
     "JCL DD/control statement"
@@ -32546,6 +32807,7 @@
    "catalog_types": [
     "NONVSAM"
    ],
+   "relative_generations": [],
    "reference_sources": [
     "utility step only",
     "JCL DD/control statement",
@@ -32685,6 +32947,7 @@
    "catalog_types": [
     "CLUSTER"
    ],
+   "relative_generations": [],
    "reference_sources": [
     "application program",
     "JCL DD/control statement",
@@ -32772,6 +33035,7 @@
    "catalog_types": [
     "DATA"
    ],
+   "relative_generations": [],
    "reference_sources": [
     "JCL DD/control statement",
     "catalog listing"
@@ -32798,6 +33062,7 @@
    "catalog_types": [
     "INDEX"
    ],
+   "relative_generations": [],
    "reference_sources": [
     "JCL DD/control statement",
     "catalog listing"
@@ -32822,6 +33087,7 @@
    "dsn": "AWS.M2.CARDDEMO.TRXFL.DATA",
    "kind": "VSAM component (DATA/INDEX)",
    "catalog_types": [],
+   "relative_generations": [],
    "reference_sources": [
     "JCL DD/control statement"
    ],
@@ -32845,6 +33111,7 @@
    "dsn": "AWS.M2.CARDDEMO.TRXFL.INDEX",
    "kind": "VSAM component (DATA/INDEX)",
    "catalog_types": [],
+   "relative_generations": [],
    "reference_sources": [
     "JCL DD/control statement"
    ],
@@ -32868,6 +33135,7 @@
    "dsn": "AWS.M2.CARDDEMO.TRXFL.SEQ",
    "kind": "sequential",
    "catalog_types": [],
+   "relative_generations": [],
    "reference_sources": [
     "utility step only",
     "JCL DD/control statement"
@@ -32935,6 +33203,7 @@
    "dsn": "AWS.M2.CARDDEMO.TRXFL.VSAM.KSDS",
    "kind": "VSAM",
    "catalog_types": [],
+   "relative_generations": [],
    "reference_sources": [
     "application program",
     "JCL DD/control statement"
@@ -33012,6 +33281,7 @@
    "catalog_types": [
     "NONVSAM"
    ],
+   "relative_generations": [],
    "reference_sources": [
     "utility step only",
     "JCL DD/control statement",
@@ -33095,6 +33365,7 @@
    "dsn": "AWS.M2.CARDDEMO.USRSEC.VSAM.ESDS",
    "kind": "VSAM",
    "catalog_types": [],
+   "relative_generations": [],
    "reference_sources": [
     "utility step only",
     "JCL DD/control statement"
@@ -33150,6 +33421,7 @@
    "dsn": "AWS.M2.CARDDEMO.USRSEC.VSAM.ESDS.DAT",
    "kind": "VSAM",
    "catalog_types": [],
+   "relative_generations": [],
    "reference_sources": [
     "JCL DD/control statement"
    ],
@@ -33175,6 +33447,7 @@
    "catalog_types": [
     "CLUSTER"
    ],
+   "relative_generations": [],
    "reference_sources": [
     "application program",
     "JCL DD/control statement",
@@ -33339,6 +33612,7 @@
    "catalog_types": [
     "DATA"
    ],
+   "relative_generations": [],
    "reference_sources": [
     "JCL DD/control statement",
     "catalog listing"
@@ -33365,6 +33639,7 @@
    "catalog_types": [
     "INDEX"
    ],
+   "relative_generations": [],
    "reference_sources": [
     "JCL DD/control statement",
     "catalog listing"
@@ -33389,6 +33664,7 @@
    "dsn": "AWS.M2.CARDDEMO.USRSEC.VSAM.RRDS",
    "kind": "VSAM",
    "catalog_types": [],
+   "relative_generations": [],
    "reference_sources": [
     "utility step only",
     "JCL DD/control statement"
@@ -33444,6 +33720,7 @@
    "dsn": "AWS.M2.CARDDEMO.USRSEC.VSAM.RRDS.DAT",
    "kind": "VSAM",
    "catalog_types": [],
+   "relative_generations": [],
    "reference_sources": [
     "JCL DD/control statement"
    ],
@@ -33467,6 +33744,7 @@
    "dsn": "AWS.M2.CARDEMO.FTP.TEST",
    "kind": "unknown",
    "catalog_types": [],
+   "relative_generations": [],
    "reference_sources": [
     "utility step only",
     "JCL DD/control statement"
@@ -33504,6 +33782,7 @@
    "dsn": "AWS.M2.CARDEMO.FTP.TEST.BKUP",
    "kind": "sequential",
    "catalog_types": [],
+   "relative_generations": [],
    "reference_sources": [
     "utility step only",
     "JCL DD/control statement"
@@ -33562,6 +33841,7 @@
    "dsn": "AWS.M2.CARDEMO.FTP.TEST.BKUP.INTRDR",
    "kind": "sequential",
    "catalog_types": [],
+   "relative_generations": [],
    "reference_sources": [
     "utility step only",
     "JCL DD/control statement"
@@ -33599,6 +33879,7 @@
    "dsn": "AWS.M2.LBD.TXT2PDF.EXEC",
    "kind": "unknown",
    "catalog_types": [],
+   "relative_generations": [],
    "reference_sources": [
     "utility step only",
     "JCL DD/control statement"
@@ -33636,6 +33917,7 @@
    "dsn": "AWS.M2.LBD.TXT2PDF.LOAD",
    "kind": "library (PDS/PDSE)",
    "catalog_types": [],
+   "relative_generations": [],
    "reference_sources": [
     "utility step only",
     "JCL DD/control statement"
@@ -33673,6 +33955,7 @@
    "dsn": "IMS.DBDLIB",
    "kind": "library (PDS/PDSE)",
    "catalog_types": [],
+   "relative_generations": [],
    "reference_sources": [
     "JCL DD/control statement"
    ],
@@ -33696,6 +33979,7 @@
    "dsn": "IMS.PROCLIB",
    "kind": "library (PDS/PDSE)",
    "catalog_types": [],
+   "relative_generations": [],
    "reference_sources": [
     "utility step only",
     "JCL DD/control statement"
@@ -33733,6 +34017,7 @@
    "dsn": "IMS.PSBLIB",
    "kind": "library (PDS/PDSE)",
    "catalog_types": [],
+   "relative_generations": [],
    "reference_sources": [
     "utility step only",
     "JCL DD/control statement"
@@ -33770,6 +34055,7 @@
    "dsn": "IMS.SDFSRESL",
    "kind": "library (PDS/PDSE)",
    "catalog_types": [],
+   "relative_generations": [],
    "reference_sources": [
     "utility step only",
     "JCL DD/control statement"
@@ -33849,6 +34135,7 @@
    "dsn": "INPFILE",
    "kind": "unknown",
    "catalog_types": [],
+   "relative_generations": [],
    "reference_sources": [
     "application program",
     "JCL DD/control statement"
@@ -33897,6 +34184,7 @@
    "dsn": "OEM.CICSTS.DFHCSD",
    "kind": "unknown",
    "catalog_types": [],
+   "relative_generations": [],
    "reference_sources": [
     "utility step only",
     "JCL DD/control statement"
@@ -33934,6 +34222,7 @@
    "dsn": "OEM.CICSTS.V05R06M0.CICS.SDFHLOAD",
    "kind": "library (PDS/PDSE)",
    "catalog_types": [],
+   "relative_generations": [],
    "reference_sources": [
     "utility step only",
     "JCL DD/control statement"
@@ -33971,6 +34260,7 @@
    "dsn": "OEM.DB2.DAZ1.RUNLIB.LOAD",
    "kind": "library (PDS/PDSE)",
    "catalog_types": [],
+   "relative_generations": [],
    "reference_sources": [
     "utility step only",
     "JCL DD/control statement"
@@ -34116,6 +34406,7 @@
    "dsn": "OEM.DB2.DAZ1.SDSNEXIT",
    "kind": "library (PDS/PDSE)",
    "catalog_types": [],
+   "relative_generations": [],
    "reference_sources": [
     "utility step only",
     "JCL DD/control statement"
@@ -34174,6 +34465,7 @@
    "dsn": "OEM.IMS.IMSP.DBDLIB",
    "kind": "library (PDS/PDSE)",
    "catalog_types": [],
+   "relative_generations": [],
    "reference_sources": [
     "JCL DD/control statement"
    ],
@@ -34224,6 +34516,7 @@
    "dsn": "OEM.IMS.IMSP.PAUTHDB",
    "kind": "unknown",
    "catalog_types": [],
+   "relative_generations": [],
    "reference_sources": [
     "utility step only",
     "JCL DD/control statement"
@@ -34315,6 +34608,7 @@
    "dsn": "OEM.IMS.IMSP.PAUTHDBX",
    "kind": "unknown",
    "catalog_types": [],
+   "relative_generations": [],
    "reference_sources": [
     "utility step only",
     "JCL DD/control statement"
@@ -34406,6 +34700,7 @@
    "dsn": "OEM.IMS.IMSP.PSBLIB",
    "kind": "library (PDS/PDSE)",
    "catalog_types": [],
+   "relative_generations": [],
    "reference_sources": [
     "utility step only",
     "JCL DD/control statement"
@@ -34518,6 +34813,7 @@
    "dsn": "OEM.IMS.IMSP.RECON1",
    "kind": "unknown",
    "catalog_types": [],
+   "relative_generations": [],
    "reference_sources": [
     "utility step only",
     "JCL DD/control statement"
@@ -34567,6 +34863,7 @@
    "dsn": "OEM.IMS.IMSP.RECON2",
    "kind": "unknown",
    "catalog_types": [],
+   "relative_generations": [],
    "reference_sources": [
     "utility step only",
     "JCL DD/control statement"
@@ -34616,6 +34913,7 @@
    "dsn": "OEM.IMS.IMSP.RECON3",
    "kind": "unknown",
    "catalog_types": [],
+   "relative_generations": [],
    "reference_sources": [
     "utility step only",
     "JCL DD/control statement"
@@ -34665,6 +34963,7 @@
    "dsn": "OEMA.DB2.VERSIONA.SDSNLOAD",
    "kind": "library (PDS/PDSE)",
    "catalog_types": [],
+   "relative_generations": [],
    "reference_sources": [
     "JCL DD/control statement"
    ],
@@ -34742,6 +35041,7 @@
    "dsn": "OEMA.IMS.IMSP.SDFSRESL",
    "kind": "library (PDS/PDSE)",
    "catalog_types": [],
+   "relative_generations": [],
    "reference_sources": [
     "utility step only",
     "JCL DD/control statement"
@@ -34950,6 +35250,7 @@
    "dsn": "OEMA.IMS.IMSP.SDFSRESL.V151",
    "kind": "library (PDS/PDSE)",
    "catalog_types": [],
+   "relative_generations": [],
    "reference_sources": [
     "JCL DD/control statement"
    ],
@@ -34991,6 +35292,7 @@
    "dsn": "OEMPP.IMS.V15R01MB.PROCLIB(DFSVSMDB)",
    "kind": "library (PDS/PDSE)",
    "catalog_types": [],
+   "relative_generations": [],
    "reference_sources": [
     "utility step only",
     "JCL DD/control statement"
@@ -35103,6 +35405,7 @@
    "dsn": "XXXXXXXX.PROD.LOADLIB",
    "kind": "library (PDS/PDSE)",
    "catalog_types": [],
+   "relative_generations": [],
    "reference_sources": [
     "JCL DD/control statement"
    ],

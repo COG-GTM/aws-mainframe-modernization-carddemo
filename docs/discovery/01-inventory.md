@@ -80,12 +80,12 @@ A dataset is counted once per normalised DSN (GDG relative generations and quote
 
 | Dataset kind | Count |
 | --- | --- |
-| GDG / sequential | 7 |
+| GDG / sequential | 141 |
 | VSAM | 22 |
 | VSAM component (DATA/INDEX) | 33 |
 | library (PDS/PDSE) | 33 |
-| sequential | 149 |
-| unknown | 37 |
+| sequential | 25 |
+| unknown | 27 |
 | **Total** | **281** |
 
 ### Scheduler definitions

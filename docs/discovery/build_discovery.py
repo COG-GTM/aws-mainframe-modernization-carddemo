@@ -200,13 +200,23 @@ def mermaid_label(name: str) -> str:
     return name.replace('"', "'")
 
 
+GDG_RELATIVE_RE = re.compile(r"\(([+-]?\d+)\)$")
+GDG_ABSOLUTE_RE = re.compile(r"\.G\d{4}V\d{2}$")
+
+
 def strip_gdg(dsn: str) -> str:
-    return re.sub(r"\([+-]?\d+\)$", "", dsn)
+    return GDG_RELATIVE_RE.sub("", dsn)
+
+
+def split_gdg(dsn: str) -> tuple[str, str | None]:
+    """``AWS.X.BKUP(+1)`` -> (``AWS.X.BKUP``, ``+1``); a plain name has no generation."""
+    dsn = dsn.strip().strip("'\"").upper()
+    m = GDG_RELATIVE_RE.search(dsn)
+    return (dsn[: m.start()], m.group(1)) if m else (dsn, None)
 
 
 def normalize_dsn(dsn: str) -> str:
-    dsn = dsn.strip().strip("'\"").upper()
-    return strip_gdg(dsn)
+    return split_gdg(dsn)[0]
 
 
 DSN_QUALIFIER_RE = re.compile(r"^[A-Z@#$][A-Z0-9@#$-]{0,7}$")
@@ -1343,12 +1353,14 @@ class Estate:
         return e
 
     def dataset(self, dsn: str) -> dict:
-        key = normalize_dsn(dsn)
+        key, generation = split_gdg(dsn)
         d = self.datasets.get(key)
         if d is None:
             d = {"dsn": key, "catalog_types": set(), "jcl_refs": [], "csd_files": [], "program_access": [],
-                 "csd_libraries": [], "sample_files": [], "symbolic": "&" in key}
+                 "csd_libraries": [], "sample_files": [], "symbolic": "&" in key, "relative_generations": set()}
             self.datasets[key] = d
+        if generation is not None:
+            d["relative_generations"].add(generation)
         return d
 
     def find_program(self, name: str | None):
@@ -1874,7 +1886,7 @@ class Estate:
                 d["kind"] = "VSAM component (DATA/INDEX)"
             elif types & {"CLUSTER", "AIX", "PATH"} or re.search(r"\.VSAM\b|KSDS|ESDS|RRDS|\.AIX\b|\.PATH\b", dsn):
                 d["kind"] = "VSAM"
-            elif "GDG BASE" in types or re.search(r"\(\+?\d+\)$", dsn):
+            elif "GDG BASE" in types or d["relative_generations"] or GDG_ABSOLUTE_RE.search(dsn):
                 d["kind"] = "GDG / sequential"
             elif re.search(r"LOADLIB|LOAD$|CNTL|PROC$|JCL$|COBOL|COPY|CPY|BMS$|ASM$|MACLIB|DBRMLIB|SDSN|RUNLIB|SDFH|SCEE|LINKLIB|SRCLIB|LISTING|BIND$|DBRM|PROCLIB|PARMLIB|MACLIB|SIGY|SISP|SCSQ|SDFS|PSBLIB|DBDLIB|ACBLIB|RESLIB|SDFSRESL|\(", dsn):
                 d["kind"] = "library (PDS/PDSE)"
@@ -1885,6 +1897,7 @@ class Estate:
             else:
                 d["kind"] = "unknown"
             d["catalog_types"] = sorted(types)
+            d["relative_generations"] = sorted(d["relative_generations"], key=lambda g: (int(g), g))
             sources = []
             if d["program_access"]:
                 sources.append("application program" if any(not a.get("utility") for a in d["program_access"]) else "utility step only")
@@ -2075,6 +2088,7 @@ def serialize(estate: Estate, summary: dict) -> dict:
     for d in sorted(estate.datasets.values(), key=lambda d: d["dsn"]):
         datasets.append(OrderedDict([
             ("dsn", d["dsn"]), ("kind", d["kind"]), ("catalog_types", d["catalog_types"]),
+            ("relative_generations", d["relative_generations"]),
             ("reference_sources", d["reference_sources"]),
             ("program_access", d["program_access"]), ("jcl_refs", d["jcl_refs"]),
             ("csd_files", d["csd_files"]), ("csd_libraries", d["csd_libraries"]), ("sample_files", d["sample_files"]),

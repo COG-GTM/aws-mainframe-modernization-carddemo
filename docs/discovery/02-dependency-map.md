@@ -451,16 +451,16 @@ Mode is taken from the COBOL verbs (`READ`, `WRITE`, `REWRITE`, `DELETE`, `START
 | AWS.M2.CARDDEMO.CUSTDATA.PS | sequential | NONVSAM | IDCAMS: unknown `app/jcl/CUSTFILE.jcl:66` | utility step only, JCL DD/control statement, catalog listing, sample data file |
 | AWS.M2.CARDDEMO.CUSTDATA.VSAM.KSDS | VSAM | CLUSTER | IDCAMS: unknown `app/jcl/CUSTFILE.jcl:68`<br>CBCUS01C: read `app/cbl/CBCUS01C.cbl:29`<br>CBEXPORT: read `app/cbl/CBEXPORT.cbl:35`<br>CBSTM03B: read `app/cbl/CBSTM03B.CBL:43`<br>COPAUA0C: read `app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl:573`<br>COPAUS0C: read `app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl:920`<br>COACTUPC: read/rewrite `app/cbl/COACTUPC.cbl:3753`<br>COACTVWC: read `app/cbl/COACTVWC.cbl:826` | application program, JCL DD/control statement, CSD FILE, catalog listing |
 | AWS.M2.CARDDEMO.DALYREJS | GDG / sequential | GDG BASE | CBTRN02C: write `app/cbl/CBTRN02C.cbl:46` | application program, JCL DD/control statement, catalog listing |
-| AWS.M2.CARDDEMO.DALYREJS.G0022V00 | sequential | NONVSAM | — (no program opens it) | catalog listing |
-| AWS.M2.CARDDEMO.DALYREJS.G0023V00 | sequential | NONVSAM | — (no program opens it) | catalog listing |
-| AWS.M2.CARDDEMO.DALYREJS.G0024V00 | sequential | NONVSAM | — (no program opens it) | catalog listing |
-| AWS.M2.CARDDEMO.DALYREJS.G0025V00 | sequential | NONVSAM | — (no program opens it) | catalog listing |
-| AWS.M2.CARDDEMO.DALYREJS.G0026V00 | sequential | NONVSAM | — (no program opens it) | catalog listing |
+| AWS.M2.CARDDEMO.DALYREJS.G0022V00 | GDG / sequential | NONVSAM | — (no program opens it) | catalog listing |
+| AWS.M2.CARDDEMO.DALYREJS.G0023V00 | GDG / sequential | NONVSAM | — (no program opens it) | catalog listing |
+| AWS.M2.CARDDEMO.DALYREJS.G0024V00 | GDG / sequential | NONVSAM | — (no program opens it) | catalog listing |
+| AWS.M2.CARDDEMO.DALYREJS.G0025V00 | GDG / sequential | NONVSAM | — (no program opens it) | catalog listing |
+| AWS.M2.CARDDEMO.DALYREJS.G0026V00 | GDG / sequential | NONVSAM | — (no program opens it) | catalog listing |
 | AWS.M2.CARDDEMO.DALYTRAN.PS | sequential | NONVSAM | CBTRN02C: read `app/cbl/CBTRN02C.cbl:29` | application program, JCL DD/control statement, catalog listing, sample data file |
 | AWS.M2.CARDDEMO.DALYTRAN.PS.INIT | sequential | NONVSAM | IDCAMS: unknown `app/jcl/TRANFILE.jcl:69` | utility step only, JCL DD/control statement, catalog listing, sample data file |
 | AWS.M2.CARDDEMO.DATEPARM | sequential | NONVSAM | CBTRN03C: read `app/cbl/CBTRN03C.cbl:55` | application program, JCL DD/control statement, catalog listing |
 | AWS.M2.CARDDEMO.DCL | unknown | NONVSAM | — (no program opens it) | catalog listing |
-| AWS.M2.CARDDEMO.DISCGRP.BKUP | sequential |  | IEBGENER: unknown `app/jcl/DEFGDGD.jcl:86` | utility step only, JCL DD/control statement |
+| AWS.M2.CARDDEMO.DISCGRP.BKUP | GDG / sequential |  | IEBGENER: unknown `app/jcl/DEFGDGD.jcl:86` | utility step only, JCL DD/control statement |
 | AWS.M2.CARDDEMO.DISCGRP.PS | sequential | NONVSAM | IEBGENER: unknown `app/jcl/DEFGDGD.jcl:85`<br>IDCAMS: unknown `app/jcl/DISCGRP.jcl:56` | utility step only, JCL DD/control statement, catalog listing, sample data file |
 | AWS.M2.CARDDEMO.DISCGRP.VSAM.KSDS | VSAM | CLUSTER | IDCAMS: unknown `app/jcl/DISCGRP.jcl:58`<br>CBACT04C: read `app/cbl/CBACT04C.cbl:47` | application program, JCL DD/control statement, catalog listing |
 | AWS.M2.CARDDEMO.ESDSRRDS.PS | VSAM |  | IEFBR14: unknown `app/jcl/ESDSRRDS.jcl:26`<br>IEBGENER: unknown `app/jcl/ESDSRRDS.jcl:47`<br>IDCAMS: unknown `app/jcl/ESDSRRDS.jcl:81` | utility step only, JCL DD/control statement |
@@ -480,148 +480,148 @@ Mode is taken from the COBOL verbs (`READ`, `WRITE`, `REWRITE`, `DELETE`, `START
 | AWS.M2.CARDDEMO.STATEMNT.HTML | unknown |  | IEFBR14: unknown `app/jcl/CREASTMT.JCL:67`<br>CBSTM03A: write `app/cbl/CBSTM03A.CBL:40` | application program, JCL DD/control statement |
 | AWS.M2.CARDDEMO.STATEMNT.PS | sequential |  | IEFBR14: unknown `app/jcl/CREASTMT.JCL:72`<br>IKJEFT1B: unknown `app/jcl/TXT2PDF1.JCL:33`<br>CBSTM03A: write `app/cbl/CBSTM03A.CBL:39` | application program, JCL DD/control statement |
 | AWS.M2.CARDDEMO.SYSTRAN | GDG / sequential | GDG BASE | CBACT04C: write `app/cbl/CBACT04C.cbl:53` | application program, JCL DD/control statement, catalog listing |
-| AWS.M2.CARDDEMO.SYSTRAN.G0018V00 | unknown | NONVSAM | — (no program opens it) | catalog listing |
-| AWS.M2.CARDDEMO.SYSTRAN.G0019V00 | unknown | NONVSAM | — (no program opens it) | catalog listing |
-| AWS.M2.CARDDEMO.SYSTRAN.G0020V00 | unknown | NONVSAM | — (no program opens it) | catalog listing |
-| AWS.M2.CARDDEMO.SYSTRAN.G0021V00 | unknown | NONVSAM | — (no program opens it) | catalog listing |
-| AWS.M2.CARDDEMO.SYSTRAN.G0022V00 | unknown | NONVSAM | — (no program opens it) | catalog listing |
+| AWS.M2.CARDDEMO.SYSTRAN.G0018V00 | GDG / sequential | NONVSAM | — (no program opens it) | catalog listing |
+| AWS.M2.CARDDEMO.SYSTRAN.G0019V00 | GDG / sequential | NONVSAM | — (no program opens it) | catalog listing |
+| AWS.M2.CARDDEMO.SYSTRAN.G0020V00 | GDG / sequential | NONVSAM | — (no program opens it) | catalog listing |
+| AWS.M2.CARDDEMO.SYSTRAN.G0021V00 | GDG / sequential | NONVSAM | — (no program opens it) | catalog listing |
+| AWS.M2.CARDDEMO.SYSTRAN.G0022V00 | GDG / sequential | NONVSAM | — (no program opens it) | catalog listing |
 | AWS.M2.CARDDEMO.TCATBALF.BKUP | GDG / sequential | GDG BASE | IDCAMS: unknown `app/jcl/PRTCATBL.jcl:35`<br>SORT: unknown `app/jcl/PRTCATBL.jcl:44` | utility step only, JCL DD/control statement, catalog listing |
-| AWS.M2.CARDDEMO.TCATBALF.BKUP.G0005V00 | sequential | NONVSAM | — (no program opens it) | catalog listing |
-| AWS.M2.CARDDEMO.TCATBALF.BKUP.G0006V00 | sequential | NONVSAM | — (no program opens it) | catalog listing |
-| AWS.M2.CARDDEMO.TCATBALF.BKUP.G0007V00 | sequential | NONVSAM | — (no program opens it) | catalog listing |
-| AWS.M2.CARDDEMO.TCATBALF.BKUP.G0008V00 | sequential | NONVSAM | — (no program opens it) | catalog listing |
-| AWS.M2.CARDDEMO.TCATBALF.BKUP.G0009V00 | sequential | NONVSAM | — (no program opens it) | catalog listing |
+| AWS.M2.CARDDEMO.TCATBALF.BKUP.G0005V00 | GDG / sequential | NONVSAM | — (no program opens it) | catalog listing |
+| AWS.M2.CARDDEMO.TCATBALF.BKUP.G0006V00 | GDG / sequential | NONVSAM | — (no program opens it) | catalog listing |
+| AWS.M2.CARDDEMO.TCATBALF.BKUP.G0007V00 | GDG / sequential | NONVSAM | — (no program opens it) | catalog listing |
+| AWS.M2.CARDDEMO.TCATBALF.BKUP.G0008V00 | GDG / sequential | NONVSAM | — (no program opens it) | catalog listing |
+| AWS.M2.CARDDEMO.TCATBALF.BKUP.G0009V00 | GDG / sequential | NONVSAM | — (no program opens it) | catalog listing |
 | AWS.M2.CARDDEMO.TCATBALF.PS | sequential | NONVSAM | IDCAMS: unknown `app/jcl/TCATBALF.jcl:56` | utility step only, JCL DD/control statement, catalog listing, sample data file |
 | AWS.M2.CARDDEMO.TCATBALF.REPT | sequential | NONVSAM | IEFBR14: unknown `app/jcl/PRTCATBL.jcl:22`<br>SORT: unknown `app/jcl/PRTCATBL.jcl:59` | utility step only, JCL DD/control statement, catalog listing |
 | AWS.M2.CARDDEMO.TCATBALF.VSAM.KSDS | VSAM | CLUSTER | IDCAMS: unknown `app/jcl/PRTCATBL.jcl:32`<br>CBACT04C: read `app/cbl/CBACT04C.cbl:28`<br>CBTRN02C: read/rewrite/write `app/cbl/CBTRN02C.cbl:57` | application program, JCL DD/control statement, catalog listing |
 | AWS.M2.CARDDEMO.TRANCATG.PS | sequential | NONVSAM | IEBGENER: unknown `app/jcl/DEFGDGD.jcl:62`<br>IDCAMS: unknown `app/jcl/TRANCATG.jcl:56`<br>IEFBR14: unknown `app/app-transaction-type-db2/jcl/TRANEXTR.jcl:58`<br>IKJEFT01: unknown `app/app-transaction-type-db2/jcl/TRANEXTR.jcl:102`<br>DSNTIAUL: unknown `app/app-transaction-type-db2/jcl/TRANEXTR.jcl:102` | utility step only, JCL DD/control statement, catalog listing, sample data file |
-| AWS.M2.CARDDEMO.TRANCATG.PS.BKUP | sequential |  | IEBGENER: unknown `app/jcl/DEFGDGD.jcl:63` | utility step only, JCL DD/control statement |
+| AWS.M2.CARDDEMO.TRANCATG.PS.BKUP | GDG / sequential |  | IEBGENER: unknown `app/jcl/DEFGDGD.jcl:63` | utility step only, JCL DD/control statement |
 | AWS.M2.CARDDEMO.TRANCATG.VSAM.KSDS | VSAM | CLUSTER | IDCAMS: unknown `app/jcl/TRANCATG.jcl:58`<br>CBTRN03C: read `app/cbl/CBTRN03C.cbl:45` | application program, JCL DD/control statement, catalog listing |
 | AWS.M2.CARDDEMO.TRANREPT | GDG / sequential | GDG BASE | CBTRN03C: write `app/cbl/CBTRN03C.cbl:51` | application program, JCL DD/control statement, catalog listing |
-| AWS.M2.CARDDEMO.TRANREPT.G0010V00 | sequential | NONVSAM | — (no program opens it) | catalog listing |
-| AWS.M2.CARDDEMO.TRANREPT.G0011V00 | sequential | NONVSAM | — (no program opens it) | catalog listing |
-| AWS.M2.CARDDEMO.TRANREPT.G0012V00 | sequential | NONVSAM | — (no program opens it) | catalog listing |
-| AWS.M2.CARDDEMO.TRANREPT.G0013V00 | sequential | NONVSAM | — (no program opens it) | catalog listing |
-| AWS.M2.CARDDEMO.TRANREPT.G0014V00 | sequential | NONVSAM | — (no program opens it) | catalog listing |
+| AWS.M2.CARDDEMO.TRANREPT.G0010V00 | GDG / sequential | NONVSAM | — (no program opens it) | catalog listing |
+| AWS.M2.CARDDEMO.TRANREPT.G0011V00 | GDG / sequential | NONVSAM | — (no program opens it) | catalog listing |
+| AWS.M2.CARDDEMO.TRANREPT.G0012V00 | GDG / sequential | NONVSAM | — (no program opens it) | catalog listing |
+| AWS.M2.CARDDEMO.TRANREPT.G0013V00 | GDG / sequential | NONVSAM | — (no program opens it) | catalog listing |
+| AWS.M2.CARDDEMO.TRANREPT.G0014V00 | GDG / sequential | NONVSAM | — (no program opens it) | catalog listing |
 | AWS.M2.CARDDEMO.TRANSACT.BKUP | GDG / sequential | GDG BASE | SORT: unknown `app/jcl/COMBTRAN.jcl:23`<br>IDCAMS: unknown `app/jcl/TRANBKP.jcl:29` | utility step only, JCL DD/control statement, catalog listing |
-| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0001V00 | sequential | NONVSAM | — (no program opens it) | catalog listing |
-| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0002V00 | sequential | NONVSAM | — (no program opens it) | catalog listing |
-| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0003V00 | sequential | NONVSAM | — (no program opens it) | catalog listing |
-| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0004V00 | sequential | NONVSAM | — (no program opens it) | catalog listing |
-| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0005V00 | sequential | NONVSAM | — (no program opens it) | catalog listing |
-| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0006V00 | sequential | NONVSAM | — (no program opens it) | catalog listing |
-| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0007V00 | sequential | NONVSAM | — (no program opens it) | catalog listing |
-| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0008V00 | sequential | NONVSAM | — (no program opens it) | catalog listing |
-| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0009V00 | sequential | NONVSAM | — (no program opens it) | catalog listing |
-| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0010V00 | sequential | NONVSAM | — (no program opens it) | catalog listing |
-| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0011V00 | sequential | NONVSAM | — (no program opens it) | catalog listing |
-| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0012V00 | sequential | NONVSAM | — (no program opens it) | catalog listing |
-| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0013V00 | sequential | NONVSAM | — (no program opens it) | catalog listing |
-| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0014V00 | sequential | NONVSAM | — (no program opens it) | catalog listing |
-| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0015V00 | sequential | NONVSAM | — (no program opens it) | catalog listing |
-| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0016V00 | sequential | NONVSAM | — (no program opens it) | catalog listing |
-| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0017V00 | sequential | NONVSAM | — (no program opens it) | catalog listing |
-| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0018V00 | sequential | NONVSAM | — (no program opens it) | catalog listing |
-| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0019V00 | sequential | NONVSAM | — (no program opens it) | catalog listing |
-| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0020V00 | sequential | NONVSAM | — (no program opens it) | catalog listing |
-| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0021V00 | sequential | NONVSAM | — (no program opens it) | catalog listing |
-| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0022V00 | sequential | NONVSAM | — (no program opens it) | catalog listing |
-| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0023V00 | sequential | NONVSAM | — (no program opens it) | catalog listing |
-| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0024V00 | sequential | NONVSAM | — (no program opens it) | catalog listing |
-| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0025V00 | sequential | NONVSAM | — (no program opens it) | catalog listing |
-| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0026V00 | sequential | NONVSAM | — (no program opens it) | catalog listing |
-| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0027V00 | sequential | NONVSAM | — (no program opens it) | catalog listing |
-| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0028V00 | sequential | NONVSAM | — (no program opens it) | catalog listing |
-| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0029V00 | sequential | NONVSAM | — (no program opens it) | catalog listing |
-| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0030V00 | sequential | NONVSAM | — (no program opens it) | catalog listing |
-| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0031V00 | sequential | NONVSAM | — (no program opens it) | catalog listing |
-| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0032V00 | sequential | NONVSAM | — (no program opens it) | catalog listing |
-| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0033V00 | sequential | NONVSAM | — (no program opens it) | catalog listing |
-| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0034V00 | sequential | NONVSAM | — (no program opens it) | catalog listing |
-| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0035V00 | sequential | NONVSAM | — (no program opens it) | catalog listing |
-| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0036V00 | sequential | NONVSAM | — (no program opens it) | catalog listing |
-| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0037V00 | sequential | NONVSAM | — (no program opens it) | catalog listing |
-| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0038V00 | sequential | NONVSAM | — (no program opens it) | catalog listing |
-| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0039V00 | sequential | NONVSAM | — (no program opens it) | catalog listing |
-| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0040V00 | sequential | NONVSAM | — (no program opens it) | catalog listing |
-| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0041V00 | sequential | NONVSAM | — (no program opens it) | catalog listing |
-| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0042V00 | sequential | NONVSAM | — (no program opens it) | catalog listing |
-| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0043V00 | sequential | NONVSAM | — (no program opens it) | catalog listing |
-| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0044V00 | sequential | NONVSAM | — (no program opens it) | catalog listing |
-| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0045V00 | sequential | NONVSAM | — (no program opens it) | catalog listing |
-| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0046V00 | sequential | NONVSAM | — (no program opens it) | catalog listing |
-| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0047V00 | sequential | NONVSAM | — (no program opens it) | catalog listing |
-| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0048V00 | sequential | NONVSAM | — (no program opens it) | catalog listing |
-| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0049V00 | sequential | NONVSAM | — (no program opens it) | catalog listing |
-| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0050V00 | sequential | NONVSAM | — (no program opens it) | catalog listing |
-| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0051V00 | sequential | NONVSAM | — (no program opens it) | catalog listing |
-| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0052V00 | sequential | NONVSAM | — (no program opens it) | catalog listing |
-| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0053V00 | sequential | NONVSAM | — (no program opens it) | catalog listing |
-| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0054V00 | sequential | NONVSAM | — (no program opens it) | catalog listing |
-| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0055V00 | sequential | NONVSAM | — (no program opens it) | catalog listing |
-| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0056V00 | sequential | NONVSAM | — (no program opens it) | catalog listing |
-| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0057V00 | sequential | NONVSAM | — (no program opens it) | catalog listing |
-| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0058V00 | sequential | NONVSAM | — (no program opens it) | catalog listing |
-| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0059V00 | sequential | NONVSAM | — (no program opens it) | catalog listing |
-| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0060V00 | sequential | NONVSAM | — (no program opens it) | catalog listing |
-| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0061V00 | sequential | NONVSAM | — (no program opens it) | catalog listing |
-| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0062V00 | sequential | NONVSAM | — (no program opens it) | catalog listing |
-| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0063V00 | sequential | NONVSAM | — (no program opens it) | catalog listing |
-| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0064V00 | sequential | NONVSAM | — (no program opens it) | catalog listing |
-| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0065V00 | sequential | NONVSAM | — (no program opens it) | catalog listing |
-| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0066V00 | sequential | NONVSAM | — (no program opens it) | catalog listing |
-| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0067V00 | sequential | NONVSAM | — (no program opens it) | catalog listing |
-| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0068V00 | sequential | NONVSAM | — (no program opens it) | catalog listing |
-| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0069V00 | sequential | NONVSAM | — (no program opens it) | catalog listing |
-| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0070V00 | sequential | NONVSAM | — (no program opens it) | catalog listing |
-| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0071V00 | sequential | NONVSAM | — (no program opens it) | catalog listing |
-| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0072V00 | sequential | NONVSAM | — (no program opens it) | catalog listing |
-| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0073V00 | sequential | NONVSAM | — (no program opens it) | catalog listing |
-| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0074V00 | sequential | NONVSAM | — (no program opens it) | catalog listing |
-| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0075V00 | sequential | NONVSAM | — (no program opens it) | catalog listing |
-| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0076V00 | sequential | NONVSAM | — (no program opens it) | catalog listing |
+| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0001V00 | GDG / sequential | NONVSAM | — (no program opens it) | catalog listing |
+| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0002V00 | GDG / sequential | NONVSAM | — (no program opens it) | catalog listing |
+| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0003V00 | GDG / sequential | NONVSAM | — (no program opens it) | catalog listing |
+| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0004V00 | GDG / sequential | NONVSAM | — (no program opens it) | catalog listing |
+| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0005V00 | GDG / sequential | NONVSAM | — (no program opens it) | catalog listing |
+| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0006V00 | GDG / sequential | NONVSAM | — (no program opens it) | catalog listing |
+| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0007V00 | GDG / sequential | NONVSAM | — (no program opens it) | catalog listing |
+| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0008V00 | GDG / sequential | NONVSAM | — (no program opens it) | catalog listing |
+| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0009V00 | GDG / sequential | NONVSAM | — (no program opens it) | catalog listing |
+| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0010V00 | GDG / sequential | NONVSAM | — (no program opens it) | catalog listing |
+| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0011V00 | GDG / sequential | NONVSAM | — (no program opens it) | catalog listing |
+| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0012V00 | GDG / sequential | NONVSAM | — (no program opens it) | catalog listing |
+| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0013V00 | GDG / sequential | NONVSAM | — (no program opens it) | catalog listing |
+| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0014V00 | GDG / sequential | NONVSAM | — (no program opens it) | catalog listing |
+| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0015V00 | GDG / sequential | NONVSAM | — (no program opens it) | catalog listing |
+| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0016V00 | GDG / sequential | NONVSAM | — (no program opens it) | catalog listing |
+| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0017V00 | GDG / sequential | NONVSAM | — (no program opens it) | catalog listing |
+| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0018V00 | GDG / sequential | NONVSAM | — (no program opens it) | catalog listing |
+| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0019V00 | GDG / sequential | NONVSAM | — (no program opens it) | catalog listing |
+| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0020V00 | GDG / sequential | NONVSAM | — (no program opens it) | catalog listing |
+| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0021V00 | GDG / sequential | NONVSAM | — (no program opens it) | catalog listing |
+| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0022V00 | GDG / sequential | NONVSAM | — (no program opens it) | catalog listing |
+| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0023V00 | GDG / sequential | NONVSAM | — (no program opens it) | catalog listing |
+| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0024V00 | GDG / sequential | NONVSAM | — (no program opens it) | catalog listing |
+| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0025V00 | GDG / sequential | NONVSAM | — (no program opens it) | catalog listing |
+| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0026V00 | GDG / sequential | NONVSAM | — (no program opens it) | catalog listing |
+| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0027V00 | GDG / sequential | NONVSAM | — (no program opens it) | catalog listing |
+| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0028V00 | GDG / sequential | NONVSAM | — (no program opens it) | catalog listing |
+| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0029V00 | GDG / sequential | NONVSAM | — (no program opens it) | catalog listing |
+| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0030V00 | GDG / sequential | NONVSAM | — (no program opens it) | catalog listing |
+| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0031V00 | GDG / sequential | NONVSAM | — (no program opens it) | catalog listing |
+| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0032V00 | GDG / sequential | NONVSAM | — (no program opens it) | catalog listing |
+| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0033V00 | GDG / sequential | NONVSAM | — (no program opens it) | catalog listing |
+| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0034V00 | GDG / sequential | NONVSAM | — (no program opens it) | catalog listing |
+| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0035V00 | GDG / sequential | NONVSAM | — (no program opens it) | catalog listing |
+| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0036V00 | GDG / sequential | NONVSAM | — (no program opens it) | catalog listing |
+| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0037V00 | GDG / sequential | NONVSAM | — (no program opens it) | catalog listing |
+| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0038V00 | GDG / sequential | NONVSAM | — (no program opens it) | catalog listing |
+| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0039V00 | GDG / sequential | NONVSAM | — (no program opens it) | catalog listing |
+| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0040V00 | GDG / sequential | NONVSAM | — (no program opens it) | catalog listing |
+| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0041V00 | GDG / sequential | NONVSAM | — (no program opens it) | catalog listing |
+| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0042V00 | GDG / sequential | NONVSAM | — (no program opens it) | catalog listing |
+| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0043V00 | GDG / sequential | NONVSAM | — (no program opens it) | catalog listing |
+| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0044V00 | GDG / sequential | NONVSAM | — (no program opens it) | catalog listing |
+| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0045V00 | GDG / sequential | NONVSAM | — (no program opens it) | catalog listing |
+| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0046V00 | GDG / sequential | NONVSAM | — (no program opens it) | catalog listing |
+| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0047V00 | GDG / sequential | NONVSAM | — (no program opens it) | catalog listing |
+| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0048V00 | GDG / sequential | NONVSAM | — (no program opens it) | catalog listing |
+| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0049V00 | GDG / sequential | NONVSAM | — (no program opens it) | catalog listing |
+| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0050V00 | GDG / sequential | NONVSAM | — (no program opens it) | catalog listing |
+| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0051V00 | GDG / sequential | NONVSAM | — (no program opens it) | catalog listing |
+| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0052V00 | GDG / sequential | NONVSAM | — (no program opens it) | catalog listing |
+| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0053V00 | GDG / sequential | NONVSAM | — (no program opens it) | catalog listing |
+| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0054V00 | GDG / sequential | NONVSAM | — (no program opens it) | catalog listing |
+| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0055V00 | GDG / sequential | NONVSAM | — (no program opens it) | catalog listing |
+| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0056V00 | GDG / sequential | NONVSAM | — (no program opens it) | catalog listing |
+| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0057V00 | GDG / sequential | NONVSAM | — (no program opens it) | catalog listing |
+| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0058V00 | GDG / sequential | NONVSAM | — (no program opens it) | catalog listing |
+| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0059V00 | GDG / sequential | NONVSAM | — (no program opens it) | catalog listing |
+| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0060V00 | GDG / sequential | NONVSAM | — (no program opens it) | catalog listing |
+| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0061V00 | GDG / sequential | NONVSAM | — (no program opens it) | catalog listing |
+| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0062V00 | GDG / sequential | NONVSAM | — (no program opens it) | catalog listing |
+| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0063V00 | GDG / sequential | NONVSAM | — (no program opens it) | catalog listing |
+| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0064V00 | GDG / sequential | NONVSAM | — (no program opens it) | catalog listing |
+| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0065V00 | GDG / sequential | NONVSAM | — (no program opens it) | catalog listing |
+| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0066V00 | GDG / sequential | NONVSAM | — (no program opens it) | catalog listing |
+| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0067V00 | GDG / sequential | NONVSAM | — (no program opens it) | catalog listing |
+| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0068V00 | GDG / sequential | NONVSAM | — (no program opens it) | catalog listing |
+| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0069V00 | GDG / sequential | NONVSAM | — (no program opens it) | catalog listing |
+| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0070V00 | GDG / sequential | NONVSAM | — (no program opens it) | catalog listing |
+| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0071V00 | GDG / sequential | NONVSAM | — (no program opens it) | catalog listing |
+| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0072V00 | GDG / sequential | NONVSAM | — (no program opens it) | catalog listing |
+| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0073V00 | GDG / sequential | NONVSAM | — (no program opens it) | catalog listing |
+| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0074V00 | GDG / sequential | NONVSAM | — (no program opens it) | catalog listing |
+| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0075V00 | GDG / sequential | NONVSAM | — (no program opens it) | catalog listing |
+| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0076V00 | GDG / sequential | NONVSAM | — (no program opens it) | catalog listing |
 | AWS.M2.CARDDEMO.TRANSACT.COMBINED | GDG / sequential | GDG BASE | SORT: unknown `app/jcl/COMBTRAN.jcl:33`<br>IDCAMS: unknown `app/jcl/COMBTRAN.jcl:43` | utility step only, JCL DD/control statement, catalog listing |
-| AWS.M2.CARDDEMO.TRANSACT.COMBINED.G0015V00 | unknown | NONVSAM | — (no program opens it) | catalog listing |
-| AWS.M2.CARDDEMO.TRANSACT.COMBINED.G0016V00 | unknown | NONVSAM | — (no program opens it) | catalog listing |
-| AWS.M2.CARDDEMO.TRANSACT.COMBINED.G0017V00 | unknown | NONVSAM | — (no program opens it) | catalog listing |
-| AWS.M2.CARDDEMO.TRANSACT.COMBINED.G0018V00 | unknown | NONVSAM | — (no program opens it) | catalog listing |
-| AWS.M2.CARDDEMO.TRANSACT.COMBINED.G0019V00 | unknown | NONVSAM | — (no program opens it) | catalog listing |
+| AWS.M2.CARDDEMO.TRANSACT.COMBINED.G0015V00 | GDG / sequential | NONVSAM | — (no program opens it) | catalog listing |
+| AWS.M2.CARDDEMO.TRANSACT.COMBINED.G0016V00 | GDG / sequential | NONVSAM | — (no program opens it) | catalog listing |
+| AWS.M2.CARDDEMO.TRANSACT.COMBINED.G0017V00 | GDG / sequential | NONVSAM | — (no program opens it) | catalog listing |
+| AWS.M2.CARDDEMO.TRANSACT.COMBINED.G0018V00 | GDG / sequential | NONVSAM | — (no program opens it) | catalog listing |
+| AWS.M2.CARDDEMO.TRANSACT.COMBINED.G0019V00 | GDG / sequential | NONVSAM | — (no program opens it) | catalog listing |
 | AWS.M2.CARDDEMO.TRANSACT.DALY | GDG / sequential | GDG BASE | SORT: unknown `app/jcl/TRANREPT.jcl:51`<br>CBTRN03C: read `app/cbl/CBTRN03C.cbl:29` | application program, JCL DD/control statement, catalog listing |
-| AWS.M2.CARDDEMO.TRANSACT.DALY.G0001V00 | sequential | NONVSAM | — (no program opens it) | catalog listing |
-| AWS.M2.CARDDEMO.TRANSACT.DALY.G0002V00 | sequential | NONVSAM | — (no program opens it) | catalog listing |
-| AWS.M2.CARDDEMO.TRANSACT.DALY.G0003V00 | sequential | NONVSAM | — (no program opens it) | catalog listing |
-| AWS.M2.CARDDEMO.TRANSACT.DALY.G0004V00 | sequential | NONVSAM | — (no program opens it) | catalog listing |
-| AWS.M2.CARDDEMO.TRANSACT.DALY.G0005V00 | sequential | NONVSAM | — (no program opens it) | catalog listing |
-| AWS.M2.CARDDEMO.TRANSACT.DALY.G0006V00 | sequential | NONVSAM | — (no program opens it) | catalog listing |
-| AWS.M2.CARDDEMO.TRANSACT.DALY.G0007V00 | sequential | NONVSAM | — (no program opens it) | catalog listing |
-| AWS.M2.CARDDEMO.TRANSACT.DALY.G0008V00 | sequential | NONVSAM | — (no program opens it) | catalog listing |
-| AWS.M2.CARDDEMO.TRANSACT.DALY.G0009V00 | sequential | NONVSAM | — (no program opens it) | catalog listing |
-| AWS.M2.CARDDEMO.TRANSACT.DALY.G0010V00 | sequential | NONVSAM | — (no program opens it) | catalog listing |
-| AWS.M2.CARDDEMO.TRANSACT.DALY.G0011V00 | sequential | NONVSAM | — (no program opens it) | catalog listing |
-| AWS.M2.CARDDEMO.TRANSACT.DALY.G0012V00 | sequential | NONVSAM | — (no program opens it) | catalog listing |
-| AWS.M2.CARDDEMO.TRANSACT.DALY.G0013V00 | sequential | NONVSAM | — (no program opens it) | catalog listing |
-| AWS.M2.CARDDEMO.TRANSACT.DALY.G0014V00 | sequential | NONVSAM | — (no program opens it) | catalog listing |
-| AWS.M2.CARDDEMO.TRANSACT.DALY.G0015V00 | sequential | NONVSAM | — (no program opens it) | catalog listing |
-| AWS.M2.CARDDEMO.TRANSACT.DALY.G0016V00 | sequential | NONVSAM | — (no program opens it) | catalog listing |
-| AWS.M2.CARDDEMO.TRANSACT.DALY.G0017V00 | sequential | NONVSAM | — (no program opens it) | catalog listing |
-| AWS.M2.CARDDEMO.TRANSACT.DALY.G0018V00 | sequential | NONVSAM | — (no program opens it) | catalog listing |
-| AWS.M2.CARDDEMO.TRANSACT.DALY.G0019V00 | sequential | NONVSAM | — (no program opens it) | catalog listing |
-| AWS.M2.CARDDEMO.TRANSACT.DALY.G0020V00 | sequential | NONVSAM | — (no program opens it) | catalog listing |
-| AWS.M2.CARDDEMO.TRANSACT.DALY.G0021V00 | sequential | NONVSAM | — (no program opens it) | catalog listing |
-| AWS.M2.CARDDEMO.TRANSACT.DALY.G0022V00 | sequential | NONVSAM | — (no program opens it) | catalog listing |
-| AWS.M2.CARDDEMO.TRANSACT.DALY.G0023V00 | sequential | NONVSAM | — (no program opens it) | catalog listing |
-| AWS.M2.CARDDEMO.TRANSACT.DALY.G0024V00 | sequential | NONVSAM | — (no program opens it) | catalog listing |
-| AWS.M2.CARDDEMO.TRANSACT.DALY.G0025V00 | sequential | NONVSAM | — (no program opens it) | catalog listing |
-| AWS.M2.CARDDEMO.TRANSACT.DALY.G0026V00 | sequential | NONVSAM | — (no program opens it) | catalog listing |
-| AWS.M2.CARDDEMO.TRANSACT.DALY.G0027V00 | sequential | NONVSAM | — (no program opens it) | catalog listing |
-| AWS.M2.CARDDEMO.TRANSACT.DALY.G0028V00 | sequential | NONVSAM | — (no program opens it) | catalog listing |
-| AWS.M2.CARDDEMO.TRANSACT.DALY.G0029V00 | sequential | NONVSAM | — (no program opens it) | catalog listing |
-| AWS.M2.CARDDEMO.TRANSACT.DALY.G0030V00 | sequential | NONVSAM | — (no program opens it) | catalog listing |
+| AWS.M2.CARDDEMO.TRANSACT.DALY.G0001V00 | GDG / sequential | NONVSAM | — (no program opens it) | catalog listing |
+| AWS.M2.CARDDEMO.TRANSACT.DALY.G0002V00 | GDG / sequential | NONVSAM | — (no program opens it) | catalog listing |
+| AWS.M2.CARDDEMO.TRANSACT.DALY.G0003V00 | GDG / sequential | NONVSAM | — (no program opens it) | catalog listing |
+| AWS.M2.CARDDEMO.TRANSACT.DALY.G0004V00 | GDG / sequential | NONVSAM | — (no program opens it) | catalog listing |
+| AWS.M2.CARDDEMO.TRANSACT.DALY.G0005V00 | GDG / sequential | NONVSAM | — (no program opens it) | catalog listing |
+| AWS.M2.CARDDEMO.TRANSACT.DALY.G0006V00 | GDG / sequential | NONVSAM | — (no program opens it) | catalog listing |
+| AWS.M2.CARDDEMO.TRANSACT.DALY.G0007V00 | GDG / sequential | NONVSAM | — (no program opens it) | catalog listing |
+| AWS.M2.CARDDEMO.TRANSACT.DALY.G0008V00 | GDG / sequential | NONVSAM | — (no program opens it) | catalog listing |
+| AWS.M2.CARDDEMO.TRANSACT.DALY.G0009V00 | GDG / sequential | NONVSAM | — (no program opens it) | catalog listing |
+| AWS.M2.CARDDEMO.TRANSACT.DALY.G0010V00 | GDG / sequential | NONVSAM | — (no program opens it) | catalog listing |
+| AWS.M2.CARDDEMO.TRANSACT.DALY.G0011V00 | GDG / sequential | NONVSAM | — (no program opens it) | catalog listing |
+| AWS.M2.CARDDEMO.TRANSACT.DALY.G0012V00 | GDG / sequential | NONVSAM | — (no program opens it) | catalog listing |
+| AWS.M2.CARDDEMO.TRANSACT.DALY.G0013V00 | GDG / sequential | NONVSAM | — (no program opens it) | catalog listing |
+| AWS.M2.CARDDEMO.TRANSACT.DALY.G0014V00 | GDG / sequential | NONVSAM | — (no program opens it) | catalog listing |
+| AWS.M2.CARDDEMO.TRANSACT.DALY.G0015V00 | GDG / sequential | NONVSAM | — (no program opens it) | catalog listing |
+| AWS.M2.CARDDEMO.TRANSACT.DALY.G0016V00 | GDG / sequential | NONVSAM | — (no program opens it) | catalog listing |
+| AWS.M2.CARDDEMO.TRANSACT.DALY.G0017V00 | GDG / sequential | NONVSAM | — (no program opens it) | catalog listing |
+| AWS.M2.CARDDEMO.TRANSACT.DALY.G0018V00 | GDG / sequential | NONVSAM | — (no program opens it) | catalog listing |
+| AWS.M2.CARDDEMO.TRANSACT.DALY.G0019V00 | GDG / sequential | NONVSAM | — (no program opens it) | catalog listing |
+| AWS.M2.CARDDEMO.TRANSACT.DALY.G0020V00 | GDG / sequential | NONVSAM | — (no program opens it) | catalog listing |
+| AWS.M2.CARDDEMO.TRANSACT.DALY.G0021V00 | GDG / sequential | NONVSAM | — (no program opens it) | catalog listing |
+| AWS.M2.CARDDEMO.TRANSACT.DALY.G0022V00 | GDG / sequential | NONVSAM | — (no program opens it) | catalog listing |
+| AWS.M2.CARDDEMO.TRANSACT.DALY.G0023V00 | GDG / sequential | NONVSAM | — (no program opens it) | catalog listing |
+| AWS.M2.CARDDEMO.TRANSACT.DALY.G0024V00 | GDG / sequential | NONVSAM | — (no program opens it) | catalog listing |
+| AWS.M2.CARDDEMO.TRANSACT.DALY.G0025V00 | GDG / sequential | NONVSAM | — (no program opens it) | catalog listing |
+| AWS.M2.CARDDEMO.TRANSACT.DALY.G0026V00 | GDG / sequential | NONVSAM | — (no program opens it) | catalog listing |
+| AWS.M2.CARDDEMO.TRANSACT.DALY.G0027V00 | GDG / sequential | NONVSAM | — (no program opens it) | catalog listing |
+| AWS.M2.CARDDEMO.TRANSACT.DALY.G0028V00 | GDG / sequential | NONVSAM | — (no program opens it) | catalog listing |
+| AWS.M2.CARDDEMO.TRANSACT.DALY.G0029V00 | GDG / sequential | NONVSAM | — (no program opens it) | catalog listing |
+| AWS.M2.CARDDEMO.TRANSACT.DALY.G0030V00 | GDG / sequential | NONVSAM | — (no program opens it) | catalog listing |
 | AWS.M2.CARDDEMO.TRANSACT.IMPORT | sequential |  | CBIMPORT: unknown `app/cbl/CBIMPORT.cbl:58` | application program, JCL DD/control statement |
 | AWS.M2.CARDDEMO.TRANSACT.VSAM.AIX | VSAM | AIX | — (no program opens it) | JCL DD/control statement, catalog listing |
 | AWS.M2.CARDDEMO.TRANSACT.VSAM.AIX.PATH | VSAM | PATH | — (no program opens it) | JCL DD/control statement, catalog listing |
 | AWS.M2.CARDDEMO.TRANSACT.VSAM.KSDS | VSAM | CLUSTER | IDCAMS: unknown `app/jcl/COMBTRAN.jcl:45`<br>SORT: unknown `app/jcl/CREASTMT.JCL:45`<br>CBEXPORT: read `app/cbl/CBEXPORT.cbl:53`<br>CBTRN02C: write `app/cbl/CBTRN02C.cbl:34`<br>COBIL00C: read/write `app/cbl/COBIL00C.cbl:443`<br>COTRN00C: read `app/cbl/COTRN00C.cbl:593`<br>COTRN01C: read `app/cbl/COTRN01C.cbl:269`<br>COTRN02C: read/write `app/cbl/COTRN02C.cbl:644` | application program, JCL DD/control statement, CSD FILE, catalog listing |
-| AWS.M2.CARDDEMO.TRANTYPE.BKUP | sequential |  | IEBGENER: unknown `app/jcl/DEFGDGD.jcl:40` | utility step only, JCL DD/control statement |
+| AWS.M2.CARDDEMO.TRANTYPE.BKUP | GDG / sequential |  | IEBGENER: unknown `app/jcl/DEFGDGD.jcl:40` | utility step only, JCL DD/control statement |
 | AWS.M2.CARDDEMO.TRANTYPE.PS | sequential | NONVSAM | IEBGENER: unknown `app/jcl/DEFGDGD.jcl:39`<br>IDCAMS: unknown `app/jcl/TRANTYPE.jcl:56`<br>IEFBR14: unknown `app/app-transaction-type-db2/jcl/TRANEXTR.jcl:54`<br>IKJEFT01: unknown `app/app-transaction-type-db2/jcl/TRANEXTR.jcl:72`<br>DSNTIAUL: unknown `app/app-transaction-type-db2/jcl/TRANEXTR.jcl:72` | utility step only, JCL DD/control statement, catalog listing, sample data file |
 | AWS.M2.CARDDEMO.TRANTYPE.VSAM.KSDS | VSAM | CLUSTER | IDCAMS: unknown `app/jcl/TRANTYPE.jcl:58`<br>CBTRN03C: read `app/cbl/CBTRN03C.cbl:39` | application program, JCL DD/control statement, catalog listing |
 | AWS.M2.CARDDEMO.TRXFL.SEQ | sequential |  | SORT: unknown `app/jcl/CREASTMT.JCL:48`<br>IDCAMS: unknown `app/jcl/CREASTMT.JCL:58` | utility step only, JCL DD/control statement |
@@ -748,11 +748,11 @@ Includes utility-only datasets (backup generations, REPRO targets), catalog-only
 | AWS.CCDA.CUSTDATA.CLUSTER | unknown | JCL DD/control statement | `app/jcl/DEFCUST.jcl:25` |
 | AWS.CUSTDATA.CLUSTER | unknown | JCL DD/control statement | `app/jcl/DEFCUST.jcl:35` |
 | AWS.M2.CARDDEMO.TCATBALF.BKUP | GDG / sequential | utility step only, JCL DD/control statement, catalog listing | `app/jcl/DEFGDGB.jcl:43` |
-| AWS.M2.CARDDEMO.TRANTYPE.BKUP | sequential | utility step only, JCL DD/control statement | `app/jcl/DEFGDGD.jcl:28` |
+| AWS.M2.CARDDEMO.TRANTYPE.BKUP | GDG / sequential | utility step only, JCL DD/control statement | `app/jcl/DEFGDGD.jcl:28` |
 | AWS.M2.CARDDEMO.TRANTYPE.PS | sequential | utility step only, JCL DD/control statement, catalog listing, sample data file | `app/jcl/DEFGDGD.jcl:39` |
-| AWS.M2.CARDDEMO.TRANCATG.PS.BKUP | sequential | utility step only, JCL DD/control statement | `app/jcl/DEFGDGD.jcl:51` |
+| AWS.M2.CARDDEMO.TRANCATG.PS.BKUP | GDG / sequential | utility step only, JCL DD/control statement | `app/jcl/DEFGDGD.jcl:51` |
 | AWS.M2.CARDDEMO.TRANCATG.PS | sequential | utility step only, JCL DD/control statement, catalog listing, sample data file | `app/jcl/DEFGDGD.jcl:62` |
-| AWS.M2.CARDDEMO.DISCGRP.BKUP | sequential | utility step only, JCL DD/control statement | `app/jcl/DEFGDGD.jcl:74` |
+| AWS.M2.CARDDEMO.DISCGRP.BKUP | GDG / sequential | utility step only, JCL DD/control statement | `app/jcl/DEFGDGD.jcl:74` |
 | AWS.M2.CARDDEMO.DISCGRP.PS | sequential | utility step only, JCL DD/control statement, catalog listing, sample data file | `app/jcl/DEFGDGD.jcl:85` |
 | AWS.M2.CARDDEMO.USRSEC.PS | sequential | utility step only, JCL DD/control statement, catalog listing, sample data file | `app/jcl/DUSRSECJ.jcl:25` |
 | AWS.M2.CARDDEMO.ESDSRRDS.PS | VSAM | utility step only, JCL DD/control statement | `app/jcl/ESDSRRDS.jcl:26` |
@@ -780,11 +780,11 @@ Includes utility-only datasets (backup generations, REPRO targets), catalog-only
 | AWS.M2.CARDDEMO.PAUTDB.ROOT.GSAM | unknown | utility step only, JCL DD/control statement | `app/app-authorization-ims-db2-mq/jcl/UNLDGSAM.JCL:36` |
 | AWS.M2.CARDDEMO.PAUTDB.CHILD.GSAM | unknown | utility step only, JCL DD/control statement | `app/app-authorization-ims-db2-mq/jcl/UNLDGSAM.JCL:39` |
 | AWS.M2.CARDDEMO.CBL | unknown | catalog listing | `app/catlg/LISTCAT.txt` |
-| AWS.M2.CARDDEMO.DALYREJS.G0022V00 | sequential | catalog listing | `app/catlg/LISTCAT.txt` |
-| AWS.M2.CARDDEMO.DALYREJS.G0023V00 | sequential | catalog listing | `app/catlg/LISTCAT.txt` |
-| AWS.M2.CARDDEMO.DALYREJS.G0024V00 | sequential | catalog listing | `app/catlg/LISTCAT.txt` |
-| AWS.M2.CARDDEMO.DALYREJS.G0025V00 | sequential | catalog listing | `app/catlg/LISTCAT.txt` |
-| AWS.M2.CARDDEMO.DALYREJS.G0026V00 | sequential | catalog listing | `app/catlg/LISTCAT.txt` |
+| AWS.M2.CARDDEMO.DALYREJS.G0022V00 | GDG / sequential | catalog listing | `app/catlg/LISTCAT.txt` |
+| AWS.M2.CARDDEMO.DALYREJS.G0023V00 | GDG / sequential | catalog listing | `app/catlg/LISTCAT.txt` |
+| AWS.M2.CARDDEMO.DALYREJS.G0024V00 | GDG / sequential | catalog listing | `app/catlg/LISTCAT.txt` |
+| AWS.M2.CARDDEMO.DALYREJS.G0025V00 | GDG / sequential | catalog listing | `app/catlg/LISTCAT.txt` |
+| AWS.M2.CARDDEMO.DALYREJS.G0026V00 | GDG / sequential | catalog listing | `app/catlg/LISTCAT.txt` |
 | AWS.M2.CARDDEMO.DCL | unknown | catalog listing | `app/catlg/LISTCAT.txt` |
 | AWS.M2.CARDDEMO.JCL.UTIL | unknown | catalog listing | `app/catlg/LISTCAT.txt` |
 | AWS.M2.CARDDEMO.LISTCAT | unknown | catalog listing | `app/catlg/LISTCAT.txt` |
@@ -792,132 +792,132 @@ Includes utility-only datasets (backup generations, REPRO targets), catalog-only
 | AWS.M2.CARDDEMO.PRC.UTIL | unknown | catalog listing | `app/catlg/LISTCAT.txt` |
 | AWS.M2.CARDDEMO.REXX.UTIL | unknown | catalog listing | `app/catlg/LISTCAT.txt` |
 | AWS.M2.CARDDEMO.SECURITY.PS | sequential | catalog listing | `app/catlg/LISTCAT.txt` |
-| AWS.M2.CARDDEMO.SYSTRAN.G0018V00 | unknown | catalog listing | `app/catlg/LISTCAT.txt` |
-| AWS.M2.CARDDEMO.SYSTRAN.G0019V00 | unknown | catalog listing | `app/catlg/LISTCAT.txt` |
-| AWS.M2.CARDDEMO.SYSTRAN.G0020V00 | unknown | catalog listing | `app/catlg/LISTCAT.txt` |
-| AWS.M2.CARDDEMO.SYSTRAN.G0021V00 | unknown | catalog listing | `app/catlg/LISTCAT.txt` |
-| AWS.M2.CARDDEMO.SYSTRAN.G0022V00 | unknown | catalog listing | `app/catlg/LISTCAT.txt` |
-| AWS.M2.CARDDEMO.TCATBALF.BKUP.G0005V00 | sequential | catalog listing | `app/catlg/LISTCAT.txt` |
-| AWS.M2.CARDDEMO.TCATBALF.BKUP.G0006V00 | sequential | catalog listing | `app/catlg/LISTCAT.txt` |
-| AWS.M2.CARDDEMO.TCATBALF.BKUP.G0007V00 | sequential | catalog listing | `app/catlg/LISTCAT.txt` |
-| AWS.M2.CARDDEMO.TCATBALF.BKUP.G0008V00 | sequential | catalog listing | `app/catlg/LISTCAT.txt` |
-| AWS.M2.CARDDEMO.TCATBALF.BKUP.G0009V00 | sequential | catalog listing | `app/catlg/LISTCAT.txt` |
-| AWS.M2.CARDDEMO.TRANREPT.G0010V00 | sequential | catalog listing | `app/catlg/LISTCAT.txt` |
-| AWS.M2.CARDDEMO.TRANREPT.G0011V00 | sequential | catalog listing | `app/catlg/LISTCAT.txt` |
-| AWS.M2.CARDDEMO.TRANREPT.G0012V00 | sequential | catalog listing | `app/catlg/LISTCAT.txt` |
-| AWS.M2.CARDDEMO.TRANREPT.G0013V00 | sequential | catalog listing | `app/catlg/LISTCAT.txt` |
-| AWS.M2.CARDDEMO.TRANREPT.G0014V00 | sequential | catalog listing | `app/catlg/LISTCAT.txt` |
-| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0072V00 | sequential | catalog listing | `app/catlg/LISTCAT.txt` |
-| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0073V00 | sequential | catalog listing | `app/catlg/LISTCAT.txt` |
-| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0074V00 | sequential | catalog listing | `app/catlg/LISTCAT.txt` |
-| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0075V00 | sequential | catalog listing | `app/catlg/LISTCAT.txt` |
-| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0076V00 | sequential | catalog listing | `app/catlg/LISTCAT.txt` |
-| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0001V00 | sequential | catalog listing | `app/catlg/LISTCAT.txt` |
-| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0002V00 | sequential | catalog listing | `app/catlg/LISTCAT.txt` |
-| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0003V00 | sequential | catalog listing | `app/catlg/LISTCAT.txt` |
-| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0004V00 | sequential | catalog listing | `app/catlg/LISTCAT.txt` |
-| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0005V00 | sequential | catalog listing | `app/catlg/LISTCAT.txt` |
-| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0006V00 | sequential | catalog listing | `app/catlg/LISTCAT.txt` |
-| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0007V00 | sequential | catalog listing | `app/catlg/LISTCAT.txt` |
-| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0008V00 | sequential | catalog listing | `app/catlg/LISTCAT.txt` |
-| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0009V00 | sequential | catalog listing | `app/catlg/LISTCAT.txt` |
-| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0010V00 | sequential | catalog listing | `app/catlg/LISTCAT.txt` |
-| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0011V00 | sequential | catalog listing | `app/catlg/LISTCAT.txt` |
-| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0012V00 | sequential | catalog listing | `app/catlg/LISTCAT.txt` |
-| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0013V00 | sequential | catalog listing | `app/catlg/LISTCAT.txt` |
-| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0014V00 | sequential | catalog listing | `app/catlg/LISTCAT.txt` |
-| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0015V00 | sequential | catalog listing | `app/catlg/LISTCAT.txt` |
-| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0016V00 | sequential | catalog listing | `app/catlg/LISTCAT.txt` |
-| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0017V00 | sequential | catalog listing | `app/catlg/LISTCAT.txt` |
-| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0018V00 | sequential | catalog listing | `app/catlg/LISTCAT.txt` |
-| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0019V00 | sequential | catalog listing | `app/catlg/LISTCAT.txt` |
-| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0020V00 | sequential | catalog listing | `app/catlg/LISTCAT.txt` |
-| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0021V00 | sequential | catalog listing | `app/catlg/LISTCAT.txt` |
-| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0022V00 | sequential | catalog listing | `app/catlg/LISTCAT.txt` |
-| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0023V00 | sequential | catalog listing | `app/catlg/LISTCAT.txt` |
-| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0024V00 | sequential | catalog listing | `app/catlg/LISTCAT.txt` |
-| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0025V00 | sequential | catalog listing | `app/catlg/LISTCAT.txt` |
-| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0026V00 | sequential | catalog listing | `app/catlg/LISTCAT.txt` |
-| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0027V00 | sequential | catalog listing | `app/catlg/LISTCAT.txt` |
-| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0028V00 | sequential | catalog listing | `app/catlg/LISTCAT.txt` |
-| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0029V00 | sequential | catalog listing | `app/catlg/LISTCAT.txt` |
-| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0030V00 | sequential | catalog listing | `app/catlg/LISTCAT.txt` |
-| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0031V00 | sequential | catalog listing | `app/catlg/LISTCAT.txt` |
-| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0032V00 | sequential | catalog listing | `app/catlg/LISTCAT.txt` |
-| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0033V00 | sequential | catalog listing | `app/catlg/LISTCAT.txt` |
-| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0034V00 | sequential | catalog listing | `app/catlg/LISTCAT.txt` |
-| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0035V00 | sequential | catalog listing | `app/catlg/LISTCAT.txt` |
-| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0036V00 | sequential | catalog listing | `app/catlg/LISTCAT.txt` |
-| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0037V00 | sequential | catalog listing | `app/catlg/LISTCAT.txt` |
-| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0038V00 | sequential | catalog listing | `app/catlg/LISTCAT.txt` |
-| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0039V00 | sequential | catalog listing | `app/catlg/LISTCAT.txt` |
-| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0040V00 | sequential | catalog listing | `app/catlg/LISTCAT.txt` |
-| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0041V00 | sequential | catalog listing | `app/catlg/LISTCAT.txt` |
-| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0042V00 | sequential | catalog listing | `app/catlg/LISTCAT.txt` |
-| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0043V00 | sequential | catalog listing | `app/catlg/LISTCAT.txt` |
-| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0044V00 | sequential | catalog listing | `app/catlg/LISTCAT.txt` |
-| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0045V00 | sequential | catalog listing | `app/catlg/LISTCAT.txt` |
-| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0046V00 | sequential | catalog listing | `app/catlg/LISTCAT.txt` |
-| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0047V00 | sequential | catalog listing | `app/catlg/LISTCAT.txt` |
-| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0048V00 | sequential | catalog listing | `app/catlg/LISTCAT.txt` |
-| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0049V00 | sequential | catalog listing | `app/catlg/LISTCAT.txt` |
-| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0050V00 | sequential | catalog listing | `app/catlg/LISTCAT.txt` |
-| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0051V00 | sequential | catalog listing | `app/catlg/LISTCAT.txt` |
-| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0052V00 | sequential | catalog listing | `app/catlg/LISTCAT.txt` |
-| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0053V00 | sequential | catalog listing | `app/catlg/LISTCAT.txt` |
-| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0054V00 | sequential | catalog listing | `app/catlg/LISTCAT.txt` |
-| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0055V00 | sequential | catalog listing | `app/catlg/LISTCAT.txt` |
-| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0056V00 | sequential | catalog listing | `app/catlg/LISTCAT.txt` |
-| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0057V00 | sequential | catalog listing | `app/catlg/LISTCAT.txt` |
-| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0058V00 | sequential | catalog listing | `app/catlg/LISTCAT.txt` |
-| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0059V00 | sequential | catalog listing | `app/catlg/LISTCAT.txt` |
-| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0060V00 | sequential | catalog listing | `app/catlg/LISTCAT.txt` |
-| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0061V00 | sequential | catalog listing | `app/catlg/LISTCAT.txt` |
-| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0062V00 | sequential | catalog listing | `app/catlg/LISTCAT.txt` |
-| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0063V00 | sequential | catalog listing | `app/catlg/LISTCAT.txt` |
-| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0064V00 | sequential | catalog listing | `app/catlg/LISTCAT.txt` |
-| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0065V00 | sequential | catalog listing | `app/catlg/LISTCAT.txt` |
-| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0066V00 | sequential | catalog listing | `app/catlg/LISTCAT.txt` |
-| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0067V00 | sequential | catalog listing | `app/catlg/LISTCAT.txt` |
-| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0068V00 | sequential | catalog listing | `app/catlg/LISTCAT.txt` |
-| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0069V00 | sequential | catalog listing | `app/catlg/LISTCAT.txt` |
-| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0070V00 | sequential | catalog listing | `app/catlg/LISTCAT.txt` |
-| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0071V00 | sequential | catalog listing | `app/catlg/LISTCAT.txt` |
-| AWS.M2.CARDDEMO.TRANSACT.COMBINED.G0015V00 | unknown | catalog listing | `app/catlg/LISTCAT.txt` |
-| AWS.M2.CARDDEMO.TRANSACT.COMBINED.G0016V00 | unknown | catalog listing | `app/catlg/LISTCAT.txt` |
-| AWS.M2.CARDDEMO.TRANSACT.COMBINED.G0017V00 | unknown | catalog listing | `app/catlg/LISTCAT.txt` |
-| AWS.M2.CARDDEMO.TRANSACT.COMBINED.G0018V00 | unknown | catalog listing | `app/catlg/LISTCAT.txt` |
-| AWS.M2.CARDDEMO.TRANSACT.COMBINED.G0019V00 | unknown | catalog listing | `app/catlg/LISTCAT.txt` |
-| AWS.M2.CARDDEMO.TRANSACT.DALY.G0026V00 | sequential | catalog listing | `app/catlg/LISTCAT.txt` |
-| AWS.M2.CARDDEMO.TRANSACT.DALY.G0027V00 | sequential | catalog listing | `app/catlg/LISTCAT.txt` |
-| AWS.M2.CARDDEMO.TRANSACT.DALY.G0028V00 | sequential | catalog listing | `app/catlg/LISTCAT.txt` |
-| AWS.M2.CARDDEMO.TRANSACT.DALY.G0029V00 | sequential | catalog listing | `app/catlg/LISTCAT.txt` |
-| AWS.M2.CARDDEMO.TRANSACT.DALY.G0030V00 | sequential | catalog listing | `app/catlg/LISTCAT.txt` |
-| AWS.M2.CARDDEMO.TRANSACT.DALY.G0001V00 | sequential | catalog listing | `app/catlg/LISTCAT.txt` |
-| AWS.M2.CARDDEMO.TRANSACT.DALY.G0002V00 | sequential | catalog listing | `app/catlg/LISTCAT.txt` |
-| AWS.M2.CARDDEMO.TRANSACT.DALY.G0003V00 | sequential | catalog listing | `app/catlg/LISTCAT.txt` |
-| AWS.M2.CARDDEMO.TRANSACT.DALY.G0004V00 | sequential | catalog listing | `app/catlg/LISTCAT.txt` |
-| AWS.M2.CARDDEMO.TRANSACT.DALY.G0005V00 | sequential | catalog listing | `app/catlg/LISTCAT.txt` |
-| AWS.M2.CARDDEMO.TRANSACT.DALY.G0006V00 | sequential | catalog listing | `app/catlg/LISTCAT.txt` |
-| AWS.M2.CARDDEMO.TRANSACT.DALY.G0007V00 | sequential | catalog listing | `app/catlg/LISTCAT.txt` |
-| AWS.M2.CARDDEMO.TRANSACT.DALY.G0008V00 | sequential | catalog listing | `app/catlg/LISTCAT.txt` |
-| AWS.M2.CARDDEMO.TRANSACT.DALY.G0009V00 | sequential | catalog listing | `app/catlg/LISTCAT.txt` |
-| AWS.M2.CARDDEMO.TRANSACT.DALY.G0010V00 | sequential | catalog listing | `app/catlg/LISTCAT.txt` |
-| AWS.M2.CARDDEMO.TRANSACT.DALY.G0011V00 | sequential | catalog listing | `app/catlg/LISTCAT.txt` |
-| AWS.M2.CARDDEMO.TRANSACT.DALY.G0012V00 | sequential | catalog listing | `app/catlg/LISTCAT.txt` |
-| AWS.M2.CARDDEMO.TRANSACT.DALY.G0013V00 | sequential | catalog listing | `app/catlg/LISTCAT.txt` |
-| AWS.M2.CARDDEMO.TRANSACT.DALY.G0014V00 | sequential | catalog listing | `app/catlg/LISTCAT.txt` |
-| AWS.M2.CARDDEMO.TRANSACT.DALY.G0015V00 | sequential | catalog listing | `app/catlg/LISTCAT.txt` |
-| AWS.M2.CARDDEMO.TRANSACT.DALY.G0016V00 | sequential | catalog listing | `app/catlg/LISTCAT.txt` |
-| AWS.M2.CARDDEMO.TRANSACT.DALY.G0017V00 | sequential | catalog listing | `app/catlg/LISTCAT.txt` |
-| AWS.M2.CARDDEMO.TRANSACT.DALY.G0018V00 | sequential | catalog listing | `app/catlg/LISTCAT.txt` |
-| AWS.M2.CARDDEMO.TRANSACT.DALY.G0019V00 | sequential | catalog listing | `app/catlg/LISTCAT.txt` |
-| AWS.M2.CARDDEMO.TRANSACT.DALY.G0020V00 | sequential | catalog listing | `app/catlg/LISTCAT.txt` |
-| AWS.M2.CARDDEMO.TRANSACT.DALY.G0021V00 | sequential | catalog listing | `app/catlg/LISTCAT.txt` |
-| AWS.M2.CARDDEMO.TRANSACT.DALY.G0022V00 | sequential | catalog listing | `app/catlg/LISTCAT.txt` |
-| AWS.M2.CARDDEMO.TRANSACT.DALY.G0023V00 | sequential | catalog listing | `app/catlg/LISTCAT.txt` |
-| AWS.M2.CARDDEMO.TRANSACT.DALY.G0024V00 | sequential | catalog listing | `app/catlg/LISTCAT.txt` |
-| AWS.M2.CARDDEMO.TRANSACT.DALY.G0025V00 | sequential | catalog listing | `app/catlg/LISTCAT.txt` |
+| AWS.M2.CARDDEMO.SYSTRAN.G0018V00 | GDG / sequential | catalog listing | `app/catlg/LISTCAT.txt` |
+| AWS.M2.CARDDEMO.SYSTRAN.G0019V00 | GDG / sequential | catalog listing | `app/catlg/LISTCAT.txt` |
+| AWS.M2.CARDDEMO.SYSTRAN.G0020V00 | GDG / sequential | catalog listing | `app/catlg/LISTCAT.txt` |
+| AWS.M2.CARDDEMO.SYSTRAN.G0021V00 | GDG / sequential | catalog listing | `app/catlg/LISTCAT.txt` |
+| AWS.M2.CARDDEMO.SYSTRAN.G0022V00 | GDG / sequential | catalog listing | `app/catlg/LISTCAT.txt` |
+| AWS.M2.CARDDEMO.TCATBALF.BKUP.G0005V00 | GDG / sequential | catalog listing | `app/catlg/LISTCAT.txt` |
+| AWS.M2.CARDDEMO.TCATBALF.BKUP.G0006V00 | GDG / sequential | catalog listing | `app/catlg/LISTCAT.txt` |
+| AWS.M2.CARDDEMO.TCATBALF.BKUP.G0007V00 | GDG / sequential | catalog listing | `app/catlg/LISTCAT.txt` |
+| AWS.M2.CARDDEMO.TCATBALF.BKUP.G0008V00 | GDG / sequential | catalog listing | `app/catlg/LISTCAT.txt` |
+| AWS.M2.CARDDEMO.TCATBALF.BKUP.G0009V00 | GDG / sequential | catalog listing | `app/catlg/LISTCAT.txt` |
+| AWS.M2.CARDDEMO.TRANREPT.G0010V00 | GDG / sequential | catalog listing | `app/catlg/LISTCAT.txt` |
+| AWS.M2.CARDDEMO.TRANREPT.G0011V00 | GDG / sequential | catalog listing | `app/catlg/LISTCAT.txt` |
+| AWS.M2.CARDDEMO.TRANREPT.G0012V00 | GDG / sequential | catalog listing | `app/catlg/LISTCAT.txt` |
+| AWS.M2.CARDDEMO.TRANREPT.G0013V00 | GDG / sequential | catalog listing | `app/catlg/LISTCAT.txt` |
+| AWS.M2.CARDDEMO.TRANREPT.G0014V00 | GDG / sequential | catalog listing | `app/catlg/LISTCAT.txt` |
+| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0072V00 | GDG / sequential | catalog listing | `app/catlg/LISTCAT.txt` |
+| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0073V00 | GDG / sequential | catalog listing | `app/catlg/LISTCAT.txt` |
+| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0074V00 | GDG / sequential | catalog listing | `app/catlg/LISTCAT.txt` |
+| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0075V00 | GDG / sequential | catalog listing | `app/catlg/LISTCAT.txt` |
+| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0076V00 | GDG / sequential | catalog listing | `app/catlg/LISTCAT.txt` |
+| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0001V00 | GDG / sequential | catalog listing | `app/catlg/LISTCAT.txt` |
+| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0002V00 | GDG / sequential | catalog listing | `app/catlg/LISTCAT.txt` |
+| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0003V00 | GDG / sequential | catalog listing | `app/catlg/LISTCAT.txt` |
+| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0004V00 | GDG / sequential | catalog listing | `app/catlg/LISTCAT.txt` |
+| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0005V00 | GDG / sequential | catalog listing | `app/catlg/LISTCAT.txt` |
+| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0006V00 | GDG / sequential | catalog listing | `app/catlg/LISTCAT.txt` |
+| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0007V00 | GDG / sequential | catalog listing | `app/catlg/LISTCAT.txt` |
+| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0008V00 | GDG / sequential | catalog listing | `app/catlg/LISTCAT.txt` |
+| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0009V00 | GDG / sequential | catalog listing | `app/catlg/LISTCAT.txt` |
+| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0010V00 | GDG / sequential | catalog listing | `app/catlg/LISTCAT.txt` |
+| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0011V00 | GDG / sequential | catalog listing | `app/catlg/LISTCAT.txt` |
+| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0012V00 | GDG / sequential | catalog listing | `app/catlg/LISTCAT.txt` |
+| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0013V00 | GDG / sequential | catalog listing | `app/catlg/LISTCAT.txt` |
+| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0014V00 | GDG / sequential | catalog listing | `app/catlg/LISTCAT.txt` |
+| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0015V00 | GDG / sequential | catalog listing | `app/catlg/LISTCAT.txt` |
+| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0016V00 | GDG / sequential | catalog listing | `app/catlg/LISTCAT.txt` |
+| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0017V00 | GDG / sequential | catalog listing | `app/catlg/LISTCAT.txt` |
+| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0018V00 | GDG / sequential | catalog listing | `app/catlg/LISTCAT.txt` |
+| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0019V00 | GDG / sequential | catalog listing | `app/catlg/LISTCAT.txt` |
+| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0020V00 | GDG / sequential | catalog listing | `app/catlg/LISTCAT.txt` |
+| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0021V00 | GDG / sequential | catalog listing | `app/catlg/LISTCAT.txt` |
+| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0022V00 | GDG / sequential | catalog listing | `app/catlg/LISTCAT.txt` |
+| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0023V00 | GDG / sequential | catalog listing | `app/catlg/LISTCAT.txt` |
+| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0024V00 | GDG / sequential | catalog listing | `app/catlg/LISTCAT.txt` |
+| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0025V00 | GDG / sequential | catalog listing | `app/catlg/LISTCAT.txt` |
+| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0026V00 | GDG / sequential | catalog listing | `app/catlg/LISTCAT.txt` |
+| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0027V00 | GDG / sequential | catalog listing | `app/catlg/LISTCAT.txt` |
+| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0028V00 | GDG / sequential | catalog listing | `app/catlg/LISTCAT.txt` |
+| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0029V00 | GDG / sequential | catalog listing | `app/catlg/LISTCAT.txt` |
+| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0030V00 | GDG / sequential | catalog listing | `app/catlg/LISTCAT.txt` |
+| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0031V00 | GDG / sequential | catalog listing | `app/catlg/LISTCAT.txt` |
+| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0032V00 | GDG / sequential | catalog listing | `app/catlg/LISTCAT.txt` |
+| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0033V00 | GDG / sequential | catalog listing | `app/catlg/LISTCAT.txt` |
+| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0034V00 | GDG / sequential | catalog listing | `app/catlg/LISTCAT.txt` |
+| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0035V00 | GDG / sequential | catalog listing | `app/catlg/LISTCAT.txt` |
+| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0036V00 | GDG / sequential | catalog listing | `app/catlg/LISTCAT.txt` |
+| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0037V00 | GDG / sequential | catalog listing | `app/catlg/LISTCAT.txt` |
+| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0038V00 | GDG / sequential | catalog listing | `app/catlg/LISTCAT.txt` |
+| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0039V00 | GDG / sequential | catalog listing | `app/catlg/LISTCAT.txt` |
+| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0040V00 | GDG / sequential | catalog listing | `app/catlg/LISTCAT.txt` |
+| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0041V00 | GDG / sequential | catalog listing | `app/catlg/LISTCAT.txt` |
+| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0042V00 | GDG / sequential | catalog listing | `app/catlg/LISTCAT.txt` |
+| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0043V00 | GDG / sequential | catalog listing | `app/catlg/LISTCAT.txt` |
+| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0044V00 | GDG / sequential | catalog listing | `app/catlg/LISTCAT.txt` |
+| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0045V00 | GDG / sequential | catalog listing | `app/catlg/LISTCAT.txt` |
+| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0046V00 | GDG / sequential | catalog listing | `app/catlg/LISTCAT.txt` |
+| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0047V00 | GDG / sequential | catalog listing | `app/catlg/LISTCAT.txt` |
+| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0048V00 | GDG / sequential | catalog listing | `app/catlg/LISTCAT.txt` |
+| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0049V00 | GDG / sequential | catalog listing | `app/catlg/LISTCAT.txt` |
+| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0050V00 | GDG / sequential | catalog listing | `app/catlg/LISTCAT.txt` |
+| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0051V00 | GDG / sequential | catalog listing | `app/catlg/LISTCAT.txt` |
+| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0052V00 | GDG / sequential | catalog listing | `app/catlg/LISTCAT.txt` |
+| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0053V00 | GDG / sequential | catalog listing | `app/catlg/LISTCAT.txt` |
+| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0054V00 | GDG / sequential | catalog listing | `app/catlg/LISTCAT.txt` |
+| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0055V00 | GDG / sequential | catalog listing | `app/catlg/LISTCAT.txt` |
+| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0056V00 | GDG / sequential | catalog listing | `app/catlg/LISTCAT.txt` |
+| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0057V00 | GDG / sequential | catalog listing | `app/catlg/LISTCAT.txt` |
+| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0058V00 | GDG / sequential | catalog listing | `app/catlg/LISTCAT.txt` |
+| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0059V00 | GDG / sequential | catalog listing | `app/catlg/LISTCAT.txt` |
+| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0060V00 | GDG / sequential | catalog listing | `app/catlg/LISTCAT.txt` |
+| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0061V00 | GDG / sequential | catalog listing | `app/catlg/LISTCAT.txt` |
+| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0062V00 | GDG / sequential | catalog listing | `app/catlg/LISTCAT.txt` |
+| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0063V00 | GDG / sequential | catalog listing | `app/catlg/LISTCAT.txt` |
+| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0064V00 | GDG / sequential | catalog listing | `app/catlg/LISTCAT.txt` |
+| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0065V00 | GDG / sequential | catalog listing | `app/catlg/LISTCAT.txt` |
+| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0066V00 | GDG / sequential | catalog listing | `app/catlg/LISTCAT.txt` |
+| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0067V00 | GDG / sequential | catalog listing | `app/catlg/LISTCAT.txt` |
+| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0068V00 | GDG / sequential | catalog listing | `app/catlg/LISTCAT.txt` |
+| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0069V00 | GDG / sequential | catalog listing | `app/catlg/LISTCAT.txt` |
+| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0070V00 | GDG / sequential | catalog listing | `app/catlg/LISTCAT.txt` |
+| AWS.M2.CARDDEMO.TRANSACT.BKUP.G0071V00 | GDG / sequential | catalog listing | `app/catlg/LISTCAT.txt` |
+| AWS.M2.CARDDEMO.TRANSACT.COMBINED.G0015V00 | GDG / sequential | catalog listing | `app/catlg/LISTCAT.txt` |
+| AWS.M2.CARDDEMO.TRANSACT.COMBINED.G0016V00 | GDG / sequential | catalog listing | `app/catlg/LISTCAT.txt` |
+| AWS.M2.CARDDEMO.TRANSACT.COMBINED.G0017V00 | GDG / sequential | catalog listing | `app/catlg/LISTCAT.txt` |
+| AWS.M2.CARDDEMO.TRANSACT.COMBINED.G0018V00 | GDG / sequential | catalog listing | `app/catlg/LISTCAT.txt` |
+| AWS.M2.CARDDEMO.TRANSACT.COMBINED.G0019V00 | GDG / sequential | catalog listing | `app/catlg/LISTCAT.txt` |
+| AWS.M2.CARDDEMO.TRANSACT.DALY.G0026V00 | GDG / sequential | catalog listing | `app/catlg/LISTCAT.txt` |
+| AWS.M2.CARDDEMO.TRANSACT.DALY.G0027V00 | GDG / sequential | catalog listing | `app/catlg/LISTCAT.txt` |
+| AWS.M2.CARDDEMO.TRANSACT.DALY.G0028V00 | GDG / sequential | catalog listing | `app/catlg/LISTCAT.txt` |
+| AWS.M2.CARDDEMO.TRANSACT.DALY.G0029V00 | GDG / sequential | catalog listing | `app/catlg/LISTCAT.txt` |
+| AWS.M2.CARDDEMO.TRANSACT.DALY.G0030V00 | GDG / sequential | catalog listing | `app/catlg/LISTCAT.txt` |
+| AWS.M2.CARDDEMO.TRANSACT.DALY.G0001V00 | GDG / sequential | catalog listing | `app/catlg/LISTCAT.txt` |
+| AWS.M2.CARDDEMO.TRANSACT.DALY.G0002V00 | GDG / sequential | catalog listing | `app/catlg/LISTCAT.txt` |
+| AWS.M2.CARDDEMO.TRANSACT.DALY.G0003V00 | GDG / sequential | catalog listing | `app/catlg/LISTCAT.txt` |
+| AWS.M2.CARDDEMO.TRANSACT.DALY.G0004V00 | GDG / sequential | catalog listing | `app/catlg/LISTCAT.txt` |
+| AWS.M2.CARDDEMO.TRANSACT.DALY.G0005V00 | GDG / sequential | catalog listing | `app/catlg/LISTCAT.txt` |
+| AWS.M2.CARDDEMO.TRANSACT.DALY.G0006V00 | GDG / sequential | catalog listing | `app/catlg/LISTCAT.txt` |
+| AWS.M2.CARDDEMO.TRANSACT.DALY.G0007V00 | GDG / sequential | catalog listing | `app/catlg/LISTCAT.txt` |
+| AWS.M2.CARDDEMO.TRANSACT.DALY.G0008V00 | GDG / sequential | catalog listing | `app/catlg/LISTCAT.txt` |
+| AWS.M2.CARDDEMO.TRANSACT.DALY.G0009V00 | GDG / sequential | catalog listing | `app/catlg/LISTCAT.txt` |
+| AWS.M2.CARDDEMO.TRANSACT.DALY.G0010V00 | GDG / sequential | catalog listing | `app/catlg/LISTCAT.txt` |
+| AWS.M2.CARDDEMO.TRANSACT.DALY.G0011V00 | GDG / sequential | catalog listing | `app/catlg/LISTCAT.txt` |
+| AWS.M2.CARDDEMO.TRANSACT.DALY.G0012V00 | GDG / sequential | catalog listing | `app/catlg/LISTCAT.txt` |
+| AWS.M2.CARDDEMO.TRANSACT.DALY.G0013V00 | GDG / sequential | catalog listing | `app/catlg/LISTCAT.txt` |
+| AWS.M2.CARDDEMO.TRANSACT.DALY.G0014V00 | GDG / sequential | catalog listing | `app/catlg/LISTCAT.txt` |
+| AWS.M2.CARDDEMO.TRANSACT.DALY.G0015V00 | GDG / sequential | catalog listing | `app/catlg/LISTCAT.txt` |
+| AWS.M2.CARDDEMO.TRANSACT.DALY.G0016V00 | GDG / sequential | catalog listing | `app/catlg/LISTCAT.txt` |
+| AWS.M2.CARDDEMO.TRANSACT.DALY.G0017V00 | GDG / sequential | catalog listing | `app/catlg/LISTCAT.txt` |
+| AWS.M2.CARDDEMO.TRANSACT.DALY.G0018V00 | GDG / sequential | catalog listing | `app/catlg/LISTCAT.txt` |
+| AWS.M2.CARDDEMO.TRANSACT.DALY.G0019V00 | GDG / sequential | catalog listing | `app/catlg/LISTCAT.txt` |
+| AWS.M2.CARDDEMO.TRANSACT.DALY.G0020V00 | GDG / sequential | catalog listing | `app/catlg/LISTCAT.txt` |
+| AWS.M2.CARDDEMO.TRANSACT.DALY.G0021V00 | GDG / sequential | catalog listing | `app/catlg/LISTCAT.txt` |
+| AWS.M2.CARDDEMO.TRANSACT.DALY.G0022V00 | GDG / sequential | catalog listing | `app/catlg/LISTCAT.txt` |
+| AWS.M2.CARDDEMO.TRANSACT.DALY.G0023V00 | GDG / sequential | catalog listing | `app/catlg/LISTCAT.txt` |
+| AWS.M2.CARDDEMO.TRANSACT.DALY.G0024V00 | GDG / sequential | catalog listing | `app/catlg/LISTCAT.txt` |
+| AWS.M2.CARDDEMO.TRANSACT.DALY.G0025V00 | GDG / sequential | catalog listing | `app/catlg/LISTCAT.txt` |
 | AWS.M2.CARDDEMO.ACCDATA.PS | sequential | sample data file | `app/data/EBCDIC/AWS.M2.CARDDEMO.ACCDATA.PS` |
 | AWS.M2.CARDDEMO.EXPORT.DATA.PS | sequential | sample data file | `app/data/EBCDIC/AWS.M2.CARDDEMO.EXPORT.DATA.PS` |
 

@@ -257,6 +257,23 @@ class TestRealDependencyEdges(unittest.TestCase):
         self.assertIn("AWS.M2.CARDDEMO.CNTL(DB2FREE)", by_dsn)
         self.assertFalse([d for d in by_dsn if d.startswith("&CODER")], "unexpanded nested symbol")
 
+    def test_relative_gdg_generation_survives_dsn_normalisation(self):
+        self.assertEqual(bd.split_gdg("AWS.M2.CARDDEMO.TRANTYPE.BKUP(+1)"), ("AWS.M2.CARDDEMO.TRANTYPE.BKUP", "+1"))
+        self.assertEqual(bd.split_gdg("'aws.m2.carddemo.systran(0)'"), ("AWS.M2.CARDDEMO.SYSTRAN", "0"))
+        self.assertEqual(bd.split_gdg("AWS.M2.CARDDEMO.CNTL(DB2FREE)"), ("AWS.M2.CARDDEMO.CNTL(DB2FREE)", None))
+        by_dsn = {d["dsn"]: d for d in load_json()["datasets"]}
+        # DEFGDGD.jcl:40 names TRANTYPE.BKUP(+1); the base is in no catalog listing, so the
+        # relative generation is the only evidence that it is a GDG
+        d = by_dsn["AWS.M2.CARDDEMO.TRANTYPE.BKUP"]
+        self.assertEqual((d["kind"], d["catalog_types"], d["relative_generations"]), ("GDG / sequential", [], ["+1"]))
+        self.assertNotIn("AWS.M2.CARDDEMO.TRANTYPE.BKUP(+1)", by_dsn)
+        self.assertEqual(by_dsn["AWS.M2.CARDDEMO.SYSTRAN"]["relative_generations"], ["0", "+1"])
+        # an absolute generation from the catalog listing is a GDG generation, not a plain file
+        self.assertEqual(by_dsn["AWS.M2.CARDDEMO.SYSTRAN.G0018V00"]["kind"], "GDG / sequential")
+        for d in by_dsn.values():
+            if d["relative_generations"]:
+                self.assertEqual(d["kind"], "GDG / sequential", d["dsn"])
+
     def targets_at(self, frm, line):
         return sorted(e["to"] for e in self.edges
                       if e["category"] == "program->program" and e["from"] == frm and e["line"] == line
