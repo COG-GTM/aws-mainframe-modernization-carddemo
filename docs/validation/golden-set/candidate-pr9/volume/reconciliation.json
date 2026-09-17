@@ -1,0 +1,3025 @@
+{
+  "tool": "tests/golden/compare.py",
+  "expected_dir": "tests/golden/sets/volume/expected",
+  "candidate_dir": "tests/golden/sets/volume/candidate-pr9",
+  "input_dir": "tests/golden/sets/volume/input",
+  "verdict": "MISMATCH",
+  "exit_code": 1,
+  "summary": {
+    "records_reconciled": 1945,
+    "fields_reconciled": 22167,
+    "field_differences": 0,
+    "missing_records": 0,
+    "extra_records": 0,
+    "control_total_mismatches": 0,
+    "order_only_files": [],
+    "return_code_mismatch": true,
+    "files_byte_identical": [
+      "TRANSACT",
+      "DALYREJS",
+      "ACCTFILE",
+      "TCATBALF"
+    ],
+    "files_not_byte_identical": [
+      "RETURN-CODE",
+      "SYSOUT"
+    ]
+  },
+  "tolerances": {
+    "abs": {},
+    "used": []
+  },
+  "files": [
+    {
+      "file": "TRANSACT",
+      "layout": "CVTRA05Y",
+      "record_length": 350,
+      "fields_per_record": 14,
+      "expected": {
+        "present": true,
+        "bytes": 366450,
+        "sha256": "960a56800312ed391c1055cf94e4a534affa2596dbe486cd8d9cb573cd34b718"
+      },
+      "candidate": {
+        "present": true,
+        "bytes": 366450,
+        "sha256": "960a56800312ed391c1055cf94e4a534affa2596dbe486cd8d9cb573cd34b718"
+      },
+      "byte_identical": true,
+      "records_expected": 1047,
+      "records_candidate": 1047,
+      "records_matched": 1047,
+      "fields_compared": 14658,
+      "field_differences": [],
+      "within_tolerance": [],
+      "missing_records": [],
+      "extra_records": [],
+      "same_records_different_order": false,
+      "errors": []
+    },
+    {
+      "file": "DALYREJS",
+      "layout": "DALYREJS",
+      "record_length": 430,
+      "fields_per_record": 16,
+      "expected": {
+        "present": true,
+        "bytes": 65790,
+        "sha256": "22b771e49b46151570bb7461f862cbba681eb3400866080297c84199fbd3f1b0"
+      },
+      "candidate": {
+        "present": true,
+        "bytes": 65790,
+        "sha256": "22b771e49b46151570bb7461f862cbba681eb3400866080297c84199fbd3f1b0"
+      },
+      "byte_identical": true,
+      "records_expected": 153,
+      "records_candidate": 153,
+      "records_matched": 153,
+      "fields_compared": 2448,
+      "field_differences": [],
+      "within_tolerance": [],
+      "missing_records": [],
+      "extra_records": [],
+      "same_records_different_order": false,
+      "errors": []
+    },
+    {
+      "file": "ACCTFILE",
+      "layout": "CVACT01Y",
+      "record_length": 300,
+      "fields_per_record": 13,
+      "expected": {
+        "present": true,
+        "bytes": 50100,
+        "sha256": "9dc41cf6909b4286c64dedd8f99e7d11f2d4d9015338c0d6cd4279e9c09661ac"
+      },
+      "candidate": {
+        "present": true,
+        "bytes": 50100,
+        "sha256": "9dc41cf6909b4286c64dedd8f99e7d11f2d4d9015338c0d6cd4279e9c09661ac"
+      },
+      "byte_identical": true,
+      "records_expected": 167,
+      "records_candidate": 167,
+      "records_matched": 167,
+      "fields_compared": 2171,
+      "field_differences": [],
+      "within_tolerance": [],
+      "missing_records": [],
+      "extra_records": [],
+      "same_records_different_order": false,
+      "errors": []
+    },
+    {
+      "file": "TCATBALF",
+      "layout": "CVTRA01Y",
+      "record_length": 50,
+      "fields_per_record": 5,
+      "expected": {
+        "present": true,
+        "bytes": 28900,
+        "sha256": "23e28a8003a05255b659ec0aeff52426d3a415d9a03203c42a61169490a39dd9"
+      },
+      "candidate": {
+        "present": true,
+        "bytes": 28900,
+        "sha256": "23e28a8003a05255b659ec0aeff52426d3a415d9a03203c42a61169490a39dd9"
+      },
+      "byte_identical": true,
+      "records_expected": 578,
+      "records_candidate": 578,
+      "records_matched": 578,
+      "fields_compared": 2890,
+      "field_differences": [],
+      "within_tolerance": [],
+      "missing_records": [],
+      "extra_records": [],
+      "same_records_different_order": false,
+      "errors": []
+    },
+    {
+      "file": "RETURN-CODE",
+      "text": true,
+      "status": "**MISMATCH**",
+      "byte_identical": false,
+      "expected_text": "4",
+      "candidate_text": "0"
+    },
+    {
+      "file": "SYSOUT",
+      "text": true,
+      "status": "differs (informational; operator log)",
+      "byte_identical": false,
+      "expected_text": "10999 bytes",
+      "candidate_text": "18417 bytes"
+    }
+  ],
+  "control_totals": {
+    "expected": {
+      "records_in": 1200,
+      "accepted": 1047,
+      "rejected": 153,
+      "rejected_by_reason": {
+        "0103": 19,
+        "0100": 49,
+        "0101": 33,
+        "0102": 52
+      },
+      "sum_accepted_amount": "231747.52",
+      "sum_rejected_amount": "46628.79",
+      "closing_account_balances": {
+        "90000000001": {
+          "ACCT-CURR-BAL": "974.16",
+          "ACCT-CURR-CYC-CREDIT": "1036.16",
+          "ACCT-CURR-CYC-DEBIT": "-62.00"
+        },
+        "90000000002": {
+          "ACCT-CURR-BAL": "4013.20",
+          "ACCT-CURR-CYC-CREDIT": "4013.20",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000003": {
+          "ACCT-CURR-BAL": "1872.12",
+          "ACCT-CURR-CYC-CREDIT": "1872.12",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000004": {
+          "ACCT-CURR-BAL": "1812.34",
+          "ACCT-CURR-CYC-CREDIT": "1812.34",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000005": {
+          "ACCT-CURR-BAL": "904.96",
+          "ACCT-CURR-CYC-CREDIT": "904.96",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000006": {
+          "ACCT-CURR-BAL": "2104.46",
+          "ACCT-CURR-CYC-CREDIT": "2104.46",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000007": {
+          "ACCT-CURR-BAL": "2430.05",
+          "ACCT-CURR-CYC-CREDIT": "2588.72",
+          "ACCT-CURR-CYC-DEBIT": "-158.67"
+        },
+        "90000000008": {
+          "ACCT-CURR-BAL": "2148.84",
+          "ACCT-CURR-CYC-CREDIT": "2267.37",
+          "ACCT-CURR-CYC-DEBIT": "-118.53"
+        },
+        "90000000009": {
+          "ACCT-CURR-BAL": "791.58",
+          "ACCT-CURR-CYC-CREDIT": "990.28",
+          "ACCT-CURR-CYC-DEBIT": "-198.70"
+        },
+        "90000000010": {
+          "ACCT-CURR-BAL": "900.58",
+          "ACCT-CURR-CYC-CREDIT": "907.33",
+          "ACCT-CURR-CYC-DEBIT": "-6.75"
+        },
+        "90000000011": {
+          "ACCT-CURR-BAL": "2190.72",
+          "ACCT-CURR-CYC-CREDIT": "2190.72",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000012": {
+          "ACCT-CURR-BAL": "1533.59",
+          "ACCT-CURR-CYC-CREDIT": "1533.59",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000013": {
+          "ACCT-CURR-BAL": "1593.09",
+          "ACCT-CURR-CYC-CREDIT": "1860.00",
+          "ACCT-CURR-CYC-DEBIT": "-266.91"
+        },
+        "90000000014": {
+          "ACCT-CURR-BAL": "151.21",
+          "ACCT-CURR-CYC-CREDIT": "338.24",
+          "ACCT-CURR-CYC-DEBIT": "-187.03"
+        },
+        "90000000015": {
+          "ACCT-CURR-BAL": "237.81",
+          "ACCT-CURR-CYC-CREDIT": "567.86",
+          "ACCT-CURR-CYC-DEBIT": "-330.05"
+        },
+        "90000000016": {
+          "ACCT-CURR-BAL": "1736.45",
+          "ACCT-CURR-CYC-CREDIT": "1736.45",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000017": {
+          "ACCT-CURR-BAL": "1139.10",
+          "ACCT-CURR-CYC-CREDIT": "1139.10",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000018": {
+          "ACCT-CURR-BAL": "697.97",
+          "ACCT-CURR-CYC-CREDIT": "1111.90",
+          "ACCT-CURR-CYC-DEBIT": "-413.93"
+        },
+        "90000000019": {
+          "ACCT-CURR-BAL": "1742.94",
+          "ACCT-CURR-CYC-CREDIT": "1770.25",
+          "ACCT-CURR-CYC-DEBIT": "-27.31"
+        },
+        "90000000020": {
+          "ACCT-CURR-BAL": "1486.82",
+          "ACCT-CURR-CYC-CREDIT": "1486.82",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000021": {
+          "ACCT-CURR-BAL": "1865.08",
+          "ACCT-CURR-CYC-CREDIT": "1865.08",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000022": {
+          "ACCT-CURR-BAL": "1843.76",
+          "ACCT-CURR-CYC-CREDIT": "2026.47",
+          "ACCT-CURR-CYC-DEBIT": "-182.71"
+        },
+        "90000000023": {
+          "ACCT-CURR-BAL": "2354.12",
+          "ACCT-CURR-CYC-CREDIT": "2354.12",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000024": {
+          "ACCT-CURR-BAL": "1379.94",
+          "ACCT-CURR-CYC-CREDIT": "1379.94",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000025": {
+          "ACCT-CURR-BAL": "401.99",
+          "ACCT-CURR-CYC-CREDIT": "401.99",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000026": {
+          "ACCT-CURR-BAL": "457.82",
+          "ACCT-CURR-CYC-CREDIT": "457.82",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000027": {
+          "ACCT-CURR-BAL": "1878.23",
+          "ACCT-CURR-CYC-CREDIT": "1878.23",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000028": {
+          "ACCT-CURR-BAL": "463.63",
+          "ACCT-CURR-CYC-CREDIT": "463.63",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000029": {
+          "ACCT-CURR-BAL": "1028.27",
+          "ACCT-CURR-CYC-CREDIT": "1028.27",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000030": {
+          "ACCT-CURR-BAL": "1972.35",
+          "ACCT-CURR-CYC-CREDIT": "1972.35",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000031": {
+          "ACCT-CURR-BAL": "1657.50",
+          "ACCT-CURR-CYC-CREDIT": "1657.50",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000032": {
+          "ACCT-CURR-BAL": "1203.65",
+          "ACCT-CURR-CYC-CREDIT": "1203.65",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000033": {
+          "ACCT-CURR-BAL": "1407.43",
+          "ACCT-CURR-CYC-CREDIT": "1453.32",
+          "ACCT-CURR-CYC-DEBIT": "-45.89"
+        },
+        "90000000034": {
+          "ACCT-CURR-BAL": "1082.28",
+          "ACCT-CURR-CYC-CREDIT": "1258.60",
+          "ACCT-CURR-CYC-DEBIT": "-176.32"
+        },
+        "90000000035": {
+          "ACCT-CURR-BAL": "1464.40",
+          "ACCT-CURR-CYC-CREDIT": "1464.40",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000036": {
+          "ACCT-CURR-BAL": "1999.31",
+          "ACCT-CURR-CYC-CREDIT": "1999.31",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000037": {
+          "ACCT-CURR-BAL": "856.62",
+          "ACCT-CURR-CYC-CREDIT": "1041.02",
+          "ACCT-CURR-CYC-DEBIT": "-184.40"
+        },
+        "90000000038": {
+          "ACCT-CURR-BAL": "1225.54",
+          "ACCT-CURR-CYC-CREDIT": "1283.87",
+          "ACCT-CURR-CYC-DEBIT": "-58.33"
+        },
+        "90000000039": {
+          "ACCT-CURR-BAL": "1206.09",
+          "ACCT-CURR-CYC-CREDIT": "1206.09",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000040": {
+          "ACCT-CURR-BAL": "1083.07",
+          "ACCT-CURR-CYC-CREDIT": "1083.07",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000041": {
+          "ACCT-CURR-BAL": "1801.53",
+          "ACCT-CURR-CYC-CREDIT": "1826.16",
+          "ACCT-CURR-CYC-DEBIT": "-24.63"
+        },
+        "90000000042": {
+          "ACCT-CURR-BAL": "2690.83",
+          "ACCT-CURR-CYC-CREDIT": "2690.83",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000043": {
+          "ACCT-CURR-BAL": "2228.17",
+          "ACCT-CURR-CYC-CREDIT": "2228.17",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000044": {
+          "ACCT-CURR-BAL": "3282.86",
+          "ACCT-CURR-CYC-CREDIT": "3282.86",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000045": {
+          "ACCT-CURR-BAL": "1920.68",
+          "ACCT-CURR-CYC-CREDIT": "1920.68",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000046": {
+          "ACCT-CURR-BAL": "509.11",
+          "ACCT-CURR-CYC-CREDIT": "509.11",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000047": {
+          "ACCT-CURR-BAL": "1784.29",
+          "ACCT-CURR-CYC-CREDIT": "1919.25",
+          "ACCT-CURR-CYC-DEBIT": "-134.96"
+        },
+        "90000000048": {
+          "ACCT-CURR-BAL": "1937.50",
+          "ACCT-CURR-CYC-CREDIT": "1937.50",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000049": {
+          "ACCT-CURR-BAL": "1383.38",
+          "ACCT-CURR-CYC-CREDIT": "1383.38",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000050": {
+          "ACCT-CURR-BAL": "1916.95",
+          "ACCT-CURR-CYC-CREDIT": "1916.95",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000051": {
+          "ACCT-CURR-BAL": "266.75",
+          "ACCT-CURR-CYC-CREDIT": "308.36",
+          "ACCT-CURR-CYC-DEBIT": "-41.61"
+        },
+        "90000000052": {
+          "ACCT-CURR-BAL": "690.87",
+          "ACCT-CURR-CYC-CREDIT": "815.06",
+          "ACCT-CURR-CYC-DEBIT": "-124.19"
+        },
+        "90000000053": {
+          "ACCT-CURR-BAL": "1424.67",
+          "ACCT-CURR-CYC-CREDIT": "1424.67",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000054": {
+          "ACCT-CURR-BAL": "2808.70",
+          "ACCT-CURR-CYC-CREDIT": "2808.70",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000055": {
+          "ACCT-CURR-BAL": "2384.81",
+          "ACCT-CURR-CYC-CREDIT": "2384.81",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000056": {
+          "ACCT-CURR-BAL": "902.79",
+          "ACCT-CURR-CYC-CREDIT": "902.79",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000057": {
+          "ACCT-CURR-BAL": "2369.13",
+          "ACCT-CURR-CYC-CREDIT": "2412.81",
+          "ACCT-CURR-CYC-DEBIT": "-43.68"
+        },
+        "90000000058": {
+          "ACCT-CURR-BAL": "2219.50",
+          "ACCT-CURR-CYC-CREDIT": "2219.50",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000059": {
+          "ACCT-CURR-BAL": "1703.87",
+          "ACCT-CURR-CYC-CREDIT": "1703.87",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000060": {
+          "ACCT-CURR-BAL": "1325.34",
+          "ACCT-CURR-CYC-CREDIT": "1325.34",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000061": {
+          "ACCT-CURR-BAL": "1543.57",
+          "ACCT-CURR-CYC-CREDIT": "1543.57",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000062": {
+          "ACCT-CURR-BAL": "481.54",
+          "ACCT-CURR-CYC-CREDIT": "570.88",
+          "ACCT-CURR-CYC-DEBIT": "-89.34"
+        },
+        "90000000063": {
+          "ACCT-CURR-BAL": "1029.98",
+          "ACCT-CURR-CYC-CREDIT": "1123.52",
+          "ACCT-CURR-CYC-DEBIT": "-93.54"
+        },
+        "90000000064": {
+          "ACCT-CURR-BAL": "345.02",
+          "ACCT-CURR-CYC-CREDIT": "674.47",
+          "ACCT-CURR-CYC-DEBIT": "-329.45"
+        },
+        "90000000065": {
+          "ACCT-CURR-BAL": "1081.72",
+          "ACCT-CURR-CYC-CREDIT": "1128.50",
+          "ACCT-CURR-CYC-DEBIT": "-46.78"
+        },
+        "90000000066": {
+          "ACCT-CURR-BAL": "1692.51",
+          "ACCT-CURR-CYC-CREDIT": "1692.51",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000067": {
+          "ACCT-CURR-BAL": "2515.04",
+          "ACCT-CURR-CYC-CREDIT": "2515.04",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000068": {
+          "ACCT-CURR-BAL": "1558.85",
+          "ACCT-CURR-CYC-CREDIT": "1558.85",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000069": {
+          "ACCT-CURR-BAL": "354.10",
+          "ACCT-CURR-CYC-CREDIT": "354.10",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000070": {
+          "ACCT-CURR-BAL": "1671.47",
+          "ACCT-CURR-CYC-CREDIT": "1708.70",
+          "ACCT-CURR-CYC-DEBIT": "-37.23"
+        },
+        "90000000071": {
+          "ACCT-CURR-BAL": "763.88",
+          "ACCT-CURR-CYC-CREDIT": "763.88",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000072": {
+          "ACCT-CURR-BAL": "1979.29",
+          "ACCT-CURR-CYC-CREDIT": "1979.29",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000073": {
+          "ACCT-CURR-BAL": "1265.70",
+          "ACCT-CURR-CYC-CREDIT": "1362.28",
+          "ACCT-CURR-CYC-DEBIT": "-96.58"
+        },
+        "90000000074": {
+          "ACCT-CURR-BAL": "1400.53",
+          "ACCT-CURR-CYC-CREDIT": "1582.00",
+          "ACCT-CURR-CYC-DEBIT": "-181.47"
+        },
+        "90000000075": {
+          "ACCT-CURR-BAL": "1285.99",
+          "ACCT-CURR-CYC-CREDIT": "1285.99",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000076": {
+          "ACCT-CURR-BAL": "1024.55",
+          "ACCT-CURR-CYC-CREDIT": "1024.55",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000077": {
+          "ACCT-CURR-BAL": "1563.32",
+          "ACCT-CURR-CYC-CREDIT": "1563.32",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000078": {
+          "ACCT-CURR-BAL": "1556.84",
+          "ACCT-CURR-CYC-CREDIT": "1556.84",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000079": {
+          "ACCT-CURR-BAL": "1383.31",
+          "ACCT-CURR-CYC-CREDIT": "1571.83",
+          "ACCT-CURR-CYC-DEBIT": "-188.52"
+        },
+        "90000000080": {
+          "ACCT-CURR-BAL": "920.20",
+          "ACCT-CURR-CYC-CREDIT": "920.20",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000081": {
+          "ACCT-CURR-BAL": "2355.09",
+          "ACCT-CURR-CYC-CREDIT": "2380.60",
+          "ACCT-CURR-CYC-DEBIT": "-25.51"
+        },
+        "90000000082": {
+          "ACCT-CURR-BAL": "2242.37",
+          "ACCT-CURR-CYC-CREDIT": "2276.54",
+          "ACCT-CURR-CYC-DEBIT": "-34.17"
+        },
+        "90000000083": {
+          "ACCT-CURR-BAL": "747.30",
+          "ACCT-CURR-CYC-CREDIT": "747.30",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000084": {
+          "ACCT-CURR-BAL": "414.60",
+          "ACCT-CURR-CYC-CREDIT": "414.60",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000085": {
+          "ACCT-CURR-BAL": "2674.12",
+          "ACCT-CURR-CYC-CREDIT": "2674.12",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000086": {
+          "ACCT-CURR-BAL": "962.08",
+          "ACCT-CURR-CYC-CREDIT": "1065.32",
+          "ACCT-CURR-CYC-DEBIT": "-103.24"
+        },
+        "90000000087": {
+          "ACCT-CURR-BAL": "1676.74",
+          "ACCT-CURR-CYC-CREDIT": "1772.64",
+          "ACCT-CURR-CYC-DEBIT": "-95.90"
+        },
+        "90000000088": {
+          "ACCT-CURR-BAL": "2337.40",
+          "ACCT-CURR-CYC-CREDIT": "2485.37",
+          "ACCT-CURR-CYC-DEBIT": "-147.97"
+        },
+        "90000000089": {
+          "ACCT-CURR-BAL": "2246.77",
+          "ACCT-CURR-CYC-CREDIT": "2246.77",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000090": {
+          "ACCT-CURR-BAL": "2780.00",
+          "ACCT-CURR-CYC-CREDIT": "3113.97",
+          "ACCT-CURR-CYC-DEBIT": "-333.97"
+        },
+        "90000000091": {
+          "ACCT-CURR-BAL": "1480.55",
+          "ACCT-CURR-CYC-CREDIT": "1480.55",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000092": {
+          "ACCT-CURR-BAL": "1602.68",
+          "ACCT-CURR-CYC-CREDIT": "1602.68",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000093": {
+          "ACCT-CURR-BAL": "1698.68",
+          "ACCT-CURR-CYC-CREDIT": "1698.68",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000094": {
+          "ACCT-CURR-BAL": "1835.31",
+          "ACCT-CURR-CYC-CREDIT": "1991.85",
+          "ACCT-CURR-CYC-DEBIT": "-156.54"
+        },
+        "90000000095": {
+          "ACCT-CURR-BAL": "2436.79",
+          "ACCT-CURR-CYC-CREDIT": "2569.05",
+          "ACCT-CURR-CYC-DEBIT": "-132.26"
+        },
+        "90000000096": {
+          "ACCT-CURR-BAL": "1633.34",
+          "ACCT-CURR-CYC-CREDIT": "1633.34",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000097": {
+          "ACCT-CURR-BAL": "672.38",
+          "ACCT-CURR-CYC-CREDIT": "672.38",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000098": {
+          "ACCT-CURR-BAL": "2435.99",
+          "ACCT-CURR-CYC-CREDIT": "2435.99",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000099": {
+          "ACCT-CURR-BAL": "454.63",
+          "ACCT-CURR-CYC-CREDIT": "468.74",
+          "ACCT-CURR-CYC-DEBIT": "-14.11"
+        },
+        "90000000100": {
+          "ACCT-CURR-BAL": "1693.61",
+          "ACCT-CURR-CYC-CREDIT": "1693.61",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000101": {
+          "ACCT-CURR-BAL": "933.65",
+          "ACCT-CURR-CYC-CREDIT": "933.65",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000102": {
+          "ACCT-CURR-BAL": "2985.50",
+          "ACCT-CURR-CYC-CREDIT": "3152.13",
+          "ACCT-CURR-CYC-DEBIT": "-166.63"
+        },
+        "90000000103": {
+          "ACCT-CURR-BAL": "1746.23",
+          "ACCT-CURR-CYC-CREDIT": "1746.23",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000104": {
+          "ACCT-CURR-BAL": "819.92",
+          "ACCT-CURR-CYC-CREDIT": "819.92",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000105": {
+          "ACCT-CURR-BAL": "610.97",
+          "ACCT-CURR-CYC-CREDIT": "634.02",
+          "ACCT-CURR-CYC-DEBIT": "-23.05"
+        },
+        "90000000106": {
+          "ACCT-CURR-BAL": "1643.39",
+          "ACCT-CURR-CYC-CREDIT": "1643.39",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000107": {
+          "ACCT-CURR-BAL": "2056.42",
+          "ACCT-CURR-CYC-CREDIT": "2056.42",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000108": {
+          "ACCT-CURR-BAL": "2465.19",
+          "ACCT-CURR-CYC-CREDIT": "2465.19",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000109": {
+          "ACCT-CURR-BAL": "2978.43",
+          "ACCT-CURR-CYC-CREDIT": "2978.43",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000110": {
+          "ACCT-CURR-BAL": "1292.10",
+          "ACCT-CURR-CYC-CREDIT": "1292.10",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000111": {
+          "ACCT-CURR-BAL": "-82.12",
+          "ACCT-CURR-CYC-CREDIT": "57.88",
+          "ACCT-CURR-CYC-DEBIT": "-140.00"
+        },
+        "90000000112": {
+          "ACCT-CURR-BAL": "1745.99",
+          "ACCT-CURR-CYC-CREDIT": "1745.99",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000113": {
+          "ACCT-CURR-BAL": "1392.77",
+          "ACCT-CURR-CYC-CREDIT": "1392.77",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000114": {
+          "ACCT-CURR-BAL": "777.73",
+          "ACCT-CURR-CYC-CREDIT": "777.73",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000115": {
+          "ACCT-CURR-BAL": "1721.54",
+          "ACCT-CURR-CYC-CREDIT": "1721.54",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000116": {
+          "ACCT-CURR-BAL": "706.64",
+          "ACCT-CURR-CYC-CREDIT": "706.64",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000117": {
+          "ACCT-CURR-BAL": "1603.84",
+          "ACCT-CURR-CYC-CREDIT": "1603.84",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000118": {
+          "ACCT-CURR-BAL": "616.52",
+          "ACCT-CURR-CYC-CREDIT": "616.52",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000119": {
+          "ACCT-CURR-BAL": "2062.59",
+          "ACCT-CURR-CYC-CREDIT": "2062.59",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000120": {
+          "ACCT-CURR-BAL": "1999.65",
+          "ACCT-CURR-CYC-CREDIT": "1999.65",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000121": {
+          "ACCT-CURR-BAL": "1883.25",
+          "ACCT-CURR-CYC-CREDIT": "1883.25",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000122": {
+          "ACCT-CURR-BAL": "2090.96",
+          "ACCT-CURR-CYC-CREDIT": "2090.96",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000123": {
+          "ACCT-CURR-BAL": "600.35",
+          "ACCT-CURR-CYC-CREDIT": "600.35",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000124": {
+          "ACCT-CURR-BAL": "1642.38",
+          "ACCT-CURR-CYC-CREDIT": "1642.38",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000125": {
+          "ACCT-CURR-BAL": "2217.92",
+          "ACCT-CURR-CYC-CREDIT": "2381.85",
+          "ACCT-CURR-CYC-DEBIT": "-163.93"
+        },
+        "90000000126": {
+          "ACCT-CURR-BAL": "1399.17",
+          "ACCT-CURR-CYC-CREDIT": "1399.17",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000127": {
+          "ACCT-CURR-BAL": "978.12",
+          "ACCT-CURR-CYC-CREDIT": "978.12",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000128": {
+          "ACCT-CURR-BAL": "3158.07",
+          "ACCT-CURR-CYC-CREDIT": "3435.18",
+          "ACCT-CURR-CYC-DEBIT": "-277.11"
+        },
+        "90000000129": {
+          "ACCT-CURR-BAL": "996.87",
+          "ACCT-CURR-CYC-CREDIT": "1167.01",
+          "ACCT-CURR-CYC-DEBIT": "-170.14"
+        },
+        "90000000130": {
+          "ACCT-CURR-BAL": "1743.44",
+          "ACCT-CURR-CYC-CREDIT": "1743.44",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000131": {
+          "ACCT-CURR-BAL": "2379.95",
+          "ACCT-CURR-CYC-CREDIT": "2379.95",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000132": {
+          "ACCT-CURR-BAL": "1287.18",
+          "ACCT-CURR-CYC-CREDIT": "1287.18",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000133": {
+          "ACCT-CURR-BAL": "1358.54",
+          "ACCT-CURR-CYC-CREDIT": "1498.79",
+          "ACCT-CURR-CYC-DEBIT": "-140.25"
+        },
+        "90000000134": {
+          "ACCT-CURR-BAL": "3552.83",
+          "ACCT-CURR-CYC-CREDIT": "3552.83",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000135": {
+          "ACCT-CURR-BAL": "445.44",
+          "ACCT-CURR-CYC-CREDIT": "445.44",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000136": {
+          "ACCT-CURR-BAL": "1165.56",
+          "ACCT-CURR-CYC-CREDIT": "1165.56",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000137": {
+          "ACCT-CURR-BAL": "1068.65",
+          "ACCT-CURR-CYC-CREDIT": "1068.65",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000138": {
+          "ACCT-CURR-BAL": "223.78",
+          "ACCT-CURR-CYC-CREDIT": "309.53",
+          "ACCT-CURR-CYC-DEBIT": "-85.75"
+        },
+        "90000000139": {
+          "ACCT-CURR-BAL": "1472.96",
+          "ACCT-CURR-CYC-CREDIT": "1472.96",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000140": {
+          "ACCT-CURR-BAL": "1121.63",
+          "ACCT-CURR-CYC-CREDIT": "1121.63",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000141": {
+          "ACCT-CURR-BAL": "2295.76",
+          "ACCT-CURR-CYC-CREDIT": "2370.40",
+          "ACCT-CURR-CYC-DEBIT": "-74.64"
+        },
+        "90000000142": {
+          "ACCT-CURR-BAL": "2016.59",
+          "ACCT-CURR-CYC-CREDIT": "2016.59",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000143": {
+          "ACCT-CURR-BAL": "2270.61",
+          "ACCT-CURR-CYC-CREDIT": "2380.27",
+          "ACCT-CURR-CYC-DEBIT": "-109.66"
+        },
+        "90000000144": {
+          "ACCT-CURR-BAL": "1708.89",
+          "ACCT-CURR-CYC-CREDIT": "1708.89",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000145": {
+          "ACCT-CURR-BAL": "2486.24",
+          "ACCT-CURR-CYC-CREDIT": "2486.24",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000146": {
+          "ACCT-CURR-BAL": "862.17",
+          "ACCT-CURR-CYC-CREDIT": "862.17",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000147": {
+          "ACCT-CURR-BAL": "2111.83",
+          "ACCT-CURR-CYC-CREDIT": "2111.83",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000148": {
+          "ACCT-CURR-BAL": "1005.80",
+          "ACCT-CURR-CYC-CREDIT": "1109.35",
+          "ACCT-CURR-CYC-DEBIT": "-103.55"
+        },
+        "90000000149": {
+          "ACCT-CURR-BAL": "2169.04",
+          "ACCT-CURR-CYC-CREDIT": "2214.26",
+          "ACCT-CURR-CYC-DEBIT": "-45.22"
+        },
+        "90000000150": {
+          "ACCT-CURR-BAL": "1071.80",
+          "ACCT-CURR-CYC-CREDIT": "1311.21",
+          "ACCT-CURR-CYC-DEBIT": "-239.41"
+        },
+        "90000000151": {
+          "ACCT-CURR-BAL": "0.00",
+          "ACCT-CURR-CYC-CREDIT": "0.00",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000152": {
+          "ACCT-CURR-BAL": "0.00",
+          "ACCT-CURR-CYC-CREDIT": "0.00",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000153": {
+          "ACCT-CURR-BAL": "0.00",
+          "ACCT-CURR-CYC-CREDIT": "0.00",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000154": {
+          "ACCT-CURR-BAL": "0.00",
+          "ACCT-CURR-CYC-CREDIT": "0.00",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000155": {
+          "ACCT-CURR-BAL": "0.00",
+          "ACCT-CURR-CYC-CREDIT": "0.00",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000156": {
+          "ACCT-CURR-BAL": "0.00",
+          "ACCT-CURR-CYC-CREDIT": "0.00",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000157": {
+          "ACCT-CURR-BAL": "0.00",
+          "ACCT-CURR-CYC-CREDIT": "0.00",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000158": {
+          "ACCT-CURR-BAL": "0.00",
+          "ACCT-CURR-CYC-CREDIT": "0.00",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000159": {
+          "ACCT-CURR-BAL": "0.00",
+          "ACCT-CURR-CYC-CREDIT": "0.00",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000160": {
+          "ACCT-CURR-BAL": "32.90",
+          "ACCT-CURR-CYC-CREDIT": "32.90",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000161": {
+          "ACCT-CURR-BAL": "83.07",
+          "ACCT-CURR-CYC-CREDIT": "83.07",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000162": {
+          "ACCT-CURR-BAL": "0.00",
+          "ACCT-CURR-CYC-CREDIT": "0.00",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000163": {
+          "ACCT-CURR-BAL": "0.00",
+          "ACCT-CURR-CYC-CREDIT": "0.00",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000164": {
+          "ACCT-CURR-BAL": "0.00",
+          "ACCT-CURR-CYC-CREDIT": "0.00",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000165": {
+          "ACCT-CURR-BAL": "78.62",
+          "ACCT-CURR-CYC-CREDIT": "78.62",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000166": {
+          "ACCT-CURR-BAL": "47.56",
+          "ACCT-CURR-CYC-CREDIT": "47.56",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000167": {
+          "ACCT-CURR-BAL": "0.00",
+          "ACCT-CURR-CYC-CREDIT": "0.00",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        }
+      },
+      "closing_category_balances": {
+        "90000000001010001": "5501.17",
+        "90000000001010002": "-453.61",
+        "90000000001020003": "4239.41",
+        "90000000001030005": "1627.32",
+        "90000000002010001": "3834.50",
+        "90000000002010002": "5631.98",
+        "90000000002020003": "6472.54",
+        "90000000002030005": "264.60",
+        "90000000003010001": "2553.76",
+        "90000000003010002": "2804.23",
+        "90000000003020003": "842.45",
+        "90000000003030005": "3088.60",
+        "90000000004010001": "251.67",
+        "90000000004010002": "558.42",
+        "90000000004020003": "3516.05",
+        "90000000004030005": "1308.74",
+        "90000000005010001": "108.52",
+        "90000000005010002": "2741.45",
+        "90000000005020003": "4551.26",
+        "90000000005030005": "403.36",
+        "90000000006010001": "4979.40",
+        "90000000006010002": "2295.95",
+        "90000000006020003": "2621.47",
+        "90000000006030005": "2616.52",
+        "90000000007010001": "5535.40",
+        "90000000007010002": "709.43",
+        "90000000007020003": "4621.95",
+        "90000000008010001": "836.28",
+        "90000000008010002": "3993.94",
+        "90000000008020003": "1645.57",
+        "90000000008030005": "417.66",
+        "90000000009010001": "4450.83",
+        "90000000009010002": "259.99",
+        "90000000009020003": "44.80",
+        "90000000010010001": "5359.09",
+        "90000000010010002": "139.35",
+        "90000000010020003": "296.96",
+        "90000000010030005": "4831.40",
+        "90000000011010001": "714.75",
+        "90000000011010002": "4053.80",
+        "90000000011020003": "840.19",
+        "90000000011030005": "3281.23",
+        "90000000012010001": "4011.12",
+        "90000000012010002": "409.54",
+        "90000000012020003": "4903.97",
+        "90000000012030005": "450.16",
+        "90000000013010001": "1795.25",
+        "90000000013010002": "1924.07",
+        "90000000013020003": "566.27",
+        "90000000013030005": "2567.80",
+        "90000000014010002": "4228.25",
+        "90000000014020003": "319.81",
+        "90000000014030005": "-400.75",
+        "90000000015010001": "253.31",
+        "90000000015010002": "4358.82",
+        "90000000015020003": "-15.50",
+        "90000000015030005": "-428.80",
+        "90000000016010001": "996.05",
+        "90000000016010002": "2127.03",
+        "90000000016020003": "3285.23",
+        "90000000016030005": "96.20",
+        "90000000017010001": "3413.07",
+        "90000000017010002": "306.12",
+        "90000000017020003": "914.34",
+        "90000000017030005": "224.76",
+        "90000000018010001": "2534.00",
+        "90000000018010002": "3907.53",
+        "90000000018020003": "318.90",
+        "90000000018030005": "3311.93",
+        "90000000019010001": "773.46",
+        "90000000019010002": "4595.74",
+        "90000000019020003": "4677.22",
+        "90000000019030005": "4618.07",
+        "90000000020010001": "4525.01",
+        "90000000020010002": "4849.58",
+        "90000000020020003": "3572.84",
+        "90000000020030005": "106.35",
+        "90000000021010001": "3105.97",
+        "90000000021010002": "143.22",
+        "90000000021020003": "4367.97",
+        "90000000021030005": "1544.35",
+        "90000000022010001": "684.33",
+        "90000000022010002": "178.11",
+        "90000000022020003": "3834.51",
+        "90000000022030005": "-325.20",
+        "90000000023010001": "4393.97",
+        "90000000023010002": "257.55",
+        "90000000023020003": "687.92",
+        "90000000023030005": "770.64",
+        "90000000024010001": "302.91",
+        "90000000024010002": "4729.09",
+        "90000000024020003": "3410.51",
+        "90000000024030005": "310.46",
+        "90000000025010001": "932.01",
+        "90000000025010002": "988.11",
+        "90000000025020003": "166.36",
+        "90000000025030005": "3154.77",
+        "90000000026010001": "104.48",
+        "90000000026010002": "2153.55",
+        "90000000026020003": "2810.04",
+        "90000000026030005": "4793.93",
+        "90000000027010001": "510.26",
+        "90000000027010002": "408.82",
+        "90000000027020003": "77.71",
+        "90000000027030005": "5065.34",
+        "90000000028010002": "8.44",
+        "90000000028020003": "137.44",
+        "90000000028030005": "221.06",
+        "90000000029010001": "2614.04",
+        "90000000029010002": "1672.62",
+        "90000000029020003": "309.24",
+        "90000000029030005": "1887.22",
+        "90000000030010001": "4122.15",
+        "90000000030010002": "2277.13",
+        "90000000030020003": "2836.75",
+        "90000000030030005": "-136.95",
+        "90000000031010001": "1930.02",
+        "90000000031010002": "950.47",
+        "90000000031020003": "5927.80",
+        "90000000031030005": "1561.55",
+        "90000000032010001": "413.39",
+        "90000000032020003": "4606.72",
+        "90000000032030005": "2272.12",
+        "90000000033010001": "212.07",
+        "90000000033010002": "3899.31",
+        "90000000033020003": "4856.89",
+        "90000000033030005": "279.72",
+        "90000000034010001": "-6.44",
+        "90000000034010002": "264.51",
+        "90000000034020003": "4574.13",
+        "90000000034030005": "825.42",
+        "90000000035010001": "-478.72",
+        "90000000035010002": "770.82",
+        "90000000035020003": "366.31",
+        "90000000035030005": "5071.43",
+        "90000000036010001": "3785.91",
+        "90000000036010002": "1746.71",
+        "90000000036020003": "326.09",
+        "90000000036030005": "1741.35",
+        "90000000037010001": "448.19",
+        "90000000037010002": "3192.25",
+        "90000000037020003": "1308.99",
+        "90000000037030005": "592.83",
+        "90000000038010001": "2836.71",
+        "90000000038010002": "858.16",
+        "90000000038020003": "4751.04",
+        "90000000038030005": "412.96",
+        "90000000039010001": "915.18",
+        "90000000039030005": "5453.31",
+        "90000000040010001": "1099.08",
+        "90000000040010002": "4595.29",
+        "90000000040020003": "476.07",
+        "90000000040030005": "927.36",
+        "90000000041010001": "4714.94",
+        "90000000041010002": "306.22",
+        "90000000041020003": "-177.54",
+        "90000000041030005": "655.35",
+        "90000000042010001": "747.41",
+        "90000000042010002": "1151.21",
+        "90000000042030005": "4079.16",
+        "90000000043010001": "717.85",
+        "90000000043010002": "443.58",
+        "90000000043020003": "4157.94",
+        "90000000043030005": "3764.16",
+        "90000000044010001": "4951.34",
+        "90000000044010002": "3803.93",
+        "90000000044020003": "4177.41",
+        "90000000044030005": "5450.20",
+        "90000000045010001": "4491.69",
+        "90000000045010002": "2579.97",
+        "90000000045020003": "138.28",
+        "90000000045030005": "2048.68",
+        "90000000046010001": "1291.74",
+        "90000000046010002": "1508.62",
+        "90000000046020003": "373.84",
+        "90000000046030005": "180.63",
+        "90000000047010001": "1762.67",
+        "90000000047010002": "744.59",
+        "90000000047020003": "2196.89",
+        "90000000047030005": "260.04",
+        "90000000048010001": "359.24",
+        "90000000048010002": "452.73",
+        "90000000048020003": "3521.75",
+        "90000000048030005": "3087.43",
+        "90000000049010002": "252.84",
+        "90000000049020003": "4579.66",
+        "90000000049030005": "1900.59",
+        "90000000050010001": "590.90",
+        "90000000050010002": "2348.18",
+        "90000000050020003": "4764.38",
+        "90000000050030005": "3703.43",
+        "90000000051010001": "4741.32",
+        "90000000051010002": "1971.37",
+        "90000000051020003": "1045.73",
+        "90000000051030005": "3923.08",
+        "90000000052010001": "2150.55",
+        "90000000052010002": "468.82",
+        "90000000052020003": "791.18",
+        "90000000052030005": "3011.02",
+        "90000000053010001": "3798.72",
+        "90000000053010002": "4210.35",
+        "90000000053020003": "1259.04",
+        "90000000054010001": "4398.90",
+        "90000000054010002": "1536.82",
+        "90000000054020003": "-405.25",
+        "90000000054030005": "1298.36",
+        "90000000055010001": "4247.21",
+        "90000000055010002": "4138.17",
+        "90000000055020003": "4418.38",
+        "90000000055030005": "4235.01",
+        "90000000056010001": "3977.34",
+        "90000000056010002": "1251.95",
+        "90000000056020003": "636.09",
+        "90000000056030005": "3391.50",
+        "90000000057010001": "1134.02",
+        "90000000057010002": "867.13",
+        "90000000057020003": "3187.78",
+        "90000000057030005": "4851.03",
+        "90000000058010001": "3533.10",
+        "90000000058010002": "473.84",
+        "90000000058020003": "2328.64",
+        "90000000058030005": "3456.45",
+        "90000000059010002": "112.43",
+        "90000000059020003": "2681.13",
+        "90000000059030005": "514.10",
+        "90000000060010001": "453.47",
+        "90000000060010002": "3858.44",
+        "90000000060020003": "2421.81",
+        "90000000060030005": "996.74",
+        "90000000061010001": "761.79",
+        "90000000061020003": "423.94",
+        "90000000061030005": "149.97",
+        "90000000062010001": "156.79",
+        "90000000062010002": "1400.84",
+        "90000000062020003": "2158.25",
+        "90000000062030005": "2956.21",
+        "90000000063010001": "4469.58",
+        "90000000063010002": "2820.49",
+        "90000000063020003": "1318.41",
+        "90000000063030005": "622.61",
+        "90000000064010001": "211.64",
+        "90000000064010002": "3262.56",
+        "90000000064020003": "275.82",
+        "90000000064030005": "249.88",
+        "90000000065010001": "4567.73",
+        "90000000065010002": "341.10",
+        "90000000065020003": "3188.73",
+        "90000000065030005": "172.05",
+        "90000000066010001": "5211.69",
+        "90000000066010002": "5599.56",
+        "90000000066020003": "178.90",
+        "90000000067010001": "248.91",
+        "90000000067010002": "3810.43",
+        "90000000067020003": "255.87",
+        "90000000067030005": "2449.73",
+        "90000000068010001": "285.05",
+        "90000000068020003": "3772.53",
+        "90000000068030005": "465.96",
+        "90000000069010001": "489.90",
+        "90000000069010002": "3914.33",
+        "90000000069020003": "4931.01",
+        "90000000069030005": "2373.85",
+        "90000000070010001": "5250.78",
+        "90000000070010002": "212.84",
+        "90000000070020003": "542.98",
+        "90000000070030005": "4379.66",
+        "90000000071010001": "262.58",
+        "90000000071010002": "1379.43",
+        "90000000071020003": "330.47",
+        "90000000071030005": "2693.13",
+        "90000000072010001": "3688.27",
+        "90000000072010002": "4809.55",
+        "90000000072020003": "637.92",
+        "90000000072030005": "2459.84",
+        "90000000073010001": "4862.68",
+        "90000000073010002": "170.03",
+        "90000000073020003": "2296.52",
+        "90000000073030005": "495.45",
+        "90000000074010001": "2096.46",
+        "90000000074010002": "33.74",
+        "90000000074020003": "3493.90",
+        "90000000074030005": "4672.36",
+        "90000000075010001": "2265.49",
+        "90000000075010002": "891.70",
+        "90000000075030005": "373.28",
+        "90000000076010002": "4590.26",
+        "90000000076020003": "5469.11",
+        "90000000076030005": "407.34",
+        "90000000077010001": "2316.27",
+        "90000000077020003": "-241.90",
+        "90000000077030005": "2755.65",
+        "90000000078010001": "1253.05",
+        "90000000078010002": "1467.30",
+        "90000000078030005": "254.77",
+        "90000000079010001": "2183.51",
+        "90000000079010002": "5019.59",
+        "90000000079020003": "4311.93",
+        "90000000079030005": "440.00",
+        "90000000080010001": "3936.93",
+        "90000000080010002": "-481.20",
+        "90000000080020003": "3259.55",
+        "90000000080030005": "5455.21",
+        "90000000081010001": "606.89",
+        "90000000081010002": "0.00",
+        "90000000081020003": "1325.35",
+        "90000000081030005": "6242.29",
+        "90000000082010001": "-34.17",
+        "90000000082010002": "564.19",
+        "90000000082020003": "4374.34",
+        "90000000082030005": "5042.35",
+        "90000000083010001": "3527.84",
+        "90000000083010002": "1742.83",
+        "90000000083020003": "209.61",
+        "90000000083030005": "4400.22",
+        "90000000084010001": "-135.08",
+        "90000000084010002": "3572.44",
+        "90000000084020003": "2635.98",
+        "90000000084030005": "3332.02",
+        "90000000085010001": "637.61",
+        "90000000085010002": "729.50",
+        "90000000085020003": "4042.27",
+        "90000000085030005": "453.09",
+        "90000000086010001": "67.65",
+        "90000000086010002": "672.98",
+        "90000000086020003": "221.45",
+        "90000000087010001": "301.20",
+        "90000000087010002": "470.23",
+        "90000000087020003": "1689.82",
+        "90000000087030005": "568.02",
+        "90000000088010001": "1571.62",
+        "90000000088010002": "3132.52",
+        "90000000088020003": "79.69",
+        "90000000088030005": "878.32",
+        "90000000089010001": "3754.91",
+        "90000000089010002": "539.21",
+        "90000000089020003": "5744.47",
+        "90000000089030005": "99.48",
+        "90000000090010001": "533.77",
+        "90000000090010002": "1206.89",
+        "90000000090020003": "1840.88",
+        "90000000090030005": "4072.33",
+        "90000000091010001": "1021.07",
+        "90000000091010002": "4722.10",
+        "90000000091020003": "635.50",
+        "90000000091030005": "511.88",
+        "90000000092010001": "1062.20",
+        "90000000092010002": "3770.40",
+        "90000000092020003": "4164.07",
+        "90000000092030005": "1666.61",
+        "90000000093010001": "5367.66",
+        "90000000093010002": "445.88",
+        "90000000093020003": "0.00",
+        "90000000093030005": "1384.61",
+        "90000000094010001": "1207.01",
+        "90000000094010002": "416.32",
+        "90000000094020003": "5144.85",
+        "90000000094030005": "4411.72",
+        "90000000095010001": "569.72",
+        "90000000095010002": "3007.87",
+        "90000000095020003": "1160.20",
+        "90000000095030005": "760.94",
+        "90000000096010001": "52.51",
+        "90000000096010002": "2621.05",
+        "90000000096020003": "895.87",
+        "90000000096030005": "6034.52",
+        "90000000097010001": "4734.10",
+        "90000000097010002": "4.77",
+        "90000000097020003": "3685.67",
+        "90000000097030005": "3528.03",
+        "90000000098010001": "2328.49",
+        "90000000098010002": "513.07",
+        "90000000098020003": "659.20",
+        "90000000098030005": "2116.70",
+        "90000000099010001": "5262.38",
+        "90000000099010002": "15.67",
+        "90000000099020003": "-24.53",
+        "90000000099030005": "-107.16",
+        "90000000100010001": "1087.58",
+        "90000000100010002": "16.62",
+        "90000000100020003": "-201.08",
+        "90000000100030005": "490.27",
+        "90000000101010001": "4162.73",
+        "90000000101010002": "2119.45",
+        "90000000101020003": "1047.55",
+        "90000000101030005": "19.56",
+        "90000000102010001": "3751.84",
+        "90000000102010002": "3753.69",
+        "90000000102020003": "2974.96",
+        "90000000102030005": "908.52",
+        "90000000103010001": "458.02",
+        "90000000103010002": "444.39",
+        "90000000103020003": "3502.77",
+        "90000000103030005": "659.85",
+        "90000000104010001": "14.57",
+        "90000000104010002": "3304.52",
+        "90000000104020003": "1547.31",
+        "90000000104030005": "1713.89",
+        "90000000105010001": "4541.53",
+        "90000000105010002": "4623.81",
+        "90000000105020003": "233.86",
+        "90000000105030005": "3509.69",
+        "90000000106010001": "2698.46",
+        "90000000106010002": "458.05",
+        "90000000106020003": "1960.79",
+        "90000000106030005": "711.13",
+        "90000000107010001": "1187.39",
+        "90000000107010002": "5373.03",
+        "90000000107020003": "5297.31",
+        "90000000107030005": "2781.08",
+        "90000000108010001": "464.60",
+        "90000000108010002": "840.94",
+        "90000000108020003": "1540.12",
+        "90000000108030005": "5024.64",
+        "90000000109010001": "1989.87",
+        "90000000109010002": "909.91",
+        "90000000109020003": "1053.64",
+        "90000000109030005": "4211.02",
+        "90000000110010001": "1644.70",
+        "90000000110010002": "2336.77",
+        "90000000110020003": "513.93",
+        "90000000110030005": "-403.39",
+        "90000000111020003": "4119.86",
+        "90000000111030005": "2232.27",
+        "90000000112010001": "512.22",
+        "90000000112010002": "355.64",
+        "90000000112020003": "3591.98",
+        "90000000112030005": "-151.90",
+        "90000000113010001": "4027.63",
+        "90000000113010002": "1429.37",
+        "90000000113020003": "1039.80",
+        "90000000113030005": "2922.02",
+        "90000000114010001": "4862.04",
+        "90000000114010002": "220.05",
+        "90000000114020003": "2136.93",
+        "90000000114030005": "2043.97",
+        "90000000115010001": "-362.77",
+        "90000000115010002": "139.32",
+        "90000000115020003": "1789.76",
+        "90000000116010001": "1421.13",
+        "90000000116010002": "-94.60",
+        "90000000116020003": "2178.87",
+        "90000000116030005": "1961.29",
+        "90000000117010001": "356.21",
+        "90000000117010002": "328.22",
+        "90000000117020003": "2282.21",
+        "90000000117030005": "4737.78",
+        "90000000118010001": "2799.83",
+        "90000000118010002": "1992.66",
+        "90000000118020003": "150.15",
+        "90000000118030005": "236.10",
+        "90000000119010001": "2828.25",
+        "90000000119010002": "2129.12",
+        "90000000119020003": "78.30",
+        "90000000119030005": "1533.25",
+        "90000000120010001": "271.26",
+        "90000000120010002": "5891.92",
+        "90000000120020003": "41.56",
+        "90000000120030005": "4606.84",
+        "90000000121010001": "5449.94",
+        "90000000121010002": "386.79",
+        "90000000121020003": "1028.04",
+        "90000000121030005": "956.56",
+        "90000000122010001": "392.01",
+        "90000000122010002": "3327.95",
+        "90000000122020003": "164.42",
+        "90000000122030005": "2365.31",
+        "90000000123010001": "1889.78",
+        "90000000123010002": "2870.17",
+        "90000000123020003": "2838.94",
+        "90000000123030005": "-172.13",
+        "90000000124010001": "472.29",
+        "90000000124010002": "675.00",
+        "90000000124020003": "495.09",
+        "90000000125010001": "3692.86",
+        "90000000125010002": "3266.74",
+        "90000000125020003": "5582.39",
+        "90000000125030005": "172.09",
+        "90000000126010001": "2250.37",
+        "90000000126010002": "3022.46",
+        "90000000126020003": "2536.48",
+        "90000000126030005": "3143.82",
+        "90000000127010001": "3716.60",
+        "90000000127010002": "5099.71",
+        "90000000127020003": "4381.50",
+        "90000000127030005": "418.44",
+        "90000000128010001": "3049.99",
+        "90000000128010002": "1120.46",
+        "90000000128020003": "5295.39",
+        "90000000128030005": "405.23",
+        "90000000129010001": "201.96",
+        "90000000129010002": "2562.43",
+        "90000000129020003": "339.76",
+        "90000000129030005": "3263.96",
+        "90000000130010001": "368.51",
+        "90000000130010002": "2603.91",
+        "90000000130020003": "410.03",
+        "90000000130030005": "338.74",
+        "90000000131010001": "-342.22",
+        "90000000131010002": "2628.49",
+        "90000000131020003": "6285.61",
+        "90000000131030005": "2756.90",
+        "90000000132010001": "409.32",
+        "90000000132010002": "3171.66",
+        "90000000132020003": "205.93",
+        "90000000132030005": "610.85",
+        "90000000133010001": "-36.58",
+        "90000000133010002": "426.77",
+        "90000000133020003": "1715.62",
+        "90000000134010001": "1274.67",
+        "90000000134010002": "4227.70",
+        "90000000134020003": "1980.96",
+        "90000000134030005": "896.10",
+        "90000000135010001": "1539.38",
+        "90000000135010002": "371.52",
+        "90000000135020003": "3519.95",
+        "90000000136010001": "3560.59",
+        "90000000136010002": "43.77",
+        "90000000136020003": "339.35",
+        "90000000136030005": "3991.61",
+        "90000000137010001": "844.08",
+        "90000000137010002": "495.65",
+        "90000000137020003": "4602.73",
+        "90000000137030005": "2574.35",
+        "90000000138010001": "2820.99",
+        "90000000138010002": "1771.54",
+        "90000000138020003": "-85.75",
+        "90000000138030005": "139.50",
+        "90000000139010001": "46.14",
+        "90000000139010002": "5562.03",
+        "90000000139020003": "695.15",
+        "90000000139030005": "819.82",
+        "90000000140010001": "1121.63",
+        "90000000140010002": "54.03",
+        "90000000140020003": "-110.87",
+        "90000000140030005": "1315.86",
+        "90000000141010001": "454.79",
+        "90000000141010002": "2408.24",
+        "90000000141020003": "414.60",
+        "90000000141030005": "4458.38",
+        "90000000142010001": "2331.73",
+        "90000000142020003": "593.84",
+        "90000000142030005": "4952.40",
+        "90000000143010001": "876.70",
+        "90000000143010002": "559.52",
+        "90000000143020003": "1002.61",
+        "90000000143030005": "4283.48",
+        "90000000144010001": "453.41",
+        "90000000144010002": "212.58",
+        "90000000144020003": "2757.10",
+        "90000000144030005": "3336.47",
+        "90000000145010001": "1324.82",
+        "90000000145010002": "985.94",
+        "90000000145020003": "3953.92",
+        "90000000145030005": "254.73",
+        "90000000146010001": "1237.29",
+        "90000000146010002": "2002.77",
+        "90000000146020003": "192.84",
+        "90000000146030005": "3575.78",
+        "90000000147010001": "1052.18",
+        "90000000147010002": "1654.57",
+        "90000000147020003": "1423.38",
+        "90000000147030005": "146.27",
+        "90000000148010001": "1479.37",
+        "90000000148010002": "1728.27",
+        "90000000148020003": "2366.85",
+        "90000000148030005": "3078.00",
+        "90000000149010001": "697.06",
+        "90000000149010002": "560.19",
+        "90000000149020003": "613.25",
+        "90000000149030005": "201.97",
+        "90000000150010001": "3711.51",
+        "90000000150010002": "4419.40",
+        "90000000150020003": "1103.44",
+        "90000000150030005": "2060.79",
+        "90000000160010002": "32.90",
+        "90000000161010002": "83.07",
+        "90000000165010002": "78.62",
+        "90000000166020003": "47.56"
+      },
+      "identity_in_equals_accepted_plus_rejected": true,
+      "errors": []
+    },
+    "candidate": {
+      "records_in": 1200,
+      "accepted": 1047,
+      "rejected": 153,
+      "rejected_by_reason": {
+        "0103": 19,
+        "0100": 49,
+        "0101": 33,
+        "0102": 52
+      },
+      "sum_accepted_amount": "231747.52",
+      "sum_rejected_amount": "46628.79",
+      "closing_account_balances": {
+        "90000000001": {
+          "ACCT-CURR-BAL": "974.16",
+          "ACCT-CURR-CYC-CREDIT": "1036.16",
+          "ACCT-CURR-CYC-DEBIT": "-62.00"
+        },
+        "90000000002": {
+          "ACCT-CURR-BAL": "4013.20",
+          "ACCT-CURR-CYC-CREDIT": "4013.20",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000003": {
+          "ACCT-CURR-BAL": "1872.12",
+          "ACCT-CURR-CYC-CREDIT": "1872.12",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000004": {
+          "ACCT-CURR-BAL": "1812.34",
+          "ACCT-CURR-CYC-CREDIT": "1812.34",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000005": {
+          "ACCT-CURR-BAL": "904.96",
+          "ACCT-CURR-CYC-CREDIT": "904.96",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000006": {
+          "ACCT-CURR-BAL": "2104.46",
+          "ACCT-CURR-CYC-CREDIT": "2104.46",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000007": {
+          "ACCT-CURR-BAL": "2430.05",
+          "ACCT-CURR-CYC-CREDIT": "2588.72",
+          "ACCT-CURR-CYC-DEBIT": "-158.67"
+        },
+        "90000000008": {
+          "ACCT-CURR-BAL": "2148.84",
+          "ACCT-CURR-CYC-CREDIT": "2267.37",
+          "ACCT-CURR-CYC-DEBIT": "-118.53"
+        },
+        "90000000009": {
+          "ACCT-CURR-BAL": "791.58",
+          "ACCT-CURR-CYC-CREDIT": "990.28",
+          "ACCT-CURR-CYC-DEBIT": "-198.70"
+        },
+        "90000000010": {
+          "ACCT-CURR-BAL": "900.58",
+          "ACCT-CURR-CYC-CREDIT": "907.33",
+          "ACCT-CURR-CYC-DEBIT": "-6.75"
+        },
+        "90000000011": {
+          "ACCT-CURR-BAL": "2190.72",
+          "ACCT-CURR-CYC-CREDIT": "2190.72",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000012": {
+          "ACCT-CURR-BAL": "1533.59",
+          "ACCT-CURR-CYC-CREDIT": "1533.59",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000013": {
+          "ACCT-CURR-BAL": "1593.09",
+          "ACCT-CURR-CYC-CREDIT": "1860.00",
+          "ACCT-CURR-CYC-DEBIT": "-266.91"
+        },
+        "90000000014": {
+          "ACCT-CURR-BAL": "151.21",
+          "ACCT-CURR-CYC-CREDIT": "338.24",
+          "ACCT-CURR-CYC-DEBIT": "-187.03"
+        },
+        "90000000015": {
+          "ACCT-CURR-BAL": "237.81",
+          "ACCT-CURR-CYC-CREDIT": "567.86",
+          "ACCT-CURR-CYC-DEBIT": "-330.05"
+        },
+        "90000000016": {
+          "ACCT-CURR-BAL": "1736.45",
+          "ACCT-CURR-CYC-CREDIT": "1736.45",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000017": {
+          "ACCT-CURR-BAL": "1139.10",
+          "ACCT-CURR-CYC-CREDIT": "1139.10",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000018": {
+          "ACCT-CURR-BAL": "697.97",
+          "ACCT-CURR-CYC-CREDIT": "1111.90",
+          "ACCT-CURR-CYC-DEBIT": "-413.93"
+        },
+        "90000000019": {
+          "ACCT-CURR-BAL": "1742.94",
+          "ACCT-CURR-CYC-CREDIT": "1770.25",
+          "ACCT-CURR-CYC-DEBIT": "-27.31"
+        },
+        "90000000020": {
+          "ACCT-CURR-BAL": "1486.82",
+          "ACCT-CURR-CYC-CREDIT": "1486.82",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000021": {
+          "ACCT-CURR-BAL": "1865.08",
+          "ACCT-CURR-CYC-CREDIT": "1865.08",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000022": {
+          "ACCT-CURR-BAL": "1843.76",
+          "ACCT-CURR-CYC-CREDIT": "2026.47",
+          "ACCT-CURR-CYC-DEBIT": "-182.71"
+        },
+        "90000000023": {
+          "ACCT-CURR-BAL": "2354.12",
+          "ACCT-CURR-CYC-CREDIT": "2354.12",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000024": {
+          "ACCT-CURR-BAL": "1379.94",
+          "ACCT-CURR-CYC-CREDIT": "1379.94",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000025": {
+          "ACCT-CURR-BAL": "401.99",
+          "ACCT-CURR-CYC-CREDIT": "401.99",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000026": {
+          "ACCT-CURR-BAL": "457.82",
+          "ACCT-CURR-CYC-CREDIT": "457.82",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000027": {
+          "ACCT-CURR-BAL": "1878.23",
+          "ACCT-CURR-CYC-CREDIT": "1878.23",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000028": {
+          "ACCT-CURR-BAL": "463.63",
+          "ACCT-CURR-CYC-CREDIT": "463.63",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000029": {
+          "ACCT-CURR-BAL": "1028.27",
+          "ACCT-CURR-CYC-CREDIT": "1028.27",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000030": {
+          "ACCT-CURR-BAL": "1972.35",
+          "ACCT-CURR-CYC-CREDIT": "1972.35",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000031": {
+          "ACCT-CURR-BAL": "1657.50",
+          "ACCT-CURR-CYC-CREDIT": "1657.50",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000032": {
+          "ACCT-CURR-BAL": "1203.65",
+          "ACCT-CURR-CYC-CREDIT": "1203.65",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000033": {
+          "ACCT-CURR-BAL": "1407.43",
+          "ACCT-CURR-CYC-CREDIT": "1453.32",
+          "ACCT-CURR-CYC-DEBIT": "-45.89"
+        },
+        "90000000034": {
+          "ACCT-CURR-BAL": "1082.28",
+          "ACCT-CURR-CYC-CREDIT": "1258.60",
+          "ACCT-CURR-CYC-DEBIT": "-176.32"
+        },
+        "90000000035": {
+          "ACCT-CURR-BAL": "1464.40",
+          "ACCT-CURR-CYC-CREDIT": "1464.40",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000036": {
+          "ACCT-CURR-BAL": "1999.31",
+          "ACCT-CURR-CYC-CREDIT": "1999.31",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000037": {
+          "ACCT-CURR-BAL": "856.62",
+          "ACCT-CURR-CYC-CREDIT": "1041.02",
+          "ACCT-CURR-CYC-DEBIT": "-184.40"
+        },
+        "90000000038": {
+          "ACCT-CURR-BAL": "1225.54",
+          "ACCT-CURR-CYC-CREDIT": "1283.87",
+          "ACCT-CURR-CYC-DEBIT": "-58.33"
+        },
+        "90000000039": {
+          "ACCT-CURR-BAL": "1206.09",
+          "ACCT-CURR-CYC-CREDIT": "1206.09",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000040": {
+          "ACCT-CURR-BAL": "1083.07",
+          "ACCT-CURR-CYC-CREDIT": "1083.07",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000041": {
+          "ACCT-CURR-BAL": "1801.53",
+          "ACCT-CURR-CYC-CREDIT": "1826.16",
+          "ACCT-CURR-CYC-DEBIT": "-24.63"
+        },
+        "90000000042": {
+          "ACCT-CURR-BAL": "2690.83",
+          "ACCT-CURR-CYC-CREDIT": "2690.83",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000043": {
+          "ACCT-CURR-BAL": "2228.17",
+          "ACCT-CURR-CYC-CREDIT": "2228.17",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000044": {
+          "ACCT-CURR-BAL": "3282.86",
+          "ACCT-CURR-CYC-CREDIT": "3282.86",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000045": {
+          "ACCT-CURR-BAL": "1920.68",
+          "ACCT-CURR-CYC-CREDIT": "1920.68",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000046": {
+          "ACCT-CURR-BAL": "509.11",
+          "ACCT-CURR-CYC-CREDIT": "509.11",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000047": {
+          "ACCT-CURR-BAL": "1784.29",
+          "ACCT-CURR-CYC-CREDIT": "1919.25",
+          "ACCT-CURR-CYC-DEBIT": "-134.96"
+        },
+        "90000000048": {
+          "ACCT-CURR-BAL": "1937.50",
+          "ACCT-CURR-CYC-CREDIT": "1937.50",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000049": {
+          "ACCT-CURR-BAL": "1383.38",
+          "ACCT-CURR-CYC-CREDIT": "1383.38",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000050": {
+          "ACCT-CURR-BAL": "1916.95",
+          "ACCT-CURR-CYC-CREDIT": "1916.95",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000051": {
+          "ACCT-CURR-BAL": "266.75",
+          "ACCT-CURR-CYC-CREDIT": "308.36",
+          "ACCT-CURR-CYC-DEBIT": "-41.61"
+        },
+        "90000000052": {
+          "ACCT-CURR-BAL": "690.87",
+          "ACCT-CURR-CYC-CREDIT": "815.06",
+          "ACCT-CURR-CYC-DEBIT": "-124.19"
+        },
+        "90000000053": {
+          "ACCT-CURR-BAL": "1424.67",
+          "ACCT-CURR-CYC-CREDIT": "1424.67",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000054": {
+          "ACCT-CURR-BAL": "2808.70",
+          "ACCT-CURR-CYC-CREDIT": "2808.70",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000055": {
+          "ACCT-CURR-BAL": "2384.81",
+          "ACCT-CURR-CYC-CREDIT": "2384.81",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000056": {
+          "ACCT-CURR-BAL": "902.79",
+          "ACCT-CURR-CYC-CREDIT": "902.79",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000057": {
+          "ACCT-CURR-BAL": "2369.13",
+          "ACCT-CURR-CYC-CREDIT": "2412.81",
+          "ACCT-CURR-CYC-DEBIT": "-43.68"
+        },
+        "90000000058": {
+          "ACCT-CURR-BAL": "2219.50",
+          "ACCT-CURR-CYC-CREDIT": "2219.50",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000059": {
+          "ACCT-CURR-BAL": "1703.87",
+          "ACCT-CURR-CYC-CREDIT": "1703.87",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000060": {
+          "ACCT-CURR-BAL": "1325.34",
+          "ACCT-CURR-CYC-CREDIT": "1325.34",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000061": {
+          "ACCT-CURR-BAL": "1543.57",
+          "ACCT-CURR-CYC-CREDIT": "1543.57",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000062": {
+          "ACCT-CURR-BAL": "481.54",
+          "ACCT-CURR-CYC-CREDIT": "570.88",
+          "ACCT-CURR-CYC-DEBIT": "-89.34"
+        },
+        "90000000063": {
+          "ACCT-CURR-BAL": "1029.98",
+          "ACCT-CURR-CYC-CREDIT": "1123.52",
+          "ACCT-CURR-CYC-DEBIT": "-93.54"
+        },
+        "90000000064": {
+          "ACCT-CURR-BAL": "345.02",
+          "ACCT-CURR-CYC-CREDIT": "674.47",
+          "ACCT-CURR-CYC-DEBIT": "-329.45"
+        },
+        "90000000065": {
+          "ACCT-CURR-BAL": "1081.72",
+          "ACCT-CURR-CYC-CREDIT": "1128.50",
+          "ACCT-CURR-CYC-DEBIT": "-46.78"
+        },
+        "90000000066": {
+          "ACCT-CURR-BAL": "1692.51",
+          "ACCT-CURR-CYC-CREDIT": "1692.51",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000067": {
+          "ACCT-CURR-BAL": "2515.04",
+          "ACCT-CURR-CYC-CREDIT": "2515.04",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000068": {
+          "ACCT-CURR-BAL": "1558.85",
+          "ACCT-CURR-CYC-CREDIT": "1558.85",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000069": {
+          "ACCT-CURR-BAL": "354.10",
+          "ACCT-CURR-CYC-CREDIT": "354.10",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000070": {
+          "ACCT-CURR-BAL": "1671.47",
+          "ACCT-CURR-CYC-CREDIT": "1708.70",
+          "ACCT-CURR-CYC-DEBIT": "-37.23"
+        },
+        "90000000071": {
+          "ACCT-CURR-BAL": "763.88",
+          "ACCT-CURR-CYC-CREDIT": "763.88",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000072": {
+          "ACCT-CURR-BAL": "1979.29",
+          "ACCT-CURR-CYC-CREDIT": "1979.29",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000073": {
+          "ACCT-CURR-BAL": "1265.70",
+          "ACCT-CURR-CYC-CREDIT": "1362.28",
+          "ACCT-CURR-CYC-DEBIT": "-96.58"
+        },
+        "90000000074": {
+          "ACCT-CURR-BAL": "1400.53",
+          "ACCT-CURR-CYC-CREDIT": "1582.00",
+          "ACCT-CURR-CYC-DEBIT": "-181.47"
+        },
+        "90000000075": {
+          "ACCT-CURR-BAL": "1285.99",
+          "ACCT-CURR-CYC-CREDIT": "1285.99",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000076": {
+          "ACCT-CURR-BAL": "1024.55",
+          "ACCT-CURR-CYC-CREDIT": "1024.55",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000077": {
+          "ACCT-CURR-BAL": "1563.32",
+          "ACCT-CURR-CYC-CREDIT": "1563.32",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000078": {
+          "ACCT-CURR-BAL": "1556.84",
+          "ACCT-CURR-CYC-CREDIT": "1556.84",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000079": {
+          "ACCT-CURR-BAL": "1383.31",
+          "ACCT-CURR-CYC-CREDIT": "1571.83",
+          "ACCT-CURR-CYC-DEBIT": "-188.52"
+        },
+        "90000000080": {
+          "ACCT-CURR-BAL": "920.20",
+          "ACCT-CURR-CYC-CREDIT": "920.20",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000081": {
+          "ACCT-CURR-BAL": "2355.09",
+          "ACCT-CURR-CYC-CREDIT": "2380.60",
+          "ACCT-CURR-CYC-DEBIT": "-25.51"
+        },
+        "90000000082": {
+          "ACCT-CURR-BAL": "2242.37",
+          "ACCT-CURR-CYC-CREDIT": "2276.54",
+          "ACCT-CURR-CYC-DEBIT": "-34.17"
+        },
+        "90000000083": {
+          "ACCT-CURR-BAL": "747.30",
+          "ACCT-CURR-CYC-CREDIT": "747.30",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000084": {
+          "ACCT-CURR-BAL": "414.60",
+          "ACCT-CURR-CYC-CREDIT": "414.60",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000085": {
+          "ACCT-CURR-BAL": "2674.12",
+          "ACCT-CURR-CYC-CREDIT": "2674.12",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000086": {
+          "ACCT-CURR-BAL": "962.08",
+          "ACCT-CURR-CYC-CREDIT": "1065.32",
+          "ACCT-CURR-CYC-DEBIT": "-103.24"
+        },
+        "90000000087": {
+          "ACCT-CURR-BAL": "1676.74",
+          "ACCT-CURR-CYC-CREDIT": "1772.64",
+          "ACCT-CURR-CYC-DEBIT": "-95.90"
+        },
+        "90000000088": {
+          "ACCT-CURR-BAL": "2337.40",
+          "ACCT-CURR-CYC-CREDIT": "2485.37",
+          "ACCT-CURR-CYC-DEBIT": "-147.97"
+        },
+        "90000000089": {
+          "ACCT-CURR-BAL": "2246.77",
+          "ACCT-CURR-CYC-CREDIT": "2246.77",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000090": {
+          "ACCT-CURR-BAL": "2780.00",
+          "ACCT-CURR-CYC-CREDIT": "3113.97",
+          "ACCT-CURR-CYC-DEBIT": "-333.97"
+        },
+        "90000000091": {
+          "ACCT-CURR-BAL": "1480.55",
+          "ACCT-CURR-CYC-CREDIT": "1480.55",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000092": {
+          "ACCT-CURR-BAL": "1602.68",
+          "ACCT-CURR-CYC-CREDIT": "1602.68",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000093": {
+          "ACCT-CURR-BAL": "1698.68",
+          "ACCT-CURR-CYC-CREDIT": "1698.68",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000094": {
+          "ACCT-CURR-BAL": "1835.31",
+          "ACCT-CURR-CYC-CREDIT": "1991.85",
+          "ACCT-CURR-CYC-DEBIT": "-156.54"
+        },
+        "90000000095": {
+          "ACCT-CURR-BAL": "2436.79",
+          "ACCT-CURR-CYC-CREDIT": "2569.05",
+          "ACCT-CURR-CYC-DEBIT": "-132.26"
+        },
+        "90000000096": {
+          "ACCT-CURR-BAL": "1633.34",
+          "ACCT-CURR-CYC-CREDIT": "1633.34",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000097": {
+          "ACCT-CURR-BAL": "672.38",
+          "ACCT-CURR-CYC-CREDIT": "672.38",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000098": {
+          "ACCT-CURR-BAL": "2435.99",
+          "ACCT-CURR-CYC-CREDIT": "2435.99",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000099": {
+          "ACCT-CURR-BAL": "454.63",
+          "ACCT-CURR-CYC-CREDIT": "468.74",
+          "ACCT-CURR-CYC-DEBIT": "-14.11"
+        },
+        "90000000100": {
+          "ACCT-CURR-BAL": "1693.61",
+          "ACCT-CURR-CYC-CREDIT": "1693.61",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000101": {
+          "ACCT-CURR-BAL": "933.65",
+          "ACCT-CURR-CYC-CREDIT": "933.65",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000102": {
+          "ACCT-CURR-BAL": "2985.50",
+          "ACCT-CURR-CYC-CREDIT": "3152.13",
+          "ACCT-CURR-CYC-DEBIT": "-166.63"
+        },
+        "90000000103": {
+          "ACCT-CURR-BAL": "1746.23",
+          "ACCT-CURR-CYC-CREDIT": "1746.23",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000104": {
+          "ACCT-CURR-BAL": "819.92",
+          "ACCT-CURR-CYC-CREDIT": "819.92",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000105": {
+          "ACCT-CURR-BAL": "610.97",
+          "ACCT-CURR-CYC-CREDIT": "634.02",
+          "ACCT-CURR-CYC-DEBIT": "-23.05"
+        },
+        "90000000106": {
+          "ACCT-CURR-BAL": "1643.39",
+          "ACCT-CURR-CYC-CREDIT": "1643.39",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000107": {
+          "ACCT-CURR-BAL": "2056.42",
+          "ACCT-CURR-CYC-CREDIT": "2056.42",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000108": {
+          "ACCT-CURR-BAL": "2465.19",
+          "ACCT-CURR-CYC-CREDIT": "2465.19",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000109": {
+          "ACCT-CURR-BAL": "2978.43",
+          "ACCT-CURR-CYC-CREDIT": "2978.43",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000110": {
+          "ACCT-CURR-BAL": "1292.10",
+          "ACCT-CURR-CYC-CREDIT": "1292.10",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000111": {
+          "ACCT-CURR-BAL": "-82.12",
+          "ACCT-CURR-CYC-CREDIT": "57.88",
+          "ACCT-CURR-CYC-DEBIT": "-140.00"
+        },
+        "90000000112": {
+          "ACCT-CURR-BAL": "1745.99",
+          "ACCT-CURR-CYC-CREDIT": "1745.99",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000113": {
+          "ACCT-CURR-BAL": "1392.77",
+          "ACCT-CURR-CYC-CREDIT": "1392.77",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000114": {
+          "ACCT-CURR-BAL": "777.73",
+          "ACCT-CURR-CYC-CREDIT": "777.73",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000115": {
+          "ACCT-CURR-BAL": "1721.54",
+          "ACCT-CURR-CYC-CREDIT": "1721.54",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000116": {
+          "ACCT-CURR-BAL": "706.64",
+          "ACCT-CURR-CYC-CREDIT": "706.64",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000117": {
+          "ACCT-CURR-BAL": "1603.84",
+          "ACCT-CURR-CYC-CREDIT": "1603.84",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000118": {
+          "ACCT-CURR-BAL": "616.52",
+          "ACCT-CURR-CYC-CREDIT": "616.52",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000119": {
+          "ACCT-CURR-BAL": "2062.59",
+          "ACCT-CURR-CYC-CREDIT": "2062.59",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000120": {
+          "ACCT-CURR-BAL": "1999.65",
+          "ACCT-CURR-CYC-CREDIT": "1999.65",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000121": {
+          "ACCT-CURR-BAL": "1883.25",
+          "ACCT-CURR-CYC-CREDIT": "1883.25",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000122": {
+          "ACCT-CURR-BAL": "2090.96",
+          "ACCT-CURR-CYC-CREDIT": "2090.96",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000123": {
+          "ACCT-CURR-BAL": "600.35",
+          "ACCT-CURR-CYC-CREDIT": "600.35",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000124": {
+          "ACCT-CURR-BAL": "1642.38",
+          "ACCT-CURR-CYC-CREDIT": "1642.38",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000125": {
+          "ACCT-CURR-BAL": "2217.92",
+          "ACCT-CURR-CYC-CREDIT": "2381.85",
+          "ACCT-CURR-CYC-DEBIT": "-163.93"
+        },
+        "90000000126": {
+          "ACCT-CURR-BAL": "1399.17",
+          "ACCT-CURR-CYC-CREDIT": "1399.17",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000127": {
+          "ACCT-CURR-BAL": "978.12",
+          "ACCT-CURR-CYC-CREDIT": "978.12",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000128": {
+          "ACCT-CURR-BAL": "3158.07",
+          "ACCT-CURR-CYC-CREDIT": "3435.18",
+          "ACCT-CURR-CYC-DEBIT": "-277.11"
+        },
+        "90000000129": {
+          "ACCT-CURR-BAL": "996.87",
+          "ACCT-CURR-CYC-CREDIT": "1167.01",
+          "ACCT-CURR-CYC-DEBIT": "-170.14"
+        },
+        "90000000130": {
+          "ACCT-CURR-BAL": "1743.44",
+          "ACCT-CURR-CYC-CREDIT": "1743.44",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000131": {
+          "ACCT-CURR-BAL": "2379.95",
+          "ACCT-CURR-CYC-CREDIT": "2379.95",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000132": {
+          "ACCT-CURR-BAL": "1287.18",
+          "ACCT-CURR-CYC-CREDIT": "1287.18",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000133": {
+          "ACCT-CURR-BAL": "1358.54",
+          "ACCT-CURR-CYC-CREDIT": "1498.79",
+          "ACCT-CURR-CYC-DEBIT": "-140.25"
+        },
+        "90000000134": {
+          "ACCT-CURR-BAL": "3552.83",
+          "ACCT-CURR-CYC-CREDIT": "3552.83",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000135": {
+          "ACCT-CURR-BAL": "445.44",
+          "ACCT-CURR-CYC-CREDIT": "445.44",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000136": {
+          "ACCT-CURR-BAL": "1165.56",
+          "ACCT-CURR-CYC-CREDIT": "1165.56",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000137": {
+          "ACCT-CURR-BAL": "1068.65",
+          "ACCT-CURR-CYC-CREDIT": "1068.65",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000138": {
+          "ACCT-CURR-BAL": "223.78",
+          "ACCT-CURR-CYC-CREDIT": "309.53",
+          "ACCT-CURR-CYC-DEBIT": "-85.75"
+        },
+        "90000000139": {
+          "ACCT-CURR-BAL": "1472.96",
+          "ACCT-CURR-CYC-CREDIT": "1472.96",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000140": {
+          "ACCT-CURR-BAL": "1121.63",
+          "ACCT-CURR-CYC-CREDIT": "1121.63",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000141": {
+          "ACCT-CURR-BAL": "2295.76",
+          "ACCT-CURR-CYC-CREDIT": "2370.40",
+          "ACCT-CURR-CYC-DEBIT": "-74.64"
+        },
+        "90000000142": {
+          "ACCT-CURR-BAL": "2016.59",
+          "ACCT-CURR-CYC-CREDIT": "2016.59",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000143": {
+          "ACCT-CURR-BAL": "2270.61",
+          "ACCT-CURR-CYC-CREDIT": "2380.27",
+          "ACCT-CURR-CYC-DEBIT": "-109.66"
+        },
+        "90000000144": {
+          "ACCT-CURR-BAL": "1708.89",
+          "ACCT-CURR-CYC-CREDIT": "1708.89",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000145": {
+          "ACCT-CURR-BAL": "2486.24",
+          "ACCT-CURR-CYC-CREDIT": "2486.24",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000146": {
+          "ACCT-CURR-BAL": "862.17",
+          "ACCT-CURR-CYC-CREDIT": "862.17",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000147": {
+          "ACCT-CURR-BAL": "2111.83",
+          "ACCT-CURR-CYC-CREDIT": "2111.83",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000148": {
+          "ACCT-CURR-BAL": "1005.80",
+          "ACCT-CURR-CYC-CREDIT": "1109.35",
+          "ACCT-CURR-CYC-DEBIT": "-103.55"
+        },
+        "90000000149": {
+          "ACCT-CURR-BAL": "2169.04",
+          "ACCT-CURR-CYC-CREDIT": "2214.26",
+          "ACCT-CURR-CYC-DEBIT": "-45.22"
+        },
+        "90000000150": {
+          "ACCT-CURR-BAL": "1071.80",
+          "ACCT-CURR-CYC-CREDIT": "1311.21",
+          "ACCT-CURR-CYC-DEBIT": "-239.41"
+        },
+        "90000000151": {
+          "ACCT-CURR-BAL": "0.00",
+          "ACCT-CURR-CYC-CREDIT": "0.00",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000152": {
+          "ACCT-CURR-BAL": "0.00",
+          "ACCT-CURR-CYC-CREDIT": "0.00",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000153": {
+          "ACCT-CURR-BAL": "0.00",
+          "ACCT-CURR-CYC-CREDIT": "0.00",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000154": {
+          "ACCT-CURR-BAL": "0.00",
+          "ACCT-CURR-CYC-CREDIT": "0.00",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000155": {
+          "ACCT-CURR-BAL": "0.00",
+          "ACCT-CURR-CYC-CREDIT": "0.00",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000156": {
+          "ACCT-CURR-BAL": "0.00",
+          "ACCT-CURR-CYC-CREDIT": "0.00",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000157": {
+          "ACCT-CURR-BAL": "0.00",
+          "ACCT-CURR-CYC-CREDIT": "0.00",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000158": {
+          "ACCT-CURR-BAL": "0.00",
+          "ACCT-CURR-CYC-CREDIT": "0.00",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000159": {
+          "ACCT-CURR-BAL": "0.00",
+          "ACCT-CURR-CYC-CREDIT": "0.00",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000160": {
+          "ACCT-CURR-BAL": "32.90",
+          "ACCT-CURR-CYC-CREDIT": "32.90",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000161": {
+          "ACCT-CURR-BAL": "83.07",
+          "ACCT-CURR-CYC-CREDIT": "83.07",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000162": {
+          "ACCT-CURR-BAL": "0.00",
+          "ACCT-CURR-CYC-CREDIT": "0.00",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000163": {
+          "ACCT-CURR-BAL": "0.00",
+          "ACCT-CURR-CYC-CREDIT": "0.00",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000164": {
+          "ACCT-CURR-BAL": "0.00",
+          "ACCT-CURR-CYC-CREDIT": "0.00",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000165": {
+          "ACCT-CURR-BAL": "78.62",
+          "ACCT-CURR-CYC-CREDIT": "78.62",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000166": {
+          "ACCT-CURR-BAL": "47.56",
+          "ACCT-CURR-CYC-CREDIT": "47.56",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        },
+        "90000000167": {
+          "ACCT-CURR-BAL": "0.00",
+          "ACCT-CURR-CYC-CREDIT": "0.00",
+          "ACCT-CURR-CYC-DEBIT": "0.00"
+        }
+      },
+      "closing_category_balances": {
+        "90000000001010001": "5501.17",
+        "90000000001010002": "-453.61",
+        "90000000001020003": "4239.41",
+        "90000000001030005": "1627.32",
+        "90000000002010001": "3834.50",
+        "90000000002010002": "5631.98",
+        "90000000002020003": "6472.54",
+        "90000000002030005": "264.60",
+        "90000000003010001": "2553.76",
+        "90000000003010002": "2804.23",
+        "90000000003020003": "842.45",
+        "90000000003030005": "3088.60",
+        "90000000004010001": "251.67",
+        "90000000004010002": "558.42",
+        "90000000004020003": "3516.05",
+        "90000000004030005": "1308.74",
+        "90000000005010001": "108.52",
+        "90000000005010002": "2741.45",
+        "90000000005020003": "4551.26",
+        "90000000005030005": "403.36",
+        "90000000006010001": "4979.40",
+        "90000000006010002": "2295.95",
+        "90000000006020003": "2621.47",
+        "90000000006030005": "2616.52",
+        "90000000007010001": "5535.40",
+        "90000000007010002": "709.43",
+        "90000000007020003": "4621.95",
+        "90000000008010001": "836.28",
+        "90000000008010002": "3993.94",
+        "90000000008020003": "1645.57",
+        "90000000008030005": "417.66",
+        "90000000009010001": "4450.83",
+        "90000000009010002": "259.99",
+        "90000000009020003": "44.80",
+        "90000000010010001": "5359.09",
+        "90000000010010002": "139.35",
+        "90000000010020003": "296.96",
+        "90000000010030005": "4831.40",
+        "90000000011010001": "714.75",
+        "90000000011010002": "4053.80",
+        "90000000011020003": "840.19",
+        "90000000011030005": "3281.23",
+        "90000000012010001": "4011.12",
+        "90000000012010002": "409.54",
+        "90000000012020003": "4903.97",
+        "90000000012030005": "450.16",
+        "90000000013010001": "1795.25",
+        "90000000013010002": "1924.07",
+        "90000000013020003": "566.27",
+        "90000000013030005": "2567.80",
+        "90000000014010002": "4228.25",
+        "90000000014020003": "319.81",
+        "90000000014030005": "-400.75",
+        "90000000015010001": "253.31",
+        "90000000015010002": "4358.82",
+        "90000000015020003": "-15.50",
+        "90000000015030005": "-428.80",
+        "90000000016010001": "996.05",
+        "90000000016010002": "2127.03",
+        "90000000016020003": "3285.23",
+        "90000000016030005": "96.20",
+        "90000000017010001": "3413.07",
+        "90000000017010002": "306.12",
+        "90000000017020003": "914.34",
+        "90000000017030005": "224.76",
+        "90000000018010001": "2534.00",
+        "90000000018010002": "3907.53",
+        "90000000018020003": "318.90",
+        "90000000018030005": "3311.93",
+        "90000000019010001": "773.46",
+        "90000000019010002": "4595.74",
+        "90000000019020003": "4677.22",
+        "90000000019030005": "4618.07",
+        "90000000020010001": "4525.01",
+        "90000000020010002": "4849.58",
+        "90000000020020003": "3572.84",
+        "90000000020030005": "106.35",
+        "90000000021010001": "3105.97",
+        "90000000021010002": "143.22",
+        "90000000021020003": "4367.97",
+        "90000000021030005": "1544.35",
+        "90000000022010001": "684.33",
+        "90000000022010002": "178.11",
+        "90000000022020003": "3834.51",
+        "90000000022030005": "-325.20",
+        "90000000023010001": "4393.97",
+        "90000000023010002": "257.55",
+        "90000000023020003": "687.92",
+        "90000000023030005": "770.64",
+        "90000000024010001": "302.91",
+        "90000000024010002": "4729.09",
+        "90000000024020003": "3410.51",
+        "90000000024030005": "310.46",
+        "90000000025010001": "932.01",
+        "90000000025010002": "988.11",
+        "90000000025020003": "166.36",
+        "90000000025030005": "3154.77",
+        "90000000026010001": "104.48",
+        "90000000026010002": "2153.55",
+        "90000000026020003": "2810.04",
+        "90000000026030005": "4793.93",
+        "90000000027010001": "510.26",
+        "90000000027010002": "408.82",
+        "90000000027020003": "77.71",
+        "90000000027030005": "5065.34",
+        "90000000028010002": "8.44",
+        "90000000028020003": "137.44",
+        "90000000028030005": "221.06",
+        "90000000029010001": "2614.04",
+        "90000000029010002": "1672.62",
+        "90000000029020003": "309.24",
+        "90000000029030005": "1887.22",
+        "90000000030010001": "4122.15",
+        "90000000030010002": "2277.13",
+        "90000000030020003": "2836.75",
+        "90000000030030005": "-136.95",
+        "90000000031010001": "1930.02",
+        "90000000031010002": "950.47",
+        "90000000031020003": "5927.80",
+        "90000000031030005": "1561.55",
+        "90000000032010001": "413.39",
+        "90000000032020003": "4606.72",
+        "90000000032030005": "2272.12",
+        "90000000033010001": "212.07",
+        "90000000033010002": "3899.31",
+        "90000000033020003": "4856.89",
+        "90000000033030005": "279.72",
+        "90000000034010001": "-6.44",
+        "90000000034010002": "264.51",
+        "90000000034020003": "4574.13",
+        "90000000034030005": "825.42",
+        "90000000035010001": "-478.72",
+        "90000000035010002": "770.82",
+        "90000000035020003": "366.31",
+        "90000000035030005": "5071.43",
+        "90000000036010001": "3785.91",
+        "90000000036010002": "1746.71",
+        "90000000036020003": "326.09",
+        "90000000036030005": "1741.35",
+        "90000000037010001": "448.19",
+        "90000000037010002": "3192.25",
+        "90000000037020003": "1308.99",
+        "90000000037030005": "592.83",
+        "90000000038010001": "2836.71",
+        "90000000038010002": "858.16",
+        "90000000038020003": "4751.04",
+        "90000000038030005": "412.96",
+        "90000000039010001": "915.18",
+        "90000000039030005": "5453.31",
+        "90000000040010001": "1099.08",
+        "90000000040010002": "4595.29",
+        "90000000040020003": "476.07",
+        "90000000040030005": "927.36",
+        "90000000041010001": "4714.94",
+        "90000000041010002": "306.22",
+        "90000000041020003": "-177.54",
+        "90000000041030005": "655.35",
+        "90000000042010001": "747.41",
+        "90000000042010002": "1151.21",
+        "90000000042030005": "4079.16",
+        "90000000043010001": "717.85",
+        "90000000043010002": "443.58",
+        "90000000043020003": "4157.94",
+        "90000000043030005": "3764.16",
+        "90000000044010001": "4951.34",
+        "90000000044010002": "3803.93",
+        "90000000044020003": "4177.41",
+        "90000000044030005": "5450.20",
+        "90000000045010001": "4491.69",
+        "90000000045010002": "2579.97",
+        "90000000045020003": "138.28",
+        "90000000045030005": "2048.68",
+        "90000000046010001": "1291.74",
+        "90000000046010002": "1508.62",
+        "90000000046020003": "373.84",
+        "90000000046030005": "180.63",
+        "90000000047010001": "1762.67",
+        "90000000047010002": "744.59",
+        "90000000047020003": "2196.89",
+        "90000000047030005": "260.04",
+        "90000000048010001": "359.24",
+        "90000000048010002": "452.73",
+        "90000000048020003": "3521.75",
+        "90000000048030005": "3087.43",
+        "90000000049010002": "252.84",
+        "90000000049020003": "4579.66",
+        "90000000049030005": "1900.59",
+        "90000000050010001": "590.90",
+        "90000000050010002": "2348.18",
+        "90000000050020003": "4764.38",
+        "90000000050030005": "3703.43",
+        "90000000051010001": "4741.32",
+        "90000000051010002": "1971.37",
+        "90000000051020003": "1045.73",
+        "90000000051030005": "3923.08",
+        "90000000052010001": "2150.55",
+        "90000000052010002": "468.82",
+        "90000000052020003": "791.18",
+        "90000000052030005": "3011.02",
+        "90000000053010001": "3798.72",
+        "90000000053010002": "4210.35",
+        "90000000053020003": "1259.04",
+        "90000000054010001": "4398.90",
+        "90000000054010002": "1536.82",
+        "90000000054020003": "-405.25",
+        "90000000054030005": "1298.36",
+        "90000000055010001": "4247.21",
+        "90000000055010002": "4138.17",
+        "90000000055020003": "4418.38",
+        "90000000055030005": "4235.01",
+        "90000000056010001": "3977.34",
+        "90000000056010002": "1251.95",
+        "90000000056020003": "636.09",
+        "90000000056030005": "3391.50",
+        "90000000057010001": "1134.02",
+        "90000000057010002": "867.13",
+        "90000000057020003": "3187.78",
+        "90000000057030005": "4851.03",
+        "90000000058010001": "3533.10",
+        "90000000058010002": "473.84",
+        "90000000058020003": "2328.64",
+        "90000000058030005": "3456.45",
+        "90000000059010002": "112.43",
+        "90000000059020003": "2681.13",
+        "90000000059030005": "514.10",
+        "90000000060010001": "453.47",
+        "90000000060010002": "3858.44",
+        "90000000060020003": "2421.81",
+        "90000000060030005": "996.74",
+        "90000000061010001": "761.79",
+        "90000000061020003": "423.94",
+        "90000000061030005": "149.97",
+        "90000000062010001": "156.79",
+        "90000000062010002": "1400.84",
+        "90000000062020003": "2158.25",
+        "90000000062030005": "2956.21",
+        "90000000063010001": "4469.58",
+        "90000000063010002": "2820.49",
+        "90000000063020003": "1318.41",
+        "90000000063030005": "622.61",
+        "90000000064010001": "211.64",
+        "90000000064010002": "3262.56",
+        "90000000064020003": "275.82",
+        "90000000064030005": "249.88",
+        "90000000065010001": "4567.73",
+        "90000000065010002": "341.10",
+        "90000000065020003": "3188.73",
+        "90000000065030005": "172.05",
+        "90000000066010001": "5211.69",
+        "90000000066010002": "5599.56",
+        "90000000066020003": "178.90",
+        "90000000067010001": "248.91",
+        "90000000067010002": "3810.43",
+        "90000000067020003": "255.87",
+        "90000000067030005": "2449.73",
+        "90000000068010001": "285.05",
+        "90000000068020003": "3772.53",
+        "90000000068030005": "465.96",
+        "90000000069010001": "489.90",
+        "90000000069010002": "3914.33",
+        "90000000069020003": "4931.01",
+        "90000000069030005": "2373.85",
+        "90000000070010001": "5250.78",
+        "90000000070010002": "212.84",
+        "90000000070020003": "542.98",
+        "90000000070030005": "4379.66",
+        "90000000071010001": "262.58",
+        "90000000071010002": "1379.43",
+        "90000000071020003": "330.47",
+        "90000000071030005": "2693.13",
+        "90000000072010001": "3688.27",
+        "90000000072010002": "4809.55",
+        "90000000072020003": "637.92",
+        "90000000072030005": "2459.84",
+        "90000000073010001": "4862.68",
+        "90000000073010002": "170.03",
+        "90000000073020003": "2296.52",
+        "90000000073030005": "495.45",
+        "90000000074010001": "2096.46",
+        "90000000074010002": "33.74",
+        "90000000074020003": "3493.90",
+        "90000000074030005": "4672.36",
+        "90000000075010001": "2265.49",
+        "90000000075010002": "891.70",
+        "90000000075030005": "373.28",
+        "90000000076010002": "4590.26",
+        "90000000076020003": "5469.11",
+        "90000000076030005": "407.34",
+        "90000000077010001": "2316.27",
+        "90000000077020003": "-241.90",
+        "90000000077030005": "2755.65",
+        "90000000078010001": "1253.05",
+        "90000000078010002": "1467.30",
+        "90000000078030005": "254.77",
+        "90000000079010001": "2183.51",
+        "90000000079010002": "5019.59",
+        "90000000079020003": "4311.93",
+        "90000000079030005": "440.00",
+        "90000000080010001": "3936.93",
+        "90000000080010002": "-481.20",
+        "90000000080020003": "3259.55",
+        "90000000080030005": "5455.21",
+        "90000000081010001": "606.89",
+        "90000000081010002": "0.00",
+        "90000000081020003": "1325.35",
+        "90000000081030005": "6242.29",
+        "90000000082010001": "-34.17",
+        "90000000082010002": "564.19",
+        "90000000082020003": "4374.34",
+        "90000000082030005": "5042.35",
+        "90000000083010001": "3527.84",
+        "90000000083010002": "1742.83",
+        "90000000083020003": "209.61",
+        "90000000083030005": "4400.22",
+        "90000000084010001": "-135.08",
+        "90000000084010002": "3572.44",
+        "90000000084020003": "2635.98",
+        "90000000084030005": "3332.02",
+        "90000000085010001": "637.61",
+        "90000000085010002": "729.50",
+        "90000000085020003": "4042.27",
+        "90000000085030005": "453.09",
+        "90000000086010001": "67.65",
+        "90000000086010002": "672.98",
+        "90000000086020003": "221.45",
+        "90000000087010001": "301.20",
+        "90000000087010002": "470.23",
+        "90000000087020003": "1689.82",
+        "90000000087030005": "568.02",
+        "90000000088010001": "1571.62",
+        "90000000088010002": "3132.52",
+        "90000000088020003": "79.69",
+        "90000000088030005": "878.32",
+        "90000000089010001": "3754.91",
+        "90000000089010002": "539.21",
+        "90000000089020003": "5744.47",
+        "90000000089030005": "99.48",
+        "90000000090010001": "533.77",
+        "90000000090010002": "1206.89",
+        "90000000090020003": "1840.88",
+        "90000000090030005": "4072.33",
+        "90000000091010001": "1021.07",
+        "90000000091010002": "4722.10",
+        "90000000091020003": "635.50",
+        "90000000091030005": "511.88",
+        "90000000092010001": "1062.20",
+        "90000000092010002": "3770.40",
+        "90000000092020003": "4164.07",
+        "90000000092030005": "1666.61",
+        "90000000093010001": "5367.66",
+        "90000000093010002": "445.88",
+        "90000000093020003": "0.00",
+        "90000000093030005": "1384.61",
+        "90000000094010001": "1207.01",
+        "90000000094010002": "416.32",
+        "90000000094020003": "5144.85",
+        "90000000094030005": "4411.72",
+        "90000000095010001": "569.72",
+        "90000000095010002": "3007.87",
+        "90000000095020003": "1160.20",
+        "90000000095030005": "760.94",
+        "90000000096010001": "52.51",
+        "90000000096010002": "2621.05",
+        "90000000096020003": "895.87",
+        "90000000096030005": "6034.52",
+        "90000000097010001": "4734.10",
+        "90000000097010002": "4.77",
+        "90000000097020003": "3685.67",
+        "90000000097030005": "3528.03",
+        "90000000098010001": "2328.49",
+        "90000000098010002": "513.07",
+        "90000000098020003": "659.20",
+        "90000000098030005": "2116.70",
+        "90000000099010001": "5262.38",
+        "90000000099010002": "15.67",
+        "90000000099020003": "-24.53",
+        "90000000099030005": "-107.16",
+        "90000000100010001": "1087.58",
+        "90000000100010002": "16.62",
+        "90000000100020003": "-201.08",
+        "90000000100030005": "490.27",
+        "90000000101010001": "4162.73",
+        "90000000101010002": "2119.45",
+        "90000000101020003": "1047.55",
+        "90000000101030005": "19.56",
+        "90000000102010001": "3751.84",
+        "90000000102010002": "3753.69",
+        "90000000102020003": "2974.96",
+        "90000000102030005": "908.52",
+        "90000000103010001": "458.02",
+        "90000000103010002": "444.39",
+        "90000000103020003": "3502.77",
+        "90000000103030005": "659.85",
+        "90000000104010001": "14.57",
+        "90000000104010002": "3304.52",
+        "90000000104020003": "1547.31",
+        "90000000104030005": "1713.89",
+        "90000000105010001": "4541.53",
+        "90000000105010002": "4623.81",
+        "90000000105020003": "233.86",
+        "90000000105030005": "3509.69",
+        "90000000106010001": "2698.46",
+        "90000000106010002": "458.05",
+        "90000000106020003": "1960.79",
+        "90000000106030005": "711.13",
+        "90000000107010001": "1187.39",
+        "90000000107010002": "5373.03",
+        "90000000107020003": "5297.31",
+        "90000000107030005": "2781.08",
+        "90000000108010001": "464.60",
+        "90000000108010002": "840.94",
+        "90000000108020003": "1540.12",
+        "90000000108030005": "5024.64",
+        "90000000109010001": "1989.87",
+        "90000000109010002": "909.91",
+        "90000000109020003": "1053.64",
+        "90000000109030005": "4211.02",
+        "90000000110010001": "1644.70",
+        "90000000110010002": "2336.77",
+        "90000000110020003": "513.93",
+        "90000000110030005": "-403.39",
+        "90000000111020003": "4119.86",
+        "90000000111030005": "2232.27",
+        "90000000112010001": "512.22",
+        "90000000112010002": "355.64",
+        "90000000112020003": "3591.98",
+        "90000000112030005": "-151.90",
+        "90000000113010001": "4027.63",
+        "90000000113010002": "1429.37",
+        "90000000113020003": "1039.80",
+        "90000000113030005": "2922.02",
+        "90000000114010001": "4862.04",
+        "90000000114010002": "220.05",
+        "90000000114020003": "2136.93",
+        "90000000114030005": "2043.97",
+        "90000000115010001": "-362.77",
+        "90000000115010002": "139.32",
+        "90000000115020003": "1789.76",
+        "90000000116010001": "1421.13",
+        "90000000116010002": "-94.60",
+        "90000000116020003": "2178.87",
+        "90000000116030005": "1961.29",
+        "90000000117010001": "356.21",
+        "90000000117010002": "328.22",
+        "90000000117020003": "2282.21",
+        "90000000117030005": "4737.78",
+        "90000000118010001": "2799.83",
+        "90000000118010002": "1992.66",
+        "90000000118020003": "150.15",
+        "90000000118030005": "236.10",
+        "90000000119010001": "2828.25",
+        "90000000119010002": "2129.12",
+        "90000000119020003": "78.30",
+        "90000000119030005": "1533.25",
+        "90000000120010001": "271.26",
+        "90000000120010002": "5891.92",
+        "90000000120020003": "41.56",
+        "90000000120030005": "4606.84",
+        "90000000121010001": "5449.94",
+        "90000000121010002": "386.79",
+        "90000000121020003": "1028.04",
+        "90000000121030005": "956.56",
+        "90000000122010001": "392.01",
+        "90000000122010002": "3327.95",
+        "90000000122020003": "164.42",
+        "90000000122030005": "2365.31",
+        "90000000123010001": "1889.78",
+        "90000000123010002": "2870.17",
+        "90000000123020003": "2838.94",
+        "90000000123030005": "-172.13",
+        "90000000124010001": "472.29",
+        "90000000124010002": "675.00",
+        "90000000124020003": "495.09",
+        "90000000125010001": "3692.86",
+        "90000000125010002": "3266.74",
+        "90000000125020003": "5582.39",
+        "90000000125030005": "172.09",
+        "90000000126010001": "2250.37",
+        "90000000126010002": "3022.46",
+        "90000000126020003": "2536.48",
+        "90000000126030005": "3143.82",
+        "90000000127010001": "3716.60",
+        "90000000127010002": "5099.71",
+        "90000000127020003": "4381.50",
+        "90000000127030005": "418.44",
+        "90000000128010001": "3049.99",
+        "90000000128010002": "1120.46",
+        "90000000128020003": "5295.39",
+        "90000000128030005": "405.23",
+        "90000000129010001": "201.96",
+        "90000000129010002": "2562.43",
+        "90000000129020003": "339.76",
+        "90000000129030005": "3263.96",
+        "90000000130010001": "368.51",
+        "90000000130010002": "2603.91",
+        "90000000130020003": "410.03",
+        "90000000130030005": "338.74",
+        "90000000131010001": "-342.22",
+        "90000000131010002": "2628.49",
+        "90000000131020003": "6285.61",
+        "90000000131030005": "2756.90",
+        "90000000132010001": "409.32",
+        "90000000132010002": "3171.66",
+        "90000000132020003": "205.93",
+        "90000000132030005": "610.85",
+        "90000000133010001": "-36.58",
+        "90000000133010002": "426.77",
+        "90000000133020003": "1715.62",
+        "90000000134010001": "1274.67",
+        "90000000134010002": "4227.70",
+        "90000000134020003": "1980.96",
+        "90000000134030005": "896.10",
+        "90000000135010001": "1539.38",
+        "90000000135010002": "371.52",
+        "90000000135020003": "3519.95",
+        "90000000136010001": "3560.59",
+        "90000000136010002": "43.77",
+        "90000000136020003": "339.35",
+        "90000000136030005": "3991.61",
+        "90000000137010001": "844.08",
+        "90000000137010002": "495.65",
+        "90000000137020003": "4602.73",
+        "90000000137030005": "2574.35",
+        "90000000138010001": "2820.99",
+        "90000000138010002": "1771.54",
+        "90000000138020003": "-85.75",
+        "90000000138030005": "139.50",
+        "90000000139010001": "46.14",
+        "90000000139010002": "5562.03",
+        "90000000139020003": "695.15",
+        "90000000139030005": "819.82",
+        "90000000140010001": "1121.63",
+        "90000000140010002": "54.03",
+        "90000000140020003": "-110.87",
+        "90000000140030005": "1315.86",
+        "90000000141010001": "454.79",
+        "90000000141010002": "2408.24",
+        "90000000141020003": "414.60",
+        "90000000141030005": "4458.38",
+        "90000000142010001": "2331.73",
+        "90000000142020003": "593.84",
+        "90000000142030005": "4952.40",
+        "90000000143010001": "876.70",
+        "90000000143010002": "559.52",
+        "90000000143020003": "1002.61",
+        "90000000143030005": "4283.48",
+        "90000000144010001": "453.41",
+        "90000000144010002": "212.58",
+        "90000000144020003": "2757.10",
+        "90000000144030005": "3336.47",
+        "90000000145010001": "1324.82",
+        "90000000145010002": "985.94",
+        "90000000145020003": "3953.92",
+        "90000000145030005": "254.73",
+        "90000000146010001": "1237.29",
+        "90000000146010002": "2002.77",
+        "90000000146020003": "192.84",
+        "90000000146030005": "3575.78",
+        "90000000147010001": "1052.18",
+        "90000000147010002": "1654.57",
+        "90000000147020003": "1423.38",
+        "90000000147030005": "146.27",
+        "90000000148010001": "1479.37",
+        "90000000148010002": "1728.27",
+        "90000000148020003": "2366.85",
+        "90000000148030005": "3078.00",
+        "90000000149010001": "697.06",
+        "90000000149010002": "560.19",
+        "90000000149020003": "613.25",
+        "90000000149030005": "201.97",
+        "90000000150010001": "3711.51",
+        "90000000150010002": "4419.40",
+        "90000000150020003": "1103.44",
+        "90000000150030005": "2060.79",
+        "90000000160010002": "32.90",
+        "90000000161010002": "83.07",
+        "90000000165010002": "78.62",
+        "90000000166020003": "47.56"
+      },
+      "identity_in_equals_accepted_plus_rejected": true,
+      "errors": []
+    },
+    "mismatches": []
+  }
+}

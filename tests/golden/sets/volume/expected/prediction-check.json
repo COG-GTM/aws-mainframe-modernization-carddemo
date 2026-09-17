@@ -1,0 +1,28 @@
+{
+  "set_name": "volume",
+  "records_in": 1200,
+  "actual": {
+    "accepted": 1047,
+    "rejected": 153,
+    "rejected_by_reason": {
+      "0103": 19,
+      "0100": 49,
+      "0101": 33,
+      "0102": 52
+    }
+  },
+  "predicted": {
+    "records_in": 1200,
+    "accepted": 1047,
+    "rejected": 153,
+    "rejected_by_reason": {
+      "0103": 19,
+      "0100": 49,
+      "0101": 33,
+      "0102": 52
+    }
+  },
+  "items_checked": 1945,
+  "disagreements": [],
+  "note": "generator prediction vs. program outcome; the program wins"
+}

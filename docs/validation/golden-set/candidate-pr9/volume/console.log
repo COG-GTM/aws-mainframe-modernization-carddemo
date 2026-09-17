@@ -1,0 +1,22 @@
+== jar: transaction-posting-service-0.1.0-SNAPSHOT.jar
+== running: faketime -f "@2026-03-15 12:00:00 x0" java -jar transaction-posting-service-0.1.0-SNAPSHOT.jar --carddemo.posting.encoding=ASCII --carddemo.posting.daily-transactions=<repo>/tests/golden/sets/volume/candidate-pr9/work/DALYTRAN --carddemo.posting.card-xref=<repo>/tests/golden/sets/volume/candidate-pr9/work/XREFFILE --carddemo.posting.account-master=<repo>/tests/golden/sets/volume/candidate-pr9/work/ACCTFILE --carddemo.posting.category-balances=<repo>/tests/golden/sets/volume/candidate-pr9/work/TCATBALF --carddemo.posting.transaction-master=<repo>/tests/golden/sets/volume/candidate-pr9/work/TRANSACT --carddemo.posting.rejects=<repo>/tests/golden/sets/volume/candidate-pr9/work/DALYREJS --logging.level.root=WARN --logging.level.com.carddemo=INFO --logging.pattern.console=%msg%n
+== candidate exit code 0; console:
+   TCATBAL record not found for key : 90000000038030005.. Creating.
+   TCATBAL record not found for key : 90000000009020003.. Creating.
+   TCATBAL record not found for key : 90000000132010001.. Creating.
+   TCATBAL record not found for key : 90000000097010002.. Creating.
+   TCATBAL record not found for key : 90000000120010001.. Creating.
+   TCATBAL record not found for key : 90000000005030005.. Creating.
+   TRANSACTIONS PROCESSED : 000001200
+   TRANSACTIONS REJECTED  : 000000153
+== compare expected vs candidate
+compare: <repo>/tests/golden/sets/volume/expected vs <repo>/tests/golden/sets/volume/candidate-pr9
+  TRANSACT  recs expected=1047 candidate=1047 matched=1047 fields=14,658 diffs=0 missing=0 extra=0 byte-identical=yes
+  DALYREJS  recs expected=153 candidate=153 matched=153 fields=2,448 diffs=0 missing=0 extra=0 byte-identical=yes
+  ACCTFILE  recs expected=167 candidate=167 matched=167 fields=2,171 diffs=0 missing=0 extra=0 byte-identical=yes
+  TCATBALF  recs expected=578 candidate=578 matched=578 fields=2,890 diffs=0 missing=0 extra=0 byte-identical=yes
+  RETURN-CODE MISMATCH
+  SYSOUT      differs (informational; operator log)
+  1,945 records, 22,167 fields reconciled, 0 differences + RETURN-CODE mismatch; verdict MISMATCH (exit 1)
+  reports: <repo>/tests/golden/sets/volume/candidate-pr9/reconciliation.{json,md}
+== compare exit 1; report <repo>/tests/golden/sets/volume/candidate-pr9/reconciliation.md

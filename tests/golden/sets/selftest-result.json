@@ -1,0 +1,48 @@
+{
+  "caught": [
+    "named/amount_off_by_one_cent",
+    "named/category_row_dropped",
+    "named/reason_code_changed",
+    "named/record_dropped",
+    "named/reject_moved_to_accepted",
+    "named/return_code_changed",
+    "named/sign_flipped_on_balance",
+    "named/trailing_space_in_text",
+    "named/two_records_swapped",
+    "volume/amount_off_by_one_cent",
+    "volume/category_row_dropped",
+    "volume/reason_code_changed",
+    "volume/record_dropped",
+    "volume/reject_moved_to_accepted",
+    "volume/return_code_changed",
+    "volume/sign_flipped_on_balance",
+    "volume/trailing_space_in_text",
+    "volume/two_records_swapped"
+  ],
+  "exact_copy_sets_passed": 2,
+  "mutants": [
+    "named/amount_off_by_one_cent",
+    "named/category_row_dropped",
+    "named/reason_code_changed",
+    "named/record_dropped",
+    "named/reject_moved_to_accepted",
+    "named/return_code_changed",
+    "named/sign_flipped_on_balance",
+    "named/trailing_space_in_text",
+    "named/two_records_swapped",
+    "volume/amount_off_by_one_cent",
+    "volume/category_row_dropped",
+    "volume/reason_code_changed",
+    "volume/record_dropped",
+    "volume/reject_moved_to_accepted",
+    "volume/return_code_changed",
+    "volume/sign_flipped_on_balance",
+    "volume/trailing_space_in_text",
+    "volume/two_records_swapped"
+  ],
+  "produced_by": "tests/golden/selftest.sh",
+  "sets": [
+    "named",
+    "volume"
+  ]
+}

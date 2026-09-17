@@ -1,0 +1,28 @@
+{
+  "set_name": "named",
+  "records_in": 22,
+  "actual": {
+    "accepted": 14,
+    "rejected": 8,
+    "rejected_by_reason": {
+      "0100": 1,
+      "0101": 1,
+      "0102": 3,
+      "0103": 3
+    }
+  },
+  "predicted": {
+    "records_in": 22,
+    "accepted": 14,
+    "rejected": 8,
+    "rejected_by_reason": {
+      "0100": 1,
+      "0101": 1,
+      "0102": 3,
+      "0103": 3
+    }
+  },
+  "items_checked": 52,
+  "disagreements": [],
+  "note": "generator prediction vs. program outcome; the program wins"
+}
