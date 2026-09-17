@@ -78,6 +78,9 @@ public class InterestCalculationService {
             if (account.isEmpty()) {
                 continue;
             }
+            // Every account with category rows reaches an account break, so it settles even when
+            // no category earned interest.
+            interestByAccount.putIfAbsent(accountId, BigDecimal.ZERO);
             BigDecimal rate = interestRate(account.get().groupId(), balance);
             if (rate.signum() == 0) {
                 continue;

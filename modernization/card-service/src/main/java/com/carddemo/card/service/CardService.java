@@ -34,6 +34,7 @@ public class CardService {
     /**
      * COCRDLIC. The screen browses CARDDATA, optionally filtered by account id through the CARDAIX
      * alternate index; filtering by customer goes through CARDXREF first, as the COBOL does.
+     * The screen applies both filters together when both are typed in, so they intersect here.
      */
     @Transactional(readOnly = true)
     public Page<Card> list(Long accountId, Long customerId, Pageable pageable) {
@@ -44,7 +45,9 @@ public class CardService {
             if (cardNumbers.isEmpty()) {
                 return Page.empty(pageable);
             }
-            return cards.findByCardNumIn(cardNumbers, pageable);
+            return accountId == null
+                    ? cards.findByCardNumIn(cardNumbers, pageable)
+                    : cards.findByCardNumInAndAcctId(cardNumbers, accountId, pageable);
         }
         if (accountId != null) {
             return cards.findByAcctId(accountId, pageable);
