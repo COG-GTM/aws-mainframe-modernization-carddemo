@@ -1,0 +1,35 @@
+ CBTRN04C  DAILY TRANSACTION PRE-POSTING VALIDATION - CONTROL TOTALS                                                                 
+ RUN DATE (GREGORIAN)  : 2024-03-15   RUN DATE (JULIAN)  : 2024075                                                                   
+                                                                                                                                     
+ RECORDS READ                                      :           2                                                                     
+ RECORDS ACCEPTED                                  :           1                                                                     
+ RECORDS REJECTED                                  :           1                                                                     
+                                                                                                                                     
+ REJECTED BY REASON CODE                                                                                                             
+   0201 TRANSACTION ID MISSING (SPACES OR LOW-VALUES)     :           0                                                              
+   0202 TRANSACTION TYPE CODE NOT IN TRANTYPE FILE        :           1                                                              
+   0203 TRANSACTION TYPE/CATEGORY NOT IN TRANCATG FILE    :           0                                                              
+   0204 TRANSACTION AMOUNT NOT NUMERIC OR INVALID SIGN    :           0                                                              
+   0100 INVALID CARD NUMBER FOUND                         :           0                                                              
+   0101 ACCOUNT RECORD NOT FOUND                          :           0                                                              
+   0102 OVERLIMIT TRANSACTION                             :           0                                                              
+   0103 TRANSACTION RECEIVED AFTER ACCT EXPIRATION        :           0                                                              
+   0205 AMOUNT WOULD OVERFLOW CATEGORY BALANCE S9(09)V99  :           0                                                              
+   0206 ORIGINATION TIMESTAMP DATE INVALID                :           0                                                              
+   0207 PROCESSING TIMESTAMP DATE INVALID                 :           0                                                              
+   0208 ORIGINATION DATE AFTER PROCESSING DATE            :           0                                                              
+   0209 TRANSACTION DATE AFTER RUN DATE                   :           0                                                              
+   0210 AMOUNT WOULD OVERFLOW ACCOUNT FIELDS S9(10)V99    :           0                                                              
+   0211 DUPLICATE TRANSACTION ID IN FEED OR TRANSACT FILE :           0                                                              
+                                                                                                                                     
+ ACCEPTED AMOUNT TOTAL                             :                    125.50                                                       
+ REJECTED AMOUNT TOTAL (NUMERIC AMOUNTS ONLY)      :                    125.50                                                       
+ TOTAL AMOUNT READ (NUMERIC AMOUNTS ONLY)          :                    251.00                                                       
+ REJECTED WITH NON-NUMERIC AMOUNT (NOT SUMMED)     :           0                                                                     
+ ACCEPTED AMOUNT COMP-3 IMAGE (S9(16)V99, 10 BYTES): 0000000000000012550C                                                            
+                                                                                                                                     
+ ACCEPTED ORIGINATION DATE RANGE (JULIAN YYYYDDD)  : 2024061 - 2024061                                                               
+                                                                                                                                     
+ RECONCILIATION: RECORDS READ = ACCEPTED + REJECTED                                                                      OK          
+ RECONCILIATION: TOTAL AMOUNT = ACCEPTED AMOUNT + REJECTED AMOUNT                                                        OK          
+ RETURN CODE                                       :  4                                                                              
