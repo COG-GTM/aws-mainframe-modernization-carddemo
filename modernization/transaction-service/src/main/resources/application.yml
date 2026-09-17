@@ -6,8 +6,8 @@ spring:
     name: transaction-service
   datasource:
     url: ${TRANSACTION_DB_URL:jdbc:postgresql://localhost:5432/carddemo}
-    username: ${TRANSACTION_DB_USER:carddemo}
-    password: ${TRANSACTION_DB_PASSWORD:carddemo}
+    username: ${TRANSACTION_DB_USER}
+    password: ${TRANSACTION_DB_PASSWORD}
   jpa:
     open-in-view: false
     hibernate:

@@ -92,6 +92,10 @@ per category row:  rate = DISCGRP(acct_group_id, type, cat)  (fallback group id 
 1400-COMPUTE-FEES is empty in the COBOL and is intentionally left empty here
 ```
 
+TCATBALF is opened INPUT, so the port leaves category principal untouched and only zeroes the
+account cycle buckets. 1110-GET-XREF-DATA abends when an account has no CARDXREF row, so a missing
+cross reference fails the job instead of settling interest without a ledger entry.
+
 ## Messaging (`app-vsam-mq`, `app-authorization-ims-db2-mq`)
 
 The authorization modules exchange request/response messages over IBM MQ queues (`CDRD` request,

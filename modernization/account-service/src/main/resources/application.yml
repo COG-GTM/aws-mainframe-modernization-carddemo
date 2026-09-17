@@ -6,8 +6,8 @@ spring:
     name: account-service
   datasource:
     url: ${ACCOUNT_DB_URL:jdbc:postgresql://localhost:5432/carddemo}
-    username: ${ACCOUNT_DB_USER:carddemo}
-    password: ${ACCOUNT_DB_PASSWORD:carddemo}
+    username: ${ACCOUNT_DB_USER}
+    password: ${ACCOUNT_DB_PASSWORD}
   jpa:
     open-in-view: false
     hibernate:

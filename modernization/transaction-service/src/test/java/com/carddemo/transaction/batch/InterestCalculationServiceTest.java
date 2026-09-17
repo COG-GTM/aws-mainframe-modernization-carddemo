@@ -1,6 +1,7 @@
 package com.carddemo.transaction.batch;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.carddemo.transaction.domain.CategoryBalance;
 import com.carddemo.transaction.domain.CategoryBalanceId;
@@ -70,8 +71,22 @@ class InterestCalculationServiceTest {
             assertThat(transaction.getCatCd()).isEqualTo(5);
             assertThat(transaction.getSource()).isEqualTo("System");
         });
+        // CBACT04C opens TCATBAL as INPUT: the category principal survives the run.
         assertThat(categoryBalances.findById(new CategoryBalanceId(ACCOUNT, "01", 1)).orElseThrow()
-                .getBalance()).isEqualByComparingTo("0.00");
+                .getBalance()).isEqualByComparingTo("1200.00");
+    }
+
+    @Test
+    void failsTheRunWhenAnAccountHasNoCardCrossReference() {
+        accounts.register(ACCOUNT, "GOLD", new BigDecimal("1200.00"));
+        disclosureGroups.save(new DisclosureGroup(new DisclosureGroupId("GOLD", "01", 1),
+                new BigDecimal("12.00")));
+        cards.clear();
+
+        assertThatThrownBy(() -> interestCalculationService.calculateInterest())
+                .isInstanceOf(IllegalStateException.class);
+
+        assertThat(accounts.settlements()).isEmpty();
     }
 
     @Test

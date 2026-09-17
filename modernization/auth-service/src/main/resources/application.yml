@@ -6,8 +6,8 @@ spring:
     name: auth-service
   datasource:
     url: ${AUTH_DB_URL:jdbc:postgresql://localhost:5432/carddemo}
-    username: ${AUTH_DB_USER:carddemo}
-    password: ${AUTH_DB_PASSWORD:carddemo}
+    username: ${AUTH_DB_USER}
+    password: ${AUTH_DB_PASSWORD}
   jpa:
     open-in-view: false
     hibernate:

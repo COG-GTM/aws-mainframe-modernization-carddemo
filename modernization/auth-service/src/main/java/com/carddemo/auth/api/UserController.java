@@ -5,6 +5,8 @@ import com.carddemo.auth.api.dto.UserResponse;
 import com.carddemo.auth.service.AuthService;
 import com.carddemo.common.api.PageResponse;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
@@ -18,12 +20,16 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.RestController;
 
 /** CICS CU00-CU03 / COUSR00C-COUSR03C. */
 @RestController
+@Validated
 @RequestMapping("/api/v1/users")
 public class UserController {
+
+    private static final int MAX_PAGE_SIZE = 200;
 
     private final AuthService authService;
 
@@ -32,8 +38,8 @@ public class UserController {
     }
 
     @GetMapping
-    public PageResponse<UserResponse> list(@RequestParam(defaultValue = "0") int page,
-                                           @RequestParam(defaultValue = "20") int size) {
+    public PageResponse<UserResponse> list(@RequestParam(defaultValue = "0") @Min(0) int page,
+                                           @RequestParam(defaultValue = "20") @Min(1) @Max(MAX_PAGE_SIZE) int size) {
         return PageResponse.of(authService.list(PageRequest.of(page, size, Sort.by("userId")))
                 .map(UserResponse::from));
     }

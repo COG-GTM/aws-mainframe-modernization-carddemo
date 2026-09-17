@@ -7,6 +7,7 @@ import com.carddemo.transaction.client.AccountGateway;
 import com.carddemo.transaction.client.AccountView;
 import com.carddemo.transaction.client.CardGateway;
 import com.carddemo.transaction.client.CardXrefView;
+import com.carddemo.transaction.client.PostingResult;
 import com.carddemo.transaction.domain.Transaction;
 import com.carddemo.transaction.repository.TransactionRepository;
 import java.math.BigDecimal;
@@ -75,7 +76,12 @@ public class TransactionCommandService {
         CardXrefView xref = cards.xrefByAccount(accountId)
                 .orElseThrow(() -> new NotFoundException("No card cross reference for account " + accountId));
 
-        accounts.post(accountId, balance.negate(), LocalDateTime.now(clock).toLocalDate());
+        PostingResult posting = accounts.post(accountId, balance.negate(),
+                LocalDateTime.now(clock).toLocalDate());
+        if (!posting.posted()) {
+            throw new BusinessRuleException("Payment for account " + accountId + " rejected with reason "
+                    + posting.reasonCode() + ": " + posting.reasonDescription());
+        }
 
         LocalDateTime now = LocalDateTime.now(clock);
         Transaction transaction = new Transaction(idGenerator.next(), xref.cardNumber(),

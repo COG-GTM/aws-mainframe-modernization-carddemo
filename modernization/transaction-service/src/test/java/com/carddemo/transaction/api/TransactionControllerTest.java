@@ -6,6 +6,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import com.carddemo.transaction.client.PostingResult;
 import com.carddemo.transaction.repository.TransactionRepository;
 import com.carddemo.transaction.support.StubGateways;
 import java.math.BigDecimal;
@@ -120,6 +121,30 @@ class TransactionControllerTest {
                 .andExpect(jsonPath("$.description").value("BILL PAYMENT - ONLINE"));
 
         assertThat(accounts.postings()).containsExactly(new BigDecimal("-250.00"));
+    }
+
+    @Test
+    void doesNotRecordABillPaymentTheAccountRejected() throws Exception {
+        accounts.forceResult(ACCOUNT, new PostingResult(false, 103,
+                "TRANSACTION RECEIVED AFTER ACCT EXPIRATION", null, null, null));
+
+        mockMvc.perform(post("/api/v1/bill-payments")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"accountId\": 11111111111}"))
+                .andExpect(status().isUnprocessableEntity())
+                .andExpect(jsonPath("$.message").value(org.hamcrest.Matchers.containsString("103")));
+
+        assertThat(transactions.count()).isZero();
+    }
+
+    @Test
+    void rejectsAnInvalidPageSize() throws Exception {
+        mockMvc.perform(get("/api/v1/transactions").param("size", "0"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.fieldErrors[0].field").value("size"));
+
+        mockMvc.perform(get("/api/v1/transactions").param("page", "-1"))
+                .andExpect(status().isBadRequest());
     }
 
     @Test
