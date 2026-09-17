@@ -70,9 +70,16 @@ fi
 say "OK: committed fixtures match the generator"
 
 # ---------------------------------------------------------------- refdata
-load_refset() {   # load_refset <name> <dir with trantype/trancatg/cardxref/acctdata/tcatbal .txt>
+load_refset() {   # load_refset <name> <dir with trantype/trancatg/cardxref/acctdata/tcatbal[/transact] .txt>
     local name=$1 src=$2 dst="$BUILD/ref/$1"
     mkdir -p "$dst"
+    # transact.txt holds already-posted TRANSACT records (CVTRA05Y); a set
+    # without one, such as app/data/ASCII, gets an empty transaction file.
+    if [ -f "$src/transact.txt" ]; then
+        $PY "$TOOLS/seqfile.py" normalize "$src/transact.txt" "$dst/transact.txt" 350
+    else
+        : > "$dst/transact.txt"
+    fi
     $PY "$TOOLS/seqfile.py" normalize "$src/trantype.txt" "$dst/trantype.txt" 60
     $PY "$TOOLS/seqfile.py" normalize "$src/trancatg.txt" "$dst/trancatg.txt" 60
     $PY "$TOOLS/seqfile.py" normalize "$src/cardxref.txt" "$dst/cardxref.txt" 50
@@ -83,6 +90,7 @@ load_refset() {   # load_refset <name> <dir with trantype/trancatg/cardxref/acct
     DD_LOADIN="$dst/cardxref.txt" DD_XREFFILE="$dst/XREFFILE.idx" "$BUILD/bin/loadidx" XREFFILE || die "load $name XREFFILE"
     DD_LOADIN="$dst/acctdata.txt" DD_ACCTFILE="$dst/ACCTFILE.idx" "$BUILD/bin/loadidx" ACCTFILE || die "load $name ACCTFILE"
     DD_LOADIN="$dst/tcatbal.txt"  DD_TCATBALF="$dst/TCATBALF.idx" "$BUILD/bin/loadidx" TCATBALF || die "load $name TCATBALF"
+    DD_LOADIN="$dst/transact.txt" DD_TRANFILE="$dst/TRANFILE.idx" "$BUILD/bin/loadidx" TRANFILE || die "load $name TRANFILE"
 }
 
 step "Reference files: standard set (tests/cbtrn04c/refdata/standard)"
@@ -138,10 +146,12 @@ run_case() {   # run_case <name> <case-dir> <input dalytran.dat> <refset>
     else
         unset CBTRN04C_PARM
     fi
+    local tranfile="$ref/TRANFILE.idx"
+    [ -f "$cdir/no_tranfile" ] && tranfile="$work/absent/TRANFILE.idx"
     DD_DALYTRAN="$input" \
     DD_TRANTYPE="$ref/TRANTYPE.idx" DD_TRANCATG="$ref/TRANCATG.idx" \
     DD_XREFFILE="$ref/XREFFILE.idx" DD_ACCTFILE="$ref/ACCTFILE.idx" \
-    DD_TCATBALF="$ref/TCATBALF.idx" \
+    DD_TCATBALF="$ref/TCATBALF.idx" DD_TRANFILE="$tranfile" \
     DD_DALYVALD="$work/dalyvald.dat" DD_DALYRJ04="$work/dalyrj04.dat" \
     DD_VALDRPT="$work/valdrpt.dat" \
         "$BUILD/bin/cbtrn04c" > "$work/stdout.txt" 2>&1

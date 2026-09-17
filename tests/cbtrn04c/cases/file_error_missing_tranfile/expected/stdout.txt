@@ -1,0 +1,10 @@
+START OF EXECUTION OF PROGRAM CBTRN04C
+ERROR OPENING TRANSACTION FILE
+FILE STATUS IS: NNNN0035
+ABENDING PROGRAM
+libcob: warning: implicit CLOSE of TCATBAL-FILE ('TCATBALF')
+libcob: warning: implicit CLOSE of ACCOUNT-FILE ('ACCTFILE')
+libcob: warning: implicit CLOSE of XREF-FILE ('XREFFILE')
+libcob: warning: implicit CLOSE of TRANCATG-FILE ('TRANCATG')
+libcob: warning: implicit CLOSE of TRANTYPE-FILE ('TRANTYPE')
+libcob: warning: implicit CLOSE of DALYTRAN-FILE ('DALYTRAN')

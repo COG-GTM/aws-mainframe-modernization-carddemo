@@ -4,8 +4,9 @@
 Writes, for every named case, a DALYTRAN input file made of exact
 350-byte records laid out per app/cpy/CVTRA06Y.cpy, the PARM value the
 case runs with, and (for the shared "standard" reference set) the
-TRANTYPE / TRANCATG / XREFFILE / ACCTFILE / TCATBALF reference records
-laid out per CVTRA03Y / CVTRA04Y / CVACT03Y / CVACT01Y / CVTRA01Y.
+TRANTYPE / TRANCATG / XREFFILE / ACCTFILE / TCATBALF / TRANFILE
+reference records laid out per CVTRA03Y / CVTRA04Y / CVACT03Y / CVACT01Y /
+CVTRA01Y / CVTRA05Y.
 
 Signed zoned amounts use the mainframe overpunch convention as it
 appears in the repository's own ASCII sample data (app/data/ASCII):
@@ -15,6 +16,7 @@ O P Q R. GnuCOBOL reads these with -fsign=EBCDIC.
 Usage: gen_fixtures.py <output-dir>
   <output-dir>/cases/<case>/dalytran.dat
   <output-dir>/cases/<case>/parm            (absent when no PARM is passed)
+  <output-dir>/cases/<case>/no_tranfile     (present: run without TRANFILE)
   <output-dir>/cases/INDEX.md               (case list, derived from this file)
   <output-dir>/refdata/standard/*.txt
 """
@@ -157,6 +159,13 @@ CARD_LIMIT_TEST_AT = "4000000000000014"  # account 14: cycle credit
                                       # S9(09)V99 WS-TEMP-BAL maximum
 CARD_UNKNOWN = "4999999999999999"
 
+ID_ON_TRANSACT = "TX00000000000900"   # already posted: the one record in
+                                      # the standard TRANFILE set
+ID_DUP_FEED = "TX00000000000901"
+ID_DUP_AFTER_REJECT = "TX00000000000902"
+ID_DUP_PROJECTION = "TX00000000000903"
+ID_DUP_OVERLIMIT = "TX00000000000904"
+
 STANDARD_REFSET = {
     "trantype.txt": [
         trantype("01", "Purchase"),
@@ -210,6 +219,12 @@ STANDARD_REFSET = {
         tcatbal("00000000003", "01", "0001", "-0.01"),
         tcatbal("00000000007", "01", "0001", "999999000.00"),
     ],
+    # CVTRA05Y TRAN-RECORD has the same 350-byte field layout as the
+    # daily record, so record() builds the posted transaction too.
+    "transact.txt": [
+        record(id=ID_ON_TRANSACT, orig_ts="2024-03-10 09:00:00.000000",
+               proc_ts="2024-03-11 02:00:00.000000"),
+    ],
 }
 
 
@@ -228,6 +243,7 @@ class Case:
     records: List[bytes] = field(default_factory=list)
     parm: Optional[str] = RUN_DATE
     input_present: bool = True      # False: no dalytran.dat (file error)
+    tranfile_present: bool = True   # False: TRANFILE absent (file error)
 
 
 CASES: List[Case] = [
@@ -418,17 +434,48 @@ CASES: List[Case] = [
          "account 14: 999999998.99 - 0.00 + 1.00 = 999999999.99, the "
          "S9(09)V99 WS-TEMP-BAL maximum",
          "accepted, RC 0", [record(card=CARD_LIMIT_TEST_AT, amt="1.00")]),
-    Case("precedence_type_and_card", "R15",
+    Case("rule15_dup_id_in_feed", "R15",
+         "two records carry the same DALYTRAN-ID; only the first is posted "
+         "by CBTRN02C before its keyed WRITE to TRANSACT fails",
+         "first accepted, second reject 0211, RC 4",
+         [record(id=ID_DUP_FEED, amt="125.50"),
+          record(id=ID_DUP_FEED, amt="10.00")]),
+    Case("rule15_dup_id_on_transact", "R15",
+         "DALYTRAN-ID already on TRANSACT from an earlier posting",
+         "reject 0211", [record(id=ID_ON_TRANSACT)]),
+    Case("rule15_dup_id_reject_not_reserved", "R15",
+         "first record with the ID is rejected (type 99), second is clean; "
+         "a rejected record never reaches TRANSACT so it does not reserve "
+         "its ID",
+         "reject 0202 then accepted, RC 4",
+         [record(id=ID_DUP_AFTER_REJECT, type="99"),
+          record(id=ID_DUP_AFTER_REJECT)]),
+    Case("rule15_dup_id_projection", "R15",
+         "account 5 (600.00 used of 1000.00): 300.00 accepted, duplicate "
+         "ID for 50.00 rejected 0211, then 100.00 on a new ID reaches "
+         "exactly 1000.00 and is accepted, proving the duplicate advanced "
+         "neither the account nor the category projection",
+         "accepted, reject 0211, accepted, RC 4",
+         [record(id=ID_DUP_PROJECTION, amt="300.00", card=CARD_LIMIT),
+          record(id=ID_DUP_PROJECTION, amt="50.00", card=CARD_LIMIT),
+          record(id="TX00000000000905", amt="100.00", card=CARD_LIMIT)]),
+    Case("precedence_overlimit_and_dup", "R16",
+         "account 5: 100.00 accepted, then the same ID for 500.00 is both "
+         "over limit (700.00 + 500.00 > 1000.00) and a duplicate",
+         "reject 0102 only (the WRITE is the last thing CBTRN02C does)",
+         [record(id=ID_DUP_OVERLIMIT, amt="100.00", card=CARD_LIMIT),
+          record(id=ID_DUP_OVERLIMIT, amt="500.00", card=CARD_LIMIT)]),
+    Case("precedence_type_and_card", "R16",
          "type 99 and unknown card on one record",
          "reject 0202 only", [record(type="99", card=CARD_UNKNOWN)]),
-    Case("precedence_id_and_amount", "R15",
+    Case("precedence_id_and_amount", "R16",
          "blank id and non-numeric amount on one record",
          "reject 0201 only", [record(id=" " * 16, amt=b"ABCDEFGHIJK")]),
-    Case("precedence_expired_and_overlimit", "R15",
+    Case("precedence_expired_and_overlimit", "R16",
          "account 6 is expired and has credit limit 0.00, amount 125.50",
          "reject 0103 only (the code CBTRN02C ends with when both fail)",
          [record(card=CARD_EXPIRED, amt="125.50")]),
-    Case("precedence_amount_and_date", "R15",
+    Case("precedence_amount_and_date", "R16",
          "non-numeric amount and 30 February on one record",
          "reject 0204 only",
          [record(amt=b"ABCDEFGHIJK", orig_ts="2024-02-30 10:15:30.000000")]),
@@ -467,6 +514,9 @@ CASES: List[Case] = [
     Case("file_error_missing_input", "file", "DALYTRAN data set absent "
          "(OPEN status 35)", "RC 12, no output written", [],
          input_present=False),
+    Case("file_error_missing_tranfile", "file", "TRANSACT data set absent "
+         "(OPEN status 35) so duplicate IDs could not be checked",
+         "RC 12, no output written", [record()], tranfile_present=False),
 ]
 
 SAMPLE_CASE_NOTE = (
@@ -519,6 +569,8 @@ def main(argv) -> int:
         if case.parm is not None:
             write(os.path.join(out, "cases", case.name, "parm"),
                   case.parm.encode("ascii") + b"\n")
+        if not case.tranfile_present:
+            write(os.path.join(out, "cases", case.name, "no_tranfile"), b"")
     write(os.path.join(out, "cases", "INDEX.md"),
           index_markdown().encode("ascii"))
     for fname, recs in STANDARD_REFSET.items():

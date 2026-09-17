@@ -4,11 +4,11 @@
       * Program     : LOADIDX.cbl
       * Application : CBTRN04C test suite
       * Type        : Test utility (off-mainframe runs only)
-      * Function    : Loads one of the five reference files read by
+      * Function    : Loads one of the six reference files read by
       *               CBTRN04C (TRANTYPE, TRANCATG, XREFFILE,
-      *               ACCTFILE, TCATBALF) from a text file with one
-      *               record per
-      *               line into a GnuCOBOL indexed file. On z/OS these
+      *               ACCTFILE, TCATBALF, TRANFILE) from a text file
+      *               with one record per line into a GnuCOBOL indexed
+      *               file. On z/OS these
       *               files are VSAM KSDS built by IDCAMS REPRO
       *               (see app/jcl/TRANTYPE.jcl and friends); this
       *               utility plays that role for the test harness.
@@ -16,7 +16,7 @@
       *               production program uses.
       * Usage       : DD_LOADIN=<in> DD_<name>=<out> loadidx <name>
       *               where <name> is TRANTYPE, TRANCATG, XREFFILE,
-      *               ACCTFILE or TCATBALF.
+      *               ACCTFILE, TCATBALF or TRANFILE.
       ******************************************************************
        ENVIRONMENT DIVISION.
        INPUT-OUTPUT SECTION.
@@ -56,10 +56,16 @@
                   RECORD KEY   IS FD-TCATBAL-KEY
                   FILE STATUS  IS TCATBALF-STATUS.
 
+           SELECT TRANSACT-FILE ASSIGN TO TRANFILE
+                  ORGANIZATION IS INDEXED
+                  ACCESS MODE  IS SEQUENTIAL
+                  RECORD KEY   IS FD-TRANS-ID
+                  FILE STATUS  IS TRANFILE-STATUS.
+
        DATA DIVISION.
        FILE SECTION.
        FD  LOADIN-FILE.
-       01  FD-LOADIN-REC                        PIC X(300).
+       01  FD-LOADIN-REC                        PIC X(350).
 
        FD  TRANTYPE-FILE.
        01  FD-TRANTYPE-REC.
@@ -91,12 +97,18 @@
               10 FD-TCATBAL-CD                  PIC 9(04).
            05 FD-TCATBAL-DATA                   PIC X(33).
 
+       FD  TRANSACT-FILE.
+       01  FD-TRANFILE-REC.
+           05 FD-TRANS-ID                       PIC X(16).
+           05 FD-TRANS-DATA                     PIC X(334).
+
        WORKING-STORAGE SECTION.
        COPY CVTRA03Y.
        COPY CVTRA04Y.
        COPY CVACT03Y.
        COPY CVACT01Y.
        COPY CVTRA01Y.
+       COPY CVTRA05Y.
 
        01  WS-FILE-NAME                         PIC X(08).
        01  LOADIN-STATUS                        PIC X(02).
@@ -105,6 +117,7 @@
        01  XREFFILE-STATUS                      PIC X(02).
        01  ACCTFILE-STATUS                      PIC X(02).
        01  TCATBALF-STATUS                      PIC X(02).
+       01  TRANFILE-STATUS                      PIC X(02).
        01  WS-OUT-STATUS                        PIC X(02).
        01  WS-EOF                               PIC X(01) VALUE 'N'.
        01  WS-COUNT                             PIC 9(07) VALUE 0.
@@ -127,6 +140,9 @@
                WHEN 'TCATBALF'
                    OPEN OUTPUT TCATBAL-FILE
                    MOVE TCATBALF-STATUS TO WS-OUT-STATUS
+               WHEN 'TRANFILE'
+                   OPEN OUTPUT TRANSACT-FILE
+                   MOVE TRANFILE-STATUS TO WS-OUT-STATUS
                WHEN OTHER
                    DISPLAY 'LOADIDX: UNKNOWN FILE NAME ' WS-FILE-NAME
                    MOVE 12 TO RETURN-CODE
@@ -160,6 +176,7 @@
                WHEN 'XREFFILE'  CLOSE XREF-FILE
                WHEN 'ACCTFILE'  CLOSE ACCOUNT-FILE
                WHEN 'TCATBALF'  CLOSE TCATBAL-FILE
+               WHEN 'TRANFILE'  CLOSE TRANSACT-FILE
            END-EVALUATE
            DISPLAY 'LOADIDX: ' WS-FILE-NAME ' RECORDS LOADED '
                    WS-COUNT
@@ -188,6 +205,10 @@
                    WRITE FD-TRAN-CAT-BAL-RECORD
                          FROM TRAN-CAT-BAL-RECORD
                    MOVE TCATBALF-STATUS TO WS-OUT-STATUS
+               WHEN 'TRANFILE'
+                   MOVE FD-LOADIN-REC (1:350) TO TRAN-RECORD
+                   WRITE FD-TRANFILE-REC FROM TRAN-RECORD
+                   MOVE TRANFILE-STATUS TO WS-OUT-STATUS
            END-EVALUATE
            IF  WS-OUT-STATUS = '00'
                ADD 1 TO WS-COUNT

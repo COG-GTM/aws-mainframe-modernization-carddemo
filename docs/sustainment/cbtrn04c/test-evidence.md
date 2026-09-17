@@ -16,13 +16,17 @@ bash tests/cbtrn04c/run_tests.sh                          # exit 0 == every case
 1. the two `cobc` commands above (the first must produce no diagnostics at all);
 2. a test build of `CBTRN04C` with `tests/cbtrn04c/stubs/CEE3PRM.cbl` and
    `-fsign=EBCDIC`, plus `tests/cbtrn04c/tools/LOADIDX.cbl` (loads the text
-   reference files, including the 300-byte account master, into GnuCOBOL
-   indexed files);
+   reference files, including the 300-byte account master and the 350-byte
+   transaction target, into GnuCOBOL indexed files);
 3. a fixture drift check: `tools/gen_fixtures.py` is re-run and its output must
    equal the committed `cases/*/dalytran.dat`, `cases/*/parm`, `cases/INDEX.md`
    and `refdata/standard/*`;
-4. loading of the standard reference set and of the repository sample reference
-   set (`app/data/ASCII/{trantype,trancatg,cardxref,acctdata,tcatbal}.txt`);
+4. loading of the standard reference set (which includes one already-posted
+   transaction in `refdata/standard/transact.txt` for the R15 lookup) and of the
+   repository sample reference set
+   (`app/data/ASCII/{trantype,trancatg,cardxref,acctdata,tcatbal}.txt`, with an
+   empty transaction target because the repository has no posted-transaction
+   sample);
 5. one run per case directory. Return code, `stdout`, `DALYVALD`, `DALYRJ04`
    and the 133-byte `VALDRPT` report are compared byte-for-byte with the files
    under `cases/<case>/expected/`. `DALYRJ04` must be a whole number of 430-byte
@@ -57,6 +61,7 @@ LOADIDX: TRANCATG RECORDS LOADED 0000004
 LOADIDX: XREFFILE RECORDS LOADED 0000014
 LOADIDX: ACCTFILE RECORDS LOADED 0000013
 LOADIDX: TCATBALF RECORDS LOADED 0000004
+LOADIDX: TRANFILE RECORDS LOADED 0000001
 
 == Reference files: sample set (app/data/ASCII)
 LOADIDX: TRANTYPE RECORDS LOADED 0000007
@@ -64,12 +69,14 @@ LOADIDX: TRANCATG RECORDS LOADED 0000018
 LOADIDX: XREFFILE RECORDS LOADED 0000050
 LOADIDX: ACCTFILE RECORDS LOADED 0000050
 LOADIDX: TCATBALF RECORDS LOADED 0000050
+LOADIDX: TRANFILE RECORDS LOADED 0000000
 
 == Cases
 PASS  all_rejects (rc=4)
 PASS  clean_record (rc=0)
 PASS  empty_input (rc=0)
 PASS  file_error_missing_input (rc=12)
+PASS  file_error_missing_tranfile (rc=12)
 PASS  mixed_feed (rc=4)
 PASS  parm_invalid_date (rc=8)
 PASS  parm_missing (rc=8)
@@ -77,6 +84,7 @@ PASS  parm_wrong_length (rc=8)
 PASS  precedence_amount_and_date (rc=4)
 PASS  precedence_expired_and_overlimit (rc=4)
 PASS  precedence_id_and_amount (rc=4)
+PASS  precedence_overlimit_and_dup (rc=4)
 PASS  precedence_type_and_card (rc=4)
 PASS  rule01_id_low_values (rc=4)
 PASS  rule01_id_spaces (rc=4)
@@ -120,14 +128,18 @@ PASS  rule14_cyc_credit_over (rc=4)
 PASS  rule14_cyc_debit_over (rc=4)
 PASS  rule14_limit_test_at_s9_09 (rc=0)
 PASS  rule14_limit_test_over_s9_09 (rc=4)
+PASS  rule15_dup_id_in_feed (rc=4)
+PASS  rule15_dup_id_on_transact (rc=4)
+PASS  rule15_dup_id_projection (rc=4)
+PASS  rule15_dup_id_reject_not_reserved (rc=4)
 PASS  sample_data (rc=4)
 
 == Docs/source synchronisation check
-check_docs_sync: 15 rules, 69 citations, 55 cases, 6 confirmed / 9 inferred, 13 decisions, sample totals agree
+check_docs_sync: 16 rules, 80 citations, 61 cases, 6 confirmed / 10 inferred, 15 decisions, sample totals agree
 OK
 
 == Summary
-cases passed: 55
+cases passed: 61
 cases failed: 0
 ALL TESTS PASSED
 ```
@@ -137,7 +149,8 @@ ALL TESTS PASSED
 
 `app/data/ASCII/dailytran.txt` (300 records, converted to a 350-byte fixed file
 by `tools/seqfile.py`) validated against the sample `trantype`, `trancatg`,
-`cardxref`, `acctdata` and `tcatbal` files with `PARM='20220718'` (the run date
+`cardxref`, `acctdata` and `tcatbal` files and an empty transaction target with
+`PARM='20220718'` (the run date
 used by `INTCALC.jcl`). 262 records are accepted and 38 are rejected with 0102
 (over limit): every one of the 38 fails the `CBTRN02C` credit-limit test
 (`ACCT-CREDIT-LIMIT >= CYC-CREDIT - CYC-DEBIT + AMT`) against the sample account
@@ -174,6 +187,7 @@ removed:
    0208 ORIGINATION DATE AFTER PROCESSING DATE            :           0
    0209 TRANSACTION DATE AFTER RUN DATE                   :           0
    0210 AMOUNT WOULD OVERFLOW ACCOUNT FIELDS S9(10)V99    :           0
+   0211 DUPLICATE TRANSACTION ID IN FEED OR TRANSACT FILE :           0
 
  ACCEPTED AMOUNT TOTAL                             :                 77,954.70
  REJECTED AMOUNT TOTAL (NUMERIC AMOUNTS ONLY)      :                 26,846.84
@@ -219,6 +233,7 @@ accepted, one unknown card, one origination after processing):
    0208 ORIGINATION DATE AFTER PROCESSING DATE            :           1
    0209 TRANSACTION DATE AFTER RUN DATE                   :           0
    0210 AMOUNT WOULD OVERFLOW ACCOUNT FIELDS S9(10)V99    :           0
+   0211 DUPLICATE TRANSACTION ID IN FEED OR TRANSACT FILE :           0
 
  ACCEPTED AMOUNT TOTAL                             :                  1,105.49
  REJECTED AMOUNT TOTAL (NUMERIC AMOUNTS ONLY)      :                     40.00
@@ -242,8 +257,10 @@ accepted, one unknown card, one origination after processing):
 | `CEEDAYS` | Not called. Gregorian validation and Julian conversion are plain COBOL (`5000-VALIDATE-GREGORIAN-DATE`), so no date-service stub is needed | Same code path; `CEEDAYS` / `CSUTLDTC` are not invoked |
 | Sign encoding of `DALYTRAN-AMT` | The ASCII sample data uses EBCDIC overpunch letters (`{`, `A`–`I`, `}`, `J`–`R`). The test build adds `-fsign=EBCDIC` so the `NUMERIC` test and the `MOVE` to `COMP-3` read them as the mainframe would; `rule04_amount_invalid_sign` uses a byte outside that set | Native zoned decimal; `-fsign` does not apply. The overpunch bytes are the sign zones the mainframe uses, but EBCDIC fixtures were not produced |
 | Character set | ASCII fixtures; comparisons of `SPACES` / `LOW-VALUES` and `YYYY-MM-DD` digits are code-page independent | EBCDIC; the only alphanumeric `>=` (R12, `ACCT-EXPIRAION-DATE` against the origination date) runs after R08 has proven both operands are `YYYY-MM-DD` digit strings, so the collating sequence cannot change its result |
-| Files | GnuCOBOL indexed files built by `LOADIDX` from the text reference files; sequential files are fixed-length byte streams (`RECFM=F`) | VSAM KSDS for the five reference files, `RECFM=FB` for the feed, rejects and report. `INVALID KEY` / status 23 semantics are the same |
-| File-error path | Ends with RC 12 (`file_error_missing_input`, OPEN status 35). The `ON SIZE ERROR` overflow path (RC 12) and the projection-table-full path (RC 12) are not driven by a fixture: the smallest feed that overflows an `S9(16)V99` total is about 10^7 records at the feed maximum, and the tables hold 20,000 keys; both paths are desk-checked only | `CBTRN02C` calls `CEE3ABD`; `CBTRN04C` deliberately returns RC 12 instead (see `government-decisions.md` #7) |
+| Files | GnuCOBOL indexed files built by `LOADIDX` from the text reference files; sequential files are fixed-length byte streams (`RECFM=F`) | VSAM KSDS for the five reference files and the transaction target, `RECFM=FB` for the feed, rejects and report. `INVALID KEY` / status 23 semantics are the same |
+| Transaction target (`TRANFILE`) | Opened `INPUT`, read by key for R15 (`rule15_dup_id_on_transact` finds the one pre-loaded ID; `sample_data` runs against an empty target). Whether the production cluster is emptied or accumulates between cycles cannot be seen here (`government-decisions.md` #14) | `CBTRN02C` opens the same cluster `OUTPUT`; `SHAREOPTIONS(2 3)` in `TRANFILE.jcl` and `DISP=SHR` in both steps mean the JCL alone does not serialise the two steps (`government-decisions.md` #15). `OPEN INPUT` of a KSDS that has never been loaded may not return status 00 under Enterprise COBOL/VSAM; whether the site's cluster is ever in that state, and whether `OPTIONAL` is wanted on the `SELECT`, must be checked at implementation |
+| Report close failure | Not driven by a fixture: GnuCOBOL cannot be made to fail `CLOSE` on a sequential output file in a portable way. The path is desk-checked: `9700-VALDRPT-CLOSE` displays `VALDRPT RETURN CODE LINE n IS SUPERSEDED, STEP ENDS WITH 12` and ends with RC 12 | Same code path; the step return code in the job log is the value to trust |
+| File-error path | Ends with RC 12 (`file_error_missing_input` OPEN status 35 on the feed, `file_error_missing_tranfile` on the transaction target). The `ON SIZE ERROR` overflow path (RC 12) and the projection-table-full path (RC 12) are not driven by a fixture: the smallest feed that overflows an `S9(16)V99` total is about 10^7 records at the feed maximum, and the tables hold 20,000 keys; both paths are desk-checked only | `CBTRN02C` calls `CEE3ABD`; `CBTRN04C` deliberately returns RC 12 instead (see `government-decisions.md` #7) |
 | JCL | Not executable on Linux; `VALDTRAN.jcl`, `POSTTRN2.jcl`, `DALYRJ04.jcl` were desk-checked against `POSTTRAN.jcl`, `INTCALC.jcl`, `DALYREJS.jcl` | Data set names use a `SITE.HLQ` placeholder to be replaced at implementation |
 
 Pattern credit: the idea of compiling a tiny COBOL stub for a Language Environment

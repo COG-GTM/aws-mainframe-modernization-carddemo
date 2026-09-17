@@ -52,6 +52,10 @@
 //         DSN=&HLQ..ACCTDATA.VSAM.KSDS
 //TCATBALF DD DISP=SHR,
 //         DSN=&HLQ..TCATBALF.VSAM.KSDS
+//* TRANFILE is read (never written) so an ID already posted is
+//* rejected with 0211 instead of failing CBTRN02C's keyed WRITE.
+//TRANFILE DD DISP=SHR,
+//         DSN=&HLQ..TRANSACT.VSAM.KSDS
 //DALYVALD DD DISP=(NEW,CATLG,DELETE),
 //         UNIT=SYSDA,
 //         DCB=(RECFM=F,LRECL=350,BLKSIZE=0),

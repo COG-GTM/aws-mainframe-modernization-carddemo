@@ -30,6 +30,11 @@
 //* the validation step ended above 4 (PARM or file error). RC 4 (some
 //* records rejected) still posts the clean feed; RC 0 posts everything.
 //*
+//* STEP10 projects balances from the master files STEP15 will update;
+//* no other job may update ACCTDATA, TCATBALF or TRANSACT between the
+//* two steps (scheduler exclusivity is a system-owner decision,
+//* docs/sustainment/cbtrn04c/government-decisions.md).
+//*
 //* HLQ     : high-level qualifier of the application data sets; set to
 //*           the qualifier used by POSTTRAN.jcl for this site.
 //* RUNDATE : run date YYYYMMDD passed to CBTRN04C as PARM, the same
@@ -62,6 +67,10 @@
 //         DSN=&HLQ..ACCTDATA.VSAM.KSDS
 //TCATBALF DD DISP=SHR,
 //         DSN=&HLQ..TCATBALF.VSAM.KSDS
+//* TRANFILE is read (never written) so an ID already posted is
+//* rejected with 0211 instead of failing the keyed WRITE in STEP15.
+//TRANFILE DD DISP=SHR,
+//         DSN=&HLQ..TRANSACT.VSAM.KSDS
 //DALYVALD DD DISP=(NEW,CATLG,DELETE),
 //         UNIT=SYSDA,
 //         DCB=(RECFM=F,LRECL=350,BLKSIZE=0),

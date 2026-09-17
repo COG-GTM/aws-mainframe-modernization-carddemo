@@ -14,7 +14,10 @@
       *               retrieved with the Language Environment service
       *               CEE3PRM so the program stays a plain main program.
       * Return code : 0 nothing rejected, 4 records rejected,
-      *               8 parm invalid, 12 file error.
+      *               8 parm invalid, 12 file error. The RETURN CODE
+      *               line on VALDRPT is written before VALDRPT is
+      *               closed; a failing CLOSE is reported on SYSOUT
+      *               and ends the step with 12 regardless of that line.
       ******************************************************************
       * Licensed under the Apache License, Version 2.0 (the "License").
       * You may not use this file except in compliance with the License.
@@ -70,6 +73,12 @@
                   RECORD KEY   IS FD-TCATBAL-KEY
                   FILE STATUS  IS TCATBALF-STATUS.
 
+           SELECT TRANSACT-FILE ASSIGN TO TRANFILE
+                  ORGANIZATION IS INDEXED
+                  ACCESS MODE  IS RANDOM
+                  RECORD KEY   IS FD-TRANS-ID
+                  FILE STATUS  IS TRANFILE-STATUS.
+
            SELECT DALYVALD-FILE ASSIGN TO DALYVALD
                   ORGANIZATION IS SEQUENTIAL
                   ACCESS MODE  IS SEQUENTIAL
@@ -123,6 +132,11 @@
               10 FD-TCATBAL-CD                  PIC 9(04).
            05 FD-TCATBAL-DATA                   PIC X(33).
 
+       FD  TRANSACT-FILE.
+       01  FD-TRANFILE-REC.
+           05 FD-TRANS-ID                       PIC X(16).
+           05 FD-TRANS-DATA                     PIC X(334).
+
        FD  DALYVALD-FILE.
        01  FD-VALD-RECORD                       PIC X(350).
 
@@ -166,6 +180,11 @@
        01  TCATBALF-STATUS.
            05 TCATBALF-STAT1                    PIC X.
            05 TCATBALF-STAT2                    PIC X.
+
+       COPY CVTRA05Y.
+       01  TRANFILE-STATUS.
+           05 TRANFILE-STAT1                    PIC X.
+           05 TRANFILE-STAT2                    PIC X.
 
        01  DALYVALD-STATUS.
            05 DALYVALD-STAT1                    PIC X.
@@ -223,7 +242,7 @@
       * order the rules run in 1500-VALIDATE-TRAN). 0100-0103 are the
       * codes and texts CBTRN02C assigns to an unknown card, a missing
       * account, an overlimit transaction and an expired account; they
-      * are reused unchanged. New codes use 0201-0210 so they stay
+      * are reused unchanged. New codes use 0201-0211 so they stay
       * clear of the 0100-0109 range CBTRN02C uses for posting rejects.
       *----------------------------------------------------------------
        01  WS-REASON-TABLE-DATA.
@@ -255,11 +274,13 @@
               '0209TRANSACTION DATE AFTER RUN DATE                   '.
            05 FILLER PIC X(54) VALUE
               '0210AMOUNT WOULD OVERFLOW ACCOUNT FIELDS S9(10)V99    '.
+           05 FILLER PIC X(54) VALUE
+              '0211DUPLICATE TRANSACTION ID IN FEED OR TRANSACT FILE '.
        01  WS-REASON-TABLE REDEFINES WS-REASON-TABLE-DATA.
-           05 WS-REASON-ENTRY OCCURS 14 TIMES.
+           05 WS-REASON-ENTRY OCCURS 15 TIMES.
               10 WS-RSN-CODE                    PIC 9(04).
               10 WS-RSN-DESC                    PIC X(50).
-       01  WS-REASON-MAX                        PIC 9(02) VALUE 14.
+       01  WS-REASON-MAX                        PIC 9(02) VALUE 15.
        01  WS-RSN-IX                            PIC 9(02).
        01  WS-RSN-FOUND                         PIC X(01).
 
@@ -285,7 +306,7 @@
            05 WS-CHECK-COUNT                    PIC 9(09) COMP-3
                                                 VALUE 0.
        01  WS-REASON-COUNTS.
-           05 WS-RSN-COUNT OCCURS 14 TIMES      PIC 9(09) COMP-3.
+           05 WS-RSN-COUNT OCCURS 15 TIMES      PIC 9(09) COMP-3.
 
        01  WS-AMOUNTS.
            05 WS-TRAN-AMT-P                     PIC S9(09)V99 COMP-3
@@ -368,6 +389,22 @@
            05 WS-BAL-ENTRY OCCURS 20000 TIMES.
               10 WS-BAL-KEY                     PIC X(17).
               10 WS-BAL-PROJ                    PIC S9(11)V99 COMP-3.
+
+      *----------------------------------------------------------------
+      * Transaction IDs accepted so far in this run. CBTRN02C writes
+      * every posted record to TRANSACT, keyed on TRAN-ID, after it
+      * has already updated the category and account balances
+      * (2000-POST-TRANSACTION), so a second record carrying an ID
+      * that is already accepted, or already on TRANSACT, would fail
+      * the keyed WRITE with the balances changed. Rejected records do
+      * not reserve their ID because CBTRN02C never writes them.
+      *----------------------------------------------------------------
+       01  WS-ID-TABLE-MAX                      PIC 9(05) VALUE 20000.
+       01  WS-ID-TABLE-COUNT                    PIC 9(05) VALUE 0.
+       01  WS-ID-IX                             PIC 9(05) VALUE 0.
+       01  WS-ID-FOUND                          PIC X(01) VALUE 'N'.
+       01  WS-ID-TABLE.
+           05 WS-ID-ENTRY OCCURS 20000 TIMES    PIC X(16).
 
       *----------------------------------------------------------------
       * Date work areas. Timestamps are DB2 style, date in bytes 1-10
@@ -537,6 +574,7 @@
            PERFORM 0300-XREFFILE-OPEN.
            PERFORM 0350-ACCTFILE-OPEN.
            PERFORM 0400-TCATBALF-OPEN.
+           PERFORM 0450-TRANFILE-OPEN.
            PERFORM 0500-DALYVALD-OPEN.
            PERFORM 0600-DALYRJ04-OPEN.
            PERFORM 0700-VALDRPT-OPEN.
@@ -568,11 +606,14 @@
            PERFORM 9300-XREFFILE-CLOSE.
            PERFORM 9350-ACCTFILE-CLOSE.
            PERFORM 9400-TCATBALF-CLOSE.
+           PERFORM 9450-TRANFILE-CLOSE.
            PERFORM 9500-DALYVALD-CLOSE.
            PERFORM 9600-DALYRJ04-CLOSE.
 
       *    Every other file is closed before the report is written so
-      *    the return code printed on it is the one the step ends with.
+      *    the return code printed on it is the one the step ends with
+      *    unless the report's own CLOSE fails (9700 then says so on
+      *    SYSOUT and the step ends with 12).
            PERFORM 3000-WRITE-CONTROL-REPORT.
            PERFORM 9700-VALDRPT-CLOSE.
            DISPLAY 'TRANSACTIONS READ      :' WS-READ-COUNT.
@@ -736,6 +777,24 @@
            END-IF
            EXIT.
       *---------------------------------------------------------------*
+       0450-TRANFILE-OPEN.
+           MOVE 8 TO APPL-RESULT.
+           OPEN INPUT TRANSACT-FILE
+           IF  TRANFILE-STATUS = '00'
+               MOVE 0 TO APPL-RESULT
+           ELSE
+               MOVE 12 TO APPL-RESULT
+           END-IF
+           IF  APPL-AOK
+               CONTINUE
+           ELSE
+               DISPLAY 'ERROR OPENING TRANSACTION FILE'
+               MOVE TRANFILE-STATUS TO IO-STATUS
+               PERFORM 9910-DISPLAY-IO-STATUS
+               PERFORM 9999-ABEND-PROGRAM
+           END-IF
+           EXIT.
+      *---------------------------------------------------------------*
        0500-DALYVALD-OPEN.
            MOVE 8 TO APPL-RESULT.
            OPEN OUTPUT DALYVALD-FILE
@@ -878,6 +937,9 @@
            END-IF
            IF  WS-VALIDATION-FAIL-REASON = 0
                PERFORM 1598-CHECK-ACCT-FIELD-RANGE
+           END-IF
+           IF  WS-VALIDATION-FAIL-REASON = 0
+               PERFORM 1599-CHECK-DUP-TRAN-ID
            END-IF
            EXIT.
 
@@ -1214,6 +1276,49 @@
            EXIT.
 
       *---------------------------------------------------------------*
+      * CBTRN02C writes the posted record to TRANSACT (keyed on
+      * TRAN-ID) only after 2700-UPDATE-TCATBAL and 2800-UPDATE-
+      * ACCOUNT-REC have changed the balances, and a duplicate key on
+      * that WRITE ends the posting run with the balances already
+      * updated. Reject a record whose ID was already accepted in this
+      * feed or is already on TRANSACT. Runs last, in the position the
+      * WRITE holds in 2000-POST-TRANSACTION, so every other code stays
+      * what CBTRN02C would report. A missing TRANSACT record (status
+      * 23) is the normal case.
+      *---------------------------------------------------------------*
+       1599-CHECK-DUP-TRAN-ID.
+           MOVE 'N' TO WS-ID-FOUND
+           PERFORM VARYING WS-ID-IX FROM 1 BY 1
+               UNTIL WS-ID-IX > WS-ID-TABLE-COUNT
+               OR    WS-ID-FOUND = 'Y'
+               IF  WS-ID-ENTRY (WS-ID-IX) = DALYTRAN-ID
+                   MOVE 'Y' TO WS-ID-FOUND
+               END-IF
+           END-PERFORM
+           IF  WS-ID-FOUND = 'N'
+               MOVE DALYTRAN-ID TO FD-TRANS-ID
+               READ TRANSACT-FILE INTO TRAN-RECORD
+                    INVALID KEY
+                    CONTINUE
+                    NOT INVALID KEY
+                    MOVE 'Y' TO WS-ID-FOUND
+               END-READ
+               IF  TRANFILE-STATUS = '00' OR TRANFILE-STATUS = '23'
+                   CONTINUE
+               ELSE
+                   DISPLAY 'ERROR READING TRANSACTION FILE'
+                   MOVE TRANFILE-STATUS TO IO-STATUS
+                   PERFORM 9910-DISPLAY-IO-STATUS
+                   PERFORM 9999-ABEND-PROGRAM
+               END-IF
+           END-IF
+           IF  WS-ID-FOUND = 'Y'
+               MOVE 15 TO WS-RSN-IX
+               PERFORM 1900-SET-REASON
+           END-IF
+           EXIT.
+
+      *---------------------------------------------------------------*
        1900-SET-REASON.
            MOVE WS-RSN-CODE (WS-RSN-IX)
                 TO WS-VALIDATION-FAIL-REASON
@@ -1297,6 +1402,23 @@
            EXIT.
 
       *---------------------------------------------------------------*
+      * Called once a record is accepted: reserve its ID so a later
+      * record with the same ID is rejected (1599). Only accepted
+      * records reach TRANSACT, so only they are recorded here.
+      *---------------------------------------------------------------*
+       1970-UPDATE-ID-TABLE.
+           IF  WS-ID-TABLE-COUNT < WS-ID-TABLE-MAX
+               ADD 1 TO WS-ID-TABLE-COUNT
+               MOVE DALYTRAN-ID TO WS-ID-ENTRY (WS-ID-TABLE-COUNT)
+           ELSE
+               DISPLAY 'TRANSACTION ID TABLE FULL, '
+                       'MORE THAN ' WS-ID-TABLE-MAX
+                       ' ACCEPTED RECORDS IN FEED'
+               PERFORM 9999-ABEND-PROGRAM
+           END-IF
+           EXIT.
+
+      *---------------------------------------------------------------*
        2000-WRITE-ACCEPTED-REC.
            ADD 1 TO WS-ACCEPT-COUNT
            ADD WS-TRAN-AMT-P TO WS-ACCEPT-AMT
@@ -1305,6 +1427,7 @@
            END-ADD
            PERFORM 1950-UPDATE-BAL-PROJECTION
            PERFORM 1960-UPDATE-ACCT-PROJECTION
+           PERFORM 1970-UPDATE-ID-TABLE
            IF  WS-ACCEPT-COUNT = 1
                MOVE WS-ORIG-DATE-JULIAN TO WS-ACCEPT-JULIAN-MIN
                                            WS-ACCEPT-JULIAN-MAX
@@ -1699,6 +1822,24 @@
            END-IF
            EXIT.
       *---------------------------------------------------------------*
+       9450-TRANFILE-CLOSE.
+           MOVE 8 TO APPL-RESULT.
+           CLOSE TRANSACT-FILE
+           IF  TRANFILE-STATUS = '00'
+               MOVE 0 TO APPL-RESULT
+           ELSE
+               MOVE 12 TO APPL-RESULT
+           END-IF
+           IF  APPL-AOK
+               CONTINUE
+           ELSE
+               DISPLAY 'ERROR CLOSING TRANSACTION FILE'
+               MOVE TRANFILE-STATUS TO IO-STATUS
+               PERFORM 9910-DISPLAY-IO-STATUS
+               PERFORM 9999-ABEND-PROGRAM
+           END-IF
+           EXIT.
+      *---------------------------------------------------------------*
        9500-DALYVALD-CLOSE.
            MOVE 8 TO APPL-RESULT.
            CLOSE DALYVALD-FILE
@@ -1749,6 +1890,8 @@
                DISPLAY 'ERROR CLOSING VALIDATION REPORT FILE'
                MOVE VALDRPT-STATUS TO IO-STATUS
                PERFORM 9910-DISPLAY-IO-STATUS
+               DISPLAY 'VALDRPT RETURN CODE LINE ' RETURN-CODE
+                       ' IS SUPERSEDED, STEP ENDS WITH 12'
                PERFORM 9999-ABEND-PROGRAM
            END-IF
            EXIT.
