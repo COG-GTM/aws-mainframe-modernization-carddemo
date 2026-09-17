@@ -102,12 +102,15 @@ class InterestCalculationServiceTest {
     }
 
     @Test
-    void skipsCategoriesWithoutAnyDisclosureRate() {
+    void settlesAnAccountWithoutAnyDisclosureRateSoItsCyclesStillReset() {
         accounts.register(ACCOUNT, "NOSUCH", new BigDecimal("1200.00"));
 
         InterestCalculationService.InterestReport report = interestCalculationService.calculateInterest();
 
-        assertThat(report.accountsSettled()).isZero();
+        assertThat(report.accountsSettled()).isEqualTo(1);
+        assertThat(report.totalInterest()).isEqualByComparingTo("0.00");
+        // 1050-UPDATE-ACCOUNT runs at every account break, so the cycle buckets reset regardless.
+        assertThat(accounts.settlements()).containsExactly(BigDecimal.ZERO);
         assertThat(transactions.count()).isZero();
     }
 }
