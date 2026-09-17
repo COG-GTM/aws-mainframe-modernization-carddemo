@@ -105,9 +105,11 @@ cataloged so a failed validation leaves nothing behind; `STEP15 CBTRN02C` reads
 bypassed when the validation step ends above 4. Both steps read the same
 `ACCTDATA`, `TCATBALF` and `TRANSACT` clusters (`DISP=SHR`, as in `POSTTRAN.jcl`),
 and the balances `STEP10` projects are only valid if nothing else updates those
-files between `STEP10` and `STEP15`; the JCL states this and the exclusivity
-control (scheduler resource, `DISP=OLD`, or run-window) is a system-owner
-decision (`government-decisions.md`). `app/jcl/VALDTRAN.jcl` runs the
+files between `STEP10` and `STEP15`; the JCL states this. The repository's
+daily scheduler flow (`app/scheduler/CardDemo.ca7`) already runs `POSTTRAN`
+between `CLOSEFIL` and `OPENFIL`, which close the online `TRANSACT`, `CCXREF`
+and `ACCTDAT` files; putting `POSTTRN2` in that slot, and whether `TCATBALF`
+must join the bracket, is a system-owner decision (`government-decisions.md`). `app/jcl/VALDTRAN.jcl` runs the
 validation alone with the same cleanup step; `app/jcl/DALYRJ04.jcl` defines the
 two GDG bases in the same shape as `DALYREJS.jcl`.
 
