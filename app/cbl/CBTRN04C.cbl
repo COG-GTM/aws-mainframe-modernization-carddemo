@@ -267,6 +267,27 @@
        01  WS-AMT-NUMERIC-FLAG                  PIC X(01).
 
       *----------------------------------------------------------------
+      * Projected category balances for keys already accepted in this
+      * run. CBTRN02C rewrites TRAN-CAT-BAL after every posting, so a
+      * second record for the same account/type/category must be
+      * checked against the balance the first one will leave behind,
+      * not against the balance on file. Rejected records do not
+      * advance the projection because CBTRN02C never posts them.
+      *----------------------------------------------------------------
+       01  WS-BAL-TABLE-MAX                     PIC 9(05) VALUE 20000.
+       01  WS-BAL-TABLE-COUNT                   PIC 9(05) VALUE 0.
+       01  WS-BAL-IX                            PIC 9(05) VALUE 0.
+       01  WS-BAL-FOUND-IX                      PIC 9(05) VALUE 0.
+       01  WS-BAL-SEARCH-KEY.
+           05 WS-BAL-SEARCH-ACCT-ID             PIC 9(11).
+           05 WS-BAL-SEARCH-TYPE-CD             PIC X(02).
+           05 WS-BAL-SEARCH-CAT-CD              PIC 9(04).
+       01  WS-BAL-TABLE.
+           05 WS-BAL-ENTRY OCCURS 20000 TIMES.
+              10 WS-BAL-KEY                     PIC X(17).
+              10 WS-BAL-PROJ                    PIC S9(11)V99 COMP-3.
+
+      *----------------------------------------------------------------
       * Date work areas. Timestamps are DB2 style, date in bytes 1-10
       * as YYYY-MM-DD (see CBTRN02C Z-GET-DB2-FORMAT-TIMESTAMP).
       *----------------------------------------------------------------
@@ -458,8 +479,6 @@
            IF  WS-REJECT-COUNT > 0
                MOVE 4 TO RETURN-CODE
            END-IF.
-           PERFORM 3000-WRITE-CONTROL-REPORT.
-
            PERFORM 9000-DALYTRAN-CLOSE.
            PERFORM 9100-TRANTYPE-CLOSE.
            PERFORM 9200-TRANCATG-CLOSE.
@@ -467,6 +486,10 @@
            PERFORM 9400-TCATBALF-CLOSE.
            PERFORM 9500-DALYVALD-CLOSE.
            PERFORM 9600-DALYRJ04-CLOSE.
+
+      *    Every other file is closed before the report is written so
+      *    the return code printed on it is the one the step ends with.
+           PERFORM 3000-WRITE-CONTROL-REPORT.
            PERFORM 9700-VALDRPT-CLOSE.
            DISPLAY 'TRANSACTIONS READ      :' WS-READ-COUNT.
            DISPLAY 'TRANSACTIONS ACCEPTED  :' WS-ACCEPT-COUNT.
@@ -835,11 +858,40 @@
       * SIZE ERROR clause. Project the balance the posting would
       * produce and reject when it cannot be held. A missing balance
       * record is not an error: CBTRN02C creates it at posting time.
+      * The starting balance is the projection left by earlier
+      * accepted records for the same key when there is one, else the
+      * balance on file.
       *---------------------------------------------------------------*
        1560-CHECK-CAT-BAL-RANGE.
-           MOVE XREF-ACCT-ID     TO FD-TCATBAL-ACCT-ID
-           MOVE DALYTRAN-TYPE-CD TO FD-TCATBAL-TYPE-CD
-           MOVE DALYTRAN-CAT-CD  TO FD-TCATBAL-CD
+           MOVE XREF-ACCT-ID     TO WS-BAL-SEARCH-ACCT-ID
+           MOVE DALYTRAN-TYPE-CD TO WS-BAL-SEARCH-TYPE-CD
+           MOVE DALYTRAN-CAT-CD  TO WS-BAL-SEARCH-CAT-CD
+           MOVE 0 TO WS-BAL-FOUND-IX
+           PERFORM VARYING WS-BAL-IX FROM 1 BY 1
+               UNTIL WS-BAL-IX > WS-BAL-TABLE-COUNT
+               OR    WS-BAL-FOUND-IX > 0
+               IF  WS-BAL-KEY (WS-BAL-IX) = WS-BAL-SEARCH-KEY
+                   MOVE WS-BAL-IX TO WS-BAL-FOUND-IX
+               END-IF
+           END-PERFORM
+           IF  WS-BAL-FOUND-IX > 0
+               MOVE WS-BAL-PROJ (WS-BAL-FOUND-IX) TO WS-PROJ-CAT-BAL
+           ELSE
+               PERFORM 1565-READ-CAT-BAL
+           END-IF
+           ADD WS-TRAN-AMT-P TO WS-PROJ-CAT-BAL
+           IF  WS-PROJ-CAT-BAL > WS-AMT-CEILING
+           OR  WS-PROJ-CAT-BAL < WS-AMT-FLOOR
+               MOVE 6 TO WS-RSN-IX
+               PERFORM 1900-SET-REASON
+           END-IF
+           EXIT.
+
+      *---------------------------------------------------------------*
+       1565-READ-CAT-BAL.
+           MOVE WS-BAL-SEARCH-ACCT-ID TO FD-TCATBAL-ACCT-ID
+           MOVE WS-BAL-SEARCH-TYPE-CD TO FD-TCATBAL-TYPE-CD
+           MOVE WS-BAL-SEARCH-CAT-CD  TO FD-TCATBAL-CD
            MOVE 0 TO WS-PROJ-CAT-BAL
            READ TCATBAL-FILE INTO TRAN-CAT-BAL-RECORD
                 INVALID KEY
@@ -854,12 +906,6 @@
                MOVE TCATBALF-STATUS TO IO-STATUS
                PERFORM 9910-DISPLAY-IO-STATUS
                PERFORM 9999-ABEND-PROGRAM
-           END-IF
-           ADD WS-TRAN-AMT-P TO WS-PROJ-CAT-BAL
-           IF  WS-PROJ-CAT-BAL > WS-AMT-CEILING
-           OR  WS-PROJ-CAT-BAL < WS-AMT-FLOOR
-               MOVE 6 TO WS-RSN-IX
-               PERFORM 1900-SET-REASON
            END-IF
            EXIT.
 
@@ -934,9 +980,33 @@
       * Accepted records are written from the input buffer so the
       * 350 bytes leave exactly as they arrived.
       *---------------------------------------------------------------*
+      * Called once a record is accepted: carry its amount forward in
+      * the projection for its account/type/category key.
+      *---------------------------------------------------------------*
+       1950-UPDATE-BAL-PROJECTION.
+           IF  WS-BAL-FOUND-IX > 0
+               MOVE WS-PROJ-CAT-BAL TO WS-BAL-PROJ (WS-BAL-FOUND-IX)
+           ELSE
+               IF  WS-BAL-TABLE-COUNT < WS-BAL-TABLE-MAX
+                   ADD 1 TO WS-BAL-TABLE-COUNT
+                   MOVE WS-BAL-SEARCH-KEY
+                     TO WS-BAL-KEY (WS-BAL-TABLE-COUNT)
+                   MOVE WS-PROJ-CAT-BAL
+                     TO WS-BAL-PROJ (WS-BAL-TABLE-COUNT)
+               ELSE
+                   DISPLAY 'CATEGORY BALANCE PROJECTION TABLE FULL, '
+                           'MORE THAN ' WS-BAL-TABLE-MAX
+                           ' ACCOUNT/TYPE/CATEGORY KEYS IN FEED'
+                   PERFORM 9999-ABEND-PROGRAM
+               END-IF
+           END-IF
+           EXIT.
+
+      *---------------------------------------------------------------*
        2000-WRITE-ACCEPTED-REC.
            ADD 1 TO WS-ACCEPT-COUNT
            ADD WS-TRAN-AMT-P TO WS-ACCEPT-AMT
+           PERFORM 1950-UPDATE-BAL-PROJECTION
            IF  WS-ACCEPT-COUNT = 1
                MOVE WS-ORIG-DATE-JULIAN TO WS-ACCEPT-JULIAN-MIN
                                            WS-ACCEPT-JULIAN-MAX

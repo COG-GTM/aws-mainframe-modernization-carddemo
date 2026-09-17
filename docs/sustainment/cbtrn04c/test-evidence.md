@@ -87,6 +87,8 @@ PASS  rule06_amount_max_downstream (rc=0)
 PASS  rule06_amount_negative_floor (rc=4)
 PASS  rule06_amount_negative_max (rc=0)
 PASS  rule06_amount_one_cent_over (rc=4)
+PASS  rule06_batch_reject_not_projected (rc=4)
+PASS  rule06_batch_second_record_overflows (rc=4)
 PASS  rule07_orig_century_leap (rc=0)
 PASS  rule07_orig_century_nonleap (rc=4)
 PASS  rule07_orig_feb30 (rc=4)
@@ -103,11 +105,11 @@ PASS  rule10_proc_future (rc=4)
 PASS  sample_data (rc=0)
 
 == Docs/source synchronisation check
-check_docs_sync: 11 rules, 43 citations, 37 cases, 3 confirmed / 8 inferred, 8 decisions, sample totals agree
+check_docs_sync: 11 rules, 43 citations, 39 cases, 3 confirmed / 8 inferred, 9 decisions, sample totals agree
 OK
 
 == Summary
-cases passed: 37
+cases passed: 39
 cases failed: 0
 ALL TESTS PASSED
 ```
