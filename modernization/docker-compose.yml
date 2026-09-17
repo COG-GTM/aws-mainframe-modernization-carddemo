@@ -1,0 +1,81 @@
+services:
+  postgres:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: carddemo
+      POSTGRES_USER: carddemo
+      POSTGRES_PASSWORD: carddemo
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U carddemo"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  auth-service:
+    build:
+      context: .
+      args:
+        MODULE: auth-service
+    environment:
+      AUTH_DB_URL: jdbc:postgresql://postgres:5432/carddemo
+    ports:
+      - "8080:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  customer-service:
+    build:
+      context: .
+      args:
+        MODULE: customer-service
+    environment:
+      CUSTOMER_DB_URL: jdbc:postgresql://postgres:5432/carddemo
+    ports:
+      - "8081:8081"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  account-service:
+    build:
+      context: .
+      args:
+        MODULE: account-service
+    environment:
+      ACCOUNT_DB_URL: jdbc:postgresql://postgres:5432/carddemo
+    ports:
+      - "8082:8082"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  card-service:
+    build:
+      context: .
+      args:
+        MODULE: card-service
+    environment:
+      CARD_DB_URL: jdbc:postgresql://postgres:5432/carddemo
+    ports:
+      - "8083:8083"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  transaction-service:
+    build:
+      context: .
+      args:
+        MODULE: transaction-service
+    environment:
+      TRANSACTION_DB_URL: jdbc:postgresql://postgres:5432/carddemo
+      ACCOUNT_SERVICE_URL: http://account-service:8082
+      CARD_SERVICE_URL: http://card-service:8083
+    ports:
+      - "8084:8084"
+    depends_on:
+      postgres:
+        condition: service_healthy

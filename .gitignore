@@ -6,3 +6,6 @@ batch-app/markers/*
 /.idea/
 .DS_Store
 **/.DS_Store
+
+# Java build output for the modernization stack
+modernization/**/target/
