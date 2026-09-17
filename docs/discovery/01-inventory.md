@@ -129,7 +129,7 @@ A dataset is counted once per normalised DSN (GDG relative generations and quote
 
 ## Full inventory
 
-One row per artifact. `Depends on` lists `COPY`/`INCLUDE` targets for COBOL, the driving program per step for JCL, and `DEFINE` counts for CSD. `Calls` marks each `CALL`/`LINK`/`XCTL` target as static (literal) or dynamic (variable).
+One row per artifact. `Depends on` lists `COPY`/`INCLUDE` targets for COBOL, the driving program per step for JCL, and `DEFINE` counts for CSD. `Calls` marks each `CALL`/`LINK`/`XCTL` target as static (literal) or dynamic (variable); `(from COPY x)` marks a call that a procedural copybook carries into the program.
 
 | Path | Type | Program-id / member | Lines | Depends on | Calls | EXEC CICS verbs | EXEC SQL | CICS tran id |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -177,11 +177,11 @@ One row per artifact. `Depends on` lists `COPY`/`INCLUDE` targets for COBOL, the
 | `app/app-transaction-type-db2/bms/COTRTLI.bms` | bms_map | COTRTLI | 338 | mapset COTRTLI; maps CTRTLIA |  |  |  |  |
 | `app/app-transaction-type-db2/bms/COTRTUP.bms` | bms_map | COTRTUP | 137 | mapset COTRTUP; maps CTRTUPA |  |  |  |  |
 | `app/app-transaction-type-db2/cbl/COBTUPDT.cbl` | cobol_program / batch | COBTUPDT | 237 | SQLCA (unresolved), DCLTRTYP |  |  | yes |  |
-| `app/app-transaction-type-db2/cbl/COTRTLIC.cbl` | cobol_program / online | COTRTLIC | 2,098 | CVCRD01Y, COCOM01Y, DFHBMSCA (unresolved), DFHAID (unresolved), COTTL01Y, COTRTLI, CSDAT01Y, CSMSG01Y, CSUSR01Y, CVACT02Y, CSSTRPFY, CSDB2RWY, SQLCA (unresolved), DCLTRTYP, CSDB2RPY |  | RECEIVE×1, RETURN×3, SEND×1, SEND TEXT×2, SYNCPOINT×3, XCTL×2 | yes | CTLI, CTLI |
+| `app/app-transaction-type-db2/cbl/COTRTLIC.cbl` | cobol_program / online | COTRTLIC | 2,098 | CVCRD01Y, COCOM01Y, DFHBMSCA (unresolved), DFHAID (unresolved), COTTL01Y, COTRTLI, CSDAT01Y, CSMSG01Y, CSUSR01Y, CVACT02Y, CSSTRPFY, CSDB2RWY, SQLCA (unresolved), DCLTRTYP, CSDB2RPY | via LIT-DSNTIAC [dynamic] (from COPY CSDB2RPY) | RECEIVE×1, RETURN×3, SEND×1, SEND TEXT×2, SYNCPOINT×3, XCTL×2 | yes | CTLI, CTLI |
 | `app/app-transaction-type-db2/cbl/COTRTUPC.cbl` | cobol_program / online | COTRTUPC | 1,702 | CSUTLDWY, CVCRD01Y, DFHBMSCA (unresolved), DFHAID (unresolved), COTTL01Y, COTRTUP, CSDAT01Y, CSMSG01Y, CSMSG02Y, CSUSR01Y, COCOM01Y, CSSETATY, CSSTRPFY, SQLCA (unresolved), DCLTRTYP, DCLTRCAT |  | ABEND×1, HANDLE ABEND×2, RECEIVE×1, RETURN×1, SEND×2, SYNCPOINT×4, XCTL×1 | yes | CTTU, CTTU |
 | `app/app-transaction-type-db2/cpy-bms/COTRTLI.cpy` | bms_copybook | COTRTLI | 500 |  |  |  |  |  |
 | `app/app-transaction-type-db2/cpy-bms/COTRTUP.cpy` | bms_copybook | COTRTUP | 200 |  |  |  |  |  |
-| `app/app-transaction-type-db2/cpy/CSDB2RPY.cpy` | copybook | CSDB2RPY | 89 |  | None [dynamic] |  | yes |  |
+| `app/app-transaction-type-db2/cpy/CSDB2RPY.cpy` | copybook | CSDB2RPY | 89 |  | via LIT-DSNTIAC [dynamic] |  | yes |  |
 | `app/app-transaction-type-db2/cpy/CSDB2RWY.cpy` | copybook | CSDB2RWY | 46 |  |  |  |  |  |
 | `app/app-transaction-type-db2/csd/CRDDEMOD.csd` | csd | CRDDEMOD | 60 | 9 DEFINE statements |  |  |  |  |
 | `app/app-transaction-type-db2/ctl/DB2CREAT.ctl` | control_card | DB2CREAT | 106 |  |  |  |  |  |
@@ -236,7 +236,7 @@ One row per artifact. `Depends on` lists `COPY`/`INCLUDE` targets for COBOL, the
 | `app/cbl/CBTRN01C.cbl` | cobol_program / batch | CBTRN01C | 494 | CVTRA06Y, CVCUS01Y, CVACT03Y, CVACT02Y, CVACT01Y, CVTRA05Y | CEE3ABD [static] |  |  |  |
 | `app/cbl/CBTRN02C.cbl` | cobol_program / batch | CBTRN02C | 731 | CVTRA06Y, CVTRA05Y, CVACT03Y, CVACT01Y, CVTRA01Y | CEE3ABD [static] |  |  |  |
 | `app/cbl/CBTRN03C.cbl` | cobol_program / batch | CBTRN03C | 649 | CVTRA05Y, CVACT03Y, CVTRA03Y, CVTRA04Y, CVTRA07Y | CEE3ABD [static] |  |  |  |
-| `app/cbl/COACTUPC.cbl` | cobol_program / online | COACTUPC | 4,236 | CSUTLDWY, CVCRD01Y, CSLKPCDY, DFHBMSCA (unresolved), DFHAID (unresolved), COTTL01Y, COACTUP, CSDAT01Y, CSMSG01Y, CSMSG02Y, CSUSR01Y, CVACT01Y, CVACT03Y, CVCUS01Y, COCOM01Y, CSSETATY, CSSETATY, CSSETATY, CSSETATY, CSSETATY, CSSETATY, CSSETATY, CSSETATY, CSSETATY, CSSETATY, CSSETATY, CSSETATY, CSSETATY, CSSETATY, CSSETATY, CSSETATY, CSSETATY, CSSETATY, CSSETATY, CSSETATY, CSSETATY, CSSETATY, CSSETATY, CSSETATY, CSSETATY, CSSETATY, CSSETATY, CSSETATY, CSSETATY, CSSETATY, CSSETATY, CSSETATY, CSSETATY, CSSETATY, CSSETATY, CSSETATY, CSSETATY, CSSETATY, CSSETATY, CSSTRPFY, CSUTLDPY |  | ABEND×1, HANDLE ABEND×2, READ×5, RECEIVE×1, RETURN×1, REWRITE×2, SEND×2, SYNCPOINT×2, XCTL×1 |  | CAUP |
+| `app/cbl/COACTUPC.cbl` | cobol_program / online | COACTUPC | 4,236 | CSUTLDWY, CVCRD01Y, CSLKPCDY, DFHBMSCA (unresolved), DFHAID (unresolved), COTTL01Y, COACTUP, CSDAT01Y, CSMSG01Y, CSMSG02Y, CSUSR01Y, CVACT01Y, CVACT03Y, CVCUS01Y, COCOM01Y, CSSETATY, CSSETATY, CSSETATY, CSSETATY, CSSETATY, CSSETATY, CSSETATY, CSSETATY, CSSETATY, CSSETATY, CSSETATY, CSSETATY, CSSETATY, CSSETATY, CSSETATY, CSSETATY, CSSETATY, CSSETATY, CSSETATY, CSSETATY, CSSETATY, CSSETATY, CSSETATY, CSSETATY, CSSETATY, CSSETATY, CSSETATY, CSSETATY, CSSETATY, CSSETATY, CSSETATY, CSSETATY, CSSETATY, CSSETATY, CSSETATY, CSSETATY, CSSETATY, CSSETATY, CSSETATY, CSSTRPFY, CSUTLDPY | CSUTLDTC [static] (from COPY CSUTLDPY) | ABEND×1, HANDLE ABEND×2, READ×5, RECEIVE×1, RETURN×1, REWRITE×2, SEND×2, SYNCPOINT×2, XCTL×1 |  | CAUP |
 | `app/cbl/COACTVWC.cbl` | cobol_program / online | COACTVWC | 941 | CVCRD01Y, COCOM01Y, DFHBMSCA (unresolved), DFHAID (unresolved), COTTL01Y, COACTVW, CSDAT01Y, CSMSG01Y, CSMSG02Y, CSUSR01Y, CVACT01Y, CVACT02Y, CVACT03Y, CVCUS01Y, CSSTRPFY |  | ABEND×1, HANDLE ABEND×2, READ×3, RECEIVE×1, RETURN×3, SEND×2, SEND TEXT×2, XCTL×1 |  | CAVW, CAVW |
 | `app/cbl/COADM01C.cbl` | cobol_program / online | COADM01C | 288 | COCOM01Y, COADM02Y, COADM01, COTTL01Y, CSDAT01Y, CSMSG01Y, CSUSR01Y, DFHAID (unresolved), DFHBMSCA (unresolved) |  | HANDLE CONDITION×1, RECEIVE×1, RETURN×2, SEND×1, XCTL×2 |  | CA00 |
 | `app/cbl/COBIL00C.cbl` | cobol_program / online | COBIL00C | 572 | COCOM01Y, COBIL00, COTTL01Y, CSDAT01Y, CSMSG01Y, CVACT01Y, CVACT03Y, CVTRA05Y, DFHAID (unresolved), DFHBMSCA (unresolved) |  | ASKTIME×1, ENDBR×1, FORMATTIME×1, READ×2, READPREV×1, RECEIVE×1, RETURN×1, REWRITE×1, SEND×1, STARTBR×1, WRITE×1, XCTL×1 |  | CB00 |
@@ -373,7 +373,7 @@ One row per artifact. `Depends on` lists `COPY`/`INCLUDE` targets for COBOL, the
 
 ## What the script could not resolve
 
-### Dynamic `CALL` / `LINK` / `XCTL` through a variable whose value is not fully established in the program (22)
+### Dynamic `CALL` / `LINK` / `XCTL` through a variable whose value is not fully established in the program (23)
 
 The generator follows the `MOVE`/`VALUE` definitions that reach each statement (earlier in the same paragraph, or through the `PERFORM`/`GO TO` sites and fall-through that enter it) and the menu tables in `COMEN02Y`/`COADM02Y`; a statement is listed here when no literal reaches it, or when at least one path reaches it with a value the program never sets (typically the caller's commarea).  Literal targets found on the other paths are reported as resolved edges.
 
@@ -382,6 +382,7 @@ The generator follows the `MOVE`/`VALUE` definitions that reach each statement (
 | COPAUS0C | EXEC CICS XCTL via CDEMO-TO-PROGRAM (value from outside this program) | `app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl:674` | EXEC CICS XCTL through CDEMO-TO-PROGRAM: on at least one path the value comes from data this program does not set (caller commarea, terminal input or a record); the resolved targets at this line are the literals visible on the other paths |
 | COPAUS1C | EXEC CICS XCTL via CDEMO-TO-PROGRAM (value from outside this program) | `app/app-authorization-ims-db2-mq/cbl/COPAUS1C.cbl:367` | EXEC CICS XCTL through CDEMO-TO-PROGRAM: on at least one path the value comes from data this program does not set (caller commarea, terminal input or a record); the resolved targets at this line are the literals visible on the other paths |
 | COTRTLIC | EXEC CICS XCTL via CDEMO-TO-PROGRAM (value from outside this program) | `app/app-transaction-type-db2/cbl/COTRTLIC.cbl:620` | EXEC CICS XCTL through CDEMO-TO-PROGRAM: on at least one path the value comes from data this program does not set (caller commarea, terminal input or a record); the resolved targets at this line are the literals visible on the other paths |
+| COTRTLIC | DSNTIAC | `app/app-transaction-type-db2/cpy/CSDB2RPY.cpy:57` | CALL dynamic: Relational database sample interface |
 | COTRTUPC | EXEC CICS XCTL via CDEMO-TO-PROGRAM (value from outside this program) | `app/app-transaction-type-db2/cbl/COTRTUPC.cbl:457` | EXEC CICS XCTL through CDEMO-TO-PROGRAM: on at least one path the value comes from data this program does not set (caller commarea, terminal input or a record); the resolved targets at this line are the literals visible on the other paths |
 | COACTUPC | EXEC CICS XCTL via CDEMO-TO-PROGRAM (value from outside this program) | `app/cbl/COACTUPC.cbl:956` | EXEC CICS XCTL through CDEMO-TO-PROGRAM: on at least one path the value comes from data this program does not set (caller commarea, terminal input or a record); the resolved targets at this line are the literals visible on the other paths |
 | COACTVWC | EXEC CICS XCTL via CDEMO-TO-PROGRAM (value from outside this program) | `app/cbl/COACTVWC.cbl:349` | EXEC CICS XCTL through CDEMO-TO-PROGRAM: on at least one path the value comes from data this program does not set (caller commarea, terminal input or a record); the resolved targets at this line are the literals visible on the other paths |

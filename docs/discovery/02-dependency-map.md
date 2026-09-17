@@ -3,7 +3,7 @@
 
 # 02 - Dependency map
 
-**547 distinct dependency edges resolved, 126 unresolved** across the five headline categories (program→copybook, program→dataset, JCL step→program, transaction→program, program→program). An edge is *distinct* per (category, from, to); the same `COPY` in two places counts once.
+**548 distinct dependency edges resolved, 127 unresolved** across the five headline categories (program→copybook, program→dataset, JCL step→program, transaction→program, program→program). An edge is *distinct* per (category, from, to); the same `COPY` in two places counts once.
 
 | Edge category | Resolved | Unresolved |
 | --- | --- | --- |
@@ -11,8 +11,8 @@
 | program->dataset | 77 | 7 |
 | jclstep->program | 126 | 0 |
 | transaction->program | 26 | 7 |
-| program->program | 65 | 48 |
-| **Total** | **547** | **126** |
+| program->program | 66 | 49 |
+| **Total** | **548** | **127** |
 
 Supporting edge categories (not in the headline count):
 
@@ -22,6 +22,7 @@ Supporting edge categories (not in the headline count):
 | jclstep->proc | 4 | 0 | 0 |
 | scheduler->job | 32 | 0 | 0 |
 | csdfile->dataset | 8 | 0 | 0 |
+| csdlibrary->dataset | 2 | 0 | 0 |
 | copybook->copybook | 0 | 0 | 0 |
 
 ## Focused graph (52 nodes)
@@ -152,11 +153,11 @@ Every step of every JCL member. Utility steps (IDCAMS, SORT, IEBGENER, …) show
 | UNLDGSAM | STEP01 | `app/app-authorization-ims-db2-mq/jcl/UNLDGSAM.JCL:26` | DFSRRC00 [utility] | DBUNLDGS (application) | 'DLI,DBUNLDGS,DLIGSAMP,,,,,,,,,,,N' | DBUNLDGS: CIPAUDTY, CIPAUSMY, IMSFUNCS, PADFLPCB, PASFLPCB, PAUTBPCB |  |
 | UNLDPADB | STEP0 | `app/app-authorization-ims-db2-mq/jcl/UNLDPADB.JCL:25` | IEFBR14 [utility] |  |  |  | AWS.M2.CARDDEMO.PAUTDB.CHILD.FILEO (unknown)<br>AWS.M2.CARDDEMO.PAUTDB.ROOT.FILEO (unknown) |
 | UNLDPADB | STEP01 | `app/app-authorization-ims-db2-mq/jcl/UNLDPADB.JCL:38` | DFSRRC00 [utility] | PAUDBUNL (application) | 'DLI,PAUDBUNL,PAUTBUNL,,,,,,,,,,,N' | PAUDBUNL: CIPAUDTY, CIPAUSMY, IMSFUNCS, PAUTBPCB | AWS.M2.CARDDEMO.PAUTDB.ROOT.FILEO (write)<br>AWS.M2.CARDDEMO.PAUTDB.CHILD.FILEO (write) |
-| CREADB2 | FREEPLN | `app/app-transaction-type-db2/jcl/CREADB21.jcl:40` | IKJEFT01 [utility] |  |  |  | &CODER..M2.CARDDEMO.CNTL(DB2FREE) (unknown)<br>OEM.DB2.DAZ1.SDSNEXIT (unknown)<br>OEMA.DB2.VERSIONA.SDSNLOAD (unknown) |
-| CREADB2 | CRCRDDB | `app/app-transaction-type-db2/jcl/CREADB21.jcl:52` | IKJEFT01 [utility] |  |  |  | &CODER..M2.CARDDEMO.CNTL(DB2CREAT) (unknown)<br>&CODER..M2.CARDDEMO.CNTL(DB2TIAD1) (unknown)<br>OEM.DB2.DAZ1.RUNLIB.LOAD (unknown)<br>OEMA.DB2.VERSIONA.SDSNLOAD (unknown) |
+| CREADB2 | FREEPLN | `app/app-transaction-type-db2/jcl/CREADB21.jcl:40` | IKJEFT01 [utility] |  |  |  | AWS.M2.CARDDEMO.CNTL(DB2FREE) (unknown)<br>OEM.DB2.DAZ1.SDSNEXIT (unknown)<br>OEMA.DB2.VERSIONA.SDSNLOAD (unknown) |
+| CREADB2 | CRCRDDB | `app/app-transaction-type-db2/jcl/CREADB21.jcl:52` | IKJEFT01 [utility] |  |  |  | AWS.M2.CARDDEMO.CNTL(DB2CREAT) (unknown)<br>AWS.M2.CARDDEMO.CNTL(DB2TIAD1) (unknown)<br>OEM.DB2.DAZ1.RUNLIB.LOAD (unknown)<br>OEMA.DB2.VERSIONA.SDSNLOAD (unknown) |
 | CREADB2 | LDTTYPE | `app/app-transaction-type-db2/jcl/CREADB21.jcl:64` | IEFBR14 [utility] |  |  |  |  |
-| CREADB2 | RUNTEP2 | `app/app-transaction-type-db2/jcl/CREADB21.jcl:65` | IKJEFT01 [utility] |  |  |  | &CODER..M2.CARDDEMO.CNTL(DB2LTTYP) (unknown)<br>&CODER..M2.CARDDEMO.CNTL(DB2TEP41) (unknown)<br>OEM.DB2.DAZ1.RUNLIB.LOAD (unknown)<br>OEMA.DB2.VERSIONA.SDSNLOAD (unknown) |
-| CREADB2 | LDTCCAT | `app/app-transaction-type-db2/jcl/CREADB21.jcl:77` | IKJEFT01 [utility] |  |  |  | &CODER..M2.CARDDEMO.CNTL(DB2LTCAT) (unknown)<br>&CODER..M2.CARDDEMO.CNTL(DB2TEP41) (unknown)<br>OEM.DB2.DAZ1.RUNLIB.LOAD (unknown)<br>OEMA.DB2.VERSIONA.SDSNLOAD (unknown) |
+| CREADB2 | RUNTEP2 | `app/app-transaction-type-db2/jcl/CREADB21.jcl:65` | IKJEFT01 [utility] |  |  |  | AWS.M2.CARDDEMO.CNTL(DB2LTTYP) (unknown)<br>AWS.M2.CARDDEMO.CNTL(DB2TEP41) (unknown)<br>OEM.DB2.DAZ1.RUNLIB.LOAD (unknown)<br>OEMA.DB2.VERSIONA.SDSNLOAD (unknown) |
+| CREADB2 | LDTCCAT | `app/app-transaction-type-db2/jcl/CREADB21.jcl:77` | IKJEFT01 [utility] |  |  |  | AWS.M2.CARDDEMO.CNTL(DB2LTCAT) (unknown)<br>AWS.M2.CARDDEMO.CNTL(DB2TEP41) (unknown)<br>OEM.DB2.DAZ1.RUNLIB.LOAD (unknown)<br>OEMA.DB2.VERSIONA.SDSNLOAD (unknown) |
 | MNTTRDB2 | STEP1 | `app/app-transaction-type-db2/jcl/MNTTRDB2.jcl:21` | IKJEFT01 [utility] | COBTUPDT (application) |  | COBTUPDT: DCLTRTYP | INPFILE (read) |
 | TRANEXTR | STEP10 | `app/app-transaction-type-db2/jcl/TRANEXTR.jcl:31` | IEBGENER [utility] |  |  |  | AWS.M2.CARDDEMO.TRANTYPE.BKUP (unknown)<br>AWS.M2.CARDDEMO.TRANTYPE.PS (unknown) |
 | TRANEXTR | STEP20 | `app/app-transaction-type-db2/jcl/TRANEXTR.jcl:42` | IEBGENER [utility] |  |  |  | AWS.M2.CARDDEMO.TRANCATG.PS (unknown)<br>AWS.M2.CARDDEMO.TRANCATG.PS.BKUP (unknown) |
@@ -318,6 +319,7 @@ Transactions come from `DEFINE TRANSACTION ... PROGRAM(...)` in the CSD sources;
 | CBACT01C | COBDATFT | static | resolved | `app/cbl/CBACT01C.cbl:231` | CALL static (literal); target type assembler |
 | CBSTM03A | CBSTM03B | static | resolved | `app/cbl/CBSTM03A.CBL:351` | CALL static (literal); target type cobol_program |
 | COACTUPC | COMEN01C | dynamic | resolved | `app/cbl/COACTUPC.cbl:956` | EXEC CICS XCTL dynamic (resolved through VALUE/MOVE of CDEMO-TO-PROGRAM reaching this statement; on another path the value is not set in this program) |
+| COACTUPC | CSUTLDTC | static | resolved | `app/cpy/CSUTLDPY.cpy:293` | CALL static (literal); target type cobol_program |
 | COACTVWC | COMEN01C | dynamic | resolved | `app/cbl/COACTVWC.cbl:349` | EXEC CICS XCTL dynamic (resolved through VALUE/MOVE of CDEMO-TO-PROGRAM reaching this statement; on another path the value is not set in this program) |
 | COADM01C | COTRTLIC | dynamic | resolved | `app/cbl/COADM01C.cbl:145` | EXEC CICS XCTL dynamic (table-driven: VALUE literal in app/cpy/COADM02Y.cpy) |
 | COADM01C | COTRTUPC | dynamic | resolved | `app/cbl/COADM01C.cbl:145` | EXEC CICS XCTL dynamic (table-driven: VALUE literal in app/cpy/COADM02Y.cpy) |
@@ -380,6 +382,7 @@ Transactions come from `DEFINE TRANSACTION ... PROGRAM(...)` in the CSD sources;
 | PAUDBLOD | CBLTDLI | static | unresolved | `app/app-authorization-ims-db2-mq/cbl/PAUDBLOD.CBL:244` | CALL static: IMS DL/I interface |
 | PAUDBUNL | CBLTDLI | static | unresolved | `app/app-authorization-ims-db2-mq/cbl/PAUDBUNL.CBL:213` | CALL static: IMS DL/I interface |
 | COTRTLIC | EXEC CICS XCTL via CDEMO-TO-PROGRAM (value from outside this program) | dynamic | unresolved | `app/app-transaction-type-db2/cbl/COTRTLIC.cbl:620` | EXEC CICS XCTL through CDEMO-TO-PROGRAM: on at least one path the value comes from data this program does not set (caller commarea, terminal input or a record); the resolved targets at this line are the literals visible on the other paths |
+| COTRTLIC | DSNTIAC | dynamic | unresolved | `app/app-transaction-type-db2/cpy/CSDB2RPY.cpy:57` | CALL dynamic: Relational database sample interface |
 | COTRTUPC | EXEC CICS XCTL via CDEMO-TO-PROGRAM (value from outside this program) | dynamic | unresolved | `app/app-transaction-type-db2/cbl/COTRTUPC.cbl:457` | EXEC CICS XCTL through CDEMO-TO-PROGRAM: on at least one path the value comes from data this program does not set (caller commarea, terminal input or a record); the resolved targets at this line are the literals visible on the other paths |
 | COACCT01 | MQOPEN | static | unresolved | `app/app-vsam-mq/cbl/COACCT01.cbl:233` | CALL static: Message queuing API |
 | COACCT01 | MQGET | static | unresolved | `app/app-vsam-mq/cbl/COACCT01.cbl:352` | CALL static: Message queuing API |
@@ -646,12 +649,6 @@ Mode is taken from the COBOL verbs (`READ`, `WRITE`, `REWRITE`, `DELETE`, `START
 | Dataset | Kind | Referenced from | First reference |
 | --- | --- | --- | --- |
 | &CNTLLIB(REPROCT) | library (PDS/PDSE) | JCL DD/control statement | `app/proc/REPROC.prc:27` |
-| &CODER..M2.CARDDEMO.CNTL(DB2CREAT) | library (PDS/PDSE) | utility step only, JCL DD/control statement | `app/app-transaction-type-db2/jcl/CREADB21.jcl:59` |
-| &CODER..M2.CARDDEMO.CNTL(DB2FREE) | library (PDS/PDSE) | utility step only, JCL DD/control statement | `app/app-transaction-type-db2/jcl/CREADB21.jcl:46` |
-| &CODER..M2.CARDDEMO.CNTL(DB2LTCAT) | library (PDS/PDSE) | utility step only, JCL DD/control statement | `app/app-transaction-type-db2/jcl/CREADB21.jcl:84` |
-| &CODER..M2.CARDDEMO.CNTL(DB2LTTYP) | library (PDS/PDSE) | utility step only, JCL DD/control statement | `app/app-transaction-type-db2/jcl/CREADB21.jcl:72` |
-| &CODER..M2.CARDDEMO.CNTL(DB2TEP41) | library (PDS/PDSE) | utility step only, JCL DD/control statement | `app/app-transaction-type-db2/jcl/CREADB21.jcl:71` |
-| &CODER..M2.CARDDEMO.CNTL(DB2TIAD1) | library (PDS/PDSE) | utility step only, JCL DD/control statement | `app/app-transaction-type-db2/jcl/CREADB21.jcl:58` |
 | AWS.CUSTDATA.CLUSTER.DATA | VSAM component (DATA/INDEX) | JCL DD/control statement | `app/jcl/DEFCUST.jcl:43` |
 | AWS.CUSTDATA.CLUSTER.INDEX | VSAM component (DATA/INDEX) | JCL DD/control statement | `app/jcl/DEFCUST.jcl:45` |
 | AWS.M2.CARDDEMO.ACCTDATA.VSAM.KSDS.DATA | VSAM component (DATA/INDEX) | JCL DD/control statement, catalog listing | `app/jcl/ACCTFILE.jcl:46` |
@@ -667,6 +664,12 @@ Mode is taken from the COBOL verbs (`READ`, `WRITE`, `REWRITE`, `DELETE`, `START
 | AWS.M2.CARDDEMO.CARDXREF.VSAM.KSDS.DATA | VSAM component (DATA/INDEX) | JCL DD/control statement, catalog listing | `app/jcl/XREFFILE.jcl:49` |
 | AWS.M2.CARDDEMO.CARDXREF.VSAM.KSDS.INDEX | VSAM component (DATA/INDEX) | JCL DD/control statement, catalog listing | `app/jcl/XREFFILE.jcl:51` |
 | AWS.M2.CARDDEMO.CNTL | library (PDS/PDSE) | catalog listing | `app/catlg/LISTCAT.txt` |
+| AWS.M2.CARDDEMO.CNTL(DB2CREAT) | library (PDS/PDSE) | utility step only, JCL DD/control statement | `app/app-transaction-type-db2/jcl/CREADB21.jcl:59` |
+| AWS.M2.CARDDEMO.CNTL(DB2FREE) | library (PDS/PDSE) | utility step only, JCL DD/control statement | `app/app-transaction-type-db2/jcl/CREADB21.jcl:46` |
+| AWS.M2.CARDDEMO.CNTL(DB2LTCAT) | library (PDS/PDSE) | utility step only, JCL DD/control statement | `app/app-transaction-type-db2/jcl/CREADB21.jcl:84` |
+| AWS.M2.CARDDEMO.CNTL(DB2LTTYP) | library (PDS/PDSE) | utility step only, JCL DD/control statement | `app/app-transaction-type-db2/jcl/CREADB21.jcl:72` |
+| AWS.M2.CARDDEMO.CNTL(DB2TEP41) | library (PDS/PDSE) | utility step only, JCL DD/control statement | `app/app-transaction-type-db2/jcl/CREADB21.jcl:71` |
+| AWS.M2.CARDDEMO.CNTL(DB2TIAD1) | library (PDS/PDSE) | utility step only, JCL DD/control statement | `app/app-transaction-type-db2/jcl/CREADB21.jcl:58` |
 | AWS.M2.CARDDEMO.CNTL(REPROCT) | library (PDS/PDSE) | utility step only | `app/proc/REPROC.prc:27` |
 | AWS.M2.CARDDEMO.CPY | library (PDS/PDSE) | catalog listing | `app/catlg/LISTCAT.txt` |
 | AWS.M2.CARDDEMO.CUSTDATA.VSAM.KSDS.DATA | VSAM component (DATA/INDEX) | JCL DD/control statement, catalog listing | `app/jcl/CUSTFILE.jcl:56` |
@@ -680,7 +683,7 @@ Mode is taken from the COBOL verbs (`READ`, `WRITE`, `REWRITE`, `DELETE`, `START
 | AWS.M2.CARDDEMO.JCL | library (PDS/PDSE) | catalog listing | `app/catlg/LISTCAT.txt` |
 | AWS.M2.CARDDEMO.JCL(INTRDRJ2) | library (PDS/PDSE) | utility step only, JCL DD/control statement | `app/jcl/INTRDRJ1.JCL:17` |
 | AWS.M2.CARDDEMO.LISTING | library (PDS/PDSE) | catalog listing | `app/catlg/LISTCAT.txt` |
-| AWS.M2.CARDDEMO.LOADLIB | library (PDS/PDSE) | JCL DD/control statement, catalog listing | `app/jcl/CBEXPORT.jcl:44` |
+| AWS.M2.CARDDEMO.LOADLIB | library (PDS/PDSE) | JCL DD/control statement, CSD LIBRARY, catalog listing | `app/jcl/CBEXPORT.jcl:44` |
 | AWS.M2.CARDDEMO.PROC | library (PDS/PDSE) | catalog listing | `app/catlg/LISTCAT.txt` |
 | AWS.M2.CARDDEMO.TCATBALF.VSAM.KSDS.DATA | VSAM component (DATA/INDEX) | JCL DD/control statement, catalog listing | `app/jcl/TCATBALF.jcl:46` |
 | AWS.M2.CARDDEMO.TCATBALF.VSAM.KSDS.INDEX | VSAM component (DATA/INDEX) | JCL DD/control statement, catalog listing | `app/jcl/TCATBALF.jcl:48` |

@@ -943,8 +943,16 @@ class JclMember:
 
 
 def resolve_symbolics(value: str, sets: dict) -> str:
-    """Substitute &SYMBOL references that a SET statement in the same member defines."""
-    return re.sub(r"&([A-Z0-9@#$]+)\.?", lambda m: sets.get(m.group(1), m.group(0)), value or "")
+    """Substitute &SYMBOL references that a SET statement in the same member defines.
+    A SET value may itself contain symbols (``SET LBNM=&CODER..M2``), so substitution
+    repeats until nothing changes, bounded so a self-referencing SET cannot loop."""
+    out = value or ""
+    for _ in range(8):
+        new = re.sub(r"&([A-Z0-9@#$]+)\.?", lambda m: sets.get(m.group(1), m.group(0)), out)
+        if new == out:
+            break
+        out = new
+    return out
 
 
 # ---------------------------------------------------------------------------
@@ -1126,6 +1134,7 @@ EXTRA_CATEGORIES = [
     "jclstep->proc",
     "scheduler->job",
     "csdfile->dataset",
+    "csdlibrary->dataset",
     "copybook->copybook",
 ]
 
@@ -1274,6 +1283,7 @@ class Estate:
                     for e in ents:
                         e["source"] = art["path"]
                         e["module"] = module
+                        e["sets"] = member.sets
                     art["csd_definitions"] = [{"kind": e["kind"], "name": e["name"], "line": e["line"],
                                                "group": e["attrs"].get("GROUP"), "program": e["attrs"].get("PROGRAM"),
                                                "transid": e["attrs"].get("TRANSID"), "dsname": e["attrs"].get("DSNAME")}
@@ -1337,7 +1347,7 @@ class Estate:
         d = self.datasets.get(key)
         if d is None:
             d = {"dsn": key, "catalog_types": set(), "jcl_refs": [], "csd_files": [], "program_access": [],
-                 "sample_files": [], "symbolic": "&" in key}
+                 "csd_libraries": [], "sample_files": [], "symbolic": "&" in key}
             self.datasets[key] = d
         return d
 
@@ -1351,21 +1361,53 @@ class Estate:
             return None
         return self.copybooks.get(name.strip().upper())
 
+    def included_copybooks(self, art: dict) -> list[dict]:
+        """Copybook artifacts a program (or copybook) brings in through COPY / EXEC SQL
+        INCLUDE, followed transitively, in first-seen order."""
+        out, seen, queue = [], {art["path"]}, list(art["copy_targets"])
+        while queue:
+            cb = self.find_copybook(queue.pop(0)["name"])
+            if cb and cb["path"] not in seen:
+                seen.add(cb["path"])
+                out.append(cb)
+                queue.extend(cb.get("copy_targets", []))
+        return out
+
     def program_values(self, art: dict) -> dict:
-        """VALUE clauses visible to a program: its own plus those of its copybooks."""
+        """VALUE clauses a program sees from its copybooks (its own live on its parser)."""
         out: dict = defaultdict(list)
-        for c in art["copy_targets"]:
-            cb = self.find_copybook(c["name"])
-            if cb and cb["path"] in self.cobol:
+        for cb in self.included_copybooks(art):
+            if cb["path"] in self.cobol:
                 for k, v in self.cobol[cb["path"]].values.items():
                     out[k].extend(v)
         return out
 
+    def statement_sites(self, art: dict) -> list[dict]:
+        """Where a program's executable statements live: its own source and every
+        included copybook that carries procedure code.  Each site pairs the parsed
+        source that owns the statement offsets (``prog``) with the VALUE clauses of the
+        rest of the compilation unit (``values``), so a CALL inside a copybook resolves
+        against the including program's literals."""
+        own = self.cobol[art["path"]]
+        sites = [{"prog": own, "path": art["path"], "values": self.program_values(art), "copybook": None}]
+        for cb in self.included_copybooks(art):
+            prog = self.cobol.get(cb["path"])
+            if not prog or not (prog.calls or prog.cics):
+                continue
+            values: dict = defaultdict(list)
+            for k, v in own.values.items():
+                values[k].extend(v)
+            for other in self.included_copybooks(art):
+                if other["path"] != cb["path"] and other["path"] in self.cobol:
+                    for k, v in self.cobol[other["path"]].values.items():
+                        values[k].extend(v)
+            sites.append({"prog": prog, "path": cb["path"], "values": values, "copybook": cb["name"]})
+        return sites
+
     def table_candidates(self, art: dict) -> list[tuple[str, str]]:
         """Program-name literals held in VALUE clauses of the program or its copybooks."""
         out = []
-        sources = [art["path"]] + [self.find_copybook(c["name"])["path"] for c in art["copy_targets"]
-                                   if self.find_copybook(c["name"])]
+        sources = [art["path"]] + [cb["path"] for cb in self.included_copybooks(art)]
         for p in sources:
             prog = self.cobol.get(p)
             if not prog:
@@ -1402,17 +1444,18 @@ class Estate:
                     fam = "system-supplied (CICS/MQ/SQL) include" if re.match(r"^(DFH|CMQ|SQLCA|SQLDA|DSN)", c["name"]) else "not found in repository"
                     self.add_edge(cat, art["name"], c["name"], art["path"], c["line"], "unresolved", fam)
 
-    def _resolve_program_ref(self, art: dict, literal, var, offset):
+    def _resolve_program_ref(self, art: dict, site: dict, literal, var, offset):
         """Return (list of (name, kind, detail), complete) for a program reference at
-        ``offset``.  ``complete`` is False when some control-flow path reaches the
-        statement with a value the program never assigns from a literal."""
+        ``offset`` in ``site``.  ``complete`` is False when some control-flow path
+        reaches the statement with a value the program never assigns from a literal."""
         if literal:
             return [(literal.strip().upper(), "static", "literal")], True
-        prog = self.cobol[art["path"]]
-        vals, complete = prog.resolve_var_ex(var, self.program_values(art), offset)
+        vals, complete = site["prog"].resolve_var_ex(var, site["values"], offset)
         how = f"resolved through VALUE/MOVE of {var} reaching this statement"
         if not complete:
             how += "; on another path the value is not set in this program"
+        if site["copybook"]:
+            how += f"; statement included from copybook {site['copybook']}"
         out = [(v.upper(), "dynamic", how)
                for v in sorted(vals) if v.strip()]
         if not out and "(" in var:
@@ -1420,19 +1463,18 @@ class Estate:
                 out.append((cand, "dynamic", f"table-driven: VALUE literal in {src}"))
         return out, complete
 
-    def _unreached_detail(self, art: dict, var: str, what: str) -> str:
+    def _unreached_detail(self, site: dict, var: str, what: str) -> str:
         """Explain an unresolved variable reference, listing literals assigned to the
         variable elsewhere in the program that control flow does not carry to it."""
-        prog = self.cobol[art["path"]]
-        elsewhere = sorted(v for v in prog.resolve_var(var, self.program_values(art)) if v.strip())
+        elsewhere = sorted(v for v in site["prog"].resolve_var(var, site["values"]) if v.strip())
         if elsewhere:
             return (f"{what} through {var}: no VALUE/MOVE literal reaches this statement; "
                     f"assigned elsewhere in the program (not established by control flow): {', '.join(elsewhere)}")
         return f"{what} through {var}: no VALUE/MOVE literal assigns it"
 
-    def _add_runtime_value_edge(self, art: dict, var: str, what: str, line: int):
+    def _add_runtime_value_edge(self, art: dict, path: str, var: str, what: str, line: int):
         self.add_edge("program->program", art["name"], f"{what} via {var} (value from outside this program)",
-                      art["path"], line, "unresolved",
+                      path, line, "unresolved",
                       f"{what} through {var}: on at least one path the value comes from data this program does not set "
                       f"(caller commarea, terminal input or a record); the resolved targets at this line are the literals "
                       f"visible on the other paths", kind="dynamic")
@@ -1441,51 +1483,61 @@ class Estate:
         for art in self.artifacts:
             if art["type"] != "cobol_program":
                 continue
-            prog = self.cobol[art["path"]]
-            for c in art["call_targets"]:
-                refs, complete = self._resolve_program_ref(art, c["target"], c["via"], c["offset"])
-                if not refs:
+            for site in self.statement_sites(art):
+                self._link_site_calls(art, site)
+
+    def _link_site_calls(self, art: dict, site: dict):
+        prog, path, cb = site["prog"], site["path"], site["copybook"]
+        if cb is None:
+            calls = art["call_targets"]
+        else:
+            calls = [{"target": c["target"], "kind": c["kind"], "via": c["via"], "line": c["line"], "offset": c["offset"],
+                      "resolved": None, "resolved_to": [], "included_from": cb, "path": path} for c in prog.calls]
+            art["call_targets"].extend(calls)
+        for c in calls:
+            refs, complete = self._resolve_program_ref(art, site, c["target"], c["via"], c["offset"])
+            if not refs:
+                c["resolved"] = False
+                self.add_edge("program->program", art["name"], f"dynamic via {c['via']}", path, c["line"],
+                              "unresolved", self._unreached_detail(site, c["via"], "CALL"), kind="dynamic")
+                continue
+            if not complete:
+                self._add_runtime_value_edge(art, path, c["via"], "CALL", c["line"])
+            for name, kind, how in refs:
+                target = self.find_program(name)
+                if target:
+                    c["resolved"] = True
+                    c["resolved_to"].append(target["name"])
+                    self.add_edge("program->program", art["name"], target["name"], path, c["line"],
+                                  "resolved", f"CALL {kind} ({how}); target type {target['type']}", kind=kind)
+                else:
+                    fam = next((f for rx, f in EXTERNAL_CALL_FAMILIES if rx.match(name)), "not in repository")
                     c["resolved"] = False
-                    self.add_edge("program->program", art["name"], f"dynamic via {c['via']}", art["path"], c["line"],
-                                  "unresolved", self._unreached_detail(art, c["via"], "CALL"), kind="dynamic")
-                    continue
-                if not complete:
-                    self._add_runtime_value_edge(art, c["via"], "CALL", c["line"])
-                for name, kind, how in refs:
-                    target = self.find_program(name)
-                    if target:
-                        c["resolved"] = True
-                        c["resolved_to"].append(target["name"])
-                        self.add_edge("program->program", art["name"], target["name"], art["path"], c["line"],
-                                      "resolved", f"CALL {kind} ({how}); target type {target['type']}", kind=kind)
-                    else:
-                        fam = next((f for rx, f in EXTERNAL_CALL_FAMILIES if rx.match(name)), "not in repository")
-                        c["resolved"] = False
-                        self.add_edge("program->program", art["name"], name, art["path"], c["line"], "unresolved",
-                                      f"CALL {kind}: {fam}", kind=kind)
-            for cx in prog.cics:
-                if cx["verb"] not in ("XCTL", "LINK"):
-                    continue
-                opt = cx["options"].get("PROGRAM")
-                if not opt:
-                    self.add_edge("program->program", art["name"], f"{cx['verb']} without PROGRAM option", art["path"],
-                                  cx["line"], "unresolved", "PROGRAM option not parsed", kind="dynamic")
-                    continue
-                refs, complete = self._resolve_program_ref(art, opt["literal"], opt["var"], cx["offset"])
-                if not refs:
-                    self.add_edge("program->program", art["name"], f"{cx['verb']} via {opt['var']}", art["path"], cx["line"],
-                                  "unresolved", self._unreached_detail(art, opt["var"], f"EXEC CICS {cx['verb']}"), kind="dynamic")
-                    continue
-                if not complete:
-                    self._add_runtime_value_edge(art, opt["var"], f"EXEC CICS {cx['verb']}", cx["line"])
-                for name, kind, how in refs:
-                    target = self.find_program(name)
-                    if target:
-                        self.add_edge("program->program", art["name"], target["name"], art["path"], cx["line"], "resolved",
-                                      f"EXEC CICS {cx['verb']} {kind} ({how})", kind=kind)
-                    else:
-                        self.add_edge("program->program", art["name"], name, art["path"], cx["line"], "unresolved",
-                                      f"EXEC CICS {cx['verb']} {kind} ({how}): program source not in repository", kind=kind)
+                    self.add_edge("program->program", art["name"], name, path, c["line"], "unresolved",
+                                  f"CALL {kind}: {fam}", kind=kind)
+        for cx in prog.cics:
+            if cx["verb"] not in ("XCTL", "LINK"):
+                continue
+            opt = cx["options"].get("PROGRAM")
+            if not opt:
+                self.add_edge("program->program", art["name"], f"{cx['verb']} without PROGRAM option", path,
+                              cx["line"], "unresolved", "PROGRAM option not parsed", kind="dynamic")
+                continue
+            refs, complete = self._resolve_program_ref(art, site, opt["literal"], opt["var"], cx["offset"])
+            if not refs:
+                self.add_edge("program->program", art["name"], f"{cx['verb']} via {opt['var']}", path, cx["line"],
+                              "unresolved", self._unreached_detail(site, opt["var"], f"EXEC CICS {cx['verb']}"), kind="dynamic")
+                continue
+            if not complete:
+                self._add_runtime_value_edge(art, path, opt["var"], f"EXEC CICS {cx['verb']}", cx["line"])
+            for name, kind, how in refs:
+                target = self.find_program(name)
+                if target:
+                    self.add_edge("program->program", art["name"], target["name"], path, cx["line"], "resolved",
+                                  f"EXEC CICS {cx['verb']} {kind} ({how})", kind=kind)
+                else:
+                    self.add_edge("program->program", art["name"], name, path, cx["line"], "unresolved",
+                                  f"EXEC CICS {cx['verb']} {kind} ({how}): program source not in repository", kind=kind)
 
     def _link_csd(self):
         for e in self.csd_entries:
@@ -1510,10 +1562,17 @@ class Estate:
                 else:
                     self.add_edge("transaction->program", attrs["TRANSID"], e["name"], e["source"], e["line"], "unresolved",
                                   "program named in CSD has no source in repository")
+            sets = e.get("sets") or {}
             if kind == "FILE" and attrs.get("DSNAME"):
-                d = self.dataset(attrs["DSNAME"])
+                d = self.dataset(resolve_symbolics(attrs["DSNAME"], sets))
                 d["csd_files"].append({"file": e["name"], "path": e["source"], "line": e["line"]})
                 self.add_edge("csdfile->dataset", e["name"], d["dsn"], e["source"], e["line"], "resolved", "DSNAME attribute")
+            if kind == "LIBRARY":
+                for attr in sorted(a for a in attrs if re.fullmatch(r"DSNAME\d*", a)):
+                    d = self.dataset(resolve_symbolics(attrs[attr], sets))
+                    d["csd_libraries"].append({"library": e["name"], "path": e["source"], "line": e["line"]})
+                    self.add_edge("csdlibrary->dataset", e["name"], d["dsn"], e["source"], e["line"], "resolved",
+                                  f"{attr} attribute")
             if kind == "PROGRAM":
                 target = self.find_program(e["name"])
                 if target:
@@ -1734,51 +1793,56 @@ class Estate:
         for art in self.artifacts:
             if art["type"] != "cobol_program":
                 continue
-            prog = self.cobol[art["path"]]
-            values = self.program_values(art)
-            for cx in prog.cics:
-                verb = cx["verb"]
-                if verb in CICS_FILE_VERBS:
-                    opt = cx["options"].get("DATASET") or cx["options"].get("FILE")
-                    if not opt:
-                        continue
-                    mode = CICS_FILE_VERBS[verb]
-                    if mode is None:
-                        continue
-                    names = sorted({opt["literal"].strip().upper()} if opt["literal"] else {v.strip().upper() for v in prog.resolve_var(opt["var"], values, cx["offset"])})
-                    if not names:
-                        art["cics_files"].append({"file": None, "var": opt["var"], "verb": verb, "mode": mode, "line": cx["line"], "dsn": None})
-                        self.add_edge("program->dataset", art["name"], f"CICS file via {opt['var']}", art["path"], cx["line"], "unresolved",
-                                      self._unreached_detail(art, opt["var"], f"EXEC CICS {verb} file name"), modes=[mode])
-                        continue
-                    for fname in names:
-                        entry = csd_files.get(fname)
-                        rec = {"file": fname, "var": opt["var"], "verb": verb, "mode": mode, "line": cx["line"], "dsn": None}
-                        art["cics_files"].append(rec)
-                        if entry and entry["attrs"].get("DSNAME"):
-                            d = self.dataset(entry["attrs"]["DSNAME"])
-                            rec["dsn"] = d["dsn"]
-                            d["program_access"].append({"program": art["name"], "modes": [mode], "via": f"CICS FILE {fname} ({entry['source']}:{entry['line']})",
-                                                        "path": art["path"], "line": cx["line"], "dd_path": entry["source"], "dd_line": entry["line"]})
-                            self.add_edge("program->dataset", art["name"], d["dsn"], art["path"], cx["line"], "resolved",
-                                          f"EXEC CICS {verb} FILE {fname} -> CSD DSNAME at {entry['source']}:{entry['line']}", modes=[mode])
-                        else:
-                            self.add_edge("program->dataset", art["name"], f"CICS file {fname}", art["path"], cx["line"], "unresolved",
-                                          "no DEFINE FILE with DSNAME for this file name in any CSD source", modes=[mode])
-                if verb in ("SEND", "RECEIVE") and "MAPSET" in cx["options"]:
-                    opt = cx["options"]["MAPSET"]
-                    if not opt:
-                        continue
-                    names = sorted({opt["literal"].strip().upper()} if opt["literal"] else {v.strip().upper() for v in prog.resolve_var(opt["var"], values, cx["offset"])})
-                    if not names:
-                        self.add_edge("program->bmsmap", art["name"], f"mapset via {opt['var']}", art["path"], cx["line"], "unresolved",
-                                      self._unreached_detail(art, opt["var"], "MAPSET"))
-                    for ms in names:
-                        target = self.bms_by_mapset.get(ms)
-                        if target:
-                            self.add_edge("program->bmsmap", art["name"], target["name"], art["path"], cx["line"], "resolved", f"{verb} MAP MAPSET {ms}")
-                        else:
-                            self.add_edge("program->bmsmap", art["name"], ms, art["path"], cx["line"], "unresolved", "mapset source not in repository")
+            for site in self.statement_sites(art):
+                self._link_site_online_files(art, site, csd_files)
+
+    def _link_site_online_files(self, art: dict, site: dict, csd_files: dict):
+        prog, path, values = site["prog"], site["path"], site["values"]
+        for cx in prog.cics:
+            verb = cx["verb"]
+            if verb in CICS_FILE_VERBS:
+                opt = cx["options"].get("DATASET") or cx["options"].get("FILE")
+                if not opt:
+                    continue
+                mode = CICS_FILE_VERBS[verb]
+                if mode is None:
+                    continue
+                names = sorted({opt["literal"].strip().upper()} if opt["literal"] else {v.strip().upper() for v in prog.resolve_var(opt["var"], values, cx["offset"])})
+                if not names:
+                    art["cics_files"].append({"file": None, "var": opt["var"], "verb": verb, "mode": mode, "line": cx["line"], "dsn": None})
+                    self.add_edge("program->dataset", art["name"], f"CICS file via {opt['var']}", path, cx["line"], "unresolved",
+                                  self._unreached_detail(site, opt["var"], f"EXEC CICS {verb} file name"), modes=[mode])
+                    continue
+                for fname in names:
+                    entry = csd_files.get(fname)
+                    rec = {"file": fname, "var": opt["var"], "verb": verb, "mode": mode, "line": cx["line"], "dsn": None}
+                    if site["copybook"]:
+                        rec["included_from"], rec["path"] = site["copybook"], path
+                    art["cics_files"].append(rec)
+                    if entry and entry["attrs"].get("DSNAME"):
+                        d = self.dataset(resolve_symbolics(entry["attrs"]["DSNAME"], entry.get("sets") or {}))
+                        rec["dsn"] = d["dsn"]
+                        d["program_access"].append({"program": art["name"], "modes": [mode], "via": f"CICS FILE {fname} ({entry['source']}:{entry['line']})",
+                                                    "path": path, "line": cx["line"], "dd_path": entry["source"], "dd_line": entry["line"]})
+                        self.add_edge("program->dataset", art["name"], d["dsn"], path, cx["line"], "resolved",
+                                      f"EXEC CICS {verb} FILE {fname} -> CSD DSNAME at {entry['source']}:{entry['line']}", modes=[mode])
+                    else:
+                        self.add_edge("program->dataset", art["name"], f"CICS file {fname}", path, cx["line"], "unresolved",
+                                      "no DEFINE FILE with DSNAME for this file name in any CSD source", modes=[mode])
+            if verb in ("SEND", "RECEIVE") and "MAPSET" in cx["options"]:
+                opt = cx["options"]["MAPSET"]
+                if not opt:
+                    continue
+                names = sorted({opt["literal"].strip().upper()} if opt["literal"] else {v.strip().upper() for v in prog.resolve_var(opt["var"], values, cx["offset"])})
+                if not names:
+                    self.add_edge("program->bmsmap", art["name"], f"mapset via {opt['var']}", path, cx["line"], "unresolved",
+                                  self._unreached_detail(site, opt["var"], "MAPSET"))
+                for ms in names:
+                    target = self.bms_by_mapset.get(ms)
+                    if target:
+                        self.add_edge("program->bmsmap", art["name"], target["name"], path, cx["line"], "resolved", f"{verb} MAP MAPSET {ms}")
+                    else:
+                        self.add_edge("program->bmsmap", art["name"], ms, path, cx["line"], "unresolved", "mapset source not in repository")
 
     def _link_scheduler(self):
         jobs_by_name = {a["name"]: a for a in self.artifacts if a["type"] == "jcl_job"}
@@ -1828,6 +1892,8 @@ class Estate:
                 sources.append("JCL DD/control statement")
             if d["csd_files"]:
                 sources.append("CSD FILE")
+            if d["csd_libraries"]:
+                sources.append("CSD LIBRARY")
             if d["catalog_types"]:
                 sources.append("catalog listing")
             if d["sample_files"]:
@@ -2011,7 +2077,7 @@ def serialize(estate: Estate, summary: dict) -> dict:
             ("dsn", d["dsn"]), ("kind", d["kind"]), ("catalog_types", d["catalog_types"]),
             ("reference_sources", d["reference_sources"]),
             ("program_access", d["program_access"]), ("jcl_refs", d["jcl_refs"]),
-            ("csd_files", d["csd_files"]), ("sample_files", d["sample_files"]),
+            ("csd_files", d["csd_files"]), ("csd_libraries", d["csd_libraries"]), ("sample_files", d["sample_files"]),
         ]))
     return OrderedDict([
         ("schema", "estate-discovery/1"),
@@ -2092,14 +2158,17 @@ def render_inventory(estate: Estate, s: dict) -> str:
 
     out.append("## Full inventory\n")
     out.append("One row per artifact. `Depends on` lists `COPY`/`INCLUDE` targets for COBOL, the driving program per step for JCL, "
-               "and `DEFINE` counts for CSD. `Calls` marks each `CALL`/`LINK`/`XCTL` target as static (literal) or dynamic (variable).\n")
+               "and `DEFINE` counts for CSD. `Calls` marks each `CALL`/`LINK`/`XCTL` target as static (literal) or dynamic (variable); "
+               "`(from COPY x)` marks a call that a procedural copybook carries into the program.\n")
     rows = []
     for a in estate.artifacts:
         dep = ""
         calls = ""
         if a["type"] in ("cobol_program", "copybook", "bms_copybook", "sql_dclgen"):
             dep = ", ".join(c["name"] + ("" if c["resolved"] else " (unresolved)") for c in a["copy_targets"])
-            calls = ", ".join(f"{c['target']} [{c['kind']}]" for c in a["call_targets"])
+            calls = ", ".join((c["target"] or f"via {c['via']}") + f" [{c['kind']}]"
+                              + (f" (from COPY {c['included_from']})" if c.get("included_from") else "")
+                              for c in a["call_targets"])
         elif a["type"] in ("jcl_job", "jcl_proc"):
             dep = "; ".join(f"{st['step'] or '?'}→{st.get('driving_program') or '?'}" for st in a["jcl_steps"])
         elif a["type"] == "csd":
@@ -2370,6 +2439,8 @@ def _first_ref(d: dict) -> str:
         return cite(d["program_access"][0]["path"], d["program_access"][0]["line"])
     if d["csd_files"]:
         return cite(d["csd_files"][0]["path"], d["csd_files"][0]["line"])
+    if d["csd_libraries"]:
+        return cite(d["csd_libraries"][0]["path"], d["csd_libraries"][0]["line"])
     if d["sample_files"]:
         return f"`{d['sample_files'][0]}`"
     if d["catalog_types"]:

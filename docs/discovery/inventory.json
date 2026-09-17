@@ -57,8 +57,8 @@
    "core": 166
   },
   "headline": {
-   "resolved_edges": 547,
-   "unresolved_edges": 126,
+   "resolved_edges": 548,
+   "unresolved_edges": 127,
    "categories": [
     "program->copybook",
     "program->dataset",
@@ -84,8 +84,8 @@
      "unresolved": 7
     },
     "program->program": {
-     "resolved": 65,
-     "unresolved": 48
+     "resolved": 66,
+     "unresolved": 49
     }
    }
   },
@@ -107,6 +107,11 @@
    },
    "csdfile->dataset": {
     "resolved": 8,
+    "unresolved": 0,
+    "ambiguous": 0
+   },
+   "csdlibrary->dataset": {
+    "resolved": 2,
     "unresolved": 0,
     "ambiguous": 0
    },
@@ -163,7 +168,7 @@
   },
   "csd_entry_total": 134,
   "scheduler_job_total": 32,
-  "dynamic_calls_unresolved": 22,
+  "dynamic_calls_unresolved": 23,
   "datasets_jcl_only": 8,
   "lineage": {
    "hops": 37,
@@ -2702,7 +2707,18 @@
      "via": "EXEC SQL INCLUDE"
     }
    ],
-   "call_targets": [],
+   "call_targets": [
+    {
+     "target": null,
+     "kind": "dynamic",
+     "via": "LIT-DSNTIAC",
+     "line": 57,
+     "resolved": false,
+     "resolved_to": [],
+     "included_from": "CSDB2RPY",
+     "path": "app/app-transaction-type-db2/cpy/CSDB2RPY.cpy"
+    }
+   ],
    "cics_verbs": {
     "RECEIVE": 1,
     "RETURN": 3,
@@ -7031,7 +7047,20 @@
      "path": "app/cpy/CSUTLDPY.cpy"
     }
    ],
-   "call_targets": [],
+   "call_targets": [
+    {
+     "target": "CSUTLDTC",
+     "kind": "static",
+     "via": null,
+     "line": 293,
+     "resolved": true,
+     "resolved_to": [
+      "CSUTLDTC"
+     ],
+     "included_from": "CSUTLDPY",
+     "path": "app/cpy/CSUTLDPY.cpy"
+    }
+   ],
    "cics_verbs": {
     "ABEND": 1,
     "HANDLE ABEND": 2,
@@ -19648,6 +19677,16 @@
   },
   {
    "category": "program->program",
+   "from": "COTRTLIC",
+   "to": "DSNTIAC",
+   "path": "app/app-transaction-type-db2/cpy/CSDB2RPY.cpy",
+   "line": 57,
+   "status": "unresolved",
+   "detail": "CALL dynamic: Relational database sample interface",
+   "kind": "dynamic"
+  },
+  {
+   "category": "program->program",
    "from": "COTRTUPC",
    "to": "EXEC CICS XCTL via CDEMO-TO-PROGRAM (value from outside this program)",
    "path": "app/app-transaction-type-db2/cbl/COTRTUPC.cbl",
@@ -20115,6 +20154,16 @@
    "status": "resolved",
    "detail": "EXEC CICS XCTL dynamic (resolved through VALUE/MOVE of CDEMO-TO-PROGRAM reaching this statement; on another path the value is not set in this program)",
    "kind": "dynamic"
+  },
+  {
+   "category": "program->program",
+   "from": "COACTUPC",
+   "to": "CSUTLDTC",
+   "path": "app/cpy/CSUTLDPY.cpy",
+   "line": 293,
+   "status": "resolved",
+   "detail": "CALL static (literal); target type cobol_program",
+   "kind": "static"
   },
   {
    "category": "program->program",
@@ -20977,6 +21026,15 @@
    "kind": "static"
   },
   {
+   "category": "csdlibrary->dataset",
+   "from": "COM2DOLL",
+   "to": "AWS.M2.CARDDEMO.LOADLIB",
+   "path": "app/jcl/CBADMCDJ.jcl",
+   "line": 44,
+   "status": "resolved",
+   "detail": "DSNAME01 attribute"
+  },
+  {
    "category": "transaction->program",
    "from": "CC00",
    "to": "COSGN00C",
@@ -21346,6 +21404,24 @@
    "detail": "DEFINE TRANSACTION in group CARDDEMO"
   },
   {
+   "category": "csdlibrary->dataset",
+   "from": "CARDDLIB",
+   "to": "AWS.M2.CARDDEMO.LOADLIB",
+   "path": "app/csd/CARDDEMO.CSD",
+   "line": 489,
+   "status": "resolved",
+   "detail": "DSNAME01 attribute"
+  },
+  {
+   "category": "csdlibrary->dataset",
+   "from": "COM2DOLL",
+   "to": "AWS.M2.CARDDEMO.LOADLIB",
+   "path": "app/csd/CARDDEMO.CSD",
+   "line": 494,
+   "status": "resolved",
+   "detail": "DSNAME01 attribute"
+  },
+  {
    "category": "transaction->program",
    "from": "CP00",
    "to": "COPAUA0C",
@@ -21479,6 +21555,15 @@
    "line": 27,
    "status": "resolved",
    "detail": "DEFINE TRANSACTION in group CARDDEMO"
+  },
+  {
+   "category": "csdlibrary->dataset",
+   "from": "CARDDLIB",
+   "to": "AWS.M2.CARDDEMO.LOADLIB",
+   "path": "app/app-vsam-mq/csd/CRDDEMOM.csd",
+   "line": 37,
+   "status": "resolved",
+   "detail": "DSNAME01 attribute"
   },
   {
    "category": "jclstep->program",
@@ -24795,243 +24880,7 @@
     }
    ],
    "csd_files": [],
-   "sample_files": []
-  },
-  {
-   "dsn": "&CODER..M2.CARDDEMO.CNTL(DB2CREAT)",
-   "kind": "library (PDS/PDSE)",
-   "catalog_types": [],
-   "reference_sources": [
-    "utility step only",
-    "JCL DD/control statement"
-   ],
-   "program_access": [
-    {
-     "program": "IKJEFT01",
-     "modes": [
-      "unknown"
-     ],
-     "utility": true,
-     "via": "CREADB2/CRCRDDB DD SYSIN DISP=SHR",
-     "path": "app/app-transaction-type-db2/jcl/CREADB21.jcl",
-     "line": 59,
-     "dd_path": "app/app-transaction-type-db2/jcl/CREADB21.jcl",
-     "dd_line": 59
-    }
-   ],
-   "jcl_refs": [
-    {
-     "member": "CREADB2",
-     "step": "CRCRDDB",
-     "ddname": "SYSIN",
-     "path": "app/app-transaction-type-db2/jcl/CREADB21.jcl",
-     "line": 59,
-     "disp": "SHR",
-     "program": "IKJEFT01"
-    }
-   ],
-   "csd_files": [],
-   "sample_files": []
-  },
-  {
-   "dsn": "&CODER..M2.CARDDEMO.CNTL(DB2FREE)",
-   "kind": "library (PDS/PDSE)",
-   "catalog_types": [],
-   "reference_sources": [
-    "utility step only",
-    "JCL DD/control statement"
-   ],
-   "program_access": [
-    {
-     "program": "IKJEFT01",
-     "modes": [
-      "unknown"
-     ],
-     "utility": true,
-     "via": "CREADB2/FREEPLN DD SYSTSIN DISP=SHR",
-     "path": "app/app-transaction-type-db2/jcl/CREADB21.jcl",
-     "line": 46,
-     "dd_path": "app/app-transaction-type-db2/jcl/CREADB21.jcl",
-     "dd_line": 46
-    }
-   ],
-   "jcl_refs": [
-    {
-     "member": "CREADB2",
-     "step": "FREEPLN",
-     "ddname": "SYSTSIN",
-     "path": "app/app-transaction-type-db2/jcl/CREADB21.jcl",
-     "line": 46,
-     "disp": "SHR",
-     "program": "IKJEFT01"
-    }
-   ],
-   "csd_files": [],
-   "sample_files": []
-  },
-  {
-   "dsn": "&CODER..M2.CARDDEMO.CNTL(DB2LTCAT)",
-   "kind": "library (PDS/PDSE)",
-   "catalog_types": [],
-   "reference_sources": [
-    "utility step only",
-    "JCL DD/control statement"
-   ],
-   "program_access": [
-    {
-     "program": "IKJEFT01",
-     "modes": [
-      "unknown"
-     ],
-     "utility": true,
-     "via": "CREADB2/LDTCCAT DD SYSIN DISP=SHR",
-     "path": "app/app-transaction-type-db2/jcl/CREADB21.jcl",
-     "line": 84,
-     "dd_path": "app/app-transaction-type-db2/jcl/CREADB21.jcl",
-     "dd_line": 84
-    }
-   ],
-   "jcl_refs": [
-    {
-     "member": "CREADB2",
-     "step": "LDTCCAT",
-     "ddname": "SYSIN",
-     "path": "app/app-transaction-type-db2/jcl/CREADB21.jcl",
-     "line": 84,
-     "disp": "SHR",
-     "program": "IKJEFT01"
-    }
-   ],
-   "csd_files": [],
-   "sample_files": []
-  },
-  {
-   "dsn": "&CODER..M2.CARDDEMO.CNTL(DB2LTTYP)",
-   "kind": "library (PDS/PDSE)",
-   "catalog_types": [],
-   "reference_sources": [
-    "utility step only",
-    "JCL DD/control statement"
-   ],
-   "program_access": [
-    {
-     "program": "IKJEFT01",
-     "modes": [
-      "unknown"
-     ],
-     "utility": true,
-     "via": "CREADB2/RUNTEP2 DD SYSIN DISP=SHR",
-     "path": "app/app-transaction-type-db2/jcl/CREADB21.jcl",
-     "line": 72,
-     "dd_path": "app/app-transaction-type-db2/jcl/CREADB21.jcl",
-     "dd_line": 72
-    }
-   ],
-   "jcl_refs": [
-    {
-     "member": "CREADB2",
-     "step": "RUNTEP2",
-     "ddname": "SYSIN",
-     "path": "app/app-transaction-type-db2/jcl/CREADB21.jcl",
-     "line": 72,
-     "disp": "SHR",
-     "program": "IKJEFT01"
-    }
-   ],
-   "csd_files": [],
-   "sample_files": []
-  },
-  {
-   "dsn": "&CODER..M2.CARDDEMO.CNTL(DB2TEP41)",
-   "kind": "library (PDS/PDSE)",
-   "catalog_types": [],
-   "reference_sources": [
-    "utility step only",
-    "JCL DD/control statement"
-   ],
-   "program_access": [
-    {
-     "program": "IKJEFT01",
-     "modes": [
-      "unknown"
-     ],
-     "utility": true,
-     "via": "CREADB2/RUNTEP2 DD SYSTSIN DISP=SHR",
-     "path": "app/app-transaction-type-db2/jcl/CREADB21.jcl",
-     "line": 71,
-     "dd_path": "app/app-transaction-type-db2/jcl/CREADB21.jcl",
-     "dd_line": 71
-    },
-    {
-     "program": "IKJEFT01",
-     "modes": [
-      "unknown"
-     ],
-     "utility": true,
-     "via": "CREADB2/LDTCCAT DD SYSTSIN DISP=SHR",
-     "path": "app/app-transaction-type-db2/jcl/CREADB21.jcl",
-     "line": 83,
-     "dd_path": "app/app-transaction-type-db2/jcl/CREADB21.jcl",
-     "dd_line": 83
-    }
-   ],
-   "jcl_refs": [
-    {
-     "member": "CREADB2",
-     "step": "RUNTEP2",
-     "ddname": "SYSTSIN",
-     "path": "app/app-transaction-type-db2/jcl/CREADB21.jcl",
-     "line": 71,
-     "disp": "SHR",
-     "program": "IKJEFT01"
-    },
-    {
-     "member": "CREADB2",
-     "step": "LDTCCAT",
-     "ddname": "SYSTSIN",
-     "path": "app/app-transaction-type-db2/jcl/CREADB21.jcl",
-     "line": 83,
-     "disp": "SHR",
-     "program": "IKJEFT01"
-    }
-   ],
-   "csd_files": [],
-   "sample_files": []
-  },
-  {
-   "dsn": "&CODER..M2.CARDDEMO.CNTL(DB2TIAD1)",
-   "kind": "library (PDS/PDSE)",
-   "catalog_types": [],
-   "reference_sources": [
-    "utility step only",
-    "JCL DD/control statement"
-   ],
-   "program_access": [
-    {
-     "program": "IKJEFT01",
-     "modes": [
-      "unknown"
-     ],
-     "utility": true,
-     "via": "CREADB2/CRCRDDB DD SYSTSIN DISP=SHR",
-     "path": "app/app-transaction-type-db2/jcl/CREADB21.jcl",
-     "line": 58,
-     "dd_path": "app/app-transaction-type-db2/jcl/CREADB21.jcl",
-     "dd_line": 58
-    }
-   ],
-   "jcl_refs": [
-    {
-     "member": "CREADB2",
-     "step": "CRCRDDB",
-     "ddname": "SYSTSIN",
-     "path": "app/app-transaction-type-db2/jcl/CREADB21.jcl",
-     "line": 58,
-     "disp": "SHR",
-     "program": "IKJEFT01"
-    }
-   ],
-   "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -25054,6 +24903,7 @@
     }
    ],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -25076,6 +24926,7 @@
     }
    ],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -25098,6 +24949,7 @@
     }
    ],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -25120,6 +24972,7 @@
     }
    ],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -25132,6 +24985,7 @@
    "program_access": [],
    "jcl_refs": [],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": [
     "app/data/EBCDIC/AWS.M2.CARDDEMO.ACCDATA.PS"
    ]
@@ -25190,6 +25044,7 @@
     }
    ],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -25225,6 +25080,7 @@
     }
    ],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -25265,6 +25121,7 @@
     }
    ],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": [
     "app/data/EBCDIC/AWS.M2.CARDDEMO.ACCTDATA.PS"
    ]
@@ -25323,6 +25180,7 @@
     }
    ],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -25379,6 +25237,7 @@
     }
    ],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -25644,6 +25503,7 @@
      "line": 1
     }
    ],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -25669,6 +25529,7 @@
     }
    ],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -25694,6 +25555,7 @@
     }
    ],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -25708,6 +25570,7 @@
    "program_access": [],
    "jcl_refs": [],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -25722,6 +25585,7 @@
    "program_access": [],
    "jcl_refs": [],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -25762,6 +25626,7 @@
     }
    ],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": [
     "app/data/EBCDIC/AWS.M2.CARDDEMO.CARDDATA.PS"
    ]
@@ -25807,6 +25672,7 @@
     }
    ],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -25832,6 +25698,7 @@
     }
    ],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -25857,6 +25724,7 @@
     }
    ],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -25902,6 +25770,7 @@
      "line": 13
     }
    ],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -26125,6 +25994,7 @@
      "line": 25
     }
    ],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -26150,6 +26020,7 @@
     }
    ],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -26175,6 +26046,7 @@
     }
    ],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -26210,6 +26082,7 @@
     }
    ],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -26250,6 +26123,7 @@
     }
    ],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": [
     "app/data/EBCDIC/AWS.M2.CARDDEMO.CARDXREF.PS"
    ]
@@ -26295,6 +26169,7 @@
     }
    ],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -26320,6 +26195,7 @@
     }
    ],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -26345,6 +26221,7 @@
     }
    ],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -26443,6 +26320,7 @@
      "line": 63
     }
    ],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -26667,6 +26545,7 @@
      "line": 37
     }
    ],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -26692,6 +26571,7 @@
     }
    ],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -26717,6 +26597,7 @@
     }
    ],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -26731,6 +26612,7 @@
    "program_access": [],
    "jcl_refs": [],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -26745,6 +26627,250 @@
    "program_access": [],
    "jcl_refs": [],
    "csd_files": [],
+   "csd_libraries": [],
+   "sample_files": []
+  },
+  {
+   "dsn": "AWS.M2.CARDDEMO.CNTL(DB2CREAT)",
+   "kind": "library (PDS/PDSE)",
+   "catalog_types": [],
+   "reference_sources": [
+    "utility step only",
+    "JCL DD/control statement"
+   ],
+   "program_access": [
+    {
+     "program": "IKJEFT01",
+     "modes": [
+      "unknown"
+     ],
+     "utility": true,
+     "via": "CREADB2/CRCRDDB DD SYSIN DISP=SHR",
+     "path": "app/app-transaction-type-db2/jcl/CREADB21.jcl",
+     "line": 59,
+     "dd_path": "app/app-transaction-type-db2/jcl/CREADB21.jcl",
+     "dd_line": 59
+    }
+   ],
+   "jcl_refs": [
+    {
+     "member": "CREADB2",
+     "step": "CRCRDDB",
+     "ddname": "SYSIN",
+     "path": "app/app-transaction-type-db2/jcl/CREADB21.jcl",
+     "line": 59,
+     "disp": "SHR",
+     "program": "IKJEFT01"
+    }
+   ],
+   "csd_files": [],
+   "csd_libraries": [],
+   "sample_files": []
+  },
+  {
+   "dsn": "AWS.M2.CARDDEMO.CNTL(DB2FREE)",
+   "kind": "library (PDS/PDSE)",
+   "catalog_types": [],
+   "reference_sources": [
+    "utility step only",
+    "JCL DD/control statement"
+   ],
+   "program_access": [
+    {
+     "program": "IKJEFT01",
+     "modes": [
+      "unknown"
+     ],
+     "utility": true,
+     "via": "CREADB2/FREEPLN DD SYSTSIN DISP=SHR",
+     "path": "app/app-transaction-type-db2/jcl/CREADB21.jcl",
+     "line": 46,
+     "dd_path": "app/app-transaction-type-db2/jcl/CREADB21.jcl",
+     "dd_line": 46
+    }
+   ],
+   "jcl_refs": [
+    {
+     "member": "CREADB2",
+     "step": "FREEPLN",
+     "ddname": "SYSTSIN",
+     "path": "app/app-transaction-type-db2/jcl/CREADB21.jcl",
+     "line": 46,
+     "disp": "SHR",
+     "program": "IKJEFT01"
+    }
+   ],
+   "csd_files": [],
+   "csd_libraries": [],
+   "sample_files": []
+  },
+  {
+   "dsn": "AWS.M2.CARDDEMO.CNTL(DB2LTCAT)",
+   "kind": "library (PDS/PDSE)",
+   "catalog_types": [],
+   "reference_sources": [
+    "utility step only",
+    "JCL DD/control statement"
+   ],
+   "program_access": [
+    {
+     "program": "IKJEFT01",
+     "modes": [
+      "unknown"
+     ],
+     "utility": true,
+     "via": "CREADB2/LDTCCAT DD SYSIN DISP=SHR",
+     "path": "app/app-transaction-type-db2/jcl/CREADB21.jcl",
+     "line": 84,
+     "dd_path": "app/app-transaction-type-db2/jcl/CREADB21.jcl",
+     "dd_line": 84
+    }
+   ],
+   "jcl_refs": [
+    {
+     "member": "CREADB2",
+     "step": "LDTCCAT",
+     "ddname": "SYSIN",
+     "path": "app/app-transaction-type-db2/jcl/CREADB21.jcl",
+     "line": 84,
+     "disp": "SHR",
+     "program": "IKJEFT01"
+    }
+   ],
+   "csd_files": [],
+   "csd_libraries": [],
+   "sample_files": []
+  },
+  {
+   "dsn": "AWS.M2.CARDDEMO.CNTL(DB2LTTYP)",
+   "kind": "library (PDS/PDSE)",
+   "catalog_types": [],
+   "reference_sources": [
+    "utility step only",
+    "JCL DD/control statement"
+   ],
+   "program_access": [
+    {
+     "program": "IKJEFT01",
+     "modes": [
+      "unknown"
+     ],
+     "utility": true,
+     "via": "CREADB2/RUNTEP2 DD SYSIN DISP=SHR",
+     "path": "app/app-transaction-type-db2/jcl/CREADB21.jcl",
+     "line": 72,
+     "dd_path": "app/app-transaction-type-db2/jcl/CREADB21.jcl",
+     "dd_line": 72
+    }
+   ],
+   "jcl_refs": [
+    {
+     "member": "CREADB2",
+     "step": "RUNTEP2",
+     "ddname": "SYSIN",
+     "path": "app/app-transaction-type-db2/jcl/CREADB21.jcl",
+     "line": 72,
+     "disp": "SHR",
+     "program": "IKJEFT01"
+    }
+   ],
+   "csd_files": [],
+   "csd_libraries": [],
+   "sample_files": []
+  },
+  {
+   "dsn": "AWS.M2.CARDDEMO.CNTL(DB2TEP41)",
+   "kind": "library (PDS/PDSE)",
+   "catalog_types": [],
+   "reference_sources": [
+    "utility step only",
+    "JCL DD/control statement"
+   ],
+   "program_access": [
+    {
+     "program": "IKJEFT01",
+     "modes": [
+      "unknown"
+     ],
+     "utility": true,
+     "via": "CREADB2/RUNTEP2 DD SYSTSIN DISP=SHR",
+     "path": "app/app-transaction-type-db2/jcl/CREADB21.jcl",
+     "line": 71,
+     "dd_path": "app/app-transaction-type-db2/jcl/CREADB21.jcl",
+     "dd_line": 71
+    },
+    {
+     "program": "IKJEFT01",
+     "modes": [
+      "unknown"
+     ],
+     "utility": true,
+     "via": "CREADB2/LDTCCAT DD SYSTSIN DISP=SHR",
+     "path": "app/app-transaction-type-db2/jcl/CREADB21.jcl",
+     "line": 83,
+     "dd_path": "app/app-transaction-type-db2/jcl/CREADB21.jcl",
+     "dd_line": 83
+    }
+   ],
+   "jcl_refs": [
+    {
+     "member": "CREADB2",
+     "step": "RUNTEP2",
+     "ddname": "SYSTSIN",
+     "path": "app/app-transaction-type-db2/jcl/CREADB21.jcl",
+     "line": 71,
+     "disp": "SHR",
+     "program": "IKJEFT01"
+    },
+    {
+     "member": "CREADB2",
+     "step": "LDTCCAT",
+     "ddname": "SYSTSIN",
+     "path": "app/app-transaction-type-db2/jcl/CREADB21.jcl",
+     "line": 83,
+     "disp": "SHR",
+     "program": "IKJEFT01"
+    }
+   ],
+   "csd_files": [],
+   "csd_libraries": [],
+   "sample_files": []
+  },
+  {
+   "dsn": "AWS.M2.CARDDEMO.CNTL(DB2TIAD1)",
+   "kind": "library (PDS/PDSE)",
+   "catalog_types": [],
+   "reference_sources": [
+    "utility step only",
+    "JCL DD/control statement"
+   ],
+   "program_access": [
+    {
+     "program": "IKJEFT01",
+     "modes": [
+      "unknown"
+     ],
+     "utility": true,
+     "via": "CREADB2/CRCRDDB DD SYSTSIN DISP=SHR",
+     "path": "app/app-transaction-type-db2/jcl/CREADB21.jcl",
+     "line": 58,
+     "dd_path": "app/app-transaction-type-db2/jcl/CREADB21.jcl",
+     "dd_line": 58
+    }
+   ],
+   "jcl_refs": [
+    {
+     "member": "CREADB2",
+     "step": "CRCRDDB",
+     "ddname": "SYSTSIN",
+     "path": "app/app-transaction-type-db2/jcl/CREADB21.jcl",
+     "line": 58,
+     "disp": "SHR",
+     "program": "IKJEFT01"
+    }
+   ],
+   "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -26794,6 +26920,7 @@
    ],
    "jcl_refs": [],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -26808,6 +26935,7 @@
    "program_access": [],
    "jcl_refs": [],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -26843,6 +26971,7 @@
     }
    ],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -26883,6 +27012,7 @@
     }
    ],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": [
     "app/data/EBCDIC/AWS.M2.CARDDEMO.CUSTDATA.PS"
    ]
@@ -27075,6 +27205,7 @@
      "line": 50
     }
    ],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -27100,6 +27231,7 @@
     }
    ],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -27125,6 +27257,7 @@
     }
    ],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -27172,6 +27305,7 @@
     }
    ],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -27186,6 +27320,7 @@
    "program_access": [],
    "jcl_refs": [],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -27200,6 +27335,7 @@
    "program_access": [],
    "jcl_refs": [],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -27214,6 +27350,7 @@
    "program_access": [],
    "jcl_refs": [],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -27228,6 +27365,7 @@
    "program_access": [],
    "jcl_refs": [],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -27242,6 +27380,7 @@
    "program_access": [],
    "jcl_refs": [],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -27281,6 +27420,7 @@
     }
    ],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": [
     "app/data/EBCDIC/AWS.M2.CARDDEMO.DALYTRAN.PS"
    ]
@@ -27323,6 +27463,7 @@
     }
    ],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": [
     "app/data/EBCDIC/AWS.M2.CARDDEMO.DALYTRAN.PS.INIT"
    ]
@@ -27372,6 +27513,7 @@
     }
    ],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -27408,6 +27550,7 @@
     }
    ],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -27422,6 +27565,7 @@
    "program_access": [],
    "jcl_refs": [],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -27467,6 +27611,7 @@
     }
    ],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -27528,6 +27673,7 @@
     }
    ],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": [
     "app/data/EBCDIC/AWS.M2.CARDDEMO.DISCGRP.PS"
    ]
@@ -27607,6 +27753,7 @@
     }
    ],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -27632,6 +27779,7 @@
     }
    ],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -27657,6 +27805,7 @@
     }
    ],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -27756,6 +27905,7 @@
     }
    ],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -27829,6 +27979,7 @@
     }
    ],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -27851,6 +28002,7 @@
     }
    ],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -27873,6 +28025,7 @@
     }
    ],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -27885,6 +28038,7 @@
    "program_access": [],
    "jcl_refs": [],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": [
     "app/data/EBCDIC/AWS.M2.CARDDEMO.EXPORT.DATA.PS"
    ]
@@ -27922,6 +28076,7 @@
     }
    ],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -27992,6 +28147,7 @@
     }
    ],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": [
     "app/app-authorization-ims-db2-mq/data/EBCDIC/AWS.M2.CARDDEMO.IMSDATA.DBPAUTP0.dat"
    ]
@@ -28008,6 +28164,7 @@
    "program_access": [],
    "jcl_refs": [],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -28044,6 +28201,7 @@
     }
    ],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -28058,6 +28216,7 @@
    "program_access": [],
    "jcl_refs": [],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -28072,6 +28231,7 @@
    "program_access": [],
    "jcl_refs": [],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -28086,6 +28246,7 @@
    "program_access": [],
    "jcl_refs": [],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -28096,6 +28257,7 @@
    ],
    "reference_sources": [
     "JCL DD/control statement",
+    "CSD LIBRARY",
     "catalog listing"
    ],
    "program_access": [],
@@ -28255,6 +28417,28 @@
     }
    ],
    "csd_files": [],
+   "csd_libraries": [
+    {
+     "library": "COM2DOLL",
+     "path": "app/jcl/CBADMCDJ.jcl",
+     "line": 44
+    },
+    {
+     "library": "CARDDLIB",
+     "path": "app/csd/CARDDEMO.CSD",
+     "line": 489
+    },
+    {
+     "library": "COM2DOLL",
+     "path": "app/csd/CARDDEMO.CSD",
+     "line": 494
+    },
+    {
+     "library": "CARDDLIB",
+     "path": "app/app-vsam-mq/csd/CRDDEMOM.csd",
+     "line": 37
+    }
+   ],
    "sample_files": []
   },
   {
@@ -28269,6 +28453,7 @@
    "program_access": [],
    "jcl_refs": [],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -28369,6 +28554,7 @@
     }
    ],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -28405,6 +28591,7 @@
     }
    ],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -28505,6 +28692,7 @@
     }
    ],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -28541,6 +28729,7 @@
     }
    ],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -28555,6 +28744,7 @@
    "program_access": [],
    "jcl_refs": [],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -28569,6 +28759,7 @@
    "program_access": [],
    "jcl_refs": [],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -28583,6 +28774,7 @@
    "program_access": [],
    "jcl_refs": [],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -28597,6 +28789,7 @@
    "program_access": [],
    "jcl_refs": [],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -28653,6 +28846,7 @@
     }
    ],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -28730,6 +28924,7 @@
     }
    ],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -28786,6 +28981,7 @@
     }
    ],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -28800,6 +28996,7 @@
    "program_access": [],
    "jcl_refs": [],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -28814,6 +29011,7 @@
    "program_access": [],
    "jcl_refs": [],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -28828,6 +29026,7 @@
    "program_access": [],
    "jcl_refs": [],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -28842,6 +29041,7 @@
    "program_access": [],
    "jcl_refs": [],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -28856,6 +29056,7 @@
    "program_access": [],
    "jcl_refs": [],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -28916,6 +29117,7 @@
     }
    ],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -28930,6 +29132,7 @@
    "program_access": [],
    "jcl_refs": [],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -28944,6 +29147,7 @@
    "program_access": [],
    "jcl_refs": [],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -28958,6 +29162,7 @@
    "program_access": [],
    "jcl_refs": [],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -28972,6 +29177,7 @@
    "program_access": [],
    "jcl_refs": [],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -28986,6 +29192,7 @@
    "program_access": [],
    "jcl_refs": [],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -29026,6 +29233,7 @@
     }
    ],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": [
     "app/data/EBCDIC/AWS.M2.CARDDEMO.TCATBALF.PS"
    ]
@@ -29088,6 +29296,7 @@
     }
    ],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -29199,6 +29408,7 @@
     }
    ],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -29224,6 +29434,7 @@
     }
    ],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -29249,6 +29460,7 @@
     }
    ],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -29385,6 +29597,7 @@
     }
    ],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": [
     "app/data/EBCDIC/AWS.M2.CARDDEMO.TRANCATG.PS"
    ]
@@ -29453,6 +29666,7 @@
     }
    ],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -29539,6 +29753,7 @@
     }
    ],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -29564,6 +29779,7 @@
     }
    ],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -29589,6 +29805,7 @@
     }
    ],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -29654,6 +29871,7 @@
     }
    ],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -29668,6 +29886,7 @@
    "program_access": [],
    "jcl_refs": [],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -29682,6 +29901,7 @@
    "program_access": [],
    "jcl_refs": [],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -29696,6 +29916,7 @@
    "program_access": [],
    "jcl_refs": [],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -29710,6 +29931,7 @@
    "program_access": [],
    "jcl_refs": [],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -29724,6 +29946,7 @@
    "program_access": [],
    "jcl_refs": [],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -29826,6 +30049,7 @@
     }
    ],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -29840,6 +30064,7 @@
    "program_access": [],
    "jcl_refs": [],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -29854,6 +30079,7 @@
    "program_access": [],
    "jcl_refs": [],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -29868,6 +30094,7 @@
    "program_access": [],
    "jcl_refs": [],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -29882,6 +30109,7 @@
    "program_access": [],
    "jcl_refs": [],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -29896,6 +30124,7 @@
    "program_access": [],
    "jcl_refs": [],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -29910,6 +30139,7 @@
    "program_access": [],
    "jcl_refs": [],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -29924,6 +30154,7 @@
    "program_access": [],
    "jcl_refs": [],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -29938,6 +30169,7 @@
    "program_access": [],
    "jcl_refs": [],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -29952,6 +30184,7 @@
    "program_access": [],
    "jcl_refs": [],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -29966,6 +30199,7 @@
    "program_access": [],
    "jcl_refs": [],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -29980,6 +30214,7 @@
    "program_access": [],
    "jcl_refs": [],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -29994,6 +30229,7 @@
    "program_access": [],
    "jcl_refs": [],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -30008,6 +30244,7 @@
    "program_access": [],
    "jcl_refs": [],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -30022,6 +30259,7 @@
    "program_access": [],
    "jcl_refs": [],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -30036,6 +30274,7 @@
    "program_access": [],
    "jcl_refs": [],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -30050,6 +30289,7 @@
    "program_access": [],
    "jcl_refs": [],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -30064,6 +30304,7 @@
    "program_access": [],
    "jcl_refs": [],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -30078,6 +30319,7 @@
    "program_access": [],
    "jcl_refs": [],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -30092,6 +30334,7 @@
    "program_access": [],
    "jcl_refs": [],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -30106,6 +30349,7 @@
    "program_access": [],
    "jcl_refs": [],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -30120,6 +30364,7 @@
    "program_access": [],
    "jcl_refs": [],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -30134,6 +30379,7 @@
    "program_access": [],
    "jcl_refs": [],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -30148,6 +30394,7 @@
    "program_access": [],
    "jcl_refs": [],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -30162,6 +30409,7 @@
    "program_access": [],
    "jcl_refs": [],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -30176,6 +30424,7 @@
    "program_access": [],
    "jcl_refs": [],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -30190,6 +30439,7 @@
    "program_access": [],
    "jcl_refs": [],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -30204,6 +30454,7 @@
    "program_access": [],
    "jcl_refs": [],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -30218,6 +30469,7 @@
    "program_access": [],
    "jcl_refs": [],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -30232,6 +30484,7 @@
    "program_access": [],
    "jcl_refs": [],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -30246,6 +30499,7 @@
    "program_access": [],
    "jcl_refs": [],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -30260,6 +30514,7 @@
    "program_access": [],
    "jcl_refs": [],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -30274,6 +30529,7 @@
    "program_access": [],
    "jcl_refs": [],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -30288,6 +30544,7 @@
    "program_access": [],
    "jcl_refs": [],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -30302,6 +30559,7 @@
    "program_access": [],
    "jcl_refs": [],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -30316,6 +30574,7 @@
    "program_access": [],
    "jcl_refs": [],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -30330,6 +30589,7 @@
    "program_access": [],
    "jcl_refs": [],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -30344,6 +30604,7 @@
    "program_access": [],
    "jcl_refs": [],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -30358,6 +30619,7 @@
    "program_access": [],
    "jcl_refs": [],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -30372,6 +30634,7 @@
    "program_access": [],
    "jcl_refs": [],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -30386,6 +30649,7 @@
    "program_access": [],
    "jcl_refs": [],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -30400,6 +30664,7 @@
    "program_access": [],
    "jcl_refs": [],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -30414,6 +30679,7 @@
    "program_access": [],
    "jcl_refs": [],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -30428,6 +30694,7 @@
    "program_access": [],
    "jcl_refs": [],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -30442,6 +30709,7 @@
    "program_access": [],
    "jcl_refs": [],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -30456,6 +30724,7 @@
    "program_access": [],
    "jcl_refs": [],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -30470,6 +30739,7 @@
    "program_access": [],
    "jcl_refs": [],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -30484,6 +30754,7 @@
    "program_access": [],
    "jcl_refs": [],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -30498,6 +30769,7 @@
    "program_access": [],
    "jcl_refs": [],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -30512,6 +30784,7 @@
    "program_access": [],
    "jcl_refs": [],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -30526,6 +30799,7 @@
    "program_access": [],
    "jcl_refs": [],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -30540,6 +30814,7 @@
    "program_access": [],
    "jcl_refs": [],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -30554,6 +30829,7 @@
    "program_access": [],
    "jcl_refs": [],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -30568,6 +30844,7 @@
    "program_access": [],
    "jcl_refs": [],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -30582,6 +30859,7 @@
    "program_access": [],
    "jcl_refs": [],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -30596,6 +30874,7 @@
    "program_access": [],
    "jcl_refs": [],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -30610,6 +30889,7 @@
    "program_access": [],
    "jcl_refs": [],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -30624,6 +30904,7 @@
    "program_access": [],
    "jcl_refs": [],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -30638,6 +30919,7 @@
    "program_access": [],
    "jcl_refs": [],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -30652,6 +30934,7 @@
    "program_access": [],
    "jcl_refs": [],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -30666,6 +30949,7 @@
    "program_access": [],
    "jcl_refs": [],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -30680,6 +30964,7 @@
    "program_access": [],
    "jcl_refs": [],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -30694,6 +30979,7 @@
    "program_access": [],
    "jcl_refs": [],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -30708,6 +30994,7 @@
    "program_access": [],
    "jcl_refs": [],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -30722,6 +31009,7 @@
    "program_access": [],
    "jcl_refs": [],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -30736,6 +31024,7 @@
    "program_access": [],
    "jcl_refs": [],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -30750,6 +31039,7 @@
    "program_access": [],
    "jcl_refs": [],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -30764,6 +31054,7 @@
    "program_access": [],
    "jcl_refs": [],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -30778,6 +31069,7 @@
    "program_access": [],
    "jcl_refs": [],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -30792,6 +31084,7 @@
    "program_access": [],
    "jcl_refs": [],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -30806,6 +31099,7 @@
    "program_access": [],
    "jcl_refs": [],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -30820,6 +31114,7 @@
    "program_access": [],
    "jcl_refs": [],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -30834,6 +31129,7 @@
    "program_access": [],
    "jcl_refs": [],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -30848,6 +31144,7 @@
    "program_access": [],
    "jcl_refs": [],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -30862,6 +31159,7 @@
    "program_access": [],
    "jcl_refs": [],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -30876,6 +31174,7 @@
    "program_access": [],
    "jcl_refs": [],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -30890,6 +31189,7 @@
    "program_access": [],
    "jcl_refs": [],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -30959,6 +31259,7 @@
     }
    ],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -30973,6 +31274,7 @@
    "program_access": [],
    "jcl_refs": [],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -30987,6 +31289,7 @@
    "program_access": [],
    "jcl_refs": [],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -31001,6 +31304,7 @@
    "program_access": [],
    "jcl_refs": [],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -31015,6 +31319,7 @@
    "program_access": [],
    "jcl_refs": [],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -31029,6 +31334,7 @@
    "program_access": [],
    "jcl_refs": [],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -31115,6 +31421,7 @@
     }
    ],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -31129,6 +31436,7 @@
    "program_access": [],
    "jcl_refs": [],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -31143,6 +31451,7 @@
    "program_access": [],
    "jcl_refs": [],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -31157,6 +31466,7 @@
    "program_access": [],
    "jcl_refs": [],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -31171,6 +31481,7 @@
    "program_access": [],
    "jcl_refs": [],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -31185,6 +31496,7 @@
    "program_access": [],
    "jcl_refs": [],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -31199,6 +31511,7 @@
    "program_access": [],
    "jcl_refs": [],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -31213,6 +31526,7 @@
    "program_access": [],
    "jcl_refs": [],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -31227,6 +31541,7 @@
    "program_access": [],
    "jcl_refs": [],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -31241,6 +31556,7 @@
    "program_access": [],
    "jcl_refs": [],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -31255,6 +31571,7 @@
    "program_access": [],
    "jcl_refs": [],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -31269,6 +31586,7 @@
    "program_access": [],
    "jcl_refs": [],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -31283,6 +31601,7 @@
    "program_access": [],
    "jcl_refs": [],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -31297,6 +31616,7 @@
    "program_access": [],
    "jcl_refs": [],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -31311,6 +31631,7 @@
    "program_access": [],
    "jcl_refs": [],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -31325,6 +31646,7 @@
    "program_access": [],
    "jcl_refs": [],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -31339,6 +31661,7 @@
    "program_access": [],
    "jcl_refs": [],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -31353,6 +31676,7 @@
    "program_access": [],
    "jcl_refs": [],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -31367,6 +31691,7 @@
    "program_access": [],
    "jcl_refs": [],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -31381,6 +31706,7 @@
    "program_access": [],
    "jcl_refs": [],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -31395,6 +31721,7 @@
    "program_access": [],
    "jcl_refs": [],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -31409,6 +31736,7 @@
    "program_access": [],
    "jcl_refs": [],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -31423,6 +31751,7 @@
    "program_access": [],
    "jcl_refs": [],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -31437,6 +31766,7 @@
    "program_access": [],
    "jcl_refs": [],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -31451,6 +31781,7 @@
    "program_access": [],
    "jcl_refs": [],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -31465,6 +31796,7 @@
    "program_access": [],
    "jcl_refs": [],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -31479,6 +31811,7 @@
    "program_access": [],
    "jcl_refs": [],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -31493,6 +31826,7 @@
    "program_access": [],
    "jcl_refs": [],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -31507,6 +31841,7 @@
    "program_access": [],
    "jcl_refs": [],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -31521,6 +31856,7 @@
    "program_access": [],
    "jcl_refs": [],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -31535,6 +31871,7 @@
    "program_access": [],
    "jcl_refs": [],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -31570,6 +31907,7 @@
     }
    ],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -31640,6 +31978,7 @@
     }
    ],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -31674,6 +32013,7 @@
     }
    ],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -31708,6 +32048,7 @@
     }
    ],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -31742,6 +32083,7 @@
     }
    ],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -32058,6 +32400,7 @@
      "line": 76
     }
    ],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -32092,6 +32435,7 @@
     }
    ],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -32126,6 +32470,7 @@
     }
    ],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -32192,6 +32537,7 @@
     }
    ],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -32328,6 +32674,7 @@
     }
    ],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": [
     "app/data/EBCDIC/AWS.M2.CARDDEMO.TRANTYPE.PS"
    ]
@@ -32416,6 +32763,7 @@
     }
    ],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -32441,6 +32789,7 @@
     }
    ],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -32466,6 +32815,7 @@
     }
    ],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -32488,6 +32838,7 @@
     }
    ],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -32510,6 +32861,7 @@
     }
    ],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -32576,6 +32928,7 @@
     }
    ],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -32650,6 +33003,7 @@
     }
    ],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -32732,6 +33086,7 @@
     }
    ],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": [
     "app/data/EBCDIC/AWS.M2.CARDDEMO.USRSEC.PS"
    ]
@@ -32788,6 +33143,7 @@
     }
    ],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -32810,6 +33166,7 @@
     }
    ],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -32973,6 +33330,7 @@
      "line": 88
     }
    ],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -32998,6 +33356,7 @@
     }
    ],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -33023,6 +33382,7 @@
     }
    ],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -33077,6 +33437,7 @@
     }
    ],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -33099,6 +33460,7 @@
     }
    ],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -33135,6 +33497,7 @@
     }
    ],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -33192,6 +33555,7 @@
     }
    ],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -33228,6 +33592,7 @@
     }
    ],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -33264,6 +33629,7 @@
     }
    ],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -33300,6 +33666,7 @@
     }
    ],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -33322,6 +33689,7 @@
     }
    ],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -33358,6 +33726,7 @@
     }
    ],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -33394,6 +33763,7 @@
     }
    ],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -33472,6 +33842,7 @@
     }
    ],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -33519,6 +33890,7 @@
     }
    ],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -33555,6 +33927,7 @@
     }
    ],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -33591,6 +33964,7 @@
     }
    ],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -33735,6 +34109,7 @@
     }
    ],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -33792,6 +34167,7 @@
     }
    ],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -33841,6 +34217,7 @@
     }
    ],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -33931,6 +34308,7 @@
     }
    ],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -34021,6 +34399,7 @@
     }
    ],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -34132,6 +34511,7 @@
     }
    ],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -34180,6 +34560,7 @@
     }
    ],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -34228,6 +34609,7 @@
     }
    ],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -34276,6 +34658,7 @@
     }
    ],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -34352,6 +34735,7 @@
     }
    ],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -34559,6 +34943,7 @@
     }
    ],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -34599,6 +34984,7 @@
     }
    ],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -34710,6 +35096,7 @@
     }
    ],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   },
   {
@@ -34732,6 +35119,7 @@
     }
    ],
    "csd_files": [],
+   "csd_libraries": [],
    "sample_files": []
   }
  ],

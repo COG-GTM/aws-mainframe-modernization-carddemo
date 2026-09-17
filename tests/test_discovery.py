@@ -106,8 +106,8 @@ class TestControlTotals(unittest.TestCase):
     def test_pinned_control_totals(self):
         """Pinned to the current source tree so a change in any total is deliberate."""
         self.assertEqual(self.s["artifact_total"], 237)
-        self.assertEqual(self.s["headline"]["resolved_edges"], 547)
-        self.assertEqual(self.s["headline"]["unresolved_edges"], 126)
+        self.assertEqual(self.s["headline"]["resolved_edges"], 548)
+        self.assertEqual(self.s["headline"]["unresolved_edges"], 127)
         self.assertEqual(self.s["construct_total"], 2658)
         self.assertEqual(self.s["orphans"]["total"], 185)
         self.assertEqual({k: self.s["lineage"][k] for k in ("hops", "confirmed", "inferred")},
@@ -220,6 +220,43 @@ class TestRealDependencyEdges(unittest.TestCase):
         self.assertEqual(e["kind"], "static")
         self.assertRegex(self.source_line(e), r"CALL\s+'CSUTLDTC'")
 
+    def test_calls_inside_procedural_copybooks_belong_to_the_including_program(self):
+        # CSUTLDPY.cpy:293 CALL 'CSUTLDTC' is procedure code COPYed into COACTUPC
+        e = self.find("program->program", "COACTUPC", "CSUTLDTC")
+        self.assertEqual((e["kind"], e["path"]), ("static", "app/cpy/CSUTLDPY.cpy"))
+        self.assertRegex(self.source_line(e), r"CALL\s+'CSUTLDTC'")
+        # CSDB2RPY.cpy:57 CALL LIT-DSNTIAC resolves through COTRTLIC's own VALUE 'DSNTIAC'
+        e = self.find("program->program", "COTRTLIC", "DSNTIAC", status="unresolved")
+        self.assertEqual((e["kind"], e["path"]), ("dynamic", "app/app-transaction-type-db2/cpy/CSDB2RPY.cpy"))
+        self.assertRegex(self.source_line(e), r"CALL\s+LIT-DSNTIAC")
+        arts = {a["path"]: a for a in load_json()["artifacts"]}
+        carried = [c for c in arts["app/app-transaction-type-db2/cbl/COTRTLIC.cbl"]["call_targets"]
+                   if c.get("included_from") == "CSDB2RPY"]
+        self.assertEqual([(c["via"], c["path"], c["line"]) for c in carried],
+                         [("LIT-DSNTIAC", "app/app-transaction-type-db2/cpy/CSDB2RPY.cpy", 57)])
+
+    def test_csd_library_dsnames_join_the_dataset_inventory(self):
+        # standalone CSD member and the DFHCSDUP input embedded in a JCL job (symbolic &HLQ)
+        for path, line in (("app/csd/CARDDEMO.CSD", 494), ("app/jcl/CBADMCDJ.jcl", 44)):
+            hits = [e for e in self.edges if e["category"] == "csdlibrary->dataset" and e["from"] == "COM2DOLL"
+                    and e["to"] == "AWS.M2.CARDDEMO.LOADLIB" and e["path"] == path]
+            self.assertEqual([e["line"] for e in hits], [line])
+            self.assertRegex(self.source_line(hits[0]), r"DEFINE LIBRARY\(COM2DOLL\)")
+        by_dsn = {d["dsn"]: d for d in load_json()["datasets"]}
+        self.assertNotIn("&HLQ..LOADLIB", by_dsn)
+        self.assertIn("CSD LIBRARY", by_dsn["AWS.M2.CARDDEMO.LOADLIB"]["reference_sources"])
+        self.assertEqual(sorted({c["library"] for c in by_dsn["AWS.M2.CARDDEMO.LOADLIB"]["csd_libraries"]}),
+                         ["CARDDLIB", "COM2DOLL"])
+
+    def test_nested_jcl_symbols_resolve_to_a_fixed_point(self):
+        # CREADB21.jcl:28-29  SET CODER=AWS / SET LBNM=&CODER..M2.CARDDEMO
+        sets = {"CODER": "AWS", "LBNM": "&CODER..M2.CARDDEMO"}
+        self.assertEqual(bd.resolve_symbolics("&LBNM..CNTL(DB2FREE)", sets), "AWS.M2.CARDDEMO.CNTL(DB2FREE)")
+        self.assertEqual(bd.resolve_symbolics("&LOOP..X", {"LOOP": "&LOOP..Y"}).count("&LOOP"), 1)
+        by_dsn = {d["dsn"] for d in load_json()["datasets"]}
+        self.assertIn("AWS.M2.CARDDEMO.CNTL(DB2FREE)", by_dsn)
+        self.assertFalse([d for d in by_dsn if d.startswith("&CODER")], "unexpanded nested symbol")
+
     def targets_at(self, frm, line):
         return sorted(e["to"] for e in self.edges
                       if e["category"] == "program->program" and e["from"] == frm and e["line"] == line
@@ -321,6 +358,14 @@ class TestGeneratorPortability(unittest.TestCase):
         src = SCRIPT.read_text(encoding="utf-8")
         hit = re.search(r"(\\[sdwSDW.]|[)\]])(\+\+|\*\+|\?\+)", src)
         self.assertIsNone(hit, f"possessive quantifier in a regex: {hit and hit.group(0)}")
+
+    def test_check_passes_under_python_3_10_interpreter(self):
+        """Run the generator's --check under a real 3.10 interpreter when one is installed."""
+        exe = shutil.which("python3.10")
+        if not exe:
+            self.skipTest("no python3.10 interpreter on PATH")
+        r = subprocess.run([exe, str(SCRIPT), "--check"], cwd=ROOT, capture_output=True, text=True)
+        self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
 
 
 class TestStaleDetection(unittest.TestCase):
