@@ -521,6 +521,30 @@ class TestCitations(unittest.TestCase):
                 self.assertLessEqual(int(m.group(2)), n, f"{name}: {m.group(0)} beyond end of file ({n} lines)")
                 self.assertLessEqual(last, n, f"{name}: {m.group(0)} beyond end of file ({n} lines)")
 
+    DATA_ITEM_CONSTRUCTS = (
+        "COMP-3 / packed decimal", "COMP / binary", "Signed zoned decimal (PIC S9)",
+        "Edited numeric picture", "OCCURS ... DEPENDING ON", "Hard-coded date",
+        "Hard-coded amount / numeric literal",
+    )
+
+    def test_data_item_constructs_cite_the_line_that_declares_the_item(self):
+        # A data item usually starts a line or more after the period that ends the previous one; the
+        # cited line and snippet must belong to the item named in the detail, not to its predecessor.
+        sources = {}
+        checked = 0
+        for c in load_json()["constructs"]:
+            if c["construct"] not in self.DATA_ITEM_CONSTRUCTS or not c["path"].endswith((".cbl", ".cpy", ".CBL", ".CPY")):
+                continue
+            name = c["detail"].split()[0]
+            if c["path"] not in sources:
+                sources[c["path"]] = (ROOT / c["path"]).read_text(encoding="latin-1").splitlines()
+            cited = sources[c["path"]][c["line"] - 1].upper()
+            word = re.compile(r"(?<![A-Z0-9-])" + re.escape(name) + r"(?![A-Z0-9-])")
+            self.assertRegex(cited, word, f"{c['path']}:{c['line']} does not declare {name}: {cited.strip()!r}")
+            self.assertRegex(c["snippet"].upper(), word, f"{c['path']}:{c['line']} snippet is not {name}: {c['snippet']!r}")
+            checked += 1
+        self.assertGreater(checked, 900)
+
 
 class TestWording(unittest.TestCase):
     """The dossier may reproduce source identifiers verbatim (dataset qualifiers, field prefixes,

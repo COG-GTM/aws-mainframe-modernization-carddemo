@@ -137,1179 +137,1179 @@
 
 | Line | Detail | Source text |
 | --- | --- | --- |
-| `app/app-authorization-ims-db2-mq/cbl/CBPAUP0C.cbl:45` | WS-EXPIRY-DAYS PIC S9(4) | `05 WS-AUTH-DATE               PIC 9(05).` |
-| `app/app-authorization-ims-db2-mq/cbl/CBPAUP0C.cbl:46` | WS-DAY-DIFF PIC S9(4) | `05 WS-EXPIRY-DAYS             PIC S9(4) COMP.` |
-| `app/app-authorization-ims-db2-mq/cbl/CBPAUP0C.cbl:47` | IDX PIC S9(4) | `05 WS-DAY-DIFF                PIC S9(4) COMP.` |
-| `app/app-authorization-ims-db2-mq/cbl/CBPAUP0C.cbl:52` | WS-TOT-REC-WRITTEN PIC S9(8) | `05 WS-AUTH-SMRY-PROC-CNT      PIC  9(8) VALUE 0.` |
-| `app/app-authorization-ims-db2-mq/cbl/CBPAUP0C.cbl:53` | WS-NO-SUMRY-READ PIC S9(8) | `05 WS-TOT-REC-WRITTEN         PIC S9(8) COMP VALUE 0.` |
-| `app/app-authorization-ims-db2-mq/cbl/CBPAUP0C.cbl:54` | WS-NO-SUMRY-DELETED PIC S9(8) | `05 WS-NO-SUMRY-READ           PIC S9(8) COMP VALUE 0.` |
-| `app/app-authorization-ims-db2-mq/cbl/CBPAUP0C.cbl:55` | WS-NO-DTL-READ PIC S9(8) | `05 WS-NO-SUMRY-DELETED        PIC S9(8) COMP VALUE 0.` |
-| `app/app-authorization-ims-db2-mq/cbl/CBPAUP0C.cbl:56` | WS-NO-DTL-DELETED PIC S9(8) | `05 WS-NO-DTL-READ             PIC S9(8) COMP VALUE 0.` |
-| `app/app-authorization-ims-db2-mq/cbl/CBPAUP0C.cbl:81` | PAUT-PCB-NUM PIC S9(4) | `05 PCB-OFFSET.` |
+| `app/app-authorization-ims-db2-mq/cbl/CBPAUP0C.cbl:46` | WS-EXPIRY-DAYS PIC S9(4) | `05 WS-EXPIRY-DAYS             PIC S9(4) COMP.` |
+| `app/app-authorization-ims-db2-mq/cbl/CBPAUP0C.cbl:47` | WS-DAY-DIFF PIC S9(4) | `05 WS-DAY-DIFF                PIC S9(4) COMP.` |
+| `app/app-authorization-ims-db2-mq/cbl/CBPAUP0C.cbl:48` | IDX PIC S9(4) | `05 IDX                        PIC S9(4) COMP.` |
+| `app/app-authorization-ims-db2-mq/cbl/CBPAUP0C.cbl:53` | WS-TOT-REC-WRITTEN PIC S9(8) | `05 WS-TOT-REC-WRITTEN         PIC S9(8) COMP VALUE 0.` |
+| `app/app-authorization-ims-db2-mq/cbl/CBPAUP0C.cbl:54` | WS-NO-SUMRY-READ PIC S9(8) | `05 WS-NO-SUMRY-READ           PIC S9(8) COMP VALUE 0.` |
+| `app/app-authorization-ims-db2-mq/cbl/CBPAUP0C.cbl:55` | WS-NO-SUMRY-DELETED PIC S9(8) | `05 WS-NO-SUMRY-DELETED        PIC S9(8) COMP VALUE 0.` |
+| `app/app-authorization-ims-db2-mq/cbl/CBPAUP0C.cbl:56` | WS-NO-DTL-READ PIC S9(8) | `05 WS-NO-DTL-READ             PIC S9(8) COMP VALUE 0.` |
+| `app/app-authorization-ims-db2-mq/cbl/CBPAUP0C.cbl:57` | WS-NO-DTL-DELETED PIC S9(8) | `05 WS-NO-DTL-DELETED          PIC S9(8) COMP VALUE 0.` |
+| `app/app-authorization-ims-db2-mq/cbl/CBPAUP0C.cbl:82` | PAUT-PCB-NUM PIC S9(4) | `10 PAUT-PCB-NUM                 PIC S9(4) COMP VALUE +2.` |
 
 #### `app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl` (17)
 
 | Line | Detail | Source text |
 | --- | --- | --- |
-| `app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl:39` | WS-REQSTS-PROCESS-LIMIT PIC S9(4) | `05 WS-CCXREF-FILE             PIC X(08)  VALUE 'CCXREF  '.` |
-| `app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl:40` | WS-MSG-PROCESSED PIC S9(4) | `05 WS-REQSTS-PROCESS-LIMIT    PIC S9(4)  COMP VALUE 500.` |
-| `app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl:46` | WS-RESP-CD PIC S9(09) | `05 WS-RESP-LENGTH             PIC S9(4)  VALUE 1.` |
-| `app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl:47` | WS-REAS-CD PIC S9(09) | `05 WS-RESP-CD                 PIC S9(09) COMP VALUE ZEROS.` |
-| `app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl:53` | WS-CUR-TIME-MS PIC S9(08) | `05 WS-CUR-TIME-N6             PIC 9(06)  VALUE ZERO.` |
-| `app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl:56` | WS-OPTIONS PIC S9(9) | `05 WS-TIME-WITH-MS            PIC S9(09) COMP-3.` |
-| `app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl:57` | WS-COMPCODE PIC S9(9) | `05 WS-OPTIONS                 PIC S9(9)  BINARY.` |
-| `app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl:58` | WS-REASON PIC S9(9) | `05 WS-COMPCODE                PIC S9(9)  BINARY.` |
-| `app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl:59` | WS-WAIT-INTERVAL PIC S9(9) | `05 WS-REASON                  PIC S9(9)  BINARY.` |
-| `app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl:83` | PAUT-PCB-NUM PIC S9(4) | `05 PCB-OFFSET.` |
-| `app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl:97` | W01-HCONN-REQUEST PIC S9(9) | `88  IMS-PSB-NOT-SCHD            VALUE 'N'.` |
-| `app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl:99` | W01-HOBJ-REQUEST PIC S9(9) | `01  W01-HCONN-REQUEST           PIC S9(9) BINARY VALUE ZERO.` |
-| `app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl:100` | W01-BUFFLEN PIC S9(9) | `01  W01-HOBJ-REQUEST            PIC S9(9) BINARY.` |
-| `app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl:101` | W01-DATALEN PIC S9(9) | `01  W01-BUFFLEN                 PIC S9(9) BINARY.` |
-| `app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl:103` | W02-HCONN-REPLY PIC S9(9) | `01  W01-GET-BUFFER              PIC X(500).` |
-| `app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl:105` | W02-BUFFLEN PIC S9(9) | `01  W02-HCONN-REPLY             PIC S9(9) BINARY VALUE ZERO.` |
-| `app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl:106` | W02-DATALEN PIC S9(9) | `01  W02-BUFFLEN                 PIC S9(9) BINARY.` |
+| `app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl:40` | WS-REQSTS-PROCESS-LIMIT PIC S9(4) | `05 WS-REQSTS-PROCESS-LIMIT    PIC S9(4)  COMP VALUE 500.` |
+| `app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl:42` | WS-MSG-PROCESSED PIC S9(4) | `05 WS-MSG-PROCESSED           PIC S9(4)  COMP VALUE ZERO.` |
+| `app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl:47` | WS-RESP-CD PIC S9(09) | `05 WS-RESP-CD                 PIC S9(09) COMP VALUE ZEROS.` |
+| `app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl:48` | WS-REAS-CD PIC S9(09) | `05 WS-REAS-CD                 PIC S9(09) COMP VALUE ZEROS.` |
+| `app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl:54` | WS-CUR-TIME-MS PIC S9(08) | `05 WS-CUR-TIME-MS             PIC S9(08) COMP.` |
+| `app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl:57` | WS-OPTIONS PIC S9(9) | `05 WS-OPTIONS                 PIC S9(9)  BINARY.` |
+| `app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl:58` | WS-COMPCODE PIC S9(9) | `05 WS-COMPCODE                PIC S9(9)  BINARY.` |
+| `app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl:59` | WS-REASON PIC S9(9) | `05 WS-REASON                  PIC S9(9)  BINARY.` |
+| `app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl:60` | WS-WAIT-INTERVAL PIC S9(9) | `05 WS-WAIT-INTERVAL           PIC S9(9)  BINARY.` |
+| `app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl:84` | PAUT-PCB-NUM PIC S9(4) | `10 PAUT-PCB-NUM                 PIC S9(4) COMP VALUE +1.` |
+| `app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl:99` | W01-HCONN-REQUEST PIC S9(9) | `01  W01-HCONN-REQUEST           PIC S9(9) BINARY VALUE ZERO.` |
+| `app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl:100` | W01-HOBJ-REQUEST PIC S9(9) | `01  W01-HOBJ-REQUEST            PIC S9(9) BINARY.` |
+| `app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl:101` | W01-BUFFLEN PIC S9(9) | `01  W01-BUFFLEN                 PIC S9(9) BINARY.` |
+| `app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl:102` | W01-DATALEN PIC S9(9) | `01  W01-DATALEN                 PIC S9(9) BINARY.` |
+| `app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl:105` | W02-HCONN-REPLY PIC S9(9) | `01  W02-HCONN-REPLY             PIC S9(9) BINARY VALUE ZERO.` |
+| `app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl:106` | W02-BUFFLEN PIC S9(9) | `01  W02-BUFFLEN                 PIC S9(9) BINARY.` |
+| `app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl:107` | W02-DATALEN PIC S9(9) | `01  W02-DATALEN                 PIC S9(9) BINARY.` |
 
 #### `app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl` (7)
 
 | Line | Detail | Source text |
 | --- | --- | --- |
-| `app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl:46` | WS-RESP-CD PIC S9(09) | `05 WS-AUTH-APRV-STAT          PIC  X(01).` |
-| `app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl:47` | WS-REAS-CD PIC S9(09) | `05 WS-RESP-CD                 PIC S9(09) COMP VALUE ZEROS.` |
-| `app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl:50` | WS-REC-COUNT PIC S9(04) | `05 WS-REAS-CD-DIS             PIC  9(09).` |
-| `app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl:51` | WS-IDX PIC S9(04) | `05 WS-REC-COUNT               PIC S9(04) COMP VALUE ZEROS.` |
-| `app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl:52` | WS-PAGE-NUM PIC S9(04) | `05 WS-IDX                     PIC S9(04) COMP VALUE ZEROS.` |
-| `app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl:76` | PAUT-PCB-NUM PIC S9(4) | `05 PCB-OFFSET.` |
-| `app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl:121` | CDEMO-CPVS-PAGE-NUM PIC S9(04) | `10 CDEMO-CPVS-PAUKEY-LAST     PIC X(08).` |
+| `app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl:47` | WS-RESP-CD PIC S9(09) | `05 WS-RESP-CD                 PIC S9(09) COMP VALUE ZEROS.` |
+| `app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl:48` | WS-REAS-CD PIC S9(09) | `05 WS-REAS-CD                 PIC S9(09) COMP VALUE ZEROS.` |
+| `app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl:51` | WS-REC-COUNT PIC S9(04) | `05 WS-REC-COUNT               PIC S9(04) COMP VALUE ZEROS.` |
+| `app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl:52` | WS-IDX PIC S9(04) | `05 WS-IDX                     PIC S9(04) COMP VALUE ZEROS.` |
+| `app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl:53` | WS-PAGE-NUM PIC S9(04) | `05 WS-PAGE-NUM                PIC S9(04) COMP VALUE ZEROS.` |
+| `app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl:77` | PAUT-PCB-NUM PIC S9(4) | `10 PAUT-PCB-NUM                 PIC S9(4) COMP VALUE +1.` |
+| `app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl:122` | CDEMO-CPVS-PAGE-NUM PIC S9(04) | `10 CDEMO-CPVS-PAGE-NUM        PIC S9(04) COMP.` |
 
 #### `app/app-authorization-ims-db2-mq/cbl/COPAUS1C.cbl` (4)
 
 | Line | Detail | Source text |
 | --- | --- | --- |
-| `app/app-authorization-ims-db2-mq/cbl/COPAUS1C.cbl:46` | WS-RESP-CD PIC S9(09) | `88 SEND-ERASE-NO                      VALUE 'N'.` |
-| `app/app-authorization-ims-db2-mq/cbl/COPAUS1C.cbl:47` | WS-REAS-CD PIC S9(09) | `05 WS-RESP-CD                 PIC S9(09) COMP VALUE ZEROS.` |
-| `app/app-authorization-ims-db2-mq/cbl/COPAUS1C.cbl:77` | PAUT-PCB-NUM PIC S9(4) | `05 PCB-OFFSET.` |
-| `app/app-authorization-ims-db2-mq/cbl/COPAUS1C.cbl:114` | CDEMO-CPVD-PAGE-NUM PIC S9(04) | `10 CDEMO-CPVD-PAUKEY-LAST     PIC X(08).` |
+| `app/app-authorization-ims-db2-mq/cbl/COPAUS1C.cbl:47` | WS-RESP-CD PIC S9(09) | `05 WS-RESP-CD                 PIC S9(09) COMP VALUE ZEROS.` |
+| `app/app-authorization-ims-db2-mq/cbl/COPAUS1C.cbl:48` | WS-REAS-CD PIC S9(09) | `05 WS-REAS-CD                 PIC S9(09) COMP VALUE ZEROS.` |
+| `app/app-authorization-ims-db2-mq/cbl/COPAUS1C.cbl:78` | PAUT-PCB-NUM PIC S9(4) | `10 PAUT-PCB-NUM                 PIC S9(4) COMP VALUE +1.` |
+| `app/app-authorization-ims-db2-mq/cbl/COPAUS1C.cbl:115` | CDEMO-CPVD-PAGE-NUM PIC S9(04) | `10 CDEMO-CPVD-PAGE-NUM        PIC S9(04) COMP.` |
 
 #### `app/app-authorization-ims-db2-mq/cbl/COPAUS2C.cbl` (1)
 
 | Line | Detail | Source text |
 | --- | --- | --- |
-| `app/app-authorization-ims-db2-mq/cbl/COPAUS2C.cbl:33` | WS-LENGTH PIC S9(4) | `05 WS-PGMNAME                 PIC X(08) VALUE 'COPAUS2C'.` |
+| `app/app-authorization-ims-db2-mq/cbl/COPAUS2C.cbl:34` | WS-LENGTH PIC S9(4) | `05 WS-LENGTH                  PIC S9(4) COMP VALUE ZERO.` |
 
 #### `app/app-authorization-ims-db2-mq/cbl/DBUNLDGS.CBL` (8)
 
 | Line | Detail | Source text |
 | --- | --- | --- |
-| `app/app-authorization-ims-db2-mq/cbl/DBUNLDGS.CBL:61` | WS-EXPIRY-DAYS PIC S9(4) | `05 WS-AUTH-DATE               PIC 9(05).` |
-| `app/app-authorization-ims-db2-mq/cbl/DBUNLDGS.CBL:62` | WS-DAY-DIFF PIC S9(4) | `05 WS-EXPIRY-DAYS             PIC S9(4) COMP.` |
-| `app/app-authorization-ims-db2-mq/cbl/DBUNLDGS.CBL:63` | IDX PIC S9(4) | `05 WS-DAY-DIFF                PIC S9(4) COMP.` |
-| `app/app-authorization-ims-db2-mq/cbl/DBUNLDGS.CBL:68` | WS-TOT-REC-WRITTEN PIC S9(8) | `05 WS-AUTH-SMRY-PROC-CNT      PIC  9(8) VALUE 0.` |
-| `app/app-authorization-ims-db2-mq/cbl/DBUNLDGS.CBL:69` | WS-NO-SUMRY-READ PIC S9(8) | `05 WS-TOT-REC-WRITTEN         PIC S9(8) COMP VALUE 0.` |
-| `app/app-authorization-ims-db2-mq/cbl/DBUNLDGS.CBL:70` | WS-NO-SUMRY-DELETED PIC S9(8) | `05 WS-NO-SUMRY-READ           PIC S9(8) COMP VALUE 0.` |
-| `app/app-authorization-ims-db2-mq/cbl/DBUNLDGS.CBL:71` | WS-NO-DTL-READ PIC S9(8) | `05 WS-NO-SUMRY-DELETED        PIC S9(8) COMP VALUE 0.` |
-| `app/app-authorization-ims-db2-mq/cbl/DBUNLDGS.CBL:72` | WS-NO-DTL-DELETED PIC S9(8) | `05 WS-NO-DTL-READ             PIC S9(8) COMP VALUE 0.` |
+| `app/app-authorization-ims-db2-mq/cbl/DBUNLDGS.CBL:62` | WS-EXPIRY-DAYS PIC S9(4) | `05 WS-EXPIRY-DAYS             PIC S9(4) COMP.` |
+| `app/app-authorization-ims-db2-mq/cbl/DBUNLDGS.CBL:63` | WS-DAY-DIFF PIC S9(4) | `05 WS-DAY-DIFF                PIC S9(4) COMP.` |
+| `app/app-authorization-ims-db2-mq/cbl/DBUNLDGS.CBL:64` | IDX PIC S9(4) | `05 IDX                        PIC S9(4) COMP.` |
+| `app/app-authorization-ims-db2-mq/cbl/DBUNLDGS.CBL:69` | WS-TOT-REC-WRITTEN PIC S9(8) | `05 WS-TOT-REC-WRITTEN         PIC S9(8) COMP VALUE 0.` |
+| `app/app-authorization-ims-db2-mq/cbl/DBUNLDGS.CBL:70` | WS-NO-SUMRY-READ PIC S9(8) | `05 WS-NO-SUMRY-READ           PIC S9(8) COMP VALUE 0.` |
+| `app/app-authorization-ims-db2-mq/cbl/DBUNLDGS.CBL:71` | WS-NO-SUMRY-DELETED PIC S9(8) | `05 WS-NO-SUMRY-DELETED        PIC S9(8) COMP VALUE 0.` |
+| `app/app-authorization-ims-db2-mq/cbl/DBUNLDGS.CBL:72` | WS-NO-DTL-READ PIC S9(8) | `05 WS-NO-DTL-READ             PIC S9(8) COMP VALUE 0.` |
+| `app/app-authorization-ims-db2-mq/cbl/DBUNLDGS.CBL:73` | WS-NO-DTL-DELETED PIC S9(8) | `05 WS-NO-DTL-DELETED          PIC S9(8) COMP VALUE 0.` |
 
 #### `app/app-authorization-ims-db2-mq/cbl/PAUDBLOD.CBL` (8)
 
 | Line | Detail | Source text |
 | --- | --- | --- |
-| `app/app-authorization-ims-db2-mq/cbl/PAUDBLOD.CBL:57` | WS-EXPIRY-DAYS PIC S9(4) | `05 WS-AUTH-DATE               PIC 9(05).` |
-| `app/app-authorization-ims-db2-mq/cbl/PAUDBLOD.CBL:58` | WS-DAY-DIFF PIC S9(4) | `05 WS-EXPIRY-DAYS             PIC S9(4) COMP.` |
-| `app/app-authorization-ims-db2-mq/cbl/PAUDBLOD.CBL:59` | IDX PIC S9(4) | `05 WS-DAY-DIFF                PIC S9(4) COMP.` |
-| `app/app-authorization-ims-db2-mq/cbl/PAUDBLOD.CBL:64` | WS-TOT-REC-WRITTEN PIC S9(8) | `05 WS-AUTH-SMRY-PROC-CNT      PIC  9(8) VALUE 0.` |
-| `app/app-authorization-ims-db2-mq/cbl/PAUDBLOD.CBL:65` | WS-NO-SUMRY-READ PIC S9(8) | `05 WS-TOT-REC-WRITTEN         PIC S9(8) COMP VALUE 0.` |
-| `app/app-authorization-ims-db2-mq/cbl/PAUDBLOD.CBL:66` | WS-NO-SUMRY-DELETED PIC S9(8) | `05 WS-NO-SUMRY-READ           PIC S9(8) COMP VALUE 0.` |
-| `app/app-authorization-ims-db2-mq/cbl/PAUDBLOD.CBL:67` | WS-NO-DTL-READ PIC S9(8) | `05 WS-NO-SUMRY-DELETED        PIC S9(8) COMP VALUE 0.` |
-| `app/app-authorization-ims-db2-mq/cbl/PAUDBLOD.CBL:68` | WS-NO-DTL-DELETED PIC S9(8) | `05 WS-NO-DTL-READ             PIC S9(8) COMP VALUE 0.` |
+| `app/app-authorization-ims-db2-mq/cbl/PAUDBLOD.CBL:58` | WS-EXPIRY-DAYS PIC S9(4) | `05 WS-EXPIRY-DAYS             PIC S9(4) COMP.` |
+| `app/app-authorization-ims-db2-mq/cbl/PAUDBLOD.CBL:59` | WS-DAY-DIFF PIC S9(4) | `05 WS-DAY-DIFF                PIC S9(4) COMP.` |
+| `app/app-authorization-ims-db2-mq/cbl/PAUDBLOD.CBL:60` | IDX PIC S9(4) | `05 IDX                        PIC S9(4) COMP.` |
+| `app/app-authorization-ims-db2-mq/cbl/PAUDBLOD.CBL:65` | WS-TOT-REC-WRITTEN PIC S9(8) | `05 WS-TOT-REC-WRITTEN         PIC S9(8) COMP VALUE 0.` |
+| `app/app-authorization-ims-db2-mq/cbl/PAUDBLOD.CBL:66` | WS-NO-SUMRY-READ PIC S9(8) | `05 WS-NO-SUMRY-READ           PIC S9(8) COMP VALUE 0.` |
+| `app/app-authorization-ims-db2-mq/cbl/PAUDBLOD.CBL:67` | WS-NO-SUMRY-DELETED PIC S9(8) | `05 WS-NO-SUMRY-DELETED        PIC S9(8) COMP VALUE 0.` |
+| `app/app-authorization-ims-db2-mq/cbl/PAUDBLOD.CBL:68` | WS-NO-DTL-READ PIC S9(8) | `05 WS-NO-DTL-READ             PIC S9(8) COMP VALUE 0.` |
+| `app/app-authorization-ims-db2-mq/cbl/PAUDBLOD.CBL:69` | WS-NO-DTL-DELETED PIC S9(8) | `05 WS-NO-DTL-DELETED          PIC S9(8) COMP VALUE 0.` |
 
 #### `app/app-authorization-ims-db2-mq/cbl/PAUDBUNL.CBL` (8)
 
 | Line | Detail | Source text |
 | --- | --- | --- |
-| `app/app-authorization-ims-db2-mq/cbl/PAUDBUNL.CBL:57` | WS-EXPIRY-DAYS PIC S9(4) | `05 WS-AUTH-DATE               PIC 9(05).` |
-| `app/app-authorization-ims-db2-mq/cbl/PAUDBUNL.CBL:58` | WS-DAY-DIFF PIC S9(4) | `05 WS-EXPIRY-DAYS             PIC S9(4) COMP.` |
-| `app/app-authorization-ims-db2-mq/cbl/PAUDBUNL.CBL:59` | IDX PIC S9(4) | `05 WS-DAY-DIFF                PIC S9(4) COMP.` |
-| `app/app-authorization-ims-db2-mq/cbl/PAUDBUNL.CBL:64` | WS-TOT-REC-WRITTEN PIC S9(8) | `05 WS-AUTH-SMRY-PROC-CNT      PIC  9(8) VALUE 0.` |
-| `app/app-authorization-ims-db2-mq/cbl/PAUDBUNL.CBL:65` | WS-NO-SUMRY-READ PIC S9(8) | `05 WS-TOT-REC-WRITTEN         PIC S9(8) COMP VALUE 0.` |
-| `app/app-authorization-ims-db2-mq/cbl/PAUDBUNL.CBL:66` | WS-NO-SUMRY-DELETED PIC S9(8) | `05 WS-NO-SUMRY-READ           PIC S9(8) COMP VALUE 0.` |
-| `app/app-authorization-ims-db2-mq/cbl/PAUDBUNL.CBL:67` | WS-NO-DTL-READ PIC S9(8) | `05 WS-NO-SUMRY-DELETED        PIC S9(8) COMP VALUE 0.` |
-| `app/app-authorization-ims-db2-mq/cbl/PAUDBUNL.CBL:68` | WS-NO-DTL-DELETED PIC S9(8) | `05 WS-NO-DTL-READ             PIC S9(8) COMP VALUE 0.` |
+| `app/app-authorization-ims-db2-mq/cbl/PAUDBUNL.CBL:58` | WS-EXPIRY-DAYS PIC S9(4) | `05 WS-EXPIRY-DAYS             PIC S9(4) COMP.` |
+| `app/app-authorization-ims-db2-mq/cbl/PAUDBUNL.CBL:59` | WS-DAY-DIFF PIC S9(4) | `05 WS-DAY-DIFF                PIC S9(4) COMP.` |
+| `app/app-authorization-ims-db2-mq/cbl/PAUDBUNL.CBL:60` | IDX PIC S9(4) | `05 IDX                        PIC S9(4) COMP.` |
+| `app/app-authorization-ims-db2-mq/cbl/PAUDBUNL.CBL:65` | WS-TOT-REC-WRITTEN PIC S9(8) | `05 WS-TOT-REC-WRITTEN         PIC S9(8) COMP VALUE 0.` |
+| `app/app-authorization-ims-db2-mq/cbl/PAUDBUNL.CBL:66` | WS-NO-SUMRY-READ PIC S9(8) | `05 WS-NO-SUMRY-READ           PIC S9(8) COMP VALUE 0.` |
+| `app/app-authorization-ims-db2-mq/cbl/PAUDBUNL.CBL:67` | WS-NO-SUMRY-DELETED PIC S9(8) | `05 WS-NO-SUMRY-DELETED        PIC S9(8) COMP VALUE 0.` |
+| `app/app-authorization-ims-db2-mq/cbl/PAUDBUNL.CBL:68` | WS-NO-DTL-READ PIC S9(8) | `05 WS-NO-DTL-READ             PIC S9(8) COMP VALUE 0.` |
+| `app/app-authorization-ims-db2-mq/cbl/PAUDBUNL.CBL:69` | WS-NO-DTL-DELETED PIC S9(8) | `05 WS-NO-DTL-DELETED          PIC S9(8) COMP VALUE 0.` |
 
 #### `app/app-authorization-ims-db2-mq/cpy-bms/COPAU00.cpy` (62)
 
 | Line | Detail | Source text |
 | --- | --- | --- |
-| `app/app-authorization-ims-db2-mq/cpy-bms/COPAU00.cpy:18` | TRNNAMEL PIC S9(4) | `02  FILLER PIC X(12).` |
-| `app/app-authorization-ims-db2-mq/cpy-bms/COPAU00.cpy:24` | TITLE01L PIC S9(4) | `02  TRNNAMEI  PIC X(4).` |
-| `app/app-authorization-ims-db2-mq/cpy-bms/COPAU00.cpy:30` | CURDATEL PIC S9(4) | `02  TITLE01I  PIC X(40).` |
-| `app/app-authorization-ims-db2-mq/cpy-bms/COPAU00.cpy:36` | PGMNAMEL PIC S9(4) | `02  CURDATEI  PIC X(8).` |
-| `app/app-authorization-ims-db2-mq/cpy-bms/COPAU00.cpy:42` | TITLE02L PIC S9(4) | `02  PGMNAMEI  PIC X(8).` |
-| `app/app-authorization-ims-db2-mq/cpy-bms/COPAU00.cpy:48` | CURTIMEL PIC S9(4) | `02  TITLE02I  PIC X(40).` |
-| `app/app-authorization-ims-db2-mq/cpy-bms/COPAU00.cpy:54` | ACCTIDL PIC S9(4) | `02  CURTIMEI  PIC X(8).` |
-| `app/app-authorization-ims-db2-mq/cpy-bms/COPAU00.cpy:60` | CNAMEL PIC S9(4) | `02  ACCTIDI  PIC X(11).` |
-| `app/app-authorization-ims-db2-mq/cpy-bms/COPAU00.cpy:66` | CUSTIDL PIC S9(4) | `02  CNAMEI  PIC X(25).` |
-| `app/app-authorization-ims-db2-mq/cpy-bms/COPAU00.cpy:72` | ADDR001L PIC S9(4) | `02  CUSTIDI  PIC X(9).` |
-| `app/app-authorization-ims-db2-mq/cpy-bms/COPAU00.cpy:78` | ACCSTATL PIC S9(4) | `02  ADDR001I  PIC X(25).` |
-| `app/app-authorization-ims-db2-mq/cpy-bms/COPAU00.cpy:84` | ADDR002L PIC S9(4) | `02  ACCSTATI  PIC X(1).` |
-| `app/app-authorization-ims-db2-mq/cpy-bms/COPAU00.cpy:90` | PHONE1L PIC S9(4) | `02  ADDR002I  PIC X(25).` |
-| `app/app-authorization-ims-db2-mq/cpy-bms/COPAU00.cpy:96` | APPRCNTL PIC S9(4) | `02  PHONE1I  PIC X(13).` |
-| `app/app-authorization-ims-db2-mq/cpy-bms/COPAU00.cpy:102` | DECLCNTL PIC S9(4) | `02  APPRCNTI  PIC X(3).` |
-| `app/app-authorization-ims-db2-mq/cpy-bms/COPAU00.cpy:108` | CREDLIML PIC S9(4) | `02  DECLCNTI  PIC X(3).` |
-| `app/app-authorization-ims-db2-mq/cpy-bms/COPAU00.cpy:114` | CASHLIML PIC S9(4) | `02  CREDLIMI  PIC X(12).` |
-| `app/app-authorization-ims-db2-mq/cpy-bms/COPAU00.cpy:120` | APPRAMTL PIC S9(4) | `02  CASHLIMI  PIC X(9).` |
-| `app/app-authorization-ims-db2-mq/cpy-bms/COPAU00.cpy:126` | CREDBALL PIC S9(4) | `02  APPRAMTI  PIC X(10).` |
-| `app/app-authorization-ims-db2-mq/cpy-bms/COPAU00.cpy:132` | CASHBALL PIC S9(4) | `02  CREDBALI  PIC X(12).` |
-| `app/app-authorization-ims-db2-mq/cpy-bms/COPAU00.cpy:138` | DECLAMTL PIC S9(4) | `02  CASHBALI  PIC X(9).` |
-| `app/app-authorization-ims-db2-mq/cpy-bms/COPAU00.cpy:144` | SEL0001L PIC S9(4) | `02  DECLAMTI  PIC X(10).` |
-| `app/app-authorization-ims-db2-mq/cpy-bms/COPAU00.cpy:150` | TRNID01L PIC S9(4) | `02  SEL0001I  PIC X(1).` |
-| `app/app-authorization-ims-db2-mq/cpy-bms/COPAU00.cpy:156` | PDATE01L PIC S9(4) | `02  TRNID01I  PIC X(16).` |
-| `app/app-authorization-ims-db2-mq/cpy-bms/COPAU00.cpy:162` | PTIME01L PIC S9(4) | `02  PDATE01I  PIC X(8).` |
-| `app/app-authorization-ims-db2-mq/cpy-bms/COPAU00.cpy:168` | PTYPE01L PIC S9(4) | `02  PTIME01I  PIC X(8).` |
-| `app/app-authorization-ims-db2-mq/cpy-bms/COPAU00.cpy:174` | PAPRV01L PIC S9(4) | `02  PTYPE01I  PIC X(4).` |
-| `app/app-authorization-ims-db2-mq/cpy-bms/COPAU00.cpy:180` | PSTAT01L PIC S9(4) | `02  PAPRV01I  PIC X(1).` |
-| `app/app-authorization-ims-db2-mq/cpy-bms/COPAU00.cpy:186` | PAMT001L PIC S9(4) | `02  PSTAT01I  PIC X(1).` |
-| `app/app-authorization-ims-db2-mq/cpy-bms/COPAU00.cpy:192` | SEL0002L PIC S9(4) | `02  PAMT001I  PIC X(12).` |
-| `app/app-authorization-ims-db2-mq/cpy-bms/COPAU00.cpy:198` | TRNID02L PIC S9(4) | `02  SEL0002I  PIC X(1).` |
-| `app/app-authorization-ims-db2-mq/cpy-bms/COPAU00.cpy:204` | PDATE02L PIC S9(4) | `02  TRNID02I  PIC X(16).` |
-| `app/app-authorization-ims-db2-mq/cpy-bms/COPAU00.cpy:210` | PTIME02L PIC S9(4) | `02  PDATE02I  PIC X(8).` |
-| `app/app-authorization-ims-db2-mq/cpy-bms/COPAU00.cpy:216` | PTYPE02L PIC S9(4) | `02  PTIME02I  PIC X(8).` |
-| `app/app-authorization-ims-db2-mq/cpy-bms/COPAU00.cpy:222` | PAPRV02L PIC S9(4) | `02  PTYPE02I  PIC X(4).` |
-| `app/app-authorization-ims-db2-mq/cpy-bms/COPAU00.cpy:228` | PSTAT02L PIC S9(4) | `02  PAPRV02I  PIC X(1).` |
-| `app/app-authorization-ims-db2-mq/cpy-bms/COPAU00.cpy:234` | PAMT002L PIC S9(4) | `02  PSTAT02I  PIC X(1).` |
-| `app/app-authorization-ims-db2-mq/cpy-bms/COPAU00.cpy:240` | SEL0003L PIC S9(4) | `02  PAMT002I  PIC X(12).` |
-| `app/app-authorization-ims-db2-mq/cpy-bms/COPAU00.cpy:246` | TRNID03L PIC S9(4) | `02  SEL0003I  PIC X(1).` |
-| `app/app-authorization-ims-db2-mq/cpy-bms/COPAU00.cpy:252` | PDATE03L PIC S9(4) | `02  TRNID03I  PIC X(16).` |
-| `app/app-authorization-ims-db2-mq/cpy-bms/COPAU00.cpy:258` | PTIME03L PIC S9(4) | `02  PDATE03I  PIC X(8).` |
-| `app/app-authorization-ims-db2-mq/cpy-bms/COPAU00.cpy:264` | PTYPE03L PIC S9(4) | `02  PTIME03I  PIC X(8).` |
-| `app/app-authorization-ims-db2-mq/cpy-bms/COPAU00.cpy:270` | PAPRV03L PIC S9(4) | `02  PTYPE03I  PIC X(4).` |
-| `app/app-authorization-ims-db2-mq/cpy-bms/COPAU00.cpy:276` | PSTAT03L PIC S9(4) | `02  PAPRV03I  PIC X(1).` |
-| `app/app-authorization-ims-db2-mq/cpy-bms/COPAU00.cpy:282` | PAMT003L PIC S9(4) | `02  PSTAT03I  PIC X(1).` |
-| `app/app-authorization-ims-db2-mq/cpy-bms/COPAU00.cpy:288` | SEL0004L PIC S9(4) | `02  PAMT003I  PIC X(12).` |
-| `app/app-authorization-ims-db2-mq/cpy-bms/COPAU00.cpy:294` | TRNID04L PIC S9(4) | `02  SEL0004I  PIC X(1).` |
-| `app/app-authorization-ims-db2-mq/cpy-bms/COPAU00.cpy:300` | PDATE04L PIC S9(4) | `02  TRNID04I  PIC X(16).` |
-| `app/app-authorization-ims-db2-mq/cpy-bms/COPAU00.cpy:306` | PTIME04L PIC S9(4) | `02  PDATE04I  PIC X(8).` |
-| `app/app-authorization-ims-db2-mq/cpy-bms/COPAU00.cpy:312` | PTYPE04L PIC S9(4) | `02  PTIME04I  PIC X(8).` |
-| `app/app-authorization-ims-db2-mq/cpy-bms/COPAU00.cpy:318` | PAPRV04L PIC S9(4) | `02  PTYPE04I  PIC X(4).` |
-| `app/app-authorization-ims-db2-mq/cpy-bms/COPAU00.cpy:324` | PSTAT04L PIC S9(4) | `02  PAPRV04I  PIC X(1).` |
-| `app/app-authorization-ims-db2-mq/cpy-bms/COPAU00.cpy:330` | PAMT004L PIC S9(4) | `02  PSTAT04I  PIC X(1).` |
-| `app/app-authorization-ims-db2-mq/cpy-bms/COPAU00.cpy:336` | TRNID05L PIC S9(4) | `02  PAMT004I  PIC X(12).` |
-| `app/app-authorization-ims-db2-mq/cpy-bms/COPAU00.cpy:342` | PDATE05L PIC S9(4) | `02  TRNID05I  PIC X(16).` |
-| `app/app-authorization-ims-db2-mq/cpy-bms/COPAU00.cpy:348` | PTIME05L PIC S9(4) | `02  PDATE05I  PIC X(8).` |
-| `app/app-authorization-ims-db2-mq/cpy-bms/COPAU00.cpy:354` | PTYPE05L PIC S9(4) | `02  PTIME05I  PIC X(8).` |
-| `app/app-authorization-ims-db2-mq/cpy-bms/COPAU00.cpy:360` | PAPRV05L PIC S9(4) | `02  PTYPE05I  PIC X(4).` |
-| `app/app-authorization-ims-db2-mq/cpy-bms/COPAU00.cpy:366` | PSTAT05L PIC S9(4) | `02  PAPRV05I  PIC X(1).` |
-| `app/app-authorization-ims-db2-mq/cpy-bms/COPAU00.cpy:372` | PAMT005L PIC S9(4) | `02  PSTAT05I  PIC X(1).` |
-| `app/app-authorization-ims-db2-mq/cpy-bms/COPAU00.cpy:378` | SEL0005L PIC S9(4) | `02  PAMT005I  PIC X(12).` |
-| `app/app-authorization-ims-db2-mq/cpy-bms/COPAU00.cpy:384` | ERRMSGL PIC S9(4) | `02  SEL0005I  PIC X(1).` |
+| `app/app-authorization-ims-db2-mq/cpy-bms/COPAU00.cpy:19` | TRNNAMEL PIC S9(4) | `02  TRNNAMEL    COMP  PIC  S9(4).` |
+| `app/app-authorization-ims-db2-mq/cpy-bms/COPAU00.cpy:25` | TITLE01L PIC S9(4) | `02  TITLE01L    COMP  PIC  S9(4).` |
+| `app/app-authorization-ims-db2-mq/cpy-bms/COPAU00.cpy:31` | CURDATEL PIC S9(4) | `02  CURDATEL    COMP  PIC  S9(4).` |
+| `app/app-authorization-ims-db2-mq/cpy-bms/COPAU00.cpy:37` | PGMNAMEL PIC S9(4) | `02  PGMNAMEL    COMP  PIC  S9(4).` |
+| `app/app-authorization-ims-db2-mq/cpy-bms/COPAU00.cpy:43` | TITLE02L PIC S9(4) | `02  TITLE02L    COMP  PIC  S9(4).` |
+| `app/app-authorization-ims-db2-mq/cpy-bms/COPAU00.cpy:49` | CURTIMEL PIC S9(4) | `02  CURTIMEL    COMP  PIC  S9(4).` |
+| `app/app-authorization-ims-db2-mq/cpy-bms/COPAU00.cpy:55` | ACCTIDL PIC S9(4) | `02  ACCTIDL    COMP  PIC  S9(4).` |
+| `app/app-authorization-ims-db2-mq/cpy-bms/COPAU00.cpy:61` | CNAMEL PIC S9(4) | `02  CNAMEL    COMP  PIC  S9(4).` |
+| `app/app-authorization-ims-db2-mq/cpy-bms/COPAU00.cpy:67` | CUSTIDL PIC S9(4) | `02  CUSTIDL    COMP  PIC  S9(4).` |
+| `app/app-authorization-ims-db2-mq/cpy-bms/COPAU00.cpy:73` | ADDR001L PIC S9(4) | `02  ADDR001L    COMP  PIC  S9(4).` |
+| `app/app-authorization-ims-db2-mq/cpy-bms/COPAU00.cpy:79` | ACCSTATL PIC S9(4) | `02  ACCSTATL    COMP  PIC  S9(4).` |
+| `app/app-authorization-ims-db2-mq/cpy-bms/COPAU00.cpy:85` | ADDR002L PIC S9(4) | `02  ADDR002L    COMP  PIC  S9(4).` |
+| `app/app-authorization-ims-db2-mq/cpy-bms/COPAU00.cpy:91` | PHONE1L PIC S9(4) | `02  PHONE1L    COMP  PIC  S9(4).` |
+| `app/app-authorization-ims-db2-mq/cpy-bms/COPAU00.cpy:97` | APPRCNTL PIC S9(4) | `02  APPRCNTL    COMP  PIC  S9(4).` |
+| `app/app-authorization-ims-db2-mq/cpy-bms/COPAU00.cpy:103` | DECLCNTL PIC S9(4) | `02  DECLCNTL    COMP  PIC  S9(4).` |
+| `app/app-authorization-ims-db2-mq/cpy-bms/COPAU00.cpy:109` | CREDLIML PIC S9(4) | `02  CREDLIML    COMP  PIC  S9(4).` |
+| `app/app-authorization-ims-db2-mq/cpy-bms/COPAU00.cpy:115` | CASHLIML PIC S9(4) | `02  CASHLIML    COMP  PIC  S9(4).` |
+| `app/app-authorization-ims-db2-mq/cpy-bms/COPAU00.cpy:121` | APPRAMTL PIC S9(4) | `02  APPRAMTL    COMP  PIC  S9(4).` |
+| `app/app-authorization-ims-db2-mq/cpy-bms/COPAU00.cpy:127` | CREDBALL PIC S9(4) | `02  CREDBALL    COMP  PIC  S9(4).` |
+| `app/app-authorization-ims-db2-mq/cpy-bms/COPAU00.cpy:133` | CASHBALL PIC S9(4) | `02  CASHBALL    COMP  PIC  S9(4).` |
+| `app/app-authorization-ims-db2-mq/cpy-bms/COPAU00.cpy:139` | DECLAMTL PIC S9(4) | `02  DECLAMTL    COMP  PIC  S9(4).` |
+| `app/app-authorization-ims-db2-mq/cpy-bms/COPAU00.cpy:145` | SEL0001L PIC S9(4) | `02  SEL0001L    COMP  PIC  S9(4).` |
+| `app/app-authorization-ims-db2-mq/cpy-bms/COPAU00.cpy:151` | TRNID01L PIC S9(4) | `02  TRNID01L    COMP  PIC  S9(4).` |
+| `app/app-authorization-ims-db2-mq/cpy-bms/COPAU00.cpy:157` | PDATE01L PIC S9(4) | `02  PDATE01L    COMP  PIC  S9(4).` |
+| `app/app-authorization-ims-db2-mq/cpy-bms/COPAU00.cpy:163` | PTIME01L PIC S9(4) | `02  PTIME01L    COMP  PIC  S9(4).` |
+| `app/app-authorization-ims-db2-mq/cpy-bms/COPAU00.cpy:169` | PTYPE01L PIC S9(4) | `02  PTYPE01L    COMP  PIC  S9(4).` |
+| `app/app-authorization-ims-db2-mq/cpy-bms/COPAU00.cpy:175` | PAPRV01L PIC S9(4) | `02  PAPRV01L    COMP  PIC  S9(4).` |
+| `app/app-authorization-ims-db2-mq/cpy-bms/COPAU00.cpy:181` | PSTAT01L PIC S9(4) | `02  PSTAT01L    COMP  PIC  S9(4).` |
+| `app/app-authorization-ims-db2-mq/cpy-bms/COPAU00.cpy:187` | PAMT001L PIC S9(4) | `02  PAMT001L    COMP  PIC  S9(4).` |
+| `app/app-authorization-ims-db2-mq/cpy-bms/COPAU00.cpy:193` | SEL0002L PIC S9(4) | `02  SEL0002L    COMP  PIC  S9(4).` |
+| `app/app-authorization-ims-db2-mq/cpy-bms/COPAU00.cpy:199` | TRNID02L PIC S9(4) | `02  TRNID02L    COMP  PIC  S9(4).` |
+| `app/app-authorization-ims-db2-mq/cpy-bms/COPAU00.cpy:205` | PDATE02L PIC S9(4) | `02  PDATE02L    COMP  PIC  S9(4).` |
+| `app/app-authorization-ims-db2-mq/cpy-bms/COPAU00.cpy:211` | PTIME02L PIC S9(4) | `02  PTIME02L    COMP  PIC  S9(4).` |
+| `app/app-authorization-ims-db2-mq/cpy-bms/COPAU00.cpy:217` | PTYPE02L PIC S9(4) | `02  PTYPE02L    COMP  PIC  S9(4).` |
+| `app/app-authorization-ims-db2-mq/cpy-bms/COPAU00.cpy:223` | PAPRV02L PIC S9(4) | `02  PAPRV02L    COMP  PIC  S9(4).` |
+| `app/app-authorization-ims-db2-mq/cpy-bms/COPAU00.cpy:229` | PSTAT02L PIC S9(4) | `02  PSTAT02L    COMP  PIC  S9(4).` |
+| `app/app-authorization-ims-db2-mq/cpy-bms/COPAU00.cpy:235` | PAMT002L PIC S9(4) | `02  PAMT002L    COMP  PIC  S9(4).` |
+| `app/app-authorization-ims-db2-mq/cpy-bms/COPAU00.cpy:241` | SEL0003L PIC S9(4) | `02  SEL0003L    COMP  PIC  S9(4).` |
+| `app/app-authorization-ims-db2-mq/cpy-bms/COPAU00.cpy:247` | TRNID03L PIC S9(4) | `02  TRNID03L    COMP  PIC  S9(4).` |
+| `app/app-authorization-ims-db2-mq/cpy-bms/COPAU00.cpy:253` | PDATE03L PIC S9(4) | `02  PDATE03L    COMP  PIC  S9(4).` |
+| `app/app-authorization-ims-db2-mq/cpy-bms/COPAU00.cpy:259` | PTIME03L PIC S9(4) | `02  PTIME03L    COMP  PIC  S9(4).` |
+| `app/app-authorization-ims-db2-mq/cpy-bms/COPAU00.cpy:265` | PTYPE03L PIC S9(4) | `02  PTYPE03L    COMP  PIC  S9(4).` |
+| `app/app-authorization-ims-db2-mq/cpy-bms/COPAU00.cpy:271` | PAPRV03L PIC S9(4) | `02  PAPRV03L    COMP  PIC  S9(4).` |
+| `app/app-authorization-ims-db2-mq/cpy-bms/COPAU00.cpy:277` | PSTAT03L PIC S9(4) | `02  PSTAT03L    COMP  PIC  S9(4).` |
+| `app/app-authorization-ims-db2-mq/cpy-bms/COPAU00.cpy:283` | PAMT003L PIC S9(4) | `02  PAMT003L    COMP  PIC  S9(4).` |
+| `app/app-authorization-ims-db2-mq/cpy-bms/COPAU00.cpy:289` | SEL0004L PIC S9(4) | `02  SEL0004L    COMP  PIC  S9(4).` |
+| `app/app-authorization-ims-db2-mq/cpy-bms/COPAU00.cpy:295` | TRNID04L PIC S9(4) | `02  TRNID04L    COMP  PIC  S9(4).` |
+| `app/app-authorization-ims-db2-mq/cpy-bms/COPAU00.cpy:301` | PDATE04L PIC S9(4) | `02  PDATE04L    COMP  PIC  S9(4).` |
+| `app/app-authorization-ims-db2-mq/cpy-bms/COPAU00.cpy:307` | PTIME04L PIC S9(4) | `02  PTIME04L    COMP  PIC  S9(4).` |
+| `app/app-authorization-ims-db2-mq/cpy-bms/COPAU00.cpy:313` | PTYPE04L PIC S9(4) | `02  PTYPE04L    COMP  PIC  S9(4).` |
+| `app/app-authorization-ims-db2-mq/cpy-bms/COPAU00.cpy:319` | PAPRV04L PIC S9(4) | `02  PAPRV04L    COMP  PIC  S9(4).` |
+| `app/app-authorization-ims-db2-mq/cpy-bms/COPAU00.cpy:325` | PSTAT04L PIC S9(4) | `02  PSTAT04L    COMP  PIC  S9(4).` |
+| `app/app-authorization-ims-db2-mq/cpy-bms/COPAU00.cpy:331` | PAMT004L PIC S9(4) | `02  PAMT004L    COMP  PIC  S9(4).` |
+| `app/app-authorization-ims-db2-mq/cpy-bms/COPAU00.cpy:337` | TRNID05L PIC S9(4) | `02  TRNID05L    COMP  PIC  S9(4).` |
+| `app/app-authorization-ims-db2-mq/cpy-bms/COPAU00.cpy:343` | PDATE05L PIC S9(4) | `02  PDATE05L    COMP  PIC  S9(4).` |
+| `app/app-authorization-ims-db2-mq/cpy-bms/COPAU00.cpy:349` | PTIME05L PIC S9(4) | `02  PTIME05L    COMP  PIC  S9(4).` |
+| `app/app-authorization-ims-db2-mq/cpy-bms/COPAU00.cpy:355` | PTYPE05L PIC S9(4) | `02  PTYPE05L    COMP  PIC  S9(4).` |
+| `app/app-authorization-ims-db2-mq/cpy-bms/COPAU00.cpy:361` | PAPRV05L PIC S9(4) | `02  PAPRV05L    COMP  PIC  S9(4).` |
+| `app/app-authorization-ims-db2-mq/cpy-bms/COPAU00.cpy:367` | PSTAT05L PIC S9(4) | `02  PSTAT05L    COMP  PIC  S9(4).` |
+| `app/app-authorization-ims-db2-mq/cpy-bms/COPAU00.cpy:373` | PAMT005L PIC S9(4) | `02  PAMT005L    COMP  PIC  S9(4).` |
+| `app/app-authorization-ims-db2-mq/cpy-bms/COPAU00.cpy:379` | SEL0005L PIC S9(4) | `02  SEL0005L    COMP  PIC  S9(4).` |
+| `app/app-authorization-ims-db2-mq/cpy-bms/COPAU00.cpy:385` | ERRMSGL PIC S9(4) | `02  ERRMSGL    COMP  PIC  S9(4).` |
 
 #### `app/app-authorization-ims-db2-mq/cpy-bms/COPAU01.cpy` (27)
 
 | Line | Detail | Source text |
 | --- | --- | --- |
-| `app/app-authorization-ims-db2-mq/cpy-bms/COPAU01.cpy:18` | TRNNAMEL PIC S9(4) | `02  FILLER PIC X(12).` |
-| `app/app-authorization-ims-db2-mq/cpy-bms/COPAU01.cpy:24` | TITLE01L PIC S9(4) | `02  TRNNAMEI  PIC X(4).` |
-| `app/app-authorization-ims-db2-mq/cpy-bms/COPAU01.cpy:30` | CURDATEL PIC S9(4) | `02  TITLE01I  PIC X(40).` |
-| `app/app-authorization-ims-db2-mq/cpy-bms/COPAU01.cpy:36` | PGMNAMEL PIC S9(4) | `02  CURDATEI  PIC X(8).` |
-| `app/app-authorization-ims-db2-mq/cpy-bms/COPAU01.cpy:42` | TITLE02L PIC S9(4) | `02  PGMNAMEI  PIC X(8).` |
-| `app/app-authorization-ims-db2-mq/cpy-bms/COPAU01.cpy:48` | CURTIMEL PIC S9(4) | `02  TITLE02I  PIC X(40).` |
-| `app/app-authorization-ims-db2-mq/cpy-bms/COPAU01.cpy:54` | CARDNUML PIC S9(4) | `02  CURTIMEI  PIC X(8).` |
-| `app/app-authorization-ims-db2-mq/cpy-bms/COPAU01.cpy:60` | AUTHDTL PIC S9(4) | `02  CARDNUMI  PIC X(16).` |
-| `app/app-authorization-ims-db2-mq/cpy-bms/COPAU01.cpy:66` | AUTHTML PIC S9(4) | `02  AUTHDTI  PIC X(10).` |
-| `app/app-authorization-ims-db2-mq/cpy-bms/COPAU01.cpy:72` | AUTHRSPL PIC S9(4) | `02  AUTHTMI  PIC X(10).` |
-| `app/app-authorization-ims-db2-mq/cpy-bms/COPAU01.cpy:78` | AUTHRSNL PIC S9(4) | `02  AUTHRSPI  PIC X(1).` |
-| `app/app-authorization-ims-db2-mq/cpy-bms/COPAU01.cpy:84` | AUTHCDL PIC S9(4) | `02  AUTHRSNI  PIC X(20).` |
-| `app/app-authorization-ims-db2-mq/cpy-bms/COPAU01.cpy:90` | AUTHAMTL PIC S9(4) | `02  AUTHCDI  PIC X(6).` |
-| `app/app-authorization-ims-db2-mq/cpy-bms/COPAU01.cpy:96` | POSEMDL PIC S9(4) | `02  AUTHAMTI  PIC X(12).` |
-| `app/app-authorization-ims-db2-mq/cpy-bms/COPAU01.cpy:102` | AUTHSRCL PIC S9(4) | `02  POSEMDI  PIC X(4).` |
-| `app/app-authorization-ims-db2-mq/cpy-bms/COPAU01.cpy:108` | MCCCDL PIC S9(4) | `02  AUTHSRCI  PIC X(10).` |
-| `app/app-authorization-ims-db2-mq/cpy-bms/COPAU01.cpy:114` | CRDEXPL PIC S9(4) | `02  MCCCDI  PIC X(4).` |
-| `app/app-authorization-ims-db2-mq/cpy-bms/COPAU01.cpy:120` | AUTHTYPL PIC S9(4) | `02  CRDEXPI  PIC X(5).` |
-| `app/app-authorization-ims-db2-mq/cpy-bms/COPAU01.cpy:126` | TRNIDL PIC S9(4) | `02  AUTHTYPI  PIC X(14).` |
-| `app/app-authorization-ims-db2-mq/cpy-bms/COPAU01.cpy:132` | AUTHMTCL PIC S9(4) | `02  TRNIDI  PIC X(15).` |
-| `app/app-authorization-ims-db2-mq/cpy-bms/COPAU01.cpy:138` | AUTHFRDL PIC S9(4) | `02  AUTHMTCI  PIC X(1).` |
-| `app/app-authorization-ims-db2-mq/cpy-bms/COPAU01.cpy:144` | MERNAMEL PIC S9(4) | `02  AUTHFRDI  PIC X(10).` |
-| `app/app-authorization-ims-db2-mq/cpy-bms/COPAU01.cpy:150` | MERIDL PIC S9(4) | `02  MERNAMEI  PIC X(25).` |
-| `app/app-authorization-ims-db2-mq/cpy-bms/COPAU01.cpy:156` | MERCITYL PIC S9(4) | `02  MERIDI  PIC X(15).` |
-| `app/app-authorization-ims-db2-mq/cpy-bms/COPAU01.cpy:162` | MERSTL PIC S9(4) | `02  MERCITYI  PIC X(25).` |
-| `app/app-authorization-ims-db2-mq/cpy-bms/COPAU01.cpy:168` | MERZIPL PIC S9(4) | `02  MERSTI  PIC X(2).` |
-| `app/app-authorization-ims-db2-mq/cpy-bms/COPAU01.cpy:174` | ERRMSGL PIC S9(4) | `02  MERZIPI  PIC X(10).` |
+| `app/app-authorization-ims-db2-mq/cpy-bms/COPAU01.cpy:19` | TRNNAMEL PIC S9(4) | `02  TRNNAMEL    COMP  PIC  S9(4).` |
+| `app/app-authorization-ims-db2-mq/cpy-bms/COPAU01.cpy:25` | TITLE01L PIC S9(4) | `02  TITLE01L    COMP  PIC  S9(4).` |
+| `app/app-authorization-ims-db2-mq/cpy-bms/COPAU01.cpy:31` | CURDATEL PIC S9(4) | `02  CURDATEL    COMP  PIC  S9(4).` |
+| `app/app-authorization-ims-db2-mq/cpy-bms/COPAU01.cpy:37` | PGMNAMEL PIC S9(4) | `02  PGMNAMEL    COMP  PIC  S9(4).` |
+| `app/app-authorization-ims-db2-mq/cpy-bms/COPAU01.cpy:43` | TITLE02L PIC S9(4) | `02  TITLE02L    COMP  PIC  S9(4).` |
+| `app/app-authorization-ims-db2-mq/cpy-bms/COPAU01.cpy:49` | CURTIMEL PIC S9(4) | `02  CURTIMEL    COMP  PIC  S9(4).` |
+| `app/app-authorization-ims-db2-mq/cpy-bms/COPAU01.cpy:55` | CARDNUML PIC S9(4) | `02  CARDNUML    COMP  PIC  S9(4).` |
+| `app/app-authorization-ims-db2-mq/cpy-bms/COPAU01.cpy:61` | AUTHDTL PIC S9(4) | `02  AUTHDTL    COMP  PIC  S9(4).` |
+| `app/app-authorization-ims-db2-mq/cpy-bms/COPAU01.cpy:67` | AUTHTML PIC S9(4) | `02  AUTHTML    COMP  PIC  S9(4).` |
+| `app/app-authorization-ims-db2-mq/cpy-bms/COPAU01.cpy:73` | AUTHRSPL PIC S9(4) | `02  AUTHRSPL    COMP  PIC  S9(4).` |
+| `app/app-authorization-ims-db2-mq/cpy-bms/COPAU01.cpy:79` | AUTHRSNL PIC S9(4) | `02  AUTHRSNL    COMP  PIC  S9(4).` |
+| `app/app-authorization-ims-db2-mq/cpy-bms/COPAU01.cpy:85` | AUTHCDL PIC S9(4) | `02  AUTHCDL    COMP  PIC  S9(4).` |
+| `app/app-authorization-ims-db2-mq/cpy-bms/COPAU01.cpy:91` | AUTHAMTL PIC S9(4) | `02  AUTHAMTL    COMP  PIC  S9(4).` |
+| `app/app-authorization-ims-db2-mq/cpy-bms/COPAU01.cpy:97` | POSEMDL PIC S9(4) | `02  POSEMDL    COMP  PIC  S9(4).` |
+| `app/app-authorization-ims-db2-mq/cpy-bms/COPAU01.cpy:103` | AUTHSRCL PIC S9(4) | `02  AUTHSRCL    COMP  PIC  S9(4).` |
+| `app/app-authorization-ims-db2-mq/cpy-bms/COPAU01.cpy:109` | MCCCDL PIC S9(4) | `02  MCCCDL    COMP  PIC  S9(4).` |
+| `app/app-authorization-ims-db2-mq/cpy-bms/COPAU01.cpy:115` | CRDEXPL PIC S9(4) | `02  CRDEXPL    COMP  PIC  S9(4).` |
+| `app/app-authorization-ims-db2-mq/cpy-bms/COPAU01.cpy:121` | AUTHTYPL PIC S9(4) | `02  AUTHTYPL    COMP  PIC  S9(4).` |
+| `app/app-authorization-ims-db2-mq/cpy-bms/COPAU01.cpy:127` | TRNIDL PIC S9(4) | `02  TRNIDL    COMP  PIC  S9(4).` |
+| `app/app-authorization-ims-db2-mq/cpy-bms/COPAU01.cpy:133` | AUTHMTCL PIC S9(4) | `02  AUTHMTCL    COMP  PIC  S9(4).` |
+| `app/app-authorization-ims-db2-mq/cpy-bms/COPAU01.cpy:139` | AUTHFRDL PIC S9(4) | `02  AUTHFRDL    COMP  PIC  S9(4).` |
+| `app/app-authorization-ims-db2-mq/cpy-bms/COPAU01.cpy:145` | MERNAMEL PIC S9(4) | `02  MERNAMEL    COMP  PIC  S9(4).` |
+| `app/app-authorization-ims-db2-mq/cpy-bms/COPAU01.cpy:151` | MERIDL PIC S9(4) | `02  MERIDL    COMP  PIC  S9(4).` |
+| `app/app-authorization-ims-db2-mq/cpy-bms/COPAU01.cpy:157` | MERCITYL PIC S9(4) | `02  MERCITYL    COMP  PIC  S9(4).` |
+| `app/app-authorization-ims-db2-mq/cpy-bms/COPAU01.cpy:163` | MERSTL PIC S9(4) | `02  MERSTL    COMP  PIC  S9(4).` |
+| `app/app-authorization-ims-db2-mq/cpy-bms/COPAU01.cpy:169` | MERZIPL PIC S9(4) | `02  MERZIPL    COMP  PIC  S9(4).` |
+| `app/app-authorization-ims-db2-mq/cpy-bms/COPAU01.cpy:175` | ERRMSGL PIC S9(4) | `02  ERRMSGL    COMP  PIC  S9(4).` |
 
 #### `app/app-authorization-ims-db2-mq/cpy/CIPAUSMY.cpy` (2)
 
 | Line | Detail | Source text |
 | --- | --- | --- |
-| `app/app-authorization-ims-db2-mq/cpy/CIPAUSMY.cpy:26` | PA-APPROVED-AUTH-CNT PIC S9(04) | `05  PA-CASH-BALANCE              PIC S9(09)V99 COMP-3.` |
-| `app/app-authorization-ims-db2-mq/cpy/CIPAUSMY.cpy:27` | PA-DECLINED-AUTH-CNT PIC S9(04) | `05  PA-APPROVED-AUTH-CNT         PIC S9(04) COMP.` |
+| `app/app-authorization-ims-db2-mq/cpy/CIPAUSMY.cpy:27` | PA-APPROVED-AUTH-CNT PIC S9(04) | `05  PA-APPROVED-AUTH-CNT         PIC S9(04) COMP.` |
+| `app/app-authorization-ims-db2-mq/cpy/CIPAUSMY.cpy:28` | PA-DECLINED-AUTH-CNT PIC S9(04) | `05  PA-DECLINED-AUTH-CNT         PIC S9(04) COMP.` |
 
 #### `app/app-authorization-ims-db2-mq/cpy/IMSFUNCS.cpy` (1)
 
 | Line | Detail | Source text |
 | --- | --- | --- |
-| `app/app-authorization-ims-db2-mq/cpy/IMSFUNCS.cpy:26` | PARMCOUNT PIC S9(05) | `05 FUNC-DLET                 PIC X(04)      VALUE 'DLET'.` |
+| `app/app-authorization-ims-db2-mq/cpy/IMSFUNCS.cpy:27` | PARMCOUNT PIC S9(05) | `05 PARMCOUNT                 PIC S9(05) VALUE +4 COMP-5.` |
 
 #### `app/app-authorization-ims-db2-mq/cpy/PADFLPCB.CPY` (3)
 
 | Line | Detail | Source text |
 | --- | --- | --- |
-| `app/app-authorization-ims-db2-mq/cpy/PADFLPCB.CPY:21` | FILLER PIC S9(05) | `05 PADFL-PCB-PROCOPT         PIC X(04).` |
-| `app/app-authorization-ims-db2-mq/cpy/PADFLPCB.CPY:23` | PADFL-KEYFB-NAME PIC S9(05) | `05 PADFL-SEG-NAME            PIC X(08).` |
-| `app/app-authorization-ims-db2-mq/cpy/PADFLPCB.CPY:24` | PADFL-NUM-SENSEGS PIC S9(05) | `05 PADFL-KEYFB-NAME          PIC S9(05) COMP.` |
+| `app/app-authorization-ims-db2-mq/cpy/PADFLPCB.CPY:22` | FILLER PIC S9(05) | `05 FILLER                    PIC S9(05) COMP.` |
+| `app/app-authorization-ims-db2-mq/cpy/PADFLPCB.CPY:24` | PADFL-KEYFB-NAME PIC S9(05) | `05 PADFL-KEYFB-NAME          PIC S9(05) COMP.` |
+| `app/app-authorization-ims-db2-mq/cpy/PADFLPCB.CPY:25` | PADFL-NUM-SENSEGS PIC S9(05) | `05 PADFL-NUM-SENSEGS         PIC S9(05) COMP.` |
 
 #### `app/app-authorization-ims-db2-mq/cpy/PASFLPCB.CPY` (3)
 
 | Line | Detail | Source text |
 | --- | --- | --- |
-| `app/app-authorization-ims-db2-mq/cpy/PASFLPCB.CPY:21` | FILLER PIC S9(05) | `05 PASFL-PCB-PROCOPT         PIC X(04).` |
-| `app/app-authorization-ims-db2-mq/cpy/PASFLPCB.CPY:23` | PASFL-KEYFB-NAME PIC S9(05) | `05 PASFL-SEG-NAME            PIC X(08).` |
-| `app/app-authorization-ims-db2-mq/cpy/PASFLPCB.CPY:24` | PASFL-NUM-SENSEGS PIC S9(05) | `05 PASFL-KEYFB-NAME          PIC S9(05) COMP.` |
+| `app/app-authorization-ims-db2-mq/cpy/PASFLPCB.CPY:22` | FILLER PIC S9(05) | `05 FILLER                    PIC S9(05) COMP.` |
+| `app/app-authorization-ims-db2-mq/cpy/PASFLPCB.CPY:24` | PASFL-KEYFB-NAME PIC S9(05) | `05 PASFL-KEYFB-NAME          PIC S9(05) COMP.` |
+| `app/app-authorization-ims-db2-mq/cpy/PASFLPCB.CPY:25` | PASFL-NUM-SENSEGS PIC S9(05) | `05 PASFL-NUM-SENSEGS         PIC S9(05) COMP.` |
 
 #### `app/app-authorization-ims-db2-mq/cpy/PAUTBPCB.CPY` (3)
 
 | Line | Detail | Source text |
 | --- | --- | --- |
-| `app/app-authorization-ims-db2-mq/cpy/PAUTBPCB.CPY:21` | FILLER PIC S9(05) | `05 PAUT-PCB-PROCOPT          PIC X(04).` |
-| `app/app-authorization-ims-db2-mq/cpy/PAUTBPCB.CPY:23` | PAUT-KEYFB-NAME PIC S9(05) | `05 PAUT-SEG-NAME             PIC X(08).` |
-| `app/app-authorization-ims-db2-mq/cpy/PAUTBPCB.CPY:24` | PAUT-NUM-SENSEGS PIC S9(05) | `05 PAUT-KEYFB-NAME           PIC S9(05) COMP.` |
+| `app/app-authorization-ims-db2-mq/cpy/PAUTBPCB.CPY:22` | FILLER PIC S9(05) | `05 FILLER                    PIC S9(05) COMP.` |
+| `app/app-authorization-ims-db2-mq/cpy/PAUTBPCB.CPY:24` | PAUT-KEYFB-NAME PIC S9(05) | `05 PAUT-KEYFB-NAME           PIC S9(05) COMP.` |
+| `app/app-authorization-ims-db2-mq/cpy/PAUTBPCB.CPY:25` | PAUT-NUM-SENSEGS PIC S9(05) | `05 PAUT-NUM-SENSEGS          PIC S9(05) COMP.` |
 
 #### `app/app-authorization-ims-db2-mq/dcl/AUTHFRDS.dcl` (2)
 
 | Line | Detail | Source text |
 | --- | --- | --- |
-| `app/app-authorization-ims-db2-mq/dcl/AUTHFRDS.dcl:70` | POS-ENTRY-MODE PIC S9(4) | `10 ACQR-COUNTRY-CODE    PIC X(3).` |
-| `app/app-authorization-ims-db2-mq/dcl/AUTHFRDS.dcl:73` | MERCHANT-NAME-LEN PIC S9(4) | `10 MERCHANT-NAME.` |
+| `app/app-authorization-ims-db2-mq/dcl/AUTHFRDS.dcl:71` | POS-ENTRY-MODE PIC S9(4) | `10 POS-ENTRY-MODE       PIC S9(4) USAGE COMP.` |
+| `app/app-authorization-ims-db2-mq/dcl/AUTHFRDS.dcl:74` | MERCHANT-NAME-LEN PIC S9(4) | `49 MERCHANT-NAME-LEN` |
 
 #### `app/app-transaction-type-db2/cbl/COTRTLIC.cbl` (10)
 
 | Line | Detail | Source text |
 | --- | --- | --- |
-| `app/app-transaction-type-db2/cbl/COTRTLIC.cbl:59` | WS-MAX-SCREEN-LINES PIC S9(4) | `05  LIT-UPDATE-FLAG         PIC X(1)        VALUE 'U'.` |
-| `app/app-transaction-type-db2/cbl/COTRTLIC.cbl:89` | WS-RESP-CD PIC S9(9) | `05 WS-CICS-PROCESSNG-VARS.` |
-| `app/app-transaction-type-db2/cbl/COTRTLIC.cbl:90` | WS-REAS-CD PIC S9(9) | `07 WS-RESP-CD            PIC S9(9) COMP VALUE ZEROS.` |
-| `app/app-transaction-type-db2/cbl/COTRTLIC.cbl:197` | I PIC S9(4) | `05 WS-SUBSCRIPT-VARS.` |
-| `app/app-transaction-type-db2/cbl/COTRTLIC.cbl:199` | I-SELECTED PIC S9(4) | `VALUE 0.` |
-| `app/app-transaction-type-db2/cbl/COTRTLIC.cbl:313` | WS-ROW-NUMBER PIC S9(4) | `10 WS-IN-TYPE-DESC                    PIC X(50).` |
-| `app/app-transaction-type-db2/cbl/COTRTLIC.cbl:392` | WS-CA-ROW-SELECTED PIC S9(4) | `35 WS-CA-ROW-TR-DESC-OUT     PIC X(50).` |
-| `app/app-transaction-type-db2/cbl/COTRTLIC.cbl:437` | TRTSELL PIC S9(4) | `06 EACH-ROWI OCCURS 7 TIMES.` |
-| `app/app-transaction-type-db2/cbl/COTRTLIC.cbl:443` | TRTTYPL PIC S9(4) | `07 TRTSELI                  PIC X(1).` |
-| `app/app-transaction-type-db2/cbl/COTRTLIC.cbl:449` | TRTYPDL PIC S9(4) | `07 TRTTYPI                  PIC X(2).` |
+| `app/app-transaction-type-db2/cbl/COTRTLIC.cbl:60` | WS-MAX-SCREEN-LINES PIC S9(4) | `05  WS-MAX-SCREEN-LINES     PIC S9(4)      COMP VALUE 7.` |
+| `app/app-transaction-type-db2/cbl/COTRTLIC.cbl:90` | WS-RESP-CD PIC S9(9) | `07 WS-RESP-CD            PIC S9(9) COMP VALUE ZEROS.` |
+| `app/app-transaction-type-db2/cbl/COTRTLIC.cbl:91` | WS-REAS-CD PIC S9(9) | `07 WS-REAS-CD            PIC S9(9) COMP VALUE ZEROS.` |
+| `app/app-transaction-type-db2/cbl/COTRTLIC.cbl:198` | I PIC S9(4) | `10 I                                  PIC S9(4) COMP` |
+| `app/app-transaction-type-db2/cbl/COTRTLIC.cbl:200` | I-SELECTED PIC S9(4) | `10 I-SELECTED                         PIC S9(4) COMP` |
+| `app/app-transaction-type-db2/cbl/COTRTLIC.cbl:318` | WS-ROW-NUMBER PIC S9(4) | `05  WS-ROW-NUMBER               PIC S9(4) COMP VALUE 0.` |
+| `app/app-transaction-type-db2/cbl/COTRTLIC.cbl:395` | WS-CA-ROW-SELECTED PIC S9(4) | `10 WS-CA-ROW-SELECTED                     PIC S9(4) COMP` |
+| `app/app-transaction-type-db2/cbl/COTRTLIC.cbl:438` | TRTSELL PIC S9(4) | `07 TRTSELL                  PIC S9(4) COMP.` |
+| `app/app-transaction-type-db2/cbl/COTRTLIC.cbl:444` | TRTTYPL PIC S9(4) | `07 TRTTYPL                  PIC S9(4) COMP.` |
+| `app/app-transaction-type-db2/cbl/COTRTLIC.cbl:450` | TRTYPDL PIC S9(4) | `07 TRTYPDL                  PIC S9(4) COMP.` |
 
 #### `app/app-transaction-type-db2/cbl/COTRTUPC.cbl` (2)
 
 | Line | Detail | Source text |
 | --- | --- | --- |
-| `app/app-transaction-type-db2/cbl/COTRTUPC.cbl:39` | WS-RESP-CD PIC S9(09) | `05 WS-CICS-PROCESSNG-VARS.` |
-| `app/app-transaction-type-db2/cbl/COTRTUPC.cbl:41` | WS-REAS-CD PIC S9(09) | `VALUE ZEROS.` |
+| `app/app-transaction-type-db2/cbl/COTRTUPC.cbl:40` | WS-RESP-CD PIC S9(09) | `07 WS-RESP-CD                          PIC S9(09) COMP` |
+| `app/app-transaction-type-db2/cbl/COTRTUPC.cbl:42` | WS-REAS-CD PIC S9(09) | `07 WS-REAS-CD                          PIC S9(09) COMP` |
 
 #### `app/app-transaction-type-db2/cpy-bms/COTRTLI.cpy` (40)
 
 | Line | Detail | Source text |
 | --- | --- | --- |
-| `app/app-transaction-type-db2/cpy-bms/COTRTLI.cpy:18` | TRNNAMEL PIC S9(4) | `02  FILLER PIC X(12).` |
-| `app/app-transaction-type-db2/cpy-bms/COTRTLI.cpy:24` | TITLE01L PIC S9(4) | `02  TRNNAMEI  PIC X(4).` |
-| `app/app-transaction-type-db2/cpy-bms/COTRTLI.cpy:30` | CURDATEL PIC S9(4) | `02  TITLE01I  PIC X(40).` |
-| `app/app-transaction-type-db2/cpy-bms/COTRTLI.cpy:36` | PGMNAMEL PIC S9(4) | `02  CURDATEI  PIC X(8).` |
-| `app/app-transaction-type-db2/cpy-bms/COTRTLI.cpy:42` | TITLE02L PIC S9(4) | `02  PGMNAMEI  PIC X(8).` |
-| `app/app-transaction-type-db2/cpy-bms/COTRTLI.cpy:48` | CURTIMEL PIC S9(4) | `02  TITLE02I  PIC X(40).` |
-| `app/app-transaction-type-db2/cpy-bms/COTRTLI.cpy:54` | PAGENOL PIC S9(4) | `02  CURTIMEI  PIC X(8).` |
-| `app/app-transaction-type-db2/cpy-bms/COTRTLI.cpy:60` | TRTYPEL PIC S9(4) | `02  PAGENOI  PIC X(3).` |
-| `app/app-transaction-type-db2/cpy-bms/COTRTLI.cpy:66` | TRDESCL PIC S9(4) | `02  TRTYPEI  PIC X(2).` |
-| `app/app-transaction-type-db2/cpy-bms/COTRTLI.cpy:72` | TRTSEL1L PIC S9(4) | `02  TRDESCI  PIC X(50).` |
-| `app/app-transaction-type-db2/cpy-bms/COTRTLI.cpy:78` | TRTTYP1L PIC S9(4) | `02  TRTSEL1I  PIC X(1).` |
-| `app/app-transaction-type-db2/cpy-bms/COTRTLI.cpy:84` | TRTYPD1L PIC S9(4) | `02  TRTTYP1I  PIC X(2).` |
-| `app/app-transaction-type-db2/cpy-bms/COTRTLI.cpy:90` | TRTSEL2L PIC S9(4) | `02  TRTYPD1I  PIC X(50).` |
-| `app/app-transaction-type-db2/cpy-bms/COTRTLI.cpy:96` | TRTTYP2L PIC S9(4) | `02  TRTSEL2I  PIC X(1).` |
-| `app/app-transaction-type-db2/cpy-bms/COTRTLI.cpy:102` | TRTYPD2L PIC S9(4) | `02  TRTTYP2I  PIC X(2).` |
-| `app/app-transaction-type-db2/cpy-bms/COTRTLI.cpy:108` | TRTSEL3L PIC S9(4) | `02  TRTYPD2I  PIC X(50).` |
-| `app/app-transaction-type-db2/cpy-bms/COTRTLI.cpy:114` | TRTTYP3L PIC S9(4) | `02  TRTSEL3I  PIC X(1).` |
-| `app/app-transaction-type-db2/cpy-bms/COTRTLI.cpy:120` | TRTYPD3L PIC S9(4) | `02  TRTTYP3I  PIC X(2).` |
-| `app/app-transaction-type-db2/cpy-bms/COTRTLI.cpy:126` | TRTSEL4L PIC S9(4) | `02  TRTYPD3I  PIC X(50).` |
-| `app/app-transaction-type-db2/cpy-bms/COTRTLI.cpy:132` | TRTTYP4L PIC S9(4) | `02  TRTSEL4I  PIC X(1).` |
-| `app/app-transaction-type-db2/cpy-bms/COTRTLI.cpy:138` | TRTYPD4L PIC S9(4) | `02  TRTTYP4I  PIC X(2).` |
-| `app/app-transaction-type-db2/cpy-bms/COTRTLI.cpy:144` | TRTSEL5L PIC S9(4) | `02  TRTYPD4I  PIC X(50).` |
-| `app/app-transaction-type-db2/cpy-bms/COTRTLI.cpy:150` | TRTTYP5L PIC S9(4) | `02  TRTSEL5I  PIC X(1).` |
-| `app/app-transaction-type-db2/cpy-bms/COTRTLI.cpy:156` | TRTYPD5L PIC S9(4) | `02  TRTTYP5I  PIC X(2).` |
-| `app/app-transaction-type-db2/cpy-bms/COTRTLI.cpy:162` | TRTSEL6L PIC S9(4) | `02  TRTYPD5I  PIC X(50).` |
-| `app/app-transaction-type-db2/cpy-bms/COTRTLI.cpy:168` | TRTTYP6L PIC S9(4) | `02  TRTSEL6I  PIC X(1).` |
-| `app/app-transaction-type-db2/cpy-bms/COTRTLI.cpy:174` | TRTYPD6L PIC S9(4) | `02  TRTTYP6I  PIC X(2).` |
-| `app/app-transaction-type-db2/cpy-bms/COTRTLI.cpy:180` | TRTSEL7L PIC S9(4) | `02  TRTYPD6I  PIC X(50).` |
-| `app/app-transaction-type-db2/cpy-bms/COTRTLI.cpy:186` | TRTTYP7L PIC S9(4) | `02  TRTSEL7I  PIC X(1).` |
-| `app/app-transaction-type-db2/cpy-bms/COTRTLI.cpy:192` | TRTYPD7L PIC S9(4) | `02  TRTTYP7I  PIC X(2).` |
-| `app/app-transaction-type-db2/cpy-bms/COTRTLI.cpy:198` | TRTSELAL PIC S9(4) | `02  TRTYPD7I  PIC X(50).` |
-| `app/app-transaction-type-db2/cpy-bms/COTRTLI.cpy:204` | TRTTYPAL PIC S9(4) | `02  TRTSELAI  PIC X(1).` |
-| `app/app-transaction-type-db2/cpy-bms/COTRTLI.cpy:210` | TRTDSCAL PIC S9(4) | `02  TRTTYPAI  PIC X(2).` |
-| `app/app-transaction-type-db2/cpy-bms/COTRTLI.cpy:216` | INFOMSGL PIC S9(4) | `02  TRTDSCAI  PIC X(50).` |
-| `app/app-transaction-type-db2/cpy-bms/COTRTLI.cpy:222` | ERRMSGL PIC S9(4) | `02  INFOMSGI  PIC X(45).` |
-| `app/app-transaction-type-db2/cpy-bms/COTRTLI.cpy:228` | BUTNF02L PIC S9(4) | `02  ERRMSGI  PIC X(78).` |
-| `app/app-transaction-type-db2/cpy-bms/COTRTLI.cpy:234` | BUTNF03L PIC S9(4) | `02  BUTNF02I  PIC X(7).` |
-| `app/app-transaction-type-db2/cpy-bms/COTRTLI.cpy:240` | BUTNF07L PIC S9(4) | `02  BUTNF03I  PIC X(7).` |
-| `app/app-transaction-type-db2/cpy-bms/COTRTLI.cpy:246` | BUTNF08L PIC S9(4) | `02  BUTNF07I  PIC X(10).` |
-| `app/app-transaction-type-db2/cpy-bms/COTRTLI.cpy:252` | BUTNF10L PIC S9(4) | `02  BUTNF08I  PIC X(10).` |
+| `app/app-transaction-type-db2/cpy-bms/COTRTLI.cpy:19` | TRNNAMEL PIC S9(4) | `02  TRNNAMEL    COMP  PIC  S9(4).` |
+| `app/app-transaction-type-db2/cpy-bms/COTRTLI.cpy:25` | TITLE01L PIC S9(4) | `02  TITLE01L    COMP  PIC  S9(4).` |
+| `app/app-transaction-type-db2/cpy-bms/COTRTLI.cpy:31` | CURDATEL PIC S9(4) | `02  CURDATEL    COMP  PIC  S9(4).` |
+| `app/app-transaction-type-db2/cpy-bms/COTRTLI.cpy:37` | PGMNAMEL PIC S9(4) | `02  PGMNAMEL    COMP  PIC  S9(4).` |
+| `app/app-transaction-type-db2/cpy-bms/COTRTLI.cpy:43` | TITLE02L PIC S9(4) | `02  TITLE02L    COMP  PIC  S9(4).` |
+| `app/app-transaction-type-db2/cpy-bms/COTRTLI.cpy:49` | CURTIMEL PIC S9(4) | `02  CURTIMEL    COMP  PIC  S9(4).` |
+| `app/app-transaction-type-db2/cpy-bms/COTRTLI.cpy:55` | PAGENOL PIC S9(4) | `02  PAGENOL    COMP  PIC  S9(4).` |
+| `app/app-transaction-type-db2/cpy-bms/COTRTLI.cpy:61` | TRTYPEL PIC S9(4) | `02  TRTYPEL    COMP  PIC  S9(4).` |
+| `app/app-transaction-type-db2/cpy-bms/COTRTLI.cpy:67` | TRDESCL PIC S9(4) | `02  TRDESCL    COMP  PIC  S9(4).` |
+| `app/app-transaction-type-db2/cpy-bms/COTRTLI.cpy:73` | TRTSEL1L PIC S9(4) | `02  TRTSEL1L    COMP  PIC  S9(4).` |
+| `app/app-transaction-type-db2/cpy-bms/COTRTLI.cpy:79` | TRTTYP1L PIC S9(4) | `02  TRTTYP1L    COMP  PIC  S9(4).` |
+| `app/app-transaction-type-db2/cpy-bms/COTRTLI.cpy:85` | TRTYPD1L PIC S9(4) | `02  TRTYPD1L    COMP  PIC  S9(4).` |
+| `app/app-transaction-type-db2/cpy-bms/COTRTLI.cpy:91` | TRTSEL2L PIC S9(4) | `02  TRTSEL2L    COMP  PIC  S9(4).` |
+| `app/app-transaction-type-db2/cpy-bms/COTRTLI.cpy:97` | TRTTYP2L PIC S9(4) | `02  TRTTYP2L    COMP  PIC  S9(4).` |
+| `app/app-transaction-type-db2/cpy-bms/COTRTLI.cpy:103` | TRTYPD2L PIC S9(4) | `02  TRTYPD2L    COMP  PIC  S9(4).` |
+| `app/app-transaction-type-db2/cpy-bms/COTRTLI.cpy:109` | TRTSEL3L PIC S9(4) | `02  TRTSEL3L    COMP  PIC  S9(4).` |
+| `app/app-transaction-type-db2/cpy-bms/COTRTLI.cpy:115` | TRTTYP3L PIC S9(4) | `02  TRTTYP3L    COMP  PIC  S9(4).` |
+| `app/app-transaction-type-db2/cpy-bms/COTRTLI.cpy:121` | TRTYPD3L PIC S9(4) | `02  TRTYPD3L    COMP  PIC  S9(4).` |
+| `app/app-transaction-type-db2/cpy-bms/COTRTLI.cpy:127` | TRTSEL4L PIC S9(4) | `02  TRTSEL4L    COMP  PIC  S9(4).` |
+| `app/app-transaction-type-db2/cpy-bms/COTRTLI.cpy:133` | TRTTYP4L PIC S9(4) | `02  TRTTYP4L    COMP  PIC  S9(4).` |
+| `app/app-transaction-type-db2/cpy-bms/COTRTLI.cpy:139` | TRTYPD4L PIC S9(4) | `02  TRTYPD4L    COMP  PIC  S9(4).` |
+| `app/app-transaction-type-db2/cpy-bms/COTRTLI.cpy:145` | TRTSEL5L PIC S9(4) | `02  TRTSEL5L    COMP  PIC  S9(4).` |
+| `app/app-transaction-type-db2/cpy-bms/COTRTLI.cpy:151` | TRTTYP5L PIC S9(4) | `02  TRTTYP5L    COMP  PIC  S9(4).` |
+| `app/app-transaction-type-db2/cpy-bms/COTRTLI.cpy:157` | TRTYPD5L PIC S9(4) | `02  TRTYPD5L    COMP  PIC  S9(4).` |
+| `app/app-transaction-type-db2/cpy-bms/COTRTLI.cpy:163` | TRTSEL6L PIC S9(4) | `02  TRTSEL6L    COMP  PIC  S9(4).` |
+| `app/app-transaction-type-db2/cpy-bms/COTRTLI.cpy:169` | TRTTYP6L PIC S9(4) | `02  TRTTYP6L    COMP  PIC  S9(4).` |
+| `app/app-transaction-type-db2/cpy-bms/COTRTLI.cpy:175` | TRTYPD6L PIC S9(4) | `02  TRTYPD6L    COMP  PIC  S9(4).` |
+| `app/app-transaction-type-db2/cpy-bms/COTRTLI.cpy:181` | TRTSEL7L PIC S9(4) | `02  TRTSEL7L    COMP  PIC  S9(4).` |
+| `app/app-transaction-type-db2/cpy-bms/COTRTLI.cpy:187` | TRTTYP7L PIC S9(4) | `02  TRTTYP7L    COMP  PIC  S9(4).` |
+| `app/app-transaction-type-db2/cpy-bms/COTRTLI.cpy:193` | TRTYPD7L PIC S9(4) | `02  TRTYPD7L    COMP  PIC  S9(4).` |
+| `app/app-transaction-type-db2/cpy-bms/COTRTLI.cpy:199` | TRTSELAL PIC S9(4) | `02  TRTSELAL    COMP  PIC  S9(4).` |
+| `app/app-transaction-type-db2/cpy-bms/COTRTLI.cpy:205` | TRTTYPAL PIC S9(4) | `02  TRTTYPAL    COMP  PIC  S9(4).` |
+| `app/app-transaction-type-db2/cpy-bms/COTRTLI.cpy:211` | TRTDSCAL PIC S9(4) | `02  TRTDSCAL    COMP  PIC  S9(4).` |
+| `app/app-transaction-type-db2/cpy-bms/COTRTLI.cpy:217` | INFOMSGL PIC S9(4) | `02  INFOMSGL    COMP  PIC  S9(4).` |
+| `app/app-transaction-type-db2/cpy-bms/COTRTLI.cpy:223` | ERRMSGL PIC S9(4) | `02  ERRMSGL    COMP  PIC  S9(4).` |
+| `app/app-transaction-type-db2/cpy-bms/COTRTLI.cpy:229` | BUTNF02L PIC S9(4) | `02  BUTNF02L    COMP  PIC  S9(4).` |
+| `app/app-transaction-type-db2/cpy-bms/COTRTLI.cpy:235` | BUTNF03L PIC S9(4) | `02  BUTNF03L    COMP  PIC  S9(4).` |
+| `app/app-transaction-type-db2/cpy-bms/COTRTLI.cpy:241` | BUTNF07L PIC S9(4) | `02  BUTNF07L    COMP  PIC  S9(4).` |
+| `app/app-transaction-type-db2/cpy-bms/COTRTLI.cpy:247` | BUTNF08L PIC S9(4) | `02  BUTNF08L    COMP  PIC  S9(4).` |
+| `app/app-transaction-type-db2/cpy-bms/COTRTLI.cpy:253` | BUTNF10L PIC S9(4) | `02  BUTNF10L    COMP  PIC  S9(4).` |
 
 #### `app/app-transaction-type-db2/cpy-bms/COTRTUP.cpy` (15)
 
 | Line | Detail | Source text |
 | --- | --- | --- |
-| `app/app-transaction-type-db2/cpy-bms/COTRTUP.cpy:18` | TRNNAMEL PIC S9(4) | `02  FILLER PIC X(12).` |
-| `app/app-transaction-type-db2/cpy-bms/COTRTUP.cpy:24` | TITLE01L PIC S9(4) | `02  TRNNAMEI  PIC X(4).` |
-| `app/app-transaction-type-db2/cpy-bms/COTRTUP.cpy:30` | CURDATEL PIC S9(4) | `02  TITLE01I  PIC X(40).` |
-| `app/app-transaction-type-db2/cpy-bms/COTRTUP.cpy:36` | PGMNAMEL PIC S9(4) | `02  CURDATEI  PIC X(8).` |
-| `app/app-transaction-type-db2/cpy-bms/COTRTUP.cpy:42` | TITLE02L PIC S9(4) | `02  PGMNAMEI  PIC X(8).` |
-| `app/app-transaction-type-db2/cpy-bms/COTRTUP.cpy:48` | CURTIMEL PIC S9(4) | `02  TITLE02I  PIC X(40).` |
-| `app/app-transaction-type-db2/cpy-bms/COTRTUP.cpy:54` | TRTYPCDL PIC S9(4) | `02  CURTIMEI  PIC X(8).` |
-| `app/app-transaction-type-db2/cpy-bms/COTRTUP.cpy:60` | TRTYDSCL PIC S9(4) | `02  TRTYPCDI  PIC X(2).` |
-| `app/app-transaction-type-db2/cpy-bms/COTRTUP.cpy:66` | INFOMSGL PIC S9(4) | `02  TRTYDSCI  PIC X(50).` |
-| `app/app-transaction-type-db2/cpy-bms/COTRTUP.cpy:72` | ERRMSGL PIC S9(4) | `02  INFOMSGI  PIC X(45).` |
-| `app/app-transaction-type-db2/cpy-bms/COTRTUP.cpy:78` | FKEYSL PIC S9(4) | `02  ERRMSGI  PIC X(78).` |
-| `app/app-transaction-type-db2/cpy-bms/COTRTUP.cpy:84` | FKEY04L PIC S9(4) | `02  FKEYSI  PIC X(21).` |
-| `app/app-transaction-type-db2/cpy-bms/COTRTUP.cpy:90` | FKEY05L PIC S9(4) | `02  FKEY04I  PIC X(9).` |
-| `app/app-transaction-type-db2/cpy-bms/COTRTUP.cpy:96` | FKEY06L PIC S9(4) | `02  FKEY05I  PIC X(8).` |
-| `app/app-transaction-type-db2/cpy-bms/COTRTUP.cpy:102` | FKEY12L PIC S9(4) | `02  FKEY06I  PIC X(6).` |
+| `app/app-transaction-type-db2/cpy-bms/COTRTUP.cpy:19` | TRNNAMEL PIC S9(4) | `02  TRNNAMEL    COMP  PIC  S9(4).` |
+| `app/app-transaction-type-db2/cpy-bms/COTRTUP.cpy:25` | TITLE01L PIC S9(4) | `02  TITLE01L    COMP  PIC  S9(4).` |
+| `app/app-transaction-type-db2/cpy-bms/COTRTUP.cpy:31` | CURDATEL PIC S9(4) | `02  CURDATEL    COMP  PIC  S9(4).` |
+| `app/app-transaction-type-db2/cpy-bms/COTRTUP.cpy:37` | PGMNAMEL PIC S9(4) | `02  PGMNAMEL    COMP  PIC  S9(4).` |
+| `app/app-transaction-type-db2/cpy-bms/COTRTUP.cpy:43` | TITLE02L PIC S9(4) | `02  TITLE02L    COMP  PIC  S9(4).` |
+| `app/app-transaction-type-db2/cpy-bms/COTRTUP.cpy:49` | CURTIMEL PIC S9(4) | `02  CURTIMEL    COMP  PIC  S9(4).` |
+| `app/app-transaction-type-db2/cpy-bms/COTRTUP.cpy:55` | TRTYPCDL PIC S9(4) | `02  TRTYPCDL    COMP  PIC  S9(4).` |
+| `app/app-transaction-type-db2/cpy-bms/COTRTUP.cpy:61` | TRTYDSCL PIC S9(4) | `02  TRTYDSCL    COMP  PIC  S9(4).` |
+| `app/app-transaction-type-db2/cpy-bms/COTRTUP.cpy:67` | INFOMSGL PIC S9(4) | `02  INFOMSGL    COMP  PIC  S9(4).` |
+| `app/app-transaction-type-db2/cpy-bms/COTRTUP.cpy:73` | ERRMSGL PIC S9(4) | `02  ERRMSGL    COMP  PIC  S9(4).` |
+| `app/app-transaction-type-db2/cpy-bms/COTRTUP.cpy:79` | FKEYSL PIC S9(4) | `02  FKEYSL    COMP  PIC  S9(4).` |
+| `app/app-transaction-type-db2/cpy-bms/COTRTUP.cpy:85` | FKEY04L PIC S9(4) | `02  FKEY04L    COMP  PIC  S9(4).` |
+| `app/app-transaction-type-db2/cpy-bms/COTRTUP.cpy:91` | FKEY05L PIC S9(4) | `02  FKEY05L    COMP  PIC  S9(4).` |
+| `app/app-transaction-type-db2/cpy-bms/COTRTUP.cpy:97` | FKEY06L PIC S9(4) | `02  FKEY06L    COMP  PIC  S9(4).` |
+| `app/app-transaction-type-db2/cpy-bms/COTRTUP.cpy:103` | FKEY12L PIC S9(4) | `02  FKEY12L    COMP  PIC  S9(4).` |
 
 #### `app/app-transaction-type-db2/cpy/CSDB2RWY.cpy` (2)
 
 | Line | Detail | Source text |
 | --- | --- | --- |
-| `app/app-transaction-type-db2/cpy/CSDB2RWY.cpy:33` | WS-DSNTIAC-MESG-LEN PIC S9(4) | `05  WS-DSNTIAC-FORMATTED.` |
-| `app/app-transaction-type-db2/cpy/CSDB2RWY.cpy:39` | WS-DSNTIAC-LRECL PIC S9(4) | `VALUE SPACES.` |
+| `app/app-transaction-type-db2/cpy/CSDB2RWY.cpy:34` | WS-DSNTIAC-MESG-LEN PIC S9(4) | `10  WS-DSNTIAC-MESG-LEN   PIC S9(4) USAGE COMP VALUE +720.` |
+| `app/app-transaction-type-db2/cpy/CSDB2RWY.cpy:41` | WS-DSNTIAC-LRECL PIC S9(4) | `05 WS-DSNTIAC-LRECL          PIC S9(4) USAGE COMP VALUE +72.` |
 
 #### `app/app-transaction-type-db2/dcl/DCLTRCAT.dcl` (1)
 
 | Line | Detail | Source text |
 | --- | --- | --- |
-| `app/app-transaction-type-db2/dcl/DCLTRCAT.dcl:45` | DCL-TRC-CAT-DATA-LEN PIC S9(4) | `10 DCL-TRC-CAT-DATA.` |
+| `app/app-transaction-type-db2/dcl/DCLTRCAT.dcl:47` | DCL-TRC-CAT-DATA-LEN PIC S9(4) | `49 DCL-TRC-CAT-DATA-LEN` |
 
 #### `app/app-transaction-type-db2/dcl/DCLTRTYP.dcl` (1)
 
 | Line | Detail | Source text |
 | --- | --- | --- |
-| `app/app-transaction-type-db2/dcl/DCLTRTYP.dcl:40` | DCL-TR-DESCRIPTION-LEN PIC S9(4) | `10 DCL-TR-DESCRIPTION.` |
+| `app/app-transaction-type-db2/dcl/DCLTRTYP.dcl:42` | DCL-TR-DESCRIPTION-LEN PIC S9(4) | `49 DCL-TR-DESCRIPTION-LEN` |
 
 #### `app/app-vsam-mq/cbl/COACCT01.cbl` (15)
 
 | Line | Detail | Source text |
 | --- | --- | --- |
-| `app/app-vsam-mq/cbl/COACCT01.cbl:26` | WS-CICS-RESP1-CD PIC S9(08) | `01 WS-CICS-RESP-CDS.` |
-| `app/app-vsam-mq/cbl/COACCT01.cbl:27` | WS-CICS-RESP2-CD PIC S9(08) | `05  WS-CICS-RESP1-CD        PIC S9(08) COMP VALUE ZERO.` |
-| `app/app-vsam-mq/cbl/COACCT01.cbl:43` | MQ-HCONN PIC S9(09) | `01 MQ-QUEUE-REPLY                  PIC X(48).` |
-| `app/app-vsam-mq/cbl/COACCT01.cbl:44` | MQ-CONDITION-CODE PIC S9(09) | `01 MQ-HCONN                        PIC S9(09) BINARY VALUE 0.` |
-| `app/app-vsam-mq/cbl/COACCT01.cbl:45` | MQ-REASON-CODE PIC S9(09) | `01 MQ-CONDITION-CODE               PIC S9(09) BINARY VALUE 0.` |
-| `app/app-vsam-mq/cbl/COACCT01.cbl:46` | MQ-HOBJ PIC S9(09) | `01 MQ-REASON-CODE                  PIC S9(09) BINARY VALUE 0.` |
-| `app/app-vsam-mq/cbl/COACCT01.cbl:47` | MQ-OPTIONS PIC S9(09) | `01 MQ-HOBJ                         PIC S9(09) BINARY VALUE 0.` |
-| `app/app-vsam-mq/cbl/COACCT01.cbl:48` | MQ-BUFFER-LENGTH PIC S9(09) | `01 MQ-OPTIONS                      PIC S9(09) BINARY VALUE 0.` |
-| `app/app-vsam-mq/cbl/COACCT01.cbl:50` | MQ-DATA-LENGTH PIC S9(09) | `01 MQ-BUFFER                       PIC X(1000).` |
-| `app/app-vsam-mq/cbl/COACCT01.cbl:96` | INPUT-QUEUE-HANDLE PIC S9(09) | `05 ERROR-QUEUE-NAME            PIC X(48) VALUE SPACES.` |
-| `app/app-vsam-mq/cbl/COACCT01.cbl:98` | OUTPUT-QUEUE-HANDLE PIC S9(09) | `01 INPUT-QUEUE-HANDLE              PIC S9(09) BINARY VALUE 0.` |
-| `app/app-vsam-mq/cbl/COACCT01.cbl:100` | ERROR-QUEUE-HANDLE PIC S9(09) | `01 OUTPUT-QUEUE-HANDLE             PIC S9(09) BINARY VALUE 0.` |
-| `app/app-vsam-mq/cbl/COACCT01.cbl:102` | QMGR-HANDLE-CONN PIC S9(09) | `01 ERROR-QUEUE-HANDLE              PIC S9(09) BINARY VALUE 0.` |
-| `app/app-vsam-mq/cbl/COACCT01.cbl:116` | WS-RESP-CD PIC S9(09) | `VALUE 'ACCTDAT '.` |
-| `app/app-vsam-mq/cbl/COACCT01.cbl:118` | WS-REAS-CD PIC S9(09) | `VALUE ZEROS.` |
+| `app/app-vsam-mq/cbl/COACCT01.cbl:27` | WS-CICS-RESP1-CD PIC S9(08) | `05  WS-CICS-RESP1-CD        PIC S9(08) COMP VALUE ZERO.` |
+| `app/app-vsam-mq/cbl/COACCT01.cbl:28` | WS-CICS-RESP2-CD PIC S9(08) | `05  WS-CICS-RESP2-CD        PIC S9(08) COMP VALUE ZERO.` |
+| `app/app-vsam-mq/cbl/COACCT01.cbl:44` | MQ-HCONN PIC S9(09) | `01 MQ-HCONN                        PIC S9(09) BINARY VALUE 0.` |
+| `app/app-vsam-mq/cbl/COACCT01.cbl:45` | MQ-CONDITION-CODE PIC S9(09) | `01 MQ-CONDITION-CODE               PIC S9(09) BINARY VALUE 0.` |
+| `app/app-vsam-mq/cbl/COACCT01.cbl:46` | MQ-REASON-CODE PIC S9(09) | `01 MQ-REASON-CODE                  PIC S9(09) BINARY VALUE 0.` |
+| `app/app-vsam-mq/cbl/COACCT01.cbl:47` | MQ-HOBJ PIC S9(09) | `01 MQ-HOBJ                         PIC S9(09) BINARY VALUE 0.` |
+| `app/app-vsam-mq/cbl/COACCT01.cbl:48` | MQ-OPTIONS PIC S9(09) | `01 MQ-OPTIONS                      PIC S9(09) BINARY VALUE 0.` |
+| `app/app-vsam-mq/cbl/COACCT01.cbl:49` | MQ-BUFFER-LENGTH PIC S9(09) | `01 MQ-BUFFER-LENGTH                PIC S9(09) BINARY.` |
+| `app/app-vsam-mq/cbl/COACCT01.cbl:51` | MQ-DATA-LENGTH PIC S9(09) | `01 MQ-DATA-LENGTH                  PIC S9(09) BINARY.` |
+| `app/app-vsam-mq/cbl/COACCT01.cbl:98` | INPUT-QUEUE-HANDLE PIC S9(09) | `01 INPUT-QUEUE-HANDLE              PIC S9(09) BINARY VALUE 0.` |
+| `app/app-vsam-mq/cbl/COACCT01.cbl:100` | OUTPUT-QUEUE-HANDLE PIC S9(09) | `01 OUTPUT-QUEUE-HANDLE             PIC S9(09) BINARY VALUE 0.` |
+| `app/app-vsam-mq/cbl/COACCT01.cbl:102` | ERROR-QUEUE-HANDLE PIC S9(09) | `01 ERROR-QUEUE-HANDLE              PIC S9(09) BINARY VALUE 0.` |
+| `app/app-vsam-mq/cbl/COACCT01.cbl:104` | QMGR-HANDLE-CONN PIC S9(09) | `01 QMGR-HANDLE-CONN                PIC S9(09) BINARY VALUE 0.` |
+| `app/app-vsam-mq/cbl/COACCT01.cbl:117` | WS-RESP-CD PIC S9(09) | `05 WS-RESP-CD                          PIC S9(09) COMP` |
+| `app/app-vsam-mq/cbl/COACCT01.cbl:119` | WS-REAS-CD PIC S9(09) | `05 WS-REAS-CD                          PIC S9(09) COMP` |
 
 #### `app/app-vsam-mq/cbl/CODATE01.cbl` (15)
 
 | Line | Detail | Source text |
 | --- | --- | --- |
-| `app/app-vsam-mq/cbl/CODATE01.cbl:26` | WS-CICS-RESP1-CD PIC S9(08) | `01 WS-CICS-RESP-CDS.` |
-| `app/app-vsam-mq/cbl/CODATE01.cbl:27` | WS-CICS-RESP2-CD PIC S9(08) | `05  WS-CICS-RESP1-CD        PIC S9(08) COMP VALUE ZERO.` |
-| `app/app-vsam-mq/cbl/CODATE01.cbl:43` | MQ-HCONN PIC S9(09) | `01 MQ-QUEUE-REPLY                  PIC X(48).` |
-| `app/app-vsam-mq/cbl/CODATE01.cbl:44` | MQ-CONDITION-CODE PIC S9(09) | `01 MQ-HCONN                        PIC S9(09) BINARY VALUE 0.` |
-| `app/app-vsam-mq/cbl/CODATE01.cbl:45` | MQ-REASON-CODE PIC S9(09) | `01 MQ-CONDITION-CODE               PIC S9(09) BINARY VALUE 0.` |
-| `app/app-vsam-mq/cbl/CODATE01.cbl:46` | MQ-HOBJ PIC S9(09) | `01 MQ-REASON-CODE                  PIC S9(09) BINARY VALUE 0.` |
-| `app/app-vsam-mq/cbl/CODATE01.cbl:47` | MQ-OPTIONS PIC S9(09) | `01 MQ-HOBJ                         PIC S9(09) BINARY VALUE 0.` |
-| `app/app-vsam-mq/cbl/CODATE01.cbl:48` | MQ-BUFFER-LENGTH PIC S9(09) | `01 MQ-OPTIONS                      PIC S9(09) BINARY VALUE 0.` |
-| `app/app-vsam-mq/cbl/CODATE01.cbl:50` | MQ-DATA-LENGTH PIC S9(09) | `01 MQ-BUFFER                       PIC X(1000).` |
-| `app/app-vsam-mq/cbl/CODATE01.cbl:96` | INPUT-QUEUE-HANDLE PIC S9(09) | `05 ERROR-QUEUE-NAME            PIC X(48) VALUE SPACES.` |
-| `app/app-vsam-mq/cbl/CODATE01.cbl:98` | OUTPUT-QUEUE-HANDLE PIC S9(09) | `01 INPUT-QUEUE-HANDLE              PIC S9(09) BINARY VALUE 0.` |
-| `app/app-vsam-mq/cbl/CODATE01.cbl:100` | ERROR-QUEUE-HANDLE PIC S9(09) | `01 OUTPUT-QUEUE-HANDLE             PIC S9(09) BINARY VALUE 0.` |
-| `app/app-vsam-mq/cbl/CODATE01.cbl:102` | QMGR-HANDLE-CONN PIC S9(09) | `01 ERROR-QUEUE-HANDLE              PIC S9(09) BINARY VALUE 0.` |
-| `app/app-vsam-mq/cbl/CODATE01.cbl:116` | WS-RESP-CD PIC S9(09) | `VALUE 'ACCTDAT '.` |
-| `app/app-vsam-mq/cbl/CODATE01.cbl:118` | WS-REAS-CD PIC S9(09) | `VALUE ZEROS.` |
+| `app/app-vsam-mq/cbl/CODATE01.cbl:27` | WS-CICS-RESP1-CD PIC S9(08) | `05  WS-CICS-RESP1-CD        PIC S9(08) COMP VALUE ZERO.` |
+| `app/app-vsam-mq/cbl/CODATE01.cbl:28` | WS-CICS-RESP2-CD PIC S9(08) | `05  WS-CICS-RESP2-CD        PIC S9(08) COMP VALUE ZERO.` |
+| `app/app-vsam-mq/cbl/CODATE01.cbl:44` | MQ-HCONN PIC S9(09) | `01 MQ-HCONN                        PIC S9(09) BINARY VALUE 0.` |
+| `app/app-vsam-mq/cbl/CODATE01.cbl:45` | MQ-CONDITION-CODE PIC S9(09) | `01 MQ-CONDITION-CODE               PIC S9(09) BINARY VALUE 0.` |
+| `app/app-vsam-mq/cbl/CODATE01.cbl:46` | MQ-REASON-CODE PIC S9(09) | `01 MQ-REASON-CODE                  PIC S9(09) BINARY VALUE 0.` |
+| `app/app-vsam-mq/cbl/CODATE01.cbl:47` | MQ-HOBJ PIC S9(09) | `01 MQ-HOBJ                         PIC S9(09) BINARY VALUE 0.` |
+| `app/app-vsam-mq/cbl/CODATE01.cbl:48` | MQ-OPTIONS PIC S9(09) | `01 MQ-OPTIONS                      PIC S9(09) BINARY VALUE 0.` |
+| `app/app-vsam-mq/cbl/CODATE01.cbl:49` | MQ-BUFFER-LENGTH PIC S9(09) | `01 MQ-BUFFER-LENGTH                PIC S9(09) BINARY.` |
+| `app/app-vsam-mq/cbl/CODATE01.cbl:51` | MQ-DATA-LENGTH PIC S9(09) | `01 MQ-DATA-LENGTH                  PIC S9(09) BINARY.` |
+| `app/app-vsam-mq/cbl/CODATE01.cbl:98` | INPUT-QUEUE-HANDLE PIC S9(09) | `01 INPUT-QUEUE-HANDLE              PIC S9(09) BINARY VALUE 0.` |
+| `app/app-vsam-mq/cbl/CODATE01.cbl:100` | OUTPUT-QUEUE-HANDLE PIC S9(09) | `01 OUTPUT-QUEUE-HANDLE             PIC S9(09) BINARY VALUE 0.` |
+| `app/app-vsam-mq/cbl/CODATE01.cbl:102` | ERROR-QUEUE-HANDLE PIC S9(09) | `01 ERROR-QUEUE-HANDLE              PIC S9(09) BINARY VALUE 0.` |
+| `app/app-vsam-mq/cbl/CODATE01.cbl:104` | QMGR-HANDLE-CONN PIC S9(09) | `01 QMGR-HANDLE-CONN                PIC S9(09) BINARY VALUE 0.` |
+| `app/app-vsam-mq/cbl/CODATE01.cbl:117` | WS-RESP-CD PIC S9(09) | `05 WS-RESP-CD                          PIC S9(09) COMP` |
+| `app/app-vsam-mq/cbl/CODATE01.cbl:119` | WS-REAS-CD PIC S9(09) | `05 WS-REAS-CD                          PIC S9(09) COMP` |
 
 #### `app/cbl/CBACT01C.cbl` (5)
 
 | Line | Detail | Source text |
 | --- | --- | --- |
-| `app/cbl/CBACT01C.cbl:106` | TWO-BYTES-BINARY PIC 9(4) | `05  IO-STAT2            PIC X.` |
-| `app/cbl/CBACT01C.cbl:107` | TWO-BYTES-ALPHA PIC None | `01  TWO-BYTES-BINARY        PIC 9(4) BINARY.` |
-| `app/cbl/CBACT01C.cbl:113` | APPL-RESULT PIC S9(9) | `05  IO-STATUS-0403      PIC 999 VALUE 0.` |
-| `app/cbl/CBACT01C.cbl:119` | ABCODE PIC S9(9) | `01  END-OF-FILE             PIC X(01)    VALUE 'N'.` |
-| `app/cbl/CBACT01C.cbl:120` | TIMING PIC S9(9) | `01  ABCODE                  PIC S9(9) BINARY.` |
+| `app/cbl/CBACT01C.cbl:107` | TWO-BYTES-BINARY PIC 9(4) | `01  TWO-BYTES-BINARY        PIC 9(4) BINARY.` |
+| `app/cbl/CBACT01C.cbl:108` | TWO-BYTES-ALPHA PIC None | `01  TWO-BYTES-ALPHA         REDEFINES TWO-BYTES-BINARY.` |
+| `app/cbl/CBACT01C.cbl:115` | APPL-RESULT PIC S9(9) | `01  APPL-RESULT             PIC S9(9)   COMP.` |
+| `app/cbl/CBACT01C.cbl:120` | ABCODE PIC S9(9) | `01  ABCODE                  PIC S9(9) BINARY.` |
+| `app/cbl/CBACT01C.cbl:121` | TIMING PIC S9(9) | `01  TIMING                  PIC S9(9) BINARY.` |
 
 #### `app/cbl/CBACT02C.cbl` (5)
 
 | Line | Detail | Source text |
 | --- | --- | --- |
-| `app/cbl/CBACT02C.cbl:52` | TWO-BYTES-BINARY PIC 9(4) | `05  IO-STAT2            PIC X.` |
-| `app/cbl/CBACT02C.cbl:53` | TWO-BYTES-ALPHA PIC None | `01  TWO-BYTES-BINARY        PIC 9(4) BINARY.` |
-| `app/cbl/CBACT02C.cbl:59` | APPL-RESULT PIC S9(9) | `05  IO-STATUS-0403      PIC 999 VALUE 0.` |
-| `app/cbl/CBACT02C.cbl:65` | ABCODE PIC S9(9) | `01  END-OF-FILE             PIC X(01)    VALUE 'N'.` |
-| `app/cbl/CBACT02C.cbl:66` | TIMING PIC S9(9) | `01  ABCODE                  PIC S9(9) BINARY.` |
+| `app/cbl/CBACT02C.cbl:53` | TWO-BYTES-BINARY PIC 9(4) | `01  TWO-BYTES-BINARY        PIC 9(4) BINARY.` |
+| `app/cbl/CBACT02C.cbl:54` | TWO-BYTES-ALPHA PIC None | `01  TWO-BYTES-ALPHA         REDEFINES TWO-BYTES-BINARY.` |
+| `app/cbl/CBACT02C.cbl:61` | APPL-RESULT PIC S9(9) | `01  APPL-RESULT             PIC S9(9)   COMP.` |
+| `app/cbl/CBACT02C.cbl:66` | ABCODE PIC S9(9) | `01  ABCODE                  PIC S9(9) BINARY.` |
+| `app/cbl/CBACT02C.cbl:67` | TIMING PIC S9(9) | `01  TIMING                  PIC S9(9) BINARY.` |
 
 #### `app/cbl/CBACT03C.cbl` (5)
 
 | Line | Detail | Source text |
 | --- | --- | --- |
-| `app/cbl/CBACT03C.cbl:52` | TWO-BYTES-BINARY PIC 9(4) | `05  IO-STAT2            PIC X.` |
-| `app/cbl/CBACT03C.cbl:53` | TWO-BYTES-ALPHA PIC None | `01  TWO-BYTES-BINARY        PIC 9(4) BINARY.` |
-| `app/cbl/CBACT03C.cbl:59` | APPL-RESULT PIC S9(9) | `05  IO-STATUS-0403      PIC 999 VALUE 0.` |
-| `app/cbl/CBACT03C.cbl:65` | ABCODE PIC S9(9) | `01  END-OF-FILE             PIC X(01)    VALUE 'N'.` |
-| `app/cbl/CBACT03C.cbl:66` | TIMING PIC S9(9) | `01  ABCODE                  PIC S9(9) BINARY.` |
+| `app/cbl/CBACT03C.cbl:53` | TWO-BYTES-BINARY PIC 9(4) | `01  TWO-BYTES-BINARY        PIC 9(4) BINARY.` |
+| `app/cbl/CBACT03C.cbl:54` | TWO-BYTES-ALPHA PIC None | `01  TWO-BYTES-ALPHA         REDEFINES TWO-BYTES-BINARY.` |
+| `app/cbl/CBACT03C.cbl:61` | APPL-RESULT PIC S9(9) | `01  APPL-RESULT             PIC S9(9)   COMP.` |
+| `app/cbl/CBACT03C.cbl:66` | ABCODE PIC S9(9) | `01  ABCODE                  PIC S9(9) BINARY.` |
+| `app/cbl/CBACT03C.cbl:67` | TIMING PIC S9(9) | `01  TIMING                  PIC S9(9) BINARY.` |
 
 #### `app/cbl/CBACT04C.cbl` (6)
 
 | Line | Detail | Source text |
 | --- | --- | --- |
-| `app/cbl/CBACT04C.cbl:124` | TWO-BYTES-BINARY PIC 9(4) | `05  IO-STAT2            PIC X.` |
-| `app/cbl/CBACT04C.cbl:125` | TWO-BYTES-ALPHA PIC None | `01  TWO-BYTES-BINARY        PIC 9(4) BINARY.` |
-| `app/cbl/CBACT04C.cbl:131` | APPL-RESULT PIC S9(9) | `05  IO-STATUS-0403      PIC 999 VALUE 0.` |
-| `app/cbl/CBACT04C.cbl:137` | ABCODE PIC S9(9) | `01  END-OF-FILE             PIC X(01)    VALUE 'N'.` |
-| `app/cbl/CBACT04C.cbl:138` | TIMING PIC S9(9) | `01  ABCODE                  PIC S9(9) BINARY.` |
-| `app/cbl/CBACT04C.cbl:176` | PARM-LENGTH PIC S9(04) | `01  EXTERNAL-PARMS.` |
+| `app/cbl/CBACT04C.cbl:125` | TWO-BYTES-BINARY PIC 9(4) | `01  TWO-BYTES-BINARY        PIC 9(4) BINARY.` |
+| `app/cbl/CBACT04C.cbl:126` | TWO-BYTES-ALPHA PIC None | `01  TWO-BYTES-ALPHA         REDEFINES TWO-BYTES-BINARY.` |
+| `app/cbl/CBACT04C.cbl:133` | APPL-RESULT PIC S9(9) | `01  APPL-RESULT             PIC S9(9)   COMP.` |
+| `app/cbl/CBACT04C.cbl:138` | ABCODE PIC S9(9) | `01  ABCODE                  PIC S9(9) BINARY.` |
+| `app/cbl/CBACT04C.cbl:139` | TIMING PIC S9(9) | `01  TIMING                  PIC S9(9) BINARY.` |
+| `app/cbl/CBACT04C.cbl:177` | PARM-LENGTH PIC S9(04) | `05  PARM-LENGTH         PIC S9(04) COMP.` |
 
 #### `app/cbl/CBCUS01C.cbl` (5)
 
 | Line | Detail | Source text |
 | --- | --- | --- |
-| `app/cbl/CBCUS01C.cbl:52` | TWO-BYTES-BINARY PIC 9(4) | `05  IO-STAT2            PIC X.` |
-| `app/cbl/CBCUS01C.cbl:53` | TWO-BYTES-ALPHA PIC None | `01  TWO-BYTES-BINARY        PIC 9(4) BINARY.` |
-| `app/cbl/CBCUS01C.cbl:59` | APPL-RESULT PIC S9(9) | `05  IO-STATUS-0403      PIC 999 VALUE 0.` |
-| `app/cbl/CBCUS01C.cbl:65` | ABCODE PIC S9(9) | `01  END-OF-FILE             PIC X(01)    VALUE 'N'.` |
-| `app/cbl/CBCUS01C.cbl:66` | TIMING PIC S9(9) | `01  ABCODE                  PIC S9(9) BINARY.` |
+| `app/cbl/CBCUS01C.cbl:53` | TWO-BYTES-BINARY PIC 9(4) | `01  TWO-BYTES-BINARY        PIC 9(4) BINARY.` |
+| `app/cbl/CBCUS01C.cbl:54` | TWO-BYTES-ALPHA PIC None | `01  TWO-BYTES-ALPHA         REDEFINES TWO-BYTES-BINARY.` |
+| `app/cbl/CBCUS01C.cbl:61` | APPL-RESULT PIC S9(9) | `01  APPL-RESULT             PIC S9(9)   COMP.` |
+| `app/cbl/CBCUS01C.cbl:66` | ABCODE PIC S9(9) | `01  ABCODE                  PIC S9(9) BINARY.` |
+| `app/cbl/CBCUS01C.cbl:67` | TIMING PIC S9(9) | `01  TIMING                  PIC S9(9) BINARY.` |
 
 #### `app/cbl/CBSTM03A.CBL` (4)
 
 | Line | Detail | Source text |
 | --- | --- | --- |
-| `app/cbl/CBSTM03A.CBL:57` | COMP-VARIABLES PIC None | `COPY CVACT01Y.` |
-| `app/cbl/CBSTM03A.CBL:232` | WS-TRCT PIC S9(4) | `05  WS-TRN-TBL-CTR OCCURS 51 TIMES.` |
-| `app/cbl/CBSTM03A.CBL:235` | BUMP-TIOT PIC S9(08) | `01  PSAPTR                  POINTER.` |
-| `app/cbl/CBSTM03A.CBL:239` | ALIGN-PSA PIC 9(16) | `LINKAGE SECTION.` |
+| `app/cbl/CBSTM03A.CBL:59` | COMP-VARIABLES PIC None | `01  COMP-VARIABLES          COMP.` |
+| `app/cbl/CBSTM03A.CBL:233` | WS-TRCT PIC S9(4) | `10  WS-TRCT               PIC S9(4) COMP.` |
+| `app/cbl/CBSTM03A.CBL:236` | BUMP-TIOT PIC S9(08) | `01  BUMP-TIOT               PIC S9(08) BINARY VALUE ZERO.` |
+| `app/cbl/CBSTM03A.CBL:240` | ALIGN-PSA PIC 9(16) | `01  ALIGN-PSA        PIC 9(16) BINARY.` |
 
 #### `app/cbl/CBTRN01C.cbl` (5)
 
 | Line | Detail | Source text |
 | --- | --- | --- |
-| `app/cbl/CBTRN01C.cbl:131` | TWO-BYTES-BINARY PIC 9(4) | `05  IO-STAT2            PIC X.` |
-| `app/cbl/CBTRN01C.cbl:133` | TWO-BYTES-ALPHA PIC None | `01  TWO-BYTES-BINARY        PIC 9(4) BINARY.` |
-| `app/cbl/CBTRN01C.cbl:140` | APPL-RESULT PIC S9(9) | `05  IO-STATUS-0403      PIC 999 VALUE 0.` |
-| `app/cbl/CBTRN01C.cbl:146` | ABCODE PIC S9(9) | `01  END-OF-DAILY-TRANS-FILE             PIC X(01)    VALUE 'N'.` |
-| `app/cbl/CBTRN01C.cbl:147` | TIMING PIC S9(9) | `01  ABCODE                  PIC S9(9) BINARY.` |
+| `app/cbl/CBTRN01C.cbl:133` | TWO-BYTES-BINARY PIC 9(4) | `01  TWO-BYTES-BINARY        PIC 9(4) BINARY.` |
+| `app/cbl/CBTRN01C.cbl:134` | TWO-BYTES-ALPHA PIC None | `01  TWO-BYTES-ALPHA         REDEFINES TWO-BYTES-BINARY.` |
+| `app/cbl/CBTRN01C.cbl:142` | APPL-RESULT PIC S9(9) | `01  APPL-RESULT             PIC S9(9)   COMP.` |
+| `app/cbl/CBTRN01C.cbl:147` | ABCODE PIC S9(9) | `01  ABCODE                  PIC S9(9) BINARY.` |
+| `app/cbl/CBTRN01C.cbl:148` | TIMING PIC S9(9) | `01  TIMING                  PIC S9(9) BINARY.` |
 
 #### `app/cbl/CBTRN02C.cbl` (5)
 
 | Line | Detail | Source text |
 | --- | --- | --- |
-| `app/cbl/CBTRN02C.cbl:133` | TWO-BYTES-BINARY PIC 9(4) | `05  IO-STAT2            PIC X.` |
-| `app/cbl/CBTRN02C.cbl:134` | TWO-BYTES-ALPHA PIC None | `01  TWO-BYTES-BINARY        PIC 9(4) BINARY.` |
-| `app/cbl/CBTRN02C.cbl:140` | APPL-RESULT PIC S9(9) | `05  IO-STATUS-0403      PIC 999 VALUE 0.` |
-| `app/cbl/CBTRN02C.cbl:146` | ABCODE PIC S9(9) | `01  END-OF-FILE             PIC X(01)    VALUE 'N'.` |
-| `app/cbl/CBTRN02C.cbl:147` | TIMING PIC S9(9) | `01  ABCODE                  PIC S9(9) BINARY.` |
+| `app/cbl/CBTRN02C.cbl:134` | TWO-BYTES-BINARY PIC 9(4) | `01  TWO-BYTES-BINARY        PIC 9(4) BINARY.` |
+| `app/cbl/CBTRN02C.cbl:135` | TWO-BYTES-ALPHA PIC None | `01  TWO-BYTES-ALPHA         REDEFINES TWO-BYTES-BINARY.` |
+| `app/cbl/CBTRN02C.cbl:142` | APPL-RESULT PIC S9(9) | `01  APPL-RESULT             PIC S9(9)   COMP.` |
+| `app/cbl/CBTRN02C.cbl:147` | ABCODE PIC S9(9) | `01  ABCODE                  PIC S9(9) BINARY.` |
+| `app/cbl/CBTRN02C.cbl:148` | TIMING PIC S9(9) | `01  TIMING                  PIC S9(9) BINARY.` |
 
 #### `app/cbl/CBTRN03C.cbl` (5)
 
 | Line | Detail | Source text |
 | --- | --- | --- |
-| `app/cbl/CBTRN03C.cbl:141` | TWO-BYTES-BINARY PIC 9(4) | `05 IO-STAT2           PIC X.` |
-| `app/cbl/CBTRN03C.cbl:142` | TWO-BYTES-ALPHA PIC None | `01 TWO-BYTES-BINARY      PIC 9(4) BINARY.` |
-| `app/cbl/CBTRN03C.cbl:148` | APPL-RESULT PIC S9(9) | `05 IO-STATUS-0403     PIC 999    VALUE 0.` |
-| `app/cbl/CBTRN03C.cbl:154` | ABCODE PIC S9(9) | `01 END-OF-FILE           PIC X(01)  VALUE 'N'.` |
-| `app/cbl/CBTRN03C.cbl:155` | TIMING PIC S9(9) | `01 ABCODE                PIC S9(9) BINARY.` |
+| `app/cbl/CBTRN03C.cbl:142` | TWO-BYTES-BINARY PIC 9(4) | `01 TWO-BYTES-BINARY      PIC 9(4) BINARY.` |
+| `app/cbl/CBTRN03C.cbl:143` | TWO-BYTES-ALPHA PIC None | `01 TWO-BYTES-ALPHA REDEFINES TWO-BYTES-BINARY.` |
+| `app/cbl/CBTRN03C.cbl:150` | APPL-RESULT PIC S9(9) | `01 APPL-RESULT           PIC S9(9) COMP.` |
+| `app/cbl/CBTRN03C.cbl:155` | ABCODE PIC S9(9) | `01 ABCODE                PIC S9(9) BINARY.` |
+| `app/cbl/CBTRN03C.cbl:156` | TIMING PIC S9(9) | `01 TIMING                PIC S9(9) BINARY.` |
 
 #### `app/cbl/COACTUPC.cbl` (2)
 
 | Line | Detail | Source text |
 | --- | --- | --- |
-| `app/cbl/COACTUPC.cbl:39` | WS-RESP-CD PIC S9(09) | `05 WS-CICS-PROCESSNG-VARS.` |
-| `app/cbl/COACTUPC.cbl:41` | WS-REAS-CD PIC S9(09) | `VALUE ZEROS.` |
+| `app/cbl/COACTUPC.cbl:40` | WS-RESP-CD PIC S9(09) | `07 WS-RESP-CD                          PIC S9(09) COMP` |
+| `app/cbl/COACTUPC.cbl:42` | WS-REAS-CD PIC S9(09) | `07 WS-REAS-CD                          PIC S9(09) COMP` |
 
 #### `app/cbl/COACTVWC.cbl` (2)
 
 | Line | Detail | Source text |
 | --- | --- | --- |
-| `app/cbl/COACTVWC.cbl:39` | WS-RESP-CD PIC S9(09) | `05 WS-CICS-PROCESSNG-VARS.` |
-| `app/cbl/COACTVWC.cbl:41` | WS-REAS-CD PIC S9(09) | `VALUE ZEROS.` |
+| `app/cbl/COACTVWC.cbl:40` | WS-RESP-CD PIC S9(09) | `07 WS-RESP-CD                          PIC S9(09) COMP` |
+| `app/cbl/COACTVWC.cbl:42` | WS-REAS-CD PIC S9(09) | `07 WS-REAS-CD                          PIC S9(09) COMP` |
 
 #### `app/cbl/COADM01C.cbl` (3)
 
 | Line | Detail | Source text |
 | --- | --- | --- |
-| `app/cbl/COADM01C.cbl:42` | WS-RESP-CD PIC S9(09) | `88 ERR-FLG-OFF                        VALUE 'N'.` |
-| `app/cbl/COADM01C.cbl:43` | WS-REAS-CD PIC S9(09) | `05 WS-RESP-CD                 PIC S9(09) COMP VALUE ZEROS.` |
-| `app/cbl/COADM01C.cbl:46` | WS-IDX PIC S9(04) | `05 WS-OPTION                  PIC 9(02) VALUE 0.` |
+| `app/cbl/COADM01C.cbl:43` | WS-RESP-CD PIC S9(09) | `05 WS-RESP-CD                 PIC S9(09) COMP VALUE ZEROS.` |
+| `app/cbl/COADM01C.cbl:44` | WS-REAS-CD PIC S9(09) | `05 WS-REAS-CD                 PIC S9(09) COMP VALUE ZEROS.` |
+| `app/cbl/COADM01C.cbl:47` | WS-IDX PIC S9(04) | `05 WS-IDX                     PIC S9(04) COMP VALUE ZEROS.` |
 
 #### `app/cbl/COBIL00C.cbl` (2)
 
 | Line | Detail | Source text |
 | --- | --- | --- |
-| `app/cbl/COBIL00C.cbl:45` | WS-RESP-CD PIC S9(09) | `88 ERR-FLG-OFF                        VALUE 'N'.` |
-| `app/cbl/COBIL00C.cbl:46` | WS-REAS-CD PIC S9(09) | `05 WS-RESP-CD                 PIC S9(09) COMP VALUE ZEROS.` |
+| `app/cbl/COBIL00C.cbl:46` | WS-RESP-CD PIC S9(09) | `05 WS-RESP-CD                 PIC S9(09) COMP VALUE ZEROS.` |
+| `app/cbl/COBIL00C.cbl:47` | WS-REAS-CD PIC S9(09) | `05 WS-REAS-CD                 PIC S9(09) COMP VALUE ZEROS.` |
 
 #### `app/cbl/COBSWAIT.cbl` (1)
 
 | Line | Detail | Source text |
 | --- | --- | --- |
-| `app/cbl/COBSWAIT.cbl:28` | MVSWAIT-TIME PIC 9(8) | `WORKING-STORAGE SECTION.` |
+| `app/cbl/COBSWAIT.cbl:30` | MVSWAIT-TIME PIC 9(8) | `01 MVSWAIT-TIME                    PIC 9(8) COMP.` |
 
 #### `app/cbl/COCRDLIC.cbl` (6)
 
 | Line | Detail | Source text |
 | --- | --- | --- |
-| `app/cbl/COCRDLIC.cbl:46` | WS-RESP-CD PIC S9(09) | `05 WS-CICS-PROCESSNG-VARS.` |
-| `app/cbl/COCRDLIC.cbl:48` | WS-REAS-CD PIC S9(09) | `VALUE ZEROS.` |
-| `app/cbl/COCRDLIC.cbl:89` | I PIC S9(4) | `05 WS-SUBSCRIPT-VARS.` |
-| `app/cbl/COCRDLIC.cbl:91` | I-SELECTED PIC S9(4) | `VALUE 0.` |
-| `app/cbl/COCRDLIC.cbl:141` | WS-SCRN-COUNTER PIC S9(4) | `WS-CARD-RID-ACCT-ID            PIC X(11).` |
-| `app/cbl/COCRDLIC.cbl:176` | WS-MAX-SCREEN-LINES PIC S9(4) | `01 WS-CONSTANTS.` |
+| `app/cbl/COCRDLIC.cbl:47` | WS-RESP-CD PIC S9(09) | `07 WS-RESP-CD                          PIC S9(09) COMP` |
+| `app/cbl/COCRDLIC.cbl:49` | WS-REAS-CD PIC S9(09) | `07 WS-REAS-CD                          PIC S9(09) COMP` |
+| `app/cbl/COCRDLIC.cbl:90` | I PIC S9(4) | `10 I                                  PIC S9(4) COMP` |
+| `app/cbl/COCRDLIC.cbl:92` | I-SELECTED PIC S9(4) | `10 I-SELECTED                         PIC S9(4) COMP` |
+| `app/cbl/COCRDLIC.cbl:145` | WS-SCRN-COUNTER PIC S9(4) | `05  WS-SCRN-COUNTER               PIC S9(4) COMP VALUE 0.` |
+| `app/cbl/COCRDLIC.cbl:177` | WS-MAX-SCREEN-LINES PIC S9(4) | `05  WS-MAX-SCREEN-LINES                    PIC S9(4) COMP` |
 
 #### `app/cbl/COCRDSLC.cbl` (2)
 
 | Line | Detail | Source text |
 | --- | --- | --- |
-| `app/cbl/COCRDSLC.cbl:40` | WS-RESP-CD PIC S9(09) | `05 WS-CICS-PROCESSNG-VARS.` |
-| `app/cbl/COCRDSLC.cbl:42` | WS-REAS-CD PIC S9(09) | `VALUE ZEROS.` |
+| `app/cbl/COCRDSLC.cbl:41` | WS-RESP-CD PIC S9(09) | `07 WS-RESP-CD                          PIC S9(09) COMP` |
+| `app/cbl/COCRDSLC.cbl:43` | WS-REAS-CD PIC S9(09) | `07 WS-REAS-CD                          PIC S9(09) COMP` |
 
 #### `app/cbl/COCRDUPC.cbl` (2)
 
 | Line | Detail | Source text |
 | --- | --- | --- |
-| `app/cbl/COCRDUPC.cbl:40` | WS-RESP-CD PIC S9(09) | `05 WS-CICS-PROCESSNG-VARS.` |
-| `app/cbl/COCRDUPC.cbl:42` | WS-REAS-CD PIC S9(09) | `VALUE ZEROS.` |
+| `app/cbl/COCRDUPC.cbl:41` | WS-RESP-CD PIC S9(09) | `07 WS-RESP-CD                          PIC S9(09) COMP` |
+| `app/cbl/COCRDUPC.cbl:43` | WS-REAS-CD PIC S9(09) | `07 WS-REAS-CD                          PIC S9(09) COMP` |
 
 #### `app/cbl/COMEN01C.cbl` (3)
 
 | Line | Detail | Source text |
 | --- | --- | --- |
-| `app/cbl/COMEN01C.cbl:42` | WS-RESP-CD PIC S9(09) | `88 ERR-FLG-OFF                        VALUE 'N'.` |
-| `app/cbl/COMEN01C.cbl:43` | WS-REAS-CD PIC S9(09) | `05 WS-RESP-CD                 PIC S9(09) COMP VALUE ZEROS.` |
-| `app/cbl/COMEN01C.cbl:46` | WS-IDX PIC S9(04) | `05 WS-OPTION                  PIC 9(02) VALUE 0.` |
+| `app/cbl/COMEN01C.cbl:43` | WS-RESP-CD PIC S9(09) | `05 WS-RESP-CD                 PIC S9(09) COMP VALUE ZEROS.` |
+| `app/cbl/COMEN01C.cbl:44` | WS-REAS-CD PIC S9(09) | `05 WS-REAS-CD                 PIC S9(09) COMP VALUE ZEROS.` |
+| `app/cbl/COMEN01C.cbl:47` | WS-IDX PIC S9(04) | `05 WS-IDX                     PIC S9(04) COMP VALUE ZEROS.` |
 
 #### `app/cbl/CORPT00C.cbl` (4)
 
 | Line | Detail | Source text |
 | --- | --- | --- |
-| `app/cbl/CORPT00C.cbl:52` | WS-RESP-CD PIC S9(09) | `88 END-LOOP-NO                        VALUE 'N'.` |
-| `app/cbl/CORPT00C.cbl:54` | WS-REAS-CD PIC S9(09) | `05 WS-RESP-CD                 PIC S9(09) COMP VALUE ZEROS.` |
-| `app/cbl/CORPT00C.cbl:55` | WS-REC-COUNT PIC S9(04) | `05 WS-REAS-CD                 PIC S9(09) COMP VALUE ZEROS.` |
-| `app/cbl/CORPT00C.cbl:56` | WS-IDX PIC S9(04) | `05 WS-REC-COUNT               PIC S9(04) COMP VALUE ZEROS.` |
+| `app/cbl/CORPT00C.cbl:54` | WS-RESP-CD PIC S9(09) | `05 WS-RESP-CD                 PIC S9(09) COMP VALUE ZEROS.` |
+| `app/cbl/CORPT00C.cbl:55` | WS-REAS-CD PIC S9(09) | `05 WS-REAS-CD                 PIC S9(09) COMP VALUE ZEROS.` |
+| `app/cbl/CORPT00C.cbl:56` | WS-REC-COUNT PIC S9(04) | `05 WS-REC-COUNT               PIC S9(04) COMP VALUE ZEROS.` |
+| `app/cbl/CORPT00C.cbl:57` | WS-IDX PIC S9(04) | `05 WS-IDX                     PIC S9(04) COMP VALUE ZEROS.` |
 
 #### `app/cbl/COSGN00C.cbl` (2)
 
 | Line | Detail | Source text |
 | --- | --- | --- |
-| `app/cbl/COSGN00C.cbl:42` | WS-RESP-CD PIC S9(09) | `88 ERR-FLG-OFF                        VALUE 'N'.` |
-| `app/cbl/COSGN00C.cbl:43` | WS-REAS-CD PIC S9(09) | `05 WS-RESP-CD                 PIC S9(09) COMP VALUE ZEROS.` |
+| `app/cbl/COSGN00C.cbl:43` | WS-RESP-CD PIC S9(09) | `05 WS-RESP-CD                 PIC S9(09) COMP VALUE ZEROS.` |
+| `app/cbl/COSGN00C.cbl:44` | WS-REAS-CD PIC S9(09) | `05 WS-REAS-CD                 PIC S9(09) COMP VALUE ZEROS.` |
 
 #### `app/cbl/COTRN00C.cbl` (5)
 
 | Line | Detail | Source text |
 | --- | --- | --- |
-| `app/cbl/COTRN00C.cbl:48` | WS-RESP-CD PIC S9(09) | `88 SEND-ERASE-NO                      VALUE 'N'.` |
-| `app/cbl/COTRN00C.cbl:50` | WS-REAS-CD PIC S9(09) | `05 WS-RESP-CD                 PIC S9(09) COMP VALUE ZEROS.` |
-| `app/cbl/COTRN00C.cbl:51` | WS-REC-COUNT PIC S9(04) | `05 WS-REAS-CD                 PIC S9(09) COMP VALUE ZEROS.` |
-| `app/cbl/COTRN00C.cbl:52` | WS-IDX PIC S9(04) | `05 WS-REC-COUNT               PIC S9(04) COMP VALUE ZEROS.` |
-| `app/cbl/COTRN00C.cbl:53` | WS-PAGE-NUM PIC S9(04) | `05 WS-IDX                     PIC S9(04) COMP VALUE ZEROS.` |
+| `app/cbl/COTRN00C.cbl:50` | WS-RESP-CD PIC S9(09) | `05 WS-RESP-CD                 PIC S9(09) COMP VALUE ZEROS.` |
+| `app/cbl/COTRN00C.cbl:51` | WS-REAS-CD PIC S9(09) | `05 WS-REAS-CD                 PIC S9(09) COMP VALUE ZEROS.` |
+| `app/cbl/COTRN00C.cbl:52` | WS-REC-COUNT PIC S9(04) | `05 WS-REC-COUNT               PIC S9(04) COMP VALUE ZEROS.` |
+| `app/cbl/COTRN00C.cbl:53` | WS-IDX PIC S9(04) | `05 WS-IDX                     PIC S9(04) COMP VALUE ZEROS.` |
+| `app/cbl/COTRN00C.cbl:54` | WS-PAGE-NUM PIC S9(04) | `05 WS-PAGE-NUM                PIC S9(04) COMP VALUE ZEROS.` |
 
 #### `app/cbl/COTRN01C.cbl` (2)
 
 | Line | Detail | Source text |
 | --- | --- | --- |
-| `app/cbl/COTRN01C.cbl:42` | WS-RESP-CD PIC S9(09) | `88 ERR-FLG-OFF                        VALUE 'N'.` |
-| `app/cbl/COTRN01C.cbl:43` | WS-REAS-CD PIC S9(09) | `05 WS-RESP-CD                 PIC S9(09) COMP VALUE ZEROS.` |
+| `app/cbl/COTRN01C.cbl:43` | WS-RESP-CD PIC S9(09) | `05 WS-RESP-CD                 PIC S9(09) COMP VALUE ZEROS.` |
+| `app/cbl/COTRN01C.cbl:44` | WS-REAS-CD PIC S9(09) | `05 WS-REAS-CD                 PIC S9(09) COMP VALUE ZEROS.` |
 
 #### `app/cbl/COTRN02C.cbl` (2)
 
 | Line | Detail | Source text |
 | --- | --- | --- |
-| `app/cbl/COTRN02C.cbl:46` | WS-RESP-CD PIC S9(09) | `88 ERR-FLG-OFF                        VALUE 'N'.` |
-| `app/cbl/COTRN02C.cbl:47` | WS-REAS-CD PIC S9(09) | `05 WS-RESP-CD                 PIC S9(09) COMP VALUE ZEROS.` |
+| `app/cbl/COTRN02C.cbl:47` | WS-RESP-CD PIC S9(09) | `05 WS-RESP-CD                 PIC S9(09) COMP VALUE ZEROS.` |
+| `app/cbl/COTRN02C.cbl:48` | WS-REAS-CD PIC S9(09) | `05 WS-REAS-CD                 PIC S9(09) COMP VALUE ZEROS.` |
 
 #### `app/cbl/COUSR00C.cbl` (5)
 
 | Line | Detail | Source text |
 | --- | --- | --- |
-| `app/cbl/COUSR00C.cbl:48` | WS-RESP-CD PIC S9(09) | `88 SEND-ERASE-NO                      VALUE 'N'.` |
-| `app/cbl/COUSR00C.cbl:50` | WS-REAS-CD PIC S9(09) | `05 WS-RESP-CD                 PIC S9(09) COMP VALUE ZEROS.` |
-| `app/cbl/COUSR00C.cbl:51` | WS-REC-COUNT PIC S9(04) | `05 WS-REAS-CD                 PIC S9(09) COMP VALUE ZEROS.` |
-| `app/cbl/COUSR00C.cbl:52` | WS-IDX PIC S9(04) | `05 WS-REC-COUNT               PIC S9(04) COMP VALUE ZEROS.` |
-| `app/cbl/COUSR00C.cbl:53` | WS-PAGE-NUM PIC S9(04) | `05 WS-IDX                     PIC S9(04) COMP VALUE ZEROS.` |
+| `app/cbl/COUSR00C.cbl:50` | WS-RESP-CD PIC S9(09) | `05 WS-RESP-CD                 PIC S9(09) COMP VALUE ZEROS.` |
+| `app/cbl/COUSR00C.cbl:51` | WS-REAS-CD PIC S9(09) | `05 WS-REAS-CD                 PIC S9(09) COMP VALUE ZEROS.` |
+| `app/cbl/COUSR00C.cbl:52` | WS-REC-COUNT PIC S9(04) | `05 WS-REC-COUNT               PIC S9(04) COMP VALUE ZEROS.` |
+| `app/cbl/COUSR00C.cbl:53` | WS-IDX PIC S9(04) | `05 WS-IDX                     PIC S9(04) COMP VALUE ZEROS.` |
+| `app/cbl/COUSR00C.cbl:54` | WS-PAGE-NUM PIC S9(04) | `05 WS-PAGE-NUM                PIC S9(04) COMP VALUE ZEROS.` |
 
 #### `app/cbl/COUSR01C.cbl` (2)
 
 | Line | Detail | Source text |
 | --- | --- | --- |
-| `app/cbl/COUSR01C.cbl:42` | WS-RESP-CD PIC S9(09) | `88 ERR-FLG-OFF                        VALUE 'N'.` |
-| `app/cbl/COUSR01C.cbl:43` | WS-REAS-CD PIC S9(09) | `05 WS-RESP-CD                 PIC S9(09) COMP VALUE ZEROS.` |
+| `app/cbl/COUSR01C.cbl:43` | WS-RESP-CD PIC S9(09) | `05 WS-RESP-CD                 PIC S9(09) COMP VALUE ZEROS.` |
+| `app/cbl/COUSR01C.cbl:44` | WS-REAS-CD PIC S9(09) | `05 WS-REAS-CD                 PIC S9(09) COMP VALUE ZEROS.` |
 
 #### `app/cbl/COUSR02C.cbl` (2)
 
 | Line | Detail | Source text |
 | --- | --- | --- |
-| `app/cbl/COUSR02C.cbl:42` | WS-RESP-CD PIC S9(09) | `88 ERR-FLG-OFF                        VALUE 'N'.` |
-| `app/cbl/COUSR02C.cbl:43` | WS-REAS-CD PIC S9(09) | `05 WS-RESP-CD                 PIC S9(09) COMP VALUE ZEROS.` |
+| `app/cbl/COUSR02C.cbl:43` | WS-RESP-CD PIC S9(09) | `05 WS-RESP-CD                 PIC S9(09) COMP VALUE ZEROS.` |
+| `app/cbl/COUSR02C.cbl:44` | WS-REAS-CD PIC S9(09) | `05 WS-REAS-CD                 PIC S9(09) COMP VALUE ZEROS.` |
 
 #### `app/cbl/COUSR03C.cbl` (2)
 
 | Line | Detail | Source text |
 | --- | --- | --- |
-| `app/cbl/COUSR03C.cbl:42` | WS-RESP-CD PIC S9(09) | `88 ERR-FLG-OFF                        VALUE 'N'.` |
-| `app/cbl/COUSR03C.cbl:43` | WS-REAS-CD PIC S9(09) | `05 WS-RESP-CD                 PIC S9(09) COMP VALUE ZEROS.` |
+| `app/cbl/COUSR03C.cbl:43` | WS-RESP-CD PIC S9(09) | `05 WS-RESP-CD                 PIC S9(09) COMP VALUE ZEROS.` |
+| `app/cbl/COUSR03C.cbl:44` | WS-REAS-CD PIC S9(09) | `05 WS-REAS-CD                 PIC S9(09) COMP VALUE ZEROS.` |
 
 #### `app/cbl/CSUTLDTC.cbl` (8)
 
 | Line | Detail | Source text |
 | --- | --- | --- |
-| `app/cbl/CSUTLDTC.cbl:25` | VSTRING-LENGTH PIC S9(4) | `01 WS-DATE-TO-TEST.` |
-| `app/cbl/CSUTLDTC.cbl:33` | VSTRING-LENGTH PIC S9(4) | `01 WS-DATE-FORMAT.` |
-| `app/cbl/CSUTLDTC.cbl:39` | OUTPUT-LILLIAN PIC S9(9) | `of WS-DATE-FORMAT.` |
-| `app/cbl/CSUTLDTC.cbl:71` | SEVERITY PIC S9(4) | `03  CASE-1-CONDITION-ID.` |
-| `app/cbl/CSUTLDTC.cbl:72` | MSG-NO PIC S9(4) | `04  SEVERITY        PIC S9(4) BINARY.` |
-| `app/cbl/CSUTLDTC.cbl:75` | CLASS-CODE PIC S9(4) | `REDEFINES CASE-1-CONDITION-ID.` |
-| `app/cbl/CSUTLDTC.cbl:76` | CAUSE-CODE PIC S9(4) | `04  CLASS-CODE      PIC S9(4) BINARY.` |
-| `app/cbl/CSUTLDTC.cbl:79` | I-S-INFO PIC S9(9) | `03  FACILITY-ID     PIC XXX.` |
+| `app/cbl/CSUTLDTC.cbl:26` | VSTRING-LENGTH PIC S9(4) | `02  Vstring-length      PIC S9(4) BINARY.` |
+| `app/cbl/CSUTLDTC.cbl:34` | VSTRING-LENGTH PIC S9(4) | `02  Vstring-length      PIC S9(4) BINARY.` |
+| `app/cbl/CSUTLDTC.cbl:41` | OUTPUT-LILLIAN PIC S9(9) | `01 OUTPUT-LILLIAN    PIC S9(9) USAGE IS BINARY.` |
+| `app/cbl/CSUTLDTC.cbl:72` | SEVERITY PIC S9(4) | `04  SEVERITY        PIC S9(4) BINARY.` |
+| `app/cbl/CSUTLDTC.cbl:73` | MSG-NO PIC S9(4) | `04  MSG-NO          PIC S9(4) BINARY.` |
+| `app/cbl/CSUTLDTC.cbl:76` | CLASS-CODE PIC S9(4) | `04  CLASS-CODE      PIC S9(4) BINARY.` |
+| `app/cbl/CSUTLDTC.cbl:77` | CAUSE-CODE PIC S9(4) | `04  CAUSE-CODE      PIC S9(4) BINARY.` |
+| `app/cbl/CSUTLDTC.cbl:80` | I-S-INFO PIC S9(9) | `02  I-S-INFO        PIC S9(9) BINARY.` |
 
 #### `app/cpy-bms/COACTUP.CPY` (54)
 
 | Line | Detail | Source text |
 | --- | --- | --- |
-| `app/cpy-bms/COACTUP.CPY:18` | TRNNAMEL PIC S9(4) | `02  FILLER PIC X(12).` |
-| `app/cpy-bms/COACTUP.CPY:24` | TITLE01L PIC S9(4) | `02  TRNNAMEI  PIC X(4).` |
-| `app/cpy-bms/COACTUP.CPY:30` | CURDATEL PIC S9(4) | `02  TITLE01I  PIC X(40).` |
-| `app/cpy-bms/COACTUP.CPY:36` | PGMNAMEL PIC S9(4) | `02  CURDATEI  PIC X(8).` |
-| `app/cpy-bms/COACTUP.CPY:42` | TITLE02L PIC S9(4) | `02  PGMNAMEI  PIC X(8).` |
-| `app/cpy-bms/COACTUP.CPY:48` | CURTIMEL PIC S9(4) | `02  TITLE02I  PIC X(40).` |
-| `app/cpy-bms/COACTUP.CPY:54` | ACCTSIDL PIC S9(4) | `02  CURTIMEI  PIC X(8).` |
-| `app/cpy-bms/COACTUP.CPY:60` | ACSTTUSL PIC S9(4) | `02  ACCTSIDI  PIC X(11).` |
-| `app/cpy-bms/COACTUP.CPY:66` | OPNYEARL PIC S9(4) | `02  ACSTTUSI  PIC X(1).` |
-| `app/cpy-bms/COACTUP.CPY:72` | OPNMONL PIC S9(4) | `02  OPNYEARI  PIC X(4).` |
-| `app/cpy-bms/COACTUP.CPY:78` | OPNDAYL PIC S9(4) | `02  OPNMONI  PIC X(2).` |
-| `app/cpy-bms/COACTUP.CPY:84` | ACRDLIML PIC S9(4) | `02  OPNDAYI  PIC X(2).` |
-| `app/cpy-bms/COACTUP.CPY:90` | EXPYEARL PIC S9(4) | `02  ACRDLIMI  PIC X(15).` |
-| `app/cpy-bms/COACTUP.CPY:96` | EXPMONL PIC S9(4) | `02  EXPYEARI  PIC X(4).` |
-| `app/cpy-bms/COACTUP.CPY:102` | EXPDAYL PIC S9(4) | `02  EXPMONI  PIC X(2).` |
-| `app/cpy-bms/COACTUP.CPY:108` | ACSHLIML PIC S9(4) | `02  EXPDAYI  PIC X(2).` |
-| `app/cpy-bms/COACTUP.CPY:114` | RISYEARL PIC S9(4) | `02  ACSHLIMI  PIC X(15).` |
-| `app/cpy-bms/COACTUP.CPY:120` | RISMONL PIC S9(4) | `02  RISYEARI  PIC X(4).` |
-| `app/cpy-bms/COACTUP.CPY:126` | RISDAYL PIC S9(4) | `02  RISMONI  PIC X(2).` |
-| `app/cpy-bms/COACTUP.CPY:132` | ACURBALL PIC S9(4) | `02  RISDAYI  PIC X(2).` |
-| `app/cpy-bms/COACTUP.CPY:138` | ACRCYCRL PIC S9(4) | `02  ACURBALI  PIC X(15).` |
-| `app/cpy-bms/COACTUP.CPY:144` | AADDGRPL PIC S9(4) | `02  ACRCYCRI  PIC X(15).` |
-| `app/cpy-bms/COACTUP.CPY:150` | ACRCYDBL PIC S9(4) | `02  AADDGRPI  PIC X(10).` |
-| `app/cpy-bms/COACTUP.CPY:156` | ACSTNUML PIC S9(4) | `02  ACRCYDBI  PIC X(15).` |
-| `app/cpy-bms/COACTUP.CPY:162` | ACTSSN1L PIC S9(4) | `02  ACSTNUMI  PIC X(9).` |
-| `app/cpy-bms/COACTUP.CPY:168` | ACTSSN2L PIC S9(4) | `02  ACTSSN1I  PIC X(3).` |
-| `app/cpy-bms/COACTUP.CPY:174` | ACTSSN3L PIC S9(4) | `02  ACTSSN2I  PIC X(2).` |
-| `app/cpy-bms/COACTUP.CPY:180` | DOBYEARL PIC S9(4) | `02  ACTSSN3I  PIC X(4).` |
-| `app/cpy-bms/COACTUP.CPY:186` | DOBMONL PIC S9(4) | `02  DOBYEARI  PIC X(4).` |
-| `app/cpy-bms/COACTUP.CPY:192` | DOBDAYL PIC S9(4) | `02  DOBMONI  PIC X(2).` |
-| `app/cpy-bms/COACTUP.CPY:198` | ACSTFCOL PIC S9(4) | `02  DOBDAYI  PIC X(2).` |
-| `app/cpy-bms/COACTUP.CPY:204` | ACSFNAML PIC S9(4) | `02  ACSTFCOI  PIC X(3).` |
-| `app/cpy-bms/COACTUP.CPY:210` | ACSMNAML PIC S9(4) | `02  ACSFNAMI  PIC X(25).` |
-| `app/cpy-bms/COACTUP.CPY:216` | ACSLNAML PIC S9(4) | `02  ACSMNAMI  PIC X(25).` |
-| `app/cpy-bms/COACTUP.CPY:222` | ACSADL1L PIC S9(4) | `02  ACSLNAMI  PIC X(25).` |
-| `app/cpy-bms/COACTUP.CPY:228` | ACSSTTEL PIC S9(4) | `02  ACSADL1I  PIC X(50).` |
-| `app/cpy-bms/COACTUP.CPY:234` | ACSADL2L PIC S9(4) | `02  ACSSTTEI  PIC X(2).` |
-| `app/cpy-bms/COACTUP.CPY:240` | ACSZIPCL PIC S9(4) | `02  ACSADL2I  PIC X(50).` |
-| `app/cpy-bms/COACTUP.CPY:246` | ACSCITYL PIC S9(4) | `02  ACSZIPCI  PIC X(5).` |
-| `app/cpy-bms/COACTUP.CPY:252` | ACSCTRYL PIC S9(4) | `02  ACSCITYI  PIC X(50).` |
-| `app/cpy-bms/COACTUP.CPY:258` | ACSPH1AL PIC S9(4) | `02  ACSCTRYI  PIC X(3).` |
-| `app/cpy-bms/COACTUP.CPY:264` | ACSPH1BL PIC S9(4) | `02  ACSPH1AI  PIC X(3).` |
-| `app/cpy-bms/COACTUP.CPY:270` | ACSPH1CL PIC S9(4) | `02  ACSPH1BI  PIC X(3).` |
-| `app/cpy-bms/COACTUP.CPY:276` | ACSGOVTL PIC S9(4) | `02  ACSPH1CI  PIC X(4).` |
-| `app/cpy-bms/COACTUP.CPY:282` | ACSPH2AL PIC S9(4) | `02  ACSGOVTI  PIC X(20).` |
-| `app/cpy-bms/COACTUP.CPY:288` | ACSPH2BL PIC S9(4) | `02  ACSPH2AI  PIC X(3).` |
-| `app/cpy-bms/COACTUP.CPY:294` | ACSPH2CL PIC S9(4) | `02  ACSPH2BI  PIC X(3).` |
-| `app/cpy-bms/COACTUP.CPY:300` | ACSEFTCL PIC S9(4) | `02  ACSPH2CI  PIC X(4).` |
-| `app/cpy-bms/COACTUP.CPY:306` | ACSPFLGL PIC S9(4) | `02  ACSEFTCI  PIC X(10).` |
-| `app/cpy-bms/COACTUP.CPY:312` | INFOMSGL PIC S9(4) | `02  ACSPFLGI  PIC X(1).` |
-| `app/cpy-bms/COACTUP.CPY:318` | ERRMSGL PIC S9(4) | `02  INFOMSGI  PIC X(45).` |
-| `app/cpy-bms/COACTUP.CPY:324` | FKEYSL PIC S9(4) | `02  ERRMSGI  PIC X(78).` |
-| `app/cpy-bms/COACTUP.CPY:330` | FKEY05L PIC S9(4) | `02  FKEYSI  PIC X(21).` |
-| `app/cpy-bms/COACTUP.CPY:336` | FKEY12L PIC S9(4) | `02  FKEY05I  PIC X(7).` |
+| `app/cpy-bms/COACTUP.CPY:19` | TRNNAMEL PIC S9(4) | `02  TRNNAMEL    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COACTUP.CPY:25` | TITLE01L PIC S9(4) | `02  TITLE01L    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COACTUP.CPY:31` | CURDATEL PIC S9(4) | `02  CURDATEL    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COACTUP.CPY:37` | PGMNAMEL PIC S9(4) | `02  PGMNAMEL    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COACTUP.CPY:43` | TITLE02L PIC S9(4) | `02  TITLE02L    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COACTUP.CPY:49` | CURTIMEL PIC S9(4) | `02  CURTIMEL    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COACTUP.CPY:55` | ACCTSIDL PIC S9(4) | `02  ACCTSIDL    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COACTUP.CPY:61` | ACSTTUSL PIC S9(4) | `02  ACSTTUSL    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COACTUP.CPY:67` | OPNYEARL PIC S9(4) | `02  OPNYEARL    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COACTUP.CPY:73` | OPNMONL PIC S9(4) | `02  OPNMONL    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COACTUP.CPY:79` | OPNDAYL PIC S9(4) | `02  OPNDAYL    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COACTUP.CPY:85` | ACRDLIML PIC S9(4) | `02  ACRDLIML    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COACTUP.CPY:91` | EXPYEARL PIC S9(4) | `02  EXPYEARL    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COACTUP.CPY:97` | EXPMONL PIC S9(4) | `02  EXPMONL    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COACTUP.CPY:103` | EXPDAYL PIC S9(4) | `02  EXPDAYL    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COACTUP.CPY:109` | ACSHLIML PIC S9(4) | `02  ACSHLIML    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COACTUP.CPY:115` | RISYEARL PIC S9(4) | `02  RISYEARL    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COACTUP.CPY:121` | RISMONL PIC S9(4) | `02  RISMONL    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COACTUP.CPY:127` | RISDAYL PIC S9(4) | `02  RISDAYL    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COACTUP.CPY:133` | ACURBALL PIC S9(4) | `02  ACURBALL    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COACTUP.CPY:139` | ACRCYCRL PIC S9(4) | `02  ACRCYCRL    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COACTUP.CPY:145` | AADDGRPL PIC S9(4) | `02  AADDGRPL    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COACTUP.CPY:151` | ACRCYDBL PIC S9(4) | `02  ACRCYDBL    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COACTUP.CPY:157` | ACSTNUML PIC S9(4) | `02  ACSTNUML    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COACTUP.CPY:163` | ACTSSN1L PIC S9(4) | `02  ACTSSN1L    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COACTUP.CPY:169` | ACTSSN2L PIC S9(4) | `02  ACTSSN2L    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COACTUP.CPY:175` | ACTSSN3L PIC S9(4) | `02  ACTSSN3L    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COACTUP.CPY:181` | DOBYEARL PIC S9(4) | `02  DOBYEARL    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COACTUP.CPY:187` | DOBMONL PIC S9(4) | `02  DOBMONL    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COACTUP.CPY:193` | DOBDAYL PIC S9(4) | `02  DOBDAYL    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COACTUP.CPY:199` | ACSTFCOL PIC S9(4) | `02  ACSTFCOL    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COACTUP.CPY:205` | ACSFNAML PIC S9(4) | `02  ACSFNAML    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COACTUP.CPY:211` | ACSMNAML PIC S9(4) | `02  ACSMNAML    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COACTUP.CPY:217` | ACSLNAML PIC S9(4) | `02  ACSLNAML    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COACTUP.CPY:223` | ACSADL1L PIC S9(4) | `02  ACSADL1L    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COACTUP.CPY:229` | ACSSTTEL PIC S9(4) | `02  ACSSTTEL    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COACTUP.CPY:235` | ACSADL2L PIC S9(4) | `02  ACSADL2L    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COACTUP.CPY:241` | ACSZIPCL PIC S9(4) | `02  ACSZIPCL    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COACTUP.CPY:247` | ACSCITYL PIC S9(4) | `02  ACSCITYL    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COACTUP.CPY:253` | ACSCTRYL PIC S9(4) | `02  ACSCTRYL    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COACTUP.CPY:259` | ACSPH1AL PIC S9(4) | `02  ACSPH1AL    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COACTUP.CPY:265` | ACSPH1BL PIC S9(4) | `02  ACSPH1BL    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COACTUP.CPY:271` | ACSPH1CL PIC S9(4) | `02  ACSPH1CL    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COACTUP.CPY:277` | ACSGOVTL PIC S9(4) | `02  ACSGOVTL    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COACTUP.CPY:283` | ACSPH2AL PIC S9(4) | `02  ACSPH2AL    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COACTUP.CPY:289` | ACSPH2BL PIC S9(4) | `02  ACSPH2BL    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COACTUP.CPY:295` | ACSPH2CL PIC S9(4) | `02  ACSPH2CL    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COACTUP.CPY:301` | ACSEFTCL PIC S9(4) | `02  ACSEFTCL    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COACTUP.CPY:307` | ACSPFLGL PIC S9(4) | `02  ACSPFLGL    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COACTUP.CPY:313` | INFOMSGL PIC S9(4) | `02  INFOMSGL    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COACTUP.CPY:319` | ERRMSGL PIC S9(4) | `02  ERRMSGL    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COACTUP.CPY:325` | FKEYSL PIC S9(4) | `02  FKEYSL    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COACTUP.CPY:331` | FKEY05L PIC S9(4) | `02  FKEY05L    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COACTUP.CPY:337` | FKEY12L PIC S9(4) | `02  FKEY12L    COMP  PIC  S9(4).` |
 
 #### `app/cpy-bms/COACTVW.CPY` (37)
 
 | Line | Detail | Source text |
 | --- | --- | --- |
-| `app/cpy-bms/COACTVW.CPY:18` | TRNNAMEL PIC S9(4) | `02  FILLER PIC X(12).` |
-| `app/cpy-bms/COACTVW.CPY:24` | TITLE01L PIC S9(4) | `02  TRNNAMEI  PIC X(4).` |
-| `app/cpy-bms/COACTVW.CPY:30` | CURDATEL PIC S9(4) | `02  TITLE01I  PIC X(40).` |
-| `app/cpy-bms/COACTVW.CPY:36` | PGMNAMEL PIC S9(4) | `02  CURDATEI  PIC X(8).` |
-| `app/cpy-bms/COACTVW.CPY:42` | TITLE02L PIC S9(4) | `02  PGMNAMEI  PIC X(8).` |
-| `app/cpy-bms/COACTVW.CPY:48` | CURTIMEL PIC S9(4) | `02  TITLE02I  PIC X(40).` |
-| `app/cpy-bms/COACTVW.CPY:54` | ACCTSIDL PIC S9(4) | `02  CURTIMEI  PIC X(8).` |
-| `app/cpy-bms/COACTVW.CPY:60` | ACSTTUSL PIC S9(4) | `02  ACCTSIDI  PIC 99999999999.` |
-| `app/cpy-bms/COACTVW.CPY:66` | ADTOPENL PIC S9(4) | `02  ACSTTUSI  PIC X(1).` |
-| `app/cpy-bms/COACTVW.CPY:72` | ACRDLIML PIC S9(4) | `02  ADTOPENI  PIC X(10).` |
-| `app/cpy-bms/COACTVW.CPY:78` | AEXPDTL PIC S9(4) | `02  ACRDLIMI  PIC X(15).` |
-| `app/cpy-bms/COACTVW.CPY:84` | ACSHLIML PIC S9(4) | `02  AEXPDTI  PIC X(10).` |
-| `app/cpy-bms/COACTVW.CPY:90` | AREISDTL PIC S9(4) | `02  ACSHLIMI  PIC X(15).` |
-| `app/cpy-bms/COACTVW.CPY:96` | ACURBALL PIC S9(4) | `02  AREISDTI  PIC X(10).` |
-| `app/cpy-bms/COACTVW.CPY:102` | ACRCYCRL PIC S9(4) | `02  ACURBALI  PIC X(15).` |
-| `app/cpy-bms/COACTVW.CPY:108` | AADDGRPL PIC S9(4) | `02  ACRCYCRI  PIC X(15).` |
-| `app/cpy-bms/COACTVW.CPY:114` | ACRCYDBL PIC S9(4) | `02  AADDGRPI  PIC X(10).` |
-| `app/cpy-bms/COACTVW.CPY:120` | ACSTNUML PIC S9(4) | `02  ACRCYDBI  PIC X(15).` |
-| `app/cpy-bms/COACTVW.CPY:126` | ACSTSSNL PIC S9(4) | `02  ACSTNUMI  PIC X(9).` |
-| `app/cpy-bms/COACTVW.CPY:132` | ACSTDOBL PIC S9(4) | `02  ACSTSSNI  PIC X(12).` |
-| `app/cpy-bms/COACTVW.CPY:138` | ACSTFCOL PIC S9(4) | `02  ACSTDOBI  PIC X(10).` |
-| `app/cpy-bms/COACTVW.CPY:144` | ACSFNAML PIC S9(4) | `02  ACSTFCOI  PIC X(3).` |
-| `app/cpy-bms/COACTVW.CPY:150` | ACSMNAML PIC S9(4) | `02  ACSFNAMI  PIC X(25).` |
-| `app/cpy-bms/COACTVW.CPY:156` | ACSLNAML PIC S9(4) | `02  ACSMNAMI  PIC X(25).` |
-| `app/cpy-bms/COACTVW.CPY:162` | ACSADL1L PIC S9(4) | `02  ACSLNAMI  PIC X(25).` |
-| `app/cpy-bms/COACTVW.CPY:168` | ACSSTTEL PIC S9(4) | `02  ACSADL1I  PIC X(50).` |
-| `app/cpy-bms/COACTVW.CPY:174` | ACSADL2L PIC S9(4) | `02  ACSSTTEI  PIC X(2).` |
-| `app/cpy-bms/COACTVW.CPY:180` | ACSZIPCL PIC S9(4) | `02  ACSADL2I  PIC X(50).` |
-| `app/cpy-bms/COACTVW.CPY:186` | ACSCITYL PIC S9(4) | `02  ACSZIPCI  PIC X(5).` |
-| `app/cpy-bms/COACTVW.CPY:192` | ACSCTRYL PIC S9(4) | `02  ACSCITYI  PIC X(50).` |
-| `app/cpy-bms/COACTVW.CPY:198` | ACSPHN1L PIC S9(4) | `02  ACSCTRYI  PIC X(3).` |
-| `app/cpy-bms/COACTVW.CPY:204` | ACSGOVTL PIC S9(4) | `02  ACSPHN1I  PIC X(13).` |
-| `app/cpy-bms/COACTVW.CPY:210` | ACSPHN2L PIC S9(4) | `02  ACSGOVTI  PIC X(20).` |
-| `app/cpy-bms/COACTVW.CPY:216` | ACSEFTCL PIC S9(4) | `02  ACSPHN2I  PIC X(13).` |
-| `app/cpy-bms/COACTVW.CPY:222` | ACSPFLGL PIC S9(4) | `02  ACSEFTCI  PIC X(10).` |
-| `app/cpy-bms/COACTVW.CPY:228` | INFOMSGL PIC S9(4) | `02  ACSPFLGI  PIC X(1).` |
-| `app/cpy-bms/COACTVW.CPY:234` | ERRMSGL PIC S9(4) | `02  INFOMSGI  PIC X(45).` |
+| `app/cpy-bms/COACTVW.CPY:19` | TRNNAMEL PIC S9(4) | `02  TRNNAMEL    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COACTVW.CPY:25` | TITLE01L PIC S9(4) | `02  TITLE01L    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COACTVW.CPY:31` | CURDATEL PIC S9(4) | `02  CURDATEL    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COACTVW.CPY:37` | PGMNAMEL PIC S9(4) | `02  PGMNAMEL    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COACTVW.CPY:43` | TITLE02L PIC S9(4) | `02  TITLE02L    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COACTVW.CPY:49` | CURTIMEL PIC S9(4) | `02  CURTIMEL    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COACTVW.CPY:55` | ACCTSIDL PIC S9(4) | `02  ACCTSIDL    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COACTVW.CPY:61` | ACSTTUSL PIC S9(4) | `02  ACSTTUSL    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COACTVW.CPY:67` | ADTOPENL PIC S9(4) | `02  ADTOPENL    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COACTVW.CPY:73` | ACRDLIML PIC S9(4) | `02  ACRDLIML    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COACTVW.CPY:79` | AEXPDTL PIC S9(4) | `02  AEXPDTL    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COACTVW.CPY:85` | ACSHLIML PIC S9(4) | `02  ACSHLIML    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COACTVW.CPY:91` | AREISDTL PIC S9(4) | `02  AREISDTL    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COACTVW.CPY:97` | ACURBALL PIC S9(4) | `02  ACURBALL    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COACTVW.CPY:103` | ACRCYCRL PIC S9(4) | `02  ACRCYCRL    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COACTVW.CPY:109` | AADDGRPL PIC S9(4) | `02  AADDGRPL    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COACTVW.CPY:115` | ACRCYDBL PIC S9(4) | `02  ACRCYDBL    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COACTVW.CPY:121` | ACSTNUML PIC S9(4) | `02  ACSTNUML    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COACTVW.CPY:127` | ACSTSSNL PIC S9(4) | `02  ACSTSSNL    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COACTVW.CPY:133` | ACSTDOBL PIC S9(4) | `02  ACSTDOBL    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COACTVW.CPY:139` | ACSTFCOL PIC S9(4) | `02  ACSTFCOL    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COACTVW.CPY:145` | ACSFNAML PIC S9(4) | `02  ACSFNAML    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COACTVW.CPY:151` | ACSMNAML PIC S9(4) | `02  ACSMNAML    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COACTVW.CPY:157` | ACSLNAML PIC S9(4) | `02  ACSLNAML    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COACTVW.CPY:163` | ACSADL1L PIC S9(4) | `02  ACSADL1L    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COACTVW.CPY:169` | ACSSTTEL PIC S9(4) | `02  ACSSTTEL    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COACTVW.CPY:175` | ACSADL2L PIC S9(4) | `02  ACSADL2L    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COACTVW.CPY:181` | ACSZIPCL PIC S9(4) | `02  ACSZIPCL    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COACTVW.CPY:187` | ACSCITYL PIC S9(4) | `02  ACSCITYL    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COACTVW.CPY:193` | ACSCTRYL PIC S9(4) | `02  ACSCTRYL    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COACTVW.CPY:199` | ACSPHN1L PIC S9(4) | `02  ACSPHN1L    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COACTVW.CPY:205` | ACSGOVTL PIC S9(4) | `02  ACSGOVTL    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COACTVW.CPY:211` | ACSPHN2L PIC S9(4) | `02  ACSPHN2L    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COACTVW.CPY:217` | ACSEFTCL PIC S9(4) | `02  ACSEFTCL    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COACTVW.CPY:223` | ACSPFLGL PIC S9(4) | `02  ACSPFLGL    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COACTVW.CPY:229` | INFOMSGL PIC S9(4) | `02  INFOMSGL    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COACTVW.CPY:235` | ERRMSGL PIC S9(4) | `02  ERRMSGL    COMP  PIC  S9(4).` |
 
 #### `app/cpy-bms/COADM01.CPY` (20)
 
 | Line | Detail | Source text |
 | --- | --- | --- |
-| `app/cpy-bms/COADM01.CPY:18` | TRNNAMEL PIC S9(4) | `02  FILLER PIC X(12).` |
-| `app/cpy-bms/COADM01.CPY:24` | TITLE01L PIC S9(4) | `02  TRNNAMEI  PIC X(4).` |
-| `app/cpy-bms/COADM01.CPY:30` | CURDATEL PIC S9(4) | `02  TITLE01I  PIC X(40).` |
-| `app/cpy-bms/COADM01.CPY:36` | PGMNAMEL PIC S9(4) | `02  CURDATEI  PIC X(8).` |
-| `app/cpy-bms/COADM01.CPY:42` | TITLE02L PIC S9(4) | `02  PGMNAMEI  PIC X(8).` |
-| `app/cpy-bms/COADM01.CPY:48` | CURTIMEL PIC S9(4) | `02  TITLE02I  PIC X(40).` |
-| `app/cpy-bms/COADM01.CPY:54` | OPTN001L PIC S9(4) | `02  CURTIMEI  PIC X(8).` |
-| `app/cpy-bms/COADM01.CPY:60` | OPTN002L PIC S9(4) | `02  OPTN001I  PIC X(40).` |
-| `app/cpy-bms/COADM01.CPY:66` | OPTN003L PIC S9(4) | `02  OPTN002I  PIC X(40).` |
-| `app/cpy-bms/COADM01.CPY:72` | OPTN004L PIC S9(4) | `02  OPTN003I  PIC X(40).` |
-| `app/cpy-bms/COADM01.CPY:78` | OPTN005L PIC S9(4) | `02  OPTN004I  PIC X(40).` |
-| `app/cpy-bms/COADM01.CPY:84` | OPTN006L PIC S9(4) | `02  OPTN005I  PIC X(40).` |
-| `app/cpy-bms/COADM01.CPY:90` | OPTN007L PIC S9(4) | `02  OPTN006I  PIC X(40).` |
-| `app/cpy-bms/COADM01.CPY:96` | OPTN008L PIC S9(4) | `02  OPTN007I  PIC X(40).` |
-| `app/cpy-bms/COADM01.CPY:102` | OPTN009L PIC S9(4) | `02  OPTN008I  PIC X(40).` |
-| `app/cpy-bms/COADM01.CPY:108` | OPTN010L PIC S9(4) | `02  OPTN009I  PIC X(40).` |
-| `app/cpy-bms/COADM01.CPY:114` | OPTN011L PIC S9(4) | `02  OPTN010I  PIC X(40).` |
-| `app/cpy-bms/COADM01.CPY:120` | OPTN012L PIC S9(4) | `02  OPTN011I  PIC X(40).` |
-| `app/cpy-bms/COADM01.CPY:126` | OPTIONL PIC S9(4) | `02  OPTN012I  PIC X(40).` |
-| `app/cpy-bms/COADM01.CPY:132` | ERRMSGL PIC S9(4) | `02  OPTIONI  PIC X(2).` |
+| `app/cpy-bms/COADM01.CPY:19` | TRNNAMEL PIC S9(4) | `02  TRNNAMEL    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COADM01.CPY:25` | TITLE01L PIC S9(4) | `02  TITLE01L    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COADM01.CPY:31` | CURDATEL PIC S9(4) | `02  CURDATEL    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COADM01.CPY:37` | PGMNAMEL PIC S9(4) | `02  PGMNAMEL    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COADM01.CPY:43` | TITLE02L PIC S9(4) | `02  TITLE02L    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COADM01.CPY:49` | CURTIMEL PIC S9(4) | `02  CURTIMEL    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COADM01.CPY:55` | OPTN001L PIC S9(4) | `02  OPTN001L    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COADM01.CPY:61` | OPTN002L PIC S9(4) | `02  OPTN002L    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COADM01.CPY:67` | OPTN003L PIC S9(4) | `02  OPTN003L    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COADM01.CPY:73` | OPTN004L PIC S9(4) | `02  OPTN004L    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COADM01.CPY:79` | OPTN005L PIC S9(4) | `02  OPTN005L    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COADM01.CPY:85` | OPTN006L PIC S9(4) | `02  OPTN006L    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COADM01.CPY:91` | OPTN007L PIC S9(4) | `02  OPTN007L    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COADM01.CPY:97` | OPTN008L PIC S9(4) | `02  OPTN008L    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COADM01.CPY:103` | OPTN009L PIC S9(4) | `02  OPTN009L    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COADM01.CPY:109` | OPTN010L PIC S9(4) | `02  OPTN010L    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COADM01.CPY:115` | OPTN011L PIC S9(4) | `02  OPTN011L    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COADM01.CPY:121` | OPTN012L PIC S9(4) | `02  OPTN012L    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COADM01.CPY:127` | OPTIONL PIC S9(4) | `02  OPTIONL    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COADM01.CPY:133` | ERRMSGL PIC S9(4) | `02  ERRMSGL    COMP  PIC  S9(4).` |
 
 #### `app/cpy-bms/COBIL00.CPY` (10)
 
 | Line | Detail | Source text |
 | --- | --- | --- |
-| `app/cpy-bms/COBIL00.CPY:18` | TRNNAMEL PIC S9(4) | `02  FILLER PIC X(12).` |
-| `app/cpy-bms/COBIL00.CPY:24` | TITLE01L PIC S9(4) | `02  TRNNAMEI  PIC X(4).` |
-| `app/cpy-bms/COBIL00.CPY:30` | CURDATEL PIC S9(4) | `02  TITLE01I  PIC X(40).` |
-| `app/cpy-bms/COBIL00.CPY:36` | PGMNAMEL PIC S9(4) | `02  CURDATEI  PIC X(8).` |
-| `app/cpy-bms/COBIL00.CPY:42` | TITLE02L PIC S9(4) | `02  PGMNAMEI  PIC X(8).` |
-| `app/cpy-bms/COBIL00.CPY:48` | CURTIMEL PIC S9(4) | `02  TITLE02I  PIC X(40).` |
-| `app/cpy-bms/COBIL00.CPY:54` | ACTIDINL PIC S9(4) | `02  CURTIMEI  PIC X(8).` |
-| `app/cpy-bms/COBIL00.CPY:60` | CURBALL PIC S9(4) | `02  ACTIDINI  PIC X(11).` |
-| `app/cpy-bms/COBIL00.CPY:66` | CONFIRML PIC S9(4) | `02  CURBALI  PIC X(14).` |
-| `app/cpy-bms/COBIL00.CPY:72` | ERRMSGL PIC S9(4) | `02  CONFIRMI  PIC X(1).` |
+| `app/cpy-bms/COBIL00.CPY:19` | TRNNAMEL PIC S9(4) | `02  TRNNAMEL    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COBIL00.CPY:25` | TITLE01L PIC S9(4) | `02  TITLE01L    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COBIL00.CPY:31` | CURDATEL PIC S9(4) | `02  CURDATEL    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COBIL00.CPY:37` | PGMNAMEL PIC S9(4) | `02  PGMNAMEL    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COBIL00.CPY:43` | TITLE02L PIC S9(4) | `02  TITLE02L    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COBIL00.CPY:49` | CURTIMEL PIC S9(4) | `02  CURTIMEL    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COBIL00.CPY:55` | ACTIDINL PIC S9(4) | `02  ACTIDINL    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COBIL00.CPY:61` | CURBALL PIC S9(4) | `02  CURBALL    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COBIL00.CPY:67` | CONFIRML PIC S9(4) | `02  CONFIRML    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COBIL00.CPY:73` | ERRMSGL PIC S9(4) | `02  ERRMSGL    COMP  PIC  S9(4).` |
 
 #### `app/cpy-bms/COCRDLI.CPY` (45)
 
 | Line | Detail | Source text |
 | --- | --- | --- |
-| `app/cpy-bms/COCRDLI.CPY:18` | TRNNAMEL PIC S9(4) | `02  FILLER PIC X(12).` |
-| `app/cpy-bms/COCRDLI.CPY:24` | TITLE01L PIC S9(4) | `02  TRNNAMEI  PIC X(4).` |
-| `app/cpy-bms/COCRDLI.CPY:30` | CURDATEL PIC S9(4) | `02  TITLE01I  PIC X(40).` |
-| `app/cpy-bms/COCRDLI.CPY:36` | PGMNAMEL PIC S9(4) | `02  CURDATEI  PIC X(8).` |
-| `app/cpy-bms/COCRDLI.CPY:42` | TITLE02L PIC S9(4) | `02  PGMNAMEI  PIC X(8).` |
-| `app/cpy-bms/COCRDLI.CPY:48` | CURTIMEL PIC S9(4) | `02  TITLE02I  PIC X(40).` |
-| `app/cpy-bms/COCRDLI.CPY:54` | PAGENOL PIC S9(4) | `02  CURTIMEI  PIC X(8).` |
-| `app/cpy-bms/COCRDLI.CPY:60` | ACCTSIDL PIC S9(4) | `02  PAGENOI  PIC X(3).` |
-| `app/cpy-bms/COCRDLI.CPY:66` | CARDSIDL PIC S9(4) | `02  ACCTSIDI  PIC X(11).` |
-| `app/cpy-bms/COCRDLI.CPY:72` | CRDSEL1L PIC S9(4) | `02  CARDSIDI  PIC X(16).` |
-| `app/cpy-bms/COCRDLI.CPY:78` | ACCTNO1L PIC S9(4) | `02  CRDSEL1I  PIC X(1).` |
-| `app/cpy-bms/COCRDLI.CPY:84` | CRDNUM1L PIC S9(4) | `02  ACCTNO1I  PIC X(11).` |
-| `app/cpy-bms/COCRDLI.CPY:90` | CRDSTS1L PIC S9(4) | `02  CRDNUM1I  PIC X(16).` |
-| `app/cpy-bms/COCRDLI.CPY:96` | CRDSEL2L PIC S9(4) | `02  CRDSTS1I  PIC X(1).` |
-| `app/cpy-bms/COCRDLI.CPY:102` | CRDSTP2L PIC S9(4) | `02  CRDSEL2I  PIC X(1).` |
-| `app/cpy-bms/COCRDLI.CPY:108` | ACCTNO2L PIC S9(4) | `02  CRDSTP2I  PIC X(1).` |
-| `app/cpy-bms/COCRDLI.CPY:114` | CRDNUM2L PIC S9(4) | `02  ACCTNO2I  PIC X(11).` |
-| `app/cpy-bms/COCRDLI.CPY:120` | CRDSTS2L PIC S9(4) | `02  CRDNUM2I  PIC X(16).` |
-| `app/cpy-bms/COCRDLI.CPY:126` | CRDSEL3L PIC S9(4) | `02  CRDSTS2I  PIC X(1).` |
-| `app/cpy-bms/COCRDLI.CPY:132` | CRDSTP3L PIC S9(4) | `02  CRDSEL3I  PIC X(1).` |
-| `app/cpy-bms/COCRDLI.CPY:138` | ACCTNO3L PIC S9(4) | `02  CRDSTP3I  PIC X(1).` |
-| `app/cpy-bms/COCRDLI.CPY:144` | CRDNUM3L PIC S9(4) | `02  ACCTNO3I  PIC X(11).` |
-| `app/cpy-bms/COCRDLI.CPY:150` | CRDSTS3L PIC S9(4) | `02  CRDNUM3I  PIC X(16).` |
-| `app/cpy-bms/COCRDLI.CPY:156` | CRDSEL4L PIC S9(4) | `02  CRDSTS3I  PIC X(1).` |
-| `app/cpy-bms/COCRDLI.CPY:162` | CRDSTP4L PIC S9(4) | `02  CRDSEL4I  PIC X(1).` |
-| `app/cpy-bms/COCRDLI.CPY:168` | ACCTNO4L PIC S9(4) | `02  CRDSTP4I  PIC X(1).` |
-| `app/cpy-bms/COCRDLI.CPY:174` | CRDNUM4L PIC S9(4) | `02  ACCTNO4I  PIC X(11).` |
-| `app/cpy-bms/COCRDLI.CPY:180` | CRDSTS4L PIC S9(4) | `02  CRDNUM4I  PIC X(16).` |
-| `app/cpy-bms/COCRDLI.CPY:186` | CRDSEL5L PIC S9(4) | `02  CRDSTS4I  PIC X(1).` |
-| `app/cpy-bms/COCRDLI.CPY:192` | CRDSTP5L PIC S9(4) | `02  CRDSEL5I  PIC X(1).` |
-| `app/cpy-bms/COCRDLI.CPY:198` | ACCTNO5L PIC S9(4) | `02  CRDSTP5I  PIC X(1).` |
-| `app/cpy-bms/COCRDLI.CPY:204` | CRDNUM5L PIC S9(4) | `02  ACCTNO5I  PIC X(11).` |
-| `app/cpy-bms/COCRDLI.CPY:210` | CRDSTS5L PIC S9(4) | `02  CRDNUM5I  PIC X(16).` |
-| `app/cpy-bms/COCRDLI.CPY:216` | CRDSEL6L PIC S9(4) | `02  CRDSTS5I  PIC X(1).` |
-| `app/cpy-bms/COCRDLI.CPY:222` | CRDSTP6L PIC S9(4) | `02  CRDSEL6I  PIC X(1).` |
-| `app/cpy-bms/COCRDLI.CPY:228` | ACCTNO6L PIC S9(4) | `02  CRDSTP6I  PIC X(1).` |
-| `app/cpy-bms/COCRDLI.CPY:234` | CRDNUM6L PIC S9(4) | `02  ACCTNO6I  PIC X(11).` |
-| `app/cpy-bms/COCRDLI.CPY:240` | CRDSTS6L PIC S9(4) | `02  CRDNUM6I  PIC X(16).` |
-| `app/cpy-bms/COCRDLI.CPY:246` | CRDSEL7L PIC S9(4) | `02  CRDSTS6I  PIC X(1).` |
-| `app/cpy-bms/COCRDLI.CPY:252` | CRDSTP7L PIC S9(4) | `02  CRDSEL7I  PIC X(1).` |
-| `app/cpy-bms/COCRDLI.CPY:258` | ACCTNO7L PIC S9(4) | `02  CRDSTP7I  PIC X(1).` |
-| `app/cpy-bms/COCRDLI.CPY:264` | CRDNUM7L PIC S9(4) | `02  ACCTNO7I  PIC X(11).` |
-| `app/cpy-bms/COCRDLI.CPY:270` | CRDSTS7L PIC S9(4) | `02  CRDNUM7I  PIC X(16).` |
-| `app/cpy-bms/COCRDLI.CPY:276` | INFOMSGL PIC S9(4) | `02  CRDSTS7I  PIC X(1).` |
-| `app/cpy-bms/COCRDLI.CPY:282` | ERRMSGL PIC S9(4) | `02  INFOMSGI  PIC X(45).` |
+| `app/cpy-bms/COCRDLI.CPY:19` | TRNNAMEL PIC S9(4) | `02  TRNNAMEL    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COCRDLI.CPY:25` | TITLE01L PIC S9(4) | `02  TITLE01L    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COCRDLI.CPY:31` | CURDATEL PIC S9(4) | `02  CURDATEL    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COCRDLI.CPY:37` | PGMNAMEL PIC S9(4) | `02  PGMNAMEL    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COCRDLI.CPY:43` | TITLE02L PIC S9(4) | `02  TITLE02L    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COCRDLI.CPY:49` | CURTIMEL PIC S9(4) | `02  CURTIMEL    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COCRDLI.CPY:55` | PAGENOL PIC S9(4) | `02  PAGENOL    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COCRDLI.CPY:61` | ACCTSIDL PIC S9(4) | `02  ACCTSIDL    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COCRDLI.CPY:67` | CARDSIDL PIC S9(4) | `02  CARDSIDL    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COCRDLI.CPY:73` | CRDSEL1L PIC S9(4) | `02  CRDSEL1L    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COCRDLI.CPY:79` | ACCTNO1L PIC S9(4) | `02  ACCTNO1L    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COCRDLI.CPY:85` | CRDNUM1L PIC S9(4) | `02  CRDNUM1L    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COCRDLI.CPY:91` | CRDSTS1L PIC S9(4) | `02  CRDSTS1L    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COCRDLI.CPY:97` | CRDSEL2L PIC S9(4) | `02  CRDSEL2L    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COCRDLI.CPY:103` | CRDSTP2L PIC S9(4) | `02  CRDSTP2L    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COCRDLI.CPY:109` | ACCTNO2L PIC S9(4) | `02  ACCTNO2L    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COCRDLI.CPY:115` | CRDNUM2L PIC S9(4) | `02  CRDNUM2L    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COCRDLI.CPY:121` | CRDSTS2L PIC S9(4) | `02  CRDSTS2L    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COCRDLI.CPY:127` | CRDSEL3L PIC S9(4) | `02  CRDSEL3L    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COCRDLI.CPY:133` | CRDSTP3L PIC S9(4) | `02  CRDSTP3L    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COCRDLI.CPY:139` | ACCTNO3L PIC S9(4) | `02  ACCTNO3L    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COCRDLI.CPY:145` | CRDNUM3L PIC S9(4) | `02  CRDNUM3L    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COCRDLI.CPY:151` | CRDSTS3L PIC S9(4) | `02  CRDSTS3L    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COCRDLI.CPY:157` | CRDSEL4L PIC S9(4) | `02  CRDSEL4L    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COCRDLI.CPY:163` | CRDSTP4L PIC S9(4) | `02  CRDSTP4L    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COCRDLI.CPY:169` | ACCTNO4L PIC S9(4) | `02  ACCTNO4L    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COCRDLI.CPY:175` | CRDNUM4L PIC S9(4) | `02  CRDNUM4L    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COCRDLI.CPY:181` | CRDSTS4L PIC S9(4) | `02  CRDSTS4L    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COCRDLI.CPY:187` | CRDSEL5L PIC S9(4) | `02  CRDSEL5L    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COCRDLI.CPY:193` | CRDSTP5L PIC S9(4) | `02  CRDSTP5L    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COCRDLI.CPY:199` | ACCTNO5L PIC S9(4) | `02  ACCTNO5L    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COCRDLI.CPY:205` | CRDNUM5L PIC S9(4) | `02  CRDNUM5L    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COCRDLI.CPY:211` | CRDSTS5L PIC S9(4) | `02  CRDSTS5L    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COCRDLI.CPY:217` | CRDSEL6L PIC S9(4) | `02  CRDSEL6L    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COCRDLI.CPY:223` | CRDSTP6L PIC S9(4) | `02  CRDSTP6L    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COCRDLI.CPY:229` | ACCTNO6L PIC S9(4) | `02  ACCTNO6L    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COCRDLI.CPY:235` | CRDNUM6L PIC S9(4) | `02  CRDNUM6L    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COCRDLI.CPY:241` | CRDSTS6L PIC S9(4) | `02  CRDSTS6L    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COCRDLI.CPY:247` | CRDSEL7L PIC S9(4) | `02  CRDSEL7L    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COCRDLI.CPY:253` | CRDSTP7L PIC S9(4) | `02  CRDSTP7L    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COCRDLI.CPY:259` | ACCTNO7L PIC S9(4) | `02  ACCTNO7L    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COCRDLI.CPY:265` | CRDNUM7L PIC S9(4) | `02  CRDNUM7L    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COCRDLI.CPY:271` | CRDSTS7L PIC S9(4) | `02  CRDSTS7L    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COCRDLI.CPY:277` | INFOMSGL PIC S9(4) | `02  INFOMSGL    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COCRDLI.CPY:283` | ERRMSGL PIC S9(4) | `02  ERRMSGL    COMP  PIC  S9(4).` |
 
 #### `app/cpy-bms/COCRDSL.CPY` (15)
 
 | Line | Detail | Source text |
 | --- | --- | --- |
-| `app/cpy-bms/COCRDSL.CPY:18` | TRNNAMEL PIC S9(4) | `02  FILLER PIC X(12).` |
-| `app/cpy-bms/COCRDSL.CPY:24` | TITLE01L PIC S9(4) | `02  TRNNAMEI  PIC X(4).` |
-| `app/cpy-bms/COCRDSL.CPY:30` | CURDATEL PIC S9(4) | `02  TITLE01I  PIC X(40).` |
-| `app/cpy-bms/COCRDSL.CPY:36` | PGMNAMEL PIC S9(4) | `02  CURDATEI  PIC X(8).` |
-| `app/cpy-bms/COCRDSL.CPY:42` | TITLE02L PIC S9(4) | `02  PGMNAMEI  PIC X(8).` |
-| `app/cpy-bms/COCRDSL.CPY:48` | CURTIMEL PIC S9(4) | `02  TITLE02I  PIC X(40).` |
-| `app/cpy-bms/COCRDSL.CPY:54` | ACCTSIDL PIC S9(4) | `02  CURTIMEI  PIC X(8).` |
-| `app/cpy-bms/COCRDSL.CPY:60` | CARDSIDL PIC S9(4) | `02  ACCTSIDI  PIC X(11).` |
-| `app/cpy-bms/COCRDSL.CPY:66` | CRDNAMEL PIC S9(4) | `02  CARDSIDI  PIC X(16).` |
-| `app/cpy-bms/COCRDSL.CPY:72` | CRDSTCDL PIC S9(4) | `02  CRDNAMEI  PIC X(50).` |
-| `app/cpy-bms/COCRDSL.CPY:78` | EXPMONL PIC S9(4) | `02  CRDSTCDI  PIC X(1).` |
-| `app/cpy-bms/COCRDSL.CPY:84` | EXPYEARL PIC S9(4) | `02  EXPMONI  PIC X(2).` |
-| `app/cpy-bms/COCRDSL.CPY:90` | INFOMSGL PIC S9(4) | `02  EXPYEARI  PIC X(4).` |
-| `app/cpy-bms/COCRDSL.CPY:96` | ERRMSGL PIC S9(4) | `02  INFOMSGI  PIC X(40).` |
-| `app/cpy-bms/COCRDSL.CPY:102` | FKEYSL PIC S9(4) | `02  ERRMSGI  PIC X(80).` |
+| `app/cpy-bms/COCRDSL.CPY:19` | TRNNAMEL PIC S9(4) | `02  TRNNAMEL    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COCRDSL.CPY:25` | TITLE01L PIC S9(4) | `02  TITLE01L    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COCRDSL.CPY:31` | CURDATEL PIC S9(4) | `02  CURDATEL    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COCRDSL.CPY:37` | PGMNAMEL PIC S9(4) | `02  PGMNAMEL    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COCRDSL.CPY:43` | TITLE02L PIC S9(4) | `02  TITLE02L    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COCRDSL.CPY:49` | CURTIMEL PIC S9(4) | `02  CURTIMEL    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COCRDSL.CPY:55` | ACCTSIDL PIC S9(4) | `02  ACCTSIDL    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COCRDSL.CPY:61` | CARDSIDL PIC S9(4) | `02  CARDSIDL    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COCRDSL.CPY:67` | CRDNAMEL PIC S9(4) | `02  CRDNAMEL    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COCRDSL.CPY:73` | CRDSTCDL PIC S9(4) | `02  CRDSTCDL    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COCRDSL.CPY:79` | EXPMONL PIC S9(4) | `02  EXPMONL    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COCRDSL.CPY:85` | EXPYEARL PIC S9(4) | `02  EXPYEARL    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COCRDSL.CPY:91` | INFOMSGL PIC S9(4) | `02  INFOMSGL    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COCRDSL.CPY:97` | ERRMSGL PIC S9(4) | `02  ERRMSGL    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COCRDSL.CPY:103` | FKEYSL PIC S9(4) | `02  FKEYSL    COMP  PIC  S9(4).` |
 
 #### `app/cpy-bms/COCRDUP.CPY` (17)
 
 | Line | Detail | Source text |
 | --- | --- | --- |
-| `app/cpy-bms/COCRDUP.CPY:18` | TRNNAMEL PIC S9(4) | `02  FILLER PIC X(12).` |
-| `app/cpy-bms/COCRDUP.CPY:24` | TITLE01L PIC S9(4) | `02  TRNNAMEI  PIC X(4).` |
-| `app/cpy-bms/COCRDUP.CPY:30` | CURDATEL PIC S9(4) | `02  TITLE01I  PIC X(40).` |
-| `app/cpy-bms/COCRDUP.CPY:36` | PGMNAMEL PIC S9(4) | `02  CURDATEI  PIC X(8).` |
-| `app/cpy-bms/COCRDUP.CPY:42` | TITLE02L PIC S9(4) | `02  PGMNAMEI  PIC X(8).` |
-| `app/cpy-bms/COCRDUP.CPY:48` | CURTIMEL PIC S9(4) | `02  TITLE02I  PIC X(40).` |
-| `app/cpy-bms/COCRDUP.CPY:54` | ACCTSIDL PIC S9(4) | `02  CURTIMEI  PIC X(8).` |
-| `app/cpy-bms/COCRDUP.CPY:60` | CARDSIDL PIC S9(4) | `02  ACCTSIDI  PIC X(11).` |
-| `app/cpy-bms/COCRDUP.CPY:66` | CRDNAMEL PIC S9(4) | `02  CARDSIDI  PIC X(16).` |
-| `app/cpy-bms/COCRDUP.CPY:72` | CRDSTCDL PIC S9(4) | `02  CRDNAMEI  PIC X(50).` |
-| `app/cpy-bms/COCRDUP.CPY:78` | EXPMONL PIC S9(4) | `02  CRDSTCDI  PIC X(1).` |
-| `app/cpy-bms/COCRDUP.CPY:84` | EXPYEARL PIC S9(4) | `02  EXPMONI  PIC X(2).` |
-| `app/cpy-bms/COCRDUP.CPY:90` | EXPDAYL PIC S9(4) | `02  EXPYEARI  PIC X(4).` |
-| `app/cpy-bms/COCRDUP.CPY:96` | INFOMSGL PIC S9(4) | `02  EXPDAYI  PIC X(2).` |
-| `app/cpy-bms/COCRDUP.CPY:102` | ERRMSGL PIC S9(4) | `02  INFOMSGI  PIC X(40).` |
-| `app/cpy-bms/COCRDUP.CPY:108` | FKEYSL PIC S9(4) | `02  ERRMSGI  PIC X(80).` |
-| `app/cpy-bms/COCRDUP.CPY:114` | FKEYSCL PIC S9(4) | `02  FKEYSI  PIC X(21).` |
+| `app/cpy-bms/COCRDUP.CPY:19` | TRNNAMEL PIC S9(4) | `02  TRNNAMEL    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COCRDUP.CPY:25` | TITLE01L PIC S9(4) | `02  TITLE01L    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COCRDUP.CPY:31` | CURDATEL PIC S9(4) | `02  CURDATEL    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COCRDUP.CPY:37` | PGMNAMEL PIC S9(4) | `02  PGMNAMEL    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COCRDUP.CPY:43` | TITLE02L PIC S9(4) | `02  TITLE02L    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COCRDUP.CPY:49` | CURTIMEL PIC S9(4) | `02  CURTIMEL    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COCRDUP.CPY:55` | ACCTSIDL PIC S9(4) | `02  ACCTSIDL    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COCRDUP.CPY:61` | CARDSIDL PIC S9(4) | `02  CARDSIDL    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COCRDUP.CPY:67` | CRDNAMEL PIC S9(4) | `02  CRDNAMEL    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COCRDUP.CPY:73` | CRDSTCDL PIC S9(4) | `02  CRDSTCDL    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COCRDUP.CPY:79` | EXPMONL PIC S9(4) | `02  EXPMONL    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COCRDUP.CPY:85` | EXPYEARL PIC S9(4) | `02  EXPYEARL    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COCRDUP.CPY:91` | EXPDAYL PIC S9(4) | `02  EXPDAYL    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COCRDUP.CPY:97` | INFOMSGL PIC S9(4) | `02  INFOMSGL    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COCRDUP.CPY:103` | ERRMSGL PIC S9(4) | `02  ERRMSGL    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COCRDUP.CPY:109` | FKEYSL PIC S9(4) | `02  FKEYSL    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COCRDUP.CPY:115` | FKEYSCL PIC S9(4) | `02  FKEYSCL    COMP  PIC  S9(4).` |
 
 #### `app/cpy-bms/COMEN01.CPY` (20)
 
 | Line | Detail | Source text |
 | --- | --- | --- |
-| `app/cpy-bms/COMEN01.CPY:18` | TRNNAMEL PIC S9(4) | `02  FILLER PIC X(12).` |
-| `app/cpy-bms/COMEN01.CPY:24` | TITLE01L PIC S9(4) | `02  TRNNAMEI  PIC X(4).` |
-| `app/cpy-bms/COMEN01.CPY:30` | CURDATEL PIC S9(4) | `02  TITLE01I  PIC X(40).` |
-| `app/cpy-bms/COMEN01.CPY:36` | PGMNAMEL PIC S9(4) | `02  CURDATEI  PIC X(8).` |
-| `app/cpy-bms/COMEN01.CPY:42` | TITLE02L PIC S9(4) | `02  PGMNAMEI  PIC X(8).` |
-| `app/cpy-bms/COMEN01.CPY:48` | CURTIMEL PIC S9(4) | `02  TITLE02I  PIC X(40).` |
-| `app/cpy-bms/COMEN01.CPY:54` | OPTN001L PIC S9(4) | `02  CURTIMEI  PIC X(8).` |
-| `app/cpy-bms/COMEN01.CPY:60` | OPTN002L PIC S9(4) | `02  OPTN001I  PIC X(40).` |
-| `app/cpy-bms/COMEN01.CPY:66` | OPTN003L PIC S9(4) | `02  OPTN002I  PIC X(40).` |
-| `app/cpy-bms/COMEN01.CPY:72` | OPTN004L PIC S9(4) | `02  OPTN003I  PIC X(40).` |
-| `app/cpy-bms/COMEN01.CPY:78` | OPTN005L PIC S9(4) | `02  OPTN004I  PIC X(40).` |
-| `app/cpy-bms/COMEN01.CPY:84` | OPTN006L PIC S9(4) | `02  OPTN005I  PIC X(40).` |
-| `app/cpy-bms/COMEN01.CPY:90` | OPTN007L PIC S9(4) | `02  OPTN006I  PIC X(40).` |
-| `app/cpy-bms/COMEN01.CPY:96` | OPTN008L PIC S9(4) | `02  OPTN007I  PIC X(40).` |
-| `app/cpy-bms/COMEN01.CPY:102` | OPTN009L PIC S9(4) | `02  OPTN008I  PIC X(40).` |
-| `app/cpy-bms/COMEN01.CPY:108` | OPTN010L PIC S9(4) | `02  OPTN009I  PIC X(40).` |
-| `app/cpy-bms/COMEN01.CPY:114` | OPTN011L PIC S9(4) | `02  OPTN010I  PIC X(40).` |
-| `app/cpy-bms/COMEN01.CPY:120` | OPTN012L PIC S9(4) | `02  OPTN011I  PIC X(40).` |
-| `app/cpy-bms/COMEN01.CPY:126` | OPTIONL PIC S9(4) | `02  OPTN012I  PIC X(40).` |
-| `app/cpy-bms/COMEN01.CPY:132` | ERRMSGL PIC S9(4) | `02  OPTIONI  PIC X(2).` |
+| `app/cpy-bms/COMEN01.CPY:19` | TRNNAMEL PIC S9(4) | `02  TRNNAMEL    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COMEN01.CPY:25` | TITLE01L PIC S9(4) | `02  TITLE01L    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COMEN01.CPY:31` | CURDATEL PIC S9(4) | `02  CURDATEL    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COMEN01.CPY:37` | PGMNAMEL PIC S9(4) | `02  PGMNAMEL    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COMEN01.CPY:43` | TITLE02L PIC S9(4) | `02  TITLE02L    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COMEN01.CPY:49` | CURTIMEL PIC S9(4) | `02  CURTIMEL    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COMEN01.CPY:55` | OPTN001L PIC S9(4) | `02  OPTN001L    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COMEN01.CPY:61` | OPTN002L PIC S9(4) | `02  OPTN002L    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COMEN01.CPY:67` | OPTN003L PIC S9(4) | `02  OPTN003L    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COMEN01.CPY:73` | OPTN004L PIC S9(4) | `02  OPTN004L    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COMEN01.CPY:79` | OPTN005L PIC S9(4) | `02  OPTN005L    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COMEN01.CPY:85` | OPTN006L PIC S9(4) | `02  OPTN006L    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COMEN01.CPY:91` | OPTN007L PIC S9(4) | `02  OPTN007L    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COMEN01.CPY:97` | OPTN008L PIC S9(4) | `02  OPTN008L    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COMEN01.CPY:103` | OPTN009L PIC S9(4) | `02  OPTN009L    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COMEN01.CPY:109` | OPTN010L PIC S9(4) | `02  OPTN010L    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COMEN01.CPY:115` | OPTN011L PIC S9(4) | `02  OPTN011L    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COMEN01.CPY:121` | OPTN012L PIC S9(4) | `02  OPTN012L    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COMEN01.CPY:127` | OPTIONL PIC S9(4) | `02  OPTIONL    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COMEN01.CPY:133` | ERRMSGL PIC S9(4) | `02  ERRMSGL    COMP  PIC  S9(4).` |
 
 #### `app/cpy-bms/CORPT00.CPY` (17)
 
 | Line | Detail | Source text |
 | --- | --- | --- |
-| `app/cpy-bms/CORPT00.CPY:18` | TRNNAMEL PIC S9(4) | `02  FILLER PIC X(12).` |
-| `app/cpy-bms/CORPT00.CPY:24` | TITLE01L PIC S9(4) | `02  TRNNAMEI  PIC X(4).` |
-| `app/cpy-bms/CORPT00.CPY:30` | CURDATEL PIC S9(4) | `02  TITLE01I  PIC X(40).` |
-| `app/cpy-bms/CORPT00.CPY:36` | PGMNAMEL PIC S9(4) | `02  CURDATEI  PIC X(8).` |
-| `app/cpy-bms/CORPT00.CPY:42` | TITLE02L PIC S9(4) | `02  PGMNAMEI  PIC X(8).` |
-| `app/cpy-bms/CORPT00.CPY:48` | CURTIMEL PIC S9(4) | `02  TITLE02I  PIC X(40).` |
-| `app/cpy-bms/CORPT00.CPY:54` | MONTHLYL PIC S9(4) | `02  CURTIMEI  PIC X(8).` |
-| `app/cpy-bms/CORPT00.CPY:60` | YEARLYL PIC S9(4) | `02  MONTHLYI  PIC X(1).` |
-| `app/cpy-bms/CORPT00.CPY:66` | CUSTOML PIC S9(4) | `02  YEARLYI  PIC X(1).` |
-| `app/cpy-bms/CORPT00.CPY:72` | SDTMML PIC S9(4) | `02  CUSTOMI  PIC X(1).` |
-| `app/cpy-bms/CORPT00.CPY:78` | SDTDDL PIC S9(4) | `02  SDTMMI  PIC X(2).` |
-| `app/cpy-bms/CORPT00.CPY:84` | SDTYYYYL PIC S9(4) | `02  SDTDDI  PIC X(2).` |
-| `app/cpy-bms/CORPT00.CPY:90` | EDTMML PIC S9(4) | `02  SDTYYYYI  PIC X(4).` |
-| `app/cpy-bms/CORPT00.CPY:96` | EDTDDL PIC S9(4) | `02  EDTMMI  PIC X(2).` |
-| `app/cpy-bms/CORPT00.CPY:102` | EDTYYYYL PIC S9(4) | `02  EDTDDI  PIC X(2).` |
-| `app/cpy-bms/CORPT00.CPY:108` | CONFIRML PIC S9(4) | `02  EDTYYYYI  PIC X(4).` |
-| `app/cpy-bms/CORPT00.CPY:114` | ERRMSGL PIC S9(4) | `02  CONFIRMI  PIC X(1).` |
+| `app/cpy-bms/CORPT00.CPY:19` | TRNNAMEL PIC S9(4) | `02  TRNNAMEL    COMP  PIC  S9(4).` |
+| `app/cpy-bms/CORPT00.CPY:25` | TITLE01L PIC S9(4) | `02  TITLE01L    COMP  PIC  S9(4).` |
+| `app/cpy-bms/CORPT00.CPY:31` | CURDATEL PIC S9(4) | `02  CURDATEL    COMP  PIC  S9(4).` |
+| `app/cpy-bms/CORPT00.CPY:37` | PGMNAMEL PIC S9(4) | `02  PGMNAMEL    COMP  PIC  S9(4).` |
+| `app/cpy-bms/CORPT00.CPY:43` | TITLE02L PIC S9(4) | `02  TITLE02L    COMP  PIC  S9(4).` |
+| `app/cpy-bms/CORPT00.CPY:49` | CURTIMEL PIC S9(4) | `02  CURTIMEL    COMP  PIC  S9(4).` |
+| `app/cpy-bms/CORPT00.CPY:55` | MONTHLYL PIC S9(4) | `02  MONTHLYL    COMP  PIC  S9(4).` |
+| `app/cpy-bms/CORPT00.CPY:61` | YEARLYL PIC S9(4) | `02  YEARLYL    COMP  PIC  S9(4).` |
+| `app/cpy-bms/CORPT00.CPY:67` | CUSTOML PIC S9(4) | `02  CUSTOML    COMP  PIC  S9(4).` |
+| `app/cpy-bms/CORPT00.CPY:73` | SDTMML PIC S9(4) | `02  SDTMML    COMP  PIC  S9(4).` |
+| `app/cpy-bms/CORPT00.CPY:79` | SDTDDL PIC S9(4) | `02  SDTDDL    COMP  PIC  S9(4).` |
+| `app/cpy-bms/CORPT00.CPY:85` | SDTYYYYL PIC S9(4) | `02  SDTYYYYL    COMP  PIC  S9(4).` |
+| `app/cpy-bms/CORPT00.CPY:91` | EDTMML PIC S9(4) | `02  EDTMML    COMP  PIC  S9(4).` |
+| `app/cpy-bms/CORPT00.CPY:97` | EDTDDL PIC S9(4) | `02  EDTDDL    COMP  PIC  S9(4).` |
+| `app/cpy-bms/CORPT00.CPY:103` | EDTYYYYL PIC S9(4) | `02  EDTYYYYL    COMP  PIC  S9(4).` |
+| `app/cpy-bms/CORPT00.CPY:109` | CONFIRML PIC S9(4) | `02  CONFIRML    COMP  PIC  S9(4).` |
+| `app/cpy-bms/CORPT00.CPY:115` | ERRMSGL PIC S9(4) | `02  ERRMSGL    COMP  PIC  S9(4).` |
 
 #### `app/cpy-bms/COSGN00.CPY` (11)
 
 | Line | Detail | Source text |
 | --- | --- | --- |
-| `app/cpy-bms/COSGN00.CPY:18` | TRNNAMEL PIC S9(4) | `02  FILLER PIC X(12).` |
-| `app/cpy-bms/COSGN00.CPY:24` | TITLE01L PIC S9(4) | `02  TRNNAMEI  PIC X(4).` |
-| `app/cpy-bms/COSGN00.CPY:30` | CURDATEL PIC S9(4) | `02  TITLE01I  PIC X(40).` |
-| `app/cpy-bms/COSGN00.CPY:36` | PGMNAMEL PIC S9(4) | `02  CURDATEI  PIC X(8).` |
-| `app/cpy-bms/COSGN00.CPY:42` | TITLE02L PIC S9(4) | `02  PGMNAMEI  PIC X(8).` |
-| `app/cpy-bms/COSGN00.CPY:48` | CURTIMEL PIC S9(4) | `02  TITLE02I  PIC X(40).` |
-| `app/cpy-bms/COSGN00.CPY:54` | APPLIDL PIC S9(4) | `02  CURTIMEI  PIC X(9).` |
-| `app/cpy-bms/COSGN00.CPY:60` | SYSIDL PIC S9(4) | `02  APPLIDI  PIC X(8).` |
-| `app/cpy-bms/COSGN00.CPY:66` | USERIDL PIC S9(4) | `02  SYSIDI  PIC X(8).` |
-| `app/cpy-bms/COSGN00.CPY:72` | PASSWDL PIC S9(4) | `02  USERIDI  PIC X(8).` |
-| `app/cpy-bms/COSGN00.CPY:78` | ERRMSGL PIC S9(4) | `02  PASSWDI  PIC X(8).` |
+| `app/cpy-bms/COSGN00.CPY:19` | TRNNAMEL PIC S9(4) | `02  TRNNAMEL    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COSGN00.CPY:25` | TITLE01L PIC S9(4) | `02  TITLE01L    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COSGN00.CPY:31` | CURDATEL PIC S9(4) | `02  CURDATEL    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COSGN00.CPY:37` | PGMNAMEL PIC S9(4) | `02  PGMNAMEL    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COSGN00.CPY:43` | TITLE02L PIC S9(4) | `02  TITLE02L    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COSGN00.CPY:49` | CURTIMEL PIC S9(4) | `02  CURTIMEL    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COSGN00.CPY:55` | APPLIDL PIC S9(4) | `02  APPLIDL    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COSGN00.CPY:61` | SYSIDL PIC S9(4) | `02  SYSIDL    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COSGN00.CPY:67` | USERIDL PIC S9(4) | `02  USERIDL    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COSGN00.CPY:73` | PASSWDL PIC S9(4) | `02  PASSWDL    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COSGN00.CPY:79` | ERRMSGL PIC S9(4) | `02  ERRMSGL    COMP  PIC  S9(4).` |
 
 #### `app/cpy-bms/COTRN00.CPY` (59)
 
 | Line | Detail | Source text |
 | --- | --- | --- |
-| `app/cpy-bms/COTRN00.CPY:18` | TRNNAMEL PIC S9(4) | `02  FILLER PIC X(12).` |
-| `app/cpy-bms/COTRN00.CPY:24` | TITLE01L PIC S9(4) | `02  TRNNAMEI  PIC X(4).` |
-| `app/cpy-bms/COTRN00.CPY:30` | CURDATEL PIC S9(4) | `02  TITLE01I  PIC X(40).` |
-| `app/cpy-bms/COTRN00.CPY:36` | PGMNAMEL PIC S9(4) | `02  CURDATEI  PIC X(8).` |
-| `app/cpy-bms/COTRN00.CPY:42` | TITLE02L PIC S9(4) | `02  PGMNAMEI  PIC X(8).` |
-| `app/cpy-bms/COTRN00.CPY:48` | CURTIMEL PIC S9(4) | `02  TITLE02I  PIC X(40).` |
-| `app/cpy-bms/COTRN00.CPY:54` | PAGENUML PIC S9(4) | `02  CURTIMEI  PIC X(8).` |
-| `app/cpy-bms/COTRN00.CPY:60` | TRNIDINL PIC S9(4) | `02  PAGENUMI  PIC X(8).` |
-| `app/cpy-bms/COTRN00.CPY:66` | SEL0001L PIC S9(4) | `02  TRNIDINI  PIC X(16).` |
-| `app/cpy-bms/COTRN00.CPY:72` | TRNID01L PIC S9(4) | `02  SEL0001I  PIC X(1).` |
-| `app/cpy-bms/COTRN00.CPY:78` | TDATE01L PIC S9(4) | `02  TRNID01I  PIC X(16).` |
-| `app/cpy-bms/COTRN00.CPY:84` | TDESC01L PIC S9(4) | `02  TDATE01I  PIC X(8).` |
-| `app/cpy-bms/COTRN00.CPY:90` | TAMT001L PIC S9(4) | `02  TDESC01I  PIC X(26).` |
-| `app/cpy-bms/COTRN00.CPY:96` | SEL0002L PIC S9(4) | `02  TAMT001I  PIC X(12).` |
-| `app/cpy-bms/COTRN00.CPY:102` | TRNID02L PIC S9(4) | `02  SEL0002I  PIC X(1).` |
-| `app/cpy-bms/COTRN00.CPY:108` | TDATE02L PIC S9(4) | `02  TRNID02I  PIC X(16).` |
-| `app/cpy-bms/COTRN00.CPY:114` | TDESC02L PIC S9(4) | `02  TDATE02I  PIC X(8).` |
-| `app/cpy-bms/COTRN00.CPY:120` | TAMT002L PIC S9(4) | `02  TDESC02I  PIC X(26).` |
-| `app/cpy-bms/COTRN00.CPY:126` | SEL0003L PIC S9(4) | `02  TAMT002I  PIC X(12).` |
-| `app/cpy-bms/COTRN00.CPY:132` | TRNID03L PIC S9(4) | `02  SEL0003I  PIC X(1).` |
-| `app/cpy-bms/COTRN00.CPY:138` | TDATE03L PIC S9(4) | `02  TRNID03I  PIC X(16).` |
-| `app/cpy-bms/COTRN00.CPY:144` | TDESC03L PIC S9(4) | `02  TDATE03I  PIC X(8).` |
-| `app/cpy-bms/COTRN00.CPY:150` | TAMT003L PIC S9(4) | `02  TDESC03I  PIC X(26).` |
-| `app/cpy-bms/COTRN00.CPY:156` | SEL0004L PIC S9(4) | `02  TAMT003I  PIC X(12).` |
-| `app/cpy-bms/COTRN00.CPY:162` | TRNID04L PIC S9(4) | `02  SEL0004I  PIC X(1).` |
-| `app/cpy-bms/COTRN00.CPY:168` | TDATE04L PIC S9(4) | `02  TRNID04I  PIC X(16).` |
-| `app/cpy-bms/COTRN00.CPY:174` | TDESC04L PIC S9(4) | `02  TDATE04I  PIC X(8).` |
-| `app/cpy-bms/COTRN00.CPY:180` | TAMT004L PIC S9(4) | `02  TDESC04I  PIC X(26).` |
-| `app/cpy-bms/COTRN00.CPY:186` | SEL0005L PIC S9(4) | `02  TAMT004I  PIC X(12).` |
-| `app/cpy-bms/COTRN00.CPY:192` | TRNID05L PIC S9(4) | `02  SEL0005I  PIC X(1).` |
-| `app/cpy-bms/COTRN00.CPY:198` | TDATE05L PIC S9(4) | `02  TRNID05I  PIC X(16).` |
-| `app/cpy-bms/COTRN00.CPY:204` | TDESC05L PIC S9(4) | `02  TDATE05I  PIC X(8).` |
-| `app/cpy-bms/COTRN00.CPY:210` | TAMT005L PIC S9(4) | `02  TDESC05I  PIC X(26).` |
-| `app/cpy-bms/COTRN00.CPY:216` | SEL0006L PIC S9(4) | `02  TAMT005I  PIC X(12).` |
-| `app/cpy-bms/COTRN00.CPY:222` | TRNID06L PIC S9(4) | `02  SEL0006I  PIC X(1).` |
-| `app/cpy-bms/COTRN00.CPY:228` | TDATE06L PIC S9(4) | `02  TRNID06I  PIC X(16).` |
-| `app/cpy-bms/COTRN00.CPY:234` | TDESC06L PIC S9(4) | `02  TDATE06I  PIC X(8).` |
-| `app/cpy-bms/COTRN00.CPY:240` | TAMT006L PIC S9(4) | `02  TDESC06I  PIC X(26).` |
-| `app/cpy-bms/COTRN00.CPY:246` | SEL0007L PIC S9(4) | `02  TAMT006I  PIC X(12).` |
-| `app/cpy-bms/COTRN00.CPY:252` | TRNID07L PIC S9(4) | `02  SEL0007I  PIC X(1).` |
-| `app/cpy-bms/COTRN00.CPY:258` | TDATE07L PIC S9(4) | `02  TRNID07I  PIC X(16).` |
-| `app/cpy-bms/COTRN00.CPY:264` | TDESC07L PIC S9(4) | `02  TDATE07I  PIC X(8).` |
-| `app/cpy-bms/COTRN00.CPY:270` | TAMT007L PIC S9(4) | `02  TDESC07I  PIC X(26).` |
-| `app/cpy-bms/COTRN00.CPY:276` | SEL0008L PIC S9(4) | `02  TAMT007I  PIC X(12).` |
-| `app/cpy-bms/COTRN00.CPY:282` | TRNID08L PIC S9(4) | `02  SEL0008I  PIC X(1).` |
-| `app/cpy-bms/COTRN00.CPY:288` | TDATE08L PIC S9(4) | `02  TRNID08I  PIC X(16).` |
-| `app/cpy-bms/COTRN00.CPY:294` | TDESC08L PIC S9(4) | `02  TDATE08I  PIC X(8).` |
-| `app/cpy-bms/COTRN00.CPY:300` | TAMT008L PIC S9(4) | `02  TDESC08I  PIC X(26).` |
-| `app/cpy-bms/COTRN00.CPY:306` | SEL0009L PIC S9(4) | `02  TAMT008I  PIC X(12).` |
-| `app/cpy-bms/COTRN00.CPY:312` | TRNID09L PIC S9(4) | `02  SEL0009I  PIC X(1).` |
-| `app/cpy-bms/COTRN00.CPY:318` | TDATE09L PIC S9(4) | `02  TRNID09I  PIC X(16).` |
-| `app/cpy-bms/COTRN00.CPY:324` | TDESC09L PIC S9(4) | `02  TDATE09I  PIC X(8).` |
-| `app/cpy-bms/COTRN00.CPY:330` | TAMT009L PIC S9(4) | `02  TDESC09I  PIC X(26).` |
-| `app/cpy-bms/COTRN00.CPY:336` | SEL0010L PIC S9(4) | `02  TAMT009I  PIC X(12).` |
-| `app/cpy-bms/COTRN00.CPY:342` | TRNID10L PIC S9(4) | `02  SEL0010I  PIC X(1).` |
-| `app/cpy-bms/COTRN00.CPY:348` | TDATE10L PIC S9(4) | `02  TRNID10I  PIC X(16).` |
-| `app/cpy-bms/COTRN00.CPY:354` | TDESC10L PIC S9(4) | `02  TDATE10I  PIC X(8).` |
-| `app/cpy-bms/COTRN00.CPY:360` | TAMT010L PIC S9(4) | `02  TDESC10I  PIC X(26).` |
-| `app/cpy-bms/COTRN00.CPY:366` | ERRMSGL PIC S9(4) | `02  TAMT010I  PIC X(12).` |
+| `app/cpy-bms/COTRN00.CPY:19` | TRNNAMEL PIC S9(4) | `02  TRNNAMEL    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COTRN00.CPY:25` | TITLE01L PIC S9(4) | `02  TITLE01L    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COTRN00.CPY:31` | CURDATEL PIC S9(4) | `02  CURDATEL    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COTRN00.CPY:37` | PGMNAMEL PIC S9(4) | `02  PGMNAMEL    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COTRN00.CPY:43` | TITLE02L PIC S9(4) | `02  TITLE02L    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COTRN00.CPY:49` | CURTIMEL PIC S9(4) | `02  CURTIMEL    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COTRN00.CPY:55` | PAGENUML PIC S9(4) | `02  PAGENUML    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COTRN00.CPY:61` | TRNIDINL PIC S9(4) | `02  TRNIDINL    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COTRN00.CPY:67` | SEL0001L PIC S9(4) | `02  SEL0001L    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COTRN00.CPY:73` | TRNID01L PIC S9(4) | `02  TRNID01L    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COTRN00.CPY:79` | TDATE01L PIC S9(4) | `02  TDATE01L    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COTRN00.CPY:85` | TDESC01L PIC S9(4) | `02  TDESC01L    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COTRN00.CPY:91` | TAMT001L PIC S9(4) | `02  TAMT001L    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COTRN00.CPY:97` | SEL0002L PIC S9(4) | `02  SEL0002L    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COTRN00.CPY:103` | TRNID02L PIC S9(4) | `02  TRNID02L    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COTRN00.CPY:109` | TDATE02L PIC S9(4) | `02  TDATE02L    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COTRN00.CPY:115` | TDESC02L PIC S9(4) | `02  TDESC02L    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COTRN00.CPY:121` | TAMT002L PIC S9(4) | `02  TAMT002L    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COTRN00.CPY:127` | SEL0003L PIC S9(4) | `02  SEL0003L    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COTRN00.CPY:133` | TRNID03L PIC S9(4) | `02  TRNID03L    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COTRN00.CPY:139` | TDATE03L PIC S9(4) | `02  TDATE03L    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COTRN00.CPY:145` | TDESC03L PIC S9(4) | `02  TDESC03L    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COTRN00.CPY:151` | TAMT003L PIC S9(4) | `02  TAMT003L    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COTRN00.CPY:157` | SEL0004L PIC S9(4) | `02  SEL0004L    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COTRN00.CPY:163` | TRNID04L PIC S9(4) | `02  TRNID04L    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COTRN00.CPY:169` | TDATE04L PIC S9(4) | `02  TDATE04L    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COTRN00.CPY:175` | TDESC04L PIC S9(4) | `02  TDESC04L    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COTRN00.CPY:181` | TAMT004L PIC S9(4) | `02  TAMT004L    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COTRN00.CPY:187` | SEL0005L PIC S9(4) | `02  SEL0005L    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COTRN00.CPY:193` | TRNID05L PIC S9(4) | `02  TRNID05L    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COTRN00.CPY:199` | TDATE05L PIC S9(4) | `02  TDATE05L    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COTRN00.CPY:205` | TDESC05L PIC S9(4) | `02  TDESC05L    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COTRN00.CPY:211` | TAMT005L PIC S9(4) | `02  TAMT005L    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COTRN00.CPY:217` | SEL0006L PIC S9(4) | `02  SEL0006L    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COTRN00.CPY:223` | TRNID06L PIC S9(4) | `02  TRNID06L    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COTRN00.CPY:229` | TDATE06L PIC S9(4) | `02  TDATE06L    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COTRN00.CPY:235` | TDESC06L PIC S9(4) | `02  TDESC06L    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COTRN00.CPY:241` | TAMT006L PIC S9(4) | `02  TAMT006L    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COTRN00.CPY:247` | SEL0007L PIC S9(4) | `02  SEL0007L    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COTRN00.CPY:253` | TRNID07L PIC S9(4) | `02  TRNID07L    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COTRN00.CPY:259` | TDATE07L PIC S9(4) | `02  TDATE07L    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COTRN00.CPY:265` | TDESC07L PIC S9(4) | `02  TDESC07L    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COTRN00.CPY:271` | TAMT007L PIC S9(4) | `02  TAMT007L    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COTRN00.CPY:277` | SEL0008L PIC S9(4) | `02  SEL0008L    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COTRN00.CPY:283` | TRNID08L PIC S9(4) | `02  TRNID08L    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COTRN00.CPY:289` | TDATE08L PIC S9(4) | `02  TDATE08L    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COTRN00.CPY:295` | TDESC08L PIC S9(4) | `02  TDESC08L    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COTRN00.CPY:301` | TAMT008L PIC S9(4) | `02  TAMT008L    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COTRN00.CPY:307` | SEL0009L PIC S9(4) | `02  SEL0009L    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COTRN00.CPY:313` | TRNID09L PIC S9(4) | `02  TRNID09L    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COTRN00.CPY:319` | TDATE09L PIC S9(4) | `02  TDATE09L    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COTRN00.CPY:325` | TDESC09L PIC S9(4) | `02  TDESC09L    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COTRN00.CPY:331` | TAMT009L PIC S9(4) | `02  TAMT009L    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COTRN00.CPY:337` | SEL0010L PIC S9(4) | `02  SEL0010L    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COTRN00.CPY:343` | TRNID10L PIC S9(4) | `02  TRNID10L    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COTRN00.CPY:349` | TDATE10L PIC S9(4) | `02  TDATE10L    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COTRN00.CPY:355` | TDESC10L PIC S9(4) | `02  TDESC10L    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COTRN00.CPY:361` | TAMT010L PIC S9(4) | `02  TAMT010L    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COTRN00.CPY:367` | ERRMSGL PIC S9(4) | `02  ERRMSGL    COMP  PIC  S9(4).` |
 
 #### `app/cpy-bms/COTRN01.CPY` (21)
 
 | Line | Detail | Source text |
 | --- | --- | --- |
-| `app/cpy-bms/COTRN01.CPY:18` | TRNNAMEL PIC S9(4) | `02  FILLER PIC X(12).` |
-| `app/cpy-bms/COTRN01.CPY:24` | TITLE01L PIC S9(4) | `02  TRNNAMEI  PIC X(4).` |
-| `app/cpy-bms/COTRN01.CPY:30` | CURDATEL PIC S9(4) | `02  TITLE01I  PIC X(40).` |
-| `app/cpy-bms/COTRN01.CPY:36` | PGMNAMEL PIC S9(4) | `02  CURDATEI  PIC X(8).` |
-| `app/cpy-bms/COTRN01.CPY:42` | TITLE02L PIC S9(4) | `02  PGMNAMEI  PIC X(8).` |
-| `app/cpy-bms/COTRN01.CPY:48` | CURTIMEL PIC S9(4) | `02  TITLE02I  PIC X(40).` |
-| `app/cpy-bms/COTRN01.CPY:54` | TRNIDINL PIC S9(4) | `02  CURTIMEI  PIC X(8).` |
-| `app/cpy-bms/COTRN01.CPY:60` | TRNIDL PIC S9(4) | `02  TRNIDINI  PIC X(16).` |
-| `app/cpy-bms/COTRN01.CPY:66` | CARDNUML PIC S9(4) | `02  TRNIDI  PIC X(16).` |
-| `app/cpy-bms/COTRN01.CPY:72` | TTYPCDL PIC S9(4) | `02  CARDNUMI  PIC X(16).` |
-| `app/cpy-bms/COTRN01.CPY:78` | TCATCDL PIC S9(4) | `02  TTYPCDI  PIC X(2).` |
-| `app/cpy-bms/COTRN01.CPY:84` | TRNSRCL PIC S9(4) | `02  TCATCDI  PIC X(4).` |
-| `app/cpy-bms/COTRN01.CPY:90` | TDESCL PIC S9(4) | `02  TRNSRCI  PIC X(10).` |
-| `app/cpy-bms/COTRN01.CPY:96` | TRNAMTL PIC S9(4) | `02  TDESCI  PIC X(60).` |
-| `app/cpy-bms/COTRN01.CPY:102` | TORIGDTL PIC S9(4) | `02  TRNAMTI  PIC X(12).` |
-| `app/cpy-bms/COTRN01.CPY:108` | TPROCDTL PIC S9(4) | `02  TORIGDTI  PIC X(10).` |
-| `app/cpy-bms/COTRN01.CPY:114` | MIDL PIC S9(4) | `02  TPROCDTI  PIC X(10).` |
-| `app/cpy-bms/COTRN01.CPY:120` | MNAMEL PIC S9(4) | `02  MIDI  PIC X(9).` |
-| `app/cpy-bms/COTRN01.CPY:126` | MCITYL PIC S9(4) | `02  MNAMEI  PIC X(30).` |
-| `app/cpy-bms/COTRN01.CPY:132` | MZIPL PIC S9(4) | `02  MCITYI  PIC X(25).` |
-| `app/cpy-bms/COTRN01.CPY:138` | ERRMSGL PIC S9(4) | `02  MZIPI  PIC X(10).` |
+| `app/cpy-bms/COTRN01.CPY:19` | TRNNAMEL PIC S9(4) | `02  TRNNAMEL    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COTRN01.CPY:25` | TITLE01L PIC S9(4) | `02  TITLE01L    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COTRN01.CPY:31` | CURDATEL PIC S9(4) | `02  CURDATEL    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COTRN01.CPY:37` | PGMNAMEL PIC S9(4) | `02  PGMNAMEL    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COTRN01.CPY:43` | TITLE02L PIC S9(4) | `02  TITLE02L    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COTRN01.CPY:49` | CURTIMEL PIC S9(4) | `02  CURTIMEL    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COTRN01.CPY:55` | TRNIDINL PIC S9(4) | `02  TRNIDINL    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COTRN01.CPY:61` | TRNIDL PIC S9(4) | `02  TRNIDL    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COTRN01.CPY:67` | CARDNUML PIC S9(4) | `02  CARDNUML    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COTRN01.CPY:73` | TTYPCDL PIC S9(4) | `02  TTYPCDL    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COTRN01.CPY:79` | TCATCDL PIC S9(4) | `02  TCATCDL    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COTRN01.CPY:85` | TRNSRCL PIC S9(4) | `02  TRNSRCL    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COTRN01.CPY:91` | TDESCL PIC S9(4) | `02  TDESCL    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COTRN01.CPY:97` | TRNAMTL PIC S9(4) | `02  TRNAMTL    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COTRN01.CPY:103` | TORIGDTL PIC S9(4) | `02  TORIGDTL    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COTRN01.CPY:109` | TPROCDTL PIC S9(4) | `02  TPROCDTL    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COTRN01.CPY:115` | MIDL PIC S9(4) | `02  MIDL    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COTRN01.CPY:121` | MNAMEL PIC S9(4) | `02  MNAMEL    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COTRN01.CPY:127` | MCITYL PIC S9(4) | `02  MCITYL    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COTRN01.CPY:133` | MZIPL PIC S9(4) | `02  MZIPL    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COTRN01.CPY:139` | ERRMSGL PIC S9(4) | `02  ERRMSGL    COMP  PIC  S9(4).` |
 
 #### `app/cpy-bms/COTRN02.CPY` (21)
 
 | Line | Detail | Source text |
 | --- | --- | --- |
-| `app/cpy-bms/COTRN02.CPY:18` | TRNNAMEL PIC S9(4) | `02  FILLER PIC X(12).` |
-| `app/cpy-bms/COTRN02.CPY:24` | TITLE01L PIC S9(4) | `02  TRNNAMEI  PIC X(4).` |
-| `app/cpy-bms/COTRN02.CPY:30` | CURDATEL PIC S9(4) | `02  TITLE01I  PIC X(40).` |
-| `app/cpy-bms/COTRN02.CPY:36` | PGMNAMEL PIC S9(4) | `02  CURDATEI  PIC X(8).` |
-| `app/cpy-bms/COTRN02.CPY:42` | TITLE02L PIC S9(4) | `02  PGMNAMEI  PIC X(8).` |
-| `app/cpy-bms/COTRN02.CPY:48` | CURTIMEL PIC S9(4) | `02  TITLE02I  PIC X(40).` |
-| `app/cpy-bms/COTRN02.CPY:54` | ACTIDINL PIC S9(4) | `02  CURTIMEI  PIC X(8).` |
-| `app/cpy-bms/COTRN02.CPY:60` | CARDNINL PIC S9(4) | `02  ACTIDINI  PIC X(11).` |
-| `app/cpy-bms/COTRN02.CPY:66` | TTYPCDL PIC S9(4) | `02  CARDNINI  PIC X(16).` |
-| `app/cpy-bms/COTRN02.CPY:72` | TCATCDL PIC S9(4) | `02  TTYPCDI  PIC X(2).` |
-| `app/cpy-bms/COTRN02.CPY:78` | TRNSRCL PIC S9(4) | `02  TCATCDI  PIC X(4).` |
-| `app/cpy-bms/COTRN02.CPY:84` | TDESCL PIC S9(4) | `02  TRNSRCI  PIC X(10).` |
-| `app/cpy-bms/COTRN02.CPY:90` | TRNAMTL PIC S9(4) | `02  TDESCI  PIC X(60).` |
-| `app/cpy-bms/COTRN02.CPY:96` | TORIGDTL PIC S9(4) | `02  TRNAMTI  PIC X(12).` |
-| `app/cpy-bms/COTRN02.CPY:102` | TPROCDTL PIC S9(4) | `02  TORIGDTI  PIC X(10).` |
-| `app/cpy-bms/COTRN02.CPY:108` | MIDL PIC S9(4) | `02  TPROCDTI  PIC X(10).` |
-| `app/cpy-bms/COTRN02.CPY:114` | MNAMEL PIC S9(4) | `02  MIDI  PIC X(9).` |
-| `app/cpy-bms/COTRN02.CPY:120` | MCITYL PIC S9(4) | `02  MNAMEI  PIC X(30).` |
-| `app/cpy-bms/COTRN02.CPY:126` | MZIPL PIC S9(4) | `02  MCITYI  PIC X(25).` |
-| `app/cpy-bms/COTRN02.CPY:132` | CONFIRML PIC S9(4) | `02  MZIPI  PIC X(10).` |
-| `app/cpy-bms/COTRN02.CPY:138` | ERRMSGL PIC S9(4) | `02  CONFIRMI  PIC X(1).` |
+| `app/cpy-bms/COTRN02.CPY:19` | TRNNAMEL PIC S9(4) | `02  TRNNAMEL    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COTRN02.CPY:25` | TITLE01L PIC S9(4) | `02  TITLE01L    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COTRN02.CPY:31` | CURDATEL PIC S9(4) | `02  CURDATEL    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COTRN02.CPY:37` | PGMNAMEL PIC S9(4) | `02  PGMNAMEL    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COTRN02.CPY:43` | TITLE02L PIC S9(4) | `02  TITLE02L    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COTRN02.CPY:49` | CURTIMEL PIC S9(4) | `02  CURTIMEL    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COTRN02.CPY:55` | ACTIDINL PIC S9(4) | `02  ACTIDINL    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COTRN02.CPY:61` | CARDNINL PIC S9(4) | `02  CARDNINL    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COTRN02.CPY:67` | TTYPCDL PIC S9(4) | `02  TTYPCDL    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COTRN02.CPY:73` | TCATCDL PIC S9(4) | `02  TCATCDL    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COTRN02.CPY:79` | TRNSRCL PIC S9(4) | `02  TRNSRCL    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COTRN02.CPY:85` | TDESCL PIC S9(4) | `02  TDESCL    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COTRN02.CPY:91` | TRNAMTL PIC S9(4) | `02  TRNAMTL    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COTRN02.CPY:97` | TORIGDTL PIC S9(4) | `02  TORIGDTL    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COTRN02.CPY:103` | TPROCDTL PIC S9(4) | `02  TPROCDTL    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COTRN02.CPY:109` | MIDL PIC S9(4) | `02  MIDL    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COTRN02.CPY:115` | MNAMEL PIC S9(4) | `02  MNAMEL    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COTRN02.CPY:121` | MCITYL PIC S9(4) | `02  MCITYL    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COTRN02.CPY:127` | MZIPL PIC S9(4) | `02  MZIPL    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COTRN02.CPY:133` | CONFIRML PIC S9(4) | `02  CONFIRML    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COTRN02.CPY:139` | ERRMSGL PIC S9(4) | `02  ERRMSGL    COMP  PIC  S9(4).` |
 
 #### `app/cpy-bms/COUSR00.CPY` (59)
 
 | Line | Detail | Source text |
 | --- | --- | --- |
-| `app/cpy-bms/COUSR00.CPY:18` | TRNNAMEL PIC S9(4) | `02  FILLER PIC X(12).` |
-| `app/cpy-bms/COUSR00.CPY:24` | TITLE01L PIC S9(4) | `02  TRNNAMEI  PIC X(4).` |
-| `app/cpy-bms/COUSR00.CPY:30` | CURDATEL PIC S9(4) | `02  TITLE01I  PIC X(40).` |
-| `app/cpy-bms/COUSR00.CPY:36` | PGMNAMEL PIC S9(4) | `02  CURDATEI  PIC X(8).` |
-| `app/cpy-bms/COUSR00.CPY:42` | TITLE02L PIC S9(4) | `02  PGMNAMEI  PIC X(8).` |
-| `app/cpy-bms/COUSR00.CPY:48` | CURTIMEL PIC S9(4) | `02  TITLE02I  PIC X(40).` |
-| `app/cpy-bms/COUSR00.CPY:54` | PAGENUML PIC S9(4) | `02  CURTIMEI  PIC X(8).` |
-| `app/cpy-bms/COUSR00.CPY:60` | USRIDINL PIC S9(4) | `02  PAGENUMI  PIC X(8).` |
-| `app/cpy-bms/COUSR00.CPY:66` | SEL0001L PIC S9(4) | `02  USRIDINI  PIC X(8).` |
-| `app/cpy-bms/COUSR00.CPY:72` | USRID01L PIC S9(4) | `02  SEL0001I  PIC X(1).` |
-| `app/cpy-bms/COUSR00.CPY:78` | FNAME01L PIC S9(4) | `02  USRID01I  PIC X(8).` |
-| `app/cpy-bms/COUSR00.CPY:84` | LNAME01L PIC S9(4) | `02  FNAME01I  PIC X(20).` |
-| `app/cpy-bms/COUSR00.CPY:90` | UTYPE01L PIC S9(4) | `02  LNAME01I  PIC X(20).` |
-| `app/cpy-bms/COUSR00.CPY:96` | SEL0002L PIC S9(4) | `02  UTYPE01I  PIC X(1).` |
-| `app/cpy-bms/COUSR00.CPY:102` | USRID02L PIC S9(4) | `02  SEL0002I  PIC X(1).` |
-| `app/cpy-bms/COUSR00.CPY:108` | FNAME02L PIC S9(4) | `02  USRID02I  PIC X(8).` |
-| `app/cpy-bms/COUSR00.CPY:114` | LNAME02L PIC S9(4) | `02  FNAME02I  PIC X(20).` |
-| `app/cpy-bms/COUSR00.CPY:120` | UTYPE02L PIC S9(4) | `02  LNAME02I  PIC X(20).` |
-| `app/cpy-bms/COUSR00.CPY:126` | SEL0003L PIC S9(4) | `02  UTYPE02I  PIC X(1).` |
-| `app/cpy-bms/COUSR00.CPY:132` | USRID03L PIC S9(4) | `02  SEL0003I  PIC X(1).` |
-| `app/cpy-bms/COUSR00.CPY:138` | FNAME03L PIC S9(4) | `02  USRID03I  PIC X(8).` |
-| `app/cpy-bms/COUSR00.CPY:144` | LNAME03L PIC S9(4) | `02  FNAME03I  PIC X(20).` |
-| `app/cpy-bms/COUSR00.CPY:150` | UTYPE03L PIC S9(4) | `02  LNAME03I  PIC X(20).` |
-| `app/cpy-bms/COUSR00.CPY:156` | SEL0004L PIC S9(4) | `02  UTYPE03I  PIC X(1).` |
-| `app/cpy-bms/COUSR00.CPY:162` | USRID04L PIC S9(4) | `02  SEL0004I  PIC X(1).` |
-| `app/cpy-bms/COUSR00.CPY:168` | FNAME04L PIC S9(4) | `02  USRID04I  PIC X(8).` |
-| `app/cpy-bms/COUSR00.CPY:174` | LNAME04L PIC S9(4) | `02  FNAME04I  PIC X(20).` |
-| `app/cpy-bms/COUSR00.CPY:180` | UTYPE04L PIC S9(4) | `02  LNAME04I  PIC X(20).` |
-| `app/cpy-bms/COUSR00.CPY:186` | SEL0005L PIC S9(4) | `02  UTYPE04I  PIC X(1).` |
-| `app/cpy-bms/COUSR00.CPY:192` | USRID05L PIC S9(4) | `02  SEL0005I  PIC X(1).` |
-| `app/cpy-bms/COUSR00.CPY:198` | FNAME05L PIC S9(4) | `02  USRID05I  PIC X(8).` |
-| `app/cpy-bms/COUSR00.CPY:204` | LNAME05L PIC S9(4) | `02  FNAME05I  PIC X(20).` |
-| `app/cpy-bms/COUSR00.CPY:210` | UTYPE05L PIC S9(4) | `02  LNAME05I  PIC X(20).` |
-| `app/cpy-bms/COUSR00.CPY:216` | SEL0006L PIC S9(4) | `02  UTYPE05I  PIC X(1).` |
-| `app/cpy-bms/COUSR00.CPY:222` | USRID06L PIC S9(4) | `02  SEL0006I  PIC X(1).` |
-| `app/cpy-bms/COUSR00.CPY:228` | FNAME06L PIC S9(4) | `02  USRID06I  PIC X(8).` |
-| `app/cpy-bms/COUSR00.CPY:234` | LNAME06L PIC S9(4) | `02  FNAME06I  PIC X(20).` |
-| `app/cpy-bms/COUSR00.CPY:240` | UTYPE06L PIC S9(4) | `02  LNAME06I  PIC X(20).` |
-| `app/cpy-bms/COUSR00.CPY:246` | SEL0007L PIC S9(4) | `02  UTYPE06I  PIC X(1).` |
-| `app/cpy-bms/COUSR00.CPY:252` | USRID07L PIC S9(4) | `02  SEL0007I  PIC X(1).` |
-| `app/cpy-bms/COUSR00.CPY:258` | FNAME07L PIC S9(4) | `02  USRID07I  PIC X(8).` |
-| `app/cpy-bms/COUSR00.CPY:264` | LNAME07L PIC S9(4) | `02  FNAME07I  PIC X(20).` |
-| `app/cpy-bms/COUSR00.CPY:270` | UTYPE07L PIC S9(4) | `02  LNAME07I  PIC X(20).` |
-| `app/cpy-bms/COUSR00.CPY:276` | SEL0008L PIC S9(4) | `02  UTYPE07I  PIC X(1).` |
-| `app/cpy-bms/COUSR00.CPY:282` | USRID08L PIC S9(4) | `02  SEL0008I  PIC X(1).` |
-| `app/cpy-bms/COUSR00.CPY:288` | FNAME08L PIC S9(4) | `02  USRID08I  PIC X(8).` |
-| `app/cpy-bms/COUSR00.CPY:294` | LNAME08L PIC S9(4) | `02  FNAME08I  PIC X(20).` |
-| `app/cpy-bms/COUSR00.CPY:300` | UTYPE08L PIC S9(4) | `02  LNAME08I  PIC X(20).` |
-| `app/cpy-bms/COUSR00.CPY:306` | SEL0009L PIC S9(4) | `02  UTYPE08I  PIC X(1).` |
-| `app/cpy-bms/COUSR00.CPY:312` | USRID09L PIC S9(4) | `02  SEL0009I  PIC X(1).` |
-| `app/cpy-bms/COUSR00.CPY:318` | FNAME09L PIC S9(4) | `02  USRID09I  PIC X(8).` |
-| `app/cpy-bms/COUSR00.CPY:324` | LNAME09L PIC S9(4) | `02  FNAME09I  PIC X(20).` |
-| `app/cpy-bms/COUSR00.CPY:330` | UTYPE09L PIC S9(4) | `02  LNAME09I  PIC X(20).` |
-| `app/cpy-bms/COUSR00.CPY:336` | SEL0010L PIC S9(4) | `02  UTYPE09I  PIC X(1).` |
-| `app/cpy-bms/COUSR00.CPY:342` | USRID10L PIC S9(4) | `02  SEL0010I  PIC X(1).` |
-| `app/cpy-bms/COUSR00.CPY:348` | FNAME10L PIC S9(4) | `02  USRID10I  PIC X(8).` |
-| `app/cpy-bms/COUSR00.CPY:354` | LNAME10L PIC S9(4) | `02  FNAME10I  PIC X(20).` |
-| `app/cpy-bms/COUSR00.CPY:360` | UTYPE10L PIC S9(4) | `02  LNAME10I  PIC X(20).` |
-| `app/cpy-bms/COUSR00.CPY:366` | ERRMSGL PIC S9(4) | `02  UTYPE10I  PIC X(1).` |
+| `app/cpy-bms/COUSR00.CPY:19` | TRNNAMEL PIC S9(4) | `02  TRNNAMEL    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COUSR00.CPY:25` | TITLE01L PIC S9(4) | `02  TITLE01L    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COUSR00.CPY:31` | CURDATEL PIC S9(4) | `02  CURDATEL    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COUSR00.CPY:37` | PGMNAMEL PIC S9(4) | `02  PGMNAMEL    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COUSR00.CPY:43` | TITLE02L PIC S9(4) | `02  TITLE02L    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COUSR00.CPY:49` | CURTIMEL PIC S9(4) | `02  CURTIMEL    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COUSR00.CPY:55` | PAGENUML PIC S9(4) | `02  PAGENUML    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COUSR00.CPY:61` | USRIDINL PIC S9(4) | `02  USRIDINL    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COUSR00.CPY:67` | SEL0001L PIC S9(4) | `02  SEL0001L    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COUSR00.CPY:73` | USRID01L PIC S9(4) | `02  USRID01L    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COUSR00.CPY:79` | FNAME01L PIC S9(4) | `02  FNAME01L    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COUSR00.CPY:85` | LNAME01L PIC S9(4) | `02  LNAME01L    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COUSR00.CPY:91` | UTYPE01L PIC S9(4) | `02  UTYPE01L    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COUSR00.CPY:97` | SEL0002L PIC S9(4) | `02  SEL0002L    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COUSR00.CPY:103` | USRID02L PIC S9(4) | `02  USRID02L    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COUSR00.CPY:109` | FNAME02L PIC S9(4) | `02  FNAME02L    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COUSR00.CPY:115` | LNAME02L PIC S9(4) | `02  LNAME02L    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COUSR00.CPY:121` | UTYPE02L PIC S9(4) | `02  UTYPE02L    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COUSR00.CPY:127` | SEL0003L PIC S9(4) | `02  SEL0003L    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COUSR00.CPY:133` | USRID03L PIC S9(4) | `02  USRID03L    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COUSR00.CPY:139` | FNAME03L PIC S9(4) | `02  FNAME03L    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COUSR00.CPY:145` | LNAME03L PIC S9(4) | `02  LNAME03L    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COUSR00.CPY:151` | UTYPE03L PIC S9(4) | `02  UTYPE03L    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COUSR00.CPY:157` | SEL0004L PIC S9(4) | `02  SEL0004L    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COUSR00.CPY:163` | USRID04L PIC S9(4) | `02  USRID04L    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COUSR00.CPY:169` | FNAME04L PIC S9(4) | `02  FNAME04L    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COUSR00.CPY:175` | LNAME04L PIC S9(4) | `02  LNAME04L    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COUSR00.CPY:181` | UTYPE04L PIC S9(4) | `02  UTYPE04L    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COUSR00.CPY:187` | SEL0005L PIC S9(4) | `02  SEL0005L    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COUSR00.CPY:193` | USRID05L PIC S9(4) | `02  USRID05L    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COUSR00.CPY:199` | FNAME05L PIC S9(4) | `02  FNAME05L    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COUSR00.CPY:205` | LNAME05L PIC S9(4) | `02  LNAME05L    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COUSR00.CPY:211` | UTYPE05L PIC S9(4) | `02  UTYPE05L    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COUSR00.CPY:217` | SEL0006L PIC S9(4) | `02  SEL0006L    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COUSR00.CPY:223` | USRID06L PIC S9(4) | `02  USRID06L    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COUSR00.CPY:229` | FNAME06L PIC S9(4) | `02  FNAME06L    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COUSR00.CPY:235` | LNAME06L PIC S9(4) | `02  LNAME06L    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COUSR00.CPY:241` | UTYPE06L PIC S9(4) | `02  UTYPE06L    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COUSR00.CPY:247` | SEL0007L PIC S9(4) | `02  SEL0007L    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COUSR00.CPY:253` | USRID07L PIC S9(4) | `02  USRID07L    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COUSR00.CPY:259` | FNAME07L PIC S9(4) | `02  FNAME07L    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COUSR00.CPY:265` | LNAME07L PIC S9(4) | `02  LNAME07L    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COUSR00.CPY:271` | UTYPE07L PIC S9(4) | `02  UTYPE07L    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COUSR00.CPY:277` | SEL0008L PIC S9(4) | `02  SEL0008L    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COUSR00.CPY:283` | USRID08L PIC S9(4) | `02  USRID08L    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COUSR00.CPY:289` | FNAME08L PIC S9(4) | `02  FNAME08L    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COUSR00.CPY:295` | LNAME08L PIC S9(4) | `02  LNAME08L    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COUSR00.CPY:301` | UTYPE08L PIC S9(4) | `02  UTYPE08L    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COUSR00.CPY:307` | SEL0009L PIC S9(4) | `02  SEL0009L    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COUSR00.CPY:313` | USRID09L PIC S9(4) | `02  USRID09L    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COUSR00.CPY:319` | FNAME09L PIC S9(4) | `02  FNAME09L    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COUSR00.CPY:325` | LNAME09L PIC S9(4) | `02  LNAME09L    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COUSR00.CPY:331` | UTYPE09L PIC S9(4) | `02  UTYPE09L    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COUSR00.CPY:337` | SEL0010L PIC S9(4) | `02  SEL0010L    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COUSR00.CPY:343` | USRID10L PIC S9(4) | `02  USRID10L    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COUSR00.CPY:349` | FNAME10L PIC S9(4) | `02  FNAME10L    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COUSR00.CPY:355` | LNAME10L PIC S9(4) | `02  LNAME10L    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COUSR00.CPY:361` | UTYPE10L PIC S9(4) | `02  UTYPE10L    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COUSR00.CPY:367` | ERRMSGL PIC S9(4) | `02  ERRMSGL    COMP  PIC  S9(4).` |
 
 #### `app/cpy-bms/COUSR01.CPY` (12)
 
 | Line | Detail | Source text |
 | --- | --- | --- |
-| `app/cpy-bms/COUSR01.CPY:18` | TRNNAMEL PIC S9(4) | `02  FILLER PIC X(12).` |
-| `app/cpy-bms/COUSR01.CPY:24` | TITLE01L PIC S9(4) | `02  TRNNAMEI  PIC X(4).` |
-| `app/cpy-bms/COUSR01.CPY:30` | CURDATEL PIC S9(4) | `02  TITLE01I  PIC X(40).` |
-| `app/cpy-bms/COUSR01.CPY:36` | PGMNAMEL PIC S9(4) | `02  CURDATEI  PIC X(8).` |
-| `app/cpy-bms/COUSR01.CPY:42` | TITLE02L PIC S9(4) | `02  PGMNAMEI  PIC X(8).` |
-| `app/cpy-bms/COUSR01.CPY:48` | CURTIMEL PIC S9(4) | `02  TITLE02I  PIC X(40).` |
-| `app/cpy-bms/COUSR01.CPY:54` | FNAMEL PIC S9(4) | `02  CURTIMEI  PIC X(8).` |
-| `app/cpy-bms/COUSR01.CPY:60` | LNAMEL PIC S9(4) | `02  FNAMEI  PIC X(20).` |
-| `app/cpy-bms/COUSR01.CPY:66` | USERIDL PIC S9(4) | `02  LNAMEI  PIC X(20).` |
-| `app/cpy-bms/COUSR01.CPY:72` | PASSWDL PIC S9(4) | `02  USERIDI  PIC X(8).` |
-| `app/cpy-bms/COUSR01.CPY:78` | USRTYPEL PIC S9(4) | `02  PASSWDI  PIC X(8).` |
-| `app/cpy-bms/COUSR01.CPY:84` | ERRMSGL PIC S9(4) | `02  USRTYPEI  PIC X(1).` |
+| `app/cpy-bms/COUSR01.CPY:19` | TRNNAMEL PIC S9(4) | `02  TRNNAMEL    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COUSR01.CPY:25` | TITLE01L PIC S9(4) | `02  TITLE01L    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COUSR01.CPY:31` | CURDATEL PIC S9(4) | `02  CURDATEL    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COUSR01.CPY:37` | PGMNAMEL PIC S9(4) | `02  PGMNAMEL    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COUSR01.CPY:43` | TITLE02L PIC S9(4) | `02  TITLE02L    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COUSR01.CPY:49` | CURTIMEL PIC S9(4) | `02  CURTIMEL    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COUSR01.CPY:55` | FNAMEL PIC S9(4) | `02  FNAMEL    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COUSR01.CPY:61` | LNAMEL PIC S9(4) | `02  LNAMEL    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COUSR01.CPY:67` | USERIDL PIC S9(4) | `02  USERIDL    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COUSR01.CPY:73` | PASSWDL PIC S9(4) | `02  PASSWDL    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COUSR01.CPY:79` | USRTYPEL PIC S9(4) | `02  USRTYPEL    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COUSR01.CPY:85` | ERRMSGL PIC S9(4) | `02  ERRMSGL    COMP  PIC  S9(4).` |
 
 #### `app/cpy-bms/COUSR02.CPY` (12)
 
 | Line | Detail | Source text |
 | --- | --- | --- |
-| `app/cpy-bms/COUSR02.CPY:18` | TRNNAMEL PIC S9(4) | `02  FILLER PIC X(12).` |
-| `app/cpy-bms/COUSR02.CPY:24` | TITLE01L PIC S9(4) | `02  TRNNAMEI  PIC X(4).` |
-| `app/cpy-bms/COUSR02.CPY:30` | CURDATEL PIC S9(4) | `02  TITLE01I  PIC X(40).` |
-| `app/cpy-bms/COUSR02.CPY:36` | PGMNAMEL PIC S9(4) | `02  CURDATEI  PIC X(8).` |
-| `app/cpy-bms/COUSR02.CPY:42` | TITLE02L PIC S9(4) | `02  PGMNAMEI  PIC X(8).` |
-| `app/cpy-bms/COUSR02.CPY:48` | CURTIMEL PIC S9(4) | `02  TITLE02I  PIC X(40).` |
-| `app/cpy-bms/COUSR02.CPY:54` | USRIDINL PIC S9(4) | `02  CURTIMEI  PIC X(8).` |
-| `app/cpy-bms/COUSR02.CPY:60` | FNAMEL PIC S9(4) | `02  USRIDINI  PIC X(8).` |
-| `app/cpy-bms/COUSR02.CPY:66` | LNAMEL PIC S9(4) | `02  FNAMEI  PIC X(20).` |
-| `app/cpy-bms/COUSR02.CPY:72` | PASSWDL PIC S9(4) | `02  LNAMEI  PIC X(20).` |
-| `app/cpy-bms/COUSR02.CPY:78` | USRTYPEL PIC S9(4) | `02  PASSWDI  PIC X(8).` |
-| `app/cpy-bms/COUSR02.CPY:84` | ERRMSGL PIC S9(4) | `02  USRTYPEI  PIC X(1).` |
+| `app/cpy-bms/COUSR02.CPY:19` | TRNNAMEL PIC S9(4) | `02  TRNNAMEL    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COUSR02.CPY:25` | TITLE01L PIC S9(4) | `02  TITLE01L    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COUSR02.CPY:31` | CURDATEL PIC S9(4) | `02  CURDATEL    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COUSR02.CPY:37` | PGMNAMEL PIC S9(4) | `02  PGMNAMEL    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COUSR02.CPY:43` | TITLE02L PIC S9(4) | `02  TITLE02L    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COUSR02.CPY:49` | CURTIMEL PIC S9(4) | `02  CURTIMEL    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COUSR02.CPY:55` | USRIDINL PIC S9(4) | `02  USRIDINL    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COUSR02.CPY:61` | FNAMEL PIC S9(4) | `02  FNAMEL    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COUSR02.CPY:67` | LNAMEL PIC S9(4) | `02  LNAMEL    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COUSR02.CPY:73` | PASSWDL PIC S9(4) | `02  PASSWDL    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COUSR02.CPY:79` | USRTYPEL PIC S9(4) | `02  USRTYPEL    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COUSR02.CPY:85` | ERRMSGL PIC S9(4) | `02  ERRMSGL    COMP  PIC  S9(4).` |
 
 #### `app/cpy-bms/COUSR03.CPY` (11)
 
 | Line | Detail | Source text |
 | --- | --- | --- |
-| `app/cpy-bms/COUSR03.CPY:18` | TRNNAMEL PIC S9(4) | `02  FILLER PIC X(12).` |
-| `app/cpy-bms/COUSR03.CPY:24` | TITLE01L PIC S9(4) | `02  TRNNAMEI  PIC X(4).` |
-| `app/cpy-bms/COUSR03.CPY:30` | CURDATEL PIC S9(4) | `02  TITLE01I  PIC X(40).` |
-| `app/cpy-bms/COUSR03.CPY:36` | PGMNAMEL PIC S9(4) | `02  CURDATEI  PIC X(8).` |
-| `app/cpy-bms/COUSR03.CPY:42` | TITLE02L PIC S9(4) | `02  PGMNAMEI  PIC X(8).` |
-| `app/cpy-bms/COUSR03.CPY:48` | CURTIMEL PIC S9(4) | `02  TITLE02I  PIC X(40).` |
-| `app/cpy-bms/COUSR03.CPY:54` | USRIDINL PIC S9(4) | `02  CURTIMEI  PIC X(8).` |
-| `app/cpy-bms/COUSR03.CPY:60` | FNAMEL PIC S9(4) | `02  USRIDINI  PIC X(8).` |
-| `app/cpy-bms/COUSR03.CPY:66` | LNAMEL PIC S9(4) | `02  FNAMEI  PIC X(20).` |
-| `app/cpy-bms/COUSR03.CPY:72` | USRTYPEL PIC S9(4) | `02  LNAMEI  PIC X(20).` |
-| `app/cpy-bms/COUSR03.CPY:78` | ERRMSGL PIC S9(4) | `02  USRTYPEI  PIC X(1).` |
+| `app/cpy-bms/COUSR03.CPY:19` | TRNNAMEL PIC S9(4) | `02  TRNNAMEL    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COUSR03.CPY:25` | TITLE01L PIC S9(4) | `02  TITLE01L    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COUSR03.CPY:31` | CURDATEL PIC S9(4) | `02  CURDATEL    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COUSR03.CPY:37` | PGMNAMEL PIC S9(4) | `02  PGMNAMEL    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COUSR03.CPY:43` | TITLE02L PIC S9(4) | `02  TITLE02L    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COUSR03.CPY:49` | CURTIMEL PIC S9(4) | `02  CURTIMEL    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COUSR03.CPY:55` | USRIDINL PIC S9(4) | `02  USRIDINL    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COUSR03.CPY:61` | FNAMEL PIC S9(4) | `02  FNAMEL    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COUSR03.CPY:67` | LNAMEL PIC S9(4) | `02  LNAMEL    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COUSR03.CPY:73` | USRTYPEL PIC S9(4) | `02  USRTYPEL    COMP  PIC  S9(4).` |
+| `app/cpy-bms/COUSR03.CPY:79` | ERRMSGL PIC S9(4) | `02  ERRMSGL    COMP  PIC  S9(4).` |
 
 #### `app/cpy/CSUTLDWY.cpy` (2)
 
 | Line | Detail | Source text |
 | --- | --- | --- |
-| `app/cpy/CSUTLDWY.cpy:36` | WS-EDIT-DATE-BINARY PIC S9(9) | `WS-EDIT-DATE-CCYYMMDD                PIC 9(8).` |
-| `app/cpy/CSUTLDWY.cpy:41` | WS-CURRENT-DATE-BINARY PIC S9(9) | `WS-CURRENT-DATE-YYYYMMDD          PIC 9(8).` |
+| `app/cpy/CSUTLDWY.cpy:37` | WS-EDIT-DATE-BINARY PIC S9(9) | `10 WS-EDIT-DATE-BINARY                  PIC S9(9) BINARY.` |
+| `app/cpy/CSUTLDWY.cpy:42` | WS-CURRENT-DATE-BINARY PIC S9(9) | `20 WS-CURRENT-DATE-BINARY            PIC S9(9) BINARY.` |
 
 #### `app/cpy/CVEXPORT.cpy` (7)
 
 | Line | Detail | Source text |
 | --- | --- | --- |
-| `app/cpy/CVEXPORT.cpy:15` | EXPORT-SEQUENCE-NUM PIC 9(9) | `10  EXPORT-TIME                         PIC X(15).` |
-| `app/cpy/CVEXPORT.cpy:24` | EXP-CUST-ID PIC 9(09) | `05  EXPORT-CUSTOMER-DATA REDEFINES EXPORT-RECORD-DATA.` |
-| `app/cpy/CVEXPORT.cpy:56` | EXP-ACCT-CURR-CYC-DEBIT PIC S9(10)V99 | `10  EXP-ACCT-CURR-CYC-CREDIT        PIC S9(10)V99.` |
-| `app/cpy/CVEXPORT.cpy:71` | EXP-TRAN-MERCHANT-ID PIC 9(09) | `10  EXP-TRAN-AMT                    PIC S9(09)V99 COMP-3.` |
-| `app/cpy/CVEXPORT.cpy:86` | EXP-XREF-ACCT-ID PIC 9(11) | `10  EXP-XREF-CUST-ID                PIC 9(09).` |
-| `app/cpy/CVEXPORT.cpy:94` | EXP-CARD-ACCT-ID PIC 9(11) | `10  EXP-CARD-NUM                    PIC X(16).` |
-| `app/cpy/CVEXPORT.cpy:95` | EXP-CARD-CVV-CD PIC 9(03) | `10  EXP-CARD-ACCT-ID                PIC 9(11) COMP.` |
+| `app/cpy/CVEXPORT.cpy:16` | EXPORT-SEQUENCE-NUM PIC 9(9) | `05  EXPORT-SEQUENCE-NUM                     PIC 9(9) COMP.` |
+| `app/cpy/CVEXPORT.cpy:25` | EXP-CUST-ID PIC 9(09) | `10  EXP-CUST-ID                     PIC 9(09) COMP.` |
+| `app/cpy/CVEXPORT.cpy:57` | EXP-ACCT-CURR-CYC-DEBIT PIC S9(10)V99 | `10  EXP-ACCT-CURR-CYC-DEBIT         PIC S9(10)V99 COMP.` |
+| `app/cpy/CVEXPORT.cpy:72` | EXP-TRAN-MERCHANT-ID PIC 9(09) | `10  EXP-TRAN-MERCHANT-ID            PIC 9(09) COMP.` |
+| `app/cpy/CVEXPORT.cpy:87` | EXP-XREF-ACCT-ID PIC 9(11) | `10  EXP-XREF-ACCT-ID                PIC 9(11) COMP.` |
+| `app/cpy/CVEXPORT.cpy:95` | EXP-CARD-ACCT-ID PIC 9(11) | `10  EXP-CARD-ACCT-ID                PIC 9(11) COMP.` |
+| `app/cpy/CVEXPORT.cpy:96` | EXP-CARD-CVV-CD PIC 9(03) | `10  EXP-CARD-CVV-CD                 PIC 9(03) COMP.` |
 
 ### REDEFINES (736)
 
@@ -3710,143 +3710,143 @@
 
 | Line | Detail | Source text |
 | --- | --- | --- |
-| `app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl:45` | WS-RESP-LENGTH PIC S9(4) | `05 WS-SAVE-CORRELID           PIC X(24).` |
-| `app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl:63` | WS-TRANSACTION-AMT PIC S9(10)V99 | `05 WS-TRANSACTION-AMT-AN      PIC X(13).` |
-| `app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl:64` | WS-APPROVED-AMT PIC S9(10)V99 | `05 WS-TRANSACTION-AMT         PIC S9(10)V99.` |
+| `app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl:46` | WS-RESP-LENGTH PIC S9(4) | `05 WS-RESP-LENGTH             PIC S9(4)  VALUE 1.` |
+| `app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl:64` | WS-TRANSACTION-AMT PIC S9(10)V99 | `05 WS-TRANSACTION-AMT         PIC S9(10)V99.` |
+| `app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl:65` | WS-APPROVED-AMT PIC S9(10)V99 | `05 WS-APPROVED-AMT            PIC S9(10)V99.` |
 
 #### `app/app-vsam-mq/cbl/COACCT01.cbl` (5)
 
 | Line | Detail | Source text |
 | --- | --- | --- |
-| `app/app-vsam-mq/cbl/COACCT01.cbl:139` | WS-ACCT-CURR-BAL PIC S9(10)V99 | `'BALANCE : '.` |
-| `app/app-vsam-mq/cbl/COACCT01.cbl:143` | WS-ACCT-CREDIT-LIMIT PIC S9(10)V99 | `'CREDIT LIMIT : '.` |
-| `app/app-vsam-mq/cbl/COACCT01.cbl:147` | WS-ACCT-CASH-CREDIT-LIMIT PIC S9(10)V99 | `'CASH LIMIT : '.` |
-| `app/app-vsam-mq/cbl/COACCT01.cbl:160` | WS-ACCT-CURR-CYC-CREDIT PIC S9(10)V99 | `'CREDIT BAL : '.` |
-| `app/app-vsam-mq/cbl/COACCT01.cbl:164` | WS-ACCT-CURR-CYC-DEBIT PIC S9(10)V99 | `'DEBIT BAL : '.` |
+| `app/app-vsam-mq/cbl/COACCT01.cbl:140` | WS-ACCT-CURR-BAL PIC S9(10)V99 | `05  WS-ACCT-CURR-BAL                  PIC S9(10)V99` |
+| `app/app-vsam-mq/cbl/COACCT01.cbl:144` | WS-ACCT-CREDIT-LIMIT PIC S9(10)V99 | `05  WS-ACCT-CREDIT-LIMIT              PIC S9(10)V99` |
+| `app/app-vsam-mq/cbl/COACCT01.cbl:148` | WS-ACCT-CASH-CREDIT-LIMIT PIC S9(10)V99 | `05  WS-ACCT-CASH-CREDIT-LIMIT         PIC S9(10)V99` |
+| `app/app-vsam-mq/cbl/COACCT01.cbl:161` | WS-ACCT-CURR-CYC-CREDIT PIC S9(10)V99 | `05  WS-ACCT-CURR-CYC-CREDIT           PIC S9(10)V99` |
+| `app/app-vsam-mq/cbl/COACCT01.cbl:165` | WS-ACCT-CURR-CYC-DEBIT PIC S9(10)V99 | `05  WS-ACCT-CURR-CYC-DEBIT            PIC S9(10)V99` |
 
 #### `app/cbl/CBACT01C.cbl` (7)
 
 | Line | Detail | Source text |
 | --- | --- | --- |
-| `app/cbl/CBACT01C.cbl:59` | OUT-ACCT-CURR-BAL PIC S9(10)V99 | `05  OUT-ACCT-ACTIVE-STATUS     PIC X(01).` |
-| `app/cbl/CBACT01C.cbl:60` | OUT-ACCT-CREDIT-LIMIT PIC S9(10)V99 | `05  OUT-ACCT-CURR-BAL          PIC S9(10)V99.` |
-| `app/cbl/CBACT01C.cbl:61` | OUT-ACCT-CASH-CREDIT-LIMIT PIC S9(10)V99 | `05  OUT-ACCT-CREDIT-LIMIT      PIC S9(10)V99.` |
-| `app/cbl/CBACT01C.cbl:65` | OUT-ACCT-CURR-CYC-CREDIT PIC S9(10)V99 | `05  OUT-ACCT-REISSUE-DATE      PIC X(10).` |
-| `app/cbl/CBACT01C.cbl:74` | ARR-ACCT-CURR-BAL PIC S9(10)V99 | `05  ARR-ACCT-BAL OCCURS 5  TIMES.` |
-| `app/cbl/CBACT01C.cbl:127` | VB2-ACCT-CURR-BAL PIC S9(10)V99 | `05  VB2-ACCT-ID                PIC 9(11).` |
-| `app/cbl/CBACT01C.cbl:128` | VB2-ACCT-CREDIT-LIMIT PIC S9(10)V99 | `05  VB2-ACCT-CURR-BAL          PIC S9(10)V99.` |
+| `app/cbl/CBACT01C.cbl:60` | OUT-ACCT-CURR-BAL PIC S9(10)V99 | `05  OUT-ACCT-CURR-BAL          PIC S9(10)V99.` |
+| `app/cbl/CBACT01C.cbl:61` | OUT-ACCT-CREDIT-LIMIT PIC S9(10)V99 | `05  OUT-ACCT-CREDIT-LIMIT      PIC S9(10)V99.` |
+| `app/cbl/CBACT01C.cbl:62` | OUT-ACCT-CASH-CREDIT-LIMIT PIC S9(10)V99 | `05  OUT-ACCT-CASH-CREDIT-LIMIT PIC S9(10)V99.` |
+| `app/cbl/CBACT01C.cbl:66` | OUT-ACCT-CURR-CYC-CREDIT PIC S9(10)V99 | `05  OUT-ACCT-CURR-CYC-CREDIT   PIC S9(10)V99.` |
+| `app/cbl/CBACT01C.cbl:75` | ARR-ACCT-CURR-BAL PIC S9(10)V99 | `10  ARR-ACCT-CURR-BAL        PIC S9(10)V99.` |
+| `app/cbl/CBACT01C.cbl:128` | VB2-ACCT-CURR-BAL PIC S9(10)V99 | `05  VB2-ACCT-CURR-BAL          PIC S9(10)V99.` |
+| `app/cbl/CBACT01C.cbl:129` | VB2-ACCT-CREDIT-LIMIT PIC S9(10)V99 | `05  VB2-ACCT-CREDIT-LIMIT      PIC S9(10)V99.` |
 
 #### `app/cbl/CBACT04C.cbl` (2)
 
 | Line | Detail | Source text |
 | --- | --- | --- |
-| `app/cbl/CBACT04C.cbl:167` | WS-MONTHLY-INT PIC S9(09)V99 | `05 WS-LAST-ACCT-NUM          PIC X(11) VALUE SPACES.` |
-| `app/cbl/CBACT04C.cbl:168` | WS-TOTAL-INT PIC S9(09)V99 | `05 WS-MONTHLY-INT            PIC S9(09)V99.` |
+| `app/cbl/CBACT04C.cbl:168` | WS-MONTHLY-INT PIC S9(09)V99 | `05 WS-MONTHLY-INT            PIC S9(09)V99.` |
+| `app/cbl/CBACT04C.cbl:169` | WS-TOTAL-INT PIC S9(09)V99 | `05 WS-TOTAL-INT              PIC S9(09)V99.` |
 
 #### `app/cbl/CBSTM03A.CBL` (7)
 
 | Line | Detail | Source text |
 | --- | --- | --- |
-| `app/cbl/CBSTM03A.CBL:59` | CR-CNT PIC S9(4) | `01  COMP-VARIABLES          COMP.` |
-| `app/cbl/CBSTM03A.CBL:60` | TR-CNT PIC S9(4) | `05  CR-CNT              PIC S9(4) VALUE 0.` |
-| `app/cbl/CBSTM03A.CBL:61` | CR-JMP PIC S9(4) | `05  TR-CNT              PIC S9(4) VALUE 0.` |
-| `app/cbl/CBSTM03A.CBL:62` | TR-JMP PIC S9(4) | `05  CR-JMP              PIC S9(4) VALUE 0.` |
-| `app/cbl/CBSTM03A.CBL:64` | WS-TOTAL-AMT PIC S9(9)V99 | `01  COMP3-VARIABLES         COMP-3.` |
-| `app/cbl/CBSTM03A.CBL:67` | WS-TRN-AMT PIC S9(9)V99 | `05  WS-FL-DD            PIC X(8) VALUE 'TRNXFILE'.` |
-| `app/cbl/CBSTM03A.CBL:81` | WS-M03B-KEY-LN PIC S9(4) | `05  WS-M03B-KEY         PIC X(25).` |
+| `app/cbl/CBSTM03A.CBL:60` | CR-CNT PIC S9(4) | `05  CR-CNT              PIC S9(4) VALUE 0.` |
+| `app/cbl/CBSTM03A.CBL:61` | TR-CNT PIC S9(4) | `05  TR-CNT              PIC S9(4) VALUE 0.` |
+| `app/cbl/CBSTM03A.CBL:62` | CR-JMP PIC S9(4) | `05  CR-JMP              PIC S9(4) VALUE 0.` |
+| `app/cbl/CBSTM03A.CBL:63` | TR-JMP PIC S9(4) | `05  TR-JMP              PIC S9(4) VALUE 0.` |
+| `app/cbl/CBSTM03A.CBL:65` | WS-TOTAL-AMT PIC S9(9)V99 | `05  WS-TOTAL-AMT        PIC S9(9)V99 VALUE 0.` |
+| `app/cbl/CBSTM03A.CBL:68` | WS-TRN-AMT PIC S9(9)V99 | `05  WS-TRN-AMT          PIC S9(9)V99 VALUE 0.` |
+| `app/cbl/CBSTM03A.CBL:82` | WS-M03B-KEY-LN PIC S9(4) | `05  WS-M03B-KEY-LN      PIC S9(4).` |
 
 #### `app/cbl/CBSTM03B.CBL` (1)
 
 | Line | Detail | Source text |
 | --- | --- | --- |
-| `app/cbl/CBSTM03B.CBL:110` | LK-M03B-KEY-LN PIC S9(4) | `05  LK-M03B-KEY         PIC X(25).` |
+| `app/cbl/CBSTM03B.CBL:111` | LK-M03B-KEY-LN PIC S9(4) | `05  LK-M03B-KEY-LN      PIC S9(4).` |
 
 #### `app/cbl/CBTRN02C.cbl` (1)
 
 | Line | Detail | Source text |
 | --- | --- | --- |
-| `app/cbl/CBTRN02C.cbl:186` | WS-TEMP-BAL PIC S9(09)V99 | `05 WS-REJECT-COUNT               PIC 9(09) VALUE 0.` |
+| `app/cbl/CBTRN02C.cbl:187` | WS-TEMP-BAL PIC S9(09)V99 | `05 WS-TEMP-BAL                   PIC S9(09)V99.` |
 
 #### `app/cbl/CBTRN03C.cbl` (3)
 
 | Line | Detail | Source text |
 | --- | --- | --- |
-| `app/cbl/CBTRN03C.cbl:133` | WS-PAGE-TOTAL PIC S9(09)V99 | `05 WS-BLANK-LINE      PIC X(133) VALUE SPACES.` |
-| `app/cbl/CBTRN03C.cbl:134` | WS-ACCOUNT-TOTAL PIC S9(09)V99 | `05 WS-PAGE-TOTAL      PIC S9(09)V99 VALUE 0.` |
-| `app/cbl/CBTRN03C.cbl:135` | WS-GRAND-TOTAL PIC S9(09)V99 | `05 WS-ACCOUNT-TOTAL   PIC S9(09)V99 VALUE 0.` |
+| `app/cbl/CBTRN03C.cbl:134` | WS-PAGE-TOTAL PIC S9(09)V99 | `05 WS-PAGE-TOTAL      PIC S9(09)V99 VALUE 0.` |
+| `app/cbl/CBTRN03C.cbl:135` | WS-ACCOUNT-TOTAL PIC S9(09)V99 | `05 WS-ACCOUNT-TOTAL   PIC S9(09)V99 VALUE 0.` |
+| `app/cbl/CBTRN03C.cbl:136` | WS-GRAND-TOTAL PIC S9(09)V99 | `05 WS-GRAND-TOTAL     PIC S9(09)V99 VALUE 0.` |
 
 #### `app/cbl/COACTUPC.cbl` (15)
 
 | Line | Detail | Source text |
 | --- | --- | --- |
-| `app/cbl/COACTUPC.cbl:423` | ACCT-UPDATE-CURR-BAL PIC S9(10)V99 | `15  ACCT-UPDATE-ACTIVE-STATUS           PIC X(01).` |
-| `app/cbl/COACTUPC.cbl:424` | ACCT-UPDATE-CREDIT-LIMIT PIC S9(10)V99 | `15  ACCT-UPDATE-CURR-BAL                PIC S9(10)V99.` |
-| `app/cbl/COACTUPC.cbl:425` | ACCT-UPDATE-CASH-CREDIT-LIMIT PIC S9(10)V99 | `15  ACCT-UPDATE-CREDIT-LIMIT            PIC S9(10)V99.` |
-| `app/cbl/COACTUPC.cbl:429` | ACCT-UPDATE-CURR-CYC-CREDIT PIC S9(10)V99 | `15  ACCT-UPDATE-REISSUE-DATE            PIC X(10).` |
-| `app/cbl/COACTUPC.cbl:430` | ACCT-UPDATE-CURR-CYC-DEBIT PIC S9(10)V99 | `15  ACCT-UPDATE-CURR-CYC-CREDIT         PIC S9(10)V99.` |
-| `app/cbl/COACTUPC.cbl:675` | ACUP-OLD-CURR-BAL-N PIC S9(10)V99 | `15  ACUP-OLD-CURR-BAL                  PIC X(12).` |
-| `app/cbl/COACTUPC.cbl:678` | ACUP-OLD-CREDIT-LIMIT-N PIC S9(10)V99 | `15  ACUP-OLD-CREDIT-LIMIT              PIC X(12).` |
-| `app/cbl/COACTUPC.cbl:681` | ACUP-OLD-CASH-CREDIT-LIMIT-N PIC S9(10)V99 | `15  ACUP-OLD-CASH-CREDIT-LIMIT         PIC X(12).` |
-| `app/cbl/COACTUPC.cbl:702` | ACUP-OLD-CURR-CYC-CREDIT-N PIC S9(10)V99 | `15  ACUP-OLD-CURR-CYC-CREDIT           PIC X(12).` |
-| `app/cbl/COACTUPC.cbl:705` | ACUP-OLD-CURR-CYC-DEBIT-N PIC S9(10)V99 | `15  ACUP-OLD-CURR-CYC-DEBIT            PIC X(12).` |
-| `app/cbl/COACTUPC.cbl:763` | ACUP-NEW-CURR-BAL-N PIC S9(10)V99 | `15  ACUP-NEW-CURR-BAL                  PIC X(12).` |
-| `app/cbl/COACTUPC.cbl:766` | ACUP-NEW-CREDIT-LIMIT-N PIC S9(10)V99 | `15  ACUP-NEW-CREDIT-LIMIT              PIC X(12).` |
-| `app/cbl/COACTUPC.cbl:769` | ACUP-NEW-CASH-CREDIT-LIMIT-N PIC S9(10)V99 | `15  ACUP-NEW-CASH-CREDIT-LIMIT         PIC X(12).` |
-| `app/cbl/COACTUPC.cbl:790` | ACUP-NEW-CURR-CYC-CREDIT-N PIC S9(10)V99 | `15  ACUP-NEW-CURR-CYC-CREDIT           PIC X(12).` |
-| `app/cbl/COACTUPC.cbl:793` | ACUP-NEW-CURR-CYC-DEBIT-N PIC S9(10)V99 | `15  ACUP-NEW-CURR-CYC-DEBIT            PIC X(12).` |
+| `app/cbl/COACTUPC.cbl:424` | ACCT-UPDATE-CURR-BAL PIC S9(10)V99 | `15  ACCT-UPDATE-CURR-BAL                PIC S9(10)V99.` |
+| `app/cbl/COACTUPC.cbl:425` | ACCT-UPDATE-CREDIT-LIMIT PIC S9(10)V99 | `15  ACCT-UPDATE-CREDIT-LIMIT            PIC S9(10)V99.` |
+| `app/cbl/COACTUPC.cbl:426` | ACCT-UPDATE-CASH-CREDIT-LIMIT PIC S9(10)V99 | `15  ACCT-UPDATE-CASH-CREDIT-LIMIT       PIC S9(10)V99.` |
+| `app/cbl/COACTUPC.cbl:430` | ACCT-UPDATE-CURR-CYC-CREDIT PIC S9(10)V99 | `15  ACCT-UPDATE-CURR-CYC-CREDIT         PIC S9(10)V99.` |
+| `app/cbl/COACTUPC.cbl:431` | ACCT-UPDATE-CURR-CYC-DEBIT PIC S9(10)V99 | `15  ACCT-UPDATE-CURR-CYC-DEBIT          PIC S9(10)V99.` |
+| `app/cbl/COACTUPC.cbl:676` | ACUP-OLD-CURR-BAL-N PIC S9(10)V99 | `15  ACUP-OLD-CURR-BAL-N REDEFINES` |
+| `app/cbl/COACTUPC.cbl:679` | ACUP-OLD-CREDIT-LIMIT-N PIC S9(10)V99 | `15  ACUP-OLD-CREDIT-LIMIT-N            REDEFINES` |
+| `app/cbl/COACTUPC.cbl:682` | ACUP-OLD-CASH-CREDIT-LIMIT-N PIC S9(10)V99 | `15  ACUP-OLD-CASH-CREDIT-LIMIT-N       REDEFINES` |
+| `app/cbl/COACTUPC.cbl:703` | ACUP-OLD-CURR-CYC-CREDIT-N PIC S9(10)V99 | `15  ACUP-OLD-CURR-CYC-CREDIT-N         REDEFINES` |
+| `app/cbl/COACTUPC.cbl:706` | ACUP-OLD-CURR-CYC-DEBIT-N PIC S9(10)V99 | `15  ACUP-OLD-CURR-CYC-DEBIT-N          REDEFINES` |
+| `app/cbl/COACTUPC.cbl:764` | ACUP-NEW-CURR-BAL-N PIC S9(10)V99 | `15  ACUP-NEW-CURR-BAL-N                REDEFINES` |
+| `app/cbl/COACTUPC.cbl:767` | ACUP-NEW-CREDIT-LIMIT-N PIC S9(10)V99 | `15  ACUP-NEW-CREDIT-LIMIT-N            REDEFINES` |
+| `app/cbl/COACTUPC.cbl:770` | ACUP-NEW-CASH-CREDIT-LIMIT-N PIC S9(10)V99 | `15  ACUP-NEW-CASH-CREDIT-LIMIT-N       REDEFINES` |
+| `app/cbl/COACTUPC.cbl:791` | ACUP-NEW-CURR-CYC-CREDIT-N PIC S9(10)V99 | `15  ACUP-NEW-CURR-CYC-CREDIT-N         REDEFINES` |
+| `app/cbl/COACTUPC.cbl:794` | ACUP-NEW-CURR-CYC-DEBIT-N PIC S9(10)V99 | `15  ACUP-NEW-CURR-CYC-DEBIT-N          REDEFINES` |
 
 #### `app/cbl/COTRN02C.cbl` (1)
 
 | Line | Detail | Source text |
 | --- | --- | --- |
-| `app/cbl/COTRN02C.cbl:57` | WS-TRAN-AMT-N PIC S9(9)V99 | `05 WS-TRAN-ID-N               PIC 9(16) VALUE ZEROS.` |
+| `app/cbl/COTRN02C.cbl:58` | WS-TRAN-AMT-N PIC S9(9)V99 | `05 WS-TRAN-AMT-N              PIC S9(9)V99 VALUE ZERO.` |
 
 #### `app/cpy/COSTM01.CPY` (1)
 
 | Line | Detail | Source text |
 | --- | --- | --- |
-| `app/cpy/COSTM01.CPY:28` | TRNX-AMT PIC S9(09)V99 | `10  TRNX-DESC                           PIC X(100).` |
+| `app/cpy/COSTM01.CPY:29` | TRNX-AMT PIC S9(09)V99 | `10  TRNX-AMT                            PIC S9(09)V99.` |
 
 #### `app/cpy/CVACT01Y.cpy` (5)
 
 | Line | Detail | Source text |
 | --- | --- | --- |
-| `app/cpy/CVACT01Y.cpy:6` | ACCT-CURR-BAL PIC S9(10)V99 | `05  ACCT-ACTIVE-STATUS                PIC X(01).` |
-| `app/cpy/CVACT01Y.cpy:7` | ACCT-CREDIT-LIMIT PIC S9(10)V99 | `05  ACCT-CURR-BAL                     PIC S9(10)V99.` |
-| `app/cpy/CVACT01Y.cpy:8` | ACCT-CASH-CREDIT-LIMIT PIC S9(10)V99 | `05  ACCT-CREDIT-LIMIT                 PIC S9(10)V99.` |
-| `app/cpy/CVACT01Y.cpy:12` | ACCT-CURR-CYC-CREDIT PIC S9(10)V99 | `05  ACCT-REISSUE-DATE                 PIC X(10).` |
-| `app/cpy/CVACT01Y.cpy:13` | ACCT-CURR-CYC-DEBIT PIC S9(10)V99 | `05  ACCT-CURR-CYC-CREDIT              PIC S9(10)V99.` |
+| `app/cpy/CVACT01Y.cpy:7` | ACCT-CURR-BAL PIC S9(10)V99 | `05  ACCT-CURR-BAL                     PIC S9(10)V99.` |
+| `app/cpy/CVACT01Y.cpy:8` | ACCT-CREDIT-LIMIT PIC S9(10)V99 | `05  ACCT-CREDIT-LIMIT                 PIC S9(10)V99.` |
+| `app/cpy/CVACT01Y.cpy:9` | ACCT-CASH-CREDIT-LIMIT PIC S9(10)V99 | `05  ACCT-CASH-CREDIT-LIMIT            PIC S9(10)V99.` |
+| `app/cpy/CVACT01Y.cpy:13` | ACCT-CURR-CYC-CREDIT PIC S9(10)V99 | `05  ACCT-CURR-CYC-CREDIT              PIC S9(10)V99.` |
+| `app/cpy/CVACT01Y.cpy:14` | ACCT-CURR-CYC-DEBIT PIC S9(10)V99 | `05  ACCT-CURR-CYC-DEBIT               PIC S9(10)V99.` |
 
 #### `app/cpy/CVEXPORT.cpy` (2)
 
 | Line | Detail | Source text |
 | --- | --- | --- |
-| `app/cpy/CVEXPORT.cpy:50` | EXP-ACCT-CREDIT-LIMIT PIC S9(10)V99 | `10  EXP-ACCT-CURR-BAL               PIC S9(10)V99 COMP-3.` |
-| `app/cpy/CVEXPORT.cpy:55` | EXP-ACCT-CURR-CYC-CREDIT PIC S9(10)V99 | `10  EXP-ACCT-REISSUE-DATE           PIC X(10).` |
+| `app/cpy/CVEXPORT.cpy:51` | EXP-ACCT-CREDIT-LIMIT PIC S9(10)V99 | `10  EXP-ACCT-CREDIT-LIMIT           PIC S9(10)V99.` |
+| `app/cpy/CVEXPORT.cpy:56` | EXP-ACCT-CURR-CYC-CREDIT PIC S9(10)V99 | `10  EXP-ACCT-CURR-CYC-CREDIT        PIC S9(10)V99.` |
 
 #### `app/cpy/CVTRA01Y.cpy` (1)
 
 | Line | Detail | Source text |
 | --- | --- | --- |
-| `app/cpy/CVTRA01Y.cpy:8` | TRAN-CAT-BAL PIC S9(09)V99 | `10 TRANCAT-CD                            PIC 9(04).` |
+| `app/cpy/CVTRA01Y.cpy:9` | TRAN-CAT-BAL PIC S9(09)V99 | `05  TRAN-CAT-BAL                            PIC S9(09)V99.` |
 
 #### `app/cpy/CVTRA02Y.cpy` (1)
 
 | Line | Detail | Source text |
 | --- | --- | --- |
-| `app/cpy/CVTRA02Y.cpy:8` | DIS-INT-RATE PIC S9(04)V99 | `10 DIS-TRAN-CAT-CD                       PIC 9(04).` |
+| `app/cpy/CVTRA02Y.cpy:9` | DIS-INT-RATE PIC S9(04)V99 | `05  DIS-INT-RATE                            PIC S9(04)V99.` |
 
 #### `app/cpy/CVTRA05Y.cpy` (1)
 
 | Line | Detail | Source text |
 | --- | --- | --- |
-| `app/cpy/CVTRA05Y.cpy:9` | TRAN-AMT PIC S9(09)V99 | `05  TRAN-DESC                               PIC X(100).` |
+| `app/cpy/CVTRA05Y.cpy:10` | TRAN-AMT PIC S9(09)V99 | `05  TRAN-AMT                                PIC S9(09)V99.` |
 
 #### `app/cpy/CVTRA06Y.cpy` (1)
 
 | Line | Detail | Source text |
 | --- | --- | --- |
-| `app/cpy/CVTRA06Y.cpy:9` | DALYTRAN-AMT PIC S9(09)V99 | `05  DALYTRAN-DESC                           PIC X(100).` |
+| `app/cpy/CVTRA06Y.cpy:10` | DALYTRAN-AMT PIC S9(09)V99 | `05  DALYTRAN-AMT                            PIC S9(09)V99.` |
 
 ### COMP-3 / packed decimal (50)
 
@@ -3854,151 +3854,151 @@
 
 | Line | Detail | Source text |
 | --- | --- | --- |
-| `app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl:48` | WS-ABS-TIME PIC S9(15) | `05 WS-REAS-CD                 PIC S9(09) COMP VALUE ZEROS.` |
-| `app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl:55` | WS-TIME-WITH-MS PIC S9(09) | `05 WS-YYDDD                   PIC 9(05).` |
-| `app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl:61` | WS-AVAILABLE-AMT PIC S9(09)V99 | `05 WS-CODE-DISPLAY            PIC 9(9).` |
+| `app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl:50` | WS-ABS-TIME PIC S9(15) | `05 WS-ABS-TIME                PIC S9(15) COMP-3 VALUE 0.` |
+| `app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl:56` | WS-TIME-WITH-MS PIC S9(09) | `05 WS-TIME-WITH-MS            PIC S9(09) COMP-3.` |
+| `app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl:62` | WS-AVAILABLE-AMT PIC S9(09)V99 | `05 WS-AVAILABLE-AMT           PIC S9(09)V99 COMP-3.` |
 
 #### `app/app-authorization-ims-db2-mq/cbl/COPAUS2C.cbl` (1)
 
 | Line | Detail | Source text |
 | --- | --- | --- |
-| `app/app-authorization-ims-db2-mq/cbl/COPAUS2C.cbl:56` | WS-ABS-TIME PIC S9(15) | `05 WS-SQLSTATE                PIC +9(09).` |
+| `app/app-authorization-ims-db2-mq/cbl/COPAUS2C.cbl:58` | WS-ABS-TIME PIC S9(15) | `05 WS-ABS-TIME                PIC S9(15) COMP-3 VALUE 0.` |
 
 #### `app/app-authorization-ims-db2-mq/cbl/DBUNLDGS.CBL` (1)
 
 | Line | Detail | Source text |
 | --- | --- | --- |
-| `app/app-authorization-ims-db2-mq/cbl/DBUNLDGS.CBL:54` | ROOT-SEG-KEY PIC S9(11) | `01 OPFIL2-REC.` |
+| `app/app-authorization-ims-db2-mq/cbl/DBUNLDGS.CBL:55` | ROOT-SEG-KEY PIC S9(11) | `05 ROOT-SEG-KEY               PIC S9(11) COMP-3.` |
 
 #### `app/app-authorization-ims-db2-mq/cbl/PAUDBLOD.CBL` (2)
 
 | Line | Detail | Source text |
 | --- | --- | --- |
-| `app/app-authorization-ims-db2-mq/cbl/PAUDBLOD.CBL:46` | ROOT-SEG-KEY PIC S9(11) | `01 INFIL2-REC.` |
-| `app/app-authorization-ims-db2-mq/cbl/PAUDBLOD.CBL:117` | QUAL-SSA-KEY-VALUE PIC S9(11) | `05 QUAL-SSA-REL-OPER      PIC X(02) VALUE 'EQ'.` |
+| `app/app-authorization-ims-db2-mq/cbl/PAUDBLOD.CBL:47` | ROOT-SEG-KEY PIC S9(11) | `05 ROOT-SEG-KEY               PIC S9(11) COMP-3.` |
+| `app/app-authorization-ims-db2-mq/cbl/PAUDBLOD.CBL:118` | QUAL-SSA-KEY-VALUE PIC S9(11) | `05 QUAL-SSA-KEY-VALUE     PIC S9(11) COMP-3.` |
 
 #### `app/app-authorization-ims-db2-mq/cbl/PAUDBUNL.CBL` (1)
 
 | Line | Detail | Source text |
 | --- | --- | --- |
-| `app/app-authorization-ims-db2-mq/cbl/PAUDBUNL.CBL:46` | ROOT-SEG-KEY PIC S9(11) | `01 OPFIL2-REC.` |
+| `app/app-authorization-ims-db2-mq/cbl/PAUDBUNL.CBL:47` | ROOT-SEG-KEY PIC S9(11) | `05 ROOT-SEG-KEY               PIC S9(11) COMP-3.` |
 
 #### `app/app-authorization-ims-db2-mq/cpy/CIPAUDTY.cpy` (4)
 
 | Line | Detail | Source text |
 | --- | --- | --- |
-| `app/app-authorization-ims-db2-mq/cpy/CIPAUDTY.cpy:19` | PA-AUTH-DATE-9C PIC S9(05) | `05  PA-AUTHORIZATION-KEY.` |
-| `app/app-authorization-ims-db2-mq/cpy/CIPAUDTY.cpy:20` | PA-AUTH-TIME-9C PIC S9(09) | `10 PA-AUTH-DATE-9C           PIC S9(05) COMP-3.` |
-| `app/app-authorization-ims-db2-mq/cpy/CIPAUDTY.cpy:33` | PA-TRANSACTION-AMT PIC S9(10)V99 | `05  PA-PROCESSING-CODE           PIC  9(06).` |
-| `app/app-authorization-ims-db2-mq/cpy/CIPAUDTY.cpy:34` | PA-APPROVED-AMT PIC S9(10)V99 | `05  PA-TRANSACTION-AMT           PIC S9(10)V99 COMP-3.` |
+| `app/app-authorization-ims-db2-mq/cpy/CIPAUDTY.cpy:20` | PA-AUTH-DATE-9C PIC S9(05) | `10 PA-AUTH-DATE-9C           PIC S9(05) COMP-3.` |
+| `app/app-authorization-ims-db2-mq/cpy/CIPAUDTY.cpy:21` | PA-AUTH-TIME-9C PIC S9(09) | `10 PA-AUTH-TIME-9C           PIC S9(09) COMP-3.` |
+| `app/app-authorization-ims-db2-mq/cpy/CIPAUDTY.cpy:34` | PA-TRANSACTION-AMT PIC S9(10)V99 | `05  PA-TRANSACTION-AMT           PIC S9(10)V99 COMP-3.` |
+| `app/app-authorization-ims-db2-mq/cpy/CIPAUDTY.cpy:35` | PA-APPROVED-AMT PIC S9(10)V99 | `05  PA-APPROVED-AMT              PIC S9(10)V99 COMP-3.` |
 
 #### `app/app-authorization-ims-db2-mq/cpy/CIPAUSMY.cpy` (7)
 
 | Line | Detail | Source text |
 | --- | --- | --- |
 | `app/app-authorization-ims-db2-mq/cpy/CIPAUSMY.cpy:19` | PA-ACCT-ID PIC S9(11) | `05  PA-ACCT-ID                   PIC S9(11) COMP-3.` |
-| `app/app-authorization-ims-db2-mq/cpy/CIPAUSMY.cpy:22` | PA-CREDIT-LIMIT PIC S9(09)V99 | `05  PA-ACCOUNT-STATUS            PIC  X(02) OCCURS 5 TIMES.` |
-| `app/app-authorization-ims-db2-mq/cpy/CIPAUSMY.cpy:23` | PA-CASH-LIMIT PIC S9(09)V99 | `05  PA-CREDIT-LIMIT              PIC S9(09)V99 COMP-3.` |
-| `app/app-authorization-ims-db2-mq/cpy/CIPAUSMY.cpy:24` | PA-CREDIT-BALANCE PIC S9(09)V99 | `05  PA-CASH-LIMIT                PIC S9(09)V99 COMP-3.` |
-| `app/app-authorization-ims-db2-mq/cpy/CIPAUSMY.cpy:25` | PA-CASH-BALANCE PIC S9(09)V99 | `05  PA-CREDIT-BALANCE            PIC S9(09)V99 COMP-3.` |
-| `app/app-authorization-ims-db2-mq/cpy/CIPAUSMY.cpy:28` | PA-APPROVED-AUTH-AMT PIC S9(09)V99 | `05  PA-DECLINED-AUTH-CNT         PIC S9(04) COMP.` |
-| `app/app-authorization-ims-db2-mq/cpy/CIPAUSMY.cpy:29` | PA-DECLINED-AUTH-AMT PIC S9(09)V99 | `05  PA-APPROVED-AUTH-AMT         PIC S9(09)V99 COMP-3.` |
+| `app/app-authorization-ims-db2-mq/cpy/CIPAUSMY.cpy:23` | PA-CREDIT-LIMIT PIC S9(09)V99 | `05  PA-CREDIT-LIMIT              PIC S9(09)V99 COMP-3.` |
+| `app/app-authorization-ims-db2-mq/cpy/CIPAUSMY.cpy:24` | PA-CASH-LIMIT PIC S9(09)V99 | `05  PA-CASH-LIMIT                PIC S9(09)V99 COMP-3.` |
+| `app/app-authorization-ims-db2-mq/cpy/CIPAUSMY.cpy:25` | PA-CREDIT-BALANCE PIC S9(09)V99 | `05  PA-CREDIT-BALANCE            PIC S9(09)V99 COMP-3.` |
+| `app/app-authorization-ims-db2-mq/cpy/CIPAUSMY.cpy:26` | PA-CASH-BALANCE PIC S9(09)V99 | `05  PA-CASH-BALANCE              PIC S9(09)V99 COMP-3.` |
+| `app/app-authorization-ims-db2-mq/cpy/CIPAUSMY.cpy:29` | PA-APPROVED-AUTH-AMT PIC S9(09)V99 | `05  PA-APPROVED-AUTH-AMT         PIC S9(09)V99 COMP-3.` |
+| `app/app-authorization-ims-db2-mq/cpy/CIPAUSMY.cpy:30` | PA-DECLINED-AUTH-AMT PIC S9(09)V99 | `05  PA-DECLINED-AUTH-AMT         PIC S9(09)V99 COMP-3.` |
 
 #### `app/app-authorization-ims-db2-mq/dcl/AUTHFRDS.dcl` (4)
 
 | Line | Detail | Source text |
 | --- | --- | --- |
-| `app/app-authorization-ims-db2-mq/dcl/AUTHFRDS.dcl:65` | TRANSACTION-AMT PIC S9(10)V9(2) | `10 PROCESSING-CODE      PIC X(6).` |
-| `app/app-authorization-ims-db2-mq/dcl/AUTHFRDS.dcl:66` | APPROVED-AMT PIC S9(10)V9(2) | `10 TRANSACTION-AMT      PIC S9(10)V9(2) USAGE COMP-3.` |
-| `app/app-authorization-ims-db2-mq/dcl/AUTHFRDS.dcl:84` | ACCT-ID PIC S9(11)V | `10 FRAUD-RPT-DATE       PIC X(10).` |
-| `app/app-authorization-ims-db2-mq/dcl/AUTHFRDS.dcl:85` | CUST-ID PIC S9(9)V | `10 ACCT-ID              PIC S9(11)V USAGE COMP-3.` |
+| `app/app-authorization-ims-db2-mq/dcl/AUTHFRDS.dcl:66` | TRANSACTION-AMT PIC S9(10)V9(2) | `10 TRANSACTION-AMT      PIC S9(10)V9(2) USAGE COMP-3.` |
+| `app/app-authorization-ims-db2-mq/dcl/AUTHFRDS.dcl:67` | APPROVED-AMT PIC S9(10)V9(2) | `10 APPROVED-AMT         PIC S9(10)V9(2) USAGE COMP-3.` |
+| `app/app-authorization-ims-db2-mq/dcl/AUTHFRDS.dcl:85` | ACCT-ID PIC S9(11)V | `10 ACCT-ID              PIC S9(11)V USAGE COMP-3.` |
+| `app/app-authorization-ims-db2-mq/dcl/AUTHFRDS.dcl:86` | CUST-ID PIC S9(9)V | `10 CUST-ID              PIC S9(9)V USAGE COMP-3.` |
 
 #### `app/app-transaction-type-db2/cbl/COTRTLIC.cbl` (8)
 
 | Line | Detail | Source text |
 | --- | --- | --- |
-| `app/app-transaction-type-db2/cbl/COTRTLIC.cbl:146` | WS-EDIT-ALPHANUM-LENGTH PIC S9(4) | `10 WS-EDIT-ALPHANUM-ONLY                PIC X(256).` |
-| `app/app-transaction-type-db2/cbl/COTRTLIC.cbl:154` | WS-RECORDS-COUNT PIC S9(4) | `05  WS-OTHER-EDIT-VARS.` |
-| `app/app-transaction-type-db2/cbl/COTRTLIC.cbl:172` | WS-EDIT-SELECT-COUNTER PIC S9(04) | `30 WS-ROW-TR-DESC-IN       PIC X(50).` |
-| `app/app-transaction-type-db2/cbl/COTRTLIC.cbl:202` | WS-ACTIONS-REQUESTED PIC S9(04) | `05 WS-ACTIONS-SELECTED.` |
-| `app/app-transaction-type-db2/cbl/COTRTLIC.cbl:207` | WS-DELETES-REQUESTED PIC S9(04) | `88 WS-MORETHAN1ACTION              VALUES 2 THRU 7.` |
-| `app/app-transaction-type-db2/cbl/COTRTLIC.cbl:210` | WS-UPDATES-REQUESTED PIC S9(04) | `VALUE 0.` |
-| `app/app-transaction-type-db2/cbl/COTRTLIC.cbl:213` | WS-NO-ACTIONS-SELECTED PIC S9(04) | `VALUE 0.` |
-| `app/app-transaction-type-db2/cbl/COTRTLIC.cbl:216` | WS-VALID-ACTIONS-SELECTED PIC S9(04) | `VALUE 0.` |
+| `app/app-transaction-type-db2/cbl/COTRTLIC.cbl:147` | WS-EDIT-ALPHANUM-LENGTH PIC S9(4) | `10 WS-EDIT-ALPHANUM-LENGTH              PIC S9(4) COMP-3.` |
+| `app/app-transaction-type-db2/cbl/COTRTLIC.cbl:155` | WS-RECORDS-COUNT PIC S9(4) | `10 WS-RECORDS-COUNT                     PIC S9(4) COMP-3` |
+| `app/app-transaction-type-db2/cbl/COTRTLIC.cbl:175` | WS-EDIT-SELECT-COUNTER PIC S9(04) | `05 WS-EDIT-SELECT-COUNTER                 PIC S9(04)` |
+| `app/app-transaction-type-db2/cbl/COTRTLIC.cbl:203` | WS-ACTIONS-REQUESTED PIC S9(04) | `07 WS-ACTIONS-REQUESTED               PIC S9(04)` |
+| `app/app-transaction-type-db2/cbl/COTRTLIC.cbl:208` | WS-DELETES-REQUESTED PIC S9(04) | `07 WS-DELETES-REQUESTED               PIC S9(04)` |
+| `app/app-transaction-type-db2/cbl/COTRTLIC.cbl:211` | WS-UPDATES-REQUESTED PIC S9(04) | `07 WS-UPDATES-REQUESTED               PIC S9(04)` |
+| `app/app-transaction-type-db2/cbl/COTRTLIC.cbl:214` | WS-NO-ACTIONS-SELECTED PIC S9(04) | `07 WS-NO-ACTIONS-SELECTED             PIC S9(04)` |
+| `app/app-transaction-type-db2/cbl/COTRTLIC.cbl:217` | WS-VALID-ACTIONS-SELECTED PIC S9(04) | `05 WS-VALID-ACTIONS-SELECTED             PIC S9(04)` |
 
 #### `app/app-transaction-type-db2/cbl/COTRTUPC.cbl` (1)
 
 | Line | Detail | Source text |
 | --- | --- | --- |
-| `app/app-transaction-type-db2/cbl/COTRTUPC.cbl:55` | WS-EDIT-ALPHANUM-LENGTH PIC S9(4) | `10 WS-EDIT-ALPHANUM-ONLY                PIC X(256).` |
+| `app/app-transaction-type-db2/cbl/COTRTUPC.cbl:56` | WS-EDIT-ALPHANUM-LENGTH PIC S9(4) | `10 WS-EDIT-ALPHANUM-LENGTH              PIC S9(4) COMP-3.` |
 
 #### `app/app-transaction-type-db2/cpy/CSDB2RWY.cpy` (1)
 
 | Line | Detail | Source text |
 | --- | --- | --- |
-| `app/app-transaction-type-db2/cpy/CSDB2RWY.cpy:22` | WS-DUMMY-DB2-INT PIC S9(4) | `10 WS-DISP-SQLCODE                    PIC ----9.` |
+| `app/app-transaction-type-db2/cpy/CSDB2RWY.cpy:23` | WS-DUMMY-DB2-INT PIC S9(4) | `10 WS-DUMMY-DB2-INT                   PIC S9(4) COMP-3` |
 
 #### `app/app-vsam-mq/cbl/COACCT01.cbl` (1)
 
 | Line | Detail | Source text |
 | --- | --- | --- |
-| `app/app-vsam-mq/cbl/COACCT01.cbl:35` | WS-ABS-TIME PIC S9(15) | `01 WS-DATE-TIME.` |
+| `app/app-vsam-mq/cbl/COACCT01.cbl:36` | WS-ABS-TIME PIC S9(15) | `10 WS-ABS-TIME                  PIC S9(15) COMP-3 VALUE ZERO.` |
 
 #### `app/app-vsam-mq/cbl/CODATE01.cbl` (1)
 
 | Line | Detail | Source text |
 | --- | --- | --- |
-| `app/app-vsam-mq/cbl/CODATE01.cbl:35` | WS-ABS-TIME PIC S9(15) | `01 WS-DATE-TIME.` |
+| `app/app-vsam-mq/cbl/CODATE01.cbl:36` | WS-ABS-TIME PIC S9(15) | `10 WS-ABS-TIME                  PIC S9(15) COMP-3 VALUE ZERO.` |
 
 #### `app/cbl/CBACT01C.cbl` (2)
 
 | Line | Detail | Source text |
 | --- | --- | --- |
-| `app/cbl/CBACT01C.cbl:66` | OUT-ACCT-CURR-CYC-DEBIT PIC S9(10)V99 | `05  OUT-ACCT-CURR-CYC-CREDIT   PIC S9(10)V99.` |
-| `app/cbl/CBACT01C.cbl:75` | ARR-ACCT-CURR-CYC-DEBIT PIC S9(10)V99 | `10  ARR-ACCT-CURR-BAL        PIC S9(10)V99.` |
+| `app/cbl/CBACT01C.cbl:67` | OUT-ACCT-CURR-CYC-DEBIT PIC S9(10)V99 | `05  OUT-ACCT-CURR-CYC-DEBIT    PIC S9(10)V99` |
+| `app/cbl/CBACT01C.cbl:76` | ARR-ACCT-CURR-CYC-DEBIT PIC S9(10)V99 | `10  ARR-ACCT-CURR-CYC-DEBIT  PIC S9(10)V99` |
 
 #### `app/cbl/CBSTM03A.CBL` (1)
 
 | Line | Detail | Source text |
 | --- | --- | --- |
-| `app/cbl/CBSTM03A.CBL:63` | COMP3-VARIABLES PIC None | `05  TR-JMP              PIC S9(4) VALUE 0.` |
+| `app/cbl/CBSTM03A.CBL:64` | COMP3-VARIABLES PIC None | `01  COMP3-VARIABLES         COMP-3.` |
 
 #### `app/cbl/CBTRN03C.cbl` (2)
 
 | Line | Detail | Source text |
 | --- | --- | --- |
-| `app/cbl/CBTRN03C.cbl:128` | WS-LINE-COUNTER PIC 9(09) | `05 WS-FIRST-TIME      PIC X      VALUE 'Y'.` |
-| `app/cbl/CBTRN03C.cbl:130` | WS-PAGE-SIZE PIC 9(03) | `VALUE 0.` |
+| `app/cbl/CBTRN03C.cbl:129` | WS-LINE-COUNTER PIC 9(09) | `05 WS-LINE-COUNTER    PIC 9(09) COMP-3` |
+| `app/cbl/CBTRN03C.cbl:131` | WS-PAGE-SIZE PIC 9(03) | `05 WS-PAGE-SIZE       PIC 9(03) COMP-3` |
 
 #### `app/cbl/COACTUPC.cbl` (4)
 
 | Line | Detail | Source text |
 | --- | --- | --- |
-| `app/cbl/COACTUPC.cbl:61` | WS-EDIT-ALPHANUM-LENGTH PIC S9(4) | `10 WS-EDIT-ALPHANUM-ONLY                PIC X(256).` |
-| `app/cbl/COACTUPC.cbl:151` | WS-DIV-BY PIC S9(4) | `05 WS-CALCULATION-VARS.` |
-| `app/cbl/COACTUPC.cbl:153` | WS-DIVIDEND PIC S9(4) | `VALUE 4.` |
-| `app/cbl/COACTUPC.cbl:155` | WS-REMAINDER PIC S9(4) | `VALUE 0.` |
+| `app/cbl/COACTUPC.cbl:62` | WS-EDIT-ALPHANUM-LENGTH PIC S9(4) | `10 WS-EDIT-ALPHANUM-LENGTH              PIC S9(4) COMP-3.` |
+| `app/cbl/COACTUPC.cbl:152` | WS-DIV-BY PIC S9(4) | `10 WS-DIV-BY                             PIC S9(4) COMP-3` |
+| `app/cbl/COACTUPC.cbl:154` | WS-DIVIDEND PIC S9(4) | `10 WS-DIVIDEND                           PIC S9(4) COMP-3` |
+| `app/cbl/COACTUPC.cbl:157` | WS-REMAINDER PIC S9(4) | `10 WS-REMAINDER                          PIC S9(4) COMP-3` |
 
 #### `app/cbl/COBIL00C.cbl` (1)
 
 | Line | Detail | Source text |
 | --- | --- | --- |
-| `app/cbl/COBIL00C.cbl:58` | WS-ABS-TIME PIC S9(15) | `05 WS-TRAN-DATE               PIC X(08) VALUE '00/00/00'.` |
+| `app/cbl/COBIL00C.cbl:59` | WS-ABS-TIME PIC S9(15) | `05 WS-ABS-TIME                PIC S9(15) COMP-3 VALUE 0.` |
 
 #### `app/cbl/COCRDLIC.cbl` (1)
 
 | Line | Detail | Source text |
 | --- | --- | --- |
-| `app/cbl/COCRDLIC.cbl:68` | WS-EDIT-SELECT-COUNTER PIC S9(04) | `88  FLG-CARDFILTER-BLANK                VALUE ' '.` |
+| `app/cbl/COCRDLIC.cbl:69` | WS-EDIT-SELECT-COUNTER PIC S9(04) | `05 WS-EDIT-SELECT-COUNTER                PIC S9(04)` |
 
 #### `app/cpy/CVEXPORT.cpy` (4)
 
 | Line | Detail | Source text |
 | --- | --- | --- |
-| `app/cpy/CVEXPORT.cpy:40` | EXP-CUST-FICO-CREDIT-SCORE PIC 9(03) | `10  EXP-CUST-PRI-CARD-HOLDER-IND    PIC X(01).` |
-| `app/cpy/CVEXPORT.cpy:49` | EXP-ACCT-CURR-BAL PIC S9(10)V99 | `10  EXP-ACCT-ACTIVE-STATUS          PIC X(01).` |
-| `app/cpy/CVEXPORT.cpy:51` | EXP-ACCT-CASH-CREDIT-LIMIT PIC S9(10)V99 | `10  EXP-ACCT-CREDIT-LIMIT           PIC S9(10)V99.` |
-| `app/cpy/CVEXPORT.cpy:70` | EXP-TRAN-AMT PIC S9(09)V99 | `10  EXP-TRAN-DESC                   PIC X(100).` |
+| `app/cpy/CVEXPORT.cpy:41` | EXP-CUST-FICO-CREDIT-SCORE PIC 9(03) | `10  EXP-CUST-FICO-CREDIT-SCORE      PIC 9(03) COMP-3.` |
+| `app/cpy/CVEXPORT.cpy:50` | EXP-ACCT-CURR-BAL PIC S9(10)V99 | `10  EXP-ACCT-CURR-BAL               PIC S9(10)V99 COMP-3.` |
+| `app/cpy/CVEXPORT.cpy:52` | EXP-ACCT-CASH-CREDIT-LIMIT PIC S9(10)V99 | `10  EXP-ACCT-CASH-CREDIT-LIMIT      PIC S9(10)V99 COMP-3.` |
+| `app/cpy/CVEXPORT.cpy:71` | EXP-TRAN-AMT PIC S9(09)V99 | `10  EXP-TRAN-AMT                    PIC S9(09)V99 COMP-3.` |
 
 ### EXEC SQL (36)
 
@@ -4084,124 +4084,124 @@
 
 | Line | Detail | Source text |
 | --- | --- | --- |
-| `app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl:65` | WS-APPROVED-AMT-DIS PIC -ZZZZZZZZZ9.99 | `05 WS-APPROVED-AMT            PIC S9(10)V99.` |
+| `app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl:66` | WS-APPROVED-AMT-DIS PIC -ZZZZZZZZZ9.99 | `05 WS-APPROVED-AMT-DIS        PIC -zzzzzzzzz9.99.` |
 
 #### `app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl` (3)
 
 | Line | Detail | Source text |
 | --- | --- | --- |
-| `app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl:53` | WS-AUTH-AMT PIC -ZZZZZZZ9.99 | `05 WS-PAGE-NUM                PIC S9(04) COMP VALUE ZEROS.` |
-| `app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl:55` | WS-DISPLAY-AMT12 PIC -ZZZZZZZ9.99 | `05 WS-AUTH-AMT                PIC -zzzzzzz9.99.` |
-| `app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl:56` | WS-DISPLAY-AMT9 PIC -ZZZZ9.99 | `05 WS-DISPLAY-AMT12           PIC -zzzzzzz9.99.` |
+| `app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl:55` | WS-AUTH-AMT PIC -ZZZZZZZ9.99 | `05 WS-AUTH-AMT                PIC -zzzzzzz9.99.` |
+| `app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl:56` | WS-DISPLAY-AMT12 PIC -ZZZZZZZ9.99 | `05 WS-DISPLAY-AMT12           PIC -zzzzzzz9.99.` |
+| `app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl:57` | WS-DISPLAY-AMT9 PIC -ZZZZ9.99 | `05 WS-DISPLAY-AMT9            PIC -zzzz9.99.` |
 
 #### `app/app-authorization-ims-db2-mq/cbl/COPAUS1C.cbl` (1)
 
 | Line | Detail | Source text |
 | --- | --- | --- |
-| `app/app-authorization-ims-db2-mq/cbl/COPAUS1C.cbl:51` | WS-AUTH-AMT PIC -ZZZZZZZ9.99 | `05 WS-AUTH-KEY                PIC  X(08).` |
+| `app/app-authorization-ims-db2-mq/cbl/COPAUS1C.cbl:52` | WS-AUTH-AMT PIC -ZZZZZZZ9.99 | `05 WS-AUTH-AMT                PIC -zzzzzzz9.99.` |
 
 #### `app/app-authorization-ims-db2-mq/cbl/COPAUS2C.cbl` (2)
 
 | Line | Detail | Source text |
 | --- | --- | --- |
-| `app/app-authorization-ims-db2-mq/cbl/COPAUS2C.cbl:54` | WS-SQLCODE PIC +9(06) | `88 ERR-FLG-OF                        VALUE 'N'.` |
-| `app/app-authorization-ims-db2-mq/cbl/COPAUS2C.cbl:55` | WS-SQLSTATE PIC +9(09) | `05 WS-SQLCODE                 PIC +9(06).` |
+| `app/app-authorization-ims-db2-mq/cbl/COPAUS2C.cbl:55` | WS-SQLCODE PIC +9(06) | `05 WS-SQLCODE                 PIC +9(06).` |
+| `app/app-authorization-ims-db2-mq/cbl/COPAUS2C.cbl:56` | WS-SQLSTATE PIC +9(09) | `05 WS-SQLSTATE                PIC +9(09).` |
 
 #### `app/app-authorization-ims-db2-mq/cpy/CCPAURLY.cpy` (1)
 
 | Line | Detail | Source text |
 | --- | --- | --- |
-| `app/app-authorization-ims-db2-mq/cpy/CCPAURLY.cpy:23` | PA-RL-APPROVED-AMT PIC +9(10).99 | `05  PA-RL-AUTH-RESP-REASON       PIC  X(04).` |
+| `app/app-authorization-ims-db2-mq/cpy/CCPAURLY.cpy:24` | PA-RL-APPROVED-AMT PIC +9(10).99 | `05  PA-RL-APPROVED-AMT           PIC +9(10).99.` |
 
 #### `app/app-authorization-ims-db2-mq/cpy/CCPAURQY.cpy` (1)
 
 | Line | Detail | Source text |
 | --- | --- | --- |
-| `app/app-authorization-ims-db2-mq/cpy/CCPAURQY.cpy:26` | PA-RQ-TRANSACTION-AMT PIC +9(10).99 | `05  PA-RQ-PROCESSING-CODE        PIC  9(06).` |
+| `app/app-authorization-ims-db2-mq/cpy/CCPAURQY.cpy:27` | PA-RQ-TRANSACTION-AMT PIC +9(10).99 | `05  PA-RQ-TRANSACTION-AMT        PIC +9(10).99.` |
 
 #### `app/app-transaction-type-db2/cbl/COBTUPDT.cbl` (1)
 
 | Line | Detail | Source text |
 | --- | --- | --- |
-| `app/app-transaction-type-db2/cbl/COBTUPDT.cbl:64` | WS-VAR-SQLCODE PIC ----9 | `01 WS-MISC-VARS.` |
+| `app/app-transaction-type-db2/cbl/COBTUPDT.cbl:65` | WS-VAR-SQLCODE PIC ----9 | `05 WS-VAR-SQLCODE                     PIC ----9.` |
 
 #### `app/app-transaction-type-db2/cbl/COTRTUPC.cbl` (2)
 
 | Line | Detail | Source text |
 | --- | --- | --- |
-| `app/app-transaction-type-db2/cbl/COTRTUPC.cbl:67` | WS-DISP-SQLCODE PIC ----9 | `05 WS-MISC-VARS.` |
-| `app/app-transaction-type-db2/cbl/COTRTUPC.cbl:117` | WS-EDIT-CURRENCY-9-2-F PIC +ZZZ,ZZZ,ZZZ.99 | `10  WS-EDIT-CURRENCY-9-2                PIC X(15).` |
+| `app/app-transaction-type-db2/cbl/COTRTUPC.cbl:68` | WS-DISP-SQLCODE PIC ----9 | `10 WS-DISP-SQLCODE                    PIC ----9.` |
+| `app/app-transaction-type-db2/cbl/COTRTUPC.cbl:118` | WS-EDIT-CURRENCY-9-2-F PIC +ZZZ,ZZZ,ZZZ.99 | `10  WS-EDIT-CURRENCY-9-2-F              PIC +ZZZ,ZZZ,ZZZ.99.` |
 
 #### `app/app-transaction-type-db2/cpy/CSDB2RWY.cpy` (1)
 
 | Line | Detail | Source text |
 | --- | --- | --- |
-| `app/app-transaction-type-db2/cpy/CSDB2RWY.cpy:21` | WS-DISP-SQLCODE PIC ----9 | `05  WS-DB2-COMMON-VARS.` |
+| `app/app-transaction-type-db2/cpy/CSDB2RWY.cpy:22` | WS-DISP-SQLCODE PIC ----9 | `10 WS-DISP-SQLCODE                    PIC ----9.` |
 
 #### `app/cbl/CBSTM03A.CBL` (3)
 
 | Line | Detail | Source text |
 | --- | --- | --- |
-| `app/cbl/CBSTM03A.CBL:112` | ST-CURR-BAL PIC 9(9).99- | `10  FILLER  VALUE 'Current Balance    :' PIC X(20).` |
-| `app/cbl/CBSTM03A.CBL:136` | ST-TRANAMT PIC Z(9).99- | `10  FILLER            VALUE '$'          PIC X(01).` |
-| `app/cbl/CBSTM03A.CBL:141` | ST-TOTAL-TRAMT PIC Z(9).99- | `10  FILLER            VALUE '$'          PIC X(01).` |
+| `app/cbl/CBSTM03A.CBL:113` | ST-CURR-BAL PIC 9(9).99- | `10  ST-CURR-BAL                          PIC 9(9).99-.` |
+| `app/cbl/CBSTM03A.CBL:137` | ST-TRANAMT PIC Z(9).99- | `10  ST-TRANAMT                           PIC Z(9).99-.` |
+| `app/cbl/CBSTM03A.CBL:142` | ST-TOTAL-TRAMT PIC Z(9).99- | `10  ST-TOTAL-TRAMT                       PIC Z(9).99-.` |
 
 #### `app/cbl/COACTUPC.cbl` (1)
 
 | Line | Detail | Source text |
 | --- | --- | --- |
-| `app/cbl/COACTUPC.cbl:370` | WS-EDIT-CURRENCY-9-2-F PIC +ZZZ,ZZZ,ZZZ.99 | `10  WS-EDIT-CURRENCY-9-2                PIC X(15).` |
+| `app/cbl/COACTUPC.cbl:371` | WS-EDIT-CURRENCY-9-2-F PIC +ZZZ,ZZZ,ZZZ.99 | `10  WS-EDIT-CURRENCY-9-2-F              PIC +ZZZ,ZZZ,ZZZ.99.` |
 
 #### `app/cbl/COBIL00C.cbl` (2)
 
 | Line | Detail | Source text |
 | --- | --- | --- |
-| `app/cbl/COBIL00C.cbl:53` | WS-TRAN-AMT PIC +99999999.99 | `88 CONF-PAY-NO                        VALUE 'N'.` |
-| `app/cbl/COBIL00C.cbl:55` | WS-CURR-BAL PIC +9999999999.99 | `05 WS-TRAN-AMT                PIC +99999999.99.` |
+| `app/cbl/COBIL00C.cbl:55` | WS-TRAN-AMT PIC +99999999.99 | `05 WS-TRAN-AMT                PIC +99999999.99.` |
+| `app/cbl/COBIL00C.cbl:56` | WS-CURR-BAL PIC +9999999999.99 | `05 WS-CURR-BAL                PIC +9999999999.99.` |
 
 #### `app/cbl/CORPT00C.cbl` (1)
 
 | Line | Detail | Source text |
 | --- | --- | --- |
-| `app/cbl/CORPT00C.cbl:75` | WS-TRAN-AMT PIC +99999999.99 | `05 WS-NUM-9999                PIC 9999 VALUE 0.` |
+| `app/cbl/CORPT00C.cbl:77` | WS-TRAN-AMT PIC +99999999.99 | `05 WS-TRAN-AMT                PIC +99999999.99.` |
 
 #### `app/cbl/COTRN00C.cbl` (1)
 
 | Line | Detail | Source text |
 | --- | --- | --- |
-| `app/cbl/COTRN00C.cbl:54` | WS-TRAN-AMT PIC +99999999.99 | `05 WS-PAGE-NUM                PIC S9(04) COMP VALUE ZEROS.` |
+| `app/cbl/COTRN00C.cbl:56` | WS-TRAN-AMT PIC +99999999.99 | `05 WS-TRAN-AMT                PIC +99999999.99.` |
 
 #### `app/cbl/COTRN01C.cbl` (1)
 
 | Line | Detail | Source text |
 | --- | --- | --- |
-| `app/cbl/COTRN01C.cbl:47` | WS-TRAN-AMT PIC +99999999.99 | `88 USR-MODIFIED-NO                    VALUE 'N'.` |
+| `app/cbl/COTRN01C.cbl:49` | WS-TRAN-AMT PIC +99999999.99 | `05 WS-TRAN-AMT                PIC +99999999.99.` |
 
 #### `app/cbl/COTRN02C.cbl` (2)
 
 | Line | Detail | Source text |
 | --- | --- | --- |
-| `app/cbl/COTRN02C.cbl:51` | WS-TRAN-AMT PIC +99999999.99 | `88 USR-MODIFIED-NO                    VALUE 'N'.` |
-| `app/cbl/COTRN02C.cbl:58` | WS-TRAN-AMT-E PIC +99999999.99 | `05 WS-TRAN-AMT-N              PIC S9(9)V99 VALUE ZERO.` |
+| `app/cbl/COTRN02C.cbl:53` | WS-TRAN-AMT PIC +99999999.99 | `05 WS-TRAN-AMT                PIC +99999999.99.` |
+| `app/cbl/COTRN02C.cbl:59` | WS-TRAN-AMT-E PIC +99999999.99 | `05 WS-TRAN-AMT-E              PIC +99999999.99 VALUE ZEROS.` |
 
 #### `app/cpy-bms/COACTVW.CPY` (5)
 
 | Line | Detail | Source text |
 | --- | --- | --- |
-| `app/cpy-bms/COACTVW.CPY:301` | ACRDLIMO PIC +ZZZ,ZZZ,ZZZ.99 | `02  ACRDLIMV    PICTURE X.` |
-| `app/cpy-bms/COACTVW.CPY:313` | ACSHLIMO PIC +ZZZ,ZZZ,ZZZ.99 | `02  ACSHLIMV    PICTURE X.` |
-| `app/cpy-bms/COACTVW.CPY:325` | ACURBALO PIC +ZZZ,ZZZ,ZZZ.99 | `02  ACURBALV    PICTURE X.` |
-| `app/cpy-bms/COACTVW.CPY:331` | ACRCYCRO PIC +ZZZ,ZZZ,ZZZ.99 | `02  ACRCYCRV    PICTURE X.` |
-| `app/cpy-bms/COACTVW.CPY:343` | ACRCYDBO PIC +ZZZ,ZZZ,ZZZ.99 | `02  ACRCYDBV    PICTURE X.` |
+| `app/cpy-bms/COACTVW.CPY:302` | ACRDLIMO PIC +ZZZ,ZZZ,ZZZ.99 | `02  ACRDLIMO PIC +ZZZ,ZZZ,ZZZ.99.` |
+| `app/cpy-bms/COACTVW.CPY:314` | ACSHLIMO PIC +ZZZ,ZZZ,ZZZ.99 | `02  ACSHLIMO PIC +ZZZ,ZZZ,ZZZ.99.` |
+| `app/cpy-bms/COACTVW.CPY:326` | ACURBALO PIC +ZZZ,ZZZ,ZZZ.99 | `02  ACURBALO PIC +ZZZ,ZZZ,ZZZ.99.` |
+| `app/cpy-bms/COACTVW.CPY:332` | ACRCYCRO PIC +ZZZ,ZZZ,ZZZ.99 | `02  ACRCYCRO PIC +ZZZ,ZZZ,ZZZ.99.` |
+| `app/cpy-bms/COACTVW.CPY:344` | ACRCYDBO PIC +ZZZ,ZZZ,ZZZ.99 | `02  ACRCYDBO PIC +ZZZ,ZZZ,ZZZ.99.` |
 
 #### `app/cpy/CVTRA07Y.cpy` (4)
 
 | Line | Detail | Source text |
 | --- | --- | --- |
-| `app/cpy/CVTRA07Y.cpy:29` | TRAN-REPORT-AMT PIC -ZZZ,ZZZ,ZZZ.ZZ | `05  FILLER                           PIC X(04) VALUE SPACES.` |
-| `app/cpy/CVTRA07Y.cpy:53` | REPT-PAGE-TOTAL PIC +ZZZ,ZZZ,ZZZ.ZZ | `05  FILLER                           PIC X(86) VALUE ALL '.'.` |
-| `app/cpy/CVTRA07Y.cpy:59` | REPT-ACCOUNT-TOTAL PIC +ZZZ,ZZZ,ZZZ.ZZ | `05  FILLER                           PIC X(84) VALUE ALL '.'.` |
-| `app/cpy/CVTRA07Y.cpy:65` | REPT-GRAND-TOTAL PIC +ZZZ,ZZZ,ZZZ.ZZ | `05  FILLER                           PIC X(86) VALUE ALL '.'.` |
+| `app/cpy/CVTRA07Y.cpy:30` | TRAN-REPORT-AMT PIC -ZZZ,ZZZ,ZZZ.ZZ | `05  TRAN-REPORT-AMT                  PIC -ZZZ,ZZZ,ZZZ.ZZ.` |
+| `app/cpy/CVTRA07Y.cpy:54` | REPT-PAGE-TOTAL PIC +ZZZ,ZZZ,ZZZ.ZZ | `05  REPT-PAGE-TOTAL                  PIC +ZZZ,ZZZ,ZZZ.ZZ.` |
+| `app/cpy/CVTRA07Y.cpy:60` | REPT-ACCOUNT-TOTAL PIC +ZZZ,ZZZ,ZZZ.ZZ | `05  REPT-ACCOUNT-TOTAL               PIC +ZZZ,ZZZ,ZZZ.ZZ.` |
+| `app/cpy/CVTRA07Y.cpy:66` | REPT-GRAND-TOTAL PIC +ZZZ,ZZZ,ZZZ.ZZ | `05  REPT-GRAND-TOTAL                 PIC +ZZZ,ZZZ,ZZZ.ZZ.` |
 
 ### Hard-coded amount / numeric literal (29)
 
@@ -4290,134 +4290,134 @@
 
 | Line | Detail | Source text |
 | --- | --- | --- |
-| `app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl:172` | LK-COMMAREA | `01  DFHCOMMAREA.` |
+| `app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl:173` | LK-COMMAREA | `05  LK-COMMAREA                           PIC X(01)` |
 
 #### `app/app-authorization-ims-db2-mq/cbl/COPAUS1C.cbl` (1)
 
 | Line | Detail | Source text |
 | --- | --- | --- |
-| `app/app-authorization-ims-db2-mq/cbl/COPAUS1C.cbl:152` | LK-COMMAREA | `01  DFHCOMMAREA.` |
+| `app/app-authorization-ims-db2-mq/cbl/COPAUS1C.cbl:153` | LK-COMMAREA | `05  LK-COMMAREA                           PIC X(01)` |
 
 #### `app/app-transaction-type-db2/cbl/COTRTLIC.cbl` (1)
 
 | Line | Detail | Source text |
 | --- | --- | --- |
-| `app/app-transaction-type-db2/cbl/COTRTLIC.cbl:493` | FILLER | `01  DFHCOMMAREA.` |
+| `app/app-transaction-type-db2/cbl/COTRTLIC.cbl:494` | FILLER | `05  FILLER                                PIC X(1)` |
 
 #### `app/app-transaction-type-db2/cbl/COTRTUPC.cbl` (1)
 
 | Line | Detail | Source text |
 | --- | --- | --- |
-| `app/app-transaction-type-db2/cbl/COTRTUPC.cbl:340` | FILLER | `01  DFHCOMMAREA.` |
+| `app/app-transaction-type-db2/cbl/COTRTUPC.cbl:341` | FILLER | `05  FILLER                                PIC X(1)` |
 
 #### `app/cbl/COACTUPC.cbl` (1)
 
 | Line | Detail | Source text |
 | --- | --- | --- |
-| `app/cbl/COACTUPC.cbl:854` | FILLER | `01  DFHCOMMAREA.` |
+| `app/cbl/COACTUPC.cbl:855` | FILLER | `05  FILLER                                PIC X(1)` |
 
 #### `app/cbl/COACTVWC.cbl` (1)
 
 | Line | Detail | Source text |
 | --- | --- | --- |
-| `app/cbl/COACTVWC.cbl:257` | FILLER | `01  DFHCOMMAREA.` |
+| `app/cbl/COACTVWC.cbl:258` | FILLER | `05  FILLER                                PIC X(1)` |
 
 #### `app/cbl/COADM01C.cbl` (1)
 
 | Line | Detail | Source text |
 | --- | --- | --- |
-| `app/cbl/COADM01C.cbl:67` | LK-COMMAREA | `01  DFHCOMMAREA.` |
+| `app/cbl/COADM01C.cbl:68` | LK-COMMAREA | `05  LK-COMMAREA                           PIC X(01)` |
 
 #### `app/cbl/COBIL00C.cbl` (1)
 
 | Line | Detail | Source text |
 | --- | --- | --- |
-| `app/cbl/COBIL00C.cbl:91` | LK-COMMAREA | `01  DFHCOMMAREA.` |
+| `app/cbl/COBIL00C.cbl:92` | LK-COMMAREA | `05  LK-COMMAREA                           PIC X(01)` |
 
 #### `app/cbl/COCRDLIC.cbl` (1)
 
 | Line | Detail | Source text |
 | --- | --- | --- |
-| `app/cbl/COCRDLIC.cbl:293` | FILLER | `01  DFHCOMMAREA.` |
+| `app/cbl/COCRDLIC.cbl:294` | FILLER | `05  FILLER                                PIC X(1)` |
 
 #### `app/cbl/COCRDSLC.cbl` (1)
 
 | Line | Detail | Source text |
 | --- | --- | --- |
-| `app/cbl/COCRDSLC.cbl:243` | FILLER | `01  DFHCOMMAREA.` |
+| `app/cbl/COCRDSLC.cbl:244` | FILLER | `05  FILLER                                PIC X(1)` |
 
 #### `app/cbl/COCRDUPC.cbl` (1)
 
 | Line | Detail | Source text |
 | --- | --- | --- |
-| `app/cbl/COCRDUPC.cbl:362` | FILLER | `01  DFHCOMMAREA.` |
+| `app/cbl/COCRDUPC.cbl:363` | FILLER | `05  FILLER                                PIC X(1)` |
 
 #### `app/cbl/COMEN01C.cbl` (1)
 
 | Line | Detail | Source text |
 | --- | --- | --- |
-| `app/cbl/COMEN01C.cbl:67` | LK-COMMAREA | `01  DFHCOMMAREA.` |
+| `app/cbl/COMEN01C.cbl:68` | LK-COMMAREA | `05  LK-COMMAREA                           PIC X(01)` |
 
 #### `app/cbl/CORPT00C.cbl` (1)
 
 | Line | Detail | Source text |
 | --- | --- | --- |
-| `app/cbl/CORPT00C.cbl:155` | LK-COMMAREA | `01  DFHCOMMAREA.` |
+| `app/cbl/CORPT00C.cbl:156` | LK-COMMAREA | `05  LK-COMMAREA                           PIC X(01)` |
 
 #### `app/cbl/COSGN00C.cbl` (1)
 
 | Line | Detail | Source text |
 | --- | --- | --- |
-| `app/cbl/COSGN00C.cbl:65` | LK-COMMAREA | `01  DFHCOMMAREA.` |
+| `app/cbl/COSGN00C.cbl:66` | LK-COMMAREA | `05  LK-COMMAREA                           PIC X(01)` |
 
 #### `app/cbl/COTRN00C.cbl` (1)
 
 | Line | Detail | Source text |
 | --- | --- | --- |
-| `app/cbl/COTRN00C.cbl:87` | LK-COMMAREA | `01  DFHCOMMAREA.` |
+| `app/cbl/COTRN00C.cbl:88` | LK-COMMAREA | `05  LK-COMMAREA                           PIC X(01)` |
 
 #### `app/cbl/COTRN01C.cbl` (1)
 
 | Line | Detail | Source text |
 | --- | --- | --- |
-| `app/cbl/COTRN01C.cbl:78` | LK-COMMAREA | `01  DFHCOMMAREA.` |
+| `app/cbl/COTRN01C.cbl:79` | LK-COMMAREA | `05  LK-COMMAREA                           PIC X(01)` |
 
 #### `app/cbl/COTRN02C.cbl` (1)
 
 | Line | Detail | Source text |
 | --- | --- | --- |
-| `app/cbl/COTRN02C.cbl:99` | LK-COMMAREA | `01  DFHCOMMAREA.` |
+| `app/cbl/COTRN02C.cbl:100` | LK-COMMAREA | `05  LK-COMMAREA                           PIC X(01)` |
 
 #### `app/cbl/COUSR00C.cbl` (1)
 
 | Line | Detail | Source text |
 | --- | --- | --- |
-| `app/cbl/COUSR00C.cbl:90` | LK-COMMAREA | `01  DFHCOMMAREA.` |
+| `app/cbl/COUSR00C.cbl:91` | LK-COMMAREA | `05  LK-COMMAREA                           PIC X(01)` |
 
 #### `app/cbl/COUSR01C.cbl` (1)
 
 | Line | Detail | Source text |
 | --- | --- | --- |
-| `app/cbl/COUSR01C.cbl:63` | LK-COMMAREA | `01  DFHCOMMAREA.` |
+| `app/cbl/COUSR01C.cbl:64` | LK-COMMAREA | `05  LK-COMMAREA                           PIC X(01)` |
 
 #### `app/cbl/COUSR02C.cbl` (1)
 
 | Line | Detail | Source text |
 | --- | --- | --- |
-| `app/cbl/COUSR02C.cbl:74` | LK-COMMAREA | `01  DFHCOMMAREA.` |
+| `app/cbl/COUSR02C.cbl:75` | LK-COMMAREA | `05  LK-COMMAREA                           PIC X(01)` |
 
 #### `app/cbl/COUSR03C.cbl` (1)
 
 | Line | Detail | Source text |
 | --- | --- | --- |
-| `app/cbl/COUSR03C.cbl:74` | LK-COMMAREA | `01  DFHCOMMAREA.` |
+| `app/cbl/COUSR03C.cbl:75` | LK-COMMAREA | `05  LK-COMMAREA                           PIC X(01)` |
 
 #### `app/cbl/CSUTLDTC.cbl` (2)
 
 | Line | Detail | Source text |
 | --- | --- | --- |
-| `app/cbl/CSUTLDTC.cbl:27` | VSTRING-CHAR | `02  Vstring-text.` |
-| `app/cbl/CSUTLDTC.cbl:35` | VSTRING-CHAR | `02  Vstring-text.` |
+| `app/cbl/CSUTLDTC.cbl:28` | VSTRING-CHAR | `03  Vstring-char    PIC X` |
+| `app/cbl/CSUTLDTC.cbl:36` | VSTRING-CHAR | `03  Vstring-char    PIC X` |
 
 ### Date arithmetic (11)
 

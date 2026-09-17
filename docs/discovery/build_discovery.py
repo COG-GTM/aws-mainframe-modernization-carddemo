@@ -492,11 +492,12 @@ class CobolProgram:
                 value = val_m.group(1)
                 if value[:1] in "'\"":
                     value = value[1:-1]
-            line = self.src.line_of(start + (len(stmt) - len(stmt.lstrip())))
+            item_off = start + (len(stmt) - len(stmt.lstrip()))
+            line = self.src.line_of(item_off)
             redef_m = re.search(r"\bREDEFINES\s+([A-Z0-9][A-Z0-9-]*)", rest)
             occurs_m = re.search(r"\bOCCURS\s+(\d+)", rest)
             item = {"level": int(level), "name": name, "pic": pic, "usage": usage,
-                    "value": value, "line": line, "offset": start,
+                    "value": value, "line": line, "offset": item_off,
                     "redefines": redef_m.group(1) if redef_m else None,
                     "occurs": int(occurs_m.group(1)) if occurs_m else None,
                     "occurs_depending": bool(re.search(r"\bOCCURS\b.*\bDEPENDING\s+ON\b", rest, re.S))}
