@@ -52,6 +52,22 @@
     "volume/trailing_space_in_text",
     "volume/two_records_swapped"
   ],
+  "pairing_checks": [
+    "named/return-code 04 equals 4",
+    "named/return-code non-integer",
+    "named/dup-key rejects swapped",
+    "volume/return-code 04 equals 4",
+    "volume/return-code non-integer",
+    "volume/dup-key rejects swapped"
+  ],
+  "pairing_checks_passed": [
+    "named/return-code 04 equals 4",
+    "named/return-code non-integer",
+    "named/dup-key rejects swapped",
+    "volume/return-code 04 equals 4",
+    "volume/return-code non-integer",
+    "volume/dup-key rejects swapped"
+  ],
   "produced_by": "tests/golden/selftest.sh",
   "sets": [
     "named",

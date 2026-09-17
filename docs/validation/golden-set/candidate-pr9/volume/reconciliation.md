@@ -13,6 +13,7 @@
 | order-only differences | none |
 | RETURN-CODE | **MISMATCH** |
 | tolerances in effect | **none** (default) |
+| input (records in) | `tests/golden/sets/volume/input` |
 
 ## Files
 

@@ -3,6 +3,7 @@
   "expected_dir": "tests/golden/sets/volume/expected",
   "candidate_dir": "tests/golden/sets/volume/candidate-pr9",
   "input_dir": "tests/golden/sets/volume/input",
+  "input_errors": [],
   "verdict": "MISMATCH",
   "exit_code": 1,
   "summary": {
@@ -142,6 +143,7 @@
       "file": "RETURN-CODE",
       "text": true,
       "status": "**MISMATCH**",
+      "mismatch": true,
       "byte_identical": false,
       "expected_text": "4",
       "candidate_text": "0"
@@ -150,6 +152,7 @@
       "file": "SYSOUT",
       "text": true,
       "status": "differs (informational; operator log)",
+      "mismatch": true,
       "byte_identical": false,
       "expected_text": "10999 bytes",
       "candidate_text": "18417 bytes"

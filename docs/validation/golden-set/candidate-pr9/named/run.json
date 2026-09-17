@@ -2,7 +2,7 @@
   "candidate": "pull request #9 transaction-posting-service",
   "candidate_commit": "03912525cf8bf90b8e810b2616f67c99a77d0abd",
   "jar": "<candidate-checkout>/modernization/posttran-cycle/transaction-posting-service/target/transaction-posting-service-0.1.0-SNAPSHOT.jar",
-  "jar_sha256": "5dda71c50605140356af7f7036b077215e96b36d4f429cf84537ac1fd70900db",
+  "jar_sha256": "5b065ecf58975178927a50bf2a002e264c0a2c5d1cf87f7f0d8c6d777891e662",
   "built": "mvn clean package in this run, from candidate_commit",
   "set": "named",
   "faketime": "@2026-03-15 12:00:00 x0",

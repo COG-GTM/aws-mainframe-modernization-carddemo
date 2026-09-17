@@ -137,7 +137,7 @@ m.setdefault("reference_runs", {})[os.path.basename(out)] = {
     "env_file": rel(envfile), "return_code": run["return_code"]}
 json.dump(m, open(manifest_path, "w"), indent=2); open(manifest_path, "a").write("\n")
 PY
-  echo "== $set/$outname: RETURN-CODE=$(cat "$out/RETURN-CODE")  $(grep -E 'TRANSACTIONS PROCESSED|TRANSACTIONS REJECTED' "$out/SYSOUT" | tr '\n' ' ')"
+  echo "== $set/$outname: RETURN-CODE=$(cat "$out/RETURN-CODE")  $(grep -E 'TRANSACTIONS PROCESSED|TRANSACTIONS REJECTED' "$out/SYSOUT" | sed 's/[[:space:]]*$//' | paste -sd' ')"
   echo "   TRANSACT=$(( $(stat -c %s "$out/TRANSACT") / 350 )) recs  DALYREJS=$(( $(stat -c %s "$out/DALYREJS") / 430 )) recs  ACCTFILE=$(( $(stat -c %s "$out/ACCTFILE") / 300 )) recs  TCATBALF=$(( $(stat -c %s "$out/TCATBALF") / 50 )) recs"
 }
 

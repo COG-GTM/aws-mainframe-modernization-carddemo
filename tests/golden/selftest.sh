@@ -6,9 +6,12 @@
 # banner) and nothing more (exit 1 when the bound is too small), refusing a
 # tolerance that names an unknown field or a non-finite bound (exit 64, no
 # report), (d) that absence is a mismatch: no reachable input DALYTRAN, or a
-# missing RETURN-CODE, each give exit 1 on an otherwise exact copy, and (e) that
+# missing RETURN-CODE, each give exit 1 on an otherwise exact copy, (e) that
 # --strict-sysout makes a SYSOUT difference of only edge whitespace a mismatch
-# while the default still treats SYSOUT as informational.
+# while the default still treats SYSOUT as informational, and (f) that
+# RETURN-CODE is compared as an integer (`04` equals `4`; two non-integer files
+# are a mismatch, not a match) and that two same-key DALYREJS records changing
+# places is reported as an order difference (exit 2), not as field differences.
 #
 #   bash tests/golden/selftest.sh [--set named|volume|all] [--work DIR]
 #
@@ -58,6 +61,8 @@ abs_all=()      # absence checks run (missing input DALYTRAN, missing RETURN-COD
 abs_pass=()     # absence checks that produced the expected exit code and markers
 sys_all=()      # SYSOUT policy checks run (edge whitespace: default informational, --strict-sysout fatal)
 sys_pass=()     # SYSOUT policy checks that passed
+pair_all=()     # pairing checks run (RETURN-CODE as integer; same-key records swapped = order only)
+pair_pass=()    # pairing checks that passed
 
 tcheck() {  # tcheck <label> <expected_exit> <actual_exit> <report> <markers...>
   local label="$1" want="$2" got="$3" report="$4"; shift 4
@@ -65,16 +70,18 @@ tcheck() {  # tcheck <label> <expected_exit> <actual_exit> <report> <markers...>
   for m in "$@"; do grep -qF -- "$m" "$report" || missing+=("$m"); done
   total=$((total+1))
   case "$label" in
-    tolerance*) tol_all+=("$SETNAME/$label") ;;
-    sysout*)    sys_all+=("$SETNAME/$label") ;;
-    *)          abs_all+=("$SETNAME/$label") ;;
+    tolerance*)   tol_all+=("$SETNAME/$label") ;;
+    sysout*)      sys_all+=("$SETNAME/$label") ;;
+    return-code*|dup-key*) pair_all+=("$SETNAME/$label") ;;
+    *)            abs_all+=("$SETNAME/$label") ;;
   esac
   if [ "$want" = "$got" ] && [ ${#missing[@]} -eq 0 ]; then
     caught=$((caught+1))
     case "$label" in
-      tolerance*) tol_pass+=("$SETNAME/$label") ;;
-      sysout*)    sys_pass+=("$SETNAME/$label") ;;
-      *)          abs_pass+=("$SETNAME/$label") ;;
+      tolerance*)   tol_pass+=("$SETNAME/$label") ;;
+      sysout*)      sys_pass+=("$SETNAME/$label") ;;
+      return-code*|dup-key*) pair_pass+=("$SETNAME/$label") ;;
+      *)            abs_pass+=("$SETNAME/$label") ;;
     esac
     lines+=("$(printf '  %-8s %-28s exit %s (expected %s)  named: %s  PASS' "$SETNAME" "$label" "$got" "$want" "$*")")
   else
@@ -161,6 +168,40 @@ for SETNAME in $SETS; do
   python3 "$HERE/compare.py" "$EXP" "$W/sysout-ws" --strict-sysout --out-dir "$W/sysout-strict" --quiet
   tcheck "sysout whitespace, --strict" 1 $? "$W/sysout-strict/reconciliation.md" \
     "MISMATCH" "**MISMATCH** (--strict-sysout)"
+
+  # (f) pairing: RETURN-CODE is an integer, so `04` is the same status as `4`
+  #     (exit 0) while two files that are not integers never agree (exit 1);
+  #     and two DALYREJS records sharing a key but differing in content, swapped
+  #     in the candidate, are the same records in a different order (exit 2).
+  cp -r "$W/exact-copy" "$W/rc-04"; printf '0%s\n' "$(tr -d '[:space:]' < "$EXP/RETURN-CODE")" > "$W/rc-04/RETURN-CODE"
+  python3 "$HERE/compare.py" "$EXP" "$W/rc-04" --out-dir "$W/rc-04-out" --quiet
+  tcheck "return-code 04 equals 4" 0 $? "$W/rc-04-out/reconciliation.md" \
+    "EXACT MATCH" "| RETURN-CODE | same |"
+  cp -r "$EXP" "$W/rc-bad-exp"; cp -r "$W/exact-copy" "$W/rc-bad"
+  rm -f "$W/rc-bad-exp/reconciliation.json" "$W/rc-bad-exp/reconciliation.md"
+  printf 'abc\n' > "$W/rc-bad-exp/RETURN-CODE"; printf 'abc\n' > "$W/rc-bad/RETURN-CODE"
+  python3 "$HERE/compare.py" "$W/rc-bad-exp" "$W/rc-bad" --input-dir "$HERE/sets/$SETNAME/input" \
+    --out-dir "$W/rc-bad-out" --quiet
+  tcheck "return-code non-integer" 1 $? "$W/rc-bad-out/reconciliation.md" \
+    "MISMATCH" "**MISMATCH** (not an integer)"
+  cp -r "$EXP" "$W/dup-exp"; rm -f "$W/dup-exp/reconciliation.json" "$W/dup-exp/reconciliation.md"
+  cp -r "$W/dup-exp" "$W/dup-cand"
+  python3 - "$HERE" "$W/dup-exp/DALYREJS" "$W/dup-cand/DALYREJS" <<'PY'
+# give reject 2 the key of reject 1 (its other fields still differ), then swap the two in the candidate
+import sys
+sys.path.insert(0, sys.argv[1])
+from layouts import DALYREJS
+recs = DALYREJS.records(open(sys.argv[2], "rb").read())
+kf = DALYREJS.field(DALYREJS.key_field)
+recs[1] = recs[1][:kf.offset] + DALYREJS.key(recs[0]) + recs[1][kf.end:]
+assert DALYREJS.key(recs[1]) == DALYREJS.key(recs[0]) and recs[1] != recs[0]
+open(sys.argv[2], "wb").write(b"".join(recs))
+open(sys.argv[3], "wb").write(b"".join([recs[1], recs[0]] + recs[2:]))
+PY
+  python3 "$HERE/compare.py" "$W/dup-exp" "$W/dup-cand" --input-dir "$HERE/sets/$SETNAME/input" \
+    --out-dir "$W/dup-out" --quiet
+  tcheck "dup-key rejects swapped" 2 $? "$W/dup-out/reconciliation.md" \
+    "SAME RECORDS, DIFFERENT ORDER" "| field differences | 0 |" "DALYREJS"
 done
 
 # (c) record the evidence the documentation numbers are derived from (only for a
@@ -170,7 +211,7 @@ docs_line=""
 if [ "$SETS" = "named volume" ]; then
   python3 - "$RESULT_JSON" "$(cd "$HERE/../.." && pwd)" "${#exact_pass[@]}" \
       "${mut_all[@]}" -- "${mut_caught[@]}" -- "${tol_all[@]}" -- "${tol_pass[@]}" -- "${abs_all[@]}" -- "${abs_pass[@]}" \
-      -- "${sys_all[@]}" -- "${sys_pass[@]}" <<'PY'
+      -- "${sys_all[@]}" -- "${sys_pass[@]}" -- "${pair_all[@]}" -- "${pair_pass[@]}" <<'PY'
 import json, os, sys
 out, repo, n_exact, rest = sys.argv[1], sys.argv[2], int(sys.argv[3]), sys.argv[4:]
 groups, cur = [], []
@@ -180,7 +221,7 @@ for a in rest:
     else:
         cur.append(a)
 groups.append(cur)
-mutants, caught, tol_all, tol_pass, abs_all, abs_pass, sys_all, sys_pass = groups
+mutants, caught, tol_all, tol_pass, abs_all, abs_pass, sys_all, sys_pass, pair_all, pair_pass = groups
 doc = {
     "produced_by": "tests/golden/selftest.sh",
     "sets": ["named", "volume"],
@@ -193,6 +234,8 @@ doc = {
     "absence_checks_passed": abs_pass,
     "sysout_policy_checks": sys_all,
     "sysout_policy_checks_passed": sys_pass,
+    "pairing_checks": pair_all,
+    "pairing_checks_passed": pair_pass,
 }
 with open(out, "w") as fh:
     json.dump(doc, fh, indent=2, sort_keys=True); fh.write("\n")
@@ -211,9 +254,9 @@ printf '%s\n' "${lines[@]}"
 n_mut=$(python3 "$HERE/mutate.py" --list | wc -l | tr -d ' ')
 n_sets=$(echo $SETS | wc -w | tr -d ' ')
 echo "  mutants defined: $n_mut; sets: $SETS"
-echo "  checks passed: $caught of $total  (exact-copy x$n_sets + $n_mut mutants x$n_sets + 4 tolerance-path x$n_sets + 2 absence x$n_sets + 2 sysout-policy x$n_sets$docs_line)"
+echo "  checks passed: $caught of $total  (exact-copy x$n_sets + $n_mut mutants x$n_sets + 4 tolerance-path x$n_sets + 2 absence x$n_sets + 2 sysout-policy x$n_sets + 3 pairing x$n_sets$docs_line)"
 if [ $fail -eq 0 ]; then
-  echo "  RESULT: PASS - ${#mut_caught[@]} of ${#mut_all[@]} injected defects caught; exact copy compares clean; tolerance path ${#tol_pass[@]} of ${#tol_all[@]}; absence ${#abs_pass[@]} of ${#abs_all[@]}; sysout policy ${#sys_pass[@]} of ${#sys_all[@]}"
+  echo "  RESULT: PASS - ${#mut_caught[@]} of ${#mut_all[@]} injected defects caught; exact copy compares clean; tolerance path ${#tol_pass[@]} of ${#tol_all[@]}; absence ${#abs_pass[@]} of ${#abs_all[@]}; sysout policy ${#sys_pass[@]} of ${#sys_all[@]}; pairing ${#pair_pass[@]} of ${#pair_all[@]}"
   echo "  work dir: $WORK"
   exit 0
 else

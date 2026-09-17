@@ -1,5 +1,5 @@
 == building candidate (03912525cf8bf90b8e810b2616f67c99a77d0abd) with Maven (clean package)
-== jar: transaction-posting-service-0.1.0-SNAPSHOT.jar sha256 0c47a9d16f04bdf060bcb20c707545e18bf208ca0aa66e5a3a88ddc465f69c88
+== jar: transaction-posting-service-0.1.0-SNAPSHOT.jar sha256 8d764e6ad27179f0e98f5d5cfc3fb483fa951badefd703ebed6d126902ebf977
 == running: faketime -f "@2026-03-15 12:00:00 x0" java -jar transaction-posting-service-0.1.0-SNAPSHOT.jar --carddemo.posting.encoding=ASCII --carddemo.posting.daily-transactions=<repo>/tests/golden/sets/volume/candidate-pr9/work/DALYTRAN --carddemo.posting.card-xref=<repo>/tests/golden/sets/volume/candidate-pr9/work/XREFFILE --carddemo.posting.account-master=<repo>/tests/golden/sets/volume/candidate-pr9/work/ACCTFILE --carddemo.posting.category-balances=<repo>/tests/golden/sets/volume/candidate-pr9/work/TCATBALF --carddemo.posting.transaction-master=<repo>/tests/golden/sets/volume/candidate-pr9/work/TRANSACT --carddemo.posting.rejects=<repo>/tests/golden/sets/volume/candidate-pr9/work/DALYREJS --logging.level.root=WARN --logging.level.com.carddemo=INFO --logging.pattern.console=%msg%n
 == candidate exit code 0; console:
    TCATBAL record not found for key : 90000000038030005.. Creating.

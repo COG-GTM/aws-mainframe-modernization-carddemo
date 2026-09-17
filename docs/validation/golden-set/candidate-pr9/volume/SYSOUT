@@ -8,7 +8,7 @@
 
  :: Spring Boot ::                (v3.3.4)
 
-Starting PostingApplication v0.1.0-SNAPSHOT using Java 21.0.12 with PID 81645 (<candidate-checkout>/modernization/posttran-cycle/transaction-posting-service/target/transaction-posting-service-0.1.0-SNAPSHOT.jar started by <user> in <repo>)
+Starting PostingApplication v0.1.0-SNAPSHOT using Java 21.0.12 with PID 193984 (<candidate-checkout>/modernization/posttran-cycle/transaction-posting-service/target/transaction-posting-service-0.1.0-SNAPSHOT.jar started by <user> in <repo>)
 No active profile set, falling back to 1 default profile: "default"
 Bean 'org.springframework.boot.autoconfigure.jdbc.DataSourceConfiguration$Hikari' of type [org.springframework.boot.autoconfigure.jdbc.DataSourceConfiguration$Hikari] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying). Is this bean getting eagerly injected into a currently created BeanPostProcessor [jobRegistryBeanPostProcessor]? Check the corresponding BeanPostProcessor declaration and its dependencies.
 Bean 'spring.datasource-org.springframework.boot.autoconfigure.jdbc.DataSourceProperties' of type [org.springframework.boot.autoconfigure.jdbc.DataSourceProperties] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying). Is this bean getting eagerly injected into a currently created BeanPostProcessor [jobRegistryBeanPostProcessor]? Check the corresponding BeanPostProcessor declaration and its dependencies.
@@ -26,7 +26,7 @@ Bean 'org.springframework.boot.autoconfigure.batch.BatchAutoConfiguration$Spring
 org.springframework.batch.item.ItemReader is an interface. The implementing class will not be queried for annotation based listener configurations. If using @StepScope on a @Bean method, be sure to return the implementing class so listener annotations can be used.
 org.springframework.batch.item.ItemWriter is an interface. The implementing class will not be queried for annotation based listener configurations. If using @StepScope on a @Bean method, be sure to return the implementing class so listener annotations can be used.
 org.springframework.batch.item.ItemProcessor is an interface. The implementing class will not be queried for annotation based listener configurations. If using @StepScope on a @Bean method, be sure to return the implementing class so listener annotations can be used.
-Started PostingApplication in 0.0 seconds (process running for 2.579)
+Started PostingApplication in 0.0 seconds (process running for 2.57)
 TCATBAL record not found for key : 90000000100010001.. Creating.
 TCATBAL record not found for key : 90000000103030005.. Creating.
 TCATBAL record not found for key : 90000000028010002.. Creating.

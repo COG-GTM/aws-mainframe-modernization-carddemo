@@ -16,8 +16,8 @@ Checks, in order:
   (e) reconciliation.json + reconciliation.md written to --out-dir (default: candidate dir)
 
 Exit codes:
-  0  every record file (TRANSACT, DALYREJS, ACCTFILE, TCATBALF) and RETURN-CODE
-     match byte-for-byte
+  0  every record file (TRANSACT, DALYREJS, ACCTFILE, TCATBALF) matches
+     byte-for-byte and RETURN-CODE holds the same integer status
   2  every record and every control total matches, but at least one file
      holds the same records in a different order
   3  every difference lies within a tolerance named on the command line
@@ -34,7 +34,9 @@ Exit codes:
 SYSOUT (the program's operator log: DISPLAY output) is compared and reported
 but is informational only, because it is not a posting-cycle data output;
 --strict-sysout makes any SYSOUT difference, byte-for-byte, a mismatch (exit 1).
-RETURN-CODE is compared as a number (surrounding whitespace ignored).
+RETURN-CODE is parsed as a base-10 integer on both sides and compared as such
+(so `4`, `04` and `4\n` agree); a file that is missing or not an integer is a
+mismatch (exit 1), never a match with another malformed file.
 
 There are NO tolerances by default.  --tolerance FIELD=ABS makes differences
 of at most ABS in the named numeric field non-fatal, and a control total
@@ -94,6 +96,17 @@ def numeric_value(raw: bytes, f: layouts.Field) -> Optional[Decimal]:
         return None
 
 
+def parse_return_code(raw: Optional[bytes]) -> Tuple[Optional[int], str]:
+    """(integer status or None when the file is missing/not an integer, text as written)."""
+    if raw is None:
+        return None, ""
+    text = raw.decode("utf-8", "replace").strip()
+    try:
+        return int(text, 10), text
+    except ValueError:
+        return None, text
+
+
 def classify_text_diff(exp: bytes, got: bytes) -> str:
     if exp.rstrip(b" \x00") == got.rstrip(b" \x00"):
         return "trailing-space"       # same text, different trailing padding (space vs low-value)
@@ -151,16 +164,42 @@ class Tolerances:
         return ok
 
 
-def index_records(file_name: str, recs: List[bytes]) -> Dict[Tuple[str, int], int]:
-    """(key, occurrence) -> position, so duplicate keys still pair up."""
-    seen: Dict[str, int] = {}
-    out: Dict[Tuple[str, int], int] = {}
-    for i, r in enumerate(recs):
-        k = key_text(file_name, r)
-        n = seen.get(k, 0)
-        seen[k] = n + 1
-        out[(k, n)] = i
-    return out
+def pair_records(file_name: str, exp_recs: List[bytes], got_recs: List[bytes]
+                 ) -> Tuple[List[Tuple[int, int]], List[int], List[int]]:
+    """Pair expected with candidate records by key -> (pairs, missing exp positions, extra got positions).
+
+    Within one key (DALYREJS may repeat a transaction id) byte-identical records
+    are paired first, wherever they sit, so that same-key records changing places
+    is an order difference and not a field difference; whatever is left in the
+    key group is then paired in order of occurrence, and the remainder is
+    missing or extra.  Pairs are returned in expected order."""
+    by_key_exp: Dict[str, List[int]] = {}
+    by_key_got: Dict[str, List[int]] = {}
+    for i, r in enumerate(exp_recs):
+        by_key_exp.setdefault(key_text(file_name, r), []).append(i)
+    for i, r in enumerate(got_recs):
+        by_key_got.setdefault(key_text(file_name, r), []).append(i)
+
+    pairs: List[Tuple[int, int]] = []
+    missing: List[int] = []
+    for k, eis in by_key_exp.items():
+        gis = list(by_key_got.pop(k, []))
+        left: List[int] = []
+        for ei in eis:
+            for j, gi in enumerate(gis):
+                if got_recs[gi] == exp_recs[ei]:
+                    pairs.append((ei, gis.pop(j)))
+                    break
+            else:
+                left.append(ei)
+        for ei in left:
+            if gis:
+                pairs.append((ei, gis.pop(0)))
+            else:
+                missing.append(ei)
+    extra = sorted(gi for gis in by_key_got.values() for gi in gis)
+    pairs.sort()
+    return pairs, sorted(missing), extra
 
 
 def compare_record_file(name: str, exp_data: Optional[bytes], got_data: Optional[bytes],
@@ -194,17 +233,15 @@ def compare_record_file(name: str, exp_data: Optional[bytes], got_data: Optional
     res["records_expected"] = len(exp_recs)
     res["records_candidate"] = len(got_recs)
 
-    exp_idx = index_records(name, exp_recs)
-    got_idx = index_records(name, got_recs)
-    common = [k for k in exp_idx if k in got_idx]
-    res["missing_records"] = [{"position": exp_idx[k] + 1, "key": k[0]} for k in exp_idx if k not in got_idx]
-    res["extra_records"] = [{"position": got_idx[k] + 1, "key": k[0]} for k in got_idx if k not in exp_idx]
-    res["records_matched"] = len(common)
+    pairs, missing, extra = pair_records(name, exp_recs, got_recs)
+    res["missing_records"] = [{"position": ei + 1, "key": key_text(name, exp_recs[ei])} for ei in missing]
+    res["extra_records"] = [{"position": gi + 1, "key": key_text(name, got_recs[gi])} for gi in extra]
+    res["records_matched"] = len(pairs)
 
     diffs = res["field_differences"]
-    for k in common:
-        ei, gi = exp_idx[k], got_idx[k]
+    for ei, gi in pairs:
         er, gr = exp_recs[ei], got_recs[gi]
+        k = (key_text(name, er),)
         for f in layout.fields:
             res["fields_compared"] += 1
             eb, gb = er[f.offset:f.end], gr[f.offset:f.end]
@@ -236,9 +273,7 @@ def compare_record_file(name: str, exp_data: Optional[bytes], got_data: Optional
 
     if (not res["missing_records"] and not res["extra_records"] and not diffs
             and len(exp_recs) == len(got_recs)):
-        exp_order = [key_text(name, r) for r in exp_recs]
-        got_order = [key_text(name, r) for r in got_recs]
-        res["same_records_different_order"] = exp_order != got_order
+        res["same_records_different_order"] = any(ei != gi for ei, gi in pairs)
     return res
 
 
@@ -540,19 +575,28 @@ def main(argv=None) -> int:
         fr = compare_record_file(name, read_bytes(os.path.join(exp_dir, name)),
                                  read_bytes(os.path.join(got_dir, name)), tol)
         files.append(fr)
+    rc_mismatch = False
     for name in TEXT_OUTPUTS:
         eb, gb = read_bytes(os.path.join(exp_dir, name)), read_bytes(os.path.join(got_dir, name))
-        et = eb.decode("utf-8", "replace").strip() if eb is not None else None
-        gt = gb.decode("utf-8", "replace").strip() if gb is not None else None
         missing = eb is None or gb is None
-        # RETURN-CODE is a number, so surrounding whitespace is not a difference;
-        # under --strict-sysout the operator log must match byte-for-byte.
-        same = not missing and (eb == gb if name == "SYSOUT" and args.strict_sysout else et == gt)
         if name == "RETURN-CODE":
-            status = "match" if same else ("**MISMATCH** (missing)" if missing else "**MISMATCH**")
-            if not same:
-                fatal = True
+            ev, et = parse_return_code(eb)
+            gv, gt = parse_return_code(gb)
+            same = ev is not None and gv is not None and ev == gv
+            if same:
+                status = "match"
+            elif missing:
+                status = "**MISMATCH** (missing)"
+            elif ev is None or gv is None:
+                status = "**MISMATCH** (not an integer)"
+            else:
+                status = "**MISMATCH**"
+            rc_mismatch = not same
+            shown_e = et if eb is not None else "missing"
+            shown_g = gt if gb is not None else "missing"
         else:
+            # the operator log: byte-for-byte under --strict-sysout, otherwise informational
+            same = not missing and (eb == gb if args.strict_sysout else eb.strip() == gb.strip())
             if same:
                 status = "match" if eb == gb else "match ignoring edge whitespace (informational; operator log)"
             else:
@@ -560,9 +604,11 @@ def main(argv=None) -> int:
                           else "differs (informational; operator log)")
             if not same and args.strict_sysout:
                 fatal = True
-        files.append({"file": name, "text": True, "status": status, "byte_identical": eb is not None and eb == gb,
-                      "expected_text": (et if name == "RETURN-CODE" else "%d bytes" % len(eb or b"")) if eb is not None else "missing",
-                      "candidate_text": (gt if name == "RETURN-CODE" else "%d bytes" % len(gb or b"")) if gb is not None else "missing"})
+            shown_e = "%d bytes" % len(eb) if eb is not None else "missing"
+            shown_g = "%d bytes" % len(gb) if gb is not None else "missing"
+        files.append({"file": name, "text": True, "status": status, "mismatch": not same,
+                      "byte_identical": eb is not None and eb == gb,
+                      "expected_text": shown_e, "candidate_text": shown_g})
 
     tot_e = control_totals(exp_dir, records_in)
     tot_g = control_totals(got_dir, records_in)
@@ -576,8 +622,6 @@ def main(argv=None) -> int:
     n_extra = sum(len(f["extra_records"]) for f in rec_files)
     n_err = sum(len(f["errors"]) for f in rec_files)
     order_only = [f["file"] for f in rec_files if f["same_records_different_order"]]
-    rc_mismatch = [f["file"] for f in files if f.get("text") and f["file"] == "RETURN-CODE"
-                   and not f["byte_identical"]]
     all_bytes = all(f["byte_identical"] for f in rec_files) and not rc_mismatch
 
     if fatal or input_errors or n_diff or n_missing or n_extra or n_err or tot_mismatch or rc_mismatch:
@@ -602,7 +646,7 @@ def main(argv=None) -> int:
             "records_reconciled": n_recs, "fields_reconciled": n_fields,
             "field_differences": n_diff, "missing_records": n_missing, "extra_records": n_extra,
             "control_total_mismatches": len(tot_mismatch), "order_only_files": order_only,
-            "return_code_mismatch": bool(rc_mismatch),
+            "return_code_mismatch": rc_mismatch,
             "files_byte_identical": [f["file"] for f in files if f["byte_identical"]],
             "files_not_byte_identical": [f["file"] for f in files if not f["byte_identical"]],
         },
