@@ -4,8 +4,8 @@
 Writes, for every named case, a DALYTRAN input file made of exact
 350-byte records laid out per app/cpy/CVTRA06Y.cpy, the PARM value the
 case runs with, and (for the shared "standard" reference set) the
-TRANTYPE / TRANCATG / XREFFILE / TCATBALF reference records laid out per
-CVTRA03Y / CVTRA04Y / CVACT03Y / CVTRA01Y.
+TRANTYPE / TRANCATG / XREFFILE / ACCTFILE / TCATBALF reference records
+laid out per CVTRA03Y / CVTRA04Y / CVACT03Y / CVACT01Y / CVTRA01Y.
 
 Signed zoned amounts use the mainframe overpunch convention as it
 appears in the repository's own ASCII sample data (app/data/ASCII):
@@ -40,11 +40,12 @@ NEG_ZONE = "}JKLMNOPQR"
 
 
 def zoned(amount_cents: int, digits: int = 11) -> bytes:
-    """PIC S9(09)V99 as signed zoned decimal with an overpunched sign."""
+    """Signed zoned decimal with an overpunched sign: 11 digits for
+    PIC S9(09)V99 (CVTRA06Y, CVTRA01Y), 12 for S9(10)V99 (CVACT01Y)."""
     mag = abs(amount_cents)
     text = str(mag).rjust(digits, "0")
     if len(text) != digits:
-        raise ValueError(f"amount {amount_cents} does not fit S9(09)V99")
+        raise ValueError(f"amount {amount_cents} does not fit {digits} digits")
     zone = NEG_ZONE if amount_cents < 0 else POS_ZONE
     return (text[:-1] + zone[int(text[-1])]).encode("ascii")
 
@@ -107,9 +108,34 @@ def tcatbal(acct: str, code: str, cat: str, bal: str) -> bytes:  # CVTRA01Y, 50
         + zoned(cents(bal)) + b" " * 22
 
 
+def acct(acct_id: str, credit_limit: str, expires: str, cyc_credit: str,
+         cyc_debit: str) -> bytes:                       # CVACT01Y, 300 bytes
+    return (fit(acct_id, 11, "acct") + b"Y" + zoned(0, 12)
+            + zoned(cents(credit_limit), 12) + zoned(cents(credit_limit), 12)
+            + fit("2020-01-01", 10, "open") + fit(expires, 10, "expires")
+            + fit("2020-01-01", 10, "reissue") + zoned(cents(cyc_credit), 12)
+            + zoned(cents(cyc_debit), 12) + fit("12345", 10, "zip")
+            + fit("GRP01", 10, "group") + b" " * 178)
+
+
+NO_LIMIT = "9999999999.99"              # S9(10)V99 maximum, never binding
+FAR_FUTURE = "2099-12-31"
+
 CARD_BAL_ZERO = "4000000000000001"      # account 1: category balance 0.00
 CARD_BAL_ONE_CENT = "4000000000000002"  # account 2: category balance 0.01
 CARD_BAL_MINUS_CENT = "4000000000000003"  # account 3: category balance -0.01
+CARD_NO_ACCT = "4000000000000004"     # account 4: in XREFFILE, not ACCTFILE
+CARD_LIMIT = "4000000000000005"       # account 5: limit 1000.00, cycle
+                                      # credit 500.00, debit -100.00, so
+                                      # CBTRN02C's CYC-CREDIT - CYC-DEBIT
+                                      # starts at 600.00 and 400.00 more fits
+CARD_EXPIRED = "4000000000000006"     # account 6: expired 2024-02-28,
+                                      # credit limit 0.00
+CARD_EXPIRED_NO_LIMIT = "4000000000000008"  # account 8: expired
+                                      # 2024-02-28, limit never binding
+CARD_EXP_CAT = "4000000000000007"     # account 7: limit 1000.00, expired
+                                      # 2024-03-10, category balance
+                                      # 999999000.00
 CARD_UNKNOWN = "4999999999999999"
 
 STANDARD_REFSET = {
@@ -128,11 +154,26 @@ STANDARD_REFSET = {
         cardxref(CARD_BAL_ZERO, "000000001", "00000000001"),
         cardxref(CARD_BAL_ONE_CENT, "000000002", "00000000002"),
         cardxref(CARD_BAL_MINUS_CENT, "000000003", "00000000003"),
+        cardxref(CARD_NO_ACCT, "000000004", "00000000004"),
+        cardxref(CARD_LIMIT, "000000005", "00000000005"),
+        cardxref(CARD_EXPIRED, "000000006", "00000000006"),
+        cardxref(CARD_EXP_CAT, "000000007", "00000000007"),
+        cardxref(CARD_EXPIRED_NO_LIMIT, "000000008", "00000000008"),
+    ],
+    "acctdata.txt": [
+        acct("00000000001", NO_LIMIT, FAR_FUTURE, "0.00", "0.00"),
+        acct("00000000002", NO_LIMIT, FAR_FUTURE, "0.00", "0.00"),
+        acct("00000000003", NO_LIMIT, FAR_FUTURE, "0.00", "0.00"),
+        acct("00000000005", "1000.00", FAR_FUTURE, "500.00", "-100.00"),
+        acct("00000000006", "0.00", "2024-02-28", "0.00", "0.00"),
+        acct("00000000007", "1000.00", "2024-03-10", "0.00", "0.00"),
+        acct("00000000008", NO_LIMIT, "2024-02-28", "0.00", "0.00"),
     ],
     "tcatbal.txt": [
         tcatbal("00000000001", "01", "0001", "0.00"),
         tcatbal("00000000002", "01", "0001", "0.01"),
         tcatbal("00000000003", "01", "0001", "-0.01"),
+        tcatbal("00000000007", "01", "0001", "999999000.00"),
     ],
 }
 
@@ -175,22 +216,25 @@ CASES: List[Case] = [
          "reject 0204", [record(amt=b" " * 11)]),
     Case("rule05_card_unknown", "R05", "DALYTRAN-CARD-NUM not in XREFFILE",
          "reject 0100 (CBTRN02C code)", [record(card=CARD_UNKNOWN)]),
-    Case("rule06_amount_max_downstream", "R06",
+    Case("rule06_acct_missing", "R06",
+         "card in XREFFILE but its account 00000000004 not in ACCTFILE",
+         "reject 0101 (CBTRN02C code)", [record(card=CARD_NO_ACCT)]),
+    Case("rule07_amount_max_downstream", "R07",
          "amount 999999999.99 onto category balance 0.00 = S9(09)V99 max",
          "accepted, RC 0", [record(amt="999999999.99", card=CARD_BAL_ZERO)]),
-    Case("rule06_amount_one_cent_over", "R06",
+    Case("rule07_amount_one_cent_over", "R07",
          "amount 999999999.99 onto category balance 0.01 = one cent over",
          "reject 0205",
          [record(amt="999999999.99", card=CARD_BAL_ONE_CENT)]),
-    Case("rule06_amount_negative_max", "R06",
+    Case("rule07_amount_negative_max", "R07",
          "amount -999999999.99 onto category balance 0.00 = S9(09)V99 min",
          "accepted, RC 0",
          [record(amt="-999999999.99", card=CARD_BAL_ZERO)]),
-    Case("rule06_amount_negative_floor", "R06",
+    Case("rule07_amount_negative_floor", "R07",
          "amount -999999999.99 onto category balance -0.01 = one cent under",
          "reject 0205",
          [record(amt="-999999999.99", card=CARD_BAL_MINUS_CENT)]),
-    Case("rule06_batch_second_record_overflows", "R06",
+    Case("rule07_batch_second_record_overflows", "R07",
          "two 600000000.00 records for one account/type/category on "
          "balance 0.00: 600000000.00 fits, 1200000000.00 does not",
          "first accepted, second reject 0205",
@@ -198,7 +242,7 @@ CASES: List[Case] = [
                  card=CARD_BAL_ZERO),
           record(id="TX00000000000102", amt="600000000.00",
                  card=CARD_BAL_ZERO)]),
-    Case("rule06_batch_reject_not_projected", "R06",
+    Case("rule07_batch_reject_not_projected", "R07",
          "600000000.00 accepted, 300000000.00 rejected on date (0206) so "
          "it must not advance the projection, then 300000000.00 accepted "
          "at 900000000.00; a fourth 100000000.00 overflows",
@@ -212,58 +256,105 @@ CASES: List[Case] = [
                  card=CARD_BAL_ZERO),
           record(id="TX00000000000204", amt="100000000.00",
                  card=CARD_BAL_ZERO)]),
-    Case("rule07_orig_feb30", "R07", "origination date 2024-02-30",
+    Case("rule08_orig_feb30", "R08", "origination date 2024-02-30",
          "reject 0206", [record(orig_ts="2024-02-30 10:15:30.000000")]),
-    Case("rule07_orig_leap_day_valid", "R07",
+    Case("rule08_orig_leap_day_valid", "R08",
          "origination 2024-02-29, a real leap day",
          "accepted, Julian 2024060",
          [record(orig_ts="2024-02-29 10:15:30.000000")]),
-    Case("rule07_orig_leap_day_nonleap", "R07",
+    Case("rule08_orig_leap_day_nonleap", "R08",
          "origination 2023-02-29, 2023 is not a leap year",
          "reject 0206", [record(orig_ts="2023-02-29 10:15:30.000000")]),
-    Case("rule07_orig_century_leap", "R07",
+    Case("rule08_orig_century_leap", "R08",
          "origination 2000-02-29, divisible by 400 so a leap year",
          "accepted, Julian 2000060",
          [record(orig_ts="2000-02-29 10:15:30.000000")]),
-    Case("rule07_orig_century_nonleap", "R07",
+    Case("rule08_orig_century_nonleap", "R08",
          "origination 1900-02-29, century not divisible by 400",
          "reject 0206", [record(orig_ts="1900-02-29 10:15:30.000000")]),
-    Case("rule07_orig_month_13", "R07", "origination month 13",
+    Case("rule08_orig_month_13", "R08", "origination month 13",
          "reject 0206", [record(orig_ts="2024-13-01 10:15:30.000000")]),
-    Case("rule07_orig_not_numeric", "R07", "origination date is letters",
+    Case("rule08_orig_not_numeric", "R08", "origination date is letters",
          "reject 0206", [record(orig_ts="ABCD-EF-GH 10:15:30.000000")]),
-    Case("rule08_proc_apr31", "R08", "processing date 2024-04-31",
+    Case("rule09_proc_apr31", "R09", "processing date 2024-04-31",
          "reject 0207", [record(proc_ts="2024-04-31 02:00:00.000000")]),
-    Case("rule08_proc_blank_accepted", "R08",
+    Case("rule09_proc_blank_accepted", "R09",
          "processing timestamp blank, as in the sample feed",
          "accepted, RC 0", [record(proc_ts="")]),
-    Case("rule09_orig_after_proc", "R09",
+    Case("rule10_orig_after_proc", "R10",
          "origination 2024-03-02 after processing 2024-03-01",
          "reject 0208",
          [record(orig_ts="2024-03-02 10:15:30.000000",
                  proc_ts="2024-03-01 02:00:00.000000")]),
-    Case("rule10_orig_future", "R10",
+    Case("rule11_orig_future", "R11",
          "origination 2024-03-16 after run date 2024-03-15",
          "reject 0209",
          [record(orig_ts="2024-03-16 10:15:30.000000",
                  proc_ts="2024-03-16 12:00:00.000000")]),
-    Case("rule10_proc_future", "R10",
+    Case("rule11_proc_future", "R11",
          "processing 2024-03-16 after run date 2024-03-15",
          "reject 0209",
          [record(orig_ts="2024-03-14 10:15:30.000000",
                  proc_ts="2024-03-16 12:00:00.000000")]),
-    Case("rule10_dates_equal_run_date", "R10",
+    Case("rule11_dates_equal_run_date", "R11",
          "origination and processing both on the run date",
          "accepted, RC 0",
          [record(orig_ts="2024-03-15 10:15:30.000000",
                  proc_ts="2024-03-15 12:00:00.000000")]),
-    Case("precedence_type_and_card", "R11",
+    Case("rule12_acct_expired", "R12",
+         "account 6 expired 2024-02-28, origination 2024-03-01",
+         "reject 0103 (CBTRN02C code)", [record(card=CARD_EXPIRED)]),
+    Case("rule12_acct_expiry_boundary", "R12",
+         "account 8 expired 2024-02-28, origination 2024-02-28 (equal "
+         "passes, as in CBTRN02C's >=)",
+         "accepted, RC 0",
+         [record(card=CARD_EXPIRED_NO_LIMIT,
+                 orig_ts="2024-02-28 10:15:30.000000")]),
+    Case("rule13_credit_limit_at", "R13",
+         "account 5: 500.00 - (-100.00) + 400.00 = 1000.00 = limit",
+         "accepted, RC 0", [record(card=CARD_LIMIT, amt="400.00")]),
+    Case("rule13_credit_limit_over", "R13",
+         "account 5: 500.00 - (-100.00) + 400.01 = 1000.01 > limit",
+         "reject 0102 (CBTRN02C code)",
+         [record(card=CARD_LIMIT, amt="400.01")]),
+    Case("rule13_credit_projection", "R13",
+         "account 5, four 300.00 / 300.00 / 300.00 / 100.00 purchases: "
+         "600 + 300 = 900 fits, 1200 does not, the reject must not "
+         "advance the account projection so the third also fails at "
+         "1200, then 900 + 100 = 1000 fits",
+         "accepted, reject 0102, reject 0102, accepted",
+         [record(id="TX00000000000301", amt="300.00", card=CARD_LIMIT),
+          record(id="TX00000000000302", amt="300.00", card=CARD_LIMIT),
+          record(id="TX00000000000303", amt="300.00", card=CARD_LIMIT),
+          record(id="TX00000000000304", amt="100.00", card=CARD_LIMIT)]),
+    Case("rule13_acct_reject_not_projected", "R13",
+         "account 7 (limit 1000.00, expires 2024-03-10, category balance "
+         "999999000.00): 400.00 accepted; 100.00 dated 2024-03-11 rejected "
+         "0103 so it must advance neither projection; 599.99 then lands "
+         "the category at exactly 999999999.99 and the account at 999.99 "
+         "(either projection advanced by the reject would fail it); 0.01 "
+         "overflows the category (0205, checked before the limit); 0.02 "
+         "as type 02 (separate category key) fails only the limit (0102)",
+         "accepted, reject 0103, accepted, reject 0205, reject 0102",
+         [record(id="TX00000000000401", amt="400.00", card=CARD_EXP_CAT),
+          record(id="TX00000000000402", amt="100.00", card=CARD_EXP_CAT,
+                 orig_ts="2024-03-11 10:15:30.000000",
+                 proc_ts="2024-03-12 02:00:00.000000"),
+          record(id="TX00000000000403", amt="599.99", card=CARD_EXP_CAT),
+          record(id="TX00000000000404", amt="0.01", card=CARD_EXP_CAT),
+          record(id="TX00000000000405", amt="0.02", type="02",
+                 card=CARD_EXP_CAT)]),
+    Case("precedence_type_and_card", "R14",
          "type 99 and unknown card on one record",
          "reject 0202 only", [record(type="99", card=CARD_UNKNOWN)]),
-    Case("precedence_id_and_amount", "R11",
+    Case("precedence_id_and_amount", "R14",
          "blank id and non-numeric amount on one record",
          "reject 0201 only", [record(id=" " * 16, amt=b"ABCDEFGHIJK")]),
-    Case("precedence_amount_and_date", "R11",
+    Case("precedence_expired_and_overlimit", "R14",
+         "account 6 is expired and has credit limit 0.00, amount 125.50",
+         "reject 0103 only (the code CBTRN02C ends with when both fail)",
+         [record(card=CARD_EXPIRED, amt="125.50")]),
+    Case("precedence_amount_and_date", "R14",
          "non-numeric amount and 30 February on one record",
          "reject 0204 only",
          [record(amt=b"ABCDEFGHIJK", orig_ts="2024-02-30 10:15:30.000000")]),
@@ -308,7 +399,7 @@ SAMPLE_CASE_NOTE = (
     "sample_data", "sample",
     "app/data/ASCII/dailytran.txt (300 records) against the sample "
     "reference files, built by run_tests.sh at run time",
-    "RC 0, 300 accepted")
+    "RC 4, 262 accepted, 38 rejected 0102 (over limit at posting)")
 
 
 def write(path: str, data: bytes) -> None:

@@ -4,9 +4,10 @@
       * Program     : LOADIDX.cbl
       * Application : CBTRN04C test suite
       * Type        : Test utility (off-mainframe runs only)
-      * Function    : Loads one of the four reference files read by
+      * Function    : Loads one of the five reference files read by
       *               CBTRN04C (TRANTYPE, TRANCATG, XREFFILE,
-      *               TCATBALF) from a text file with one record per
+      *               ACCTFILE, TCATBALF) from a text file with one
+      *               record per
       *               line into a GnuCOBOL indexed file. On z/OS these
       *               files are VSAM KSDS built by IDCAMS REPRO
       *               (see app/jcl/TRANTYPE.jcl and friends); this
@@ -14,8 +15,8 @@
       *               Record layouts come from the same copybooks the
       *               production program uses.
       * Usage       : DD_LOADIN=<in> DD_<name>=<out> loadidx <name>
-      *               where <name> is TRANTYPE, TRANCATG, XREFFILE or
-      *               TCATBALF.
+      *               where <name> is TRANTYPE, TRANCATG, XREFFILE,
+      *               ACCTFILE or TCATBALF.
       ******************************************************************
        ENVIRONMENT DIVISION.
        INPUT-OUTPUT SECTION.
@@ -43,6 +44,12 @@
                   RECORD KEY   IS FD-XREF-CARD-NUM
                   FILE STATUS  IS XREFFILE-STATUS.
 
+           SELECT ACCOUNT-FILE ASSIGN TO ACCTFILE
+                  ORGANIZATION IS INDEXED
+                  ACCESS MODE  IS SEQUENTIAL
+                  RECORD KEY   IS FD-ACCT-ID
+                  FILE STATUS  IS ACCTFILE-STATUS.
+
            SELECT TCATBAL-FILE ASSIGN TO TCATBALF
                   ORGANIZATION IS INDEXED
                   ACCESS MODE  IS SEQUENTIAL
@@ -52,7 +59,7 @@
        DATA DIVISION.
        FILE SECTION.
        FD  LOADIN-FILE.
-       01  FD-LOADIN-REC                        PIC X(60).
+       01  FD-LOADIN-REC                        PIC X(300).
 
        FD  TRANTYPE-FILE.
        01  FD-TRANTYPE-REC.
@@ -71,6 +78,11 @@
            05 FD-XREF-CARD-NUM                  PIC X(16).
            05 FD-XREF-DATA                      PIC X(34).
 
+       FD  ACCOUNT-FILE.
+       01  FD-ACCTFILE-REC.
+           05 FD-ACCT-ID                        PIC 9(11).
+           05 FD-ACCT-DATA                      PIC X(289).
+
        FD  TCATBAL-FILE.
        01  FD-TRAN-CAT-BAL-RECORD.
            05 FD-TCATBAL-KEY.
@@ -83,6 +95,7 @@
        COPY CVTRA03Y.
        COPY CVTRA04Y.
        COPY CVACT03Y.
+       COPY CVACT01Y.
        COPY CVTRA01Y.
 
        01  WS-FILE-NAME                         PIC X(08).
@@ -90,6 +103,7 @@
        01  TRANTYPE-STATUS                      PIC X(02).
        01  TRANCATG-STATUS                      PIC X(02).
        01  XREFFILE-STATUS                      PIC X(02).
+       01  ACCTFILE-STATUS                      PIC X(02).
        01  TCATBALF-STATUS                      PIC X(02).
        01  WS-OUT-STATUS                        PIC X(02).
        01  WS-EOF                               PIC X(01) VALUE 'N'.
@@ -107,6 +121,9 @@
                WHEN 'XREFFILE'
                    OPEN OUTPUT XREF-FILE
                    MOVE XREFFILE-STATUS TO WS-OUT-STATUS
+               WHEN 'ACCTFILE'
+                   OPEN OUTPUT ACCOUNT-FILE
+                   MOVE ACCTFILE-STATUS TO WS-OUT-STATUS
                WHEN 'TCATBALF'
                    OPEN OUTPUT TCATBAL-FILE
                    MOVE TCATBALF-STATUS TO WS-OUT-STATUS
@@ -141,6 +158,7 @@
                WHEN 'TRANTYPE'  CLOSE TRANTYPE-FILE
                WHEN 'TRANCATG'  CLOSE TRANCATG-FILE
                WHEN 'XREFFILE'  CLOSE XREF-FILE
+               WHEN 'ACCTFILE'  CLOSE ACCOUNT-FILE
                WHEN 'TCATBALF'  CLOSE TCATBAL-FILE
            END-EVALUATE
            DISPLAY 'LOADIDX: ' WS-FILE-NAME ' RECORDS LOADED '
@@ -161,6 +179,10 @@
                    MOVE FD-LOADIN-REC (1:50) TO CARD-XREF-RECORD
                    WRITE FD-XREFFILE-REC FROM CARD-XREF-RECORD
                    MOVE XREFFILE-STATUS TO WS-OUT-STATUS
+               WHEN 'ACCTFILE'
+                   MOVE FD-LOADIN-REC (1:300) TO ACCOUNT-RECORD
+                   WRITE FD-ACCTFILE-REC FROM ACCOUNT-RECORD
+                   MOVE ACCTFILE-STATUS TO WS-OUT-STATUS
                WHEN 'TCATBALF'
                    MOVE FD-LOADIN-REC (1:50) TO TRAN-CAT-BAL-RECORD
                    WRITE FD-TRAN-CAT-BAL-RECORD

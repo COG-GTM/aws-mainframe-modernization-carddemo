@@ -70,16 +70,18 @@ fi
 say "OK: committed fixtures match the generator"
 
 # ---------------------------------------------------------------- refdata
-load_refset() {   # load_refset <name> <dir with trantype/trancatg/cardxref/tcatbal .txt>
+load_refset() {   # load_refset <name> <dir with trantype/trancatg/cardxref/acctdata/tcatbal .txt>
     local name=$1 src=$2 dst="$BUILD/ref/$1"
     mkdir -p "$dst"
     $PY "$TOOLS/seqfile.py" normalize "$src/trantype.txt" "$dst/trantype.txt" 60
     $PY "$TOOLS/seqfile.py" normalize "$src/trancatg.txt" "$dst/trancatg.txt" 60
     $PY "$TOOLS/seqfile.py" normalize "$src/cardxref.txt" "$dst/cardxref.txt" 50
+    $PY "$TOOLS/seqfile.py" normalize "$src/acctdata.txt" "$dst/acctdata.txt" 300
     $PY "$TOOLS/seqfile.py" normalize "$src/tcatbal.txt"  "$dst/tcatbal.txt"  50
     DD_LOADIN="$dst/trantype.txt" DD_TRANTYPE="$dst/TRANTYPE.idx" "$BUILD/bin/loadidx" TRANTYPE || die "load $name TRANTYPE"
     DD_LOADIN="$dst/trancatg.txt" DD_TRANCATG="$dst/TRANCATG.idx" "$BUILD/bin/loadidx" TRANCATG || die "load $name TRANCATG"
     DD_LOADIN="$dst/cardxref.txt" DD_XREFFILE="$dst/XREFFILE.idx" "$BUILD/bin/loadidx" XREFFILE || die "load $name XREFFILE"
+    DD_LOADIN="$dst/acctdata.txt" DD_ACCTFILE="$dst/ACCTFILE.idx" "$BUILD/bin/loadidx" ACCTFILE || die "load $name ACCTFILE"
     DD_LOADIN="$dst/tcatbal.txt"  DD_TCATBALF="$dst/TCATBALF.idx" "$BUILD/bin/loadidx" TCATBALF || die "load $name TCATBALF"
 }
 
@@ -138,7 +140,8 @@ run_case() {   # run_case <name> <case-dir> <input dalytran.dat> <refset>
     fi
     DD_DALYTRAN="$input" \
     DD_TRANTYPE="$ref/TRANTYPE.idx" DD_TRANCATG="$ref/TRANCATG.idx" \
-    DD_XREFFILE="$ref/XREFFILE.idx" DD_TCATBALF="$ref/TCATBALF.idx" \
+    DD_XREFFILE="$ref/XREFFILE.idx" DD_ACCTFILE="$ref/ACCTFILE.idx" \
+    DD_TCATBALF="$ref/TCATBALF.idx" \
     DD_DALYVALD="$work/dalyvald.dat" DD_DALYRJ04="$work/dalyrj04.dat" \
     DD_VALDRPT="$work/valdrpt.dat" \
         "$BUILD/bin/cbtrn04c" > "$work/stdout.txt" 2>&1
@@ -161,13 +164,7 @@ run_case() {   # run_case <name> <case-dir> <input dalytran.dat> <refset>
     compare_file "$name" "stdout"   "$work/stdout.txt" "$exp/stdout.txt"  || ok=0
     compare_file "$name" "VALDRPT"  "$work/valdrpt.txt" "$exp/valdrpt.txt" || ok=0
     compare_file "$name" "DALYRJ04" "$work/dalyrj04.dat" "$exp/dalyrj04.dat" || ok=0
-    if [ -f "$exp/dalyvald.same-as-input" ]; then
-        if ! cmp -s "$work/dalyvald.dat" "$input"; then
-            say "   FAIL DALYVALD is not byte-identical to the input"; ok=0
-        fi
-    else
-        compare_file "$name" "DALYVALD" "$work/dalyvald.dat" "$exp/dalyvald.dat" || ok=0
-    fi
+    compare_file "$name" "DALYVALD" "$work/dalyvald.dat" "$exp/dalyvald.dat" || ok=0
 
     if [ $ok -eq 1 ]; then
         say "PASS  $name (rc=$rc)"; PASS=$((PASS + 1))

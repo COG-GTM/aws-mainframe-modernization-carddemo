@@ -2,8 +2,8 @@
  RUN DATE (GREGORIAN)  : 2022-07-18   RUN DATE (JULIAN)  : 2022199                                                                   
                                                                                                                                      
  RECORDS READ                                      :         300                                                                     
- RECORDS ACCEPTED                                  :         300                                                                     
- RECORDS REJECTED                                  :           0                                                                     
+ RECORDS ACCEPTED                                  :         262                                                                     
+ RECORDS REJECTED                                  :          38                                                                     
                                                                                                                                      
  REJECTED BY REASON CODE                                                                                                             
    0201 TRANSACTION ID MISSING (SPACES OR LOW-VALUES)     :           0                                                              
@@ -11,20 +11,23 @@
    0203 TRANSACTION TYPE/CATEGORY NOT IN TRANCATG FILE    :           0                                                              
    0204 TRANSACTION AMOUNT NOT NUMERIC OR INVALID SIGN    :           0                                                              
    0100 INVALID CARD NUMBER FOUND                         :           0                                                              
+   0101 ACCOUNT RECORD NOT FOUND                          :           0                                                              
+   0102 OVERLIMIT TRANSACTION                             :          38                                                              
+   0103 TRANSACTION RECEIVED AFTER ACCT EXPIRATION        :           0                                                              
    0205 AMOUNT WOULD OVERFLOW CATEGORY BALANCE S9(09)V99  :           0                                                              
    0206 ORIGINATION TIMESTAMP DATE INVALID                :           0                                                              
    0207 PROCESSING TIMESTAMP DATE INVALID                 :           0                                                              
    0208 ORIGINATION DATE AFTER PROCESSING DATE            :           0                                                              
    0209 TRANSACTION DATE AFTER RUN DATE                   :           0                                                              
                                                                                                                                      
- ACCEPTED AMOUNT TOTAL                             :            104,801.54                                                           
- REJECTED AMOUNT TOTAL (NUMERIC AMOUNTS ONLY)      :                  0.00                                                           
- TOTAL AMOUNT READ (NUMERIC AMOUNTS ONLY)          :            104,801.54                                                           
+ ACCEPTED AMOUNT TOTAL                             :                 77,954.70                                                       
+ REJECTED AMOUNT TOTAL (NUMERIC AMOUNTS ONLY)      :                 26,846.84                                                       
+ TOTAL AMOUNT READ (NUMERIC AMOUNTS ONLY)          :                104,801.54                                                       
  REJECTED WITH NON-NUMERIC AMOUNT (NOT SUMMED)     :           0                                                                     
- ACCEPTED AMOUNT COMP-3 IMAGE (S9(13)V99, 8 BYTES) : 000000010480154C                                                                
+ ACCEPTED AMOUNT COMP-3 IMAGE (S9(16)V99, 10 BYTES): 0000000000007795470C                                                            
                                                                                                                                      
  ACCEPTED ORIGINATION DATE RANGE (JULIAN YYYYDDD)  : 2022161 - 2022161                                                               
                                                                                                                                      
  RECONCILIATION: RECORDS READ = ACCEPTED + REJECTED                                                                      OK          
  RECONCILIATION: TOTAL AMOUNT = ACCEPTED AMOUNT + REJECTED AMOUNT                                                        OK          
- RETURN CODE                                       :  0                                                                              
+ RETURN CODE                                       :  4                                                                              

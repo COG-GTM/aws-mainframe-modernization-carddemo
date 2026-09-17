@@ -16,6 +16,18 @@
       * Return code : 0 nothing rejected, 4 records rejected,
       *               8 parm invalid, 12 file error.
       ******************************************************************
+      * Licensed under the Apache License, Version 2.0 (the "License").
+      * You may not use this file except in compliance with the License.
+      * You may obtain a copy of the License at
+      *
+      *    http://www.apache.org/licenses/LICENSE-2.0
+      *
+      * Unless required by applicable law or agreed to in writing,
+      * software distributed under the License is distributed on an
+      * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+      * either express or implied. See the License for the specific
+      * language governing permissions and limitations under the License
+      ******************************************************************
        IDENTIFICATION DIVISION.
        PROGRAM-ID.    CBTRN04C.
        AUTHOR.        BATCH SUSTAINMENT.
@@ -45,6 +57,12 @@
                   ACCESS MODE  IS RANDOM
                   RECORD KEY   IS FD-XREF-CARD-NUM
                   FILE STATUS  IS XREFFILE-STATUS.
+
+           SELECT ACCOUNT-FILE ASSIGN TO ACCTFILE
+                  ORGANIZATION IS INDEXED
+                  ACCESS MODE  IS RANDOM
+                  RECORD KEY   IS FD-ACCT-ID
+                  FILE STATUS  IS ACCTFILE-STATUS.
 
            SELECT TCATBAL-FILE ASSIGN TO TCATBALF
                   ORGANIZATION IS INDEXED
@@ -92,6 +110,11 @@
            05 FD-XREF-CARD-NUM                  PIC X(16).
            05 FD-XREF-DATA                      PIC X(34).
 
+       FD  ACCOUNT-FILE.
+       01  FD-ACCTFILE-REC.
+           05 FD-ACCT-ID                        PIC 9(11).
+           05 FD-ACCT-DATA                      PIC X(289).
+
        FD  TCATBAL-FILE.
        01  FD-TRAN-CAT-BAL-RECORD.
            05 FD-TCATBAL-KEY.
@@ -133,6 +156,11 @@
        01  XREFFILE-STATUS.
            05 XREFFILE-STAT1                    PIC X.
            05 XREFFILE-STAT2                    PIC X.
+
+       COPY CVACT01Y.
+       01  ACCTFILE-STATUS.
+           05 ACCTFILE-STAT1                    PIC X.
+           05 ACCTFILE-STAT2                    PIC X.
 
        COPY CVTRA01Y.
        01  TCATBALF-STATUS.
@@ -191,10 +219,12 @@
            05 WS-VALIDATION-FAIL-REASON-DESC    PIC X(76).
 
       *----------------------------------------------------------------
-      * Reason codes in evaluation order. 0100 is the code CBTRN02C
-      * assigns to an unknown card number; it is reused unchanged.
-      * New codes use 0201-0209 so they stay clear of the 0100-0109
-      * range CBTRN02C uses for posting-time rejects.
+      * Reason codes in report order (grouped by code, not by the
+      * order the rules run in 1500-VALIDATE-TRAN). 0100-0103 are the
+      * codes and texts CBTRN02C assigns to an unknown card, a missing
+      * account, an overlimit transaction and an expired account; they
+      * are reused unchanged. New codes use 0201-0209 so they stay
+      * clear of the 0100-0109 range CBTRN02C uses for posting rejects.
       *----------------------------------------------------------------
        01  WS-REASON-TABLE-DATA.
            05 FILLER PIC X(54) VALUE
@@ -208,6 +238,12 @@
            05 FILLER PIC X(54) VALUE
               '0100INVALID CARD NUMBER FOUND                         '.
            05 FILLER PIC X(54) VALUE
+              '0101ACCOUNT RECORD NOT FOUND                          '.
+           05 FILLER PIC X(54) VALUE
+              '0102OVERLIMIT TRANSACTION                             '.
+           05 FILLER PIC X(54) VALUE
+              '0103TRANSACTION RECEIVED AFTER ACCT EXPIRATION        '.
+           05 FILLER PIC X(54) VALUE
               '0205AMOUNT WOULD OVERFLOW CATEGORY BALANCE S9(09)V99  '.
            05 FILLER PIC X(54) VALUE
               '0206ORIGINATION TIMESTAMP DATE INVALID                '.
@@ -218,10 +254,10 @@
            05 FILLER PIC X(54) VALUE
               '0209TRANSACTION DATE AFTER RUN DATE                   '.
        01  WS-REASON-TABLE REDEFINES WS-REASON-TABLE-DATA.
-           05 WS-REASON-ENTRY OCCURS 10 TIMES.
+           05 WS-REASON-ENTRY OCCURS 13 TIMES.
               10 WS-RSN-CODE                    PIC 9(04).
               10 WS-RSN-DESC                    PIC X(50).
-       01  WS-REASON-MAX                        PIC 9(02) VALUE 10.
+       01  WS-REASON-MAX                        PIC 9(02) VALUE 13.
        01  WS-RSN-IX                            PIC 9(02).
        01  WS-RSN-FOUND                         PIC X(01).
 
@@ -229,6 +265,11 @@
       * Control totals. All money is carried packed decimal (COMP-3).
       * Amount ceiling is the narrowest downstream PIC, S9(09)V99
       * (TRAN-AMT in CVTRA05Y and TRAN-CAT-BAL in CVTRA01Y).
+      * The accumulators are S9(16)V99, the widest packed field the
+      * compiler allows without extended arithmetic: over ten million
+      * maximum amounts fit, and every ADD to them carries ON SIZE
+      * ERROR so an overflow ends the run with RC 12 instead of
+      * wrapping the totals.
       *----------------------------------------------------------------
        01  WS-COUNTERS.
            05 WS-READ-COUNT                     PIC 9(09) COMP-3
@@ -242,7 +283,7 @@
            05 WS-CHECK-COUNT                    PIC 9(09) COMP-3
                                                 VALUE 0.
        01  WS-REASON-COUNTS.
-           05 WS-RSN-COUNT OCCURS 10 TIMES      PIC 9(09) COMP-3.
+           05 WS-RSN-COUNT OCCURS 13 TIMES      PIC 9(09) COMP-3.
 
        01  WS-AMOUNTS.
            05 WS-TRAN-AMT-P                     PIC S9(09)V99 COMP-3
@@ -253,18 +294,45 @@
                                                 VALUE -999999999.99.
            05 WS-PROJ-CAT-BAL                   PIC S9(11)V99 COMP-3
                                                 VALUE 0.
-           05 WS-TOTAL-AMT                      PIC S9(13)V99 COMP-3
+           05 WS-TOTAL-AMT                      PIC S9(16)V99 COMP-3
                                                 VALUE 0.
-           05 WS-REJECT-AMT                     PIC S9(13)V99 COMP-3
+           05 WS-REJECT-AMT                     PIC S9(16)V99 COMP-3
                                                 VALUE 0.
-           05 WS-CHECK-AMT                      PIC S9(13)V99 COMP-3
+           05 WS-CHECK-AMT                      PIC S9(16)V99 COMP-3
                                                 VALUE 0.
-       01  WS-ACCEPT-AMT                        PIC S9(13)V99 COMP-3
+       01  WS-ACCEPT-AMT                        PIC S9(16)V99 COMP-3
                                                 VALUE 0.
        01  WS-ACCEPT-AMT-BYTES REDEFINES WS-ACCEPT-AMT
-                                                PIC X(08).
+                                                PIC X(10).
 
        01  WS-AMT-NUMERIC-FLAG                  PIC X(01).
+
+      *----------------------------------------------------------------
+      * Projected account cycle credit and debit for accounts already
+      * accepted in this run. CBTRN02C tests the credit limit against
+      * ACCT-CURR-CYC-CREDIT - ACCT-CURR-CYC-DEBIT + amount and then
+      * rewrites those two fields after every posting
+      * (2800-UPDATE-ACCOUNT-REC), so a second record for the same
+      * account must be tested against the values the first one will
+      * leave behind. Rejected records do not advance the projection.
+      *----------------------------------------------------------------
+       01  WS-ACCT-TABLE-MAX                    PIC 9(05) VALUE 20000.
+       01  WS-ACCT-TABLE-COUNT                  PIC 9(05) VALUE 0.
+       01  WS-ACCT-IX                           PIC 9(05) VALUE 0.
+       01  WS-ACCT-FOUND-IX                     PIC 9(05) VALUE 0.
+       01  WS-ACCT-SEARCH-ID                    PIC 9(11).
+       01  WS-ACCT-PROJECTION.
+           05 WS-PROJ-CYC-CREDIT                PIC S9(13)V99 COMP-3
+                                                VALUE 0.
+           05 WS-PROJ-CYC-DEBIT                 PIC S9(13)V99 COMP-3
+                                                VALUE 0.
+           05 WS-PROJ-TEMP-BAL                  PIC S9(13)V99 COMP-3
+                                                VALUE 0.
+       01  WS-ACCT-TABLE.
+           05 WS-ACCT-ENTRY OCCURS 20000 TIMES.
+              10 WS-ACCT-KEY                    PIC 9(11).
+              10 WS-ACCT-PROJ-CREDIT            PIC S9(13)V99 COMP-3.
+              10 WS-ACCT-PROJ-DEBIT             PIC S9(13)V99 COMP-3.
 
       *----------------------------------------------------------------
       * Projected category balances for keys already accepted in this
@@ -338,12 +406,12 @@
       *----------------------------------------------------------------
        01  WS-HEX-DIGITS                        PIC X(16)
                                     VALUE '0123456789ABCDEF'.
-       01  WS-HEX-IN                            PIC X(08).
+       01  WS-HEX-IN                            PIC X(10).
        01  WS-HEX-IN-BYTE REDEFINES WS-HEX-IN.
-           05 WS-HEX-BYTE OCCURS 8 TIMES        PIC X(01).
-       01  WS-HEX-OUT                           PIC X(16).
+           05 WS-HEX-BYTE OCCURS 10 TIMES       PIC X(01).
+       01  WS-HEX-OUT                           PIC X(20).
        01  WS-HEX-OUT-CHAR REDEFINES WS-HEX-OUT.
-           05 WS-HEX-CHAR OCCURS 16 TIMES       PIC X(01).
+           05 WS-HEX-CHAR OCCURS 20 TIMES       PIC X(01).
        01  WS-HEX-IX                            PIC 9(02).
        01  WS-HEX-OX                            PIC 9(02).
        01  WS-HEX-VAL                           PIC 9(03).
@@ -388,15 +456,15 @@
            05 WS-RPT-AMT-LABEL                  PIC X(50).
            05 FILLER                            PIC X(02) VALUE ': '.
            05 WS-RPT-AMT-VALUE
-                             PIC --,---,---,---,--9.99.
-           05 FILLER                            PIC X(59) VALUE SPACES.
+                             PIC --,---,---,---,---,--9.99.
+           05 FILLER                            PIC X(55) VALUE SPACES.
        01  WS-RPT-HEX-LINE.
            05 FILLER                            PIC X(01) VALUE SPACE.
            05 FILLER                            PIC X(50) VALUE
-              'ACCEPTED AMOUNT COMP-3 IMAGE (S9(13)V99, 8 BYTES)'.
+              'ACCEPTED AMOUNT COMP-3 IMAGE (S9(16)V99, 10 BYTES)'.
            05 FILLER                            PIC X(02) VALUE ': '.
-           05 WS-RPT-HEX-VALUE                  PIC X(16).
-           05 FILLER                            PIC X(64) VALUE SPACES.
+           05 WS-RPT-HEX-VALUE                  PIC X(20).
+           05 FILLER                            PIC X(60) VALUE SPACES.
        01  WS-RPT-JULIAN-LINE.
            05 FILLER                            PIC X(01) VALUE SPACE.
            05 FILLER                            PIC X(50) VALUE
@@ -453,6 +521,7 @@
            PERFORM 0100-TRANTYPE-OPEN.
            PERFORM 0200-TRANCATG-OPEN.
            PERFORM 0300-XREFFILE-OPEN.
+           PERFORM 0350-ACCTFILE-OPEN.
            PERFORM 0400-TCATBALF-OPEN.
            PERFORM 0500-DALYVALD-OPEN.
            PERFORM 0600-DALYRJ04-OPEN.
@@ -483,6 +552,7 @@
            PERFORM 9100-TRANTYPE-CLOSE.
            PERFORM 9200-TRANCATG-CLOSE.
            PERFORM 9300-XREFFILE-CLOSE.
+           PERFORM 9350-ACCTFILE-CLOSE.
            PERFORM 9400-TCATBALF-CLOSE.
            PERFORM 9500-DALYVALD-CLOSE.
            PERFORM 9600-DALYRJ04-CLOSE.
@@ -616,6 +686,24 @@
            END-IF
            EXIT.
       *---------------------------------------------------------------*
+       0350-ACCTFILE-OPEN.
+           MOVE 8 TO APPL-RESULT.
+           OPEN INPUT ACCOUNT-FILE
+           IF  ACCTFILE-STATUS = '00'
+               MOVE 0 TO APPL-RESULT
+           ELSE
+               MOVE 12 TO APPL-RESULT
+           END-IF
+           IF  APPL-AOK
+               CONTINUE
+           ELSE
+               DISPLAY 'ERROR OPENING ACCOUNT MASTER FILE'
+               MOVE ACCTFILE-STATUS TO IO-STATUS
+               PERFORM 9910-DISPLAY-IO-STATUS
+               PERFORM 9999-ABEND-PROGRAM
+           END-IF
+           EXIT.
+      *---------------------------------------------------------------*
        0400-TCATBALF-OPEN.
            MOVE 8 TO APPL-RESULT.
            OPEN INPUT TCATBAL-FILE
@@ -724,6 +812,9 @@
                MOVE 'Y' TO WS-AMT-NUMERIC-FLAG
                MOVE DALYTRAN-AMT TO WS-TRAN-AMT-P
                ADD WS-TRAN-AMT-P TO WS-TOTAL-AMT
+                   ON SIZE ERROR
+                   PERFORM 9980-TOTAL-OVERFLOW
+               END-ADD
            ELSE
                MOVE 'N' TO WS-AMT-NUMERIC-FLAG
                MOVE 0 TO WS-TRAN-AMT-P
@@ -751,6 +842,9 @@
                PERFORM 1550-LOOKUP-XREF
            END-IF
            IF  WS-VALIDATION-FAIL-REASON = 0
+               PERFORM 1552-LOOKUP-ACCT
+           END-IF
+           IF  WS-VALIDATION-FAIL-REASON = 0
                PERFORM 1560-CHECK-CAT-BAL-RANGE
            END-IF
            IF  WS-VALIDATION-FAIL-REASON = 0
@@ -761,6 +855,12 @@
            END-IF
            IF  WS-VALIDATION-FAIL-REASON = 0
                PERFORM 1590-CHECK-FUTURE-DATES
+           END-IF
+           IF  WS-VALIDATION-FAIL-REASON = 0
+               PERFORM 1594-CHECK-ACCT-EXPIRATION
+           END-IF
+           IF  WS-VALIDATION-FAIL-REASON = 0
+               PERFORM 1596-CHECK-CREDIT-LIMIT
            END-IF
            EXIT.
 
@@ -854,6 +954,57 @@
            EXIT.
 
       *---------------------------------------------------------------*
+      * Same account lookup, tests and reason codes as CBTRN02C
+      * 1500-B-LOOKUP-ACCT (0101, 0102, 0103), so a record that
+      * clears the validator will not be rejected by posting for an
+      * account reason. The cycle credit and debit used for the
+      * credit-limit test come from the projection left by earlier
+      * accepted records of the same account when there is one,
+      * because CBTRN02C rewrites them after every posting
+      * (2800-UPDATE-ACCOUNT-REC); otherwise from the record on file.
+      *---------------------------------------------------------------*
+       1552-LOOKUP-ACCT.
+           MOVE XREF-ACCT-ID TO FD-ACCT-ID
+           MOVE XREF-ACCT-ID TO WS-ACCT-SEARCH-ID
+           MOVE 0 TO WS-ACCT-FOUND-IX
+           READ ACCOUNT-FILE INTO ACCOUNT-RECORD
+                INVALID KEY
+                MOVE 6 TO WS-RSN-IX
+                PERFORM 1900-SET-REASON
+                NOT INVALID KEY
+                PERFORM 1553-PROJECT-ACCT-CYCLE
+           END-READ
+           IF  ACCTFILE-STATUS = '00' OR ACCTFILE-STATUS = '23'
+               CONTINUE
+           ELSE
+               DISPLAY 'ERROR READING ACCOUNT MASTER FILE'
+               MOVE ACCTFILE-STATUS TO IO-STATUS
+               PERFORM 9910-DISPLAY-IO-STATUS
+               PERFORM 9999-ABEND-PROGRAM
+           END-IF
+           EXIT.
+
+      *---------------------------------------------------------------*
+       1553-PROJECT-ACCT-CYCLE.
+           PERFORM VARYING WS-ACCT-IX FROM 1 BY 1
+               UNTIL WS-ACCT-IX > WS-ACCT-TABLE-COUNT
+               OR    WS-ACCT-FOUND-IX > 0
+               IF  WS-ACCT-KEY (WS-ACCT-IX) = WS-ACCT-SEARCH-ID
+                   MOVE WS-ACCT-IX TO WS-ACCT-FOUND-IX
+               END-IF
+           END-PERFORM
+           IF  WS-ACCT-FOUND-IX > 0
+               MOVE WS-ACCT-PROJ-CREDIT (WS-ACCT-FOUND-IX)
+                 TO WS-PROJ-CYC-CREDIT
+               MOVE WS-ACCT-PROJ-DEBIT (WS-ACCT-FOUND-IX)
+                 TO WS-PROJ-CYC-DEBIT
+           ELSE
+               MOVE ACCT-CURR-CYC-CREDIT TO WS-PROJ-CYC-CREDIT
+               MOVE ACCT-CURR-CYC-DEBIT  TO WS-PROJ-CYC-DEBIT
+           END-IF
+           EXIT.
+
+      *---------------------------------------------------------------*
       * CBTRN02C adds the amount to TRAN-CAT-BAL (S9(09)V99) with no
       * SIZE ERROR clause. Project the balance the posting would
       * produce and reject when it cannot be held. A missing balance
@@ -882,7 +1033,7 @@
            ADD WS-TRAN-AMT-P TO WS-PROJ-CAT-BAL
            IF  WS-PROJ-CAT-BAL > WS-AMT-CEILING
            OR  WS-PROJ-CAT-BAL < WS-AMT-FLOOR
-               MOVE 6 TO WS-RSN-IX
+               MOVE 9 TO WS-RSN-IX
                PERFORM 1900-SET-REASON
            END-IF
            EXIT.
@@ -918,7 +1069,7 @@
                MOVE WS-DATE-INT-N    TO WS-ORIG-DATE-INT
                MOVE WS-DATE-JULIAN-N TO WS-ORIG-DATE-JULIAN
            ELSE
-               MOVE 7 TO WS-RSN-IX
+               MOVE 10 TO WS-RSN-IX
                PERFORM 1900-SET-REASON
            END-IF
            EXIT.
@@ -943,11 +1094,11 @@
                    MOVE WS-DATE-INT-N    TO WS-PROC-DATE-INT
                    MOVE WS-DATE-JULIAN-N TO WS-PROC-DATE-JULIAN
                    IF  WS-ORIG-DATE-INT > WS-PROC-DATE-INT
-                       MOVE 9 TO WS-RSN-IX
+                       MOVE 12 TO WS-RSN-IX
                        PERFORM 1900-SET-REASON
                    END-IF
                ELSE
-                   MOVE 8 TO WS-RSN-IX
+                   MOVE 11 TO WS-RSN-IX
                    PERFORM 1900-SET-REASON
                END-IF
            END-IF
@@ -956,14 +1107,49 @@
       *---------------------------------------------------------------*
        1590-CHECK-FUTURE-DATES.
            IF  WS-ORIG-DATE-INT > WS-RUN-DATE-INT
-               MOVE 10 TO WS-RSN-IX
+               MOVE 13 TO WS-RSN-IX
                PERFORM 1900-SET-REASON
            ELSE
                IF  WS-PROC-TS-PRESENT = 'Y'
                AND WS-PROC-DATE-INT > WS-RUN-DATE-INT
-                   MOVE 10 TO WS-RSN-IX
+                   MOVE 13 TO WS-RSN-IX
                    PERFORM 1900-SET-REASON
                END-IF
+           END-IF
+           EXIT.
+
+      *---------------------------------------------------------------*
+      * CBTRN02C: ACCT-EXPIRAION-DATE >= DALYTRAN-ORIG-TS (1:10),
+      * a character comparison of two YYYY-MM-DD strings. Runs after
+      * the date rules so both operands are known-valid YYYY-MM-DD
+      * digit strings and the compare is chronological in any
+      * collating sequence (CBTRN02C compares the raw field, so a
+      * non-date origination sorts differently in EBCDIC and ASCII).
+      * Checked before the credit limit because CBTRN02C runs both IFs
+      * and the later one (103) overwrites 102, so 103 is what posting
+      * reports when both fail.
+      *---------------------------------------------------------------*
+       1594-CHECK-ACCT-EXPIRATION.
+           IF  ACCT-EXPIRAION-DATE >= DALYTRAN-ORIG-TS (1:10)
+               CONTINUE
+           ELSE
+               MOVE 8 TO WS-RSN-IX
+               PERFORM 1900-SET-REASON
+           END-IF
+           EXIT.
+
+      *---------------------------------------------------------------*
+      * CBTRN02C: ACCT-CREDIT-LIMIT >= CYC-CREDIT - CYC-DEBIT + AMT.
+      *---------------------------------------------------------------*
+       1596-CHECK-CREDIT-LIMIT.
+           COMPUTE WS-PROJ-TEMP-BAL = WS-PROJ-CYC-CREDIT
+                                    - WS-PROJ-CYC-DEBIT
+                                    + WS-TRAN-AMT-P
+           IF  ACCT-CREDIT-LIMIT >= WS-PROJ-TEMP-BAL
+               CONTINUE
+           ELSE
+               MOVE 7 TO WS-RSN-IX
+               PERFORM 1900-SET-REASON
            END-IF
            EXIT.
 
@@ -1003,10 +1189,54 @@
            EXIT.
 
       *---------------------------------------------------------------*
+      * Called once a record is accepted: carry its amount into the
+      * cycle credit or debit of its account the way CBTRN02C
+      * 2800-UPDATE-ACCOUNT-REC will (amount >= 0 is credit).
+      *---------------------------------------------------------------*
+       1960-UPDATE-ACCT-PROJECTION.
+           IF  WS-TRAN-AMT-P >= 0
+               ADD WS-TRAN-AMT-P TO WS-PROJ-CYC-CREDIT
+                   ON SIZE ERROR
+                   PERFORM 9980-TOTAL-OVERFLOW
+               END-ADD
+           ELSE
+               ADD WS-TRAN-AMT-P TO WS-PROJ-CYC-DEBIT
+                   ON SIZE ERROR
+                   PERFORM 9980-TOTAL-OVERFLOW
+               END-ADD
+           END-IF
+           IF  WS-ACCT-FOUND-IX > 0
+               MOVE WS-PROJ-CYC-CREDIT
+                 TO WS-ACCT-PROJ-CREDIT (WS-ACCT-FOUND-IX)
+               MOVE WS-PROJ-CYC-DEBIT
+                 TO WS-ACCT-PROJ-DEBIT (WS-ACCT-FOUND-IX)
+           ELSE
+               IF  WS-ACCT-TABLE-COUNT < WS-ACCT-TABLE-MAX
+                   ADD 1 TO WS-ACCT-TABLE-COUNT
+                   MOVE WS-ACCT-SEARCH-ID
+                     TO WS-ACCT-KEY (WS-ACCT-TABLE-COUNT)
+                   MOVE WS-PROJ-CYC-CREDIT
+                     TO WS-ACCT-PROJ-CREDIT (WS-ACCT-TABLE-COUNT)
+                   MOVE WS-PROJ-CYC-DEBIT
+                     TO WS-ACCT-PROJ-DEBIT (WS-ACCT-TABLE-COUNT)
+               ELSE
+                   DISPLAY 'ACCOUNT PROJECTION TABLE FULL, '
+                           'MORE THAN ' WS-ACCT-TABLE-MAX
+                           ' ACCOUNTS IN FEED'
+                   PERFORM 9999-ABEND-PROGRAM
+               END-IF
+           END-IF
+           EXIT.
+
+      *---------------------------------------------------------------*
        2000-WRITE-ACCEPTED-REC.
            ADD 1 TO WS-ACCEPT-COUNT
            ADD WS-TRAN-AMT-P TO WS-ACCEPT-AMT
+               ON SIZE ERROR
+               PERFORM 9980-TOTAL-OVERFLOW
+           END-ADD
            PERFORM 1950-UPDATE-BAL-PROJECTION
+           PERFORM 1960-UPDATE-ACCT-PROJECTION
            IF  WS-ACCEPT-COUNT = 1
                MOVE WS-ORIG-DATE-JULIAN TO WS-ACCEPT-JULIAN-MIN
                                            WS-ACCEPT-JULIAN-MAX
@@ -1039,6 +1269,9 @@
        2500-WRITE-REJECT-REC.
            ADD 1 TO WS-REJECT-COUNT
            ADD WS-TRAN-AMT-P TO WS-REJECT-AMT
+               ON SIZE ERROR
+               PERFORM 9980-TOTAL-OVERFLOW
+           END-ADD
            MOVE FD-TRAN-RECORD TO REJECT-TRAN-DATA
            MOVE WS-VALIDATION-TRAILER TO VALIDATION-TRAILER
            MOVE 8 TO APPL-RESULT
@@ -1148,6 +1381,9 @@
            PERFORM 3900-WRITE-REPORT-REC
 
            COMPUTE WS-CHECK-AMT = WS-ACCEPT-AMT + WS-REJECT-AMT
+               ON SIZE ERROR
+               PERFORM 9980-TOTAL-OVERFLOW
+           END-COMPUTE
            MOVE WS-RECON-AMT-TEXT TO WS-RPT-RECON-TEXT
            IF  WS-CHECK-AMT = WS-TOTAL-AMT
                MOVE 'OK' TO WS-RPT-RECON-RESULT
@@ -1272,7 +1508,7 @@
        8000-PACKED-TO-HEX.
            MOVE 0 TO WS-HEX-OX
            PERFORM VARYING WS-HEX-IX FROM 1 BY 1
-                   UNTIL WS-HEX-IX > 8
+                   UNTIL WS-HEX-IX > 10
                COMPUTE WS-HEX-VAL =
                        FUNCTION ORD (WS-HEX-BYTE (WS-HEX-IX)) - 1
                DIVIDE WS-HEX-VAL BY 16 GIVING WS-HEX-HI
@@ -1377,6 +1613,24 @@
            END-IF
            EXIT.
       *---------------------------------------------------------------*
+       9350-ACCTFILE-CLOSE.
+           MOVE 8 TO APPL-RESULT.
+           CLOSE ACCOUNT-FILE
+           IF  ACCTFILE-STATUS = '00'
+               MOVE 0 TO APPL-RESULT
+           ELSE
+               MOVE 12 TO APPL-RESULT
+           END-IF
+           IF  APPL-AOK
+               CONTINUE
+           ELSE
+               DISPLAY 'ERROR CLOSING ACCOUNT MASTER FILE'
+               MOVE ACCTFILE-STATUS TO IO-STATUS
+               PERFORM 9910-DISPLAY-IO-STATUS
+               PERFORM 9999-ABEND-PROGRAM
+           END-IF
+           EXIT.
+      *---------------------------------------------------------------*
        9500-DALYVALD-CLOSE.
            MOVE 8 TO APPL-RESULT.
            CLOSE DALYVALD-FILE
@@ -1442,6 +1696,19 @@
            DISPLAY 'ABENDING PROGRAM'
            MOVE 12 TO RETURN-CODE
            GOBACK.
+
+      *****************************************************************
+      * A control-total accumulator (S9(16)V99) or an account cycle
+      * projection (S9(13)V99) overflowed. The totals can no longer
+      * reconcile, so the run ends with RC 12 rather than reporting
+      * wrapped figures.
+      *****************************************************************
+       9980-TOTAL-OVERFLOW.
+           DISPLAY 'ACCUMULATOR OVERFLOW: A CONTROL TOTAL OR ACCOUNT '
+                   'CYCLE PROJECTION EXCEEDS ITS PICTURE AFTER '
+                   WS-READ-COUNT ' RECORDS'
+           PERFORM 9999-ABEND-PROGRAM
+           EXIT.
 
       *****************************************************************
        9910-DISPLAY-IO-STATUS.
