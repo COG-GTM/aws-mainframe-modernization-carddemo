@@ -44,5 +44,17 @@
   "sets": [
     "named",
     "volume"
+  ],
+  "tolerance_checks": [
+    "named/tolerance TRAN-AMT=0.01",
+    "named/tolerance TRAN-AMT=0.001",
+    "volume/tolerance TRAN-AMT=0.01",
+    "volume/tolerance TRAN-AMT=0.001"
+  ],
+  "tolerance_checks_passed": [
+    "named/tolerance TRAN-AMT=0.01",
+    "named/tolerance TRAN-AMT=0.001",
+    "volume/tolerance TRAN-AMT=0.01",
+    "volume/tolerance TRAN-AMT=0.001"
   ]
 }

@@ -16,15 +16,24 @@ Checks, in order:
   (e) reconciliation.json + reconciliation.md written to --out-dir (default: candidate dir)
 
 Exit codes:
-  0  every compared file matches byte-for-byte
+  0  every record file (TRANSACT, DALYREJS, ACCTFILE, TCATBALF) and RETURN-CODE
+     match byte-for-byte
   2  every record and every control total matches, but at least one file
      holds the same records in a different order
+  3  every difference lies within a tolerance named on the command line
+     (never reachable without --tolerance; the reports carry a banner)
   1  any missing/extra record, any field difference, any control-total
-     mismatch, any RETURN-CODE difference, missing file or malformed record
+     mismatch, any RETURN-CODE difference or missing RETURN-CODE, missing
+     record file or malformed record
+
+SYSOUT (the program's operator log: DISPLAY output) is compared and reported
+but is informational only, because it is not a posting-cycle data output;
+--strict-sysout makes a SYSOUT difference a mismatch (exit 1).
 
 There are NO tolerances by default.  --tolerance FIELD=ABS makes differences
-of at most ABS in the named numeric field non-fatal; every tolerance used is
-named in both reports.
+of at most ABS in the named numeric field non-fatal, and a control total
+derived from that field may then differ by at most the sum of the absorbed
+per-record differences; every tolerance used is named in both reports.
 
 Standard library only.
 """
@@ -36,7 +45,7 @@ import hashlib
 import json
 import os
 import sys
-from decimal import Decimal
+from decimal import Decimal, InvalidOperation
 from typing import Dict, List, Optional, Tuple
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
@@ -177,6 +186,8 @@ def compare_record_file(name: str, exp_data: Optional[bytes], got_data: Optional
                  "expected_raw": eb.decode("latin-1"), "got_raw": gb.decode("latin-1")}
             if f.is_numeric:
                 ev, gv = numeric_value(eb, f), numeric_value(gb, f)
+                if ev is not None and gv is not None:
+                    d["delta"] = str(gv - ev)
                 if ev is not None and gv is not None and ev == gv:
                     d["kind"] = "numeric-encoding"      # same value, different bytes (e.g. sign zone)
                 elif ev is None or gv is None:
@@ -185,7 +196,6 @@ def compare_record_file(name: str, exp_data: Optional[bytes], got_data: Optional
                     d["kind"] = "sign"
                 else:
                     d["kind"] = "value"
-                    d["delta"] = str(gv - ev)
                 if tol.within(f.name, ev, gv):
                     d["tolerance"] = str(tol.abs[f.name])
                     res["within_tolerance"].append(d)
@@ -275,6 +285,55 @@ def compare_totals(exp: dict, got: dict) -> List[dict]:
     return out
 
 
+# control total -> the record field it is derived from (sums) or made of (per-record values)
+SUM_TOTAL_FIELD = {"sum_accepted_amount": "TRAN-AMT", "sum_rejected_amount": "DALYTRAN-AMT"}
+CATEGORY_TOTAL_FIELD = "TRAN-CAT-BAL"
+
+
+def absorb_total_mismatches(mismatches: List[dict], files: List[dict], tol: Tolerances) -> Tuple[List[dict], List[dict]]:
+    """Split control-total mismatches into (still mismatched, explained by tolerances).
+
+    A sum may differ by at most the sum of the per-record differences that were
+    absorbed for its source field; a per-record closing balance may differ by at
+    most that field's tolerance.  Without --tolerance nothing is absorbed."""
+    if not tol.abs:
+        return mismatches, []
+    allowance: Dict[str, Decimal] = {}
+    for f in files:
+        for d in f.get("within_tolerance", []):
+            allowance[d["field"]] = allowance.get(d["field"], Decimal(0)) + abs(Decimal(d["delta"]))
+
+    def dec(v) -> Optional[Decimal]:
+        if isinstance(v, bool) or v is None:
+            return None
+        try:
+            return Decimal(str(v))
+        except InvalidOperation:
+            return None
+
+    def within(field: str, a, b, bound: Optional[Decimal]) -> bool:
+        da, db = dec(a), dec(b)
+        return bound is not None and da is not None and db is not None and abs(da - db) <= bound
+
+    keep, absorbed = [], []
+    for m in mismatches:
+        name, ok = m["total"], False
+        if name in SUM_TOTAL_FIELD:
+            fld = SUM_TOTAL_FIELD[name]
+            ok = within(fld, m["expected"], m["got"], allowance.get(fld))
+            m = dict(m, tolerance_field=fld)
+        elif name.startswith("closing_category_balances["):
+            ok = within(CATEGORY_TOTAL_FIELD, m["expected"], m["got"], tol.abs.get(CATEGORY_TOTAL_FIELD))
+            m = dict(m, tolerance_field=CATEGORY_TOTAL_FIELD)
+        elif name.startswith("closing_account_balances[") and isinstance(m["expected"], dict) \
+                and isinstance(m["got"], dict) and set(m["expected"]) == set(m["got"]):
+            ok = all(m["expected"][k] == m["got"][k] or within(k, m["expected"][k], m["got"][k], tol.abs.get(k))
+                     for k in m["expected"])
+            m = dict(m, tolerance_field=",".join(k for k in m["expected"] if m["expected"][k] != m["got"][k]))
+        (absorbed if ok else keep).append(m)
+    return keep, absorbed
+
+
 # ---------------------------------------------------------------------------
 # reports
 # ---------------------------------------------------------------------------
@@ -299,8 +358,9 @@ def render_md(r: dict) -> str:
         ", ".join("`%s` ±%s" % (k, v) for k, v in r["tolerances"]["abs"].items()) or "**none** (default)"))
     L.append("")
     if r["tolerances"]["abs"]:
-        L.append("> **Tolerance policy in effect:** %d difference(s) were accepted as within the named "
-                 "tolerances above and do not affect the verdict." % len(r["tolerances"]["used"]))
+        L.append("> **Tolerance policy in effect:** %d field difference(s) and %d control-total difference(s) "
+                 "were accepted as within the named tolerances above and do not affect the verdict."
+                 % (len(r["tolerances"]["used"]), len(r["control_totals"]["within_tolerance"])))
         L.append("")
     L.append("## Files")
     L.append("")
@@ -375,6 +435,13 @@ def render_md(r: dict) -> str:
             L.append("* %s: expected `%s` got `%s`%s" % (
                 m["total"], m["expected"], m["got"], " (%s side)" % m["side"] if "side" in m else ""))
         L.append("")
+    if r["control_totals"]["within_tolerance"]:
+        L.append("### Control totals WITHIN TOLERANCE")
+        L.append("")
+        for m in r["control_totals"]["within_tolerance"]:
+            L.append("* WITHIN TOLERANCE (`%s`): %s: expected `%s` got `%s`" % (
+                m["tolerance_field"], m["total"], m["expected"], m["got"]))
+        L.append("")
     L.append("## Order sensitivity")
     L.append("")
     if r["summary"]["order_only_files"]:
@@ -431,9 +498,10 @@ def main(argv=None) -> int:
         eb, gb = read_bytes(os.path.join(exp_dir, name)), read_bytes(os.path.join(got_dir, name))
         et = eb.decode("utf-8", "replace").strip() if eb is not None else None
         gt = gb.decode("utf-8", "replace").strip() if gb is not None else None
-        same = (et == gt)
+        missing = eb is None or gb is None
+        same = not missing and et == gt
         if name == "RETURN-CODE":
-            status = "match" if same else "**MISMATCH**"
+            status = "match" if same else ("**MISMATCH** (missing)" if missing else "**MISMATCH**")
             if not same:
                 fatal = True
         else:
@@ -441,13 +509,13 @@ def main(argv=None) -> int:
                                            else "differs (informational; operator log)")
             if not same and args.strict_sysout:
                 fatal = True
-        files.append({"file": name, "text": True, "status": status, "byte_identical": eb == gb,
+        files.append({"file": name, "text": True, "status": status, "byte_identical": eb is not None and eb == gb,
                       "expected_text": (et if name == "RETURN-CODE" else "%d bytes" % len(eb or b"")) if eb is not None else "missing",
                       "candidate_text": (gt if name == "RETURN-CODE" else "%d bytes" % len(gb or b"")) if gb is not None else "missing"})
 
     tot_e = control_totals(exp_dir, records_in)
     tot_g = control_totals(got_dir, records_in)
-    tot_mismatch = compare_totals(tot_e, tot_g)
+    tot_mismatch, tot_absorbed = absorb_total_mismatches(compare_totals(tot_e, tot_g), files, tol)
 
     rec_files = [f for f in files if not f.get("text")]
     n_fields = sum(f["fields_compared"] for f in rec_files)
@@ -467,10 +535,12 @@ def main(argv=None) -> int:
         exit_code, verdict = 2, "SAME RECORDS, DIFFERENT ORDER"
     elif all_bytes:
         exit_code, verdict = 0, "EXACT MATCH"
+    elif tol.used or tot_absorbed:
+        # every field and total agrees once the named tolerances are applied; not byte-identical
+        exit_code, verdict = 3, "MATCH WITHIN TOLERANCE"
     else:
-        # records and totals agree, order agrees, but some bytes differ: only possible
-        # for a tolerance-absorbed difference or a SYSOUT/text difference.
-        exit_code, verdict = (1, "MISMATCH") if not tol.used else (1, "MATCH ONLY WITHIN TOLERANCE")
+        # bytes differ somewhere no named field covers (should not happen with complete layouts)
+        exit_code, verdict = 1, "MISMATCH"
 
     report = {
         "tool": "tests/golden/compare.py",
@@ -486,7 +556,8 @@ def main(argv=None) -> int:
         },
         "tolerances": {"abs": {k: str(v) for k, v in tol.abs.items()}, "used": tol.used},
         "files": files,
-        "control_totals": {"expected": tot_e, "candidate": tot_g, "mismatches": tot_mismatch},
+        "control_totals": {"expected": tot_e, "candidate": tot_g, "mismatches": tot_mismatch,
+                           "within_tolerance": tot_absorbed},
     }
     os.makedirs(out_dir, exist_ok=True)
     with open(os.path.join(out_dir, "reconciliation.json"), "w") as fh:
@@ -518,8 +589,8 @@ def main(argv=None) -> int:
         for m in tot_mismatch[:20]:
             print("  control total %s: expected %s got %s" % (m["total"], m["expected"], m["got"]))
         if tol.abs:
-            print("  TOLERANCES IN EFFECT: %s (%d differences absorbed)" % (
-                ", ".join("%s=%s" % kv for kv in tol.abs.items()), len(tol.used)))
+            print("  TOLERANCES IN EFFECT: %s (%d field differences, %d control-total differences absorbed)" % (
+                ", ".join("%s=%s" % kv for kv in tol.abs.items()), len(tol.used), len(tot_absorbed)))
         print("  %s records, %s fields reconciled, %s differences%s; verdict %s (exit %d)" % (
             format(n_recs, ","), format(n_fields, ","), format(n_diff + n_missing + n_extra + len(tot_mismatch), ","),
             " + RETURN-CODE mismatch" if rc_mismatch else "", verdict, exit_code))

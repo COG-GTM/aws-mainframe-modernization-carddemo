@@ -1,7 +1,9 @@
 #!/usr/bin/env bash
-# Prove that compare.py (a) returns 0 on an exact copy of the golden set and
+# Prove that compare.py (a) returns 0 on an exact copy of the golden set,
 # (b) catches every injected defect from mutate.py with the right exit code and
-# names the right field / total / record key in reconciliation.md.
+# names the right field / total / record key in reconciliation.md, and (c) that
+# the explicit --tolerance path absorbs exactly what it names (exit 3 with a
+# banner) and nothing more (exit 1 when the bound is too small).
 #
 #   bash tests/golden/selftest.sh [--set named|volume|all] [--work DIR]
 #
@@ -28,6 +30,8 @@ lines=()
 mut_all=()      # "<set>/<mutant>" for every mutant run
 mut_caught=()   # subset that was caught
 exact_pass=()   # sets whose exact copy compared clean
+tol_all=()      # "<set>/<tolerance check>" for every tolerance-path check
+tol_pass=()     # subset that passed
 
 check() {  # check <label> <expected_exit> <actual_exit> <report> <markers...>
   local label="$1" want="$2" got="$3" report="$4"; shift 4
@@ -42,6 +46,22 @@ check() {  # check <label> <expected_exit> <actual_exit> <report> <markers...>
   else
     fail=1
     lines+=("$(printf '  %-8s %-28s exit %s (expected %s)  MISSING markers: %s  NOT CAUGHT' "$SETNAME" "$label" "$got" "$want" "${missing[*]:-none}")")
+  fi
+}
+
+tcheck() {  # tcheck <label> <expected_exit> <actual_exit> <report> <markers...>
+  local label="$1" want="$2" got="$3" report="$4"; shift 4
+  local missing=()
+  for m in "$@"; do grep -qF -- "$m" "$report" || missing+=("$m"); done
+  total=$((total+1))
+  tol_all+=("$SETNAME/$label")
+  if [ "$want" = "$got" ] && [ ${#missing[@]} -eq 0 ]; then
+    caught=$((caught+1))
+    tol_pass+=("$SETNAME/$label")
+    lines+=("$(printf '  %-8s %-28s exit %s (expected %s)  named: %s  PASS' "$SETNAME" "$label" "$got" "$want" "$*")")
+  else
+    fail=1
+    lines+=("$(printf '  %-8s %-28s exit %s (expected %s)  MISSING markers: %s  FAIL' "$SETNAME" "$label" "$got" "$want" "${missing[*]:-none}")")
   fi
 }
 
@@ -78,6 +98,17 @@ for SETNAME in $SETS; do
     rc=$?
     check "$name" "$want" "$rc" "$md/reconciliation.md" "${markers[@]}"
   done
+
+  # (c) the explicit tolerance path, on the one-cent mutant: a bound that covers the
+  #     defect must absorb the field AND the control total it feeds (exit 3, banner);
+  #     a bound that does not cover it must still fail (exit 1) while naming the bound.
+  onecent="$W/mutants/amount_off_by_one_cent"
+  python3 "$HERE/compare.py" "$EXP" "$onecent" --tolerance TRAN-AMT=0.01 --out-dir "$W/tolerance-absorbs" --quiet
+  tcheck "tolerance TRAN-AMT=0.01" 3 $? "$W/tolerance-absorbs/reconciliation.md" \
+    "MATCH WITHIN TOLERANCE" "Tolerance policy in effect" "WITHIN TOLERANCE ±0.01" "TRAN-AMT" "sum_accepted_amount"
+  python3 "$HERE/compare.py" "$EXP" "$onecent" --tolerance TRAN-AMT=0.001 --out-dir "$W/tolerance-too-small" --quiet
+  tcheck "tolerance TRAN-AMT=0.001" 1 $? "$W/tolerance-too-small/reconciliation.md" \
+    "MISMATCH" "±0.001" "TRAN-AMT" "sum_accepted_amount"
 done
 
 # (c) record the evidence the documentation numbers are derived from (only for a
@@ -85,16 +116,26 @@ done
 RESULT_JSON="$HERE/sets/selftest-result.json"
 docs_line=""
 if [ "$SETS" = "named volume" ]; then
-  python3 - "$RESULT_JSON" "$(cd "$HERE/../.." && pwd)" "${#exact_pass[@]}" "${mut_all[@]}" -- "${mut_caught[@]}" <<'PY'
+  python3 - "$RESULT_JSON" "$(cd "$HERE/../.." && pwd)" "${#exact_pass[@]}" \
+      "${mut_all[@]}" -- "${mut_caught[@]}" -- "${tol_all[@]}" -- "${tol_pass[@]}" <<'PY'
 import json, os, sys
 out, repo, n_exact, rest = sys.argv[1], sys.argv[2], int(sys.argv[3]), sys.argv[4:]
-sep = rest.index("--")
+groups, cur = [], []
+for a in rest:
+    if a == "--":
+        groups.append(cur); cur = []
+    else:
+        cur.append(a)
+groups.append(cur)
+mutants, caught, tol_all, tol_pass = groups
 doc = {
     "produced_by": "tests/golden/selftest.sh",
     "sets": ["named", "volume"],
     "exact_copy_sets_passed": n_exact,
-    "mutants": rest[:sep],
-    "caught": rest[sep + 1:],
+    "mutants": mutants,
+    "caught": caught,
+    "tolerance_checks": tol_all,
+    "tolerance_checks_passed": tol_pass,
 }
 with open(out, "w") as fh:
     json.dump(doc, fh, indent=2, sort_keys=True); fh.write("\n")
@@ -105,7 +146,7 @@ PY
   python3 "$HERE/docs_numbers.py" --check || docs_rc=$?
   total=$((total+1))
   docs_line=" + docs sync"
-  if [ $docs_rc -eq 0 ]; then caught=$((caught+1)); lines+=("  docs     docs_numbers.py --check      exit 0 (expected 0)  README/layouts blocks current  PASS"); else fail=1; lines+=("  docs     docs_numbers.py --check      exit $docs_rc (expected 0)  FAIL"); fi
+  if [ $docs_rc -eq 0 ]; then caught=$((caught+1)); lines+=("  docs     docs_numbers.py --check      exit 0 (expected 0)  README/layouts/findings blocks current  PASS"); else fail=1; lines+=("  docs     docs_numbers.py --check      exit $docs_rc (expected 0)  FAIL"); fi
 fi
 
 echo "golden-set comparator self-test (compare.py vs mutate.py)"
@@ -113,9 +154,9 @@ printf '%s\n' "${lines[@]}"
 n_mut=$(python3 "$HERE/mutate.py" --list | wc -l | tr -d ' ')
 n_sets=$(echo $SETS | wc -w | tr -d ' ')
 echo "  mutants defined: $n_mut; sets: $SETS"
-echo "  checks passed: $caught of $total  (exact-copy x$n_sets + $n_mut mutants x$n_sets$docs_line)"
+echo "  checks passed: $caught of $total  (exact-copy x$n_sets + $n_mut mutants x$n_sets + 2 tolerance-path x$n_sets$docs_line)"
 if [ $fail -eq 0 ]; then
-  echo "  RESULT: PASS - ${#mut_caught[@]} of ${#mut_all[@]} injected defects caught; exact copy compares clean"
+  echo "  RESULT: PASS - ${#mut_caught[@]} of ${#mut_all[@]} injected defects caught; exact copy compares clean; tolerance path ${#tol_pass[@]} of ${#tol_all[@]}"
   echo "  work dir: $WORK"
   exit 0
 else

@@ -5,12 +5,17 @@ so the documentation cannot drift from the code.
 
     python3 tests/golden/docs_numbers.py                 # print the "Numbers" markdown block
     python3 tests/golden/docs_numbers.py --layouts       # print the layouts.md field tables
-    python3 tests/golden/docs_numbers.py --check    # exit 1 if the README.md / layouts.md blocks
-                                                    # differ from what would be generated now
+    python3 tests/golden/docs_numbers.py --check    # exit 1 if the README.md / layouts.md /
+                                                    # findings.md blocks differ from what
+                                                    # would be generated now
+    python3 tests/golden/docs_numbers.py --write    # rewrite those blocks in place
 
 The documents carry the generated text between marker comments:
-    <!-- generated: numbers --> ... <!-- /generated: numbers -->
-    <!-- generated: layouts --> ... <!-- /generated: layouts -->
+    README.md    <!-- generated: numbers -->     ... <!-- /generated: numbers -->
+    layouts.md   <!-- generated: layouts -->     ... <!-- /generated: layouts -->
+    findings.md  <!-- generated: predictions --> ... <!-- /generated: predictions -->
+(the last one lists every generator/program disagreement from prediction-check.json,
+so a new disagreement fails selftest.sh until findings.md is regenerated)
 Standard library only.
 """
 import argparse
@@ -106,6 +111,9 @@ def numbers_block(d):
     L.append("- **Injected defects:** %d mutant classes x %d sets = %d injected, %d caught"
              " (`tests/golden/selftest.sh`, recorded in `%s`)."
              % (n_mut, n_sets, len(st["mutants"]), len(st["caught"]), rel(SELFTEST_RESULT)))
+    L.append("- **Tolerance path:** %d of %d checks passed (a bound that covers the one-cent defect gives"
+             " `MATCH WITHIN TOLERANCE`, exit 3; a bound that does not still gives `MISMATCH`, exit 1)."
+             % (len(st["tolerance_checks_passed"]), len(st["tolerance_checks"])))
     L.append("")
     L.append("| Metric | Value | Derived from |")
     L.append("|---|---|---|")
@@ -156,6 +164,30 @@ def numbers_block(d):
                  % (s, c["verdict"], c["exit_code"], fmt(cs["records_reconciled"]), fmt(cs["fields_reconciled"]),
                     fmt(cs["field_differences"]), cs["control_total_mismatches"],
                     rc["expected_text"], rc["candidate_text"], s))
+    return "\n".join(L) + "\n"
+
+
+def predictions_block(d):
+    """findings.md section 1: generator/program disagreements, straight from prediction-check.json."""
+    L = ["| set | records | items checked | disagreements |", "|---|---:|---:|---:|"]
+    for s in SETS:
+        p = d["sets"][s]["prediction"]
+        L.append("| %s | %s | %s | %d |" % (s, fmt(p["records_in"]), fmt(p["items_checked"]), len(p["disagreements"])))
+    L.append("")
+    L.append("Source: " + " and ".join("`tests/golden/sets/%s/expected/prediction-check.json`" % s for s in SETS)
+             + " (written by `check_prediction.py` at the end of every `run_reference.sh`).")
+    L.append("Items checked = one per `DALYTRAN` record (accept/reject + reason), one per")
+    L.append("closing account balance, one per closing category balance.")
+    any_dis = False
+    for s in SETS:
+        for item in d["sets"][s]["prediction"]["disagreements"]:
+            if not any_dis:
+                L += ["", "| set | item | generator predicted | program did |", "|---|---|---|---|"]
+                any_dis = True
+            L.append("| %s | %s | %s | %s |" % (s, item.get("item", item), item.get("predicted", ""), item.get("actual", "")))
+    if not any_dis:
+        L.append("")
+        L.append("No disagreement is currently recorded (`\"disagreements\": []` in both files).")
     return "\n".join(L) + "\n"
 
 
@@ -212,24 +244,26 @@ def write_block(path, tag, content):
 def main(argv=None):
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--layouts", action="store_true", help="print the layouts.md tables instead of the numbers block")
-    ap.add_argument("--check", action="store_true", help="verify README.md and layouts.md generated blocks are current")
-    ap.add_argument("--write", action="store_true", help="rewrite the generated blocks in README.md and layouts.md in place")
+    ap.add_argument("--check", action="store_true", help="verify README.md, layouts.md and findings.md generated blocks are current")
+    ap.add_argument("--write", action="store_true", help="rewrite the generated blocks in README.md, layouts.md and findings.md in place")
     ap.add_argument("--json", action="store_true", help="print the headline figures as JSON")
     args = ap.parse_args(argv)
     d = collect()
+    blocks = (
+        (os.path.join(DOCS, "README.md"), "numbers", numbers_block),
+        (os.path.join(DOCS, "layouts.md"), "layouts", layouts_block),
+        (os.path.join(DOCS, "findings.md"), "predictions", predictions_block),
+    )
     if args.write:
-        write_block(os.path.join(DOCS, "README.md"), "numbers", numbers_block(d))
-        write_block(os.path.join(DOCS, "layouts.md"), "layouts", layouts_block(d))
+        for path, tag, fn in blocks:
+            write_block(path, tag, fn(d))
         return 0
     if args.check:
-        problems = [p for p in (
-            check_block(os.path.join(DOCS, "README.md"), "numbers", numbers_block(d)),
-            check_block(os.path.join(DOCS, "layouts.md"), "layouts", layouts_block(d)),
-        ) if p]
+        problems = [p for p in (check_block(path, tag, fn(d)) for path, tag, fn in blocks) if p]
         for p in problems:
             print("docs_numbers.py --check: " + p)
         if not problems:
-            print("docs_numbers.py --check: README.md and layouts.md generated blocks match the artefacts")
+            print("docs_numbers.py --check: README.md, layouts.md and findings.md generated blocks match the artefacts")
         return 1 if problems else 0
     if args.layouts:
         print(layouts_block(d))

@@ -1,16 +1,17 @@
-== jar: transaction-posting-service-0.1.0-SNAPSHOT.jar
+== building candidate (03912525cf8bf90b8e810b2616f67c99a77d0abd) with Maven (clean package)
+== jar: transaction-posting-service-0.1.0-SNAPSHOT.jar sha256 5dda71c50605140356af7f7036b077215e96b36d4f429cf84537ac1fd70900db
 == running: faketime -f "@2026-03-15 12:00:00 x0" java -jar transaction-posting-service-0.1.0-SNAPSHOT.jar --carddemo.posting.encoding=ASCII --carddemo.posting.daily-transactions=<repo>/tests/golden/sets/named/candidate-pr9/work/DALYTRAN --carddemo.posting.card-xref=<repo>/tests/golden/sets/named/candidate-pr9/work/XREFFILE --carddemo.posting.account-master=<repo>/tests/golden/sets/named/candidate-pr9/work/ACCTFILE --carddemo.posting.category-balances=<repo>/tests/golden/sets/named/candidate-pr9/work/TCATBALF --carddemo.posting.transaction-master=<repo>/tests/golden/sets/named/candidate-pr9/work/TRANSACT --carddemo.posting.rejects=<repo>/tests/golden/sets/named/candidate-pr9/work/DALYREJS --logging.level.root=WARN --logging.level.com.carddemo=INFO --logging.pattern.console=%msg%n
 == candidate exit code 0; console:
    org.springframework.batch.item.ItemReader is an interface. The implementing class will not be queried for annotation based listener configurations. If using @StepScope on a @Bean method, be sure to return the implementing class so listener annotations can be used.
    org.springframework.batch.item.ItemWriter is an interface. The implementing class will not be queried for annotation based listener configurations. If using @StepScope on a @Bean method, be sure to return the implementing class so listener annotations can be used.
    org.springframework.batch.item.ItemProcessor is an interface. The implementing class will not be queried for annotation based listener configurations. If using @StepScope on a @Bean method, be sure to return the implementing class so listener annotations can be used.
-   Started PostingApplication in 0.0 seconds (process running for 2.944)
+   Started PostingApplication in 0.0 seconds (process running for 2.668)
    TCATBAL record not found for key : 90000000012010002.. Creating.
    TCATBAL record not found for key : 90000000018020003.. Creating.
    TRANSACTIONS PROCESSED : 000000022
    TRANSACTIONS REJECTED  : 000000008
 == compare expected vs candidate
-compare: <repo>/tests/golden/sets/named/expected vs <repo>/tests/golden/sets/named/candidate-pr9
+compare: tests/golden/sets/named/expected vs tests/golden/sets/named/candidate-pr9
   TRANSACT  recs expected=14 candidate=14 matched=14 fields=196 diffs=0 missing=0 extra=0 byte-identical=yes
   DALYREJS  recs expected=8 candidate=8 matched=8 fields=128 diffs=0 missing=0 extra=0 byte-identical=yes
   ACCTFILE  recs expected=17 candidate=17 matched=17 fields=221 diffs=0 missing=0 extra=0 byte-identical=yes
@@ -18,5 +19,5 @@ compare: <repo>/tests/golden/sets/named/expected vs <repo>/tests/golden/sets/nam
   RETURN-CODE MISMATCH
   SYSOUT      differs (informational; operator log)
   52 records, 610 fields reconciled, 0 differences + RETURN-CODE mismatch; verdict MISMATCH (exit 1)
-  reports: <repo>/tests/golden/sets/named/candidate-pr9/reconciliation.{json,md}
+  reports: tests/golden/sets/named/candidate-pr9/reconciliation.{json,md}
 == compare exit 1; report <repo>/tests/golden/sets/named/candidate-pr9/reconciliation.md

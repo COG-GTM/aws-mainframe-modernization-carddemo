@@ -2,9 +2,11 @@
   "candidate": "pull request #9 transaction-posting-service",
   "candidate_commit": "03912525cf8bf90b8e810b2616f67c99a77d0abd",
   "jar": "<candidate-checkout>/modernization/posttran-cycle/transaction-posting-service/target/transaction-posting-service-0.1.0-SNAPSHOT.jar",
+  "jar_sha256": "0c47a9d16f04bdf060bcb20c707545e18bf208ca0aa66e5a3a88ddc465f69c88",
+  "built": "mvn clean package in this run, from candidate_commit",
   "set": "volume",
   "faketime": "@2026-03-15 12:00:00 x0",
   "exit_code": 0,
   "java": "openjdk version \"21.0.12\" 2026-07-21",
-  "note": "candidate built and run unmodified; file locations, ASCII encoding and clock supplied externally"
+  "note": "candidate built (clean) and run unmodified; file locations, ASCII encoding and clock supplied externally"
 }

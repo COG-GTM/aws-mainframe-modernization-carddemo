@@ -19,6 +19,7 @@ block is stale.
 - **named set, reference vs reference:** 52 records, **610 fields reconciled, 0 differences** (GnuCOBOL primary run vs GnuCOBOL variant run; verdict `EXACT MATCH`, exit 0).
 - **volume set, reference vs reference:** 1,945 records, **22,167 fields reconciled, 0 differences** (GnuCOBOL primary run vs GnuCOBOL variant run; verdict `EXACT MATCH`, exit 0).
 - **Injected defects:** 9 mutant classes x 2 sets = 18 injected, 18 caught (`tests/golden/selftest.sh`, recorded in `tests/golden/sets/selftest-result.json`).
+- **Tolerance path:** 4 of 4 checks passed (a bound that covers the one-cent defect gives `MATCH WITHIN TOLERANCE`, exit 3; a bound that does not still gives `MISMATCH`, exit 1).
 
 | Metric | Value | Derived from |
 |---|---|---|
@@ -165,8 +166,11 @@ bash tests/golden/selftest.sh
 
 # 3. reconcile any candidate output directory against the golden outputs
 python3 tests/golden/compare.py tests/golden/sets/volume/expected <candidate-dir>
-#    exit 0 = byte-identical, 2 = same records different order, 1 = any field /
-#    control-total / return-code difference.  Writes reconciliation.{json,md}.
+#    exit 0 = record files and RETURN-CODE byte-identical, 2 = same records in a
+#    different order, 3 = every difference inside a named --tolerance bound,
+#    1 = any other field / control-total / return-code difference, a missing or
+#    malformed file, or a missing RETURN-CODE.  Writes reconciliation.{json,md}.
+#    SYSOUT (the operator log) is reported but informational unless --strict-sysout.
 
 # 4. generate a set by hand (the runner does this for you)
 python3 tests/golden/generate.py --set named  --seed 20260315 --out tests/golden/sets/named/input
@@ -178,9 +182,15 @@ bash tests/golden/run_candidate_pr9.sh <candidate-checkout> --set volume
 ```
 
 Tolerances: none by default.  `compare.py --tolerance FIELD=ABS` (for example
-`--tolerance TRAN-AMT=0.01`) is the only way to accept a numeric difference, and
-the report then carries a **Tolerance policy in effect** banner naming the
-field, the bound, and every difference it absorbed.
+`--tolerance TRAN-AMT=0.01`) is the only way to accept a numeric difference.  A
+run that differs only inside the named bounds is reported as `MATCH WITHIN
+TOLERANCE` with exit 3 (never 0: the files are not byte-identical), the report
+carries a **Tolerance policy in effect** banner naming the field, the bound and
+every difference it absorbed, and a control total fed by a tolerated field
+(`sum_accepted_amount` from `TRAN-AMT`, `closing_category_balances` from
+`TRAN-CAT-BAL`) is absorbed only when every contributing difference was itself
+within the bound.  A difference outside the bound stays `MISMATCH`, exit 1.
+`selftest.sh` exercises both directions on every set.
 
 ### Output of `bash tests/golden/run_reference.sh --variant`
 
@@ -212,7 +222,7 @@ generated volume set -> tests/golden/sets/volume/input
 
 ```text
   wrote tests/golden/sets/selftest-result.json
-docs_numbers.py --check: README.md and layouts.md generated blocks match the artefacts
+docs_numbers.py --check: README.md, layouts.md and findings.md generated blocks match the artefacts
 golden-set comparator self-test (compare.py vs mutate.py)
   named    exact-copy                   exit 0 (expected 0)  EXACT MATCH  PASS
   named    amount_off_by_one_cent       exit 1 (expected 1)  named: TRAN-AMT GS03150000000001 sum_accepted_amount  CAUGHT
@@ -224,6 +234,8 @@ golden-set comparator self-test (compare.py vs mutate.py)
   named    sign_flipped_on_balance      exit 1 (expected 1)  named: ACCT-CURR-BAL 90000000001 sign closing_account_balances  CAUGHT
   named    trailing_space_in_text       exit 1 (expected 1)  named: TRAN-MERCHANT-NAME GS03150000000001  CAUGHT
   named    two_records_swapped          exit 2 (expected 2)  named: TRANSACT DIFFERENT ORDER  CAUGHT
+  named    tolerance TRAN-AMT=0.01      exit 3 (expected 3)  named: MATCH WITHIN TOLERANCE Tolerance policy in effect WITHIN TOLERANCE ±0.01 TRAN-AMT sum_accepted_amount  PASS
+  named    tolerance TRAN-AMT=0.001     exit 1 (expected 1)  named: MISMATCH ±0.001 TRAN-AMT sum_accepted_amount  PASS
   volume   exact-copy                   exit 0 (expected 0)  EXACT MATCH  PASS
   volume   amount_off_by_one_cent       exit 1 (expected 1)  named: TRAN-AMT GS03150000000001 sum_accepted_amount  CAUGHT
   volume   category_row_dropped         exit 1 (expected 1)  named: missing in candidate 90000000166020003 closing_category_balances  CAUGHT
@@ -234,10 +246,12 @@ golden-set comparator self-test (compare.py vs mutate.py)
   volume   sign_flipped_on_balance      exit 1 (expected 1)  named: ACCT-CURR-BAL 90000000001 sign closing_account_balances  CAUGHT
   volume   trailing_space_in_text       exit 1 (expected 1)  named: TRAN-MERCHANT-NAME GS03150000000001  CAUGHT
   volume   two_records_swapped          exit 2 (expected 2)  named: TRANSACT DIFFERENT ORDER  CAUGHT
-  docs     docs_numbers.py --check      exit 0 (expected 0)  README/layouts blocks current  PASS
+  volume   tolerance TRAN-AMT=0.01      exit 3 (expected 3)  named: MATCH WITHIN TOLERANCE Tolerance policy in effect WITHIN TOLERANCE ±0.01 TRAN-AMT sum_accepted_amount  PASS
+  volume   tolerance TRAN-AMT=0.001     exit 1 (expected 1)  named: MISMATCH ±0.001 TRAN-AMT sum_accepted_amount  PASS
+  docs     docs_numbers.py --check      exit 0 (expected 0)  README/layouts/findings blocks current  PASS
   mutants defined: 9; sets: named volume
-  checks passed: 21 of 21  (exact-copy x2 + 9 mutants x2 + docs sync)
-  RESULT: PASS - 18 of 18 injected defects caught; exact copy compares clean
+  checks passed: 25 of 25  (exact-copy x2 + 9 mutants x2 + 2 tolerance-path x2 + docs sync)
+  RESULT: PASS - 18 of 18 injected defects caught; exact copy compares clean; tolerance path 4 of 4
 ```
 
 ### Output of the reference-vs-reference and exact-copy comparisons
@@ -340,9 +354,9 @@ were skipped (`-DskipTests`) because this harness is the external check.
 | `tests/golden/run_reference.sh` | compile, load, run, dump, record toolchain, check predictions |
 | `tests/golden/check_prediction.py` | generator prediction vs. program outcome per record (the program wins) |
 | `tests/golden/compare.py` | byte / field / control-total / order reconciliation; `reconciliation.{json,md}` |
-| `tests/golden/mutate.py`, `selftest.sh` | single-defect mutants and the proof the comparator catches them |
-| `tests/golden/run_candidate_pr9.sh` | runs the external candidate against the golden inputs and reconciles |
-| `tests/golden/docs_numbers.py` | derives every number in this README and `layouts.md` from the artefacts; `--check` guards drift |
+| `tests/golden/mutate.py`, `selftest.sh` | single-defect mutants, the proof the comparator catches them, and the tolerance-path checks |
+| `tests/golden/run_candidate_pr9.sh` | rebuilds the external candidate from a clean `target` (recording its commit and JAR sha256), runs it against the golden inputs and reconciles |
+| `tests/golden/docs_numbers.py` | derives every number in this README, `layouts.md` and the disagreement table in `findings.md` from the artefacts; `--check` guards drift |
 | `tests/golden/sets/<set>/{input,expected,expected-variant}/` | the committed golden sets |
 | `tests/golden/sets/selftest-result.json` | mutants run / caught, written by `selftest.sh`; the source of the "18 injected, 18 caught" figure |
 | `docs/validation/golden-set/` | this README, [layouts.md](layouts.md), [findings.md](findings.md), [government-decisions.md](government-decisions.md), [what-this-does-not-prove.md](what-this-does-not-prove.md), `candidate-pr9/` |

@@ -47,16 +47,17 @@ redact() { sed -e "s#$REPO#<repo>#g" -e "s#$CAND_ABS#<candidate-checkout>#g" -e 
 FROZEN="$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1]))["frozen_clock"]["COB_CURRENT_DATE"])' "$INPUT/manifest.json")"
 CAND_SHA="$(git -C "$CAND" rev-parse HEAD 2>/dev/null || echo unknown)"
 
-# 1. build (skip tests: they are the candidate's own; this harness is the external check)
-JAR="$(ls "$MOD"/transaction-posting-service/target/transaction-posting-service-*.jar 2>/dev/null | grep -v original | head -1 || true)"
-if [ -z "$JAR" ]; then
-  echo "== building candidate ($CAND_SHA) with Maven"
-  # GS_MVN_ARGS: extra Maven arguments, e.g. "-s settings.xml" naming a repository mirror
-  # shellcheck disable=SC2086
-  (cd "$MOD" && mvn -q ${GS_MVN_ARGS:-} -pl carddemo-recordio,transaction-posting-service -am -DskipTests package)
-  JAR="$(ls "$MOD"/transaction-posting-service/target/transaction-posting-service-*.jar | grep -v original | head -1)"
-fi
-echo "== jar: $(basename "$JAR")"
+# 1. build from a clean target so the JAR that runs is the one built from $CAND_SHA
+#    (a JAR left over from an earlier revision must never be attributed to HEAD);
+#    skip the candidate's own tests: this harness is the external check
+echo "== building candidate ($CAND_SHA) with Maven (clean package)"
+# GS_MVN_ARGS: extra Maven arguments, e.g. "-s settings.xml" naming a repository mirror
+# shellcheck disable=SC2086
+(cd "$MOD" && mvn -q ${GS_MVN_ARGS:-} -pl carddemo-recordio,transaction-posting-service -am -DskipTests clean package)
+JAR="$(ls "$MOD"/transaction-posting-service/target/transaction-posting-service-*.jar | grep -v original | head -1)"
+[ -n "$JAR" ] || { echo "candidate build produced no JAR" >&2; exit 70; }
+JAR_SHA="$(sha256sum "$JAR" | cut -d' ' -f1)"
+echo "== jar: $(basename "$JAR") sha256 $JAR_SHA"
 
 # 2. stage inputs (the candidate rewrites ACCTFILE/TCATBALF in place, so work on copies)
 rm -rf "$OUT"; mkdir -p "$OUT/work"
@@ -92,13 +93,14 @@ for f in TRANSACT DALYREJS ACCTFILE TCATBALF; do
   [ -f "$OUT/work/$f" ] && cp "$OUT/work/$f" "$OUT/$f"
 done
 rm -rf "$OUT/work"
-python3 - "$OUT/run.json" "$CAND_SHA" "$JAR_SHOWN" "$FAKE" "$RC" "$SET" <<'EOF'
+python3 - "$OUT/run.json" "$CAND_SHA" "$JAR_SHOWN" "$JAR_SHA" "$FAKE" "$RC" "$SET" <<'EOF'
 import json, subprocess, sys
-out, sha, jar, fake, rc, s = sys.argv[1:7]
+out, sha, jar, jar_sha, fake, rc, s = sys.argv[1:8]
 info = {"candidate": "pull request #9 transaction-posting-service", "candidate_commit": sha,
-        "jar": jar, "set": s, "faketime": fake, "exit_code": int(rc),
+        "jar": jar, "jar_sha256": jar_sha, "built": "mvn clean package in this run, from candidate_commit",
+        "set": s, "faketime": fake, "exit_code": int(rc),
         "java": subprocess.run(["java", "-version"], capture_output=True, text=True).stderr.strip().splitlines()[0],
-        "note": "candidate built and run unmodified; file locations, ASCII encoding and clock supplied externally"}
+        "note": "candidate built (clean) and run unmodified; file locations, ASCII encoding and clock supplied externally"}
 json.dump(info, open(out, "w"), indent=2); open(out, "a").write("\n")
 EOF
 echo "== candidate exit code $RC; console:"

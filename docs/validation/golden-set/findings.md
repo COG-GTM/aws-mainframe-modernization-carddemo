@@ -13,15 +13,24 @@ confirmation**.
 
 ## 1. Generator/program disagreements (current sets)
 
+The table below is generated from `prediction-check.json` by
+`tests/golden/docs_numbers.py --write` and checked by `selftest.sh`
+(`docs_numbers.py --check`): a reference run that produces a new disagreement
+fails the self-test until this section is regenerated and the new row is
+explained below it.
+
+<!-- generated: predictions -->
 | set | records | items checked | disagreements |
 |---|---:|---:|---:|
 | named | 22 | 52 | 0 |
 | volume | 1,200 | 1,945 | 0 |
 
-Source: `tests/golden/sets/named/expected/prediction-check.json` and
-`tests/golden/sets/volume/expected/prediction-check.json` (`"disagreements": []`).
+Source: `tests/golden/sets/named/expected/prediction-check.json` and `tests/golden/sets/volume/expected/prediction-check.json` (written by `check_prediction.py` at the end of every `run_reference.sh`).
 Items checked = one per `DALYTRAN` record (accept/reject + reason), one per
 closing account balance, one per closing category balance.
+
+No disagreement is currently recorded (`"disagreements": []` in both files).
+<!-- /generated: predictions -->
 
 One disagreement class did occur while the harness was being built and was a
 checker bug, not a program behaviour: closing balances were compared as text

@@ -390,6 +390,7 @@
       "identity_in_equals_accepted_plus_rejected": true,
       "errors": []
     },
-    "mismatches": []
+    "mismatches": [],
+    "within_tolerance": []
   }
 }
