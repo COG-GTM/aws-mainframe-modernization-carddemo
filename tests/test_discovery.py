@@ -386,6 +386,48 @@ class TestInventoryArtifactFields(unittest.TestCase):
             for c in a.get("call_targets", []):
                 self.assertNotIn("offset", c)
 
+    def test_exec_proc_invocation_overrides_bind_the_procedure_datasets(self):
+        # TRANBKP/STEP05R overrides PRC001.FILEIN and PRC001.FILEOUT of REPROC; the procedure's own
+        # SYSIN resolves through the invocation's CNTLLIB symbolic.
+        step = self.arts["app/jcl/TRANBKP.jcl"]["jcl_steps"][0]
+        self.assertEqual(("STEP05R", "PROC REPROC"), (step["step"], step["driving_program"]))
+        self.assertEqual(
+            [("PRC001", "FILEIN", "AWS.M2.CARDDEMO.TRANSACT.VSAM.KSDS", "app/jcl/TRANBKP.jcl"),
+             ("PRC001", "FILEOUT", "AWS.M2.CARDDEMO.TRANSACT.BKUP", "app/jcl/TRANBKP.jcl"),
+             ("PRC001", "SYSIN", "AWS.M2.CARDDEMO.CNTL(REPROCT)", "app/proc/REPROC.prc")],
+            [(b["proc_step"], b["ddname"], b["dsn"], b["path"]) for b in step["proc_bindings"]],
+        )
+        by_dsn = {d["dsn"]: d for d in self.inv["datasets"]}
+        refs = {(r["member"], r["step"], r["ddname"]) for r in by_dsn["AWS.M2.CARDDEMO.TRANSACT.BKUP"]["jcl_refs"]}
+        self.assertIn(("TRANBKP", "STEP05R", "PRC001.FILEOUT"), refs)
+        prt = self.arts["app/jcl/PRTCATBL.jcl"]["jcl_steps"]
+        proc_step = next(s for s in prt if s["driving_program"] == "PROC REPROC")
+        self.assertEqual({"AWS.M2.CARDDEMO.TCATBALF.VSAM.KSDS", "AWS.M2.CARDDEMO.TCATBALF.BKUP", "AWS.M2.CARDDEMO.CNTL(REPROCT)"},
+                         {b["dsn"] for b in proc_step["proc_bindings"]})
+        for s in prt:
+            if s is not proc_step:
+                self.assertEqual([], s["proc_bindings"])
+
+    def test_dependency_map_rows_for_same_named_steps_are_distinct(self):
+        rows = md_table_rows(md("02-dependency-map.md"), "## Batch: JCL job → step → program → copybooks → datasets")
+        by_source = {r[2]: r for r in rows}
+        self.assertIn("AWS.M2.CARDDEMO.TRANSACT.VSAM.KSDS (unknown; PRC001.FILEIN)", by_source["`app/jcl/TRANBKP.jcl:23`"][7])
+        self.assertIn("AWS.M2.CARDDEMO.TCATBALF.BKUP (unknown; PRC001.FILEOUT)", by_source["`app/jcl/PRTCATBL.jcl:29`"][7])
+        # TRANREPT names both its EXEC PROC step and its SORT step STEP05R
+        proc_row, sort_row = by_source["`app/jcl/TRANREPT.jcl:23`"], by_source["`app/jcl/TRANREPT.jcl:37`"]
+        self.assertEqual(("TRANREPT", "STEP05R", "PROC REPROC [procedure]"), (proc_row[0], proc_row[1], proc_row[3]))
+        self.assertEqual(("TRANREPT", "STEP05R", "SORT [utility]"), (sort_row[0], sort_row[1], sort_row[3]))
+        self.assertEqual({"AWS.M2.CARDDEMO.TRANSACT.VSAM.KSDS (unknown; PRC001.FILEIN)",
+                          "AWS.M2.CARDDEMO.TRANSACT.BKUP (unknown; PRC001.FILEOUT)",
+                          "AWS.M2.CARDDEMO.CNTL(REPROCT) (unknown; PRC001.SYSIN)"}, set(proc_row[7].split("<br>")))
+        self.assertEqual({"AWS.M2.CARDDEMO.TRANSACT.BKUP (unknown)", "AWS.M2.CARDDEMO.TRANSACT.DALY (unknown)"},
+                         set(sort_row[7].split("<br>")))
+        # DEFCUST runs IDCAMS twice under the same step name; each row shows only its own datasets
+        first, second = by_source["`app/jcl/DEFCUST.jcl:22`"], by_source["`app/jcl/DEFCUST.jcl:32`"]
+        self.assertEqual(["AWS.CCDA.CUSTDATA.CLUSTER (unknown)"], first[7].split("<br>"))
+        self.assertNotIn("AWS.CCDA.CUSTDATA.CLUSTER", second[7])
+        self.assertIn("AWS.CUSTDATA.CLUSTER.INDEX (unknown)", second[7].split("<br>"))
+
     def test_sample_data_file_joins_the_dataset_its_jcl_names(self):
         # the .dat extension is not a dataset qualifier; .PS / .INIT are
         self.assertEqual(bd.sample_file_dsn("AWS.M2.CARDDEMO.IMSDATA.DBPAUTP0.dat"), "AWS.M2.CARDDEMO.IMSDATA.DBPAUTP0")

@@ -142,7 +142,7 @@ graph LR
 
 ## Batch: JCL job → step → program → copybooks → datasets
 
-Every step of every JCL member. Utility steps (IDCAMS, SORT, IEBGENER, …) show the datasets named on their `DD`s with mode `unknown` because utility control statements are not interpreted. Application steps list the program's resolved copybooks and the datasets its `SELECT ... ASSIGN` names bind to through the step's `DD` statements.
+Every step of every JCL member. Utility steps (IDCAMS, SORT, IEBGENER, …) show the datasets named on their `DD`s with mode `unknown` because utility control statements are not interpreted. Application steps list the program's resolved copybooks and the datasets its `SELECT ... ASSIGN` names bind to through the step's `DD` statements. `EXEC PROC` steps show every dataset the expanded procedure steps bind after the invocation's `DD` overrides and symbolic substitution, labelled `procstep.DDNAME`.
 
 | Job | Step | Source | Program | Hosted program(s) | PARM | Copybooks | Datasets (mode) |
 | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -193,8 +193,8 @@ Every step of every JCL member. Utility steps (IDCAMS, SORT, IEBGENER, …) show
 | CUSTFILE | STEP15 | `app/jcl/CUSTFILE.jcl:64` | IDCAMS [utility] |  |  |  | AWS.M2.CARDDEMO.CUSTDATA.PS (unknown)<br>AWS.M2.CARDDEMO.CUSTDATA.VSAM.KSDS (unknown) |
 | CUSTFILE | OPCIFIL | `app/jcl/CUSTFILE.jcl:76` | SDSF [utility] |  |  |  |  |
 | DALYREJS | STEP05 | `app/jcl/DALYREJS.jcl:21` | IDCAMS [utility] |  |  |  | AWS.M2.CARDDEMO.DALYREJS (unknown) |
-| DEFCUST | STEP05 | `app/jcl/DEFCUST.jcl:22` | IDCAMS [utility] |  |  |  | AWS.CCDA.CUSTDATA.CLUSTER (unknown)<br>AWS.CUSTDATA.CLUSTER (unknown)<br>AWS.CUSTDATA.CLUSTER.DATA (unknown)<br>AWS.CUSTDATA.CLUSTER.INDEX (unknown) |
-| DEFCUST | STEP05 | `app/jcl/DEFCUST.jcl:32` | IDCAMS [utility] |  |  |  | AWS.CCDA.CUSTDATA.CLUSTER (unknown)<br>AWS.CUSTDATA.CLUSTER (unknown)<br>AWS.CUSTDATA.CLUSTER.DATA (unknown)<br>AWS.CUSTDATA.CLUSTER.INDEX (unknown) |
+| DEFCUST | STEP05 | `app/jcl/DEFCUST.jcl:22` | IDCAMS [utility] |  |  |  | AWS.CCDA.CUSTDATA.CLUSTER (unknown) |
+| DEFCUST | STEP05 | `app/jcl/DEFCUST.jcl:32` | IDCAMS [utility] |  |  |  | AWS.CUSTDATA.CLUSTER (unknown)<br>AWS.CUSTDATA.CLUSTER.DATA (unknown)<br>AWS.CUSTDATA.CLUSTER.INDEX (unknown) |
 | DEFGDGB | STEP05 | `app/jcl/DEFGDGB.jcl:21` | IDCAMS [utility] |  |  |  | AWS.M2.CARDDEMO.SYSTRAN (unknown)<br>AWS.M2.CARDDEMO.TCATBALF.BKUP (unknown)<br>AWS.M2.CARDDEMO.TRANREPT (unknown)<br>AWS.M2.CARDDEMO.TRANSACT.BKUP (unknown)<br>AWS.M2.CARDDEMO.TRANSACT.COMBINED (unknown)<br>AWS.M2.CARDDEMO.TRANSACT.DALY (unknown) |
 | DEFGDGD | STEP10 | `app/jcl/DEFGDGD.jcl:24` | IDCAMS [utility] |  |  |  | AWS.M2.CARDDEMO.TRANTYPE.BKUP (unknown) |
 | DEFGDGD | STEP20 | `app/jcl/DEFGDGD.jcl:36` | IEBGENER [utility] |  |  |  | AWS.M2.CARDDEMO.TRANTYPE.BKUP (unknown)<br>AWS.M2.CARDDEMO.TRANTYPE.PS (unknown) |
@@ -223,7 +223,7 @@ Every step of every JCL member. Utility steps (IDCAMS, SORT, IEBGENER, …) show
 | OPENFIL | OPCIFIL | `app/jcl/OPENFIL.jcl:22` | SDSF [utility] |  |  |  |  |
 | POSTTRAN | STEP15 | `app/jcl/POSTTRAN.jcl:23` | CBTRN02C [application] |  |  | CVACT01Y, CVACT03Y, CVTRA01Y, CVTRA05Y, CVTRA06Y | AWS.M2.CARDDEMO.DALYTRAN.PS (read)<br>AWS.M2.CARDDEMO.TRANSACT.VSAM.KSDS (write)<br>AWS.M2.CARDDEMO.CARDXREF.VSAM.KSDS (read)<br>AWS.M2.CARDDEMO.DALYREJS (write)<br>AWS.M2.CARDDEMO.ACCTDATA.VSAM.KSDS (read/rewrite)<br>AWS.M2.CARDDEMO.TCATBALF.VSAM.KSDS (read/rewrite/write) |
 | PRTCATBL | DELDEF | `app/jcl/PRTCATBL.jcl:21` | IEFBR14 [utility] |  |  |  | AWS.M2.CARDDEMO.TCATBALF.REPT (unknown) |
-| PRTCATBL | STEP05R | `app/jcl/PRTCATBL.jcl:29` | PROC REPROC [procedure] |  |  |  |  |
+| PRTCATBL | STEP05R | `app/jcl/PRTCATBL.jcl:29` | PROC REPROC [procedure] |  |  |  | AWS.M2.CARDDEMO.TCATBALF.VSAM.KSDS (unknown; PRC001.FILEIN)<br>AWS.M2.CARDDEMO.TCATBALF.BKUP (unknown; PRC001.FILEOUT)<br>AWS.M2.CARDDEMO.CNTL(REPROCT) (unknown; PRC001.SYSIN) |
 | PRTCATBL | STEP10R | `app/jcl/PRTCATBL.jcl:43` | SORT [utility] |  |  |  | AWS.M2.CARDDEMO.TCATBALF.BKUP (unknown)<br>AWS.M2.CARDDEMO.TCATBALF.REPT (unknown) |
 | READACCT | PREDEL | `app/jcl/READACCT.jcl:22` | IEFBR14 [utility] |  |  |  | AWS.M2.CARDDEMO.ACCTDATA.ARRYPS (unknown)<br>AWS.M2.CARDDEMO.ACCTDATA.PSCOMP (unknown)<br>AWS.M2.CARDDEMO.ACCTDATA.VBPS (unknown) |
 | READACCT | STEP05 | `app/jcl/READACCT.jcl:32` | CBACT01C [application] |  |  | CODATECN, CVACT01Y | AWS.M2.CARDDEMO.ACCTDATA.VSAM.KSDS (read)<br>AWS.M2.CARDDEMO.ACCTDATA.PSCOMP (write)<br>AWS.M2.CARDDEMO.ACCTDATA.ARRYPS (write)<br>AWS.M2.CARDDEMO.ACCTDATA.VBPS (write) |
@@ -234,7 +234,7 @@ Every step of every JCL member. Utility steps (IDCAMS, SORT, IEBGENER, …) show
 | TCATBALF | STEP05 | `app/jcl/TCATBALF.jcl:22` | IDCAMS [utility] |  |  |  | AWS.M2.CARDDEMO.TCATBALF.VSAM.KSDS (unknown) |
 | TCATBALF | STEP10 | `app/jcl/TCATBALF.jcl:33` | IDCAMS [utility] |  |  |  | AWS.M2.CARDDEMO.TCATBALF.VSAM.KSDS (unknown)<br>AWS.M2.CARDDEMO.TCATBALF.VSAM.KSDS.DATA (unknown)<br>AWS.M2.CARDDEMO.TCATBALF.VSAM.KSDS.INDEX (unknown) |
 | TCATBALF | STEP15 | `app/jcl/TCATBALF.jcl:54` | IDCAMS [utility] |  |  |  | AWS.M2.CARDDEMO.TCATBALF.PS (unknown)<br>AWS.M2.CARDDEMO.TCATBALF.VSAM.KSDS (unknown) |
-| TRANBKP | STEP05R | `app/jcl/TRANBKP.jcl:23` | PROC REPROC [procedure] |  |  |  |  |
+| TRANBKP | STEP05R | `app/jcl/TRANBKP.jcl:23` | PROC REPROC [procedure] |  |  |  | AWS.M2.CARDDEMO.TRANSACT.VSAM.KSDS (unknown; PRC001.FILEIN)<br>AWS.M2.CARDDEMO.TRANSACT.BKUP (unknown; PRC001.FILEOUT)<br>AWS.M2.CARDDEMO.CNTL(REPROCT) (unknown; PRC001.SYSIN) |
 | TRANBKP | STEP05 | `app/jcl/TRANBKP.jcl:37` | IDCAMS [utility] |  |  |  | AWS.M2.CARDDEMO.TRANSACT.VSAM.AIX (unknown)<br>AWS.M2.CARDDEMO.TRANSACT.VSAM.KSDS (unknown) |
 | TRANBKP | STEP10 | `app/jcl/TRANBKP.jcl:51` | IDCAMS [utility] |  |  |  | AWS.M2.CARDDEMO.TRANSACT.VSAM.KSDS (unknown)<br>AWS.M2.CARDDEMO.TRANSACT.VSAM.KSDS.DATA (unknown)<br>AWS.M2.CARDDEMO.TRANSACT.VSAM.KSDS.INDEX (unknown) |
 | TRANCATG | STEP05 | `app/jcl/TRANCATG.jcl:22` | IDCAMS [utility] |  |  |  | AWS.M2.CARDDEMO.TRANCATG.VSAM.KSDS (unknown) |
@@ -251,7 +251,7 @@ Every step of every JCL member. Utility steps (IDCAMS, SORT, IEBGENER, …) show
 | TRANIDX | STEP20 | `app/jcl/TRANIDX.jcl:22` | IDCAMS [utility] |  |  |  | AWS.M2.CARDDEMO.TRANSACT.VSAM.AIX (unknown)<br>AWS.M2.CARDDEMO.TRANSACT.VSAM.AIX.DATA (unknown)<br>AWS.M2.CARDDEMO.TRANSACT.VSAM.AIX.INDEX (unknown) |
 | TRANIDX | STEP25 | `app/jcl/TRANIDX.jcl:39` | IDCAMS [utility] |  |  |  | AWS.M2.CARDDEMO.TRANSACT.VSAM.AIX.PATH (unknown) |
 | TRANIDX | STEP30 | `app/jcl/TRANIDX.jcl:49` | IDCAMS [utility] |  |  |  | AWS.M2.CARDDEMO.TRANSACT.VSAM.AIX (unknown)<br>AWS.M2.CARDDEMO.TRANSACT.VSAM.KSDS (unknown) |
-| TRANREPT | STEP05R | `app/jcl/TRANREPT.jcl:23` | PROC REPROC [procedure] |  |  |  | AWS.M2.CARDDEMO.TRANSACT.BKUP (unknown)<br>AWS.M2.CARDDEMO.TRANSACT.DALY (unknown) |
+| TRANREPT | STEP05R | `app/jcl/TRANREPT.jcl:23` | PROC REPROC [procedure] |  |  |  | AWS.M2.CARDDEMO.TRANSACT.VSAM.KSDS (unknown; PRC001.FILEIN)<br>AWS.M2.CARDDEMO.TRANSACT.BKUP (unknown; PRC001.FILEOUT)<br>AWS.M2.CARDDEMO.CNTL(REPROCT) (unknown; PRC001.SYSIN) |
 | TRANREPT | STEP05R | `app/jcl/TRANREPT.jcl:37` | SORT [utility] |  |  |  | AWS.M2.CARDDEMO.TRANSACT.BKUP (unknown)<br>AWS.M2.CARDDEMO.TRANSACT.DALY (unknown) |
 | TRANREPT | STEP10R | `app/jcl/TRANREPT.jcl:59` | CBTRN03C [application] |  |  | CVACT03Y, CVTRA03Y, CVTRA04Y, CVTRA05Y, CVTRA07Y | AWS.M2.CARDDEMO.TRANSACT.DALY (read)<br>AWS.M2.CARDDEMO.CARDXREF.VSAM.KSDS (read)<br>AWS.M2.CARDDEMO.TRANTYPE.VSAM.KSDS (read)<br>AWS.M2.CARDDEMO.TRANCATG.VSAM.KSDS (read)<br>AWS.M2.CARDDEMO.TRANREPT (write)<br>AWS.M2.CARDDEMO.DATEPARM (read) |
 | TRANTYPE | STEP05 | `app/jcl/TRANTYPE.jcl:22` | IDCAMS [utility] |  |  |  | AWS.M2.CARDDEMO.TRANTYPE.VSAM.KSDS (unknown) |

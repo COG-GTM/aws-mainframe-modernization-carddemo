@@ -1328,7 +1328,7 @@ class Estate:
             for step in member.steps:
                 art["jcl_steps"].append({"step": step["step"], "line": step["line"], "pgm": step["pgm"],
                                          "proc": step["proc"], "parm": step["parm"], "driving_program": None,
-                                         "driving_program_kind": None,
+                                         "driving_program_kind": None, "proc_bindings": [],
                                          "dds": [{"ddname": d["ddname"], "dsn": d["dsn"], "line": d["line"], "disp": d["disp"]}
                                                  for d in step["dds"] if d["dsn"] or d["sysout"] or d["instream"] or d["dummy"]]})
             for pname, psteps in member.instream_procs.items():
@@ -1743,6 +1743,7 @@ class Estate:
             art = self.by_path[path]
             for step, sinfo in zip(member.steps, art["jcl_steps"]):
                 label = f"{self._mlabel(art)}/{step['step'] or '?'}"
+                drivers = []
                 if step["proc"]:
                     procs = self._proc_lookup(member, step["proc"])
                     if not procs:
@@ -1756,27 +1757,27 @@ class Estate:
                     sinfo["driving_program_kind"] = "procedure"
                     if len(procs) > 1:
                         art["notes"].append(f"step {step['step']} EXEC PROC={step['proc']} is ambiguous: {', '.join(p for p, _, _ in procs)}")
-                    continue
-                drivers = []
-                for pgm, how in self._step_programs(step):
-                    name, kind = self._classify_pgm(pgm)
-                    if kind == "unresolved":
-                        self.add_edge("jclstep->program", label, pgm, path, step["line"], "unresolved",
-                                      f"{how}{pgm}: neither application source nor a recognised system utility")
-                    else:
-                        self.add_edge("jclstep->program", label, name, path, step["line"], "resolved", f"{how}{pgm} ({kind})",
-                                      program_kind=kind)
-                    drivers.append((pgm, kind))
-                sinfo["driving_program"] = drivers[0][0] if drivers else None
-                sinfo["driving_program_kind"] = drivers[0][1] if drivers else None
-                if len(drivers) > 1:
-                    sinfo["hosted_programs"] = [{"program": p, "kind": k} for p, k in drivers[1:]]
-                # datasets referenced by the step's DD statements
+                else:
+                    for pgm, how in self._step_programs(step):
+                        name, kind = self._classify_pgm(pgm)
+                        if kind == "unresolved":
+                            self.add_edge("jclstep->program", label, pgm, path, step["line"], "unresolved",
+                                          f"{how}{pgm}: neither application source nor a recognised system utility")
+                        else:
+                            self.add_edge("jclstep->program", label, name, path, step["line"], "resolved", f"{how}{pgm} ({kind})",
+                                          program_kind=kind)
+                        drivers.append((pgm, kind))
+                    sinfo["driving_program"] = drivers[0][0] if drivers else None
+                    sinfo["driving_program_kind"] = drivers[0][1] if drivers else None
+                    if len(drivers) > 1:
+                        sinfo["hosted_programs"] = [{"program": p, "kind": k} for p, k in drivers[1:]]
+                # datasets referenced by the step's DD statements (for an EXEC PROC step these are the
+                # invocation-level overrides such as PRC001.FILEIN)
                 for dd in step["dds"]:
                     if dd["dsn"] and not dd["dummy"]:
                         dsn = resolve_symbolics(dd["dsn"], member.sets)
                         d = self.dataset(dsn)
-                        d["jcl_refs"].append({"member": self._mlabel(art), "step": step["step"], "ddname": dd["ddname"],
+                        d["jcl_refs"].append({"member": self._mlabel(art), "step": step["step"], "step_line": step["line"], "ddname": dd["ddname"],
                                               "path": path, "line": dd["line"], "disp": dd["disp"],
                                               "program": drivers[0][0] if drivers else (f"PROC {step['proc']}" if step["proc"] else None)})
                 # IDCAMS control statements name datasets that appear nowhere else
@@ -1784,12 +1785,12 @@ class Estate:
                     for lineno, l in step["instream"]:
                         for m in re.finditer(r"\b(?:NAME|INDATASET|OUTDATASET|IDS|ODS)\s*\(\s*([A-Z0-9.&@#$]+(?:\([^)]*\))?)\s*\)", l, re.I):
                             d = self.dataset(resolve_symbolics(m.group(1), member.sets))
-                            d["jcl_refs"].append({"member": self._mlabel(art), "step": step["step"], "ddname": "(IDCAMS control statement)",
+                            d["jcl_refs"].append({"member": self._mlabel(art), "step": step["step"], "step_line": step["line"], "ddname": "(IDCAMS control statement)",
                                                   "path": path, "line": lineno, "disp": None, "program": "IDCAMS"})
                         m = re.match(r"^\s*(?:DELETE|DEL)\s+([A-Z0-9.&@#$]+)", l, re.I)
                         if m:
                             d = self.dataset(resolve_symbolics(m.group(1), member.sets))
-                            d["jcl_refs"].append({"member": self._mlabel(art), "step": step["step"], "ddname": "(IDCAMS DELETE)",
+                            d["jcl_refs"].append({"member": self._mlabel(art), "step": step["step"], "step_line": step["line"], "ddname": "(IDCAMS DELETE)",
                                                   "path": path, "line": lineno, "disp": None, "program": "IDCAMS"})
         # Pass 2: program -> dataset through the DD statements of every step that runs the program.
         runs: dict[str, list] = defaultdict(list)  # program -> [(member art, step, effective dds, via)]
@@ -1797,8 +1798,9 @@ class Estate:
             art = self.by_path[path]
             if art["type"] != "jcl_job":
                 continue
-            for step in member.steps:
-                self._collect_runs(runs, member, art, step, depth=0, overrides={}, via="")
+            for step, sinfo in zip(member.steps, art["jcl_steps"]):
+                self._collect_runs(runs, member, art, step, depth=0, overrides={}, via="",
+                                   bindings=sinfo["proc_bindings"] if step["proc"] else None)
         # A batch subprogram reached only by CALL runs inside its caller's step and shares its DD statements.
         static_callers = defaultdict(set)
         for e in self.edges:
@@ -1857,7 +1859,11 @@ class Estate:
                                   f"DD {f['ddname']} in {self._mlabel(job_art)}/{step['step']}{via} at {dd['_path']}:{dd['line']}" +
                                   ("; unresolved JCL symbolic" if d["symbolic"] else ""), modes=modes)
 
-    def _collect_runs(self, runs, member: JclMember, job_art: dict, step: dict, depth: int, overrides: dict, via: str, symbols=None):
+    def _collect_runs(self, runs, member: JclMember, job_art: dict, step: dict, depth: int, overrides: dict, via: str,
+                      symbols=None, bindings: list | None = None):
+        """Walk a job step (expanding EXEC PROC) and record which program runs with which effective DD statements.
+        ``bindings`` (an EXEC PROC step's ``proc_bindings`` list) receives every dataset the expanded procedure
+        steps bind after invocation overrides and symbolic substitution."""
         if depth > 3:
             return
         if step["proc"]:
@@ -1873,7 +1879,7 @@ class Estate:
                 syms.update(member.sets)
                 syms.update(step.get("symbols", {}))
                 for ps in psteps:
-                    self._collect_runs(runs, pmember, job_art, ps, depth + 1, ov, f" (via PROC {step['proc']})", syms)
+                    self._collect_runs(runs, pmember, job_art, ps, depth + 1, ov, f" (via PROC {step['proc']})", syms, bindings)
             return
         dds = {}
         for dd in step["dds"]:
@@ -1883,6 +1889,12 @@ class Estate:
             stepname, ddname = key.split(".", 1)
             if stepname == step["step"]:
                 dds[ddname] = dd
+        if bindings is not None:
+            for ddname, dd in dds.items():
+                if dd.get("dsn") and not dd.get("dummy"):
+                    bindings.append({"proc_step": step["step"], "program": step["pgm"], "ddname": ddname,
+                                     "dsn": split_gdg(resolve_symbolics(dd["dsn"], dd["_sets"]))[0],
+                                     "path": dd["_path"], "line": dd["line"], "disp": dd.get("disp")})
         for pgm, _how in self._step_programs(step):
             target = self.find_program(pgm)
             if target:
@@ -2357,7 +2369,8 @@ def _step_rows(estate: Estate) -> list[dict]:
         for st in art["jcl_steps"]:
             rows.append({"job": art["name"] + (" (PROC)" if art["type"] == "jcl_proc" else ""), "job_path": art["path"],
                          "step": st["step"] or "?", "line": st["line"], "program": st.get("driving_program"),
-                         "kind": st.get("driving_program_kind"), "hosted": st.get("hosted_programs", []), "parm": st.get("parm")})
+                         "kind": st.get("driving_program_kind"), "hosted": st.get("hosted_programs", []), "parm": st.get("parm"),
+                         "proc_bindings": st.get("proc_bindings", [])})
     return rows
 
 
@@ -2443,7 +2456,9 @@ def render_dependency_map(estate: Estate, s: dict) -> str:
     out.append("## Batch: JCL job → step → program → copybooks → datasets\n")
     out.append("Every step of every JCL member. Utility steps (IDCAMS, SORT, IEBGENER, …) show the datasets named on their `DD`s "
                "with mode `unknown` because utility control statements are not interpreted. Application steps list the program's "
-               "resolved copybooks and the datasets its `SELECT ... ASSIGN` names bind to through the step's `DD` statements.\n")
+               "resolved copybooks and the datasets its `SELECT ... ASSIGN` names bind to through the step's `DD` statements. "
+               "`EXEC PROC` steps show every dataset the expanded procedure steps bind after the invocation's `DD` overrides and "
+               "symbolic substitution, labelled `procstep.DDNAME`.\n")
     rows = []
     invoked_procs = {e["to"] for e in estate.edges if e["category"] == "jclstep->proc" and e["status"] == "resolved"}
     for r in _step_rows(estate):
@@ -2462,8 +2477,10 @@ def render_dependency_map(estate: Estate, s: dict) -> str:
         elif hosted_apps:
             cps = "; ".join(f"{p}: " + ", ".join(_copybooks_of(estate, p)) for p in hosted_apps)
             dss = "<br>".join(f"{d} ({m})" for p in hosted_apps for d, m, _ in _datasets_of_step(estate, p, r["job"], r["step"]))
+        elif r["kind"] == "procedure":
+            dss = "<br>".join(f"{b['dsn']} ({_binding_mode(estate, b)}; {b['proc_step']}.{b['ddname']})" for b in r["proc_bindings"])
         else:
-            dss = "<br>".join(f"{d} (unknown)" for d in _utility_step_datasets(estate, r["job"], r["step"]))
+            dss = "<br>".join(f"{d} (unknown)" for d in _utility_step_datasets(estate, r["job"], r["line"]))
         rows.append((r["job"], r["step"], cite(r["job_path"], r["line"]), pgm + (f" [{r['kind']}]" if r["kind"] else ""),
                      hosted, r["parm"] or "", cps, dss))
     out.append(md_table(["Job", "Step", "Source", "Program", "Hosted program(s)", "PARM", "Copybooks", "Datasets (mode)"], rows) + "\n")
@@ -2573,11 +2590,23 @@ def _datasets_of_step(estate: Estate, program: str, job: str, step: str) -> list
     return [(k, "/".join(sorted(v)), "") for k, v in seen.items()]
 
 
-def _utility_step_datasets(estate: Estate, job: str, step: str) -> list[str]:
+def _binding_mode(estate: Estate, b: dict) -> str:
+    """Access mode of a procedure-step DD binding: the program's COBOL verbs when an application program
+    declares that DD, otherwise ``unknown`` (utility control statements are not interpreted)."""
+    a = estate.find_program(b["program"])
+    if a:
+        for f in a["files"]:
+            if f["ddname"] == b["ddname"]:
+                return "/".join(sorted(f["modes"] or ["unknown"]))
+    return "unknown"
+
+
+def _utility_step_datasets(estate: Estate, job: str, step_line: int) -> list[str]:
+    """Datasets a utility step names, keyed on the EXEC line so two steps sharing a name stay distinct."""
     out = []
     for d in sorted(estate.datasets.values(), key=lambda d: d["dsn"]):
         for r in d["jcl_refs"]:
-            if r["member"] == job and r["step"] == step and d["dsn"] not in out:
+            if r["member"] == job and r["step_line"] == step_line and d["dsn"] not in out:
                 out.append(d["dsn"])
     return out
 

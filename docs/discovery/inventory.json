@@ -1744,6 +1744,7 @@
      "parm": "'BMP,CBPAUP0C,PSBPAUTB'",
      "driving_program": "DFSRRC00",
      "driving_program_kind": "utility",
+     "proc_bindings": [],
      "dds": [
       {
        "ddname": "STEPLIB",
@@ -1884,6 +1885,7 @@
      "parm": null,
      "driving_program": "IEFBR14",
      "driving_program_kind": "utility",
+     "proc_bindings": [],
      "dds": [
       {
        "ddname": "SYSPRINT",
@@ -1907,6 +1909,7 @@
      "parm": "(ULU,DFSURGU0,DBPAUTP0)",
      "driving_program": "DFSRRC00",
      "driving_program_kind": "utility",
+     "proc_bindings": [],
      "dds": [
       {
        "ddname": "STEPLIB",
@@ -2047,6 +2050,7 @@
      "parm": "'BMP,PAUDBLOD,PSBPAUTB'",
      "driving_program": "DFSRRC00",
      "driving_program_kind": "utility",
+     "proc_bindings": [],
      "dds": [
       {
        "ddname": "STEPLIB",
@@ -2169,6 +2173,7 @@
      "parm": "'DLI,DBUNLDGS,DLIGSAMP,,,,,,,,,,,N'",
      "driving_program": "DFSRRC00",
      "driving_program_kind": "utility",
+     "proc_bindings": [],
      "dds": [
       {
        "ddname": "STEPLIB",
@@ -2303,6 +2308,7 @@
      "parm": null,
      "driving_program": "IEFBR14",
      "driving_program_kind": "utility",
+     "proc_bindings": [],
      "dds": [
       {
        "ddname": "SYSPRINT",
@@ -2344,6 +2350,7 @@
      "parm": "'DLI,PAUDBUNL,PAUTBUNL,,,,,,,,,,,N'",
      "driving_program": "DFSRRC00",
      "driving_program_kind": "utility",
+     "proc_bindings": [],
      "dds": [
       {
        "ddname": "STEPLIB",
@@ -3373,6 +3380,7 @@
      "parm": null,
      "driving_program": "IKJEFT01",
      "driving_program_kind": "utility",
+     "proc_bindings": [],
      "dds": [
       {
        "ddname": "STEPLIB",
@@ -3420,6 +3428,7 @@
      "parm": null,
      "driving_program": "IKJEFT01",
      "driving_program_kind": "utility",
+     "proc_bindings": [],
      "dds": [
       {
        "ddname": "STEPLIB",
@@ -3473,6 +3482,7 @@
      "parm": null,
      "driving_program": "IEFBR14",
      "driving_program_kind": "utility",
+     "proc_bindings": [],
      "dds": []
     },
     {
@@ -3483,6 +3493,7 @@
      "parm": null,
      "driving_program": "IKJEFT01",
      "driving_program_kind": "utility",
+     "proc_bindings": [],
      "dds": [
       {
        "ddname": "STEPLIB",
@@ -3536,6 +3547,7 @@
      "parm": null,
      "driving_program": "IKJEFT01",
      "driving_program_kind": "utility",
+     "proc_bindings": [],
      "dds": [
       {
        "ddname": "STEPLIB",
@@ -3610,6 +3622,7 @@
      "parm": null,
      "driving_program": "IKJEFT01",
      "driving_program_kind": "utility",
+     "proc_bindings": [],
      "dds": [
       {
        "ddname": "STEPLIB",
@@ -3690,6 +3703,7 @@
      "parm": null,
      "driving_program": "IEBGENER",
      "driving_program_kind": "utility",
+     "proc_bindings": [],
      "dds": [
       {
        "ddname": "SYSPRINT",
@@ -3725,6 +3739,7 @@
      "parm": null,
      "driving_program": "IEBGENER",
      "driving_program_kind": "utility",
+     "proc_bindings": [],
      "dds": [
       {
        "ddname": "SYSPRINT",
@@ -3760,6 +3775,7 @@
      "parm": null,
      "driving_program": "IEFBR14",
      "driving_program_kind": "utility",
+     "proc_bindings": [],
      "dds": [
       {
        "ddname": "DD01",
@@ -3783,6 +3799,7 @@
      "parm": null,
      "driving_program": "IKJEFT01",
      "driving_program_kind": "utility",
+     "proc_bindings": [],
      "dds": [
       {
        "ddname": "STEPLIB",
@@ -3854,6 +3871,7 @@
      "parm": null,
      "driving_program": "IKJEFT01",
      "driving_program_kind": "utility",
+     "proc_bindings": [],
      "dds": [
       {
        "ddname": "STEPLIB",
@@ -11255,6 +11273,7 @@
      "parm": null,
      "driving_program": "IDCAMS",
      "driving_program_kind": "utility",
+     "proc_bindings": [],
      "dds": [
       {
        "ddname": "SYSPRINT",
@@ -11278,6 +11297,7 @@
      "parm": null,
      "driving_program": "IDCAMS",
      "driving_program_kind": "utility",
+     "proc_bindings": [],
      "dds": [
       {
        "ddname": "SYSPRINT",
@@ -11301,6 +11321,7 @@
      "parm": null,
      "driving_program": "IDCAMS",
      "driving_program_kind": "utility",
+     "proc_bindings": [],
      "dds": [
       {
        "ddname": "SYSPRINT",
@@ -11357,6 +11378,7 @@
      "parm": null,
      "driving_program": "SDSF",
      "driving_program_kind": "utility",
+     "proc_bindings": [],
      "dds": [
       {
        "ddname": "ISFOUT",
@@ -11386,6 +11408,7 @@
      "parm": null,
      "driving_program": "IDCAMS",
      "driving_program_kind": "utility",
+     "proc_bindings": [],
      "dds": [
       {
        "ddname": "SYSPRINT",
@@ -11409,6 +11432,7 @@
      "parm": null,
      "driving_program": "IDCAMS",
      "driving_program_kind": "utility",
+     "proc_bindings": [],
      "dds": [
       {
        "ddname": "SYSPRINT",
@@ -11432,6 +11456,7 @@
      "parm": null,
      "driving_program": "IDCAMS",
      "driving_program_kind": "utility",
+     "proc_bindings": [],
      "dds": [
       {
        "ddname": "SYSPRINT",
@@ -11467,6 +11492,7 @@
      "parm": null,
      "driving_program": "IDCAMS",
      "driving_program_kind": "utility",
+     "proc_bindings": [],
      "dds": [
       {
        "ddname": "SYSPRINT",
@@ -11490,6 +11516,7 @@
      "parm": null,
      "driving_program": "IDCAMS",
      "driving_program_kind": "utility",
+     "proc_bindings": [],
      "dds": [
       {
        "ddname": "SYSPRINT",
@@ -11513,6 +11540,7 @@
      "parm": null,
      "driving_program": "IDCAMS",
      "driving_program_kind": "utility",
+     "proc_bindings": [],
      "dds": [
       {
        "ddname": "SYSPRINT",
@@ -11536,6 +11564,7 @@
      "parm": null,
      "driving_program": "SDSF",
      "driving_program_kind": "utility",
+     "proc_bindings": [],
      "dds": [
       {
        "ddname": "ISFOUT",
@@ -11586,6 +11615,7 @@
      "parm": "'CSD(READWRITE),PAGESIZE(60),NOCOMPAT'",
      "driving_program": "DFHCSDUP",
      "driving_program_kind": "utility",
+     "proc_bindings": [],
      "dds": [
       {
        "ddname": "STEPLIB",
@@ -12054,6 +12084,7 @@
      "parm": null,
      "driving_program": "IDCAMS",
      "driving_program_kind": "utility",
+     "proc_bindings": [],
      "dds": [
       {
        "ddname": "SYSPRINT",
@@ -12077,6 +12108,7 @@
      "parm": null,
      "driving_program": "CBEXPORT",
      "driving_program_kind": "application",
+     "proc_bindings": [],
      "dds": [
       {
        "ddname": "STEPLIB",
@@ -12163,6 +12195,7 @@
      "parm": null,
      "driving_program": "CBIMPORT",
      "driving_program_kind": "application",
+     "proc_bindings": [],
      "dds": [
       {
        "ddname": "STEPLIB",
@@ -12249,6 +12282,7 @@
      "parm": null,
      "driving_program": "SDSF",
      "driving_program_kind": "utility",
+     "proc_bindings": [],
      "dds": [
       {
        "ddname": "ISFOUT",
@@ -12299,6 +12333,7 @@
      "parm": null,
      "driving_program": "SORT",
      "driving_program_kind": "utility",
+     "proc_bindings": [],
      "dds": [
       {
        "ddname": "SORTIN",
@@ -12346,6 +12381,7 @@
      "parm": null,
      "driving_program": "IDCAMS",
      "driving_program_kind": "utility",
+     "proc_bindings": [],
      "dds": [
       {
        "ddname": "SYSPRINT",
@@ -12402,6 +12438,7 @@
      "parm": null,
      "driving_program": "IDCAMS",
      "driving_program_kind": "utility",
+     "proc_bindings": [],
      "dds": [
       {
        "ddname": "SYSPRINT",
@@ -12425,6 +12462,7 @@
      "parm": null,
      "driving_program": "SORT",
      "driving_program_kind": "utility",
+     "proc_bindings": [],
      "dds": [
       {
        "ddname": "SORTIN",
@@ -12466,6 +12504,7 @@
      "parm": null,
      "driving_program": "IDCAMS",
      "driving_program_kind": "utility",
+     "proc_bindings": [],
      "dds": [
       {
        "ddname": "SYSPRINT",
@@ -12501,6 +12540,7 @@
      "parm": null,
      "driving_program": "IEFBR14",
      "driving_program_kind": "utility",
+     "proc_bindings": [],
      "dds": [
       {
        "ddname": "HTMLFILE",
@@ -12524,6 +12564,7 @@
      "parm": null,
      "driving_program": "CBSTM03A",
      "driving_program_kind": "application",
+     "proc_bindings": [],
      "dds": [
       {
        "ddname": "STEPLIB",
@@ -12610,6 +12651,7 @@
      "parm": null,
      "driving_program": "SDSF",
      "driving_program_kind": "utility",
+     "proc_bindings": [],
      "dds": [
       {
        "ddname": "ISFOUT",
@@ -12639,6 +12681,7 @@
      "parm": null,
      "driving_program": "IDCAMS",
      "driving_program_kind": "utility",
+     "proc_bindings": [],
      "dds": [
       {
        "ddname": "SYSPRINT",
@@ -12662,6 +12705,7 @@
      "parm": null,
      "driving_program": "IDCAMS",
      "driving_program_kind": "utility",
+     "proc_bindings": [],
      "dds": [
       {
        "ddname": "SYSPRINT",
@@ -12685,6 +12729,7 @@
      "parm": null,
      "driving_program": "IDCAMS",
      "driving_program_kind": "utility",
+     "proc_bindings": [],
      "dds": [
       {
        "ddname": "SYSPRINT",
@@ -12720,6 +12765,7 @@
      "parm": null,
      "driving_program": "SDSF",
      "driving_program_kind": "utility",
+     "proc_bindings": [],
      "dds": [
       {
        "ddname": "ISFOUT",
@@ -12770,6 +12816,7 @@
      "parm": null,
      "driving_program": "IDCAMS",
      "driving_program_kind": "utility",
+     "proc_bindings": [],
      "dds": [
       {
        "ddname": "SYSPRINT",
@@ -12814,6 +12861,7 @@
      "parm": null,
      "driving_program": "IDCAMS",
      "driving_program_kind": "utility",
+     "proc_bindings": [],
      "dds": [
       {
        "ddname": "SYSPRINT",
@@ -12837,6 +12885,7 @@
      "parm": null,
      "driving_program": "IDCAMS",
      "driving_program_kind": "utility",
+     "proc_bindings": [],
      "dds": [
       {
        "ddname": "SYSPRINT",
@@ -12881,6 +12930,7 @@
      "parm": null,
      "driving_program": "IDCAMS",
      "driving_program_kind": "utility",
+     "proc_bindings": [],
      "dds": [
       {
        "ddname": "SYSPRINT",
@@ -12925,6 +12975,7 @@
      "parm": null,
      "driving_program": "IDCAMS",
      "driving_program_kind": "utility",
+     "proc_bindings": [],
      "dds": [
       {
        "ddname": "SYSPRINT",
@@ -12948,6 +12999,7 @@
      "parm": null,
      "driving_program": "IEBGENER",
      "driving_program_kind": "utility",
+     "proc_bindings": [],
      "dds": [
       {
        "ddname": "SYSPRINT",
@@ -12983,6 +13035,7 @@
      "parm": null,
      "driving_program": "IDCAMS",
      "driving_program_kind": "utility",
+     "proc_bindings": [],
      "dds": [
       {
        "ddname": "SYSPRINT",
@@ -13006,6 +13059,7 @@
      "parm": null,
      "driving_program": "IEBGENER",
      "driving_program_kind": "utility",
+     "proc_bindings": [],
      "dds": [
       {
        "ddname": "SYSPRINT",
@@ -13041,6 +13095,7 @@
      "parm": null,
      "driving_program": "IDCAMS",
      "driving_program_kind": "utility",
+     "proc_bindings": [],
      "dds": [
       {
        "ddname": "SYSPRINT",
@@ -13064,6 +13119,7 @@
      "parm": null,
      "driving_program": "IEBGENER",
      "driving_program_kind": "utility",
+     "proc_bindings": [],
      "dds": [
       {
        "ddname": "SYSPRINT",
@@ -13120,6 +13176,7 @@
      "parm": null,
      "driving_program": "IDCAMS",
      "driving_program_kind": "utility",
+     "proc_bindings": [],
      "dds": [
       {
        "ddname": "SYSPRINT",
@@ -13143,6 +13200,7 @@
      "parm": null,
      "driving_program": "IDCAMS",
      "driving_program_kind": "utility",
+     "proc_bindings": [],
      "dds": [
       {
        "ddname": "SYSPRINT",
@@ -13166,6 +13224,7 @@
      "parm": null,
      "driving_program": "IDCAMS",
      "driving_program_kind": "utility",
+     "proc_bindings": [],
      "dds": [
       {
        "ddname": "SYSPRINT",
@@ -13222,6 +13281,7 @@
      "parm": null,
      "driving_program": "IEFBR14",
      "driving_program_kind": "utility",
+     "proc_bindings": [],
      "dds": [
       {
        "ddname": "DD01",
@@ -13239,6 +13299,7 @@
      "parm": null,
      "driving_program": "IEBGENER",
      "driving_program_kind": "utility",
+     "proc_bindings": [],
      "dds": [
       {
        "ddname": "SYSUT1",
@@ -13274,6 +13335,7 @@
      "parm": null,
      "driving_program": "IDCAMS",
      "driving_program_kind": "utility",
+     "proc_bindings": [],
      "dds": [
       {
        "ddname": "SYSPRINT",
@@ -13297,6 +13359,7 @@
      "parm": null,
      "driving_program": "IDCAMS",
      "driving_program_kind": "utility",
+     "proc_bindings": [],
      "dds": [
       {
        "ddname": "IN",
@@ -13359,6 +13422,7 @@
      "parm": null,
      "driving_program": "IEFBR14",
      "driving_program_kind": "utility",
+     "proc_bindings": [],
      "dds": [
       {
        "ddname": "DD01",
@@ -13376,6 +13440,7 @@
      "parm": null,
      "driving_program": "IEBGENER",
      "driving_program_kind": "utility",
+     "proc_bindings": [],
      "dds": [
       {
        "ddname": "SYSUT1",
@@ -13411,6 +13476,7 @@
      "parm": null,
      "driving_program": "IDCAMS",
      "driving_program_kind": "utility",
+     "proc_bindings": [],
      "dds": [
       {
        "ddname": "SYSPRINT",
@@ -13434,6 +13500,7 @@
      "parm": null,
      "driving_program": "IDCAMS",
      "driving_program_kind": "utility",
+     "proc_bindings": [],
      "dds": [
       {
        "ddname": "IN",
@@ -13475,6 +13542,7 @@
      "parm": null,
      "driving_program": "IDCAMS",
      "driving_program_kind": "utility",
+     "proc_bindings": [],
      "dds": [
       {
        "ddname": "SYSPRINT",
@@ -13498,6 +13566,7 @@
      "parm": null,
      "driving_program": "IDCAMS",
      "driving_program_kind": "utility",
+     "proc_bindings": [],
      "dds": [
       {
        "ddname": "IN",
@@ -13560,6 +13629,7 @@
      "parm": null,
      "driving_program": "FTP",
      "driving_program_kind": "utility",
+     "proc_bindings": [],
      "dds": [
       {
        "ddname": "SYSIN",
@@ -13598,6 +13668,7 @@
      "parm": "'2022071800'",
      "driving_program": "CBACT04C",
      "driving_program_kind": "application",
+     "proc_bindings": [],
      "dds": [
       {
        "ddname": "STEPLIB",
@@ -13684,6 +13755,7 @@
      "parm": null,
      "driving_program": "IDCAMS",
      "driving_program_kind": "utility",
+     "proc_bindings": [],
      "dds": [
       {
        "ddname": "SYSPRINT",
@@ -13719,6 +13791,7 @@
      "parm": null,
      "driving_program": "IEBGENER",
      "driving_program_kind": "utility",
+     "proc_bindings": [],
      "dds": [
       {
        "ddname": "SYSPRINT",
@@ -13775,6 +13848,7 @@
      "parm": null,
      "driving_program": "IDCAMS",
      "driving_program_kind": "utility",
+     "proc_bindings": [],
      "dds": [
       {
        "ddname": "SYSPRINT",
@@ -13831,6 +13905,7 @@
      "parm": null,
      "driving_program": "SDSF",
      "driving_program_kind": "utility",
+     "proc_bindings": [],
      "dds": [
       {
        "ddname": "ISFOUT",
@@ -13881,6 +13956,7 @@
      "parm": null,
      "driving_program": "CBTRN02C",
      "driving_program_kind": "application",
+     "proc_bindings": [],
      "dds": [
       {
        "ddname": "STEPLIB",
@@ -13967,6 +14043,7 @@
      "parm": null,
      "driving_program": "IEFBR14",
      "driving_program_kind": "utility",
+     "proc_bindings": [],
      "dds": [
       {
        "ddname": "THEFILE",
@@ -13984,6 +14061,35 @@
      "parm": null,
      "driving_program": "PROC REPROC",
      "driving_program_kind": "procedure",
+     "proc_bindings": [
+      {
+       "proc_step": "PRC001",
+       "program": "IDCAMS",
+       "ddname": "FILEIN",
+       "dsn": "AWS.M2.CARDDEMO.TCATBALF.VSAM.KSDS",
+       "path": "app/jcl/PRTCATBL.jcl",
+       "line": 32,
+       "disp": "SHR"
+      },
+      {
+       "proc_step": "PRC001",
+       "program": "IDCAMS",
+       "ddname": "FILEOUT",
+       "dsn": "AWS.M2.CARDDEMO.TCATBALF.BKUP",
+       "path": "app/jcl/PRTCATBL.jcl",
+       "line": 35,
+       "disp": "(NEW,CATLG,DELETE)"
+      },
+      {
+       "proc_step": "PRC001",
+       "program": "IDCAMS",
+       "ddname": "SYSIN",
+       "dsn": "AWS.M2.CARDDEMO.CNTL(REPROCT)",
+       "path": "app/proc/REPROC.prc",
+       "line": 27,
+       "disp": "SHR"
+      }
+     ],
      "dds": [
       {
        "ddname": "PRC001.FILEIN",
@@ -14007,6 +14113,7 @@
      "parm": null,
      "driving_program": "SORT",
      "driving_program_kind": "utility",
+     "proc_bindings": [],
      "dds": [
       {
        "ddname": "SORTIN",
@@ -14069,6 +14176,7 @@
      "parm": null,
      "driving_program": "IEFBR14",
      "driving_program_kind": "utility",
+     "proc_bindings": [],
      "dds": [
       {
        "ddname": "DD01",
@@ -14098,6 +14206,7 @@
      "parm": null,
      "driving_program": "CBACT01C",
      "driving_program_kind": "application",
+     "proc_bindings": [],
      "dds": [
       {
        "ddname": "STEPLIB",
@@ -14172,6 +14281,7 @@
      "parm": null,
      "driving_program": "CBACT02C",
      "driving_program_kind": "application",
+     "proc_bindings": [],
      "dds": [
       {
        "ddname": "STEPLIB",
@@ -14228,6 +14338,7 @@
      "parm": null,
      "driving_program": "CBCUS01C",
      "driving_program_kind": "application",
+     "proc_bindings": [],
      "dds": [
       {
        "ddname": "STEPLIB",
@@ -14284,6 +14395,7 @@
      "parm": null,
      "driving_program": "CBACT03C",
      "driving_program_kind": "application",
+     "proc_bindings": [],
      "dds": [
       {
        "ddname": "STEPLIB",
@@ -14340,6 +14452,7 @@
      "parm": null,
      "driving_program": "IDCAMS",
      "driving_program_kind": "utility",
+     "proc_bindings": [],
      "dds": [
       {
        "ddname": "SYSPRINT",
@@ -14384,6 +14497,7 @@
      "parm": null,
      "driving_program": "IDCAMS",
      "driving_program_kind": "utility",
+     "proc_bindings": [],
      "dds": [
       {
        "ddname": "SYSPRINT",
@@ -14407,6 +14521,7 @@
      "parm": null,
      "driving_program": "IDCAMS",
      "driving_program_kind": "utility",
+     "proc_bindings": [],
      "dds": [
       {
        "ddname": "SYSPRINT",
@@ -14430,6 +14545,7 @@
      "parm": null,
      "driving_program": "IDCAMS",
      "driving_program_kind": "utility",
+     "proc_bindings": [],
      "dds": [
       {
        "ddname": "SYSPRINT",
@@ -14486,6 +14602,35 @@
      "parm": null,
      "driving_program": "PROC REPROC",
      "driving_program_kind": "procedure",
+     "proc_bindings": [
+      {
+       "proc_step": "PRC001",
+       "program": "IDCAMS",
+       "ddname": "FILEIN",
+       "dsn": "AWS.M2.CARDDEMO.TRANSACT.VSAM.KSDS",
+       "path": "app/jcl/TRANBKP.jcl",
+       "line": 26,
+       "disp": "SHR"
+      },
+      {
+       "proc_step": "PRC001",
+       "program": "IDCAMS",
+       "ddname": "FILEOUT",
+       "dsn": "AWS.M2.CARDDEMO.TRANSACT.BKUP",
+       "path": "app/jcl/TRANBKP.jcl",
+       "line": 29,
+       "disp": "(NEW,CATLG,DELETE)"
+      },
+      {
+       "proc_step": "PRC001",
+       "program": "IDCAMS",
+       "ddname": "SYSIN",
+       "dsn": "AWS.M2.CARDDEMO.CNTL(REPROCT)",
+       "path": "app/proc/REPROC.prc",
+       "line": 27,
+       "disp": "SHR"
+      }
+     ],
      "dds": [
       {
        "ddname": "PRC001.FILEIN",
@@ -14509,6 +14654,7 @@
      "parm": null,
      "driving_program": "IDCAMS",
      "driving_program_kind": "utility",
+     "proc_bindings": [],
      "dds": [
       {
        "ddname": "SYSPRINT",
@@ -14532,6 +14678,7 @@
      "parm": null,
      "driving_program": "IDCAMS",
      "driving_program_kind": "utility",
+     "proc_bindings": [],
      "dds": [
       {
        "ddname": "SYSPRINT",
@@ -14576,6 +14723,7 @@
      "parm": null,
      "driving_program": "IDCAMS",
      "driving_program_kind": "utility",
+     "proc_bindings": [],
      "dds": [
       {
        "ddname": "SYSPRINT",
@@ -14599,6 +14747,7 @@
      "parm": null,
      "driving_program": "IDCAMS",
      "driving_program_kind": "utility",
+     "proc_bindings": [],
      "dds": [
       {
        "ddname": "SYSPRINT",
@@ -14622,6 +14771,7 @@
      "parm": null,
      "driving_program": "IDCAMS",
      "driving_program_kind": "utility",
+     "proc_bindings": [],
      "dds": [
       {
        "ddname": "SYSPRINT",
@@ -14678,6 +14828,7 @@
      "parm": null,
      "driving_program": "SDSF",
      "driving_program_kind": "utility",
+     "proc_bindings": [],
      "dds": [
       {
        "ddname": "ISFOUT",
@@ -14707,6 +14858,7 @@
      "parm": null,
      "driving_program": "IDCAMS",
      "driving_program_kind": "utility",
+     "proc_bindings": [],
      "dds": [
       {
        "ddname": "SYSPRINT",
@@ -14730,6 +14882,7 @@
      "parm": null,
      "driving_program": "IDCAMS",
      "driving_program_kind": "utility",
+     "proc_bindings": [],
      "dds": [
       {
        "ddname": "SYSPRINT",
@@ -14753,6 +14906,7 @@
      "parm": null,
      "driving_program": "IDCAMS",
      "driving_program_kind": "utility",
+     "proc_bindings": [],
      "dds": [
       {
        "ddname": "SYSPRINT",
@@ -14788,6 +14942,7 @@
      "parm": null,
      "driving_program": "IDCAMS",
      "driving_program_kind": "utility",
+     "proc_bindings": [],
      "dds": [
       {
        "ddname": "SYSPRINT",
@@ -14811,6 +14966,7 @@
      "parm": null,
      "driving_program": "IDCAMS",
      "driving_program_kind": "utility",
+     "proc_bindings": [],
      "dds": [
       {
        "ddname": "SYSPRINT",
@@ -14834,6 +14990,7 @@
      "parm": null,
      "driving_program": "IDCAMS",
      "driving_program_kind": "utility",
+     "proc_bindings": [],
      "dds": [
       {
        "ddname": "SYSPRINT",
@@ -14857,6 +15014,7 @@
      "parm": null,
      "driving_program": "SDSF",
      "driving_program_kind": "utility",
+     "proc_bindings": [],
      "dds": [
       {
        "ddname": "ISFOUT",
@@ -14907,6 +15065,7 @@
      "parm": null,
      "driving_program": "IDCAMS",
      "driving_program_kind": "utility",
+     "proc_bindings": [],
      "dds": [
       {
        "ddname": "SYSPRINT",
@@ -14930,6 +15089,7 @@
      "parm": null,
      "driving_program": "IDCAMS",
      "driving_program_kind": "utility",
+     "proc_bindings": [],
      "dds": [
       {
        "ddname": "SYSPRINT",
@@ -14953,6 +15113,7 @@
      "parm": null,
      "driving_program": "IDCAMS",
      "driving_program_kind": "utility",
+     "proc_bindings": [],
      "dds": [
       {
        "ddname": "SYSPRINT",
@@ -14997,6 +15158,35 @@
      "parm": null,
      "driving_program": "PROC REPROC",
      "driving_program_kind": "procedure",
+     "proc_bindings": [
+      {
+       "proc_step": "PRC001",
+       "program": "IDCAMS",
+       "ddname": "FILEIN",
+       "dsn": "AWS.M2.CARDDEMO.TRANSACT.VSAM.KSDS",
+       "path": "app/jcl/TRANREPT.jcl",
+       "line": 26,
+       "disp": "SHR"
+      },
+      {
+       "proc_step": "PRC001",
+       "program": "IDCAMS",
+       "ddname": "FILEOUT",
+       "dsn": "AWS.M2.CARDDEMO.TRANSACT.BKUP",
+       "path": "app/jcl/TRANREPT.jcl",
+       "line": 29,
+       "disp": "(NEW,CATLG,DELETE)"
+      },
+      {
+       "proc_step": "PRC001",
+       "program": "IDCAMS",
+       "ddname": "SYSIN",
+       "dsn": "AWS.M2.CARDDEMO.CNTL(REPROCT)",
+       "path": "app/proc/REPROC.prc",
+       "line": 27,
+       "disp": "SHR"
+      }
+     ],
      "dds": [
       {
        "ddname": "PRC001.FILEIN",
@@ -15020,6 +15210,7 @@
      "parm": null,
      "driving_program": "SORT",
      "driving_program_kind": "utility",
+     "proc_bindings": [],
      "dds": [
       {
        "ddname": "SORTIN",
@@ -15061,6 +15252,7 @@
      "parm": null,
      "driving_program": "CBTRN03C",
      "driving_program_kind": "application",
+     "proc_bindings": [],
      "dds": [
       {
        "ddname": "STEPLIB",
@@ -15147,6 +15339,7 @@
      "parm": null,
      "driving_program": "IDCAMS",
      "driving_program_kind": "utility",
+     "proc_bindings": [],
      "dds": [
       {
        "ddname": "SYSPRINT",
@@ -15170,6 +15363,7 @@
      "parm": null,
      "driving_program": "IDCAMS",
      "driving_program_kind": "utility",
+     "proc_bindings": [],
      "dds": [
       {
        "ddname": "SYSPRINT",
@@ -15193,6 +15387,7 @@
      "parm": null,
      "driving_program": "IDCAMS",
      "driving_program_kind": "utility",
+     "proc_bindings": [],
      "dds": [
       {
        "ddname": "SYSPRINT",
@@ -15249,6 +15444,7 @@
      "parm": "('')",
      "driving_program": "IKJEFT1B",
      "driving_program_kind": "utility",
+     "proc_bindings": [],
      "dds": [
       {
        "ddname": "STEPLIB",
@@ -15317,6 +15513,7 @@
      "parm": null,
      "driving_program": "COBSWAIT",
      "driving_program_kind": "application",
+     "proc_bindings": [],
      "dds": [
       {
        "ddname": "STEPLIB",
@@ -15367,6 +15564,7 @@
      "parm": null,
      "driving_program": "IDCAMS",
      "driving_program_kind": "utility",
+     "proc_bindings": [],
      "dds": [
       {
        "ddname": "SYSPRINT",
@@ -15390,6 +15588,7 @@
      "parm": null,
      "driving_program": "IDCAMS",
      "driving_program_kind": "utility",
+     "proc_bindings": [],
      "dds": [
       {
        "ddname": "SYSPRINT",
@@ -15413,6 +15612,7 @@
      "parm": null,
      "driving_program": "IDCAMS",
      "driving_program_kind": "utility",
+     "proc_bindings": [],
      "dds": [
       {
        "ddname": "SYSPRINT",
@@ -15448,6 +15648,7 @@
      "parm": null,
      "driving_program": "IDCAMS",
      "driving_program_kind": "utility",
+     "proc_bindings": [],
      "dds": [
       {
        "ddname": "SYSPRINT",
@@ -15471,6 +15672,7 @@
      "parm": null,
      "driving_program": "IDCAMS",
      "driving_program_kind": "utility",
+     "proc_bindings": [],
      "dds": [
       {
        "ddname": "SYSPRINT",
@@ -15494,6 +15696,7 @@
      "parm": null,
      "driving_program": "IDCAMS",
      "driving_program_kind": "utility",
+     "proc_bindings": [],
      "dds": [
       {
        "ddname": "SYSPRINT",
@@ -15578,6 +15781,7 @@
      "parm": null,
      "driving_program": "IDCAMS",
      "driving_program_kind": "utility",
+     "proc_bindings": [],
      "dds": [
       {
        "ddname": "SYSPRINT",
@@ -15635,6 +15839,7 @@
      "parm": null,
      "driving_program": "PROC REPROC",
      "driving_program_kind": "procedure",
+     "proc_bindings": [],
      "dds": [
       {
        "ddname": "PRC001.FILEIN",
@@ -15658,6 +15863,7 @@
      "parm": null,
      "driving_program": "SORT",
      "driving_program_kind": "utility",
+     "proc_bindings": [],
      "dds": [
       {
        "ddname": "SORTIN",
@@ -15699,6 +15905,7 @@
      "parm": null,
      "driving_program": "CBTRN03C",
      "driving_program_kind": "application",
+     "proc_bindings": [],
      "dds": [
       {
        "ddname": "STEPLIB",
@@ -24848,6 +25055,7 @@
     {
      "member": "REPROC (PROC)",
      "step": "PRC001",
+     "step_line": 21,
      "ddname": "SYSIN",
      "path": "app/proc/REPROC.prc",
      "line": 27,
@@ -24872,6 +25080,7 @@
     {
      "member": "DEFCUST",
      "step": "STEP05",
+     "step_line": 22,
      "ddname": "(IDCAMS DELETE)",
      "path": "app/jcl/DEFCUST.jcl",
      "line": 25,
@@ -24896,6 +25105,7 @@
     {
      "member": "DEFCUST",
      "step": "STEP05",
+     "step_line": 32,
      "ddname": "(IDCAMS control statement)",
      "path": "app/jcl/DEFCUST.jcl",
      "line": 35,
@@ -24920,6 +25130,7 @@
     {
      "member": "DEFCUST",
      "step": "STEP05",
+     "step_line": 32,
      "ddname": "(IDCAMS control statement)",
      "path": "app/jcl/DEFCUST.jcl",
      "line": 43,
@@ -24944,6 +25155,7 @@
     {
      "member": "DEFCUST",
      "step": "STEP05",
+     "step_line": 32,
      "ddname": "(IDCAMS control statement)",
      "path": "app/jcl/DEFCUST.jcl",
      "line": 45,
@@ -25009,6 +25221,7 @@
     {
      "member": "READACCT",
      "step": "PREDEL",
+     "step_line": 22,
      "ddname": "DD02",
      "path": "app/jcl/READACCT.jcl",
      "line": 25,
@@ -25018,6 +25231,7 @@
     {
      "member": "READACCT",
      "step": "STEP05",
+     "step_line": 32,
      "ddname": "ARRYFILE",
      "path": "app/jcl/READACCT.jcl",
      "line": 41,
@@ -25055,6 +25269,7 @@
     {
      "member": "CBIMPORT",
      "step": "STEP01",
+     "step_line": 22,
      "ddname": "ACCTOUT",
      "path": "app/jcl/CBIMPORT.jcl",
      "line": 38,
@@ -25097,6 +25312,7 @@
     {
      "member": "ACCTFILE",
      "step": "STEP15",
+     "step_line": 54,
      "ddname": "ACCTDATA",
      "path": "app/jcl/ACCTFILE.jcl",
      "line": 56,
@@ -25148,6 +25364,7 @@
     {
      "member": "READACCT",
      "step": "PREDEL",
+     "step_line": 22,
      "ddname": "DD01",
      "path": "app/jcl/READACCT.jcl",
      "line": 23,
@@ -25157,6 +25374,7 @@
     {
      "member": "READACCT",
      "step": "STEP05",
+     "step_line": 32,
      "ddname": "OUTFILE",
      "path": "app/jcl/READACCT.jcl",
      "line": 37,
@@ -25206,6 +25424,7 @@
     {
      "member": "READACCT",
      "step": "PREDEL",
+     "step_line": 22,
      "ddname": "DD03",
      "path": "app/jcl/READACCT.jcl",
      "line": 27,
@@ -25215,6 +25434,7 @@
     {
      "member": "READACCT",
      "step": "STEP05",
+     "step_line": 32,
      "ddname": "VBRCFILE",
      "path": "app/jcl/READACCT.jcl",
      "line": 45,
@@ -25413,6 +25633,7 @@
     {
      "member": "ACCTFILE",
      "step": "STEP05",
+     "step_line": 22,
      "ddname": "(IDCAMS DELETE)",
      "path": "app/jcl/ACCTFILE.jcl",
      "line": 25,
@@ -25422,6 +25643,7 @@
     {
      "member": "ACCTFILE",
      "step": "STEP10",
+     "step_line": 33,
      "ddname": "(IDCAMS control statement)",
      "path": "app/jcl/ACCTFILE.jcl",
      "line": 36,
@@ -25431,6 +25653,7 @@
     {
      "member": "ACCTFILE",
      "step": "STEP15",
+     "step_line": 54,
      "ddname": "ACCTVSAM",
      "path": "app/jcl/ACCTFILE.jcl",
      "line": 58,
@@ -25440,6 +25663,7 @@
     {
      "member": "CBEXPORT",
      "step": "STEP02",
+     "step_line": 43,
      "ddname": "ACCTFILE",
      "path": "app/jcl/CBEXPORT.jcl",
      "line": 51,
@@ -25449,6 +25673,7 @@
     {
      "member": "CREASTMT",
      "step": "STEP040",
+     "step_line": 79,
      "ddname": "ACCTFILE",
      "path": "app/jcl/CREASTMT.JCL",
      "line": 85,
@@ -25458,6 +25683,7 @@
     {
      "member": "INTCALC",
      "step": "STEP15",
+     "step_line": 22,
      "ddname": "ACCTFILE",
      "path": "app/jcl/INTCALC.jcl",
      "line": 33,
@@ -25467,6 +25693,7 @@
     {
      "member": "POSTTRAN",
      "step": "STEP15",
+     "step_line": 23,
      "ddname": "ACCTFILE",
      "path": "app/jcl/POSTTRAN.jcl",
      "line": 39,
@@ -25476,6 +25703,7 @@
     {
      "member": "READACCT",
      "step": "STEP05",
+     "step_line": 32,
      "ddname": "ACCTFILE",
      "path": "app/jcl/READACCT.jcl",
      "line": 35,
@@ -25509,6 +25737,7 @@
     {
      "member": "ACCTFILE",
      "step": "STEP10",
+     "step_line": 33,
      "ddname": "(IDCAMS control statement)",
      "path": "app/jcl/ACCTFILE.jcl",
      "line": 46,
@@ -25536,6 +25765,7 @@
     {
      "member": "ACCTFILE",
      "step": "STEP10",
+     "step_line": 33,
      "ddname": "(IDCAMS control statement)",
      "path": "app/jcl/ACCTFILE.jcl",
      "line": 48,
@@ -25610,6 +25840,7 @@
     {
      "member": "CARDFILE",
      "step": "STEP15",
+     "step_line": 68,
      "ddname": "CARDDATA",
      "path": "app/jcl/CARDFILE.jcl",
      "line": 70,
@@ -25639,6 +25870,7 @@
     {
      "member": "CARDFILE",
      "step": "STEP05",
+     "step_line": 33,
      "ddname": "(IDCAMS DELETE)",
      "path": "app/jcl/CARDFILE.jcl",
      "line": 39,
@@ -25648,6 +25880,7 @@
     {
      "member": "CARDFILE",
      "step": "STEP40",
+     "step_line": 80,
      "ddname": "(IDCAMS control statement)",
      "path": "app/jcl/CARDFILE.jcl",
      "line": 83,
@@ -25657,6 +25890,7 @@
     {
      "member": "CARDFILE",
      "step": "STEP60",
+     "step_line": 107,
      "ddname": "(IDCAMS control statement)",
      "path": "app/jcl/CARDFILE.jcl",
      "line": 112,
@@ -25684,6 +25918,7 @@
     {
      "member": "CARDFILE",
      "step": "STEP40",
+     "step_line": 80,
      "ddname": "(IDCAMS control statement)",
      "path": "app/jcl/CARDFILE.jcl",
      "line": 91,
@@ -25711,6 +25946,7 @@
     {
      "member": "CARDFILE",
      "step": "STEP40",
+     "step_line": 80,
      "ddname": "(IDCAMS control statement)",
      "path": "app/jcl/CARDFILE.jcl",
      "line": 92,
@@ -25752,6 +25988,7 @@
     {
      "member": "CARDFILE",
      "step": "STEP50",
+     "step_line": 97,
      "ddname": "(IDCAMS control statement)",
      "path": "app/jcl/CARDFILE.jcl",
      "line": 101,
@@ -25932,6 +26169,7 @@
     {
      "member": "CARDFILE",
      "step": "STEP05",
+     "step_line": 33,
      "ddname": "(IDCAMS DELETE)",
      "path": "app/jcl/CARDFILE.jcl",
      "line": 36,
@@ -25941,6 +26179,7 @@
     {
      "member": "CARDFILE",
      "step": "STEP10",
+     "step_line": 47,
      "ddname": "(IDCAMS control statement)",
      "path": "app/jcl/CARDFILE.jcl",
      "line": 50,
@@ -25950,6 +26189,7 @@
     {
      "member": "CARDFILE",
      "step": "STEP15",
+     "step_line": 68,
      "ddname": "CARDVSAM",
      "path": "app/jcl/CARDFILE.jcl",
      "line": 72,
@@ -25959,6 +26199,7 @@
     {
      "member": "CARDFILE",
      "step": "STEP60",
+     "step_line": 107,
      "ddname": "(IDCAMS control statement)",
      "path": "app/jcl/CARDFILE.jcl",
      "line": 111,
@@ -25968,6 +26209,7 @@
     {
      "member": "CBEXPORT",
      "step": "STEP02",
+     "step_line": 43,
      "ddname": "CARDFILE",
      "path": "app/jcl/CBEXPORT.jcl",
      "line": 57,
@@ -25977,6 +26219,7 @@
     {
      "member": "READCARD",
      "step": "STEP05",
+     "step_line": 22,
      "ddname": "CARDFILE",
      "path": "app/jcl/READCARD.jcl",
      "line": 25,
@@ -26010,6 +26253,7 @@
     {
      "member": "CARDFILE",
      "step": "STEP10",
+     "step_line": 47,
      "ddname": "(IDCAMS control statement)",
      "path": "app/jcl/CARDFILE.jcl",
      "line": 60,
@@ -26037,6 +26281,7 @@
     {
      "member": "CARDFILE",
      "step": "STEP10",
+     "step_line": 47,
      "ddname": "(IDCAMS control statement)",
      "path": "app/jcl/CARDFILE.jcl",
      "line": 62,
@@ -26074,6 +26319,7 @@
     {
      "member": "CBIMPORT",
      "step": "STEP01",
+     "step_line": 22,
      "ddname": "XREFOUT",
      "path": "app/jcl/CBIMPORT.jcl",
      "line": 43,
@@ -26116,6 +26362,7 @@
     {
      "member": "XREFFILE",
      "step": "STEP15",
+     "step_line": 57,
      "ddname": "XREFDATA",
      "path": "app/jcl/XREFFILE.jcl",
      "line": 59,
@@ -26145,6 +26392,7 @@
     {
      "member": "XREFFILE",
      "step": "STEP05",
+     "step_line": 22,
      "ddname": "(IDCAMS DELETE)",
      "path": "app/jcl/XREFFILE.jcl",
      "line": 28,
@@ -26154,6 +26402,7 @@
     {
      "member": "XREFFILE",
      "step": "STEP20",
+     "step_line": 69,
      "ddname": "(IDCAMS control statement)",
      "path": "app/jcl/XREFFILE.jcl",
      "line": 72,
@@ -26163,6 +26412,7 @@
     {
      "member": "XREFFILE",
      "step": "STEP30",
+     "step_line": 97,
      "ddname": "(IDCAMS control statement)",
      "path": "app/jcl/XREFFILE.jcl",
      "line": 102,
@@ -26190,6 +26440,7 @@
     {
      "member": "XREFFILE",
      "step": "STEP20",
+     "step_line": 69,
      "ddname": "(IDCAMS control statement)",
      "path": "app/jcl/XREFFILE.jcl",
      "line": 81,
@@ -26217,6 +26468,7 @@
     {
      "member": "XREFFILE",
      "step": "STEP20",
+     "step_line": 69,
      "ddname": "(IDCAMS control statement)",
      "path": "app/jcl/XREFFILE.jcl",
      "line": 82,
@@ -26302,6 +26554,7 @@
     {
      "member": "INTCALC",
      "step": "STEP15",
+     "step_line": 22,
      "ddname": "XREFFIL1",
      "path": "app/jcl/INTCALC.jcl",
      "line": 31,
@@ -26311,6 +26564,7 @@
     {
      "member": "XREFFILE",
      "step": "STEP25",
+     "step_line": 87,
      "ddname": "(IDCAMS control statement)",
      "path": "app/jcl/XREFFILE.jcl",
      "line": 91,
@@ -26447,6 +26701,7 @@
     {
      "member": "CBEXPORT",
      "step": "STEP02",
+     "step_line": 43,
      "ddname": "XREFFILE",
      "path": "app/jcl/CBEXPORT.jcl",
      "line": 53,
@@ -26456,6 +26711,7 @@
     {
      "member": "CREASTMT",
      "step": "STEP040",
+     "step_line": 79,
      "ddname": "XREFFILE",
      "path": "app/jcl/CREASTMT.JCL",
      "line": 84,
@@ -26465,6 +26721,7 @@
     {
      "member": "INTCALC",
      "step": "STEP15",
+     "step_line": 22,
      "ddname": "XREFFILE",
      "path": "app/jcl/INTCALC.jcl",
      "line": 29,
@@ -26474,6 +26731,7 @@
     {
      "member": "POSTTRAN",
      "step": "STEP15",
+     "step_line": 23,
      "ddname": "XREFFILE",
      "path": "app/jcl/POSTTRAN.jcl",
      "line": 32,
@@ -26483,6 +26741,7 @@
     {
      "member": "READXREF",
      "step": "STEP05",
+     "step_line": 22,
      "ddname": "XREFFILE",
      "path": "app/jcl/READXREF.jcl",
      "line": 25,
@@ -26492,6 +26751,7 @@
     {
      "member": "TRANREPT",
      "step": "STEP10R",
+     "step_line": 59,
      "ddname": "CARDXREF",
      "path": "app/jcl/TRANREPT.jcl",
      "line": 67,
@@ -26501,6 +26761,7 @@
     {
      "member": "XREFFILE",
      "step": "STEP05",
+     "step_line": 22,
      "ddname": "(IDCAMS DELETE)",
      "path": "app/jcl/XREFFILE.jcl",
      "line": 25,
@@ -26510,6 +26771,7 @@
     {
      "member": "XREFFILE",
      "step": "STEP10",
+     "step_line": 36,
      "ddname": "(IDCAMS control statement)",
      "path": "app/jcl/XREFFILE.jcl",
      "line": 39,
@@ -26519,6 +26781,7 @@
     {
      "member": "XREFFILE",
      "step": "STEP15",
+     "step_line": 57,
      "ddname": "XREFVSAM",
      "path": "app/jcl/XREFFILE.jcl",
      "line": 61,
@@ -26528,6 +26791,7 @@
     {
      "member": "XREFFILE",
      "step": "STEP30",
+     "step_line": 97,
      "ddname": "(IDCAMS control statement)",
      "path": "app/jcl/XREFFILE.jcl",
      "line": 101,
@@ -26537,6 +26801,7 @@
     {
      "member": "TRANREPT (PROC)",
      "step": "STEP10R",
+     "step_line": 57,
      "ddname": "CARDXREF",
      "path": "app/proc/TRANREPT.prc",
      "line": 65,
@@ -26570,6 +26835,7 @@
     {
      "member": "XREFFILE",
      "step": "STEP10",
+     "step_line": 36,
      "ddname": "(IDCAMS control statement)",
      "path": "app/jcl/XREFFILE.jcl",
      "line": 49,
@@ -26597,6 +26863,7 @@
     {
      "member": "XREFFILE",
      "step": "STEP10",
+     "step_line": 36,
      "ddname": "(IDCAMS control statement)",
      "path": "app/jcl/XREFFILE.jcl",
      "line": 51,
@@ -26667,6 +26934,7 @@
     {
      "member": "CREADB2",
      "step": "CRCRDDB",
+     "step_line": 52,
      "ddname": "SYSIN",
      "path": "app/app-transaction-type-db2/jcl/CREADB21.jcl",
      "line": 59,
@@ -26705,6 +26973,7 @@
     {
      "member": "CREADB2",
      "step": "FREEPLN",
+     "step_line": 40,
      "ddname": "SYSTSIN",
      "path": "app/app-transaction-type-db2/jcl/CREADB21.jcl",
      "line": 46,
@@ -26743,6 +27012,7 @@
     {
      "member": "CREADB2",
      "step": "LDTCCAT",
+     "step_line": 77,
      "ddname": "SYSIN",
      "path": "app/app-transaction-type-db2/jcl/CREADB21.jcl",
      "line": 84,
@@ -26781,6 +27051,7 @@
     {
      "member": "CREADB2",
      "step": "RUNTEP2",
+     "step_line": 65,
      "ddname": "SYSIN",
      "path": "app/app-transaction-type-db2/jcl/CREADB21.jcl",
      "line": 72,
@@ -26831,6 +27102,7 @@
     {
      "member": "CREADB2",
      "step": "RUNTEP2",
+     "step_line": 65,
      "ddname": "SYSTSIN",
      "path": "app/app-transaction-type-db2/jcl/CREADB21.jcl",
      "line": 71,
@@ -26840,6 +27112,7 @@
     {
      "member": "CREADB2",
      "step": "LDTCCAT",
+     "step_line": 77,
      "ddname": "SYSTSIN",
      "path": "app/app-transaction-type-db2/jcl/CREADB21.jcl",
      "line": 83,
@@ -26878,6 +27151,7 @@
     {
      "member": "CREADB2",
      "step": "CRCRDDB",
+     "step_line": 52,
      "ddname": "SYSTSIN",
      "path": "app/app-transaction-type-db2/jcl/CREADB21.jcl",
      "line": 58,
@@ -26982,6 +27256,7 @@
     {
      "member": "CBIMPORT",
      "step": "STEP01",
+     "step_line": 22,
      "ddname": "CUSTOUT",
      "path": "app/jcl/CBIMPORT.jcl",
      "line": 33,
@@ -27024,6 +27299,7 @@
     {
      "member": "CUSTFILE",
      "step": "STEP15",
+     "step_line": 64,
      "ddname": "CUSTDATA",
      "path": "app/jcl/CUSTFILE.jcl",
      "line": 66,
@@ -27167,6 +27443,7 @@
     {
      "member": "CBEXPORT",
      "step": "STEP02",
+     "step_line": 43,
      "ddname": "CUSTFILE",
      "path": "app/jcl/CBEXPORT.jcl",
      "line": 49,
@@ -27176,6 +27453,7 @@
     {
      "member": "CREASTMT",
      "step": "STEP040",
+     "step_line": 79,
      "ddname": "CUSTFILE",
      "path": "app/jcl/CREASTMT.JCL",
      "line": 86,
@@ -27185,6 +27463,7 @@
     {
      "member": "CUSTFILE",
      "step": "STEP05",
+     "step_line": 32,
      "ddname": "(IDCAMS DELETE)",
      "path": "app/jcl/CUSTFILE.jcl",
      "line": 35,
@@ -27194,6 +27473,7 @@
     {
      "member": "CUSTFILE",
      "step": "STEP10",
+     "step_line": 43,
      "ddname": "(IDCAMS control statement)",
      "path": "app/jcl/CUSTFILE.jcl",
      "line": 46,
@@ -27203,6 +27483,7 @@
     {
      "member": "CUSTFILE",
      "step": "STEP15",
+     "step_line": 64,
      "ddname": "CUSTVSAM",
      "path": "app/jcl/CUSTFILE.jcl",
      "line": 68,
@@ -27212,6 +27493,7 @@
     {
      "member": "READCUST",
      "step": "STEP05",
+     "step_line": 21,
      "ddname": "CUSTFILE",
      "path": "app/jcl/READCUST.jcl",
      "line": 24,
@@ -27245,6 +27527,7 @@
     {
      "member": "CUSTFILE",
      "step": "STEP10",
+     "step_line": 43,
      "ddname": "(IDCAMS control statement)",
      "path": "app/jcl/CUSTFILE.jcl",
      "line": 56,
@@ -27272,6 +27555,7 @@
     {
      "member": "CUSTFILE",
      "step": "STEP10",
+     "step_line": 43,
      "ddname": "(IDCAMS control statement)",
      "path": "app/jcl/CUSTFILE.jcl",
      "line": 58,
@@ -27314,6 +27598,7 @@
     {
      "member": "DALYREJS",
      "step": "STEP05",
+     "step_line": 21,
      "ddname": "(IDCAMS control statement)",
      "path": "app/jcl/DALYREJS.jcl",
      "line": 25,
@@ -27323,6 +27608,7 @@
     {
      "member": "POSTTRAN",
      "step": "STEP15",
+     "step_line": 23,
      "ddname": "DALYREJS",
      "path": "app/jcl/POSTTRAN.jcl",
      "line": 34,
@@ -27444,6 +27730,7 @@
     {
      "member": "POSTTRAN",
      "step": "STEP15",
+     "step_line": 23,
      "ddname": "DALYTRAN",
      "path": "app/jcl/POSTTRAN.jcl",
      "line": 30,
@@ -27488,6 +27775,7 @@
     {
      "member": "TRANFILE",
      "step": "STEP15",
+     "step_line": 67,
      "ddname": "TRANSACT",
      "path": "app/jcl/TRANFILE.jcl",
      "line": 69,
@@ -27530,6 +27818,7 @@
     {
      "member": "TRANREPT",
      "step": "STEP10R",
+     "step_line": 59,
      "ddname": "DATEPARM",
      "path": "app/jcl/TRANREPT.jcl",
      "line": 73,
@@ -27539,6 +27828,7 @@
     {
      "member": "TRANREPT (PROC)",
      "step": "STEP10R",
+     "step_line": 57,
      "ddname": "DATEPARM",
      "path": "app/proc/TRANREPT.prc",
      "line": 71,
@@ -27577,6 +27867,7 @@
     {
      "member": "MNTTRDB2",
      "step": "STEP1",
+     "step_line": 21,
      "ddname": "DBRMLIB",
      "path": "app/app-transaction-type-db2/jcl/MNTTRDB2.jcl",
      "line": 25,
@@ -27633,6 +27924,7 @@
     {
      "member": "DEFGDGD",
      "step": "STEP50",
+     "step_line": 70,
      "ddname": "(IDCAMS control statement)",
      "path": "app/jcl/DEFGDGD.jcl",
      "line": 74,
@@ -27642,6 +27934,7 @@
     {
      "member": "DEFGDGD",
      "step": "STEP60",
+     "step_line": 82,
      "ddname": "SYSUT2",
      "path": "app/jcl/DEFGDGD.jcl",
      "line": 86,
@@ -27696,6 +27989,7 @@
     {
      "member": "DEFGDGD",
      "step": "STEP60",
+     "step_line": 82,
      "ddname": "SYSUT1",
      "path": "app/jcl/DEFGDGD.jcl",
      "line": 85,
@@ -27705,6 +27999,7 @@
     {
      "member": "DISCGRP",
      "step": "STEP15",
+     "step_line": 54,
      "ddname": "DISCGRP",
      "path": "app/jcl/DISCGRP.jcl",
      "line": 56,
@@ -27759,6 +28054,7 @@
     {
      "member": "DISCGRP",
      "step": "STEP05",
+     "step_line": 22,
      "ddname": "(IDCAMS DELETE)",
      "path": "app/jcl/DISCGRP.jcl",
      "line": 25,
@@ -27768,6 +28064,7 @@
     {
      "member": "DISCGRP",
      "step": "STEP10",
+     "step_line": 33,
      "ddname": "(IDCAMS control statement)",
      "path": "app/jcl/DISCGRP.jcl",
      "line": 36,
@@ -27777,6 +28074,7 @@
     {
      "member": "DISCGRP",
      "step": "STEP15",
+     "step_line": 54,
      "ddname": "DISCVSAM",
      "path": "app/jcl/DISCGRP.jcl",
      "line": 58,
@@ -27786,6 +28084,7 @@
     {
      "member": "INTCALC",
      "step": "STEP15",
+     "step_line": 22,
      "ddname": "DISCGRP",
      "path": "app/jcl/INTCALC.jcl",
      "line": 35,
@@ -27813,6 +28112,7 @@
     {
      "member": "DISCGRP",
      "step": "STEP10",
+     "step_line": 33,
      "ddname": "(IDCAMS control statement)",
      "path": "app/jcl/DISCGRP.jcl",
      "line": 46,
@@ -27840,6 +28140,7 @@
     {
      "member": "DISCGRP",
      "step": "STEP10",
+     "step_line": 33,
      "ddname": "(IDCAMS control statement)",
      "path": "app/jcl/DISCGRP.jcl",
      "line": 48,
@@ -27914,6 +28215,7 @@
     {
      "member": "ESDSRRDS",
      "step": "PREDEL",
+     "step_line": 24,
      "ddname": "DD01",
      "path": "app/jcl/ESDSRRDS.jcl",
      "line": 26,
@@ -27923,6 +28225,7 @@
     {
      "member": "ESDSRRDS",
      "step": "STEP01",
+     "step_line": 33,
      "ddname": "SYSUT2",
      "path": "app/jcl/ESDSRRDS.jcl",
      "line": 47,
@@ -27932,6 +28235,7 @@
     {
      "member": "ESDSRRDS",
      "step": "STEP03",
+     "step_line": 79,
      "ddname": "IN",
      "path": "app/jcl/ESDSRRDS.jcl",
      "line": 81,
@@ -27941,6 +28245,7 @@
     {
      "member": "ESDSRRDS",
      "step": "STEP05",
+     "step_line": 113,
      "ddname": "IN",
      "path": "app/jcl/ESDSRRDS.jcl",
      "line": 115,
@@ -27989,6 +28294,7 @@
     {
      "member": "CBEXPORT",
      "step": "STEP01",
+     "step_line": 24,
      "ddname": "(IDCAMS DELETE)",
      "path": "app/jcl/CBEXPORT.jcl",
      "line": 27,
@@ -27998,6 +28304,7 @@
     {
      "member": "CBEXPORT",
      "step": "STEP01",
+     "step_line": 24,
      "ddname": "(IDCAMS control statement)",
      "path": "app/jcl/CBEXPORT.jcl",
      "line": 30,
@@ -28007,6 +28314,7 @@
     {
      "member": "CBEXPORT",
      "step": "STEP02",
+     "step_line": 43,
      "ddname": "EXPFILE",
      "path": "app/jcl/CBEXPORT.jcl",
      "line": 62,
@@ -28016,6 +28324,7 @@
     {
      "member": "CBIMPORT",
      "step": "STEP01",
+     "step_line": 22,
      "ddname": "EXPFILE",
      "path": "app/jcl/CBIMPORT.jcl",
      "line": 28,
@@ -28040,6 +28349,7 @@
     {
      "member": "CBEXPORT",
      "step": "STEP01",
+     "step_line": 24,
      "ddname": "(IDCAMS control statement)",
      "path": "app/jcl/CBEXPORT.jcl",
      "line": 37,
@@ -28064,6 +28374,7 @@
     {
      "member": "CBEXPORT",
      "step": "STEP01",
+     "step_line": 24,
      "ddname": "(IDCAMS control statement)",
      "path": "app/jcl/CBEXPORT.jcl",
      "line": 38,
@@ -28117,6 +28428,7 @@
     {
      "member": "CBIMPORT",
      "step": "STEP01",
+     "step_line": 22,
      "ddname": "ERROUT",
      "path": "app/jcl/CBIMPORT.jcl",
      "line": 56,
@@ -28180,6 +28492,7 @@
     {
      "member": "DBPAUTP0",
      "step": "STEPDEL",
+     "step_line": 7,
      "ddname": "SYSUT1",
      "path": "app/app-authorization-ims-db2-mq/jcl/DBPAUTP0.jcl",
      "line": 9,
@@ -28189,6 +28502,7 @@
     {
      "member": "DBPAUTP0",
      "step": "UNLOAD",
+     "step_line": 15,
      "ddname": "DFSURGU1",
      "path": "app/app-authorization-ims-db2-mq/jcl/DBPAUTP0.jcl",
      "line": 25,
@@ -28245,6 +28559,7 @@
     {
      "member": "INTRDRJ1",
      "step": "STEP01",
+     "step_line": 14,
      "ddname": "SYSUT1",
      "path": "app/jcl/INTRDRJ1.JCL",
      "line": 17,
@@ -28321,6 +28636,7 @@
     {
      "member": "CBEXPORT",
      "step": "STEP02",
+     "step_line": 43,
      "ddname": "STEPLIB",
      "path": "app/jcl/CBEXPORT.jcl",
      "line": 44,
@@ -28330,6 +28646,7 @@
     {
      "member": "CBIMPORT",
      "step": "STEP01",
+     "step_line": 22,
      "ddname": "STEPLIB",
      "path": "app/jcl/CBIMPORT.jcl",
      "line": 23,
@@ -28339,6 +28656,7 @@
     {
      "member": "CREASTMT",
      "step": "STEP040",
+     "step_line": 79,
      "ddname": "STEPLIB",
      "path": "app/jcl/CREASTMT.JCL",
      "line": 80,
@@ -28348,6 +28666,7 @@
     {
      "member": "INTCALC",
      "step": "STEP15",
+     "step_line": 22,
      "ddname": "STEPLIB",
      "path": "app/jcl/INTCALC.jcl",
      "line": 23,
@@ -28357,6 +28676,7 @@
     {
      "member": "POSTTRAN",
      "step": "STEP15",
+     "step_line": 23,
      "ddname": "STEPLIB",
      "path": "app/jcl/POSTTRAN.jcl",
      "line": 24,
@@ -28366,6 +28686,7 @@
     {
      "member": "READACCT",
      "step": "STEP05",
+     "step_line": 32,
      "ddname": "STEPLIB",
      "path": "app/jcl/READACCT.jcl",
      "line": 33,
@@ -28375,6 +28696,7 @@
     {
      "member": "READCARD",
      "step": "STEP05",
+     "step_line": 22,
      "ddname": "STEPLIB",
      "path": "app/jcl/READCARD.jcl",
      "line": 23,
@@ -28384,6 +28706,7 @@
     {
      "member": "READCUST",
      "step": "STEP05",
+     "step_line": 21,
      "ddname": "STEPLIB",
      "path": "app/jcl/READCUST.jcl",
      "line": 22,
@@ -28393,6 +28716,7 @@
     {
      "member": "READXREF",
      "step": "STEP05",
+     "step_line": 22,
      "ddname": "STEPLIB",
      "path": "app/jcl/READXREF.jcl",
      "line": 23,
@@ -28402,6 +28726,7 @@
     {
      "member": "TRANREPT",
      "step": "STEP10R",
+     "step_line": 59,
      "ddname": "STEPLIB",
      "path": "app/jcl/TRANREPT.jcl",
      "line": 60,
@@ -28411,6 +28736,7 @@
     {
      "member": "WAITSTEP",
      "step": "WAIT",
+     "step_line": 22,
      "ddname": "STEPLIB",
      "path": "app/jcl/WAITSTEP.jcl",
      "line": 23,
@@ -28420,6 +28746,7 @@
     {
      "member": "TRANREPT (PROC)",
      "step": "STEP10R",
+     "step_line": 57,
      "ddname": "STEPLIB",
      "path": "app/proc/TRANREPT.prc",
      "line": 58,
@@ -28429,6 +28756,7 @@
     {
      "member": "DBPAUTP0",
      "step": "UNLOAD",
+     "step_line": 15,
      "ddname": "",
      "path": "app/app-authorization-ims-db2-mq/jcl/DBPAUTP0.jcl",
      "line": 19,
@@ -28438,6 +28766,7 @@
     {
      "member": "LOADPADB",
      "step": "STEP01",
+     "step_line": 26,
      "ddname": "",
      "path": "app/app-authorization-ims-db2-mq/jcl/LOADPADB.JCL",
      "line": 30,
@@ -28447,6 +28776,7 @@
     {
      "member": "UNLDGSAM",
      "step": "STEP01",
+     "step_line": 26,
      "ddname": "",
      "path": "app/app-authorization-ims-db2-mq/jcl/UNLDGSAM.JCL",
      "line": 30,
@@ -28456,6 +28786,7 @@
     {
      "member": "UNLDPADB",
      "step": "STEP01",
+     "step_line": 38,
      "ddname": "",
      "path": "app/app-authorization-ims-db2-mq/jcl/UNLDPADB.JCL",
      "line": 42,
@@ -28465,6 +28796,7 @@
     {
      "member": "MNTTRDB2",
      "step": "STEP1",
+     "step_line": 21,
      "ddname": "",
      "path": "app/app-transaction-type-db2/jcl/MNTTRDB2.jcl",
      "line": 24,
@@ -28586,6 +28918,7 @@
     {
      "member": "LOADPADB",
      "step": "STEP01",
+     "step_line": 26,
      "ddname": "INFILE2",
      "path": "app/app-authorization-ims-db2-mq/jcl/LOADPADB.JCL",
      "line": 38,
@@ -28595,6 +28928,7 @@
     {
      "member": "UNLDPADB",
      "step": "STEP0",
+     "step_line": 25,
      "ddname": "DD2",
      "path": "app/app-authorization-ims-db2-mq/jcl/UNLDPADB.JCL",
      "line": 35,
@@ -28604,6 +28938,7 @@
     {
      "member": "UNLDPADB",
      "step": "STEP01",
+     "step_line": 38,
      "ddname": "OUTFIL2",
      "path": "app/app-authorization-ims-db2-mq/jcl/UNLDPADB.JCL",
      "line": 53,
@@ -28642,6 +28977,7 @@
     {
      "member": "UNLDGSAM",
      "step": "STEP01",
+     "step_line": 26,
      "ddname": "PADFILOP",
      "path": "app/app-authorization-ims-db2-mq/jcl/UNLDGSAM.JCL",
      "line": 39,
@@ -28726,6 +29062,7 @@
     {
      "member": "LOADPADB",
      "step": "STEP01",
+     "step_line": 26,
      "ddname": "INFILE1",
      "path": "app/app-authorization-ims-db2-mq/jcl/LOADPADB.JCL",
      "line": 36,
@@ -28735,6 +29072,7 @@
     {
      "member": "UNLDPADB",
      "step": "STEP0",
+     "step_line": 25,
      "ddname": "DD1",
      "path": "app/app-authorization-ims-db2-mq/jcl/UNLDPADB.JCL",
      "line": 33,
@@ -28744,6 +29082,7 @@
     {
      "member": "UNLDPADB",
      "step": "STEP01",
+     "step_line": 38,
      "ddname": "OUTFIL1",
      "path": "app/app-authorization-ims-db2-mq/jcl/UNLDPADB.JCL",
      "line": 48,
@@ -28782,6 +29121,7 @@
     {
      "member": "UNLDGSAM",
      "step": "STEP01",
+     "step_line": 26,
      "ddname": "PASFILOP",
      "path": "app/app-authorization-ims-db2-mq/jcl/UNLDGSAM.JCL",
      "line": 36,
@@ -28895,6 +29235,7 @@
     {
      "member": "CREASTMT",
      "step": "STEP030",
+     "step_line": 66,
      "ddname": "HTMLFILE",
      "path": "app/jcl/CREASTMT.JCL",
      "line": 67,
@@ -28904,6 +29245,7 @@
     {
      "member": "CREASTMT",
      "step": "STEP040",
+     "step_line": 79,
      "ddname": "HTMLFILE",
      "path": "app/jcl/CREASTMT.JCL",
      "line": 92,
@@ -28965,6 +29307,7 @@
     {
      "member": "CREASTMT",
      "step": "STEP030",
+     "step_line": 66,
      "ddname": "STMTFILE",
      "path": "app/jcl/CREASTMT.JCL",
      "line": 72,
@@ -28974,6 +29317,7 @@
     {
      "member": "CREASTMT",
      "step": "STEP040",
+     "step_line": 79,
      "ddname": "STMTFILE",
      "path": "app/jcl/CREASTMT.JCL",
      "line": 87,
@@ -28983,6 +29327,7 @@
     {
      "member": "TXT2PDF1",
      "step": "TXT2PDF",
+     "step_line": 24,
      "ddname": "INDD",
      "path": "app/jcl/TXT2PDF1.JCL",
      "line": 33,
@@ -29026,6 +29371,7 @@
     {
      "member": "COMBTRAN",
      "step": "STEP05R",
+     "step_line": 22,
      "ddname": "",
      "path": "app/jcl/COMBTRAN.jcl",
      "line": 25,
@@ -29035,6 +29381,7 @@
     {
      "member": "DEFGDGB",
      "step": "STEP05",
+     "step_line": 21,
      "ddname": "(IDCAMS control statement)",
      "path": "app/jcl/DEFGDGB.jcl",
      "line": 49,
@@ -29044,6 +29391,7 @@
     {
      "member": "INTCALC",
      "step": "STEP15",
+     "step_line": 22,
      "ddname": "TRANSACT",
      "path": "app/jcl/INTCALC.jcl",
      "line": 37,
@@ -29179,6 +29527,7 @@
     {
      "member": "DEFGDGB",
      "step": "STEP05",
+     "step_line": 21,
      "ddname": "(IDCAMS control statement)",
      "path": "app/jcl/DEFGDGB.jcl",
      "line": 43,
@@ -29187,7 +29536,18 @@
     },
     {
      "member": "PRTCATBL",
+     "step": "STEP05R",
+     "step_line": 29,
+     "ddname": "PRC001.FILEOUT",
+     "path": "app/jcl/PRTCATBL.jcl",
+     "line": 35,
+     "disp": "(NEW,CATLG,DELETE)",
+     "program": "PROC REPROC"
+    },
+    {
+     "member": "PRTCATBL",
      "step": "STEP10R",
+     "step_line": 43,
      "ddname": "SORTIN",
      "path": "app/jcl/PRTCATBL.jcl",
      "line": 44,
@@ -29310,6 +29670,7 @@
     {
      "member": "TCATBALF",
      "step": "STEP15",
+     "step_line": 54,
      "ddname": "TCATBAL",
      "path": "app/jcl/TCATBALF.jcl",
      "line": 56,
@@ -29365,6 +29726,7 @@
     {
      "member": "PRTCATBL",
      "step": "DELDEF",
+     "step_line": 21,
      "ddname": "THEFILE",
      "path": "app/jcl/PRTCATBL.jcl",
      "line": 22,
@@ -29374,6 +29736,7 @@
     {
      "member": "PRTCATBL",
      "step": "STEP10R",
+     "step_line": 43,
      "ddname": "SORTOUT",
      "path": "app/jcl/PRTCATBL.jcl",
      "line": 59,
@@ -29451,6 +29814,7 @@
     {
      "member": "INTCALC",
      "step": "STEP15",
+     "step_line": 22,
      "ddname": "TCATBALF",
      "path": "app/jcl/INTCALC.jcl",
      "line": 27,
@@ -29460,6 +29824,7 @@
     {
      "member": "POSTTRAN",
      "step": "STEP15",
+     "step_line": 23,
      "ddname": "TCATBALF",
      "path": "app/jcl/POSTTRAN.jcl",
      "line": 41,
@@ -29467,8 +29832,19 @@
      "program": "CBTRN02C"
     },
     {
+     "member": "PRTCATBL",
+     "step": "STEP05R",
+     "step_line": 29,
+     "ddname": "PRC001.FILEIN",
+     "path": "app/jcl/PRTCATBL.jcl",
+     "line": 32,
+     "disp": "SHR",
+     "program": "PROC REPROC"
+    },
+    {
      "member": "TCATBALF",
      "step": "STEP05",
+     "step_line": 22,
      "ddname": "(IDCAMS DELETE)",
      "path": "app/jcl/TCATBALF.jcl",
      "line": 25,
@@ -29478,6 +29854,7 @@
     {
      "member": "TCATBALF",
      "step": "STEP10",
+     "step_line": 33,
      "ddname": "(IDCAMS control statement)",
      "path": "app/jcl/TCATBALF.jcl",
      "line": 36,
@@ -29487,6 +29864,7 @@
     {
      "member": "TCATBALF",
      "step": "STEP15",
+     "step_line": 54,
      "ddname": "TCATBALV",
      "path": "app/jcl/TCATBALF.jcl",
      "line": 58,
@@ -29514,6 +29892,7 @@
     {
      "member": "TCATBALF",
      "step": "STEP10",
+     "step_line": 33,
      "ddname": "(IDCAMS control statement)",
      "path": "app/jcl/TCATBALF.jcl",
      "line": 46,
@@ -29541,6 +29920,7 @@
     {
      "member": "TCATBALF",
      "step": "STEP10",
+     "step_line": 33,
      "ddname": "(IDCAMS control statement)",
      "path": "app/jcl/TCATBALF.jcl",
      "line": 48,
@@ -29643,6 +30023,7 @@
     {
      "member": "DEFGDGD",
      "step": "STEP40",
+     "step_line": 59,
      "ddname": "SYSUT1",
      "path": "app/jcl/DEFGDGD.jcl",
      "line": 62,
@@ -29652,6 +30033,7 @@
     {
      "member": "TRANCATG",
      "step": "STEP15",
+     "step_line": 54,
      "ddname": "TRANCATG",
      "path": "app/jcl/TRANCATG.jcl",
      "line": 56,
@@ -29661,6 +30043,7 @@
     {
      "member": "TRANEXTR",
      "step": "STEP20",
+     "step_line": 42,
      "ddname": "SYSUT1",
      "path": "app/app-transaction-type-db2/jcl/TRANEXTR.jcl",
      "line": 45,
@@ -29670,6 +30053,7 @@
     {
      "member": "TRANEXTR",
      "step": "STEP30",
+     "step_line": 53,
      "ddname": "DD02",
      "path": "app/app-transaction-type-db2/jcl/TRANEXTR.jcl",
      "line": 58,
@@ -29679,6 +30063,7 @@
     {
      "member": "TRANEXTR",
      "step": "STEP50",
+     "step_line": 95,
      "ddname": "SYSREC00",
      "path": "app/app-transaction-type-db2/jcl/TRANEXTR.jcl",
      "line": 102,
@@ -29733,6 +30118,7 @@
     {
      "member": "DEFGDGD",
      "step": "STEP30",
+     "step_line": 47,
      "ddname": "(IDCAMS control statement)",
      "path": "app/jcl/DEFGDGD.jcl",
      "line": 51,
@@ -29742,6 +30128,7 @@
     {
      "member": "DEFGDGD",
      "step": "STEP40",
+     "step_line": 59,
      "ddname": "SYSUT2",
      "path": "app/jcl/DEFGDGD.jcl",
      "line": 63,
@@ -29751,6 +30138,7 @@
     {
      "member": "TRANEXTR",
      "step": "STEP20",
+     "step_line": 42,
      "ddname": "SYSUT2",
      "path": "app/app-transaction-type-db2/jcl/TRANEXTR.jcl",
      "line": 46,
@@ -29803,6 +30191,7 @@
     {
      "member": "TRANCATG",
      "step": "STEP05",
+     "step_line": 22,
      "ddname": "(IDCAMS DELETE)",
      "path": "app/jcl/TRANCATG.jcl",
      "line": 25,
@@ -29812,6 +30201,7 @@
     {
      "member": "TRANCATG",
      "step": "STEP10",
+     "step_line": 33,
      "ddname": "(IDCAMS control statement)",
      "path": "app/jcl/TRANCATG.jcl",
      "line": 36,
@@ -29821,6 +30211,7 @@
     {
      "member": "TRANCATG",
      "step": "STEP15",
+     "step_line": 54,
      "ddname": "TCATVSAM",
      "path": "app/jcl/TRANCATG.jcl",
      "line": 58,
@@ -29830,6 +30221,7 @@
     {
      "member": "TRANREPT",
      "step": "STEP10R",
+     "step_line": 59,
      "ddname": "TRANCATG",
      "path": "app/jcl/TRANREPT.jcl",
      "line": 71,
@@ -29839,6 +30231,7 @@
     {
      "member": "TRANREPT (PROC)",
      "step": "STEP10R",
+     "step_line": 57,
      "ddname": "TRANCATG",
      "path": "app/proc/TRANREPT.prc",
      "line": 69,
@@ -29866,6 +30259,7 @@
     {
      "member": "TRANCATG",
      "step": "STEP10",
+     "step_line": 33,
      "ddname": "(IDCAMS control statement)",
      "path": "app/jcl/TRANCATG.jcl",
      "line": 46,
@@ -29893,6 +30287,7 @@
     {
      "member": "TRANCATG",
      "step": "STEP10",
+     "step_line": 33,
      "ddname": "(IDCAMS control statement)",
      "path": "app/jcl/TRANCATG.jcl",
      "line": 48,
@@ -29935,6 +30330,7 @@
     {
      "member": "DEFGDGB",
      "step": "STEP05",
+     "step_line": 21,
      "ddname": "(IDCAMS control statement)",
      "path": "app/jcl/DEFGDGB.jcl",
      "line": 37,
@@ -29944,6 +30340,7 @@
     {
      "member": "REPTFILE",
      "step": "STEP05",
+     "step_line": 22,
      "ddname": "(IDCAMS control statement)",
      "path": "app/jcl/REPTFILE.jcl",
      "line": 26,
@@ -29953,6 +30350,7 @@
     {
      "member": "TRANREPT",
      "step": "STEP10R",
+     "step_line": 59,
      "ddname": "TRANREPT",
      "path": "app/jcl/TRANREPT.jcl",
      "line": 76,
@@ -29962,6 +30360,7 @@
     {
      "member": "TRANREPT (PROC)",
      "step": "STEP10R",
+     "step_line": 57,
      "ddname": "TRANREPT",
      "path": "app/proc/TRANREPT.prc",
      "line": 74,
@@ -30122,6 +30521,7 @@
     {
      "member": "COMBTRAN",
      "step": "STEP05R",
+     "step_line": 22,
      "ddname": "SORTIN",
      "path": "app/jcl/COMBTRAN.jcl",
      "line": 23,
@@ -30131,6 +30531,7 @@
     {
      "member": "DEFGDGB",
      "step": "STEP05",
+     "step_line": 21,
      "ddname": "(IDCAMS control statement)",
      "path": "app/jcl/DEFGDGB.jcl",
      "line": 25,
@@ -30138,8 +30539,29 @@
      "program": "IDCAMS"
     },
     {
+     "member": "TRANBKP",
+     "step": "STEP05R",
+     "step_line": 23,
+     "ddname": "PRC001.FILEOUT",
+     "path": "app/jcl/TRANBKP.jcl",
+     "line": 29,
+     "disp": "(NEW,CATLG,DELETE)",
+     "program": "PROC REPROC"
+    },
+    {
      "member": "TRANREPT",
      "step": "STEP05R",
+     "step_line": 23,
+     "ddname": "PRC001.FILEOUT",
+     "path": "app/jcl/TRANREPT.jcl",
+     "line": 29,
+     "disp": "(NEW,CATLG,DELETE)",
+     "program": "PROC REPROC"
+    },
+    {
+     "member": "TRANREPT",
+     "step": "STEP05R",
+     "step_line": 37,
      "ddname": "SORTIN",
      "path": "app/jcl/TRANREPT.jcl",
      "line": 38,
@@ -30148,7 +30570,18 @@
     },
     {
      "member": "TRANREPT (PROC)",
+     "step": "STEP01R",
+     "step_line": 21,
+     "ddname": "PRC001.FILEOUT",
+     "path": "app/proc/TRANREPT.prc",
+     "line": 27,
+     "disp": "(NEW,CATLG,DELETE)",
+     "program": "PROC REPROC"
+    },
+    {
+     "member": "TRANREPT (PROC)",
      "step": "STEP05R",
+     "step_line": 35,
      "ddname": "SORTIN",
      "path": "app/proc/TRANREPT.prc",
      "line": 36,
@@ -31420,6 +31853,7 @@
     {
      "member": "COMBTRAN",
      "step": "STEP05R",
+     "step_line": 22,
      "ddname": "SORTOUT",
      "path": "app/jcl/COMBTRAN.jcl",
      "line": 33,
@@ -31429,6 +31863,7 @@
     {
      "member": "COMBTRAN",
      "step": "STEP10",
+     "step_line": 41,
      "ddname": "TRANSACT",
      "path": "app/jcl/COMBTRAN.jcl",
      "line": 43,
@@ -31438,6 +31873,7 @@
     {
      "member": "DEFGDGB",
      "step": "STEP05",
+     "step_line": 21,
      "ddname": "(IDCAMS control statement)",
      "path": "app/jcl/DEFGDGB.jcl",
      "line": 55,
@@ -31572,6 +32008,7 @@
     {
      "member": "DEFGDGB",
      "step": "STEP05",
+     "step_line": 21,
      "ddname": "(IDCAMS control statement)",
      "path": "app/jcl/DEFGDGB.jcl",
      "line": 31,
@@ -31581,6 +32018,7 @@
     {
      "member": "TRANREPT",
      "step": "STEP05R",
+     "step_line": 37,
      "ddname": "SORTOUT",
      "path": "app/jcl/TRANREPT.jcl",
      "line": 51,
@@ -31590,6 +32028,7 @@
     {
      "member": "TRANREPT",
      "step": "STEP10R",
+     "step_line": 59,
      "ddname": "TRANFILE",
      "path": "app/jcl/TRANREPT.jcl",
      "line": 65,
@@ -31599,6 +32038,7 @@
     {
      "member": "TRANREPT (PROC)",
      "step": "STEP05R",
+     "step_line": 35,
      "ddname": "SORTOUT",
      "path": "app/proc/TRANREPT.prc",
      "line": 49,
@@ -31608,6 +32048,7 @@
     {
      "member": "TRANREPT (PROC)",
      "step": "STEP10R",
+     "step_line": 57,
      "ddname": "TRANFILE",
      "path": "app/proc/TRANREPT.prc",
      "line": 63,
@@ -32125,6 +32566,7 @@
     {
      "member": "CBIMPORT",
      "step": "STEP01",
+     "step_line": 22,
      "ddname": "TRNXOUT",
      "path": "app/jcl/CBIMPORT.jcl",
      "line": 48,
@@ -32152,6 +32594,7 @@
     {
      "member": "TRANBKP",
      "step": "STEP05",
+     "step_line": 37,
      "ddname": "(IDCAMS DELETE)",
      "path": "app/jcl/TRANBKP.jcl",
      "line": 43,
@@ -32161,6 +32604,7 @@
     {
      "member": "TRANFILE",
      "step": "STEP05",
+     "step_line": 32,
      "ddname": "(IDCAMS DELETE)",
      "path": "app/jcl/TRANFILE.jcl",
      "line": 38,
@@ -32170,6 +32614,7 @@
     {
      "member": "TRANFILE",
      "step": "STEP20",
+     "step_line": 79,
      "ddname": "(IDCAMS control statement)",
      "path": "app/jcl/TRANFILE.jcl",
      "line": 82,
@@ -32179,6 +32624,7 @@
     {
      "member": "TRANFILE",
      "step": "STEP30",
+     "step_line": 106,
      "ddname": "(IDCAMS control statement)",
      "path": "app/jcl/TRANFILE.jcl",
      "line": 111,
@@ -32188,6 +32634,7 @@
     {
      "member": "TRANIDX",
      "step": "STEP20",
+     "step_line": 22,
      "ddname": "(IDCAMS control statement)",
      "path": "app/jcl/TRANIDX.jcl",
      "line": 25,
@@ -32197,6 +32644,7 @@
     {
      "member": "TRANIDX",
      "step": "STEP30",
+     "step_line": 49,
      "ddname": "(IDCAMS control statement)",
      "path": "app/jcl/TRANIDX.jcl",
      "line": 54,
@@ -32224,6 +32672,7 @@
     {
      "member": "TRANFILE",
      "step": "STEP20",
+     "step_line": 79,
      "ddname": "(IDCAMS control statement)",
      "path": "app/jcl/TRANFILE.jcl",
      "line": 90,
@@ -32233,6 +32682,7 @@
     {
      "member": "TRANIDX",
      "step": "STEP20",
+     "step_line": 22,
      "ddname": "(IDCAMS control statement)",
      "path": "app/jcl/TRANIDX.jcl",
      "line": 33,
@@ -32260,6 +32710,7 @@
     {
      "member": "TRANFILE",
      "step": "STEP20",
+     "step_line": 79,
      "ddname": "(IDCAMS control statement)",
      "path": "app/jcl/TRANFILE.jcl",
      "line": 91,
@@ -32269,6 +32720,7 @@
     {
      "member": "TRANIDX",
      "step": "STEP20",
+     "step_line": 22,
      "ddname": "(IDCAMS control statement)",
      "path": "app/jcl/TRANIDX.jcl",
      "line": 34,
@@ -32296,6 +32748,7 @@
     {
      "member": "TRANFILE",
      "step": "STEP25",
+     "step_line": 96,
      "ddname": "(IDCAMS control statement)",
      "path": "app/jcl/TRANFILE.jcl",
      "line": 100,
@@ -32305,6 +32758,7 @@
     {
      "member": "TRANIDX",
      "step": "STEP25",
+     "step_line": 39,
      "ddname": "(IDCAMS control statement)",
      "path": "app/jcl/TRANIDX.jcl",
      "line": 43,
@@ -32527,6 +32981,7 @@
     {
      "member": "CBEXPORT",
      "step": "STEP02",
+     "step_line": 43,
      "ddname": "TRANSACT",
      "path": "app/jcl/CBEXPORT.jcl",
      "line": 55,
@@ -32536,6 +32991,7 @@
     {
      "member": "COMBTRAN",
      "step": "STEP10",
+     "step_line": 41,
      "ddname": "TRANVSAM",
      "path": "app/jcl/COMBTRAN.jcl",
      "line": 45,
@@ -32545,6 +33001,7 @@
     {
      "member": "CREASTMT",
      "step": "STEP010",
+     "step_line": 44,
      "ddname": "SORTIN",
      "path": "app/jcl/CREASTMT.JCL",
      "line": 45,
@@ -32554,6 +33011,7 @@
     {
      "member": "POSTTRAN",
      "step": "STEP15",
+     "step_line": 23,
      "ddname": "TRANFILE",
      "path": "app/jcl/POSTTRAN.jcl",
      "line": 28,
@@ -32562,7 +33020,18 @@
     },
     {
      "member": "TRANBKP",
+     "step": "STEP05R",
+     "step_line": 23,
+     "ddname": "PRC001.FILEIN",
+     "path": "app/jcl/TRANBKP.jcl",
+     "line": 26,
+     "disp": "SHR",
+     "program": "PROC REPROC"
+    },
+    {
+     "member": "TRANBKP",
      "step": "STEP05",
+     "step_line": 37,
      "ddname": "(IDCAMS DELETE)",
      "path": "app/jcl/TRANBKP.jcl",
      "line": 40,
@@ -32572,6 +33041,7 @@
     {
      "member": "TRANBKP",
      "step": "STEP10",
+     "step_line": 51,
      "ddname": "(IDCAMS control statement)",
      "path": "app/jcl/TRANBKP.jcl",
      "line": 54,
@@ -32581,6 +33051,7 @@
     {
      "member": "TRANFILE",
      "step": "STEP05",
+     "step_line": 32,
      "ddname": "(IDCAMS DELETE)",
      "path": "app/jcl/TRANFILE.jcl",
      "line": 35,
@@ -32590,6 +33061,7 @@
     {
      "member": "TRANFILE",
      "step": "STEP10",
+     "step_line": 46,
      "ddname": "(IDCAMS control statement)",
      "path": "app/jcl/TRANFILE.jcl",
      "line": 49,
@@ -32599,6 +33071,7 @@
     {
      "member": "TRANFILE",
      "step": "STEP15",
+     "step_line": 67,
      "ddname": "TRANVSAM",
      "path": "app/jcl/TRANFILE.jcl",
      "line": 71,
@@ -32608,6 +33081,7 @@
     {
      "member": "TRANFILE",
      "step": "STEP30",
+     "step_line": 106,
      "ddname": "(IDCAMS control statement)",
      "path": "app/jcl/TRANFILE.jcl",
      "line": 110,
@@ -32617,11 +33091,32 @@
     {
      "member": "TRANIDX",
      "step": "STEP30",
+     "step_line": 49,
      "ddname": "(IDCAMS control statement)",
      "path": "app/jcl/TRANIDX.jcl",
      "line": 53,
      "disp": null,
      "program": "IDCAMS"
+    },
+    {
+     "member": "TRANREPT",
+     "step": "STEP05R",
+     "step_line": 23,
+     "ddname": "PRC001.FILEIN",
+     "path": "app/jcl/TRANREPT.jcl",
+     "line": 26,
+     "disp": "SHR",
+     "program": "PROC REPROC"
+    },
+    {
+     "member": "TRANREPT (PROC)",
+     "step": "STEP01R",
+     "step_line": 21,
+     "ddname": "PRC001.FILEIN",
+     "path": "app/proc/TRANREPT.prc",
+     "line": 24,
+     "disp": "SHR",
+     "program": "PROC REPROC"
     }
    ],
    "csd_files": [
@@ -32650,6 +33145,7 @@
     {
      "member": "TRANBKP",
      "step": "STEP10",
+     "step_line": 51,
      "ddname": "(IDCAMS control statement)",
      "path": "app/jcl/TRANBKP.jcl",
      "line": 64,
@@ -32659,6 +33155,7 @@
     {
      "member": "TRANFILE",
      "step": "STEP10",
+     "step_line": 46,
      "ddname": "(IDCAMS control statement)",
      "path": "app/jcl/TRANFILE.jcl",
      "line": 59,
@@ -32686,6 +33183,7 @@
     {
      "member": "TRANBKP",
      "step": "STEP10",
+     "step_line": 51,
      "ddname": "(IDCAMS control statement)",
      "path": "app/jcl/TRANBKP.jcl",
      "line": 66,
@@ -32695,6 +33193,7 @@
     {
      "member": "TRANFILE",
      "step": "STEP10",
+     "step_line": 46,
      "ddname": "(IDCAMS control statement)",
      "path": "app/jcl/TRANFILE.jcl",
      "line": 61,
@@ -32747,6 +33246,7 @@
     {
      "member": "DEFGDGD",
      "step": "STEP10",
+     "step_line": 24,
      "ddname": "(IDCAMS control statement)",
      "path": "app/jcl/DEFGDGD.jcl",
      "line": 28,
@@ -32756,6 +33256,7 @@
     {
      "member": "DEFGDGD",
      "step": "STEP20",
+     "step_line": 36,
      "ddname": "SYSUT2",
      "path": "app/jcl/DEFGDGD.jcl",
      "line": 40,
@@ -32765,6 +33266,7 @@
     {
      "member": "TRANEXTR",
      "step": "STEP10",
+     "step_line": 31,
      "ddname": "SYSUT2",
      "path": "app/app-transaction-type-db2/jcl/TRANEXTR.jcl",
      "line": 35,
@@ -32867,6 +33369,7 @@
     {
      "member": "DEFGDGD",
      "step": "STEP20",
+     "step_line": 36,
      "ddname": "SYSUT1",
      "path": "app/jcl/DEFGDGD.jcl",
      "line": 39,
@@ -32876,6 +33379,7 @@
     {
      "member": "TRANTYPE",
      "step": "STEP15",
+     "step_line": 54,
      "ddname": "TRANTYPE",
      "path": "app/jcl/TRANTYPE.jcl",
      "line": 56,
@@ -32885,6 +33389,7 @@
     {
      "member": "TRANEXTR",
      "step": "STEP10",
+     "step_line": 31,
      "ddname": "SYSUT1",
      "path": "app/app-transaction-type-db2/jcl/TRANEXTR.jcl",
      "line": 34,
@@ -32894,6 +33399,7 @@
     {
      "member": "TRANEXTR",
      "step": "STEP30",
+     "step_line": 53,
      "ddname": "DD01",
      "path": "app/app-transaction-type-db2/jcl/TRANEXTR.jcl",
      "line": 54,
@@ -32903,6 +33409,7 @@
     {
      "member": "TRANEXTR",
      "step": "STEP40",
+     "step_line": 65,
      "ddname": "SYSREC00",
      "path": "app/app-transaction-type-db2/jcl/TRANEXTR.jcl",
      "line": 72,
@@ -32957,6 +33464,7 @@
     {
      "member": "TRANREPT",
      "step": "STEP10R",
+     "step_line": 59,
      "ddname": "TRANTYPE",
      "path": "app/jcl/TRANREPT.jcl",
      "line": 69,
@@ -32966,6 +33474,7 @@
     {
      "member": "TRANTYPE",
      "step": "STEP05",
+     "step_line": 22,
      "ddname": "(IDCAMS DELETE)",
      "path": "app/jcl/TRANTYPE.jcl",
      "line": 25,
@@ -32975,6 +33484,7 @@
     {
      "member": "TRANTYPE",
      "step": "STEP10",
+     "step_line": 33,
      "ddname": "(IDCAMS control statement)",
      "path": "app/jcl/TRANTYPE.jcl",
      "line": 36,
@@ -32984,6 +33494,7 @@
     {
      "member": "TRANTYPE",
      "step": "STEP15",
+     "step_line": 54,
      "ddname": "TTYPVSAM",
      "path": "app/jcl/TRANTYPE.jcl",
      "line": 58,
@@ -32993,6 +33504,7 @@
     {
      "member": "TRANREPT (PROC)",
      "step": "STEP10R",
+     "step_line": 57,
      "ddname": "TRANTYPE",
      "path": "app/proc/TRANREPT.prc",
      "line": 67,
@@ -33020,6 +33532,7 @@
     {
      "member": "TRANTYPE",
      "step": "STEP10",
+     "step_line": 33,
      "ddname": "(IDCAMS control statement)",
      "path": "app/jcl/TRANTYPE.jcl",
      "line": 46,
@@ -33047,6 +33560,7 @@
     {
      "member": "TRANTYPE",
      "step": "STEP10",
+     "step_line": 33,
      "ddname": "(IDCAMS control statement)",
      "path": "app/jcl/TRANTYPE.jcl",
      "line": 48,
@@ -33071,6 +33585,7 @@
     {
      "member": "CREASTMT",
      "step": "DELDEF01",
+     "step_line": 22,
      "ddname": "(IDCAMS control statement)",
      "path": "app/jcl/CREASTMT.JCL",
      "line": 37,
@@ -33095,6 +33610,7 @@
     {
      "member": "CREASTMT",
      "step": "DELDEF01",
+     "step_line": 22,
      "ddname": "(IDCAMS control statement)",
      "path": "app/jcl/CREASTMT.JCL",
      "line": 39,
@@ -33145,6 +33661,7 @@
     {
      "member": "CREASTMT",
      "step": "DELDEF01",
+     "step_line": 22,
      "ddname": "(IDCAMS DELETE)",
      "path": "app/jcl/CREASTMT.JCL",
      "line": 25,
@@ -33154,6 +33671,7 @@
     {
      "member": "CREASTMT",
      "step": "STEP010",
+     "step_line": 44,
      "ddname": "SORTOUT",
      "path": "app/jcl/CREASTMT.JCL",
      "line": 48,
@@ -33163,6 +33681,7 @@
     {
      "member": "CREASTMT",
      "step": "STEP020",
+     "step_line": 56,
      "ddname": "INFILE",
      "path": "app/jcl/CREASTMT.JCL",
      "line": 58,
@@ -33212,6 +33731,7 @@
     {
      "member": "CREASTMT",
      "step": "DELDEF01",
+     "step_line": 22,
      "ddname": "(IDCAMS DELETE)",
      "path": "app/jcl/CREASTMT.JCL",
      "line": 26,
@@ -33221,6 +33741,7 @@
     {
      "member": "CREASTMT",
      "step": "DELDEF01",
+     "step_line": 22,
      "ddname": "(IDCAMS control statement)",
      "path": "app/jcl/CREASTMT.JCL",
      "line": 29,
@@ -33230,6 +33751,7 @@
     {
      "member": "CREASTMT",
      "step": "STEP020",
+     "step_line": 56,
      "ddname": "OUTFILE",
      "path": "app/jcl/CREASTMT.JCL",
      "line": 59,
@@ -33239,6 +33761,7 @@
     {
      "member": "CREASTMT",
      "step": "STEP040",
+     "step_line": 79,
      "ddname": "TRNXFILE",
      "path": "app/jcl/CREASTMT.JCL",
      "line": 83,
@@ -33305,6 +33828,7 @@
     {
      "member": "DUSRSECJ",
      "step": "PREDEL",
+     "step_line": 23,
      "ddname": "DD01",
      "path": "app/jcl/DUSRSECJ.jcl",
      "line": 25,
@@ -33314,6 +33838,7 @@
     {
      "member": "DUSRSECJ",
      "step": "STEP01",
+     "step_line": 32,
      "ddname": "SYSUT2",
      "path": "app/jcl/DUSRSECJ.jcl",
      "line": 46,
@@ -33323,6 +33848,7 @@
     {
      "member": "DUSRSECJ",
      "step": "STEP03",
+     "step_line": 80,
      "ddname": "IN",
      "path": "app/jcl/DUSRSECJ.jcl",
      "line": 82,
@@ -33363,6 +33889,7 @@
     {
      "member": "ESDSRRDS",
      "step": "STEP02",
+     "step_line": 59,
      "ddname": "(IDCAMS DELETE)",
      "path": "app/jcl/ESDSRRDS.jcl",
      "line": 63,
@@ -33372,6 +33899,7 @@
     {
      "member": "ESDSRRDS",
      "step": "STEP02",
+     "step_line": 59,
      "ddname": "(IDCAMS control statement)",
      "path": "app/jcl/ESDSRRDS.jcl",
      "line": 65,
@@ -33381,6 +33909,7 @@
     {
      "member": "ESDSRRDS",
      "step": "STEP03",
+     "step_line": 79,
      "ddname": "OUT",
      "path": "app/jcl/ESDSRRDS.jcl",
      "line": 82,
@@ -33405,6 +33934,7 @@
     {
      "member": "ESDSRRDS",
      "step": "STEP02",
+     "step_line": 59,
      "ddname": "(IDCAMS control statement)",
      "path": "app/jcl/ESDSRRDS.jcl",
      "line": 72,
@@ -33546,6 +34076,7 @@
     {
      "member": "DUSRSECJ",
      "step": "STEP02",
+     "step_line": 58,
      "ddname": "(IDCAMS DELETE)",
      "path": "app/jcl/DUSRSECJ.jcl",
      "line": 62,
@@ -33555,6 +34086,7 @@
     {
      "member": "DUSRSECJ",
      "step": "STEP02",
+     "step_line": 58,
      "ddname": "(IDCAMS control statement)",
      "path": "app/jcl/DUSRSECJ.jcl",
      "line": 64,
@@ -33564,6 +34096,7 @@
     {
      "member": "DUSRSECJ",
      "step": "STEP03",
+     "step_line": 80,
      "ddname": "OUT",
      "path": "app/jcl/DUSRSECJ.jcl",
      "line": 83,
@@ -33597,6 +34130,7 @@
     {
      "member": "DUSRSECJ",
      "step": "STEP02",
+     "step_line": 58,
      "ddname": "(IDCAMS control statement)",
      "path": "app/jcl/DUSRSECJ.jcl",
      "line": 72,
@@ -33624,6 +34158,7 @@
     {
      "member": "DUSRSECJ",
      "step": "STEP02",
+     "step_line": 58,
      "ddname": "(IDCAMS control statement)",
      "path": "app/jcl/DUSRSECJ.jcl",
      "line": 73,
@@ -33662,6 +34197,7 @@
     {
      "member": "ESDSRRDS",
      "step": "STEP04",
+     "step_line": 93,
      "ddname": "(IDCAMS DELETE)",
      "path": "app/jcl/ESDSRRDS.jcl",
      "line": 97,
@@ -33671,6 +34207,7 @@
     {
      "member": "ESDSRRDS",
      "step": "STEP04",
+     "step_line": 93,
      "ddname": "(IDCAMS control statement)",
      "path": "app/jcl/ESDSRRDS.jcl",
      "line": 99,
@@ -33680,6 +34217,7 @@
     {
      "member": "ESDSRRDS",
      "step": "STEP05",
+     "step_line": 113,
      "ddname": "OUT",
      "path": "app/jcl/ESDSRRDS.jcl",
      "line": 116,
@@ -33704,6 +34242,7 @@
     {
      "member": "ESDSRRDS",
      "step": "STEP04",
+     "step_line": 93,
      "ddname": "(IDCAMS control statement)",
      "path": "app/jcl/ESDSRRDS.jcl",
      "line": 106,
@@ -33742,6 +34281,7 @@
     {
      "member": "INTRDRJ1",
      "step": "IDCAMS",
+     "step_line": 6,
      "ddname": "IN",
      "path": "app/jcl/INTRDRJ1.JCL",
      "line": 8,
@@ -33792,6 +34332,7 @@
     {
      "member": "INTRDRJ1",
      "step": "IDCAMS",
+     "step_line": 6,
      "ddname": "OUT",
      "path": "app/jcl/INTRDRJ1.JCL",
      "line": 9,
@@ -33801,6 +34342,7 @@
     {
      "member": "INTRDRJ2",
      "step": "IDCAMS",
+     "step_line": 7,
      "ddname": "IN",
      "path": "app/jcl/INTRDRJ2.JCL",
      "line": 9,
@@ -33839,6 +34381,7 @@
     {
      "member": "INTRDRJ2",
      "step": "IDCAMS",
+     "step_line": 7,
      "ddname": "OUT",
      "path": "app/jcl/INTRDRJ2.JCL",
      "line": 10,
@@ -33877,6 +34420,7 @@
     {
      "member": "TXT2PDF1",
      "step": "TXT2PDF",
+     "step_line": 24,
      "ddname": "SYSEXEC",
      "path": "app/jcl/TXT2PDF1.JCL",
      "line": 31,
@@ -33915,6 +34459,7 @@
     {
      "member": "TXT2PDF1",
      "step": "TXT2PDF",
+     "step_line": 24,
      "ddname": "STEPLIB",
      "path": "app/jcl/TXT2PDF1.JCL",
      "line": 28,
@@ -33939,6 +34484,7 @@
     {
      "member": "CBPAUP0J",
      "step": "STEP01",
+     "step_line": 24,
      "ddname": "",
      "path": "app/app-authorization-ims-db2-mq/jcl/CBPAUP0J.jcl",
      "line": 34,
@@ -33977,6 +34523,7 @@
     {
      "member": "CBPAUP0J",
      "step": "STEP01",
+     "step_line": 24,
      "ddname": "PROCLIB",
      "path": "app/app-authorization-ims-db2-mq/jcl/CBPAUP0J.jcl",
      "line": 29,
@@ -34015,6 +34562,7 @@
     {
      "member": "CBPAUP0J",
      "step": "STEP01",
+     "step_line": 24,
      "ddname": "IMS",
      "path": "app/app-authorization-ims-db2-mq/jcl/CBPAUP0J.jcl",
      "line": 33,
@@ -34077,6 +34625,7 @@
     {
      "member": "CBPAUP0J",
      "step": "STEP01",
+     "step_line": 24,
      "ddname": "STEPLIB",
      "path": "app/app-authorization-ims-db2-mq/jcl/CBPAUP0J.jcl",
      "line": 26,
@@ -34086,6 +34635,7 @@
     {
      "member": "CBPAUP0J",
      "step": "STEP01",
+     "step_line": 24,
      "ddname": "DFSRESLB",
      "path": "app/app-authorization-ims-db2-mq/jcl/CBPAUP0J.jcl",
      "line": 28,
@@ -34095,6 +34645,7 @@
     {
      "member": "CBPAUP0J",
      "step": "STEP01",
+     "step_line": 24,
      "ddname": "DFSSEL",
      "path": "app/app-authorization-ims-db2-mq/jcl/CBPAUP0J.jcl",
      "line": 31,
@@ -34144,6 +34695,7 @@
     {
      "member": "MNTTRDB2",
      "step": "STEP1",
+     "step_line": 21,
      "ddname": "INPFILE",
      "path": "app/app-transaction-type-db2/jcl/MNTTRDB2.jcl",
      "line": 27,
@@ -34182,6 +34734,7 @@
     {
      "member": "CBADMCDJ",
      "step": "STEP1",
+     "step_line": 27,
      "ddname": "DFHCSD",
      "path": "app/jcl/CBADMCDJ.jcl",
      "line": 30,
@@ -34220,6 +34773,7 @@
     {
      "member": "CBADMCDJ",
      "step": "STEP1",
+     "step_line": 27,
      "ddname": "STEPLIB",
      "path": "app/jcl/CBADMCDJ.jcl",
      "line": 29,
@@ -34330,6 +34884,7 @@
     {
      "member": "CREADB2",
      "step": "CRCRDDB",
+     "step_line": 52,
      "ddname": "STEPLIB",
      "path": "app/app-transaction-type-db2/jcl/CREADB21.jcl",
      "line": 53,
@@ -34339,6 +34894,7 @@
     {
      "member": "CREADB2",
      "step": "RUNTEP2",
+     "step_line": 65,
      "ddname": "STEPLIB",
      "path": "app/app-transaction-type-db2/jcl/CREADB21.jcl",
      "line": 66,
@@ -34348,6 +34904,7 @@
     {
      "member": "CREADB2",
      "step": "LDTCCAT",
+     "step_line": 77,
      "ddname": "STEPLIB",
      "path": "app/app-transaction-type-db2/jcl/CREADB21.jcl",
      "line": 78,
@@ -34357,6 +34914,7 @@
     {
      "member": "TRANEXTR",
      "step": "STEP40",
+     "step_line": 65,
      "ddname": "STEPLIB",
      "path": "app/app-transaction-type-db2/jcl/TRANEXTR.jcl",
      "line": 66,
@@ -34366,6 +34924,7 @@
     {
      "member": "TRANEXTR",
      "step": "STEP50",
+     "step_line": 95,
      "ddname": "STEPLIB",
      "path": "app/app-transaction-type-db2/jcl/TRANEXTR.jcl",
      "line": 96,
@@ -34416,6 +34975,7 @@
     {
      "member": "CREADB2",
      "step": "FREEPLN",
+     "step_line": 40,
      "ddname": "STEPLIB",
      "path": "app/app-transaction-type-db2/jcl/CREADB21.jcl",
      "line": 41,
@@ -34425,6 +34985,7 @@
     {
      "member": "MNTTRDB2",
      "step": "STEP1",
+     "step_line": 21,
      "ddname": "STEPLIB",
      "path": "app/app-transaction-type-db2/jcl/MNTTRDB2.jcl",
      "line": 22,
@@ -34449,6 +35010,7 @@
     {
      "member": "DBPAUTP0",
      "step": "UNLOAD",
+     "step_line": 15,
      "ddname": "",
      "path": "app/app-authorization-ims-db2-mq/jcl/DBPAUTP0.jcl",
      "line": 22,
@@ -34458,6 +35020,7 @@
     {
      "member": "LOADPADB",
      "step": "STEP01",
+     "step_line": 26,
      "ddname": "",
      "path": "app/app-authorization-ims-db2-mq/jcl/LOADPADB.JCL",
      "line": 34,
@@ -34467,6 +35030,7 @@
     {
      "member": "UNLDGSAM",
      "step": "STEP01",
+     "step_line": 26,
      "ddname": "",
      "path": "app/app-authorization-ims-db2-mq/jcl/UNLDGSAM.JCL",
      "line": 34,
@@ -34476,6 +35040,7 @@
     {
      "member": "UNLDPADB",
      "step": "STEP01",
+     "step_line": 38,
      "ddname": "",
      "path": "app/app-authorization-ims-db2-mq/jcl/UNLDPADB.JCL",
      "line": 46,
@@ -34550,6 +35115,7 @@
     {
      "member": "DBPAUTP0",
      "step": "UNLOAD",
+     "step_line": 15,
      "ddname": "DDPAUTP0",
      "path": "app/app-authorization-ims-db2-mq/jcl/DBPAUTP0.jcl",
      "line": 31,
@@ -34559,6 +35125,7 @@
     {
      "member": "UNLDGSAM",
      "step": "STEP01",
+     "step_line": 26,
      "ddname": "DDPAUTP0",
      "path": "app/app-authorization-ims-db2-mq/jcl/UNLDGSAM.JCL",
      "line": 42,
@@ -34568,6 +35135,7 @@
     {
      "member": "UNLDPADB",
      "step": "STEP01",
+     "step_line": 38,
      "ddname": "DDPAUTP0",
      "path": "app/app-authorization-ims-db2-mq/jcl/UNLDPADB.JCL",
      "line": 58,
@@ -34642,6 +35210,7 @@
     {
      "member": "DBPAUTP0",
      "step": "UNLOAD",
+     "step_line": 15,
      "ddname": "DDPAUTX0",
      "path": "app/app-authorization-ims-db2-mq/jcl/DBPAUTP0.jcl",
      "line": 32,
@@ -34651,6 +35220,7 @@
     {
      "member": "UNLDGSAM",
      "step": "STEP01",
+     "step_line": 26,
      "ddname": "DDPAUTX0",
      "path": "app/app-authorization-ims-db2-mq/jcl/UNLDGSAM.JCL",
      "line": 43,
@@ -34660,6 +35230,7 @@
     {
      "member": "UNLDPADB",
      "step": "STEP01",
+     "step_line": 38,
      "ddname": "DDPAUTX0",
      "path": "app/app-authorization-ims-db2-mq/jcl/UNLDPADB.JCL",
      "line": 59,
@@ -34746,6 +35317,7 @@
     {
      "member": "DBPAUTP0",
      "step": "UNLOAD",
+     "step_line": 15,
      "ddname": "IMS",
      "path": "app/app-authorization-ims-db2-mq/jcl/DBPAUTP0.jcl",
      "line": 21,
@@ -34755,6 +35327,7 @@
     {
      "member": "LOADPADB",
      "step": "STEP01",
+     "step_line": 26,
      "ddname": "IMS",
      "path": "app/app-authorization-ims-db2-mq/jcl/LOADPADB.JCL",
      "line": 33,
@@ -34764,6 +35337,7 @@
     {
      "member": "UNLDGSAM",
      "step": "STEP01",
+     "step_line": 26,
      "ddname": "IMS",
      "path": "app/app-authorization-ims-db2-mq/jcl/UNLDGSAM.JCL",
      "line": 33,
@@ -34773,6 +35347,7 @@
     {
      "member": "UNLDPADB",
      "step": "STEP01",
+     "step_line": 38,
      "ddname": "IMS",
      "path": "app/app-authorization-ims-db2-mq/jcl/UNLDPADB.JCL",
      "line": 45,
@@ -34823,6 +35398,7 @@
     {
      "member": "DBPAUTP0",
      "step": "UNLOAD",
+     "step_line": 15,
      "ddname": "RECON1",
      "path": "app/app-authorization-ims-db2-mq/jcl/DBPAUTP0.jcl",
      "line": 40,
@@ -34873,6 +35449,7 @@
     {
      "member": "DBPAUTP0",
      "step": "UNLOAD",
+     "step_line": 15,
      "ddname": "RECON2",
      "path": "app/app-authorization-ims-db2-mq/jcl/DBPAUTP0.jcl",
      "line": 41,
@@ -34923,6 +35500,7 @@
     {
      "member": "DBPAUTP0",
      "step": "UNLOAD",
+     "step_line": 15,
      "ddname": "RECON3",
      "path": "app/app-authorization-ims-db2-mq/jcl/DBPAUTP0.jcl",
      "line": 42,
@@ -34947,6 +35525,7 @@
     {
      "member": "CREADB2",
      "step": "FREEPLN",
+     "step_line": 40,
      "ddname": "",
      "path": "app/app-transaction-type-db2/jcl/CREADB21.jcl",
      "line": 42,
@@ -34956,6 +35535,7 @@
     {
      "member": "CREADB2",
      "step": "CRCRDDB",
+     "step_line": 52,
      "ddname": "",
      "path": "app/app-transaction-type-db2/jcl/CREADB21.jcl",
      "line": 54,
@@ -34965,6 +35545,7 @@
     {
      "member": "CREADB2",
      "step": "RUNTEP2",
+     "step_line": 65,
      "ddname": "",
      "path": "app/app-transaction-type-db2/jcl/CREADB21.jcl",
      "line": 67,
@@ -34974,6 +35555,7 @@
     {
      "member": "CREADB2",
      "step": "LDTCCAT",
+     "step_line": 77,
      "ddname": "",
      "path": "app/app-transaction-type-db2/jcl/CREADB21.jcl",
      "line": 79,
@@ -34983,6 +35565,7 @@
     {
      "member": "MNTTRDB2",
      "step": "STEP1",
+     "step_line": 21,
      "ddname": "",
      "path": "app/app-transaction-type-db2/jcl/MNTTRDB2.jcl",
      "line": 23,
@@ -34992,6 +35575,7 @@
     {
      "member": "TRANEXTR",
      "step": "STEP40",
+     "step_line": 65,
      "ddname": "",
      "path": "app/app-transaction-type-db2/jcl/TRANEXTR.jcl",
      "line": 67,
@@ -35001,6 +35585,7 @@
     {
      "member": "TRANEXTR",
      "step": "STEP50",
+     "step_line": 95,
      "ddname": "",
      "path": "app/app-transaction-type-db2/jcl/TRANEXTR.jcl",
      "line": 97,
@@ -35147,6 +35732,7 @@
     {
      "member": "DBPAUTP0",
      "step": "UNLOAD",
+     "step_line": 15,
      "ddname": "STEPLIB",
      "path": "app/app-authorization-ims-db2-mq/jcl/DBPAUTP0.jcl",
      "line": 18,
@@ -35156,6 +35742,7 @@
     {
      "member": "DBPAUTP0",
      "step": "UNLOAD",
+     "step_line": 15,
      "ddname": "DFSRESLB",
      "path": "app/app-authorization-ims-db2-mq/jcl/DBPAUTP0.jcl",
      "line": 20,
@@ -35165,6 +35752,7 @@
     {
      "member": "LOADPADB",
      "step": "STEP01",
+     "step_line": 26,
      "ddname": "STEPLIB",
      "path": "app/app-authorization-ims-db2-mq/jcl/LOADPADB.JCL",
      "line": 28,
@@ -35174,6 +35762,7 @@
     {
      "member": "LOADPADB",
      "step": "STEP01",
+     "step_line": 26,
      "ddname": "DFSRESLB",
      "path": "app/app-authorization-ims-db2-mq/jcl/LOADPADB.JCL",
      "line": 31,
@@ -35183,6 +35772,7 @@
     {
      "member": "UNLDGSAM",
      "step": "STEP01",
+     "step_line": 26,
      "ddname": "STEPLIB",
      "path": "app/app-authorization-ims-db2-mq/jcl/UNLDGSAM.JCL",
      "line": 28,
@@ -35192,6 +35782,7 @@
     {
      "member": "UNLDGSAM",
      "step": "STEP01",
+     "step_line": 26,
      "ddname": "DFSRESLB",
      "path": "app/app-authorization-ims-db2-mq/jcl/UNLDGSAM.JCL",
      "line": 31,
@@ -35201,6 +35792,7 @@
     {
      "member": "UNLDPADB",
      "step": "STEP01",
+     "step_line": 38,
      "ddname": "STEPLIB",
      "path": "app/app-authorization-ims-db2-mq/jcl/UNLDPADB.JCL",
      "line": 40,
@@ -35210,6 +35802,7 @@
     {
      "member": "UNLDPADB",
      "step": "STEP01",
+     "step_line": 38,
      "ddname": "DFSRESLB",
      "path": "app/app-authorization-ims-db2-mq/jcl/UNLDPADB.JCL",
      "line": 43,
@@ -35234,6 +35827,7 @@
     {
      "member": "LOADPADB",
      "step": "STEP01",
+     "step_line": 26,
      "ddname": "",
      "path": "app/app-authorization-ims-db2-mq/jcl/LOADPADB.JCL",
      "line": 29,
@@ -35243,6 +35837,7 @@
     {
      "member": "UNLDGSAM",
      "step": "STEP01",
+     "step_line": 26,
      "ddname": "",
      "path": "app/app-authorization-ims-db2-mq/jcl/UNLDGSAM.JCL",
      "line": 29,
@@ -35252,6 +35847,7 @@
     {
      "member": "UNLDPADB",
      "step": "STEP01",
+     "step_line": 38,
      "ddname": "",
      "path": "app/app-authorization-ims-db2-mq/jcl/UNLDPADB.JCL",
      "line": 41,
@@ -35338,6 +35934,7 @@
     {
      "member": "DBPAUTP0",
      "step": "UNLOAD",
+     "step_line": 15,
      "ddname": "DFSVSAMP",
      "path": "app/app-authorization-ims-db2-mq/jcl/DBPAUTP0.jcl",
      "line": 33,
@@ -35347,6 +35944,7 @@
     {
      "member": "LOADPADB",
      "step": "STEP01",
+     "step_line": 26,
      "ddname": "DFSVSAMP",
      "path": "app/app-authorization-ims-db2-mq/jcl/LOADPADB.JCL",
      "line": 44,
@@ -35356,6 +35954,7 @@
     {
      "member": "UNLDGSAM",
      "step": "STEP01",
+     "step_line": 26,
      "ddname": "DFSVSAMP",
      "path": "app/app-authorization-ims-db2-mq/jcl/UNLDGSAM.JCL",
      "line": 46,
@@ -35365,6 +35964,7 @@
     {
      "member": "UNLDPADB",
      "step": "STEP01",
+     "step_line": 38,
      "ddname": "DFSVSAMP",
      "path": "app/app-authorization-ims-db2-mq/jcl/UNLDPADB.JCL",
      "line": 62,
@@ -35389,6 +35989,7 @@
     {
      "member": "CBPAUP0J",
      "step": "STEP01",
+     "step_line": 24,
      "ddname": "",
      "path": "app/app-authorization-ims-db2-mq/jcl/CBPAUP0J.jcl",
      "line": 27,
