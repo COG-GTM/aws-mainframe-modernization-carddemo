@@ -61,7 +61,7 @@ abs_all=()      # absence checks run (missing input DALYTRAN, missing RETURN-COD
 abs_pass=()     # absence checks that produced the expected exit code and markers
 sys_all=()      # SYSOUT policy checks run (edge whitespace: default informational, --strict-sysout fatal)
 sys_pass=()     # SYSOUT policy checks that passed
-pair_all=()     # pairing checks run (RETURN-CODE as integer; same-key records swapped = order only)
+pair_all=()     # pairing checks run (RETURN-CODE as integer; same-key records swapped = order only; same-key extra row = extra)
 pair_pass=()    # pairing checks that passed
 
 tcheck() {  # tcheck <label> <expected_exit> <actual_exit> <report> <markers...>
@@ -202,6 +202,19 @@ PY
     --out-dir "$W/dup-out" --quiet
   tcheck "dup-key rejects swapped" 2 $? "$W/dup-out/reconciliation.md" \
     "SAME RECORDS, DIFFERENT ORDER" "| field differences | 0 |" "DALYREJS"
+  #     a second copy of an existing ACCTFILE row is an extra record, and stays a
+  #     mismatch even when the only field difference is absorbed by a tolerance
+  cp -r "$onecent" "$W/dup-acct"; rm -f "$W/dup-acct/reconciliation.json" "$W/dup-acct/reconciliation.md"
+  python3 - "$HERE" "$W/dup-acct/ACCTFILE" <<'PY'
+import sys
+sys.path.insert(0, sys.argv[1])
+from layouts import OUTPUT_LAYOUTS
+recs = OUTPUT_LAYOUTS["ACCTFILE"].records(open(sys.argv[2], "rb").read())
+open(sys.argv[2], "wb").write(b"".join(recs + [recs[0]]))
+PY
+  python3 "$HERE/compare.py" "$EXP" "$W/dup-acct" --tolerance TRAN-AMT=0.01 --out-dir "$W/dup-acct-out" --quiet
+  tcheck "dup-key extra row + tolerance" 1 $? "$W/dup-acct-out/reconciliation.md" \
+    "MISMATCH" "| missing / extra records | 0 / 1 |" "ACCTFILE"
 done
 
 # (c) record the evidence the documentation numbers are derived from (only for a
@@ -254,7 +267,7 @@ printf '%s\n' "${lines[@]}"
 n_mut=$(python3 "$HERE/mutate.py" --list | wc -l | tr -d ' ')
 n_sets=$(echo $SETS | wc -w | tr -d ' ')
 echo "  mutants defined: $n_mut; sets: $SETS"
-echo "  checks passed: $caught of $total  (exact-copy x$n_sets + $n_mut mutants x$n_sets + 4 tolerance-path x$n_sets + 2 absence x$n_sets + 2 sysout-policy x$n_sets + 3 pairing x$n_sets$docs_line)"
+echo "  checks passed: $caught of $total  (exact-copy x$n_sets + $n_mut mutants x$n_sets + 4 tolerance-path x$n_sets + 2 absence x$n_sets + 2 sysout-policy x$n_sets + 4 pairing x$n_sets$docs_line)"
 if [ $fail -eq 0 ]; then
   echo "  RESULT: PASS - ${#mut_caught[@]} of ${#mut_all[@]} injected defects caught; exact copy compares clean; tolerance path ${#tol_pass[@]} of ${#tol_all[@]}; absence ${#abs_pass[@]} of ${#abs_all[@]}; sysout policy ${#sys_pass[@]} of ${#sys_all[@]}; pairing ${#pair_pass[@]} of ${#pair_all[@]}"
   echo "  work dir: $WORK"

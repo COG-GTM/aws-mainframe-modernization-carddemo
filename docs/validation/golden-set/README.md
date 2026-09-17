@@ -22,7 +22,7 @@ block is stale.
 - **Tolerance path:** 8 of 8 checks passed (a bound that covers the one-cent defect gives `MATCH WITHIN TOLERANCE`, exit 3; a bound that does not still gives `MISMATCH`, exit 1; a tolerance naming an unknown field or a non-finite bound is refused, exit 64, no report).
 - **Absence path:** 4 of 4 checks passed (an exact copy with no input `DALYTRAN` reachable, and an exact copy missing its `RETURN-CODE`, both give `MISMATCH`, exit 1).
 - **SYSOUT policy:** 4 of 4 checks passed (an operator log differing only by edge whitespace is informational by default, exit 0, and a byte-for-byte `MISMATCH`, exit 1, under `--strict-sysout`).
-- **Pairing:** 6 of 6 checks passed (`RETURN-CODE` is compared as an integer: `04` equals `4`, exit 0, while two non-integer files are a `MISMATCH`, exit 1; two same-key `DALYREJS` records swapped in the candidate are `SAME RECORDS, DIFFERENT ORDER`, exit 2, with 0 field differences).
+- **Pairing:** 8 of 8 checks passed (`RETURN-CODE` is compared as an integer: `04` equals `4`, exit 0, while two non-integer files are a `MISMATCH`, exit 1; two same-key `DALYREJS` records swapped in the candidate are `SAME RECORDS, DIFFERENT ORDER`, exit 2, with 0 field differences; a second copy of an existing `ACCTFILE` row is 1 extra record and a `MISMATCH`, exit 1, even with a tolerance absorbing the only field difference).
 
 | Metric | Value | Derived from |
 |---|---|---|
@@ -265,6 +265,7 @@ golden-set comparator self-test (compare.py vs mutate.py)
   named    return-code 04 equals 4      exit 0 (expected 0)  named: EXACT MATCH | RETURN-CODE | same |  PASS
   named    return-code non-integer      exit 1 (expected 1)  named: MISMATCH **MISMATCH** (not an integer)  PASS
   named    dup-key rejects swapped      exit 2 (expected 2)  named: SAME RECORDS, DIFFERENT ORDER | field differences | 0 | DALYREJS  PASS
+  named    dup-key extra row + tolerance exit 1 (expected 1)  named: MISMATCH | missing / extra records | 0 / 1 | ACCTFILE  PASS
   volume   exact-copy                   exit 0 (expected 0)  EXACT MATCH  PASS
   volume   amount_off_by_one_cent       exit 1 (expected 1)  named: TRAN-AMT GS03150000000001 sum_accepted_amount  CAUGHT
   volume   category_row_dropped         exit 1 (expected 1)  named: missing in candidate 90000000166020003 closing_category_balances  CAUGHT
@@ -286,10 +287,11 @@ golden-set comparator self-test (compare.py vs mutate.py)
   volume   return-code 04 equals 4      exit 0 (expected 0)  named: EXACT MATCH | RETURN-CODE | same |  PASS
   volume   return-code non-integer      exit 1 (expected 1)  named: MISMATCH **MISMATCH** (not an integer)  PASS
   volume   dup-key rejects swapped      exit 2 (expected 2)  named: SAME RECORDS, DIFFERENT ORDER | field differences | 0 | DALYREJS  PASS
+  volume   dup-key extra row + tolerance exit 1 (expected 1)  named: MISMATCH | missing / extra records | 0 / 1 | ACCTFILE  PASS
   docs     docs_numbers.py --check      exit 0 (expected 0)  README/layouts/findings blocks current  PASS
   mutants defined: 9; sets: named volume
-  checks passed: 43 of 43  (exact-copy x2 + 9 mutants x2 + 4 tolerance-path x2 + 2 absence x2 + 2 sysout-policy x2 + 3 pairing x2 + docs sync)
-  RESULT: PASS - 18 of 18 injected defects caught; exact copy compares clean; tolerance path 8 of 8; absence 4 of 4; sysout policy 4 of 4; pairing 6 of 6
+  checks passed: 45 of 45  (exact-copy x2 + 9 mutants x2 + 4 tolerance-path x2 + 2 absence x2 + 2 sysout-policy x2 + 4 pairing x2 + docs sync)
+  RESULT: PASS - 18 of 18 injected defects caught; exact copy compares clean; tolerance path 8 of 8; absence 4 of 4; sysout policy 4 of 4; pairing 8 of 8
 ```
 
 ### Output of the reference-vs-reference and exact-copy comparisons

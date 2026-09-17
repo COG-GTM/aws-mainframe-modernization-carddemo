@@ -123,7 +123,9 @@ def numbers_block(d):
              % (len(st["sysout_policy_checks_passed"]), len(st["sysout_policy_checks"])))
     L.append("- **Pairing:** %d of %d checks passed (`RETURN-CODE` is compared as an integer: `04` equals `4`,"
              " exit 0, while two non-integer files are a `MISMATCH`, exit 1; two same-key `DALYREJS` records"
-             " swapped in the candidate are `SAME RECORDS, DIFFERENT ORDER`, exit 2, with 0 field differences)."
+             " swapped in the candidate are `SAME RECORDS, DIFFERENT ORDER`, exit 2, with 0 field differences;"
+             " a second copy of an existing `ACCTFILE` row is 1 extra record and a `MISMATCH`, exit 1, even"
+             " with a tolerance absorbing the only field difference)."
              % (len(st["pairing_checks_passed"]), len(st["pairing_checks"])))
     L.append("")
     L.append("| Metric | Value | Derived from |")

@@ -182,6 +182,7 @@ def pair_records(file_name: str, exp_recs: List[bytes], got_recs: List[bytes]
 
     pairs: List[Tuple[int, int]] = []
     missing: List[int] = []
+    extra: List[int] = []
     for k, eis in by_key_exp.items():
         gis = list(by_key_got.pop(k, []))
         left: List[int] = []
@@ -197,9 +198,10 @@ def pair_records(file_name: str, exp_recs: List[bytes], got_recs: List[bytes]
                 pairs.append((ei, gis.pop(0)))
             else:
                 missing.append(ei)
-    extra = sorted(gi for gis in by_key_got.values() for gi in gis)
+        extra.extend(gis)
+    extra.extend(gi for gis in by_key_got.values() for gi in gis)
     pairs.sort()
-    return pairs, sorted(missing), extra
+    return pairs, sorted(missing), sorted(extra)
 
 
 def compare_record_file(name: str, exp_data: Optional[bytes], got_data: Optional[bytes],
@@ -621,10 +623,13 @@ def main(argv=None) -> int:
     n_missing = sum(len(f["missing_records"]) for f in rec_files)
     n_extra = sum(len(f["extra_records"]) for f in rec_files)
     n_err = sum(len(f["errors"]) for f in rec_files)
+    count_diff = [f["file"] for f in rec_files
+                  if not f["errors"] and f["records_expected"] != f["records_candidate"]]
     order_only = [f["file"] for f in rec_files if f["same_records_different_order"]]
     all_bytes = all(f["byte_identical"] for f in rec_files) and not rc_mismatch
 
-    if fatal or input_errors or n_diff or n_missing or n_extra or n_err or tot_mismatch or rc_mismatch:
+    if (fatal or input_errors or n_diff or n_missing or n_extra or n_err or count_diff
+            or tot_mismatch or rc_mismatch):
         exit_code, verdict = 1, "MISMATCH"
     elif order_only:
         exit_code, verdict = 2, "SAME RECORDS, DIFFERENT ORDER"
