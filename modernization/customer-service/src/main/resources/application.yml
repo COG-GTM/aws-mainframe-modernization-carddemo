@@ -1,0 +1,27 @@
+server:
+  port: 8081
+
+spring:
+  application:
+    name: customer-service
+  datasource:
+    url: ${CUSTOMER_DB_URL:jdbc:postgresql://localhost:5432/carddemo}
+    username: ${CUSTOMER_DB_USER:carddemo}
+    password: ${CUSTOMER_DB_PASSWORD:carddemo}
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        default_schema: customer
+  flyway:
+    schemas: customer
+    default-schema: customer
+    create-schemas: true
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
