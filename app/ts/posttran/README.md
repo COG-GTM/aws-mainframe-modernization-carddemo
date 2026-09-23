@@ -31,6 +31,37 @@ npm run build      # emits dist/
 | `src/records/` | one module per copybook record layout |
 | `src/io/` | keyed (VSAM-equivalent) stores and the six DD-name file adapters |
 | `src/validation/` | reason codes 100/101/102/103 (`1500-VALIDATE-TRAN`) |
+| `src/posting/` | posting, timestamp generation and the main loop |
+| `src/cli.ts` | runnable equivalent of job step `POSTTRAN.STEP15` |
+
+## Running the job against the sample data
+
+The job rewrites `ACCTFILE`, `TCATBALF`, `TRANFILE` and `DALYREJS`, so copy the
+repository sample data somewhere scratch first:
+
+```bash
+mkdir -p out
+cp ../../data/ASCII/{dailytran.txt,cardxref.txt,acctdata.txt,tcatbal.txt} out/
+: > out/tranfile.txt
+: > out/dalyrejs.txt
+
+npm run posttran -- \
+  --dalytran=out/dailytran.txt \
+  --xreffile=out/cardxref.txt \
+  --acctfile=out/acctdata.txt \
+  --tcatbalf=out/tcatbal.txt \
+  --tranfile=out/tranfile.txt \
+  --dalyrejs=out/dalyrejs.txt
+```
+
+Against the unmodified sample data this prints
+`TRANSACTIONS PROCESSED :000000300` / `TRANSACTIONS REJECTED  :000000038`
+(all 38 are reason 102, over limit) and exits with code **4**, matching the
+`COND=(4,LT)` convention of the JCL. Exit code 0 means no rejects; exit code 12
+stands in for the COBOL `9999-ABEND-PROGRAM` abend.
+
+After `npm run build` the same entry point is `node dist/cli.js` with identical
+options.
 
 ## Record layouts
 
@@ -70,3 +101,21 @@ this does not change the posted results, only when they hit the filesystem.
   zero-padded **strings** so key padding survives round-tripping.
 * Short input lines (the ASCII sample files omit trailing filler) are padded
   with spaces to the record length; `\r\n` line endings are tolerated.
+
+## Faithfully reproduced COBOL quirks
+
+| Behaviour | Where |
+|---|---|
+| Reason 100 short-circuits the account lookup, so 100 and 101 never co-occur | `validation/validateTransaction.ts` |
+| Reason 103 overwrites reason 102 — an expired **and** over-limit transaction reports only 103 | same |
+| Over-limit uses `credit limit >= cycle credit - cycle debit + amount`, ignoring `ACCT-CURR-BAL` | `isWithinCreditLimit` |
+| Expiry is a 10-character string comparison, not date arithmetic | `isWithinExpiry` |
+| `ACCT-ACTIVE-STATUS` is never checked, so closed accounts still post | `validateTransaction` |
+| A negative amount is *added* to `ACCT-CURR-CYC-DEBIT`, making it more negative | `applyAccountBalances` |
+| Reason 109 (account rewrite failed) is set and never tested: no reject, transaction still written | `updateAccountRecord` |
+| The inbound processing timestamp is discarded and regenerated | `buildTransactionMasterRecord` |
+| `TRANFILE` is loaded, not appended — the run replaces the dataset | `io/datasets.ts` |
+
+The reason-109 dead logic is isolated in `updateAccountRecord`, and
+`runPostingJob` exposes `treatAccountRewriteFailureAsReject` (default `false` =
+COBOL behaviour) as the single, tested seam for correcting it later.
