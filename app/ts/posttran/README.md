@@ -30,6 +30,7 @@ npm run build      # emits dist/
 | `src/codec/fixedWidth.ts` | 1-based offset readers/writers for fixed-width records |
 | `src/records/` | one module per copybook record layout |
 | `src/io/` | keyed (VSAM-equivalent) stores and the six DD-name file adapters |
+| `src/validation/` | reason codes 100/101/102/103 (`1500-VALIDATE-TRAN`) |
 
 ## Record layouts
 
