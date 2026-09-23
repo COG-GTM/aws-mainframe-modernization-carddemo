@@ -8,9 +8,6 @@
   "engines": {
     "node": ">=22.18.0"
   },
-  "bin": {
-    "posttran": "./dist/cli.js"
-  },
   "scripts": {
     "build": "tsc --build tsconfig.build.json",
     "typecheck": "tsc --noEmit",

@@ -53,7 +53,7 @@ export function writeText(value: string, length: number): string {
 }
 
 export function writeDigits(value: string, length: number): string {
-  if (!/^\d*$/.test(value)) {
+  if (!/^\d+$/.test(value)) {
     throw new RangeError(`non-numeric digits value: ${JSON.stringify(value)}`);
   }
   if (value.length > length) {

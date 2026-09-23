@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { describe, it } from 'node:test';
 
+import { writeDigits } from '../src/codec/fixedWidth.ts';
 import { toDecimalString } from '../src/codec/money.ts';
 import { parseAccount, serializeAccount } from '../src/records/account.ts';
 import {
@@ -114,5 +115,10 @@ void describe('record layouts', () => {
     const parsed = parseRejectRecord(line);
     assert.equal(parsed.reasonCode, 103);
     assert.equal(parsed.reasonDescription.trimEnd(), 'TRANSACTION RECEIVED AFTER ACCT EXPIRATION');
+  });
+
+  void it('refuses to turn a missing digits value into a zero-filled key', () => {
+    assert.throws(() => writeDigits('', 11), RangeError);
+    assert.equal(writeDigits('50', 11), '00000000050');
   });
 });
