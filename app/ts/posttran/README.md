@@ -29,6 +29,7 @@ npm run build      # emits dist/
 | `src/codec/zonedDecimal.ts` | signed zoned decimal (trailing sign overpunch) codec |
 | `src/codec/fixedWidth.ts` | 1-based offset readers/writers for fixed-width records |
 | `src/records/` | one module per copybook record layout |
+| `src/io/` | keyed (VSAM-equivalent) stores and the six DD-name file adapters |
 
 ## Record layouts
 
@@ -40,6 +41,21 @@ npm run build      # emits dist/
 | `records/account.ts` | `CVACT01Y` (`ACCTFILE`) | 300 | `ACCT-ID` 9(11) |
 | `records/transactionCategoryBalance.ts` | `CVTRA01Y` (`TCATBALF`) | 50 | acct 9(11) + type X(02) + cat 9(04) |
 | `records/rejectRecord.ts` | in-program (CBTRN02C l.176-182) | 430 | none (sequential) |
+
+## DD names and datasets
+
+| DD name | Mainframe dataset | Open mode | TypeScript adapter |
+|---|---|---|---|
+| `DALYTRAN` | `AWS.M2.CARDDEMO.DALYTRAN.PS` | INPUT (sequential) | array of parsed records |
+| `XREFFILE` | `AWS.M2.CARDDEMO.CARDXREF.VSAM.KSDS` | INPUT (random) | `KeyedStore` (read only) |
+| `ACCTFILE` | `AWS.M2.CARDDEMO.ACCTDATA.VSAM.KSDS` | I-O | `KeyedStore` (read + rewrite) |
+| `TCATBALF` | `AWS.M2.CARDDEMO.TCATBALF.VSAM.KSDS` | I-O | `KeyedStore` (read + write + rewrite) |
+| `TRANFILE` | `AWS.M2.CARDDEMO.TRANSACT.VSAM.KSDS` | **OUTPUT** | `KeyedLoader` — replaces the dataset, ascending keys only |
+| `DALYREJS` | `AWS.M2.CARDDEMO.DALYREJS(+1)` | OUTPUT | `RejectFile` — 430-byte records |
+
+Keyed files are loaded into memory on open and written back on close, so a run
+is all-or-nothing on disk. The COBOL has no unit of work at all (spec §6.4);
+this does not change the posted results, only when they hit the filesystem.
 
 ## Decimal and sign handling
 
