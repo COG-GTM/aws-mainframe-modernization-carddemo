@@ -1,0 +1,25 @@
+{
+  "name": "carddemo-posttran",
+  "version": "1.0.0",
+  "private": true,
+  "description": "TypeScript implementation of the CardDemo POSTTRAN nightly posting job (COBOL program CBTRN02C)",
+  "license": "Apache-2.0",
+  "type": "module",
+  "engines": {
+    "node": ">=22.18.0"
+  },
+  "scripts": {
+    "build": "tsc --build tsconfig.build.json",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint .",
+    "test": "node --experimental-strip-types --test \"test/**/*.test.ts\"",
+    "posttran": "node --experimental-strip-types src/cli.ts"
+  },
+  "devDependencies": {
+    "@eslint/js": "10.0.1",
+    "@types/node": "24.13.5",
+    "eslint": "10.10.0",
+    "typescript": "5.9.3",
+    "typescript-eslint": "8.70.0"
+  }
+}
