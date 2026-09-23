@@ -113,7 +113,7 @@ Read via the alternate key (`READ ... KEY IS FD-XREF-ACCT-ID`, `cbl:394-395`). W
 | `DIS-ACCT-GROUP-ID` | `X(10)` | key part 1 | Disclosure group (from the account), or literal `DEFAULT` |
 | `DIS-TRAN-TYPE-CD` | `X(02)` | key part 2 | Transaction type |
 | `DIS-TRAN-CAT-CD` | `9(04)` | key part 3 | Transaction category |
-| `DIS-INT-RATE` | `S9(04)V99` | | **Annual** interest rate as a percentage (e.g. `0150{` → 1.50 %) |
+| `DIS-INT-RATE` | `S9(04)V99` | | **Annual** interest rate as a percentage; 6 bytes, zoned with overpunch sign (e.g. the image `00150{` → 15.00 %) |
 | `FILLER` | `X(28)` | | Unused |
 
 Reference data in `app/data/ASCII/discgrp.txt` confirms both account-specific rows (`A000000000100010015...`) and `DEFAULT` rows (lines 18+).
@@ -324,7 +324,7 @@ Until answered, the Java implementation should preserve current behaviour (no fe
 
 ### 8.1 Storage formats — correction to a common assumption
 
-None of the copybooks used by this job declare `COMP-3`/packed-decimal fields. All numerics are **USAGE DISPLAY** (zoned decimal with a trailing overpunch sign for signed fields) — see `CVTRA01Y.cpy`, `CVTRA02Y.cpy`, `CVACT01Y.cpy`, `CVTRA05Y.cpy`, and confirm in the sample data (`app/data/ASCII/discgrp.txt`, where rate `0150{` encodes `+150`, i.e. 1.50). The migration must therefore implement **zoned-decimal / overpunch** encode-decode, and must not assume packed decimal for these files. (Other CardDemo programs do use `COMP-3`; this job does not.)
+None of the copybooks used by this job declare `COMP-3`/packed-decimal fields. All numerics are **USAGE DISPLAY** (zoned decimal with a trailing overpunch sign for signed fields) — see `CVTRA01Y.cpy`, `CVTRA02Y.cpy`, `CVACT01Y.cpy`, `CVTRA05Y.cpy`, and confirm in the sample data (`app/data/ASCII/discgrp.txt`, where the 6-byte rate image `00150{` encodes `+001500`, i.e. 15.00). The migration must therefore implement **zoned-decimal / overpunch** encode-decode, and must not assume packed decimal for these files. (Other CardDemo programs do use `COMP-3`; this job does not.)
 
 | COBOL declaration | Java representation | Notes |
 | --- | --- | --- |
