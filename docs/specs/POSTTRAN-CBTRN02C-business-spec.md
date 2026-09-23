@@ -243,7 +243,7 @@ Counters and run outcome:
 * `WS-TRANSACTION-COUNT` — incremented for every daily transaction read (l.206).
 * `WS-REJECT-COUNT` — incremented immediately before each reject write (l.214).
 * At end of job both are displayed: "TRANSACTIONS PROCESSED :" and "TRANSACTIONS REJECTED  :" (l.227–228).
-* If any transaction was rejected, `RETURN-CODE` is set to **4** (l.229–231) — a warning, not a failure; successor jobs are not stopped by it.
+* If any transaction was rejected, `RETURN-CODE` is set to **4** (l.229–231). What the schedulers do with that code is not evidenced in this repository: neither `CardDemo.ca7` nor `CardDemo.controlm` states an acceptable-condition-code policy for `POSTTRAN`, and the shell drivers do not test it either (§8).
 
 Downstream consumption: within this repository **nothing reads `AWS.M2.CARDDEMO.DALYREJS`**. The dataset is a GDG (`app/jcl/DALYREJS.jcl`; catalogued generations in `app/catlg/LISTCAT.txt`, lines 684–697) and each run creates generation `(+1)`; consumption is presumably manual or out of scope for the demo (§8).
 
@@ -272,7 +272,7 @@ Displays "ABENDING PROGRAM" and calls the Language Environment service `CEE3ABD`
 * There is **no unit of work and no commit/rollback**. VSAM updates issued through `REWRITE`/`WRITE` before the abend are already applied; there is no backout.
 * Because posting touches three files in sequence (`TCATBALF`, then `ACCTFILE`, then `TRANFILE`) with no atomicity, an abend between them leaves a transaction **partially posted**: e.g. a category balance and account balance updated but no transaction-master record.
 * The `DALYREJS` GDG generation is catalogued only at successful step end (`DISP=(NEW,CATLG,DELETE)`), so on abend the rejects written so far are deleted while the VSAM updates persist.
-* **The job is not restartable from the point of failure.** There is no checkpoint, no restart key and no idempotency: rerunning from the top would re-apply every already-posted amount to `ACCTFILE` and `TCATBALF`. The operational recovery in this codebase is to restore the files (`ACCTFILE`, `TCATBALF`, `TRANBKP` refresh jobs run before `POSTTRAN` in `scripts/run_posting.sh`) and rerun the whole job.
+* **The job is not restartable from the point of failure.** There is no checkpoint, no restart key and no idempotency: rerunning from the top would re-apply every already-posted amount to `ACCTFILE` and `TCATBALF`. The only recovery visible in this codebase is the set of refresh jobs that `scripts/run_posting.sh` runs before `POSTTRAN` — `ACCTFILE` and `TCATBALF` reload **baseline** data, and `TRANBKP` copies the transaction master to a backup GDG and then deletes and redefines an **empty** cluster (`app/jcl/TRANBKP.jcl`, STEP05R/STEP05/STEP10). That is a reset to a known starting point, not a restore to the point of failure; whether it is the sanctioned production recovery procedure is not evidenced here (§8).
 * Reruns are safe for `TRANFILE` only because it is opened `OUTPUT` (loaded from empty), not for the two I-O files.
 
 ---
@@ -315,7 +315,8 @@ Items that are ambiguous, unimplemented, or inconsistent in the source and must 
 12. **`TRANFILE` is loaded, not appended.** Confirm that "the posting job rebuilds the transaction master each night from a restored backup" is the intended business behaviour and not an artefact of the demo.
 13. **Restart/rerun policy.** There is no checkpoint/restart. Confirm the operational procedure (restore + full rerun) so the Java design can either replicate it or provide true restartability.
 14. **Time zone / clock source** for `TRAN-PROC-TS` (§7) is unspecified.
-15. **Behaviour on malformed numeric input** (blanks, low-values, non-numeric) is undefined in the current code and needs an explicit business decision.
+15. **Successor/condition-code policy for RC 4 is unverified.** Nothing in `CardDemo.ca7`, `CardDemo.controlm` or the shell drivers states whether RC 4 is tolerated, held or treated as a failure. Confirm with operations before the Java job's exit-code contract is fixed.
+16. **Behaviour on malformed numeric input** (blanks, low-values, non-numeric) is undefined in the current code and needs an explicit business decision.
 
 ---
 
