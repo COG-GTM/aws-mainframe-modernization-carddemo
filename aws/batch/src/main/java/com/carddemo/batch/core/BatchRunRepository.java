@@ -27,13 +27,15 @@ public class BatchRunRepository {
         this.mapper = mapper;
     }
 
-    public record Run(String status, Integer exitCode, String counts) {
+    public record Run(String status, Integer exitCode, String counts, LocalDate businessDate) {
     }
 
     public Optional<Run> find(String runId, String jobName) {
         List<Run> runs = jdbc.query(
-                "SELECT status, exit_code, counts::text AS counts FROM batch_job_run WHERE run_id = ? AND job_name = ?",
-                (rs, i) -> new Run(rs.getString("status"), (Integer) rs.getObject("exit_code"), rs.getString("counts")),
+                "SELECT status, exit_code, counts::text AS counts, business_date FROM batch_job_run"
+                        + " WHERE run_id = ? AND job_name = ?",
+                (rs, i) -> new Run(rs.getString("status"), (Integer) rs.getObject("exit_code"), rs.getString("counts"),
+                        rs.getObject("business_date", LocalDate.class)),
                 runId, jobName);
         return runs.stream().findFirst();
     }

@@ -44,7 +44,8 @@ import org.springframework.transaction.support.TransactionTemplate;
  * in this run's {@code batch_job_run.counts}. Any later run for the same {@code parmDate} (same or new
  * {@code runId}) skips accounts up to the highest recorded {@code lastAcctId}, including accounts without
  * interest, so their cycle totals are never reset twice. Interest tran ids continue after the highest existing
- * {@code <parmDate>nnnnnn} suffix. Runs for one {@code parmDate} are serialized by an advisory lock held for the
+ * {@code <parmDate>nnnnnn} suffix. The run's {@code firstTranId}/{@code lastTranId} are recorded the same way, and
+ * SYSTRAN contains only the interest transactions of this {@code runId} (across its restarts). Runs for one {@code parmDate} are serialized by an advisory lock held for the
  * whole run; a concurrent run for the same {@code parmDate} fails with RC 16 before touching any account.
  *
  * <p>{@code 1400-COMPUTE-FEES} is "To be implemented" in the COBOL source and is therefore not implemented.
@@ -133,16 +134,18 @@ public class CalculateInterestJob implements CardDemoJob {
         }
 
         List<String> systran = jdbc.query("""
-                SELECT tran_id, type_cd, cat_cd, source, description, amt, merchant_id, merchant_name,
-                       merchant_city, merchant_zip, card_num, orig_ts, proc_ts
-                  FROM transaction
-                 WHERE tran_id LIKE ? AND type_cd = '01' AND cat_cd = 5 AND source = 'System'
-                 ORDER BY tran_id
+                SELECT t.tran_id, t.type_cd, t.cat_cd, t.source, t.description, t.amt, t.merchant_id,
+                       t.merchant_name, t.merchant_city, t.merchant_zip, t.card_num, t.orig_ts, t.proc_ts
+                  FROM transaction t
+                  JOIN batch_job_run r ON r.run_id = ? AND r.job_name = ?
+                 WHERE t.tran_id LIKE ? AND t.type_cd = '01' AND t.cat_cd = 5 AND t.source = 'System'
+                   AND t.tran_id BETWEEN r.counts->>'firstTranId' AND r.counts->>'lastTranId'
+                 ORDER BY t.tran_id
                 """, (rs, n) -> new TransactionRecord(rs.getString(1), rs.getString(2), rs.getInt(3),
                         rs.getString(4), rs.getString(5), rs.getBigDecimal(6), (Integer) rs.getObject(7),
                         rs.getString(8), rs.getString(9), rs.getString(10), rs.getString(11),
                         rs.getObject(12, LocalDateTime.class), rs.getObject(13, LocalDateTime.class))
-                        .format(Fixed.DB2_TS), parm + "%");
+                        .format(Fixed.DB2_TS), p.runId(), NAME, parm + "%");
         String key = S3Keys.systemTransactions(p.businessDate(), p.runId());
         store.put(key, (String.join("\n", systran) + (systran.isEmpty() ? "" : "\n"))
                 .getBytes(StandardCharsets.US_ASCII), "text/plain");
@@ -209,6 +212,14 @@ public class CalculateInterestJob implements CardDemoJob {
                                 || jsonb_build_object('parmDate', ?::text, 'lastAcctId', ?::bigint)
                  WHERE run_id = ? AND job_name = ?
                 """, parm, acctId, runId, NAME);
+        if (!interest.isEmpty()) {
+            jdbc.update("""
+                    UPDATE batch_job_run
+                       SET counts = counts || jsonb_build_object(
+                               'firstTranId', COALESCE(counts->>'firstTranId', ?::text), 'lastTranId', ?::text)
+                     WHERE run_id = ? AND job_name = ?
+                    """, interest.get(0).tranId(), interest.get(interest.size() - 1).tranId(), runId, NAME);
+        }
         return new AccountResult(interest.size(), total);
     }
 

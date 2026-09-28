@@ -151,6 +151,22 @@ class GoldenPosttranIntcalcIT extends AbstractBatchIT {
                 .isZero();
     }
 
+    @Test
+    void intcalcRerunSystranContainsOnlyItsOwnTransactions() throws IOException {
+        assertThat(run("post-daily-transactions", "sy-post")).isEqualTo(ReturnCode.WARNING);
+        assertThat(run("calculate-interest", "sy-1", "--parmDate=2022071800")).isEqualTo(ReturnCode.OK);
+        assertThat(read("output/systran/2022-07-18/sy-1.txt")).isNotEmpty();
+        assertThat(run("calculate-interest", "sy-2", "--parmDate=2022071800")).isEqualTo(ReturnCode.OK);
+        assertThat(read("output/systran/2022-07-18/sy-2.txt")).isEmpty();
+    }
+
+    @Test
+    void completedRunIdReusedForAnotherBusinessDateIsRejected() {
+        assertThat(run("post-daily-transactions", "bd")).isEqualTo(ReturnCode.WARNING);
+        assertThat(runner.run("--job=post-daily-transactions", "--runId=bd", "--businessDate=2022-07-19"))
+                .isEqualTo(ReturnCode.INPUT_ERROR);
+    }
+
     List<String> accounts() {
         return jdbc.query("""
                 SELECT acct_id, active_status, curr_bal, credit_limit, cash_credit_limit, open_date, expiration_date,

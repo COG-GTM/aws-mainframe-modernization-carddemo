@@ -59,9 +59,11 @@ public class CombineTransactionsJob implements CardDemoJob {
         List<String> problems = new ArrayList<>();
 
         Optional<String> systranKey = p.get("systranKey")
-                .or(() -> store.latest(S3Keys.systemTransactionsPrefix() + p.businessDate() + "/"))
-                .or(() -> store.latest(S3Keys.systemTransactionsPrefix()));
-        Optional<String> backupKey = p.get("backupKey").or(() -> store.latest(S3Keys.backupPrefix("transaction")));
+                .or(() -> thisCycle(S3Keys.systemTransactions(p.businessDate(), p.runId()),
+                        S3Keys.systemTransactionsPrefix() + p.businessDate() + "/"));
+        Optional<String> backupKey = p.get("backupKey")
+                .or(() -> thisCycle(S3Keys.backup("transaction", p.businessDate(), p.runId()),
+                        S3Keys.backupPrefix("transaction") + p.businessDate() + "/"));
         if (systranKey.isEmpty() || backupKey.isEmpty()) {
             throw new JobFailure(ReturnCode.INPUT_ERROR, "combine-transactions needs the latest system-transaction"
                     + " file and transaction backup (SYSTRAN(0) / TRANSACT.BKUP(0)); found systran=" + systranKey
@@ -99,6 +101,11 @@ public class CombineTransactionsJob implements CardDemoJob {
             throw new JobFailureWithCounts(ReturnCode.DATA_ERROR, String.join("; ", problems), counts, null);
         }
         return JobOutcome.ok(counts);
+    }
+
+    /** The cycle's own object (same runId), else the latest of this business date; never another date's. */
+    private Optional<String> thisCycle(String ownKey, String datePrefix) {
+        return store.exists(ownKey) ? Optional.of(ownKey) : store.latest(datePrefix);
     }
 
     /**

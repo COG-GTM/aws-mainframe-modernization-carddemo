@@ -11,6 +11,10 @@ import com.carddemo.batch.record.Fixed;
 import com.carddemo.batch.record.TransactionRecord;
 import com.carddemo.batch.storage.ObjectStore;
 import com.carddemo.batch.storage.S3Keys;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.UncheckedIOException;
 import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
 import java.sql.Timestamp;
@@ -49,6 +53,7 @@ public class PostDailyTransactionsJob implements CardDemoJob {
 
     public static final String NAME = "post-daily-transactions";
     private static final Logger log = LoggerFactory.getLogger(PostDailyTransactionsJob.class);
+    private static final int STAGE_BATCH = 1000;
 
     private final JdbcTemplate jdbc;
     private final TransactionTemplate tx;
@@ -122,38 +127,52 @@ public class PostDailyTransactionsJob implements CardDemoJob {
         if (existing != null && existing > 0) {
             return existing;
         }
-        String content = new String(store.get(inputKey), StandardCharsets.US_ASCII);
-        List<TransactionRecord> records = new ArrayList<>();
-        String[] lines = content.split("\n", -1);
-        for (int i = 0; i < lines.length; i++) {
-            String line = lines[i];
-            if (line.isEmpty() || line.equals("\r")) {
-                continue;
-            }
-            try {
-                records.add(TransactionRecord.parse(line));
-            } catch (RuntimeException e) {
-                throw new JobFailure(ReturnCode.INPUT_ERROR,
-                        "Invalid daily transaction record at line " + (i + 1) + ": " + e.getMessage(), e);
-            }
-        }
-        tx.executeWithoutResult(status -> {
-            List<Object[]> batch = new ArrayList<>();
+        int staged = tx.execute(status -> {
+            List<Object[]> batch = new ArrayList<>(STAGE_BATCH);
             int seq = 0;
-            for (TransactionRecord r : records) {
-                seq++;
-                batch.add(new Object[] {runId, seq, r.tranId(), r.typeCd(), r.catCd(), r.source(), r.description(),
-                    r.amt(), r.merchantId(), r.merchantName(), r.merchantCity(), r.merchantZip(), r.cardNum(),
-                    ts(r.origTs()), ts(r.procTs())});
+            int lineNo = 0;
+            try (BufferedReader in = new BufferedReader(
+                    new InputStreamReader(store.open(inputKey), StandardCharsets.US_ASCII))) {
+                for (String line = in.readLine(); line != null; line = in.readLine()) {
+                    lineNo++;
+                    if (line.isEmpty()) {
+                        continue;
+                    }
+                    TransactionRecord r;
+                    try {
+                        r = TransactionRecord.parse(line);
+                    } catch (RuntimeException e) {
+                        throw new JobFailure(ReturnCode.INPUT_ERROR,
+                                "Invalid daily transaction record at line " + lineNo + ": " + e.getMessage(), e);
+                    }
+                    seq++;
+                    batch.add(new Object[] {runId, seq, r.tranId(), r.typeCd(), r.catCd(), r.source(),
+                        r.description(), r.amt(), r.merchantId(), r.merchantName(), r.merchantCity(),
+                        r.merchantZip(), r.cardNum(), ts(r.origTs()), ts(r.procTs())});
+                    if (batch.size() == STAGE_BATCH) {
+                        insertStaged(batch);
+                    }
+                }
+            } catch (IOException e) {
+                throw new UncheckedIOException(e);
             }
-            jdbc.batchUpdate("""
-                    INSERT INTO daily_transaction (run_id, load_seq, tran_id, type_cd, cat_cd, source, description,
-                           amt, merchant_id, merchant_name, merchant_city, merchant_zip, card_num, orig_ts, proc_ts)
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-                    """, batch);
+            insertStaged(batch);
+            return seq;
         });
-        log.info("Staged {} records from {}", records.size(), store.uri(inputKey));
-        return records.size();
+        log.info("Staged {} records from {}", staged, store.uri(inputKey));
+        return staged;
+    }
+
+    private void insertStaged(List<Object[]> batch) {
+        if (batch.isEmpty()) {
+            return;
+        }
+        jdbc.batchUpdate("""
+                INSERT INTO daily_transaction (run_id, load_seq, tran_id, type_cd, cat_cd, source, description,
+                       amt, merchant_id, merchant_name, merchant_city, merchant_zip, card_num, orig_ts, proc_ts)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """, batch);
+        batch.clear();
     }
 
     /** One input record = one DB transaction. Returns the reject reason, or {@code null} when posted. */

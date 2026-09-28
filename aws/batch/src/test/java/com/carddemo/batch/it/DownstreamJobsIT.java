@@ -73,6 +73,18 @@ class DownstreamJobsIT extends AbstractBatchIT {
     }
 
     @Test
+    void combineUsesThisCyclesBackupNotALaterDatesBackup() {
+        assertThat(run("post-daily-transactions", "cy")).isEqualTo(ReturnCode.WARNING);
+        assertThat(run("backup-transactions", "cy")).isEqualTo(ReturnCode.OK);
+        assertThat(run("calculate-interest", "cy", "--parmDate=2022071800")).isEqualTo(ReturnCode.OK);
+        jdbc.update("DELETE FROM transaction WHERE tran_id = (SELECT min(tran_id) FROM transaction"
+                + " WHERE source <> 'System')");
+        assertThat(runner.run("--job=backup-transactions", "--runId=later", "--businessDate=2022-07-19"))
+                .isEqualTo(ReturnCode.OK);
+        assertThat(run("combine-transactions", "cy")).isEqualTo(ReturnCode.DATA_ERROR);
+    }
+
+    @Test
     void scheduledRefreshNeverReloadsSeedOverPopulatedTable() throws IOException {
         jdbc.update("UPDATE disclosure_group SET int_rate = 8.00");
         assertThat(run("load-reference-data", "rf", "--table=disclosure_group")).isEqualTo(ReturnCode.OK);

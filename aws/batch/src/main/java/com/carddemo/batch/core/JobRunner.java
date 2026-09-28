@@ -118,6 +118,13 @@ public class JobRunner {
 
     private int executeLocked(JobParams p, Instant started) {
         try {
+            Optional<BatchRunRepository.Run> existing = runs.find(p.runId(), p.jobName());
+            if (existing.isPresent() && existing.get().businessDate() != null
+                    && !existing.get().businessDate().equals(p.businessDate())) {
+                log.error("runId {} was used for {} with businessDate {}, not {}: use a new runId", p.runId(),
+                        p.jobName(), existing.get().businessDate(), p.businessDate());
+                return ReturnCode.INPUT_ERROR;
+            }
             if (!runs.start(p.runId(), p.jobName(), p.businessDate())) {
                 BatchRunRepository.Run previous = runs.find(p.runId(), p.jobName()).orElseThrow();
                 int rc = previous.exitCode();

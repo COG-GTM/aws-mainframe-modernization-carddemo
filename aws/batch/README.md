@@ -81,7 +81,7 @@ Outputs go to `target/local-bucket/` with the same key layout as S3 (`runs/<runI
 |---|---|---|---|---|
 | `post-daily-transactions` | `inputKey` (default `input/dalytran/<date>/dalytran.txt`) | S3 daily file, `card_xref`, `account`, `tran_cat_balance` | `daily_transaction`, `transaction`, `account`, `tran_cat_balance`, `output/dalyrejs/<date>/<runId>.txt` | rejects exist |
 | `calculate-interest` | `parmDate` (10 chars, default `yyyyMMdd00` of businessDate) | `tran_cat_balance`, `account`, `card_xref`, `disclosure_group` | `transaction`, `account`, `output/systran/<date>/<runId>.txt` | — |
-| `combine-transactions` | `systranKey`, `backupKey` (default latest) | systran file, backup, `transaction` | — (verification: every systran and backed-up `tran_id` present; RC 8 if an input is missing, RC 12 on mismatch) | — |
+| `combine-transactions` | `systranKey`, `backupKey` (default: this `runId`'s object, else latest of `businessDate`) | systran file, backup, `transaction` | — (verification: every systran and backed-up `tran_id` present; RC 8 if an input is missing, RC 12 on mismatch) | — |
 | `create-statements` | — | `transaction`, `card_xref`, `customer`, `account` | `statements/<date>/<runId>/statement.{txt,html}` | cards skipped (missing customer/account) |
 | `statement-pdf` | `statementRunId` (default this `runId`) | `statement.txt` | `statement.pdf` | — |
 | `backup-transactions` | — | `transaction` | `backup/transaction/<date>/<runId>.csv.gz` | — |
