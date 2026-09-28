@@ -161,6 +161,18 @@ class GoldenPosttranIntcalcIT extends AbstractBatchIT {
     }
 
     @Test
+    void rejectsKeepTheSubmittedRecordBytes() throws IOException {
+        String input = read("input/dalytran/2022-07-18/dalytran.txt");
+        String first = input.substring(0, input.indexOf('\n'));
+        String record = Fixed.pad(first.substring(0, 262) + "9999999999999999"
+                + first.substring(278, 304).replace(' ', '-').replace(':', '.') + first.substring(304), 350);
+        put("input/dalytran/2022-07-18/db2.txt", record + "\n");
+        assertThat(run("post-daily-transactions", "raw", "--inputKey=input/dalytran/2022-07-18/db2.txt"))
+                .isEqualTo(ReturnCode.WARNING);
+        assertThat(lines(read("output/dalyrejs/2022-07-18/raw.txt")).get(0)).startsWith(record + "0100");
+    }
+
+    @Test
     void completedRunIdReusedForAnotherBusinessDateIsRejected() {
         assertThat(run("post-daily-transactions", "bd")).isEqualTo(ReturnCode.WARNING);
         assertThat(runner.run("--job=post-daily-transactions", "--runId=bd", "--businessDate=2022-07-19"))

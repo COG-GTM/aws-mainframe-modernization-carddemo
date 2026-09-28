@@ -73,6 +73,21 @@ class DownstreamJobsIT extends AbstractBatchIT {
     }
 
     @Test
+    void maintenanceRetryAfterCommitDoesNotReapplyRecords() throws IOException {
+        put("input/trantype-maint/2022-07-18/maint.txt", "A08Chargeback\nU08Charge back\n");
+        assertThat(run("maintain-transaction-types", "mr")).isEqualTo(ReturnCode.OK);
+        jdbc.update("UPDATE batch_job_run SET status = 'RUNNING', exit_code = NULL WHERE run_id = 'mr'");
+        assertThat(run("maintain-transaction-types", "mr")).isEqualTo(ReturnCode.OK);
+        JsonNode maint = result("mr", "maintain-transaction-types").get("counts");
+        assertThat(maint.get("added").asInt()).isEqualTo(1);
+        assertThat(maint.get("updated").asInt()).isEqualTo(1);
+        assertThat(maint.get("errors").asInt()).isZero();
+        assertThat(jdbc.queryForObject("SELECT version FROM transaction_type WHERE type_cd = '08'", Integer.class))
+                .isEqualTo(jdbc.queryForObject("SELECT version FROM transaction_type WHERE type_cd = '01'",
+                        Integer.class) + 1);
+    }
+
+    @Test
     void combineUsesThisCyclesBackupNotALaterDatesBackup() {
         assertThat(run("post-daily-transactions", "cy")).isEqualTo(ReturnCode.WARNING);
         assertThat(run("backup-transactions", "cy")).isEqualTo(ReturnCode.OK);

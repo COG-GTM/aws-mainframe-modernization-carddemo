@@ -23,6 +23,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -104,7 +105,7 @@ public class PostDailyTransactionsJob implements CardDemoJob {
             }
         }
 
-        List<String> rejects = rejectRecords(p.runId());
+        List<String> rejects = rejectRecords(p.runId(), inputKey);
         if (!rejects.isEmpty()) {
             String key = S3Keys.dailyRejects(p.businessDate(), p.runId());
             store.put(key, (String.join("\n", rejects) + "\n").getBytes(StandardCharsets.US_ASCII), "text/plain");
@@ -252,18 +253,61 @@ public class PostDailyTransactionsJob implements CardDemoJob {
         return reason;
     }
 
-    private List<String> rejectRecords(String runId) {
-        return jdbc.query("""
+    /**
+     * Reject records as CBTRN02C writes them: the submitted 350-byte input record followed by the 80-byte trailer.
+     * Records are taken from the input object by load sequence; the re-formatted staged row is the fallback when the
+     * object no longer holds the staged record.
+     */
+    private List<String> rejectRecords(String runId, String inputKey) {
+        List<Staged> staged = new ArrayList<>();
+        List<String> trailers = new ArrayList<>();
+        jdbc.query("""
                 SELECT load_seq, tran_id, type_cd, cat_cd, source, description, amt, merchant_id, merchant_name,
                        merchant_city, merchant_zip, card_num, orig_ts, proc_ts, reject_reason
                   FROM daily_transaction WHERE run_id = ? AND post_status = 'R' ORDER BY load_seq
-                """, (rs, i) -> {
-                    Staged s = STAGED.mapRow(rs, i);
+                """, rs -> {
+                    staged.add(STAGED.mapRow(rs, staged.size()));
                     RejectReason reason = RejectReason.of(rs.getInt("reject_reason"));
-                    return s.rec().format(Fixed.ISO_SPACE_TS)
-                            + String.format("%04d", reason.code())
-                            + Fixed.pad(reason.description(), 76);
+                    trailers.add(String.format("%04d", reason.code()) + Fixed.pad(reason.description(), 76));
                 }, runId);
+        Map<Integer, String> raw = rawRecords(inputKey, staged);
+        List<String> out = new ArrayList<>(staged.size());
+        for (int i = 0; i < staged.size(); i++) {
+            Staged s = staged.get(i);
+            out.add(raw.getOrDefault(s.loadSeq(), s.rec().format(Fixed.ISO_SPACE_TS)) + trailers.get(i));
+        }
+        return out;
+    }
+
+    private Map<Integer, String> rawRecords(String inputKey, List<Staged> wanted) {
+        Map<Integer, String> tranIds = new HashMap<>();
+        wanted.forEach(s -> tranIds.put(s.loadSeq(), s.rec().tranId()));
+        Map<Integer, String> raw = new HashMap<>();
+        if (tranIds.isEmpty() || !store.exists(inputKey)) {
+            return raw;
+        }
+        try (BufferedReader in = new BufferedReader(
+                new InputStreamReader(store.open(inputKey), StandardCharsets.US_ASCII))) {
+            int seq = 0;
+            for (String line = in.readLine(); line != null && raw.size() < tranIds.size(); line = in.readLine()) {
+                if (line.isEmpty()) {
+                    continue;
+                }
+                seq++;
+                String tranId = tranIds.get(seq);
+                if (tranId != null && line.length() <= TransactionRecord.LENGTH
+                        && Fixed.pad(line, 16).substring(0, 16).equals(tranId)) {
+                    raw.put(seq, Fixed.pad(line, TransactionRecord.LENGTH));
+                }
+            }
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+        if (raw.size() < tranIds.size()) {
+            log.warn("{} of {} rejects no longer match {}: written from staged rows", tranIds.size() - raw.size(),
+                    tranIds.size(), store.uri(inputKey));
+        }
+        return raw;
     }
 
     private Map<String, Object> counts(String runId) {

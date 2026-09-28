@@ -7,16 +7,21 @@ import com.carddemo.batch.core.ReturnCode;
 import com.carddemo.batch.record.Fixed;
 import com.carddemo.batch.storage.ObjectStore;
 import com.carddemo.batch.storage.S3Keys;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.support.TransactionTemplate;
 
 /**
@@ -32,12 +37,18 @@ public class MaintainTransactionTypesJob implements CardDemoJob {
 
     private final JdbcTemplate jdbc;
     private final TransactionTemplate tx;
+    private final TransactionTemplate nested;
     private final ObjectStore store;
+    private final ObjectMapper json;
 
-    public MaintainTransactionTypesJob(JdbcTemplate jdbc, TransactionTemplate tx, ObjectStore store) {
+    public MaintainTransactionTypesJob(JdbcTemplate jdbc, TransactionTemplate tx, ObjectStore store,
+            ObjectMapper json) {
         this.jdbc = jdbc;
         this.tx = tx;
+        this.nested = new TransactionTemplate(tx.getTransactionManager());
+        this.nested.setPropagationBehavior(TransactionDefinition.PROPAGATION_NESTED);
         this.store = store;
+        this.json = json;
     }
 
     @Override
@@ -48,7 +59,21 @@ public class MaintainTransactionTypesJob implements CardDemoJob {
     @Override
     public JobOutcome run(JobParams p) {
         String key = p.get("inputKey").orElse(S3Keys.transactionTypeMaintenance(p.businessDate()));
+        Optional<String> applied = appliedCounts(p);
+        if (applied.isPresent()) {
+            log.info("runId {} already applied {}: returning recorded counts", p.runId(), key);
+            return outcome(readCounts(applied.get()), List.of());
+        }
         String content = new String(store.get(key), StandardCharsets.US_ASCII);
+        return tx.execute(status -> apply(p, content));
+    }
+
+    /**
+     * Applies the whole file in one transaction (each record in its own savepoint, so a failed record does not undo
+     * the others) and records the counts on the run row in that same transaction: a retry after a crash either
+     * replays a rolled-back file or returns the recorded counts, never re-applies committed records.
+     */
+    private JobOutcome apply(JobParams p, String content) {
         int added = 0;
         int updated = 0;
         int deleted = 0;
@@ -65,12 +90,12 @@ public class MaintainTransactionTypesJob implements CardDemoJob {
             try {
                 switch (action) {
                     case 'A' -> {
-                        tx.executeWithoutResult(s -> jdbc.update(
+                        nested.executeWithoutResult(s -> jdbc.update(
                                 "INSERT INTO transaction_type (type_cd, description) VALUES (?, ?)", type, desc));
                         added++;
                     }
                     case 'U' -> {
-                        int n = tx.execute(s -> jdbc.update(
+                        int n = nested.execute(s -> jdbc.update(
                                 "UPDATE transaction_type SET description = ?, version = version + 1 WHERE type_cd = ?",
                                 desc, type));
                         if (n == 0) {
@@ -80,7 +105,7 @@ public class MaintainTransactionTypesJob implements CardDemoJob {
                         }
                     }
                     case 'D' -> {
-                        int n = tx.execute(s -> jdbc.update("DELETE FROM transaction_type WHERE type_cd = ?", type));
+                        int n = nested.execute(s -> jdbc.update("DELETE FROM transaction_type WHERE type_cd = ?", type));
                         if (n == 0) {
                             errors.add(type + ": No records found.");
                         } else {
@@ -101,7 +126,39 @@ public class MaintainTransactionTypesJob implements CardDemoJob {
         counts.put("deleted", deleted);
         counts.put("comments", comments);
         counts.put("errors", errors.size());
-        return errors.isEmpty() ? JobOutcome.ok(counts)
-                : JobOutcome.of(ReturnCode.WARNING, counts, String.join("; ", errors));
+        Map<String, Object> marker = new LinkedHashMap<>(counts);
+        marker.put("applied", true);
+        try {
+            jdbc.update("UPDATE batch_job_run SET counts = COALESCE(counts, '{}'::jsonb) || ?::jsonb"
+                    + " WHERE run_id = ? AND job_name = ?", json.writeValueAsString(marker), p.runId(), name());
+        } catch (JsonProcessingException e) {
+            throw new IllegalStateException(e);
+        }
+        return outcome(counts, errors);
+    }
+
+    private Optional<String> appliedCounts(JobParams p) {
+        return jdbc.queryForList("SELECT counts::text FROM batch_job_run WHERE run_id = ? AND job_name = ?"
+                + " AND (counts->>'applied')::boolean", String.class, p.runId(), name()).stream().findFirst();
+    }
+
+    private Map<String, Object> readCounts(String stored) {
+        try {
+            Map<String, Object> counts = json.readValue(stored, new TypeReference<LinkedHashMap<String, Object>>() {
+            });
+            counts.remove("applied");
+            return counts;
+        } catch (JsonProcessingException e) {
+            throw new IllegalStateException(e);
+        }
+    }
+
+    private static JobOutcome outcome(Map<String, Object> counts, List<String> errors) {
+        int errorCount = ((Number) counts.get("errors")).intValue();
+        if (errorCount == 0) {
+            return JobOutcome.ok(counts);
+        }
+        String message = errors.isEmpty() ? errorCount + " maintenance record(s) in error" : String.join("; ", errors);
+        return JobOutcome.of(ReturnCode.WARNING, counts, message);
     }
 }
