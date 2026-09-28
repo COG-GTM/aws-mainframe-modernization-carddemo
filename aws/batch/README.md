@@ -65,7 +65,8 @@ Outputs go to `target/local-bucket/` with the same key layout as S3 (`runs/<runI
   `batch_job_run.exit_code`; the process exits `0` for 0 and 4 (Batch job `SUCCEEDED`) and with the code itself
   otherwise (Batch job `FAILED`). The state machine reads the JSON to tell 0 from 4.
 * **Idempotency**: `(runId, job)` that already completed is a no-op returning the recorded code; reusing it with a
-  different `businessDate` or job parameters (e.g. `--table`) exits 8 without running. POSTTRAN
+  different `businessDate` or job parameters (e.g. `--table`, `inputKey`) exits 8 without running, whether the
+  earlier attempt completed or failed (a retry resumes durable progress, so changed inputs need a new `runId`). POSTTRAN
   restarts with the same `runId` continue at the first `daily_transaction` row with `post_status IS NULL`.
   INTCALC records `{parmDate, lastAcctId}` per account in `batch_job_run.counts` and any later run for the same PARM
   date skips those accounts. `(runId, job)` is held by a PostgreSQL session advisory lock for the whole run: a concurrent

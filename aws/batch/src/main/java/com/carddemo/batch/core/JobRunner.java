@@ -125,9 +125,9 @@ public class JobRunner {
                         p.jobName(), existing.get().businessDate(), p.businessDate());
                 return ReturnCode.INPUT_ERROR;
             }
-            if (existing.isPresent() && BatchRunRepository.COMPLETED.equals(existing.get().status())
-                    && existing.get().params() != null && !runs.sameParams(existing.get().params(), p.params())) {
-                log.error("runId {} completed {} with parameters {}, not {}: use a new runId", p.runId(),
+            if (existing.isPresent() && existing.get().params() != null
+                    && !runs.sameParams(existing.get().params(), p.params())) {
+                log.error("runId {} was used for {} with parameters {}, not {}: use a new runId", p.runId(),
                         p.jobName(), existing.get().params(), runs.paramsJson(p.params()));
                 return ReturnCode.INPUT_ERROR;
             }

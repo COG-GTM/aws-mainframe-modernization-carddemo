@@ -96,6 +96,14 @@ class DownstreamJobsIT extends AbstractBatchIT {
     }
 
     @Test
+    void failedRunIdResumedWithOtherParametersIsRejected() {
+        assertThat(run("backup-reference-data", "rf", "--table=bogus")).isEqualTo(ReturnCode.INPUT_ERROR);
+        assertThat(run("backup-reference-data", "rf", "--table=disclosure_group")).isEqualTo(ReturnCode.INPUT_ERROR);
+        assertThat(exists("backup/disclosure_group/2022-07-18/rf.csv.gz")).isFalse();
+        assertThat(run("backup-reference-data", "rf2", "--table=disclosure_group")).isEqualTo(ReturnCode.OK);
+    }
+
+    @Test
     void combineUsesThisCyclesBackupNotALaterDatesBackup() {
         assertThat(run("post-daily-transactions", "cy")).isEqualTo(ReturnCode.WARNING);
         assertThat(run("backup-transactions", "cy")).isEqualTo(ReturnCode.OK);
