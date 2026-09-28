@@ -201,7 +201,7 @@ export const handlers = [
     const acct = db.accounts.find((a) => a.acctId === current.acctId)!;
     const cust = db.customers.find((c) => c.custId === current.customer.custId)!;
     const acctChanged = (Object.keys(acctBody) as (keyof typeof acctBody)[]).some(
-      (k) => k !== 'version' && k !== 'addrZip' && String(acctBody[k]) !== String(acct[k as keyof typeof acct]),
+      (k) => k !== 'version' && String(acctBody[k]) !== String(acct[k as keyof typeof acct]),
     );
     const custChanged = (Object.keys(custBody) as (keyof typeof custBody)[]).some(
       (k) => k !== 'version' && String(custBody[k]) !== String(cust[k]),

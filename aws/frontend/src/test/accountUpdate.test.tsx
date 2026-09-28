@@ -1,7 +1,8 @@
 import { screen, waitFor } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 import { db } from '../mocks/db';
-import { NO_CHANGE, validateAccountForm, type AccountForm } from '../validation/account';
+import type { Account } from '../api/types';
+import { NO_CHANGE, decimal, fromForm, toForm, validateAccountForm, type AccountForm } from '../validation/account';
 import { USER, renderApp, signOnAs } from './renderApp';
 
 const VALID: AccountForm = {
@@ -93,6 +94,26 @@ describe('COACTUPC field edits (validateAccountForm)', () => {
   });
 });
 
+describe('COACTUPC form -> API mapping', () => {
+  it('converts NUMVAL-C signed amounts, including CR/DB suffixes', () => {
+    expect(decimal('1,234.5')).toBe('1234.50');
+    expect(decimal('12.00-')).toBe('-12.00');
+    expect(decimal('100.00CR')).toBe('-100.00');
+    expect(decimal('7db')).toBe('-7.00');
+    expect(decimal('+5')).toBe('5.00');
+  });
+
+  it('keeps a stored ZIP+4 unless the visible ZIP is edited', () => {
+    const acct = db.accounts.find((a) => a.acctId === 3)!;
+    const cust = db.customers.find((c) => c.custId === 3)!;
+    const account = { ...acct, customer: { ...cust, addrZip: '30301-1234' } } as unknown as Account;
+    const form = toForm(account);
+    expect(form.addrZip).toBe('30301');
+    expect(fromForm({ ...form, creditLimit: '1.00' }, account).customer.addrZip).toBe('30301-1234');
+    expect(fromForm({ ...form, addrZip: '30302' }, account).customer.addrZip).toBe('30302');
+  });
+});
+
 describe('COACTUP account update screen', () => {
   it('validates the account number before the lookup', async () => {
     await signOnAs(USER);
@@ -144,5 +165,22 @@ describe('COACTUP account update screen', () => {
     expect(acct.activeStatus).toBe('N');
     expect(acct.creditLimit).toBe('5000.00');
     expect(acct.version).toBe(1);
+  });
+
+  it('re-fetches instead of saving when the account key was changed after the lookup', async () => {
+    await signOnAs(USER);
+    const { user } = renderApp('/accounts/update');
+    const key = screen.getByLabelText('Account Number :');
+    await user.type(key, '3{Enter}');
+    await waitFor(() => expect(screen.getByLabelText('Active Y/N:')).toHaveValue('Y'));
+    const before = db.accounts.find((a) => a.acctId === 3)!.version;
+    await user.clear(key);
+    await user.type(key, '4');
+    await user.clear(screen.getByLabelText('Credit Limit :'));
+    await user.type(screen.getByLabelText('Credit Limit :'), '9999.00');
+    await user.keyboard('{F5}');
+    await waitFor(() => expect(screen.getByLabelText('Account Number :')).toHaveValue('00000000004'));
+    expect(db.accounts.find((a) => a.acctId === 3)!.version).toBe(before);
+    expect(screen.getByLabelText('Credit Limit :')).toHaveValue(db.accounts.find((a) => a.acctId === 4)!.creditLimit);
   });
 });

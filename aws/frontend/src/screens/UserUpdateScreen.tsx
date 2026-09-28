@@ -100,8 +100,10 @@ export function UserUpdateScreen() {
     focus('uu-userId');
   };
 
+  // COUSR02C PF3: attempt the update, then return to the caller regardless of the outcome
   const saveAndExit = async () => {
-    if (!user || (await save())) back();
+    if (user) await save();
+    back();
   };
 
   const set = (field: UserField) => (value: string) => setForm((f) => ({ ...f, [field]: value }));

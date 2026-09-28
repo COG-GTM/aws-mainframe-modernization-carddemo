@@ -85,13 +85,16 @@ export function AccountUpdateScreen() {
     return true;
   };
 
+  const keyChanged = () => Boolean(form && original && acctId !== original.acctId);
+
   const enter = () => {
-    if (!account || (form && original && acctId !== original.acctId)) return void load();
+    if (!account || keyChanged()) return void load();
     validate();
   };
 
   const save = async () => {
     if (!account || !form) return;
+    if (keyChanged()) return void load();
     if (phase !== 'validated' && !validate()) return;
     setBusy(true);
     try {

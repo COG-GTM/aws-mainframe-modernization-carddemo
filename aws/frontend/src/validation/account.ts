@@ -125,10 +125,14 @@ export function toForm(a: Account): AccountForm {
 
 const iso = (y: string, m: string, d: string) => `${y.trim()}-${m.trim().padStart(2, '0')}-${d.trim().padStart(2, '0')}`;
 const phone = (a: string, b: string, c: string) => (blank(a) && blank(b) && blank(c) ? '' : `(${a.trim()})${b.trim()}-${c.trim()}`);
-const decimal = (v: string) => {
-  const s = v.replace(/[,$\s]/g, '');
-  const trailing = /[+-]$/.exec(s);
-  const n = Number(trailing ? `${trailing[0]}${s.slice(0, -1)}` : s);
+/** NUMVAL-C semantics for the formats accepted by `signed9v2`: trailing `+`/`-`/`CR`/`DB` sign. */
+export const decimal = (v: string): string => {
+  const s = v.replace(/[,$\s]/g, '').toUpperCase();
+  const sign = /(CR|DB|[+-])$/.exec(s)?.[0];
+  const digits = sign ? s.slice(0, -sign.length) : s;
+  const negative = sign === '-' || sign === 'CR' || sign === 'DB';
+  const n = Number(negative ? `-${digits.replace(/^[+-]/, '')}` : digits);
+  if (!Number.isFinite(n)) throw new Error(`Not a valid amount: ${v}`);
   return n.toFixed(2);
 };
 
@@ -154,7 +158,8 @@ export function fromForm(f: AccountForm, original: Account): AccountUpdate {
       addrLine3: f.addrLine3.trim(),
       addrStateCd: f.addrStateCd.trim().toUpperCase(),
       addrCountryCd: f.addrCountryCd.trim().toUpperCase(),
-      addrZip: f.addrZip.trim(),
+      // the map shows 5 characters; keep a stored ZIP+4 unless the visible part was edited
+      addrZip: f.addrZip.trim() === original.customer.addrZip.slice(0, 5) ? original.customer.addrZip : f.addrZip.trim(),
       phoneNum1: phone(f.ph1a, f.ph1b, f.ph1c),
       phoneNum2: phone(f.ph2a, f.ph2b, f.ph2c),
       ssn: `${f.ssn1}${f.ssn2}${f.ssn3}`,

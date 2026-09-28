@@ -93,15 +93,17 @@ export function CardUpdateScreen() {
     return true;
   };
 
+  const keyChanged = () =>
+    !card || card.cardNum !== cardNum || String(card.acctId).padStart(11, '0') !== acctId.padStart(11, '0');
+
   const enter = () => {
-    if (!card || card.cardNum !== cardNum || String(card.acctId).padStart(11, '0') !== acctId.padStart(11, '0')) {
-      return void fetchCard(acctId, cardNum);
-    }
+    if (keyChanged()) return void fetchCard(acctId, cardNum);
     validate();
   };
 
   const save = async () => {
     if (!card || !form) return;
+    if (keyChanged()) return void fetchCard(acctId, cardNum);
     if (phase !== 'validated' && !validate()) return;
     setBusy(true);
     try {
