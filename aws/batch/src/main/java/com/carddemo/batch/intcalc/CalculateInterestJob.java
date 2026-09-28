@@ -39,6 +39,12 @@ import org.springframework.transaction.support.TransactionTemplate;
  * {@code ROUNDED}) and an interest {@code transaction}. Per account: {@code curr_bal += total interest},
  * {@code curr_cyc_credit = curr_cyc_debit = 0}. One DB transaction per account.
  *
+ * <p>Idempotency per {@code parmDate}: each account transaction also records {@code parmDate}/{@code lastAcctId}
+ * in this run's {@code batch_job_run.counts}. Any later run for the same {@code parmDate} (same or new
+ * {@code runId}) skips accounts up to the highest recorded {@code lastAcctId}, including accounts without
+ * interest, so their cycle totals are never reset twice. Interest tran ids continue after the highest existing
+ * {@code <parmDate>nnnnnn} suffix.
+ *
  * <p>{@code 1400-COMPUTE-FEES} is "To be implemented" in the COBOL source and is therefore not implemented.
  */
 @Component
@@ -80,7 +86,18 @@ public class CalculateInterestJob implements CardDemoJob {
                  ORDER BY acct_id, type_cd COLLATE "C", cat_cd
                 """, (rs, i) -> new CatBal(rs.getLong(1), rs.getString(2), rs.getInt(3), rs.getBigDecimal(4)));
 
-        int[] suffix = {0};
+        long resumeAfter = Optional.ofNullable(jdbc.queryForObject("""
+                SELECT max((counts->>'lastAcctId')::bigint) FROM batch_job_run
+                 WHERE job_name = ? AND counts->>'parmDate' = ?
+                """, Long.class, NAME, parm)).orElse(-1L);
+        Integer lastSuffix = jdbc.queryForObject("""
+                SELECT max(substr(tran_id, 11)::int) FROM transaction
+                 WHERE tran_id LIKE ? AND length(tran_id) = 16 AND source = 'System'
+                """, Integer.class, parm + "%");
+        int[] suffix = {lastSuffix == null ? 0 : lastSuffix};
+        if (resumeAfter >= 0) {
+            log.info("parmDate {} already processed up to account {}: those accounts are skipped", parm, resumeAfter);
+        }
         int accounts = 0;
         int skipped = 0;
         int interestTransactions = 0;
@@ -94,14 +111,14 @@ public class CalculateInterestJob implements CardDemoJob {
             }
             List<CatBal> group = balances.subList(i, j);
             i = j;
-            AccountResult result = tx.execute(status -> processAccount(acctId, group, parm, suffix, now));
             accounts++;
-            if (result.alreadyApplied()) {
+            if (acctId <= resumeAfter) {
                 skipped++;
-            } else {
-                interestTransactions += result.transactions();
-                totalInterest = totalInterest.add(result.interest());
+                continue;
             }
+            AccountResult result = tx.execute(status -> processAccount(p.runId(), acctId, group, parm, suffix, now));
+            interestTransactions += result.transactions();
+            totalInterest = totalInterest.add(result.interest());
         }
 
         List<String> systran = jdbc.query("""
@@ -120,6 +137,7 @@ public class CalculateInterestJob implements CardDemoJob {
                 .getBytes(StandardCharsets.US_ASCII), "text/plain");
 
         Map<String, Object> counts = new LinkedHashMap<>();
+        counts.put("parmDate", parm);
         counts.put("tranCatBalanceRecords", balances.size());
         counts.put("accounts", accounts);
         counts.put("accountsAlreadyApplied", skipped);
@@ -129,7 +147,7 @@ public class CalculateInterestJob implements CardDemoJob {
         return JobOutcome.ok(counts);
     }
 
-    private AccountResult processAccount(long acctId, List<CatBal> group, String parm, int[] suffix,
+    private AccountResult processAccount(String runId, long acctId, List<CatBal> group, String parm, int[] suffix,
             LocalDateTime now) {
         // 1100-GET-ACCT-DATA (locked: online bill payment may update the same row)
         List<Acct> accts = jdbc.query("SELECT group_id FROM account WHERE acct_id = ? FOR UPDATE",
@@ -160,15 +178,6 @@ public class CalculateInterestJob implements CardDemoJob {
                         cardNum, now, now));
             }
         }
-        if (!interest.isEmpty()) {
-            Integer exists = jdbc.queryForObject("SELECT count(*) FROM transaction WHERE tran_id = ?",
-                    Integer.class, interest.get(0).tranId());
-            if (exists != null && exists > 0) {
-                log.info("Interest for account {} already applied ({}), skipping", acctId,
-                        interest.get(0).tranId());
-                return new AccountResult(true, 0, BigDecimal.ZERO);
-            }
-        }
         for (TransactionRecord t : interest) {
             jdbc.update("""
                     INSERT INTO transaction (tran_id, type_cd, cat_cd, source, description, amt, merchant_id,
@@ -183,7 +192,13 @@ public class CalculateInterestJob implements CardDemoJob {
                        version = version + 1
                  WHERE acct_id = ?
                 """, total, acctId);
-        return new AccountResult(false, interest.size(), total);
+        jdbc.update("""
+                UPDATE batch_job_run
+                   SET counts = COALESCE(counts, '{}'::jsonb)
+                                || jsonb_build_object('parmDate', ?::text, 'lastAcctId', ?::bigint)
+                 WHERE run_id = ? AND job_name = ?
+                """, parm, acctId, runId, NAME);
+        return new AccountResult(interest.size(), total);
     }
 
     /** {@code 1200-GET-INTEREST-RATE} with the {@code 1200-A-GET-DEFAULT-INT-RATE} fallback. */
@@ -212,6 +227,6 @@ public class CalculateInterestJob implements CardDemoJob {
     record Acct(String groupId) {
     }
 
-    record AccountResult(boolean alreadyApplied, int transactions, BigDecimal interest) {
+    record AccountResult(int transactions, BigDecimal interest) {
     }
 }

@@ -50,6 +50,11 @@ class DownstreamJobsIT extends AbstractBatchIT {
     }
 
     @Test
+    void combineWithoutSystemTransactionsOrBackupIsInputError() {
+        assertThat(run("combine-transactions", "c0")).isEqualTo(ReturnCode.INPUT_ERROR);
+    }
+
+    @Test
     void statementsTextHtmlAndPdf() throws IOException {
         assertThat(run("post-daily-transactions", "s1")).isEqualTo(ReturnCode.WARNING);
         assertThat(run("create-statements", "s1")).isEqualTo(ReturnCode.OK);

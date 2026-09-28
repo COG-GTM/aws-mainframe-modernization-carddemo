@@ -100,8 +100,9 @@ public class JobRunner {
             if (previous.isPresent() && BatchRunRepository.COMPLETED.equals(previous.get().status())) {
                 int rc = previous.get().exitCode();
                 log.info("runId {} already completed for {} with returnCode {}: no-op", p.runId(), p.jobName(), rc);
-                writeResult(p, rc, readCounts(previous.get().counts()), "already completed (no-op)", started);
-                return rc;
+                boolean published = writeResult(p, rc, readCounts(previous.get().counts()),
+                        "already completed (no-op)", started);
+                return published ? rc : ReturnCode.FATAL;
             }
             runs.start(p.runId(), p.jobName(), p.businessDate());
         } catch (DataAccessException e) {
@@ -118,7 +119,9 @@ public class JobRunner {
             outcome = JobOutcome.of(Math.max(outcome.returnCode(), ReturnCode.FATAL), outcome.counts(),
                     "batch_job_run update failed: " + e.getMessage());
         }
-        writeResult(p, outcome.returnCode(), outcome.counts(), outcome.message(), started);
+        if (!writeResult(p, outcome.returnCode(), outcome.counts(), outcome.message(), started)) {
+            return ReturnCode.FATAL;
+        }
         return outcome.returnCode();
     }
 
@@ -169,7 +172,11 @@ public class JobRunner {
         return rc;
     }
 
-    private void writeResult(JobParams p, int rc, Map<String, Object> counts, String message, Instant started) {
+    /**
+     * Publishes {@code runs/<runId>/<job>.json}. On failure the caller exits 16: Batch retries the same
+     * {@code runId}, and a completed run then republishes its recorded outcome without rerunning the job.
+     */
+    private boolean writeResult(JobParams p, int rc, Map<String, Object> counts, String message, Instant started) {
         Map<String, Object> result = new LinkedHashMap<>();
         result.put("runId", p.runId());
         result.put("jobName", p.jobName());
@@ -185,8 +192,10 @@ public class JobRunner {
         try {
             store.put(S3Keys.runResult(p.runId(), p.jobName()),
                     mapper.writerWithDefaultPrettyPrinter().writeValueAsBytes(result), "application/json");
+            return true;
         } catch (Exception e) {
             log.error("Could not write run result {}", S3Keys.runResult(p.runId(), p.jobName()), e);
+            return false;
         }
     }
 

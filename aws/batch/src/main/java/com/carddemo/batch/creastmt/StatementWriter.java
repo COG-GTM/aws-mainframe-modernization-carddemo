@@ -113,13 +113,13 @@ public final class StatementWriter {
         txt(stTranId + " " + stTranDt + "$" + stTranAmt);
         htm(TRS);
         htm(L58);
-        htm("<p>" + stTranId + "</p>");
+        htm("<p>" + esc(stTranId) + "</p>");
         htm(TDE);
         htm(L61);
-        htm("<p>" + stTranDt + "</p>");
+        htm("<p>" + esc(stTranDt) + "</p>");
         htm(TDE);
         htm(L64);
-        htm("<p>" + stTranAmt + "</p>");
+        htm("<p>" + esc(stTranAmt) + "</p>");
         htm(TDE);
         htm(TRE);
     }
@@ -136,7 +136,7 @@ public final class StatementWriter {
         htm(L08);
         htm(TRS);
         htm(L10);
-        htm("<h3>Statement for Account Number: " + stAcctId + "</h3>");
+        htm("<h3>Statement for Account Number: " + esc(stAcctId) + "</h3>");
         htm(TDE);
         htm(TRE);
         htm(TRS);
@@ -153,10 +153,10 @@ public final class StatementWriter {
     /** {@code 5200-WRITE-HTML-NMADBS}. */
     private void htmlNameAddressBasics(String stName, String stAdd1, String stAdd2, String stAdd3, String stAcctId,
             String stCurrBal, String stFico) {
-        htm("<p style=\"font-size:16px\">" + upToDoubleSpace(stName.substring(0, 50)) + "  </p>");
-        htm("<p>" + upToDoubleSpace(stAdd1) + "  </p>");
-        htm("<p>" + upToDoubleSpace(stAdd2) + "  </p>");
-        htm("<p>" + upToDoubleSpace(stAdd3) + "  </p>");
+        htm("<p style=\"font-size:16px\">" + esc(upToDoubleSpace(stName.substring(0, 50))) + "  </p>");
+        htm("<p>" + esc(upToDoubleSpace(stAdd1)) + "  </p>");
+        htm("<p>" + esc(upToDoubleSpace(stAdd2)) + "  </p>");
+        htm("<p>" + esc(upToDoubleSpace(stAdd3)) + "  </p>");
         htm(TDE);
         htm(TRE);
         htm(TRS);
@@ -166,9 +166,9 @@ public final class StatementWriter {
         htm(TRE);
         htm(TRS);
         htm(L22_35);
-        htm("<p>Account ID         : " + stAcctId + "</p>");
-        htm("<p>Current Balance    : " + stCurrBal + "</p>");
-        htm("<p>FICO Score         : " + stFico + "</p>");
+        htm("<p>Account ID         : " + esc(stAcctId) + "</p>");
+        htm("<p>Current Balance    : " + esc(stCurrBal) + "</p>");
+        htm("<p>FICO Score         : " + esc(stFico) + "</p>");
         htm(TDE);
         htm(TRE);
         htm(TRS);
@@ -193,8 +193,24 @@ public final class StatementWriter {
         text.append(pad(s, TEXT_WIDTH)).append('\n');
     }
 
+    /** 100-byte {@code HTML-LINES} record; a line lengthened by entity escaping is kept whole. */
     private void htm(String s) {
-        html.append(pad(s, HTML_WIDTH)).append('\n');
+        html.append(s.length() > HTML_WIDTH ? s : pad(s, HTML_WIDTH)).append('\n');
+    }
+
+    static String esc(String s) {
+        StringBuilder b = new StringBuilder(s.length());
+        for (char c : s.toCharArray()) {
+            switch (c) {
+                case '&' -> b.append("&amp;");
+                case '<' -> b.append("&lt;");
+                case '>' -> b.append("&gt;");
+                case '"' -> b.append("&quot;");
+                case '\'' -> b.append("&#39;");
+                default -> b.append(c);
+            }
+        }
+        return b.toString();
     }
 
     private static String pad(String s, int width) {

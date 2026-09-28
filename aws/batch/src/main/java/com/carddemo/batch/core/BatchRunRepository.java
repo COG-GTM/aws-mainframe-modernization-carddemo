@@ -49,7 +49,8 @@ public class BatchRunRepository {
 
     public void finish(String runId, String jobName, int returnCode, Map<String, Object> counts) {
         jdbc.update("""
-                UPDATE batch_job_run SET status = ?, exit_code = ?, ended_at = ?, counts = ?::jsonb
+                UPDATE batch_job_run SET status = ?, exit_code = ?, ended_at = ?,
+                       counts = COALESCE(counts, '{}'::jsonb) || ?::jsonb
                  WHERE run_id = ? AND job_name = ?
                 """, returnCode <= ReturnCode.WARNING ? COMPLETED : FAILED, returnCode,
                 Timestamp.from(Instant.now()), toJson(counts), runId, jobName);

@@ -1,5 +1,7 @@
 package com.carddemo.batch.storage;
 
+import java.io.InputStream;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
 
@@ -8,18 +10,19 @@ public interface ObjectStore {
 
     byte[] get(String key);
 
+    InputStream open(String key);
+
     boolean exists(String key);
 
     void put(String key, byte[] content, String contentType);
 
+    void put(String key, Path file, String contentType);
+
     /** Keys under {@code prefix}, sorted ascending. */
     List<String> list(String prefix);
 
-    /** GDG {@code (0)}: the lexicographically last key under {@code prefix}. */
-    default Optional<String> latest(String prefix) {
-        List<String> keys = list(prefix);
-        return keys.isEmpty() ? Optional.empty() : Optional.of(keys.get(keys.size() - 1));
-    }
+    /** GDG {@code (0)}: the most recently written key under {@code prefix} (ties: the greatest key). */
+    Optional<String> latest(String prefix);
 
     /** Human-readable location for logs, e.g. {@code s3://bucket/key}. */
     String uri(String key);

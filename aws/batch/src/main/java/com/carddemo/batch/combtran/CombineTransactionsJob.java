@@ -1,6 +1,7 @@
 package com.carddemo.batch.combtran;
 
 import com.carddemo.batch.core.CardDemoJob;
+import com.carddemo.batch.core.JobFailure;
 import com.carddemo.batch.core.JobFailureWithCounts;
 import com.carddemo.batch.core.JobOutcome;
 import com.carddemo.batch.core.JobParams;
@@ -8,9 +9,10 @@ import com.carddemo.batch.core.ReturnCode;
 import com.carddemo.batch.record.TransactionRecord;
 import com.carddemo.batch.storage.ObjectStore;
 import com.carddemo.batch.storage.S3Keys;
-import java.io.ByteArrayInputStream;
+import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.io.UncheckedIOException;
 import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
@@ -54,40 +56,41 @@ public class CombineTransactionsJob implements CardDemoJob {
         Optional<String> systranKey = p.get("systranKey")
                 .or(() -> store.latest(S3Keys.systemTransactionsPrefix() + p.businessDate() + "/"))
                 .or(() -> store.latest(S3Keys.systemTransactionsPrefix()));
+        Optional<String> backupKey = p.get("backupKey").or(() -> store.latest(S3Keys.backupPrefix("transaction")));
+        if (systranKey.isEmpty() || backupKey.isEmpty()) {
+            throw new JobFailure(ReturnCode.INPUT_ERROR, "combine-transactions needs the latest system-transaction"
+                    + " file and transaction backup (SYSTRAN(0) / TRANSACT.BKUP(0)); found systran=" + systranKey
+                    + " backup=" + backupKey);
+        }
         int systran = 0;
         int missing = 0;
-        if (systranKey.isPresent()) {
-            String content = new String(store.get(systranKey.get()), StandardCharsets.US_ASCII);
-            for (String line : content.split("\n")) {
-                if (line.isBlank()) {
-                    continue;
-                }
-                TransactionRecord r = TransactionRecord.parse(line);
-                systran++;
-                List<BigDecimal> amts = jdbc.queryForList("SELECT amt FROM transaction WHERE tran_id = ?",
-                        BigDecimal.class, r.tranId());
-                if (amts.isEmpty() || amts.get(0).compareTo(r.amt()) != 0) {
-                    missing++;
-                    if (problems.size() < 20) {
-                        problems.add("system transaction " + r.tranId() + " missing or amount differs");
-                    }
+        String content = new String(store.get(systranKey.get()), StandardCharsets.US_ASCII);
+        for (String line : content.split("\n")) {
+            if (line.isBlank()) {
+                continue;
+            }
+            TransactionRecord r = TransactionRecord.parse(line);
+            systran++;
+            List<BigDecimal> amts = jdbc.queryForList("SELECT amt FROM transaction WHERE tran_id = ?",
+                    BigDecimal.class, r.tranId());
+            if (amts.isEmpty() || amts.get(0).compareTo(r.amt()) != 0) {
+                missing++;
+                if (problems.size() < 20) {
+                    problems.add("system transaction " + r.tranId() + " missing or amount differs");
                 }
             }
-            counts.put("systemTransactionsFile", store.uri(systranKey.get()));
         }
+        counts.put("systemTransactionsFile", store.uri(systranKey.get()));
         counts.put("systemTransactions", systran);
         counts.put("systemTransactionsMissing", missing);
 
         Integer tableRows = jdbc.queryForObject("SELECT count(*) FROM transaction", Integer.class);
         counts.put("transactionRows", tableRows);
-        Optional<String> backupKey = p.get("backupKey").or(() -> store.latest(S3Keys.backupPrefix("transaction")));
-        if (backupKey.isPresent()) {
-            long backupRows = csvRows(store.get(backupKey.get()));
-            counts.put("backupFile", store.uri(backupKey.get()));
-            counts.put("backupRows", backupRows);
-            if (tableRows == null || tableRows < backupRows) {
-                problems.add("transaction has " + tableRows + " rows, fewer than backup " + backupRows);
-            }
+        long backupRows = csvRows(backupKey.get());
+        counts.put("backupFile", store.uri(backupKey.get()));
+        counts.put("backupRows", backupRows);
+        if (tableRows == null || tableRows < backupRows) {
+            problems.add("transaction has " + tableRows + " rows, fewer than backup " + backupRows);
         }
         if (!problems.isEmpty()) {
             throw new JobFailureWithCounts(ReturnCode.DATA_ERROR, String.join("; ", problems), counts, null);
@@ -95,13 +98,12 @@ public class CombineTransactionsJob implements CardDemoJob {
         return JobOutcome.ok(counts);
     }
 
-    private static long csvRows(byte[] gz) {
-        try (InputStream in = new GZIPInputStream(new ByteArrayInputStream(gz))) {
-            String csv = new String(in.readAllBytes(), StandardCharsets.UTF_8);
+    private long csvRows(String key) {
+        try (Reader in = new BufferedReader(new InputStreamReader(new GZIPInputStream(store.open(key)),
+                StandardCharsets.UTF_8))) {
             long lines = 0;
             boolean quoted = false;
-            for (int i = 0; i < csv.length(); i++) {
-                char c = csv.charAt(i);
+            for (int c = in.read(); c >= 0; c = in.read()) {
                 if (c == '"') {
                     quoted = !quoted;
                 } else if (c == '\n' && !quoted) {

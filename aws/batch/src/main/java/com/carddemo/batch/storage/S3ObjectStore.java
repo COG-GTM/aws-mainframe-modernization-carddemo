@@ -1,6 +1,10 @@
 package com.carddemo.batch.storage;
 
+import java.io.InputStream;
+import java.nio.file.Path;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.GetObjectRequest;
@@ -30,6 +34,15 @@ public class S3ObjectStore implements ObjectStore {
     }
 
     @Override
+    public InputStream open(String key) {
+        try {
+            return s3.getObject(GetObjectRequest.builder().bucket(bucket).key(key).build());
+        } catch (NoSuchKeyException e) {
+            throw new ObjectNotFoundException(uri(key));
+        }
+    }
+
+    @Override
     public boolean exists(String key) {
         try {
             s3.headObject(HeadObjectRequest.builder().bucket(bucket).key(key).build());
@@ -46,12 +59,26 @@ public class S3ObjectStore implements ObjectStore {
     }
 
     @Override
+    public void put(String key, Path file, String contentType) {
+        s3.putObject(PutObjectRequest.builder().bucket(bucket).key(key).contentType(contentType).build(),
+                RequestBody.fromFile(file));
+    }
+
+    @Override
     public List<String> list(String prefix) {
         return s3.listObjectsV2Paginator(ListObjectsV2Request.builder().bucket(bucket).prefix(prefix).build())
                 .contents().stream()
                 .map(S3Object::key)
                 .sorted()
                 .toList();
+    }
+
+    @Override
+    public Optional<String> latest(String prefix) {
+        return s3.listObjectsV2Paginator(ListObjectsV2Request.builder().bucket(bucket).prefix(prefix).build())
+                .contents().stream()
+                .max(Comparator.comparing(S3Object::lastModified).thenComparing(S3Object::key))
+                .map(S3Object::key);
     }
 
     @Override

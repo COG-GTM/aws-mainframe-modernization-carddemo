@@ -138,6 +138,19 @@ class GoldenPosttranIntcalcIT extends AbstractBatchIT {
         assertThat(read("runs/int-2/calculate-interest.json")).contains("\"accountsAlreadyApplied\" : 50");
     }
 
+    @Test
+    void intcalcRerunForSameParmDateNeverResetsCycleTotalsAgain() {
+        assertThat(run("post-daily-transactions", "zr-post")).isEqualTo(ReturnCode.WARNING);
+        jdbc.update("UPDATE disclosure_group SET int_rate = 0");
+        assertThat(run("calculate-interest", "zr-1", "--parmDate=2022071800")).isEqualTo(ReturnCode.OK);
+        assertThat(jdbc.queryForObject("SELECT count(*) FROM transaction WHERE source = 'System'", Integer.class))
+                .isZero();
+        jdbc.update("UPDATE account SET curr_cyc_credit = 50");
+        assertThat(run("calculate-interest", "zr-2", "--parmDate=2022071800")).isEqualTo(ReturnCode.OK);
+        assertThat(jdbc.queryForObject("SELECT count(*) FROM account WHERE curr_cyc_credit <> 50", Integer.class))
+                .isZero();
+    }
+
     List<String> accounts() {
         return jdbc.query("""
                 SELECT acct_id, active_status, curr_bal, credit_limit, cash_credit_limit, open_date, expiration_date,
