@@ -1,0 +1,1528 @@
+{
+  "Comment": "carddemo-daily-cycle: CardDemo business-day batch cycle (CA-7 SCHID 030 + Control-M DAILY/MONTHLY/WEEKLY folders). Input (all optional): {runId, businessDate, monthStart, saturday, authModuleInstalled, runTransactionTypeMaintenance, waitCentiseconds}. Definition substitutions: JobQueueArn, BucketName, WarningTopicArn, FailureTopicArn.",
+  "QueryLanguage": "JSONata",
+  "StartAt": "Init",
+  "TimeoutSeconds": 43200,
+  "States": {
+    "Init": {
+      "Type": "Pass",
+      "Comment": "Derive runId/businessDate and calendar flags (month start = day 01; Saturday = ISO day 6)",
+      "Assign": {
+        "runId": "{% $exists($states.input.runId) ? $states.input.runId : $states.context.Execution.Name %}",
+        "businessDate": "{% $exists($states.input.businessDate) ? $states.input.businessDate : $substring($now(), 0, 10) %}"
+      },
+      "Next": "Calendar"
+    },
+    "Calendar": {
+      "Type": "Pass",
+      "Assign": {
+        "monthStart": "{% $exists($states.input.monthStart) ? $states.input.monthStart : $substring($businessDate, 8, 2) = '01' %}",
+        "saturday": "{% $exists($states.input.saturday) ? $states.input.saturday : $fromMillis($toMillis($businessDate & 'T00:00:00Z'), '[F1]') = '6' %}",
+        "authModuleInstalled": "{% $exists($states.input.authModuleInstalled) ? $states.input.authModuleInstalled : false %}",
+        "runTransactionTypeMaintenance": "{% $exists($states.input.runTransactionTypeMaintenance) ? $states.input.runTransactionTypeMaintenance : false %}",
+        "waitSeconds": "{% $exists($states.input.waitCentiseconds) ? $floor($number($states.input.waitCentiseconds) / 100) : 36 %}"
+      },
+      "Next": "AuthorizationModuleInstalled"
+    },
+    "AuthorizationModuleInstalled": {
+      "Type": "Choice",
+      "Comment": "CA-7 CBPAUP0J (IMS) - replatform candidate, off by default",
+      "Choices": [
+        {
+          "Condition": "{% $authModuleInstalled = true %}",
+          "Next": "PurgeExpiredAuthorizations"
+        }
+      ],
+      "Default": "PostDailyTransactions"
+    },
+    "PurgeExpiredAuthorizations": {
+      "Type": "Task",
+      "Comment": "AWS Batch job carddemo-purge-expired-authorizations",
+      "Resource": "arn:aws:states:::batch:submitJob.sync",
+      "Arguments": {
+        "JobName": "{% 'carddemo-purge-expired-authorizations-' & $runId %}",
+        "JobDefinition": "carddemo-purge-expired-authorizations",
+        "JobQueue": "${JobQueueArn}",
+        "ContainerOverrides": {
+          "Command": [
+            "--job=purge-expired-authorizations",
+            "{% '--runId=' & $runId %}",
+            "{% '--businessDate=' & $businessDate %}"
+          ]
+        },
+        "Tags": {
+          "runId": "{% $runId %}",
+          "businessDate": "{% $businessDate %}"
+        }
+      },
+      "Retry": [
+        {
+          "ErrorEquals": [
+            "Batch.AWSBatchException",
+            "Batch.ServerException",
+            "Batch.TooManyRequestsException"
+          ],
+          "IntervalSeconds": 30,
+          "MaxAttempts": 3,
+          "BackoffRate": 2,
+          "JitterStrategy": "FULL"
+        }
+      ],
+      "Catch": [
+        {
+          "ErrorEquals": [
+            "States.ALL"
+          ],
+          "Next": "NotifyFailure",
+          "Assign": {
+            "failedJob": "purge-expired-authorizations",
+            "failure": "{% $states.errorOutput %}"
+          }
+        }
+      ],
+      "Next": "PurgeExpiredAuthorizationsResult"
+    },
+    "PurgeExpiredAuthorizationsResult": {
+      "Type": "Task",
+      "Comment": "Read runs/<runId>/purge-expired-authorizations.json (logical return code)",
+      "Resource": "arn:aws:states:::aws-sdk:s3:getObject",
+      "Arguments": {
+        "Bucket": "${BucketName}",
+        "Key": "{% 'runs/' & $runId & '/purge-expired-authorizations.json' %}"
+      },
+      "Assign": {
+        "lastJob": "purge-expired-authorizations",
+        "lastResult": "{% $parse($states.result.Body) %}"
+      },
+      "Output": "{% $states.input %}",
+      "Retry": [
+        {
+          "ErrorEquals": [
+            "States.TaskFailed"
+          ],
+          "IntervalSeconds": 5,
+          "MaxAttempts": 3,
+          "BackoffRate": 2
+        }
+      ],
+      "Catch": [
+        {
+          "ErrorEquals": [
+            "States.ALL"
+          ],
+          "Next": "NotifyFailure",
+          "Assign": {
+            "failedJob": "purge-expired-authorizations",
+            "failure": "{% $states.errorOutput %}"
+          }
+        }
+      ],
+      "Next": "PurgeExpiredAuthorizationsCheck"
+    },
+    "PurgeExpiredAuthorizationsCheck": {
+      "Type": "Choice",
+      "Choices": [
+        {
+          "Condition": "{% $lastResult.returnCode = 0 %}",
+          "Next": "PostDailyTransactions"
+        },
+        {
+          "Condition": "{% $lastResult.returnCode = 4 %}",
+          "Next": "PurgeExpiredAuthorizationsWarning"
+        }
+      ],
+      "Default": "PurgeExpiredAuthorizationsUnexpected"
+    },
+    "PurgeExpiredAuthorizationsUnexpected": {
+      "Type": "Pass",
+      "Assign": {
+        "failedJob": "purge-expired-authorizations",
+        "failure": "{% {'Error': 'UnexpectedReturnCode', 'Cause': $string($lastResult)} %}"
+      },
+      "Next": "NotifyFailure"
+    },
+    "PurgeExpiredAuthorizationsWarning": {
+      "Type": "Task",
+      "Comment": "RC 4: success with warnings -> carddemo-batch-warning, continue",
+      "Resource": "arn:aws:states:::sns:publish",
+      "Arguments": {
+        "TopicArn": "${WarningTopicArn}",
+        "Subject": "CardDemo batch warning: purge-expired-authorizations",
+        "Message": "{% $string($lastResult) %}"
+      },
+      "Retry": [
+        {
+          "ErrorEquals": [
+            "States.TaskFailed"
+          ],
+          "IntervalSeconds": 5,
+          "MaxAttempts": 3,
+          "BackoffRate": 2
+        }
+      ],
+      "Catch": [
+        {
+          "ErrorEquals": [
+            "States.ALL"
+          ],
+          "Next": "PostDailyTransactions"
+        }
+      ],
+      "Next": "PostDailyTransactions"
+    },
+    "PostDailyTransactions": {
+      "Type": "Task",
+      "Comment": "AWS Batch job carddemo-post-daily-transactions",
+      "Resource": "arn:aws:states:::batch:submitJob.sync",
+      "Arguments": {
+        "JobName": "{% 'carddemo-post-daily-transactions-' & $runId %}",
+        "JobDefinition": "carddemo-post-daily-transactions",
+        "JobQueue": "${JobQueueArn}",
+        "ContainerOverrides": {
+          "Command": [
+            "--job=post-daily-transactions",
+            "{% '--runId=' & $runId %}",
+            "{% '--businessDate=' & $businessDate %}"
+          ]
+        },
+        "Tags": {
+          "runId": "{% $runId %}",
+          "businessDate": "{% $businessDate %}"
+        }
+      },
+      "Retry": [
+        {
+          "ErrorEquals": [
+            "Batch.AWSBatchException",
+            "Batch.ServerException",
+            "Batch.TooManyRequestsException"
+          ],
+          "IntervalSeconds": 30,
+          "MaxAttempts": 3,
+          "BackoffRate": 2,
+          "JitterStrategy": "FULL"
+        }
+      ],
+      "Catch": [
+        {
+          "ErrorEquals": [
+            "States.ALL"
+          ],
+          "Next": "NotifyFailure",
+          "Assign": {
+            "failedJob": "post-daily-transactions",
+            "failure": "{% $states.errorOutput %}"
+          }
+        }
+      ],
+      "Next": "PostDailyTransactionsResult"
+    },
+    "PostDailyTransactionsResult": {
+      "Type": "Task",
+      "Comment": "Read runs/<runId>/post-daily-transactions.json (logical return code)",
+      "Resource": "arn:aws:states:::aws-sdk:s3:getObject",
+      "Arguments": {
+        "Bucket": "${BucketName}",
+        "Key": "{% 'runs/' & $runId & '/post-daily-transactions.json' %}"
+      },
+      "Assign": {
+        "lastJob": "post-daily-transactions",
+        "lastResult": "{% $parse($states.result.Body) %}"
+      },
+      "Output": "{% $states.input %}",
+      "Retry": [
+        {
+          "ErrorEquals": [
+            "States.TaskFailed"
+          ],
+          "IntervalSeconds": 5,
+          "MaxAttempts": 3,
+          "BackoffRate": 2
+        }
+      ],
+      "Catch": [
+        {
+          "ErrorEquals": [
+            "States.ALL"
+          ],
+          "Next": "NotifyFailure",
+          "Assign": {
+            "failedJob": "post-daily-transactions",
+            "failure": "{% $states.errorOutput %}"
+          }
+        }
+      ],
+      "Next": "PostDailyTransactionsCheck"
+    },
+    "PostDailyTransactionsCheck": {
+      "Type": "Choice",
+      "Choices": [
+        {
+          "Condition": "{% $lastResult.returnCode = 0 %}",
+          "Next": "WaitStep"
+        },
+        {
+          "Condition": "{% $lastResult.returnCode = 4 %}",
+          "Next": "PostDailyTransactionsWarning"
+        }
+      ],
+      "Default": "PostDailyTransactionsUnexpected"
+    },
+    "PostDailyTransactionsUnexpected": {
+      "Type": "Pass",
+      "Assign": {
+        "failedJob": "post-daily-transactions",
+        "failure": "{% {'Error': 'UnexpectedReturnCode', 'Cause': $string($lastResult)} %}"
+      },
+      "Next": "NotifyFailure"
+    },
+    "PostDailyTransactionsWarning": {
+      "Type": "Task",
+      "Comment": "RC 4: success with warnings -> carddemo-batch-warning, continue",
+      "Resource": "arn:aws:states:::sns:publish",
+      "Arguments": {
+        "TopicArn": "${WarningTopicArn}",
+        "Subject": "CardDemo batch warning: post-daily-transactions",
+        "Message": "{% $string($lastResult) %}"
+      },
+      "Retry": [
+        {
+          "ErrorEquals": [
+            "States.TaskFailed"
+          ],
+          "IntervalSeconds": 5,
+          "MaxAttempts": 3,
+          "BackoffRate": 2
+        }
+      ],
+      "Catch": [
+        {
+          "ErrorEquals": [
+            "States.ALL"
+          ],
+          "Next": "WaitStep"
+        }
+      ],
+      "Next": "WaitStep"
+    },
+    "WaitStep": {
+      "Type": "Wait",
+      "Comment": "WAITSTEP.jcl (COBSWAIT PARM centiseconds)",
+      "Seconds": "{% $waitSeconds %}",
+      "Next": "BackupTransactions"
+    },
+    "BackupTransactions": {
+      "Type": "Task",
+      "Comment": "AWS Batch job carddemo-backup-transactions",
+      "Resource": "arn:aws:states:::batch:submitJob.sync",
+      "Arguments": {
+        "JobName": "{% 'carddemo-backup-transactions-' & $runId %}",
+        "JobDefinition": "carddemo-backup-transactions",
+        "JobQueue": "${JobQueueArn}",
+        "ContainerOverrides": {
+          "Command": [
+            "--job=backup-transactions",
+            "{% '--runId=' & $runId %}",
+            "{% '--businessDate=' & $businessDate %}"
+          ]
+        },
+        "Tags": {
+          "runId": "{% $runId %}",
+          "businessDate": "{% $businessDate %}"
+        }
+      },
+      "Retry": [
+        {
+          "ErrorEquals": [
+            "Batch.AWSBatchException",
+            "Batch.ServerException",
+            "Batch.TooManyRequestsException"
+          ],
+          "IntervalSeconds": 30,
+          "MaxAttempts": 3,
+          "BackoffRate": 2,
+          "JitterStrategy": "FULL"
+        }
+      ],
+      "Catch": [
+        {
+          "ErrorEquals": [
+            "States.ALL"
+          ],
+          "Next": "NotifyFailure",
+          "Assign": {
+            "failedJob": "backup-transactions",
+            "failure": "{% $states.errorOutput %}"
+          }
+        }
+      ],
+      "Next": "BackupTransactionsResult"
+    },
+    "BackupTransactionsResult": {
+      "Type": "Task",
+      "Comment": "Read runs/<runId>/backup-transactions.json (logical return code)",
+      "Resource": "arn:aws:states:::aws-sdk:s3:getObject",
+      "Arguments": {
+        "Bucket": "${BucketName}",
+        "Key": "{% 'runs/' & $runId & '/backup-transactions.json' %}"
+      },
+      "Assign": {
+        "lastJob": "backup-transactions",
+        "lastResult": "{% $parse($states.result.Body) %}"
+      },
+      "Output": "{% $states.input %}",
+      "Retry": [
+        {
+          "ErrorEquals": [
+            "States.TaskFailed"
+          ],
+          "IntervalSeconds": 5,
+          "MaxAttempts": 3,
+          "BackoffRate": 2
+        }
+      ],
+      "Catch": [
+        {
+          "ErrorEquals": [
+            "States.ALL"
+          ],
+          "Next": "NotifyFailure",
+          "Assign": {
+            "failedJob": "backup-transactions",
+            "failure": "{% $states.errorOutput %}"
+          }
+        }
+      ],
+      "Next": "BackupTransactionsCheck"
+    },
+    "BackupTransactionsCheck": {
+      "Type": "Choice",
+      "Choices": [
+        {
+          "Condition": "{% $lastResult.returnCode = 0 %}",
+          "Next": "IsMonthStart"
+        },
+        {
+          "Condition": "{% $lastResult.returnCode = 4 %}",
+          "Next": "BackupTransactionsWarning"
+        }
+      ],
+      "Default": "BackupTransactionsUnexpected"
+    },
+    "BackupTransactionsUnexpected": {
+      "Type": "Pass",
+      "Assign": {
+        "failedJob": "backup-transactions",
+        "failure": "{% {'Error': 'UnexpectedReturnCode', 'Cause': $string($lastResult)} %}"
+      },
+      "Next": "NotifyFailure"
+    },
+    "BackupTransactionsWarning": {
+      "Type": "Task",
+      "Comment": "RC 4: success with warnings -> carddemo-batch-warning, continue",
+      "Resource": "arn:aws:states:::sns:publish",
+      "Arguments": {
+        "TopicArn": "${WarningTopicArn}",
+        "Subject": "CardDemo batch warning: backup-transactions",
+        "Message": "{% $string($lastResult) %}"
+      },
+      "Retry": [
+        {
+          "ErrorEquals": [
+            "States.TaskFailed"
+          ],
+          "IntervalSeconds": 5,
+          "MaxAttempts": 3,
+          "BackoffRate": 2
+        }
+      ],
+      "Catch": [
+        {
+          "ErrorEquals": [
+            "States.ALL"
+          ],
+          "Next": "IsMonthStart"
+        }
+      ],
+      "Next": "IsMonthStart"
+    },
+    "IsMonthStart": {
+      "Type": "Choice",
+      "Choices": [
+        {
+          "Condition": "{% $monthStart = true %}",
+          "Next": "CalculateInterest"
+        }
+      ],
+      "Default": "IsSaturday"
+    },
+    "CalculateInterest": {
+      "Type": "Task",
+      "Comment": "AWS Batch job carddemo-calculate-interest",
+      "Resource": "arn:aws:states:::batch:submitJob.sync",
+      "Arguments": {
+        "JobName": "{% 'carddemo-calculate-interest-' & $runId %}",
+        "JobDefinition": "carddemo-calculate-interest",
+        "JobQueue": "${JobQueueArn}",
+        "ContainerOverrides": {
+          "Command": [
+            "--job=calculate-interest",
+            "{% '--runId=' & $runId %}",
+            "{% '--businessDate=' & $businessDate %}",
+            "{% '--parmDate=' & $replace($businessDate, '-', '') & '00' %}"
+          ]
+        },
+        "Tags": {
+          "runId": "{% $runId %}",
+          "businessDate": "{% $businessDate %}"
+        }
+      },
+      "Retry": [
+        {
+          "ErrorEquals": [
+            "Batch.AWSBatchException",
+            "Batch.ServerException",
+            "Batch.TooManyRequestsException"
+          ],
+          "IntervalSeconds": 30,
+          "MaxAttempts": 3,
+          "BackoffRate": 2,
+          "JitterStrategy": "FULL"
+        }
+      ],
+      "Catch": [
+        {
+          "ErrorEquals": [
+            "States.ALL"
+          ],
+          "Next": "NotifyFailure",
+          "Assign": {
+            "failedJob": "calculate-interest",
+            "failure": "{% $states.errorOutput %}"
+          }
+        }
+      ],
+      "Next": "CalculateInterestResult"
+    },
+    "CalculateInterestResult": {
+      "Type": "Task",
+      "Comment": "Read runs/<runId>/calculate-interest.json (logical return code)",
+      "Resource": "arn:aws:states:::aws-sdk:s3:getObject",
+      "Arguments": {
+        "Bucket": "${BucketName}",
+        "Key": "{% 'runs/' & $runId & '/calculate-interest.json' %}"
+      },
+      "Assign": {
+        "lastJob": "calculate-interest",
+        "lastResult": "{% $parse($states.result.Body) %}"
+      },
+      "Output": "{% $states.input %}",
+      "Retry": [
+        {
+          "ErrorEquals": [
+            "States.TaskFailed"
+          ],
+          "IntervalSeconds": 5,
+          "MaxAttempts": 3,
+          "BackoffRate": 2
+        }
+      ],
+      "Catch": [
+        {
+          "ErrorEquals": [
+            "States.ALL"
+          ],
+          "Next": "NotifyFailure",
+          "Assign": {
+            "failedJob": "calculate-interest",
+            "failure": "{% $states.errorOutput %}"
+          }
+        }
+      ],
+      "Next": "CalculateInterestCheck"
+    },
+    "CalculateInterestCheck": {
+      "Type": "Choice",
+      "Choices": [
+        {
+          "Condition": "{% $lastResult.returnCode = 0 %}",
+          "Next": "CombineTransactions"
+        }
+      ],
+      "Default": "CalculateInterestUnexpected"
+    },
+    "CalculateInterestUnexpected": {
+      "Type": "Pass",
+      "Assign": {
+        "failedJob": "calculate-interest",
+        "failure": "{% {'Error': 'UnexpectedReturnCode', 'Cause': $string($lastResult)} %}"
+      },
+      "Next": "NotifyFailure"
+    },
+    "CombineTransactions": {
+      "Type": "Task",
+      "Comment": "AWS Batch job carddemo-combine-transactions",
+      "Resource": "arn:aws:states:::batch:submitJob.sync",
+      "Arguments": {
+        "JobName": "{% 'carddemo-combine-transactions-' & $runId %}",
+        "JobDefinition": "carddemo-combine-transactions",
+        "JobQueue": "${JobQueueArn}",
+        "ContainerOverrides": {
+          "Command": [
+            "--job=combine-transactions",
+            "{% '--runId=' & $runId %}",
+            "{% '--businessDate=' & $businessDate %}"
+          ]
+        },
+        "Tags": {
+          "runId": "{% $runId %}",
+          "businessDate": "{% $businessDate %}"
+        }
+      },
+      "Retry": [
+        {
+          "ErrorEquals": [
+            "Batch.AWSBatchException",
+            "Batch.ServerException",
+            "Batch.TooManyRequestsException"
+          ],
+          "IntervalSeconds": 30,
+          "MaxAttempts": 3,
+          "BackoffRate": 2,
+          "JitterStrategy": "FULL"
+        }
+      ],
+      "Catch": [
+        {
+          "ErrorEquals": [
+            "States.ALL"
+          ],
+          "Next": "NotifyFailure",
+          "Assign": {
+            "failedJob": "combine-transactions",
+            "failure": "{% $states.errorOutput %}"
+          }
+        }
+      ],
+      "Next": "CombineTransactionsResult"
+    },
+    "CombineTransactionsResult": {
+      "Type": "Task",
+      "Comment": "Read runs/<runId>/combine-transactions.json (logical return code)",
+      "Resource": "arn:aws:states:::aws-sdk:s3:getObject",
+      "Arguments": {
+        "Bucket": "${BucketName}",
+        "Key": "{% 'runs/' & $runId & '/combine-transactions.json' %}"
+      },
+      "Assign": {
+        "lastJob": "combine-transactions",
+        "lastResult": "{% $parse($states.result.Body) %}"
+      },
+      "Output": "{% $states.input %}",
+      "Retry": [
+        {
+          "ErrorEquals": [
+            "States.TaskFailed"
+          ],
+          "IntervalSeconds": 5,
+          "MaxAttempts": 3,
+          "BackoffRate": 2
+        }
+      ],
+      "Catch": [
+        {
+          "ErrorEquals": [
+            "States.ALL"
+          ],
+          "Next": "NotifyFailure",
+          "Assign": {
+            "failedJob": "combine-transactions",
+            "failure": "{% $states.errorOutput %}"
+          }
+        }
+      ],
+      "Next": "CombineTransactionsCheck"
+    },
+    "CombineTransactionsCheck": {
+      "Type": "Choice",
+      "Choices": [
+        {
+          "Condition": "{% $lastResult.returnCode = 0 %}",
+          "Next": "CreateStatements"
+        }
+      ],
+      "Default": "CombineTransactionsUnexpected"
+    },
+    "CombineTransactionsUnexpected": {
+      "Type": "Pass",
+      "Assign": {
+        "failedJob": "combine-transactions",
+        "failure": "{% {'Error': 'UnexpectedReturnCode', 'Cause': $string($lastResult)} %}"
+      },
+      "Next": "NotifyFailure"
+    },
+    "CreateStatements": {
+      "Type": "Task",
+      "Comment": "AWS Batch job carddemo-create-statements",
+      "Resource": "arn:aws:states:::batch:submitJob.sync",
+      "Arguments": {
+        "JobName": "{% 'carddemo-create-statements-' & $runId %}",
+        "JobDefinition": "carddemo-create-statements",
+        "JobQueue": "${JobQueueArn}",
+        "ContainerOverrides": {
+          "Command": [
+            "--job=create-statements",
+            "{% '--runId=' & $runId %}",
+            "{% '--businessDate=' & $businessDate %}"
+          ]
+        },
+        "Tags": {
+          "runId": "{% $runId %}",
+          "businessDate": "{% $businessDate %}"
+        }
+      },
+      "Retry": [
+        {
+          "ErrorEquals": [
+            "Batch.AWSBatchException",
+            "Batch.ServerException",
+            "Batch.TooManyRequestsException"
+          ],
+          "IntervalSeconds": 30,
+          "MaxAttempts": 3,
+          "BackoffRate": 2,
+          "JitterStrategy": "FULL"
+        }
+      ],
+      "Catch": [
+        {
+          "ErrorEquals": [
+            "States.ALL"
+          ],
+          "Next": "NotifyFailure",
+          "Assign": {
+            "failedJob": "create-statements",
+            "failure": "{% $states.errorOutput %}"
+          }
+        }
+      ],
+      "Next": "CreateStatementsResult"
+    },
+    "CreateStatementsResult": {
+      "Type": "Task",
+      "Comment": "Read runs/<runId>/create-statements.json (logical return code)",
+      "Resource": "arn:aws:states:::aws-sdk:s3:getObject",
+      "Arguments": {
+        "Bucket": "${BucketName}",
+        "Key": "{% 'runs/' & $runId & '/create-statements.json' %}"
+      },
+      "Assign": {
+        "lastJob": "create-statements",
+        "lastResult": "{% $parse($states.result.Body) %}"
+      },
+      "Output": "{% $states.input %}",
+      "Retry": [
+        {
+          "ErrorEquals": [
+            "States.TaskFailed"
+          ],
+          "IntervalSeconds": 5,
+          "MaxAttempts": 3,
+          "BackoffRate": 2
+        }
+      ],
+      "Catch": [
+        {
+          "ErrorEquals": [
+            "States.ALL"
+          ],
+          "Next": "NotifyFailure",
+          "Assign": {
+            "failedJob": "create-statements",
+            "failure": "{% $states.errorOutput %}"
+          }
+        }
+      ],
+      "Next": "CreateStatementsCheck"
+    },
+    "CreateStatementsCheck": {
+      "Type": "Choice",
+      "Choices": [
+        {
+          "Condition": "{% $lastResult.returnCode = 0 %}",
+          "Next": "StatementPdf"
+        },
+        {
+          "Condition": "{% $lastResult.returnCode = 4 %}",
+          "Next": "CreateStatementsWarning"
+        }
+      ],
+      "Default": "CreateStatementsUnexpected"
+    },
+    "CreateStatementsUnexpected": {
+      "Type": "Pass",
+      "Assign": {
+        "failedJob": "create-statements",
+        "failure": "{% {'Error': 'UnexpectedReturnCode', 'Cause': $string($lastResult)} %}"
+      },
+      "Next": "NotifyFailure"
+    },
+    "CreateStatementsWarning": {
+      "Type": "Task",
+      "Comment": "RC 4: success with warnings -> carddemo-batch-warning, continue",
+      "Resource": "arn:aws:states:::sns:publish",
+      "Arguments": {
+        "TopicArn": "${WarningTopicArn}",
+        "Subject": "CardDemo batch warning: create-statements",
+        "Message": "{% $string($lastResult) %}"
+      },
+      "Retry": [
+        {
+          "ErrorEquals": [
+            "States.TaskFailed"
+          ],
+          "IntervalSeconds": 5,
+          "MaxAttempts": 3,
+          "BackoffRate": 2
+        }
+      ],
+      "Catch": [
+        {
+          "ErrorEquals": [
+            "States.ALL"
+          ],
+          "Next": "StatementPdf"
+        }
+      ],
+      "Next": "StatementPdf"
+    },
+    "StatementPdf": {
+      "Type": "Task",
+      "Comment": "AWS Batch job carddemo-statement-pdf",
+      "Resource": "arn:aws:states:::batch:submitJob.sync",
+      "Arguments": {
+        "JobName": "{% 'carddemo-statement-pdf-' & $runId %}",
+        "JobDefinition": "carddemo-statement-pdf",
+        "JobQueue": "${JobQueueArn}",
+        "ContainerOverrides": {
+          "Command": [
+            "--job=statement-pdf",
+            "{% '--runId=' & $runId %}",
+            "{% '--businessDate=' & $businessDate %}"
+          ]
+        },
+        "Tags": {
+          "runId": "{% $runId %}",
+          "businessDate": "{% $businessDate %}"
+        }
+      },
+      "Retry": [
+        {
+          "ErrorEquals": [
+            "Batch.AWSBatchException",
+            "Batch.ServerException",
+            "Batch.TooManyRequestsException"
+          ],
+          "IntervalSeconds": 30,
+          "MaxAttempts": 3,
+          "BackoffRate": 2,
+          "JitterStrategy": "FULL"
+        }
+      ],
+      "Catch": [
+        {
+          "ErrorEquals": [
+            "States.ALL"
+          ],
+          "Next": "NotifyFailure",
+          "Assign": {
+            "failedJob": "statement-pdf",
+            "failure": "{% $states.errorOutput %}"
+          }
+        }
+      ],
+      "Next": "StatementPdfResult"
+    },
+    "StatementPdfResult": {
+      "Type": "Task",
+      "Comment": "Read runs/<runId>/statement-pdf.json (logical return code)",
+      "Resource": "arn:aws:states:::aws-sdk:s3:getObject",
+      "Arguments": {
+        "Bucket": "${BucketName}",
+        "Key": "{% 'runs/' & $runId & '/statement-pdf.json' %}"
+      },
+      "Assign": {
+        "lastJob": "statement-pdf",
+        "lastResult": "{% $parse($states.result.Body) %}"
+      },
+      "Output": "{% $states.input %}",
+      "Retry": [
+        {
+          "ErrorEquals": [
+            "States.TaskFailed"
+          ],
+          "IntervalSeconds": 5,
+          "MaxAttempts": 3,
+          "BackoffRate": 2
+        }
+      ],
+      "Catch": [
+        {
+          "ErrorEquals": [
+            "States.ALL"
+          ],
+          "Next": "NotifyFailure",
+          "Assign": {
+            "failedJob": "statement-pdf",
+            "failure": "{% $states.errorOutput %}"
+          }
+        }
+      ],
+      "Next": "StatementPdfCheck"
+    },
+    "StatementPdfCheck": {
+      "Type": "Choice",
+      "Choices": [
+        {
+          "Condition": "{% $lastResult.returnCode = 0 %}",
+          "Next": "IsSaturday"
+        },
+        {
+          "Condition": "{% $lastResult.returnCode = 4 %}",
+          "Next": "StatementPdfWarning"
+        }
+      ],
+      "Default": "StatementPdfUnexpected"
+    },
+    "StatementPdfUnexpected": {
+      "Type": "Pass",
+      "Assign": {
+        "failedJob": "statement-pdf",
+        "failure": "{% {'Error': 'UnexpectedReturnCode', 'Cause': $string($lastResult)} %}"
+      },
+      "Next": "NotifyFailure"
+    },
+    "StatementPdfWarning": {
+      "Type": "Task",
+      "Comment": "RC 4: success with warnings -> carddemo-batch-warning, continue",
+      "Resource": "arn:aws:states:::sns:publish",
+      "Arguments": {
+        "TopicArn": "${WarningTopicArn}",
+        "Subject": "CardDemo batch warning: statement-pdf",
+        "Message": "{% $string($lastResult) %}"
+      },
+      "Retry": [
+        {
+          "ErrorEquals": [
+            "States.TaskFailed"
+          ],
+          "IntervalSeconds": 5,
+          "MaxAttempts": 3,
+          "BackoffRate": 2
+        }
+      ],
+      "Catch": [
+        {
+          "ErrorEquals": [
+            "States.ALL"
+          ],
+          "Next": "IsSaturday"
+        }
+      ],
+      "Next": "IsSaturday"
+    },
+    "IsSaturday": {
+      "Type": "Choice",
+      "Choices": [
+        {
+          "Condition": "{% $saturday = true and $runTransactionTypeMaintenance = true %}",
+          "Next": "MaintainTransactionTypes"
+        },
+        {
+          "Condition": "{% $saturday = true %}",
+          "Next": "ExtractTransactionTypes"
+        }
+      ],
+      "Default": "DailyCycleComplete"
+    },
+    "MaintainTransactionTypes": {
+      "Type": "Task",
+      "Comment": "AWS Batch job carddemo-maintain-transaction-types",
+      "Resource": "arn:aws:states:::batch:submitJob.sync",
+      "Arguments": {
+        "JobName": "{% 'carddemo-maintain-transaction-types-' & $runId %}",
+        "JobDefinition": "carddemo-maintain-transaction-types",
+        "JobQueue": "${JobQueueArn}",
+        "ContainerOverrides": {
+          "Command": [
+            "--job=maintain-transaction-types",
+            "{% '--runId=' & $runId %}",
+            "{% '--businessDate=' & $businessDate %}"
+          ]
+        },
+        "Tags": {
+          "runId": "{% $runId %}",
+          "businessDate": "{% $businessDate %}"
+        }
+      },
+      "Retry": [
+        {
+          "ErrorEquals": [
+            "Batch.AWSBatchException",
+            "Batch.ServerException",
+            "Batch.TooManyRequestsException"
+          ],
+          "IntervalSeconds": 30,
+          "MaxAttempts": 3,
+          "BackoffRate": 2,
+          "JitterStrategy": "FULL"
+        }
+      ],
+      "Catch": [
+        {
+          "ErrorEquals": [
+            "States.ALL"
+          ],
+          "Next": "NotifyFailure",
+          "Assign": {
+            "failedJob": "maintain-transaction-types",
+            "failure": "{% $states.errorOutput %}"
+          }
+        }
+      ],
+      "Next": "MaintainTransactionTypesResult"
+    },
+    "MaintainTransactionTypesResult": {
+      "Type": "Task",
+      "Comment": "Read runs/<runId>/maintain-transaction-types.json (logical return code)",
+      "Resource": "arn:aws:states:::aws-sdk:s3:getObject",
+      "Arguments": {
+        "Bucket": "${BucketName}",
+        "Key": "{% 'runs/' & $runId & '/maintain-transaction-types.json' %}"
+      },
+      "Assign": {
+        "lastJob": "maintain-transaction-types",
+        "lastResult": "{% $parse($states.result.Body) %}"
+      },
+      "Output": "{% $states.input %}",
+      "Retry": [
+        {
+          "ErrorEquals": [
+            "States.TaskFailed"
+          ],
+          "IntervalSeconds": 5,
+          "MaxAttempts": 3,
+          "BackoffRate": 2
+        }
+      ],
+      "Catch": [
+        {
+          "ErrorEquals": [
+            "States.ALL"
+          ],
+          "Next": "NotifyFailure",
+          "Assign": {
+            "failedJob": "maintain-transaction-types",
+            "failure": "{% $states.errorOutput %}"
+          }
+        }
+      ],
+      "Next": "MaintainTransactionTypesCheck"
+    },
+    "MaintainTransactionTypesCheck": {
+      "Type": "Choice",
+      "Choices": [
+        {
+          "Condition": "{% $lastResult.returnCode = 0 %}",
+          "Next": "ExtractTransactionTypes"
+        },
+        {
+          "Condition": "{% $lastResult.returnCode = 4 %}",
+          "Next": "MaintainTransactionTypesWarning"
+        }
+      ],
+      "Default": "MaintainTransactionTypesUnexpected"
+    },
+    "MaintainTransactionTypesUnexpected": {
+      "Type": "Pass",
+      "Assign": {
+        "failedJob": "maintain-transaction-types",
+        "failure": "{% {'Error': 'UnexpectedReturnCode', 'Cause': $string($lastResult)} %}"
+      },
+      "Next": "NotifyFailure"
+    },
+    "MaintainTransactionTypesWarning": {
+      "Type": "Task",
+      "Comment": "RC 4: success with warnings -> carddemo-batch-warning, continue",
+      "Resource": "arn:aws:states:::sns:publish",
+      "Arguments": {
+        "TopicArn": "${WarningTopicArn}",
+        "Subject": "CardDemo batch warning: maintain-transaction-types",
+        "Message": "{% $string($lastResult) %}"
+      },
+      "Retry": [
+        {
+          "ErrorEquals": [
+            "States.TaskFailed"
+          ],
+          "IntervalSeconds": 5,
+          "MaxAttempts": 3,
+          "BackoffRate": 2
+        }
+      ],
+      "Catch": [
+        {
+          "ErrorEquals": [
+            "States.ALL"
+          ],
+          "Next": "ExtractTransactionTypes"
+        }
+      ],
+      "Next": "ExtractTransactionTypes"
+    },
+    "ExtractTransactionTypes": {
+      "Type": "Task",
+      "Comment": "AWS Batch job carddemo-extract-transaction-types",
+      "Resource": "arn:aws:states:::batch:submitJob.sync",
+      "Arguments": {
+        "JobName": "{% 'carddemo-extract-transaction-types-' & $runId %}",
+        "JobDefinition": "carddemo-extract-transaction-types",
+        "JobQueue": "${JobQueueArn}",
+        "ContainerOverrides": {
+          "Command": [
+            "--job=extract-transaction-types",
+            "{% '--runId=' & $runId %}",
+            "{% '--businessDate=' & $businessDate %}"
+          ]
+        },
+        "Tags": {
+          "runId": "{% $runId %}",
+          "businessDate": "{% $businessDate %}"
+        }
+      },
+      "Retry": [
+        {
+          "ErrorEquals": [
+            "Batch.AWSBatchException",
+            "Batch.ServerException",
+            "Batch.TooManyRequestsException"
+          ],
+          "IntervalSeconds": 30,
+          "MaxAttempts": 3,
+          "BackoffRate": 2,
+          "JitterStrategy": "FULL"
+        }
+      ],
+      "Catch": [
+        {
+          "ErrorEquals": [
+            "States.ALL"
+          ],
+          "Next": "NotifyFailure",
+          "Assign": {
+            "failedJob": "extract-transaction-types",
+            "failure": "{% $states.errorOutput %}"
+          }
+        }
+      ],
+      "Next": "ExtractTransactionTypesResult"
+    },
+    "ExtractTransactionTypesResult": {
+      "Type": "Task",
+      "Comment": "Read runs/<runId>/extract-transaction-types.json (logical return code)",
+      "Resource": "arn:aws:states:::aws-sdk:s3:getObject",
+      "Arguments": {
+        "Bucket": "${BucketName}",
+        "Key": "{% 'runs/' & $runId & '/extract-transaction-types.json' %}"
+      },
+      "Assign": {
+        "lastJob": "extract-transaction-types",
+        "lastResult": "{% $parse($states.result.Body) %}"
+      },
+      "Output": "{% $states.input %}",
+      "Retry": [
+        {
+          "ErrorEquals": [
+            "States.TaskFailed"
+          ],
+          "IntervalSeconds": 5,
+          "MaxAttempts": 3,
+          "BackoffRate": 2
+        }
+      ],
+      "Catch": [
+        {
+          "ErrorEquals": [
+            "States.ALL"
+          ],
+          "Next": "NotifyFailure",
+          "Assign": {
+            "failedJob": "extract-transaction-types",
+            "failure": "{% $states.errorOutput %}"
+          }
+        }
+      ],
+      "Next": "ExtractTransactionTypesCheck"
+    },
+    "ExtractTransactionTypesCheck": {
+      "Type": "Choice",
+      "Choices": [
+        {
+          "Condition": "{% $lastResult.returnCode = 0 %}",
+          "Next": "BackupDisclosureGroups"
+        },
+        {
+          "Condition": "{% $lastResult.returnCode = 4 %}",
+          "Next": "ExtractTransactionTypesWarning"
+        }
+      ],
+      "Default": "ExtractTransactionTypesUnexpected"
+    },
+    "ExtractTransactionTypesUnexpected": {
+      "Type": "Pass",
+      "Assign": {
+        "failedJob": "extract-transaction-types",
+        "failure": "{% {'Error': 'UnexpectedReturnCode', 'Cause': $string($lastResult)} %}"
+      },
+      "Next": "NotifyFailure"
+    },
+    "ExtractTransactionTypesWarning": {
+      "Type": "Task",
+      "Comment": "RC 4: success with warnings -> carddemo-batch-warning, continue",
+      "Resource": "arn:aws:states:::sns:publish",
+      "Arguments": {
+        "TopicArn": "${WarningTopicArn}",
+        "Subject": "CardDemo batch warning: extract-transaction-types",
+        "Message": "{% $string($lastResult) %}"
+      },
+      "Retry": [
+        {
+          "ErrorEquals": [
+            "States.TaskFailed"
+          ],
+          "IntervalSeconds": 5,
+          "MaxAttempts": 3,
+          "BackoffRate": 2
+        }
+      ],
+      "Catch": [
+        {
+          "ErrorEquals": [
+            "States.ALL"
+          ],
+          "Next": "BackupDisclosureGroups"
+        }
+      ],
+      "Next": "BackupDisclosureGroups"
+    },
+    "BackupDisclosureGroups": {
+      "Type": "Task",
+      "Comment": "AWS Batch job carddemo-backup-reference-data",
+      "Resource": "arn:aws:states:::batch:submitJob.sync",
+      "Arguments": {
+        "JobName": "{% 'carddemo-backup-reference-data-' & $runId %}",
+        "JobDefinition": "carddemo-backup-reference-data",
+        "JobQueue": "${JobQueueArn}",
+        "ContainerOverrides": {
+          "Command": [
+            "--job=backup-reference-data",
+            "{% '--runId=' & $runId %}",
+            "{% '--businessDate=' & $businessDate %}",
+            "--table=disclosure_group"
+          ]
+        },
+        "Tags": {
+          "runId": "{% $runId %}",
+          "businessDate": "{% $businessDate %}"
+        }
+      },
+      "Retry": [
+        {
+          "ErrorEquals": [
+            "Batch.AWSBatchException",
+            "Batch.ServerException",
+            "Batch.TooManyRequestsException"
+          ],
+          "IntervalSeconds": 30,
+          "MaxAttempts": 3,
+          "BackoffRate": 2,
+          "JitterStrategy": "FULL"
+        }
+      ],
+      "Catch": [
+        {
+          "ErrorEquals": [
+            "States.ALL"
+          ],
+          "Next": "NotifyFailure",
+          "Assign": {
+            "failedJob": "backup-reference-data",
+            "failure": "{% $states.errorOutput %}"
+          }
+        }
+      ],
+      "Next": "BackupDisclosureGroupsResult"
+    },
+    "BackupDisclosureGroupsResult": {
+      "Type": "Task",
+      "Comment": "Read runs/<runId>/backup-reference-data.json (logical return code)",
+      "Resource": "arn:aws:states:::aws-sdk:s3:getObject",
+      "Arguments": {
+        "Bucket": "${BucketName}",
+        "Key": "{% 'runs/' & $runId & '/backup-reference-data.json' %}"
+      },
+      "Assign": {
+        "lastJob": "backup-reference-data",
+        "lastResult": "{% $parse($states.result.Body) %}"
+      },
+      "Output": "{% $states.input %}",
+      "Retry": [
+        {
+          "ErrorEquals": [
+            "States.TaskFailed"
+          ],
+          "IntervalSeconds": 5,
+          "MaxAttempts": 3,
+          "BackoffRate": 2
+        }
+      ],
+      "Catch": [
+        {
+          "ErrorEquals": [
+            "States.ALL"
+          ],
+          "Next": "NotifyFailure",
+          "Assign": {
+            "failedJob": "backup-reference-data",
+            "failure": "{% $states.errorOutput %}"
+          }
+        }
+      ],
+      "Next": "BackupDisclosureGroupsCheck"
+    },
+    "BackupDisclosureGroupsCheck": {
+      "Type": "Choice",
+      "Choices": [
+        {
+          "Condition": "{% $lastResult.returnCode = 0 %}",
+          "Next": "RefreshDisclosureGroups"
+        },
+        {
+          "Condition": "{% $lastResult.returnCode = 4 %}",
+          "Next": "BackupDisclosureGroupsWarning"
+        }
+      ],
+      "Default": "BackupDisclosureGroupsUnexpected"
+    },
+    "BackupDisclosureGroupsUnexpected": {
+      "Type": "Pass",
+      "Assign": {
+        "failedJob": "backup-reference-data",
+        "failure": "{% {'Error': 'UnexpectedReturnCode', 'Cause': $string($lastResult)} %}"
+      },
+      "Next": "NotifyFailure"
+    },
+    "BackupDisclosureGroupsWarning": {
+      "Type": "Task",
+      "Comment": "RC 4: success with warnings -> carddemo-batch-warning, continue",
+      "Resource": "arn:aws:states:::sns:publish",
+      "Arguments": {
+        "TopicArn": "${WarningTopicArn}",
+        "Subject": "CardDemo batch warning: backup-reference-data",
+        "Message": "{% $string($lastResult) %}"
+      },
+      "Retry": [
+        {
+          "ErrorEquals": [
+            "States.TaskFailed"
+          ],
+          "IntervalSeconds": 5,
+          "MaxAttempts": 3,
+          "BackoffRate": 2
+        }
+      ],
+      "Catch": [
+        {
+          "ErrorEquals": [
+            "States.ALL"
+          ],
+          "Next": "RefreshDisclosureGroups"
+        }
+      ],
+      "Next": "RefreshDisclosureGroups"
+    },
+    "RefreshDisclosureGroups": {
+      "Type": "Task",
+      "Comment": "AWS Batch job carddemo-load-reference-data",
+      "Resource": "arn:aws:states:::batch:submitJob.sync",
+      "Arguments": {
+        "JobName": "{% 'carddemo-load-reference-data-' & $runId %}",
+        "JobDefinition": "carddemo-load-reference-data",
+        "JobQueue": "${JobQueueArn}",
+        "ContainerOverrides": {
+          "Command": [
+            "--job=load-reference-data",
+            "{% '--runId=' & $runId %}",
+            "{% '--businessDate=' & $businessDate %}",
+            "--table=disclosure_group"
+          ]
+        },
+        "Tags": {
+          "runId": "{% $runId %}",
+          "businessDate": "{% $businessDate %}"
+        }
+      },
+      "Retry": [
+        {
+          "ErrorEquals": [
+            "Batch.AWSBatchException",
+            "Batch.ServerException",
+            "Batch.TooManyRequestsException"
+          ],
+          "IntervalSeconds": 30,
+          "MaxAttempts": 3,
+          "BackoffRate": 2,
+          "JitterStrategy": "FULL"
+        }
+      ],
+      "Catch": [
+        {
+          "ErrorEquals": [
+            "States.ALL"
+          ],
+          "Next": "NotifyFailure",
+          "Assign": {
+            "failedJob": "load-reference-data",
+            "failure": "{% $states.errorOutput %}"
+          }
+        }
+      ],
+      "Next": "RefreshDisclosureGroupsResult"
+    },
+    "RefreshDisclosureGroupsResult": {
+      "Type": "Task",
+      "Comment": "Read runs/<runId>/load-reference-data.json (logical return code)",
+      "Resource": "arn:aws:states:::aws-sdk:s3:getObject",
+      "Arguments": {
+        "Bucket": "${BucketName}",
+        "Key": "{% 'runs/' & $runId & '/load-reference-data.json' %}"
+      },
+      "Assign": {
+        "lastJob": "load-reference-data",
+        "lastResult": "{% $parse($states.result.Body) %}"
+      },
+      "Output": "{% $states.input %}",
+      "Retry": [
+        {
+          "ErrorEquals": [
+            "States.TaskFailed"
+          ],
+          "IntervalSeconds": 5,
+          "MaxAttempts": 3,
+          "BackoffRate": 2
+        }
+      ],
+      "Catch": [
+        {
+          "ErrorEquals": [
+            "States.ALL"
+          ],
+          "Next": "NotifyFailure",
+          "Assign": {
+            "failedJob": "load-reference-data",
+            "failure": "{% $states.errorOutput %}"
+          }
+        }
+      ],
+      "Next": "RefreshDisclosureGroupsCheck"
+    },
+    "RefreshDisclosureGroupsCheck": {
+      "Type": "Choice",
+      "Choices": [
+        {
+          "Condition": "{% $lastResult.returnCode = 0 %}",
+          "Next": "DailyCycleComplete"
+        },
+        {
+          "Condition": "{% $lastResult.returnCode = 4 %}",
+          "Next": "RefreshDisclosureGroupsWarning"
+        }
+      ],
+      "Default": "RefreshDisclosureGroupsUnexpected"
+    },
+    "RefreshDisclosureGroupsUnexpected": {
+      "Type": "Pass",
+      "Assign": {
+        "failedJob": "load-reference-data",
+        "failure": "{% {'Error': 'UnexpectedReturnCode', 'Cause': $string($lastResult)} %}"
+      },
+      "Next": "NotifyFailure"
+    },
+    "RefreshDisclosureGroupsWarning": {
+      "Type": "Task",
+      "Comment": "RC 4: success with warnings -> carddemo-batch-warning, continue",
+      "Resource": "arn:aws:states:::sns:publish",
+      "Arguments": {
+        "TopicArn": "${WarningTopicArn}",
+        "Subject": "CardDemo batch warning: load-reference-data",
+        "Message": "{% $string($lastResult) %}"
+      },
+      "Retry": [
+        {
+          "ErrorEquals": [
+            "States.TaskFailed"
+          ],
+          "IntervalSeconds": 5,
+          "MaxAttempts": 3,
+          "BackoffRate": 2
+        }
+      ],
+      "Catch": [
+        {
+          "ErrorEquals": [
+            "States.ALL"
+          ],
+          "Next": "DailyCycleComplete"
+        }
+      ],
+      "Next": "DailyCycleComplete"
+    },
+    "DailyCycleComplete": {
+      "Type": "Succeed"
+    },
+    "NotifyFailure": {
+      "Type": "Task",
+      "Comment": "RC 8/12/16 or infrastructure error: notify and stop the flow",
+      "Resource": "arn:aws:states:::sns:publish",
+      "Arguments": {
+        "TopicArn": "${FailureTopicArn}",
+        "Subject": "{% 'CardDemo batch failure: ' & $failedJob %}",
+        "Message": "{% $string({'execution': $states.context.Execution.Id, 'runId': $runId, 'businessDate': $businessDate, 'failedJob': $failedJob, 'failure': $failure}) %}"
+      },
+      "Retry": [
+        {
+          "ErrorEquals": [
+            "States.TaskFailed"
+          ],
+          "IntervalSeconds": 5,
+          "MaxAttempts": 3,
+          "BackoffRate": 2
+        }
+      ],
+      "Catch": [
+        {
+          "ErrorEquals": [
+            "States.ALL"
+          ],
+          "Next": "Failed"
+        }
+      ],
+      "Next": "Failed"
+    },
+    "Failed": {
+      "Type": "Fail",
+      "Error": "CardDemoBatchJobFailed",
+      "Cause": "{% 'Job ' & $failedJob & ' failed (see SNS notification / runs/' & $runId & '/)' %}"
+    }
+  }
+}

@@ -1,0 +1,136 @@
+# Local end-to-end stack for CardDemo on AWS (no AWS account needed).
+#   docker compose up -d postgres localstack        # infrastructure only
+#   docker compose up -d --build                    # + online services + frontend (needs aws/services, aws/frontend)
+#   docker compose --profile batch run --rm batch --job=post-daily-transactions --businessDate=2026-09-28
+#   docker compose --profile etl run --rm etl
+# Build contexts default to the directories owned by the parallel sessions and can be overridden with
+# SERVICES_CONTEXT / FRONTEND_CONTEXT / BATCH_CONTEXT / ETL_CONTEXT. See aws/README.md.
+name: carddemo
+
+x-db-env: &db-env
+  DB_HOST: postgres
+  DB_PORT: "5432"
+  DB_NAME: carddemo
+  DB_USER: ${DB_USER:-carddemo}
+  DB_PASSWORD: ${DB_PASSWORD:-carddemo}
+  DB_SCHEMA: carddemo
+
+x-aws-env: &aws-env
+  AWS_REGION: us-east-1
+  AWS_ACCESS_KEY_ID: test
+  AWS_SECRET_ACCESS_KEY: test
+  AWS_ENDPOINT_URL: http://localstack:4566
+  S3_BUCKET: carddemo-local
+  SQS_QUEUE_PREFIX: carddemo-
+
+services:
+  postgres:
+    image: ${POSTGRES_IMAGE:-postgres:16-alpine}
+    environment:
+      POSTGRES_DB: carddemo
+      POSTGRES_USER: ${DB_USER:-carddemo}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-carddemo}
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./infra/deploy/local/postgres:/docker-entrypoint-initdb.d:ro
+      - ./db:/schema:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d carddemo"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  localstack:
+    image: localstack/localstack:4.4
+    environment:
+      SERVICES: s3,sqs
+      AWS_DEFAULT_REGION: us-east-1
+      SQS_ENDPOINT_STRATEGY: path
+    ports:
+      - "${LOCALSTACK_PORT:-4566}:4566"
+    volumes:
+      - ./infra/deploy/local/localstack:/etc/localstack/init/ready.d:ro
+      - ../app/data:/seed:ro
+    healthcheck:
+      test: ["CMD-SHELL", "test -f /tmp/carddemo-ready"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+
+  services:
+    build:
+      context: ${SERVICES_CONTEXT:-./services}
+      args:
+        MAVEN_MIRROR_URL: ${MAVEN_MIRROR_URL:-}
+    image: carddemo/online-services:local
+    environment:
+      <<: [*db-env, *aws-env]
+      SERVER_PORT: "8080"
+      JWT_SECRET: ${JWT_SECRET:-local-dev-only-jwt-secret-change-me-0123456789abcdef}
+      JWT_TTL_MINUTES: "60"
+    ports:
+      - "${SERVICES_PORT:-8080}:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      localstack:
+        condition: service_healthy
+    networks:
+      default:
+        aliases: [online-services, backend, api]
+
+  frontend:
+    build:
+      context: ${FRONTEND_CONTEXT:-./frontend}
+      args:
+        VITE_API_BASE_URL: ""
+    image: carddemo/frontend:local
+    environment:
+      API_UPSTREAM: http://services:8080
+    ports:
+      - "${FRONTEND_PORT:-3000}:8080"
+    depends_on:
+      - services
+
+  batch:
+    profiles: [batch]
+    build:
+      context: ${BATCH_CONTEXT:-./batch}
+    image: carddemo/batch:local
+    environment:
+      <<: [*db-env, *aws-env]
+    depends_on:
+      postgres:
+        condition: service_healthy
+      localstack:
+        condition: service_healthy
+
+  etl:
+    profiles: [etl]
+    build:
+      context: ${ETL_CONTEXT:-./etl}
+    image: carddemo/etl:local
+    environment:
+      <<: [*db-env, *aws-env]
+    volumes:
+      - ../app/data:/data:ro
+    depends_on:
+      postgres:
+        condition: service_healthy
+      localstack:
+        condition: service_healthy
+
+  awscli:
+    profiles: [tools]
+    image: amazon/aws-cli:2.27.0
+    environment:
+      <<: *aws-env
+    entrypoint: ["aws"]
+    depends_on:
+      localstack:
+        condition: service_healthy
+
+volumes:
+  pgdata:

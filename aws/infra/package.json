@@ -1,0 +1,41 @@
+{
+  "name": "carddemo-infra",
+  "version": "0.1.0",
+  "private": true,
+  "description": "AWS CDK v2 infrastructure for the CardDemo mainframe modernization",
+  "license": "Apache-2.0",
+  "bin": {
+    "carddemo-infra": "bin/carddemo.js"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "build": "tsc --noEmit",
+    "lint": "eslint .",
+    "test": "jest",
+    "synth": "cdk synth --quiet",
+    "cdk": "cdk"
+  },
+  "devDependencies": {
+    "@aws-sdk/client-secrets-manager": "3.1136.0",
+    "@eslint/js": "10.0.1",
+    "@types/jest": "30.0.0",
+    "@types/node": "20.19.43",
+    "@types/pg": "8.23.1",
+    "aws-cdk": "2.1142.0",
+    "esbuild": "0.28.2",
+    "eslint": "10.11.0",
+    "jest": "30.5.2",
+    "ts-jest": "29.4.12",
+    "ts-node": "10.9.2",
+    "typescript": "5.9.3",
+    "typescript-eslint": "8.70.0"
+  },
+  "dependencies": {
+    "@aws-sdk/client-sfn": "3.1136.0",
+    "aws-cdk-lib": "2.270.0",
+    "constructs": "10.8.1",
+    "pg": "8.23.0"
+  }
+}

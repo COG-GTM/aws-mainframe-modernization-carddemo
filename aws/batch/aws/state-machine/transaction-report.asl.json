@@ -1,0 +1,198 @@
+{
+  "Comment": "carddemo-report: on-demand TRANREPT (CORPT00C submits via TDQ JOBS in the legacy app). Input: {runId?, businessDate?, startDate?, endDate?}.",
+  "QueryLanguage": "JSONata",
+  "StartAt": "Init",
+  "TimeoutSeconds": 7200,
+  "States": {
+    "Init": {
+      "Type": "Pass",
+      "Assign": {
+        "runId": "{% $exists($states.input.runId) ? $states.input.runId : $states.context.Execution.Name %}",
+        "businessDate": "{% $exists($states.input.businessDate) ? $states.input.businessDate : $substring($now(), 0, 10) %}"
+      },
+      "Next": "DateRange"
+    },
+    "DateRange": {
+      "Type": "Pass",
+      "Assign": {
+        "startDate": "{% $exists($states.input.startDate) ? $states.input.startDate : $businessDate %}",
+        "endDate": "{% $exists($states.input.endDate) ? $states.input.endDate : $businessDate %}"
+      },
+      "Next": "TransactionReport"
+    },
+    "TransactionReport": {
+      "Type": "Task",
+      "Comment": "AWS Batch job carddemo-transaction-report",
+      "Resource": "arn:aws:states:::batch:submitJob.sync",
+      "Arguments": {
+        "JobName": "{% 'carddemo-transaction-report-' & $runId %}",
+        "JobDefinition": "carddemo-transaction-report",
+        "JobQueue": "${JobQueueArn}",
+        "ContainerOverrides": {
+          "Command": [
+            "--job=transaction-report",
+            "{% '--runId=' & $runId %}",
+            "{% '--businessDate=' & $businessDate %}",
+            "{% '--startDate=' & $startDate %}",
+            "{% '--endDate=' & $endDate %}"
+          ]
+        },
+        "Tags": {
+          "runId": "{% $runId %}",
+          "businessDate": "{% $businessDate %}"
+        }
+      },
+      "Retry": [
+        {
+          "ErrorEquals": [
+            "Batch.AWSBatchException",
+            "Batch.ServerException",
+            "Batch.TooManyRequestsException"
+          ],
+          "IntervalSeconds": 30,
+          "MaxAttempts": 3,
+          "BackoffRate": 2,
+          "JitterStrategy": "FULL"
+        }
+      ],
+      "Catch": [
+        {
+          "ErrorEquals": [
+            "States.ALL"
+          ],
+          "Next": "NotifyFailure",
+          "Assign": {
+            "failedJob": "transaction-report",
+            "failure": "{% $states.errorOutput %}"
+          }
+        }
+      ],
+      "Next": "TransactionReportResult"
+    },
+    "TransactionReportResult": {
+      "Type": "Task",
+      "Comment": "Read runs/<runId>/transaction-report.json (logical return code)",
+      "Resource": "arn:aws:states:::aws-sdk:s3:getObject",
+      "Arguments": {
+        "Bucket": "${BucketName}",
+        "Key": "{% 'runs/' & $runId & '/transaction-report.json' %}"
+      },
+      "Assign": {
+        "lastJob": "transaction-report",
+        "lastResult": "{% $parse($states.result.Body) %}"
+      },
+      "Output": "{% $states.input %}",
+      "Retry": [
+        {
+          "ErrorEquals": [
+            "States.TaskFailed"
+          ],
+          "IntervalSeconds": 5,
+          "MaxAttempts": 3,
+          "BackoffRate": 2
+        }
+      ],
+      "Catch": [
+        {
+          "ErrorEquals": [
+            "States.ALL"
+          ],
+          "Next": "NotifyFailure",
+          "Assign": {
+            "failedJob": "transaction-report",
+            "failure": "{% $states.errorOutput %}"
+          }
+        }
+      ],
+      "Next": "TransactionReportCheck"
+    },
+    "TransactionReportCheck": {
+      "Type": "Choice",
+      "Choices": [
+        {
+          "Condition": "{% $lastResult.returnCode = 0 %}",
+          "Next": "ReportComplete"
+        },
+        {
+          "Condition": "{% $lastResult.returnCode = 4 %}",
+          "Next": "TransactionReportWarning"
+        }
+      ],
+      "Default": "TransactionReportUnexpected"
+    },
+    "TransactionReportUnexpected": {
+      "Type": "Pass",
+      "Assign": {
+        "failedJob": "transaction-report",
+        "failure": "{% {'Error': 'UnexpectedReturnCode', 'Cause': $string($lastResult)} %}"
+      },
+      "Next": "NotifyFailure"
+    },
+    "TransactionReportWarning": {
+      "Type": "Task",
+      "Comment": "RC 4: success with warnings -> carddemo-batch-warning, continue",
+      "Resource": "arn:aws:states:::sns:publish",
+      "Arguments": {
+        "TopicArn": "${WarningTopicArn}",
+        "Subject": "CardDemo batch warning: transaction-report",
+        "Message": "{% $string($lastResult) %}"
+      },
+      "Retry": [
+        {
+          "ErrorEquals": [
+            "States.TaskFailed"
+          ],
+          "IntervalSeconds": 5,
+          "MaxAttempts": 3,
+          "BackoffRate": 2
+        }
+      ],
+      "Catch": [
+        {
+          "ErrorEquals": [
+            "States.ALL"
+          ],
+          "Next": "ReportComplete"
+        }
+      ],
+      "Next": "ReportComplete"
+    },
+    "ReportComplete": {
+      "Type": "Succeed"
+    },
+    "NotifyFailure": {
+      "Type": "Task",
+      "Comment": "RC 8/12/16 or infrastructure error: notify and stop the flow",
+      "Resource": "arn:aws:states:::sns:publish",
+      "Arguments": {
+        "TopicArn": "${FailureTopicArn}",
+        "Subject": "{% 'CardDemo batch failure: ' & $failedJob %}",
+        "Message": "{% $string({'execution': $states.context.Execution.Id, 'runId': $runId, 'businessDate': $businessDate, 'failedJob': $failedJob, 'failure': $failure}) %}"
+      },
+      "Retry": [
+        {
+          "ErrorEquals": [
+            "States.TaskFailed"
+          ],
+          "IntervalSeconds": 5,
+          "MaxAttempts": 3,
+          "BackoffRate": 2
+        }
+      ],
+      "Catch": [
+        {
+          "ErrorEquals": [
+            "States.ALL"
+          ],
+          "Next": "Failed"
+        }
+      ],
+      "Next": "Failed"
+    },
+    "Failed": {
+      "Type": "Fail",
+      "Error": "CardDemoBatchJobFailed",
+      "Cause": "{% 'Job ' & $failedJob & ' failed (see SNS notification / runs/' & $runId & '/)' %}"
+    }
+  }
+}

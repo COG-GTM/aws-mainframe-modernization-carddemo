@@ -1,0 +1,801 @@
+openapi: 3.0.3
+info:
+  title: CardDemo online services
+  version: "1.0.0"
+  description: |
+    REST replacement for the CardDemo CICS/BMS online programs (contract: `aws/contracts/api.md`).
+    Every 4xx/5xx response uses the `ErrorResponse` envelope; `message` reproduces the legacy COBOL
+    screen message and `legacyProgram` names the program the rule came from.
+servers:
+  - url: /api/v1
+security:
+  - bearerAuth: []
+tags:
+  - name: auth
+  - name: menus
+  - name: accounts
+  - name: cards
+  - name: transactions
+  - name: bill-payments
+  - name: reports
+  - name: users
+  - name: transaction-types
+paths:
+  /auth/signon:
+    post:
+      tags: [auth]
+      summary: Sign on (COSGN00C)
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/SignonRequest' }
+      responses:
+        "200":
+          description: Signed on
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SignonResponse' }
+        "400": { $ref: '#/components/responses/ValidationError' }
+        "401": { $ref: '#/components/responses/Unauthorized' }
+        "500": { $ref: '#/components/responses/InternalError' }
+  /menus/main:
+    get:
+      tags: [menus]
+      summary: Main menu options (COMEN01C / COMEN02Y)
+      responses:
+        "200":
+          description: Menu
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/MenuResponse' }
+        "401": { $ref: '#/components/responses/Unauthorized' }
+  /menus/admin:
+    get:
+      tags: [menus]
+      summary: Admin menu options (COADM01C / COADM02Y) — ADMIN only
+      responses:
+        "200":
+          description: Menu
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/MenuResponse' }
+        "401": { $ref: '#/components/responses/Unauthorized' }
+        "403": { $ref: '#/components/responses/Forbidden' }
+  /accounts/{acctId}:
+    parameters:
+      - $ref: '#/components/parameters/AcctIdPath'
+    get:
+      tags: [accounts]
+      summary: View account, customer and cards (COACTVWC)
+      responses:
+        "200":
+          description: Account
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/AccountView' }
+        "400": { $ref: '#/components/responses/ValidationError' }
+        "401": { $ref: '#/components/responses/Unauthorized' }
+        "404": { $ref: '#/components/responses/NotFound' }
+    put:
+      tags: [accounts]
+      summary: Update account and customer in one transaction (COACTUPC)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/AccountUpdateRequest' }
+      responses:
+        "200":
+          description: "Changes committed to database"
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/AccountView' }
+        "400": { $ref: '#/components/responses/ValidationError' }
+        "401": { $ref: '#/components/responses/Unauthorized' }
+        "404": { $ref: '#/components/responses/NotFound' }
+        "409": { $ref: '#/components/responses/Conflict' }
+        "422": { $ref: '#/components/responses/BusinessRule' }
+  /cards:
+    get:
+      tags: [cards]
+      summary: Browse cards (COCRDLIC)
+      parameters:
+        - { name: acctId, in: query, schema: { type: string, pattern: '^[0-9]{1,11}$' } }
+        - { name: cardNum, in: query, schema: { type: string, pattern: '^[0-9]{16}$' } }
+        - $ref: '#/components/parameters/StartKey'
+        - $ref: '#/components/parameters/Direction'
+        - $ref: '#/components/parameters/PageSize7'
+      responses:
+        "200":
+          description: Page of cards
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Page'
+                  - type: object
+                    properties:
+                      items: { type: array, items: { $ref: '#/components/schemas/CardSummary' } }
+        "400": { $ref: '#/components/responses/ValidationError' }
+        "401": { $ref: '#/components/responses/Unauthorized' }
+  /cards/{cardNum}:
+    parameters:
+      - { name: cardNum, in: path, required: true, schema: { type: string } }
+    get:
+      tags: [cards]
+      summary: Card detail (COCRDSLC)
+      parameters:
+        - { name: acctId, in: query, schema: { type: string } }
+      responses:
+        "200":
+          description: Card
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/CardDetail' }
+        "400": { $ref: '#/components/responses/ValidationError' }
+        "401": { $ref: '#/components/responses/Unauthorized' }
+        "404": { $ref: '#/components/responses/NotFound' }
+    put:
+      tags: [cards]
+      summary: Update card (COCRDUPC); expiry day is kept from the stored card as on the legacy screen
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/CardUpdateRequest' }
+      responses:
+        "200":
+          description: "Changes committed to database"
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/CardDetail' }
+        "400": { $ref: '#/components/responses/ValidationError' }
+        "401": { $ref: '#/components/responses/Unauthorized' }
+        "404": { $ref: '#/components/responses/NotFound' }
+        "409": { $ref: '#/components/responses/Conflict' }
+        "422": { $ref: '#/components/responses/BusinessRule' }
+  /transactions:
+    get:
+      tags: [transactions]
+      summary: Browse transactions (COTRN00C)
+      parameters:
+        - $ref: '#/components/parameters/StartKey'
+        - $ref: '#/components/parameters/Direction'
+        - $ref: '#/components/parameters/PageSize10'
+      responses:
+        "200":
+          description: Page of transactions
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Page'
+                  - type: object
+                    properties:
+                      items: { type: array, items: { $ref: '#/components/schemas/TransactionSummary' } }
+        "400": { $ref: '#/components/responses/ValidationError' }
+        "401": { $ref: '#/components/responses/Unauthorized' }
+    post:
+      tags: [transactions]
+      summary: Add transaction (COTRN02C); tran-id = max + 1 under a transaction-scoped advisory lock
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/CreateTransactionRequest' }
+      responses:
+        "201":
+          description: Created
+          headers:
+            Location: { schema: { type: string } }
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/CreateTransactionResponse' }
+        "400": { $ref: '#/components/responses/ValidationError' }
+        "401": { $ref: '#/components/responses/Unauthorized' }
+        "404": { $ref: '#/components/responses/NotFound' }
+        "409": { $ref: '#/components/responses/Conflict' }
+  /transactions/{tranId}:
+    get:
+      tags: [transactions]
+      summary: Transaction detail (COTRN01C)
+      parameters:
+        - { name: tranId, in: path, required: true, schema: { type: string } }
+      responses:
+        "200":
+          description: Transaction
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/TransactionDetail' }
+        "400": { $ref: '#/components/responses/ValidationError' }
+        "401": { $ref: '#/components/responses/Unauthorized' }
+        "404": { $ref: '#/components/responses/NotFound' }
+  /bill-payments:
+    post:
+      tags: [bill-payments]
+      summary: Pay the full account balance (COBIL00C)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                acctId: { type: string, example: "00000000001" }
+      responses:
+        "201":
+          description: Payment recorded
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PaymentResult' }
+        "400": { $ref: '#/components/responses/ValidationError' }
+        "401": { $ref: '#/components/responses/Unauthorized' }
+        "404": { $ref: '#/components/responses/NotFound' }
+        "409": { $ref: '#/components/responses/Conflict' }
+        "422": { $ref: '#/components/responses/BusinessRule' }
+  /bill-payments/{acctId}:
+    get:
+      tags: [bill-payments]
+      summary: Current balance for the payment confirmation screen (COBIL00C)
+      parameters:
+        - $ref: '#/components/parameters/AcctIdPath'
+      responses:
+        "200":
+          description: Balance
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  acctId: { type: integer, format: int64 }
+                  currBal: { $ref: '#/components/schemas/Money' }
+        "400": { $ref: '#/components/responses/ValidationError' }
+        "401": { $ref: '#/components/responses/Unauthorized' }
+        "404": { $ref: '#/components/responses/NotFound' }
+  /reports/transactions:
+    post:
+      tags: [reports]
+      summary: Submit a transaction report request (CORPT00C) to SQS carddemo-report-request
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ReportRequest' }
+      responses:
+        "202":
+          description: Submitted
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ReportSubmitResponse' }
+        "400": { $ref: '#/components/responses/ValidationError' }
+        "401": { $ref: '#/components/responses/Unauthorized' }
+        "500": { $ref: '#/components/responses/InternalError' }
+  /reports/transactions/{requestId}:
+    get:
+      tags: [reports]
+      summary: Report status (Step Functions execution named requestId)
+      parameters:
+        - { name: requestId, in: path, required: true, schema: { type: string, format: uuid } }
+      responses:
+        "200":
+          description: Status
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ReportStatus' }
+        "400": { $ref: '#/components/responses/ValidationError' }
+        "401": { $ref: '#/components/responses/Unauthorized' }
+  /users:
+    get:
+      tags: [users]
+      summary: Browse users (COUSR00C) — ADMIN only
+      parameters:
+        - $ref: '#/components/parameters/StartKey'
+        - $ref: '#/components/parameters/Direction'
+        - $ref: '#/components/parameters/PageSize10'
+      responses:
+        "200":
+          description: Page of users
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Page'
+                  - type: object
+                    properties:
+                      items: { type: array, items: { $ref: '#/components/schemas/UserSummary' } }
+        "401": { $ref: '#/components/responses/Unauthorized' }
+        "403": { $ref: '#/components/responses/Forbidden' }
+    post:
+      tags: [users]
+      summary: Add user (COUSR01C) — ADMIN only
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/CreateUserRequest' }
+      responses:
+        "201":
+          description: "User <id> has been added ..."
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/UserDetail' }
+        "400": { $ref: '#/components/responses/ValidationError' }
+        "401": { $ref: '#/components/responses/Unauthorized' }
+        "403": { $ref: '#/components/responses/Forbidden' }
+        "409": { $ref: '#/components/responses/Conflict' }
+  /users/{userId}:
+    parameters:
+      - { name: userId, in: path, required: true, schema: { type: string, maxLength: 8 } }
+    get:
+      tags: [users]
+      summary: User detail (COUSR02C / COUSR03C lookup) — ADMIN only
+      responses:
+        "200":
+          description: User
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/UserDetail' }
+        "401": { $ref: '#/components/responses/Unauthorized' }
+        "403": { $ref: '#/components/responses/Forbidden' }
+        "404": { $ref: '#/components/responses/NotFound' }
+    put:
+      tags: [users]
+      summary: Update user (COUSR02C) — ADMIN only
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/UpdateUserRequest' }
+      responses:
+        "200":
+          description: "User <id> has been updated ..."
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/UserDetail' }
+        "400": { $ref: '#/components/responses/ValidationError' }
+        "401": { $ref: '#/components/responses/Unauthorized' }
+        "403": { $ref: '#/components/responses/Forbidden' }
+        "404": { $ref: '#/components/responses/NotFound' }
+        "409": { $ref: '#/components/responses/Conflict' }
+        "422": { $ref: '#/components/responses/BusinessRule' }
+    delete:
+      tags: [users]
+      summary: Delete user (COUSR03C) — ADMIN only
+      responses:
+        "204": { description: Deleted }
+        "401": { $ref: '#/components/responses/Unauthorized' }
+        "403": { $ref: '#/components/responses/Forbidden' }
+        "404": { $ref: '#/components/responses/NotFound' }
+  /transaction-types:
+    get:
+      tags: [transaction-types]
+      summary: Browse transaction types (COTRTLIC)
+      parameters:
+        - { name: typeCd, in: query, schema: { type: string } }
+        - { name: description, in: query, description: case-insensitive contains, schema: { type: string } }
+        - $ref: '#/components/parameters/StartKey'
+        - $ref: '#/components/parameters/Direction'
+        - $ref: '#/components/parameters/PageSize7'
+      responses:
+        "200":
+          description: Page of transaction types
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Page'
+                  - type: object
+                    properties:
+                      items: { type: array, items: { $ref: '#/components/schemas/TransactionType' } }
+        "400": { $ref: '#/components/responses/ValidationError' }
+        "401": { $ref: '#/components/responses/Unauthorized' }
+    post:
+      tags: [transaction-types]
+      summary: Add transaction type (COTRTUPC) — ADMIN only
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [typeCd, description]
+              properties:
+                typeCd: { type: string, maxLength: 2 }
+                description: { type: string, maxLength: 50 }
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/TransactionType' }
+        "400": { $ref: '#/components/responses/ValidationError' }
+        "401": { $ref: '#/components/responses/Unauthorized' }
+        "403": { $ref: '#/components/responses/Forbidden' }
+        "409": { $ref: '#/components/responses/Conflict' }
+  /transaction-types/{typeCd}:
+    parameters:
+      - { name: typeCd, in: path, required: true, schema: { type: string } }
+    get:
+      tags: [transaction-types]
+      summary: Transaction type detail (COTRTUPC)
+      responses:
+        "200":
+          description: Transaction type
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/TransactionType' }
+        "400": { $ref: '#/components/responses/ValidationError' }
+        "401": { $ref: '#/components/responses/Unauthorized' }
+        "404": { $ref: '#/components/responses/NotFound' }
+    put:
+      tags: [transaction-types]
+      summary: Update description (COTRTLIC / COTRTUPC) — ADMIN only
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [description, version]
+              properties:
+                description: { type: string, maxLength: 50 }
+                version: { type: integer, format: int64 }
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/TransactionType' }
+        "400": { $ref: '#/components/responses/ValidationError' }
+        "401": { $ref: '#/components/responses/Unauthorized' }
+        "403": { $ref: '#/components/responses/Forbidden' }
+        "404": { $ref: '#/components/responses/NotFound' }
+        "409": { $ref: '#/components/responses/Conflict' }
+        "422": { $ref: '#/components/responses/BusinessRule' }
+    delete:
+      tags: [transaction-types]
+      summary: Delete (COTRTLIC / COTRTUPC) — ADMIN only; FK violation -> 409 INTEGRITY_VIOLATION
+      parameters:
+        - { name: version, in: query, schema: { type: integer, format: int64 } }
+      responses:
+        "204": { description: Deleted }
+        "401": { $ref: '#/components/responses/Unauthorized' }
+        "403": { $ref: '#/components/responses/Forbidden' }
+        "404": { $ref: '#/components/responses/NotFound' }
+        "409": { $ref: '#/components/responses/Conflict' }
+  /transaction-types/{typeCd}/categories:
+    get:
+      tags: [transaction-types]
+      summary: Categories of a transaction type
+      parameters:
+        - { name: typeCd, in: path, required: true, schema: { type: string } }
+      responses:
+        "200":
+          description: Categories
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    typeCd: { type: string }
+                    catCd: { type: integer }
+                    description: { type: string }
+        "400": { $ref: '#/components/responses/ValidationError' }
+        "401": { $ref: '#/components/responses/Unauthorized' }
+        "404": { $ref: '#/components/responses/NotFound' }
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  parameters:
+    AcctIdPath:
+      name: acctId
+      in: path
+      required: true
+      description: Account number, up to 11 digits, non-zero
+      schema: { type: string, example: "00000000001" }
+    StartKey:
+      name: startKey
+      in: query
+      description: Key of the row adjacent to the requested page (lastKey for next, firstKey for prev)
+      schema: { type: string }
+    Direction:
+      name: direction
+      in: query
+      schema: { type: string, enum: [next, prev], default: next }
+    PageSize7:
+      name: pageSize
+      in: query
+      schema: { type: integer, minimum: 1, maximum: 100, default: 7 }
+    PageSize10:
+      name: pageSize
+      in: query
+      schema: { type: integer, minimum: 1, maximum: 100, default: 10 }
+  responses:
+    ValidationError:
+      description: VALIDATION_ERROR / INVALID_REQUEST
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/ErrorResponse' }
+    Unauthorized:
+      description: UNAUTHENTICATED / INVALID_CREDENTIALS
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/ErrorResponse' }
+    Forbidden:
+      description: FORBIDDEN
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/ErrorResponse' }
+    NotFound:
+      description: NOT_FOUND
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/ErrorResponse' }
+    Conflict:
+      description: DUPLICATE / CONCURRENT_UPDATE / LOCKED / INTEGRITY_VIOLATION
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/ErrorResponse' }
+    BusinessRule:
+      description: BUSINESS_RULE
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/ErrorResponse' }
+    InternalError:
+      description: INTERNAL_ERROR
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/ErrorResponse' }
+  schemas:
+    Money:
+      type: string
+      pattern: '^-?[0-9]+\.[0-9]{2}$'
+      example: "194.00"
+    ErrorResponse:
+      type: object
+      required: [errorCode, message, timestamp]
+      properties:
+        errorCode:
+          type: string
+          enum: [VALIDATION_ERROR, INVALID_REQUEST, UNAUTHENTICATED, INVALID_CREDENTIALS, FORBIDDEN, NOT_FOUND,
+                 DUPLICATE, CONCURRENT_UPDATE, LOCKED, INTEGRITY_VIOLATION, BUSINESS_RULE, INTERNAL_ERROR]
+        message: { type: string, example: "Account ID NOT found..." }
+        fieldErrors:
+          type: array
+          items:
+            type: object
+            properties:
+              field: { type: string }
+              message: { type: string }
+        legacyProgram: { type: string, example: COBIL00C }
+        timestamp: { type: string, format: date-time }
+    Page:
+      type: object
+      properties:
+        firstKey: { type: string, nullable: true }
+        lastKey: { type: string, nullable: true }
+        hasNext: { type: boolean }
+        hasPrev: { type: boolean }
+        message: { type: string, description: Legacy browse message when a boundary is reached }
+    SignonRequest:
+      type: object
+      properties:
+        userId: { type: string, maxLength: 8 }
+        password: { type: string, maxLength: 8 }
+    SignonResponse:
+      type: object
+      properties:
+        token: { type: string }
+        tokenType: { type: string, example: Bearer }
+        expiresAt: { type: string, format: date-time }
+        userId: { type: string }
+        firstName: { type: string }
+        lastName: { type: string }
+        role: { type: string, enum: [ADMIN, USER] }
+        nextRoute: { type: string, enum: [/admin, /menu] }
+    MenuResponse:
+      type: object
+      properties:
+        options:
+          type: array
+          items:
+            type: object
+            properties:
+              number: { type: integer }
+              name: { type: string }
+              legacyProgram: { type: string }
+              route: { type: string }
+              adminOnly: { type: boolean }
+              installed: { type: boolean }
+    CustomerView:
+      type: object
+      properties:
+        custId: { type: integer }
+        firstName: { type: string }
+        middleName: { type: string }
+        lastName: { type: string }
+        addrLine1: { type: string }
+        addrLine2: { type: string }
+        addrLine3: { type: string }
+        addrStateCd: { type: string }
+        addrCountryCd: { type: string }
+        addrZip: { type: string }
+        phoneNum1: { type: string, example: "(212)555-1234" }
+        phoneNum2: { type: string }
+        ssn: { type: string, example: "123456789" }
+        govtIssuedId: { type: string }
+        dob: { type: string, format: date }
+        eftAccountId: { type: string }
+        priCardHolderInd: { type: string, enum: [Y, N] }
+        ficoCreditScore: { type: integer }
+        version: { type: integer, format: int64 }
+    AccountView:
+      type: object
+      properties:
+        acctId: { type: integer, format: int64 }
+        activeStatus: { type: string, enum: [Y, N] }
+        currBal: { $ref: '#/components/schemas/Money' }
+        creditLimit: { $ref: '#/components/schemas/Money' }
+        cashCreditLimit: { $ref: '#/components/schemas/Money' }
+        openDate: { type: string, format: date }
+        expirationDate: { type: string, format: date }
+        reissueDate: { type: string, format: date }
+        currCycCredit: { $ref: '#/components/schemas/Money' }
+        currCycDebit: { $ref: '#/components/schemas/Money' }
+        groupId: { type: string }
+        addrZip: { type: string }
+        version: { type: integer, format: int64 }
+        customer: { $ref: '#/components/schemas/CustomerView' }
+        cards:
+          type: array
+          items:
+            type: object
+            properties:
+              cardNum: { type: string }
+              activeStatus: { type: string }
+        message: { type: string }
+    AccountUpdateRequest:
+      description: Same shape as AccountView (acctId/custId/cards ignored); both version fields are required.
+      allOf:
+        - $ref: '#/components/schemas/AccountView'
+    CardSummary:
+      type: object
+      properties:
+        cardNum: { type: string }
+        acctId: { type: integer, format: int64 }
+        activeStatus: { type: string }
+    CardDetail:
+      type: object
+      properties:
+        cardNum: { type: string }
+        acctId: { type: integer, format: int64 }
+        cvvCd: { type: integer }
+        embossedName: { type: string }
+        expirationDate: { type: string, format: date }
+        activeStatus: { type: string }
+        version: { type: integer, format: int64 }
+        message: { type: string }
+    CardUpdateRequest:
+      type: object
+      required: [acctId, version]
+      properties:
+        acctId: { type: string }
+        embossedName: { type: string, maxLength: 50 }
+        activeStatus: { type: string, enum: [Y, N] }
+        expirationDate: { type: string, description: "yyyy-MM[-dd]; only year and month are editable" }
+        version: { type: integer, format: int64 }
+    TransactionSummary:
+      type: object
+      properties:
+        tranId: { type: string }
+        origDate: { type: string, format: date }
+        description: { type: string }
+        amt: { $ref: '#/components/schemas/Money' }
+    TransactionDetail:
+      type: object
+      properties:
+        tranId: { type: string }
+        cardNum: { type: string }
+        typeCd: { type: string }
+        catCd: { type: integer }
+        source: { type: string }
+        description: { type: string }
+        amt: { $ref: '#/components/schemas/Money' }
+        origTs: { type: string, format: date-time }
+        procTs: { type: string, format: date-time }
+        merchantId: { type: integer }
+        merchantName: { type: string }
+        merchantCity: { type: string }
+        merchantZip: { type: string }
+    CreateTransactionRequest:
+      type: object
+      description: Exactly one of acctId / cardNum is required. Numeric fields may be sent as strings or numbers.
+      properties:
+        acctId: { type: string }
+        cardNum: { type: string }
+        typeCd: { type: string }
+        catCd: { type: string }
+        source: { type: string }
+        description: { type: string }
+        amt: { type: string, example: "-00000012.34" }
+        origDate: { type: string, format: date }
+        procDate: { type: string, format: date }
+        merchantId: { type: string }
+        merchantName: { type: string }
+        merchantCity: { type: string }
+        merchantZip: { type: string }
+    CreateTransactionResponse:
+      type: object
+      properties:
+        tranId: { type: string, example: "0000000000000301" }
+        message: { type: string }
+    PaymentResult:
+      type: object
+      properties:
+        tranId: { type: string }
+        amount: { $ref: '#/components/schemas/Money' }
+        message: { type: string }
+    ReportRequest:
+      type: object
+      properties:
+        reportType: { type: string, enum: [MONTHLY, YEARLY, CUSTOM] }
+        startDate: { type: string, format: date, description: CUSTOM only }
+        endDate: { type: string, format: date, description: CUSTOM only }
+    ReportSubmitResponse:
+      type: object
+      properties:
+        requestId: { type: string, format: uuid }
+        reportType: { type: string }
+        startDate: { type: string, format: date }
+        endDate: { type: string, format: date }
+        message: { type: string, example: "Monthly report submitted for printing ..." }
+    ReportStatus:
+      type: object
+      properties:
+        requestId: { type: string, format: uuid }
+        status: { type: string, enum: [SUBMITTED, RUNNING, SUCCEEDED, FAILED] }
+        reportS3Key: { type: string, nullable: true }
+    UserSummary:
+      type: object
+      properties:
+        userId: { type: string }
+        firstName: { type: string }
+        lastName: { type: string }
+        userType: { type: string, enum: [A, U] }
+    UserDetail:
+      allOf:
+        - $ref: '#/components/schemas/UserSummary'
+        - type: object
+          properties:
+            version: { type: integer, format: int64 }
+            message: { type: string }
+    CreateUserRequest:
+      type: object
+      properties:
+        userId: { type: string, maxLength: 8 }
+        firstName: { type: string, maxLength: 20 }
+        lastName: { type: string, maxLength: 20 }
+        password: { type: string, maxLength: 8 }
+        userType: { type: string, enum: [A, U] }
+    UpdateUserRequest:
+      type: object
+      required: [version]
+      properties:
+        firstName: { type: string, maxLength: 20 }
+        lastName: { type: string, maxLength: 20 }
+        password: { type: string, maxLength: 8, description: Optional; unchanged when omitted }
+        userType: { type: string, enum: [A, U] }
+        version: { type: integer, format: int64 }
+    TransactionType:
+      type: object
+      properties:
+        typeCd: { type: string }
+        description: { type: string }
+        version: { type: integer, format: int64 }
