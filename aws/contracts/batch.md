@@ -87,7 +87,7 @@ Legend — **In**/**Out**: `T:` Aurora table, `S3:` key prefix from §1.2.
 
 | Job name | Legacy | Target |
 |---|---|---|
-| `load-reference-data` `--table=<t>` | `TRANTYPE.jcl`, `TRANCATG.jcl`, `DISCGRP.jcl`, `TCATBALF.jcl`, `ACCTFILE.jcl`, `CARDFILE.jcl`, `CUSTFILE.jcl`, `XREFFILE.jcl`, `TRANFILE.jcl`, `DUSRSECJ.jcl` (IDCAMS DELETE/DEFINE/REPRO [+ AIX BLDINDEX]) | Truncate-and-load table `<t>` from S3 `seed/ascii/` or `refdata/<t>/` inside one DB transaction (atomic swap). AIX define/BLDINDEX → indexes created by Flyway, **not needed on AWS**. |
+| `load-reference-data` `--table=<t>` | `TRANTYPE.jcl`, `TRANCATG.jcl`, `DISCGRP.jcl`, `TCATBALF.jcl`, `ACCTFILE.jcl`, `CARDFILE.jcl`, `CUSTFILE.jcl`, `XREFFILE.jcl`, `TRANFILE.jcl`, `DUSRSECJ.jcl` (IDCAMS DELETE/DEFINE/REPRO [+ AIX BLDINDEX]) | Load table `<t>` from S3 `seed/ascii/` or `refdata/<t>/` inside one DB transaction. Initial load (empty schema) in FK order: `customer` → `account` → `card` → `card_xref` → `transaction_type` → `transaction_category` → `disclosure_group` → `tran_cat_balance` → `user_security` → `transaction`. Refresh of a populated table = keyed upsert (`INSERT … ON CONFLICT (pk) DO UPDATE`); rows absent from the source are deleted only if no FK row references them, otherwise the job exits 12 listing the keys. Never `TRUNCATE … CASCADE`. AIX define/BLDINDEX → indexes created by Flyway, **not needed on AWS**. |
 | `backup-reference-data` | `DEFGDGD.jcl` (IEBGENER first generation of TRANTYPE/TRANCATG/DISCGRP), `TRANEXTR.jcl` STEP10/20 | Dump table to S3 `backup/<table>/`. |
 
 `TRANIDX.jcl`, `DEFGDGB.jcl`, `REPTFILE.jcl`, `DALYREJS.jcl`, `DEFCUST.jcl`, `ESDSRRDS.jcl` are dataset/GDG
@@ -108,8 +108,8 @@ reader) → Step Functions task chaining (not needed). `CBADMCDJ.jcl` (DFHCSDUP)
 
 ### 2.4 `daily_transaction`
 
-`post-daily-transactions` first stages the S3 daily file into `daily_transaction` (truncate + load, batch id
-= `runId`, PK (`run_id`,`load_seq`), no de-duplication — `data-model.md` §2.7), then posts from the table ordered by `load_seq` (input file order, as the legacy sequential read). This keeps the input queryable for validation.
+`post-daily-transactions` first stages the S3 daily file into `daily_transaction` (load only if no rows exist yet
+for that `runId` — a restart never re-stages; batch id = `runId`, PK (`run_id`,`load_seq`), no de-duplication — `data-model.md` §2.7), then posts from the table ordered by `load_seq` (input file order, as the legacy sequential read). This keeps the input queryable for validation.
 
 ## 3. Flows (Step Functions) and daily cycle
 
@@ -146,8 +146,9 @@ Ordering between separate state machines is enforced by EventBridge rules on the
 
 * Idempotency: every job takes `runId`; rerunning a successful `runId` is a no-op (job-execution table
   `batch_job_run(run_id, job_name, business_date, status, exit_code, started_at, ended_at, counts JSONB)`
-  in schema `carddemo`). `post-daily-transactions` records processed `daily_transaction.load_seq` values so a
-  restart skips already-posted rows (legacy restart = rerun from the start after VSAM restore).
+  in schema `carddemo`). `post-daily-transactions` sets `daily_transaction.post_status`/`reject_reason` in the same DB
+  transaction as that record's `transaction`/`account`/`tran_cat_balance` changes, and a restart with the same
+  `runId` processes only rows with `post_status IS NULL` (in `load_seq` order), so no record is applied twice (legacy restart = rerun from the start after VSAM restore).
 * Logging: JSON to stdout → CloudWatch Logs `/aws/batch/carddemo`; include `runId`, `jobName`, counts
   (legacy `DISPLAY 'TRANSACTIONS PROCESSED :'`, `'TRANSACTIONS REJECTED  :'`).
 * Resources: default 1 vCPU / 2 GiB, Fargate compute environment; timeout 1 h.

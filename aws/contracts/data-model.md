@@ -150,6 +150,8 @@ Staging table for the daily posting job (`POSTTRAN`). Same columns and types as 
 | `run_id` | `VARCHAR(40)` | PK part 1 | batch run that loaded the file (see `batch.md`) |
 | `load_seq` | `INTEGER` | PK part 2 | record order in the input file (processing order must be preserved) |
 | `tran_id` | `CHAR(16)` | not null, **not unique** | `DALYTRAN-ID` |
+| `post_status` | `CHAR(1)` | null | `P` posted, `R` rejected, null = not yet processed; set atomically with the posting changes (restart marker, `batch.md` §4) |
+| `reject_reason` | `SMALLINT` | null | `CBTRN02C` validation code 100/101/102/103/109 when `post_status='R'` |
 
 Staging never de-duplicates: every input record is kept. A repeated `tran_id` fails when posted to `transaction`
 (PK), which is the legacy `CBTRN02C` `WRITE TRANSACT` error path (`APPL-RESULT 12` → abend) → job exit 12.
@@ -315,6 +317,9 @@ Index: `ix_pending_auth_detail_card (card_num)`. The IMS secondary index DBD `DB
   copybooks are zoned decimal (`DISPLAY`) with the sign in the last byte's zone nibble (no `COMP-3` in core
   VSAM records). The IMS unload `AWS.M2.CARDDEMO.IMSDATA.DBPAUTP0.dat` contains `COMP`/`COMP-3` fields.
 * ASCII files in `app/data/ASCII/` are line-delimited, same field widths; signed amounts use the
-  overpunch convention (`{`, `A`–`I`, `}`, `J`–`R`) in the last position.
+  overpunch convention (`{`, `A`–`I`, `}`, `J`–`R`) in the last position. Terminators are LF or CRLF
+  (`tcatbal.txt`, `trancatg.txt`, `trantype.txt` contain CRLF) — strip a trailing CR. Lines shorter than the
+  copybook length are right-padded with spaces before parsing (`cardxref.txt` rows are 36 chars: the 14-byte
+  `CVACT03Y` filler is omitted); lines longer than the copybook length after CR stripping are rejected.
 * Trim trailing spaces for `VARCHAR`; spaces/zeros in date fields → `NULL`.
-* Reconciliation: row counts per table must equal the record counts in `migration-inventory.md` §8.
+* Reconciliation: row counts per table must equal the record counts in `migration-inventory.md` §6.2.

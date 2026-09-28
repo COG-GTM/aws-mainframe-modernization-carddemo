@@ -145,7 +145,7 @@ Reads `card_xref` by `acct_id` (AIX `CXACAIX`) → `account` → `customer`.
 { "acctId": 11, "activeStatus": "Y", "currBal": "1940.00", "creditLimit": "2020.00",
   "cashCreditLimit": "1020.00", "openDate": "2014-11-20", "expirationDate": "2025-05-20",
   "reissueDate": "2025-05-20", "currCycCredit": "0.00", "currCycDebit": "0.00", "groupId": "A000000000",
-  "version": 0,
+  "addrZip": "…", "version": 0,
   "customer": { "custId": 1, "firstName": "…", "middleName": "…", "lastName": "…",
     "addrLine1": "…", "addrLine2": "…", "addrLine3": "…", "addrStateCd": "NY", "addrCountryCd": "USA",
     "addrZip": "…", "phoneNum1": "(123)456-7890", "phoneNum2": "…", "ssn": "123456789",
@@ -162,7 +162,9 @@ Reads `card_xref` by `acct_id` (AIX `CXACAIX`) → `account` → `customer`.
 ### `PUT /api/v1/accounts/{acctId}` — `COACTUPC` (`CAUP`, map `CACTUPA`)
 
 Body = same shape as the GET response (all account fields except `acctId`, plus nested `customer` fields
-except `custId`), including both `version`s. Account and customer are updated in **one DB transaction**
+except `custId`), including both `version`s. Top-level `addrZip` is `account.addr_zip` (`ACCT-ADDR-ZIP`), distinct from
+`customer.addrZip`; no legacy screen shows it, so it is optional on `PUT` and an omitted value leaves the column
+unchanged. Account and customer are updated in **one DB transaction**
 (legacy: `READ UPDATE` + `REWRITE` of `ACCTDAT` and `CUSTDAT`, rollback on failure).
 
 Validation (from `COACTUPC`): `activeStatus` ∈ Y/N ("Account Active Status must be Y or N"); credit limits
