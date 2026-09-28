@@ -42,7 +42,7 @@ s3://<bucket>/reports/tranrept/<businessDate>/<runId>.txt   # replaces TRANREPT(
 s3://<bucket>/reports/tcatbal/<businessDate>/<runId>.txt    # replaces TCATBALF.REPT
 s3://<bucket>/statements/<businessDate>/<runId>/statement.txt|statement.html|statement.pdf
 s3://<bucket>/export/<businessDate>/<runId>/export.dat      # replaces AWS.M2.CARDDEMO.EXPORT.DATA
-s3://<bucket>/import/<runId>/{customer,account,xref,transaction}.dat, errors.txt
+s3://<bucket>/import/<runId>/{customer,account,xref,transaction,card}.dat, errors.txt
 s3://<bucket>/extract/account/<runId>/{fixed.txt,array.txt,variable.txt}  # READACCT outputs
 s3://<bucket>/refdata/<table>/<runId>.txt                   # TRANEXTR / reference refresh files
 ```
@@ -77,7 +77,7 @@ Legend — **In**/**Out**: `T:` Aurora table, `S3:` key prefix from §1.2.
 | `backup-transactions` | `TRANBKP.jcl` (`REPROC` unload → IDCAMS delete/define `TRANSACT` + AIX) | T:`transaction` | S3:`backup/transaction/<d>/` | `businessDate` | The delete/redefine of the VSAM cluster is **not needed on AWS** (table persists). |
 | `category-balance-report` | `PRTCATBL.jcl` (IEFBR14, `REPROC`, SORT by acct/type/cat + OUTREC) | T:`tran_cat_balance` | S3:`backup/tran_cat_balance/<d>/`, S3:`reports/tcatbal/<d>/` | `businessDate` | — |
 | `export-customer-data` | `CBEXPORT.jcl` → `CBEXPORT` | T:`customer`, `account`, `card_xref`, `transaction`, `card` | S3:`export/<d>/<runId>/export.dat` (500-byte `CVEXPORT`, types `C`,`A`,`X`,`T`,`D`) | `branchId` (optional), `businessDate` | IDCAMS define of `EXPORT.DATA` not needed. |
-| `import-customer-data` | `CBIMPORT.jcl` → `CBIMPORT` | S3:`export/…/export.dat` | S3:`import/<runId>/…` normalized files + `errors.txt`; optional `--load=true` upserts into T:`customer`,`account`,`card_xref`,`transaction` | `exportKey`, `load` | Legacy writes only normalized sequential files; table load is an opt-in extension. |
+| `import-customer-data` | `CBIMPORT.jcl` → `CBIMPORT` | S3:`export/…/export.dat` | S3:`import/<runId>/{customer,account,xref,transaction,card}.dat` (legacy DDs `CUSTOUT`, `ACCTOUT`, `XREFOUT`, `TRNXOUT`, `CARDOUT`) + `errors.txt`; optional `--load=true` upserts into T:`customer`,`account`,`card`,`card_xref`,`transaction` | `exportKey`, `load` | Legacy writes only normalized sequential files; table load is an opt-in extension. Load order (one DB transaction): `customer` → `account` → `card` → `card_xref` → `transaction`, so FKs hold. |
 | `extract-accounts` | `READACCT.jcl` → `CBACT01C` (+ `COBDATFT`) | T:`account` | S3:`extract/account/<runId>/` fixed (`OUT-ACCT-REC`), array (`OCCURS 5`), variable (10–80 bytes) | — | Demonstration job. `COBDATFT` date reformat → `java.time`. |
 | `print-cards` / `print-xref` / `print-customers` | `READCARD`/`READXREF`/`READCUST.jcl` → `CBACT02C`/`CBACT03C`/`CBCUS01C` | T:`card` / `card_xref` / `customer` | CloudWatch Logs (legacy `DISPLAY` to SYSOUT) | — | Demonstration jobs. |
 | `validate-daily-transactions` | none (no JCL references `CBTRN01C`) | S3 dalytran, T:`customer`,`card_xref`,`card`,`account`,`transaction` | CloudWatch Logs | `businessDate` | `CBTRN01C` only reads/validates and `DISPLAY`s; optional pre-check state. |
@@ -109,7 +109,7 @@ reader) → Step Functions task chaining (not needed). `CBADMCDJ.jcl` (DFHCSDUP)
 ### 2.4 `daily_transaction`
 
 `post-daily-transactions` first stages the S3 daily file into `daily_transaction` (truncate + load, batch id
-= `runId`), then posts from the table ordered by `load_seq` (input file order, as the legacy sequential read). This keeps the input queryable for validation.
+= `runId`, PK (`run_id`,`load_seq`), no de-duplication — `data-model.md` §2.7), then posts from the table ordered by `load_seq` (input file order, as the legacy sequential read). This keeps the input queryable for validation.
 
 ## 3. Flows (Step Functions) and daily cycle
 
@@ -146,7 +146,7 @@ Ordering between separate state machines is enforced by EventBridge rules on the
 
 * Idempotency: every job takes `runId`; rerunning a successful `runId` is a no-op (job-execution table
   `batch_job_run(run_id, job_name, business_date, status, exit_code, started_at, ended_at, counts JSONB)`
-  in schema `carddemo`). `post-daily-transactions` records processed `daily_transaction.tran_id`s so a
+  in schema `carddemo`). `post-daily-transactions` records processed `daily_transaction.load_seq` values so a
   restart skips already-posted rows (legacy restart = rerun from the start after VSAM restore).
 * Logging: JSON to stdout → CloudWatch Logs `/aws/batch/carddemo`; include `runId`, `jobName`, counts
   (legacy `DISPLAY 'TRANSACTIONS PROCESSED :'`, `'TRANSACTIONS REJECTED  :'`).

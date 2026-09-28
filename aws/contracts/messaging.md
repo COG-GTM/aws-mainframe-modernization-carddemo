@@ -14,7 +14,7 @@ IAM), frontend (none — only REST). Source programs: `app/app-authorization-ims
 | DLQ | Every consumer queue has `<name>-dlq`, redrive `maxReceiveCount = 5`, DLQ retention 14 days |
 | Body | UTF-8 JSON, schemas below; `schemaVersion` field = `"1"` |
 | Correlation | Request carries `messageId` (UUID). Reply carries `correlationId` = request `messageId` (replaces `MQMD-MSGID` → `MQMD-CORRELID` copy done in all three MQ programs). Same value also as SQS message attribute `correlationId` (String) for filtering |
-| Reply routing | Request attribute `replyTo` (queue name) replaces `MQMD-REPLYTOQ`. If absent, consumer uses the default reply queue in §2 |
+| Reply routing | Request attribute `replyTo` (queue name) replaces `MQMD-REPLYTOQ`. If absent, consumer uses the default reply queue in §2. `replyTo` MUST be in the consumer's configured allowlist (default: only the flow's own reply queue from §2, prefixed with `SQS_QUEUE_PREFIX`); any other value → no reply sent, message logged to `carddemo-error` and deleted. Consumer IAM `sqs:SendMessage` is limited to those queues |
 | Expiry | Legacy authorization reply: `MQMD-EXPIRY = 50` (tenths of a second = 5 s), non-persistent. Target: reply attribute `expiresAt` (ISO-8601 = send time + 5 s); requesters ignore late replies. Reply queues `MessageRetentionPeriod = 60` s (SQS minimum) |
 | Visibility timeout | 30 s (consumer processing is a handful of DB reads/writes) |
 | Long polling | `WaitTimeSeconds = 5` (replaces `MQGMO-WAITINTERVAL = 5000` ms in `COPAUA0C`) |
@@ -215,4 +215,6 @@ Replaces the JCL deck `CORPT00C` writes to TD queue `JOBS` (`//TRNRPT00 JOB …`
 
 `reportType` ∈ `MONTHLY` (current month), `YEARLY` (current year), `CUSTOM` (user dates) — the three options
 on map `CORPT0A`. The dispatcher starts the `carddemo-report` state machine with
-`{"startDate","endDate","runId": messageId}` (`batch.md` job `transaction-report`).
+`{"startDate","endDate","runId": messageId, "businessDate": endDate}` and execution name = `messageId`
+(`batch.md` job `transaction-report`). `messageId` is the `requestId` returned by `POST /api/v1/reports/transactions`;
+report status is read from that execution (`api.md`).

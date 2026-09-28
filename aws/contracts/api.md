@@ -49,8 +49,9 @@ GET …?startKey=<key>&direction=next|prev&pageSize=<n>
 → { "items": [...], "firstKey": "...", "lastKey": "...", "hasNext": true, "hasPrev": false }
 ```
 
-* `direction=next` (PF8): rows with key `>= startKey` ascending (legacy `STARTBR GTEQ` + `READNEXT`);
-  client passes `lastKey` of current page with `exclusive=true` to get the following page.
+* `direction=next` (PF8): rows with key `> startKey` ascending when `startKey` is supplied; an omitted
+  `startKey` begins at the first row (legacy `STARTBR GTEQ` + `READNEXT`). The client passes the current
+  page's `lastKey` to get the following page.
 * `direction=prev` (PF7): rows with key `< startKey` descending then re-sorted ascending (legacy `READPREV`).
 * `pageSize` default = legacy rows per screen (cards 7, transactions 10, users 10); max 100.
 * `hasNext=false` ↔ legacy "You have reached the bottom of the page…"/"NO MORE PAGES TO DISPLAY";
@@ -239,6 +240,8 @@ Request:
 Exactly one of `acctId`/`cardNum` required ("Account or Card Number must be entered..."); account resolved to
 card via `card_xref` (AIX) or card validated via `card_xref`. `tranId` = (max existing `tran_id`) + 1,
 zero-padded to 16 (legacy `STARTBR HIGH-VALUES` + `READPREV` + `ADD 1`), generated in the same DB transaction.
+Allocation MUST be serialized (transaction-scoped `pg_advisory_xact_lock` on a fixed key, held until commit) so
+concurrent inserts (this endpoint, bill payment) cannot pick the same value; a PK violation still maps to 409.
 `amt` format `-99999999.99` ("Amount should be in format -99999999.99"); dates valid `yyyy-MM-dd`
 (`CSUTLDTC`). `origTs`/`procTs` stored as the given date at 00:00:00.
 
@@ -249,13 +252,16 @@ found..."; 409 "Tran ID already exist..."; 500 "Unable to Add Transaction...".
 ### `POST /api/v1/bill-payments` — `COBIL00C` (`CB00`, map `COBIL0A`)
 
 Request `{ "acctId": 11 }`. Pays the full current balance:
-1. read `account` (404 "Account ID NOT found..."); if `curr_bal <= 0` → 422 "You have nothing to pay...";
+1. `SELECT … FROM account WHERE acct_id = ? FOR UPDATE` (legacy `READ UPDATE`; 404 "Account ID NOT found...");
+   if `curr_bal <= 0` → 422 "You have nothing to pay...";
 2. read `card_xref` by `acct_id` (500 "Unable to lookup XREF AIX file...");
 3. insert `transaction` { `tran_id` = max+1, `type_cd`='02', `cat_cd`=2, `source`='POS TERM',
    `description`='BILL PAYMENT - ONLINE', `amt`=`curr_bal`, `merchant_id`=999999999,
    `merchant_name`='BILL PAYMENT', `merchant_city`/`merchant_zip`='N/A', `card_num`=xref card,
    `orig_ts`=`proc_ts`=now };
-4. `account.curr_bal = curr_bal - amt` — steps 3–4 in one DB transaction.
+4. `account.curr_bal = curr_bal - amt` — steps 1–4 in one DB transaction; the row lock from step 1 is held
+   until commit so concurrent payments serialize (the second sees `curr_bal = 0` → 422). `tran_id` allocation
+   is serialized as in `POST /transactions`.
 
 `GET /api/v1/bill-payments/{acctId}` returns `{ "acctId", "currBal" }` for the confirmation screen.
 201 `{ "tranId": "…", "amount": "1940.00", "message": "Payment successful. Your Transaction ID is …." }`;
@@ -274,7 +280,11 @@ Publishes to SQS `carddemo-report-request` (`messaging.md` §6) — replaces the
 500 "Unable to Write TDQ (JOBS)...".
 
 `GET /api/v1/reports/transactions/{requestId}` → `{ "status": "SUBMITTED|RUNNING|SUCCEEDED|FAILED",
-"reportS3Key": "reports/tranrept/…" }` (new capability; legacy output went to the `TRANREPT` GDG).
+"reportS3Key": "reports/tranrept/<endDate>/<requestId>.txt" }` (new capability; legacy output went to the `TRANREPT` GDG).
+Ownership: online-services generates `requestId` (UUID) and uses it as the SQS `messageId`; the dispatcher starts
+the `carddemo-report` execution with **name** = `requestId` and `runId` = `requestId`, `businessDate` = `endDate`
+(`messaging.md` §6). The status endpoint calls Step Functions `DescribeExecution` for that name: not found →
+`SUBMITTED`, `RUNNING` → `RUNNING`, `SUCCEEDED` → `SUCCEEDED` (+ `reportS3Key`), otherwise `FAILED`. No status table.
 
 ## 8. User administration (ADMIN only)
 
@@ -340,8 +350,8 @@ the replatformed runtime.
 | `GET /api/v1/transaction-types?typeCd=&description=&startKey=&direction=&pageSize=7` | USER, ADMIN | `COTRTLIC` cursor browse of `TRANSACTION_TYPE` (filters by type / description `LIKE`) |
 | `GET /api/v1/transaction-types/{typeCd}` | USER, ADMIN | `COTRTUPC` `SELECT` |
 | `POST /api/v1/transaction-types` `{ typeCd, description }` | ADMIN | `COTRTUPC` `INSERT` (duplicate key → 409; source treats any negative SQLCODE as error) |
-| `PUT /api/v1/transaction-types/{typeCd}` `{ description }` | ADMIN | `COTRTLIC`/`COTRTUPC` `UPDATE` (404 on `SQLCODE +100`) |
-| `DELETE /api/v1/transaction-types/{typeCd}` | ADMIN | `COTRTLIC`/`COTRTUPC` `DELETE` (409 on FK `SQLCODE -532`) |
+| `PUT /api/v1/transaction-types/{typeCd}` `{ description, version }` | ADMIN | `COTRTLIC`/`COTRTUPC` `UPDATE` (404 on `SQLCODE +100`) |
+| `DELETE /api/v1/transaction-types/{typeCd}?version=` | ADMIN | `COTRTLIC`/`COTRTUPC` `DELETE` (409 on FK `SQLCODE -532`) |
 | `GET /api/v1/transaction-types/{typeCd}/categories` | USER, ADMIN | `TRANSACTION_TYPE_CATEGORY` |
 
 SQLCODE mapping: `0` → 200/201/204, `+100` → 404, unique violation → 409 `DUPLICATE`, `-532` (handled in `COTRTLIC`/`COTRTUPC`) → 409

@@ -147,9 +147,12 @@ Staging table for the daily posting job (`POSTTRAN`). Same columns and types as 
 
 | Column | Type | Null | Meaning |
 |---|---|---|---|
-| `tran_id` | `CHAR(16)` | PK (`run_id`,`tran_id`) | `DALYTRAN-ID` |
-| `run_id` | `VARCHAR(40)` | not null | batch run that loaded the file (see `batch.md`) |
-| `load_seq` | `INTEGER` | not null | record order in the input file (processing order must be preserved) |
+| `run_id` | `VARCHAR(40)` | PK part 1 | batch run that loaded the file (see `batch.md`) |
+| `load_seq` | `INTEGER` | PK part 2 | record order in the input file (processing order must be preserved) |
+| `tran_id` | `CHAR(16)` | not null, **not unique** | `DALYTRAN-ID` |
+
+Staging never de-duplicates: every input record is kept. A repeated `tran_id` fails when posted to `transaction`
+(PK), which is the legacy `CBTRN02C` `WRITE TRANSACT` error path (`APPL-RESULT 12` → abend) → job exit 12.
 
 The primary input is the S3 file (`batch.md` §1.2, §2.4); the table is an optional staging copy used by the batch
 session. No FKs.
@@ -181,6 +184,7 @@ One table serves both the core VSAM reference file and the optional DB2 sub-app.
 |---|---|---|---|
 | `type_cd` | `CHAR(2)` | PK | `TRAN-TYPE X(02)` / DB2 `TR_TYPE CHAR(2)` |
 | `description` | `VARCHAR(50)` | not null | `TRAN-TYPE-DESC X(50)` / DB2 `TR_DESCRIPTION VARCHAR(50)` |
+| `version` | `BIGINT` | not null default 0 | technical (mutable via `api.md` §10.2) |
 
 ### 2.11 `transaction_category` ← `CVTRA04Y` / `TRANCATG.VSAM.KSDS` (60 bytes, key 6 @0) **and** DB2 `CARDDEMO.TRANSACTION_TYPE_CATEGORY`
 
