@@ -126,8 +126,9 @@ public class SqsInquiryConsumer implements SmartLifecycle {
         } catch (JsonProcessingException ex) {
             request = null;
         }
-        if (request == null) {
-            sendError(flow, null, "1000", "INVALID MESSAGE FORMAT", flow.requestQueue());
+        if (request == null || request.messageId() == null || !"1".equals(request.schemaVersion())) {
+            sendError(flow, request == null ? null : request.messageId(), "1000", "INVALID MESSAGE FORMAT",
+                    flow.requestQueue());
             delete(queueUrl, message);
             return;
         }
