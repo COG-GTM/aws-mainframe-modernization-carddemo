@@ -1,6 +1,6 @@
 # Contract: REST API (CICS/BMS → Spring Boot + React)
 
-Status: **v1 (Discovery session)**. Producer: online-services (`aws/online-services/`, port 8080).
+Status: **v1 (Discovery session)**. Producer: online-services (`aws/services/`, port 8080; OpenAPI `aws/services/openapi.yaml`).
 Consumer: frontend (`aws/frontend/`), validation. Base path **`/api/v1`**. JSON camelCase. Money = decimal
 string with 2 decimals (`"1940.00"`). Dates `yyyy-MM-dd`. Column semantics come from `data-model.md`.
 
