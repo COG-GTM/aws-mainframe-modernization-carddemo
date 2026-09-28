@@ -68,7 +68,7 @@ def test_constraints_enforced(conn):
 
 def test_partial_truncate_reload_is_refused_before_changes(conn, tmp_path):
     (tmp_path / "account.csv").write_text((DEFAULT_OUT / "account.csv").read_text(encoding="utf-8"), encoding="utf-8")
-    with pytest.raises(ValueError, match="card -> account"):
+    with pytest.raises(ValueError, match="carddemo.card -> account"):
         load.load(tmp_path, DSN)
     assert q(conn, "SELECT count(*) FROM carddemo.card") == [(50,)]
 
@@ -77,3 +77,27 @@ def test_processed_message_matches_messaging_contract(conn):
     cols = q(conn, "SELECT column_name FROM information_schema.columns "
                    "WHERE table_schema = 'carddemo' AND table_name = 'processed_message' ORDER BY ordinal_position")
     assert [c for (c,) in cols] == ["message_id", "queue", "reply_payload", "processed_at"]
+
+
+def test_reload_guard_sees_same_named_tables_in_other_schemas(conn, tmp_path):
+    for t in ("account", "card", "card_xref", "tran_cat_balance"):
+        (tmp_path / f"{t}.csv").write_text((DEFAULT_OUT / f"{t}.csv").read_text(encoding="utf-8"), encoding="utf-8")
+    with conn.cursor() as cur:
+        cur.execute("CREATE SCHEMA IF NOT EXISTS audit_test")
+        cur.execute("CREATE TABLE IF NOT EXISTS audit_test.card (acct_id BIGINT REFERENCES carddemo.account)")
+    conn.commit()
+    try:
+        with pytest.raises(ValueError, match="audit_test.card -> account"):
+            load.load(tmp_path, DSN)
+    finally:
+        with conn.cursor() as cur:
+            cur.execute("DROP SCHEMA audit_test CASCADE")
+        conn.commit()
+
+
+def test_schema_renames_legacy_reply_body_column(conn):
+    with conn.cursor() as cur:
+        cur.execute("ALTER TABLE carddemo.processed_message RENAME COLUMN reply_payload TO reply_body")
+    conn.commit()
+    load.load(DEFAULT_OUT, DSN, schema_sql=DEFAULT_SCHEMA)
+    test_processed_message_matches_messaging_contract(conn)

@@ -339,6 +339,15 @@ CREATE TABLE IF NOT EXISTS processed_message (
     processed_at  TIMESTAMPTZ NOT NULL DEFAULT now(),
     CONSTRAINT pk_processed_message PRIMARY KEY (message_id)
 );
+DO $$
+BEGIN
+    IF EXISTS (SELECT 1 FROM information_schema.columns
+                WHERE table_schema = 'carddemo' AND table_name = 'processed_message' AND column_name = 'reply_body')
+       AND NOT EXISTS (SELECT 1 FROM information_schema.columns
+                WHERE table_schema = 'carddemo' AND table_name = 'processed_message' AND column_name = 'reply_payload') THEN
+        ALTER TABLE carddemo.processed_message RENAME COLUMN reply_body TO reply_payload;
+    END IF;
+END $$;
 CREATE INDEX IF NOT EXISTS ix_processed_message_processed_at ON processed_message (processed_at);
 COMMENT ON TABLE processed_message IS 'technical: SQS consumer de-duplication (messaging.md section 4); purge rows older than 14 days';
 COMMENT ON COLUMN processed_message.reply_payload IS 'technical: reply result fields only (no envelope); re-sent with a fresh envelope on duplicates';

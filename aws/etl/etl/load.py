@@ -61,14 +61,16 @@ def dsn_from_env(env: dict[str, str] | None = None) -> str | None:
 def _check_truncate_closure(cur: psycopg.Cursor, tables: list[str]) -> None:
     """TRUNCATE needs every referencing table in the same statement; refuse partial sets up front."""
     cur.execute(
-        """SELECT DISTINCT child.relname, parent.relname
+        """SELECT DISTINCT cn.nspname || '.' || child.relname, parent.relname
              FROM pg_constraint c
              JOIN pg_class child ON child.oid = c.conrelid
+             JOIN pg_namespace cn ON cn.oid = child.relnamespace
              JOIN pg_class parent ON parent.oid = c.confrelid
-             JOIN pg_namespace n ON n.oid = parent.relnamespace
-            WHERE c.contype = 'f' AND n.nspname = %s AND parent.relname = ANY(%s) AND NOT child.relname = ANY(%s)
+             JOIN pg_namespace pn ON pn.oid = parent.relnamespace
+            WHERE c.contype = 'f' AND pn.nspname = %s AND parent.relname = ANY(%s)
+              AND NOT (cn.nspname = %s AND child.relname = ANY(%s))
             ORDER BY 1, 2""",
-        (SCHEMA, tables, tables),
+        (SCHEMA, tables, SCHEMA, tables),
     )
     missing = cur.fetchall()
     if missing:
