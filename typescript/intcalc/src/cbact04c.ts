@@ -1,6 +1,7 @@
 import { Decimal, ZERO } from './decimal.ts';
 import { AbendError } from './errors.ts';
 import { computeMonthlyInterest } from './interest.ts';
+import { storeInterest } from './picture.ts';
 import type { AccountStore, DiscgrpStore, TransactionWriter, XrefStore } from './io.ts';
 import {
   formatTran,
@@ -173,8 +174,12 @@ export function runCbact04c(options: Cbact04cOptions): Cbact04cResult {
     if (!rateRecord.intRate.isZero()) {
       // Zero rate short-circuits interest, the transaction and the fee stub
       // (cbl:214-217, defect D8).
-      const monthlyInterest = computeMonthlyInterest(balance.balance, rateRecord.intRate);
-      totalInterest = totalInterest.plus(monthlyInterest);
+      // Both accumulators are PIC S9(09)V99, so each store drops the digits
+      // that do not fit (cbl:168-169, 464-467).
+      const monthlyInterest = storeInterest(
+        computeMonthlyInterest(balance.balance, rateRecord.intRate),
+      );
+      totalInterest = storeInterest(totalInterest.plus(monthlyInterest));
       writeTransaction(context, monthlyInterest);
       computeFees();
     }

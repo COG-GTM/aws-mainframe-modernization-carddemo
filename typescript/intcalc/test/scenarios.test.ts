@@ -37,6 +37,15 @@ interface Scenario {
   transactions: TranRecord[];
   accounts: Map<string, AccountRecord>;
   transactFile: string;
+  accountFile: string;
+}
+
+interface ScenarioOptions {
+  parm?: string;
+  /** Contents of a pre-existing SYSTRAN file, as left by an earlier run. */
+  staleTransactOut?: string;
+  /** Write the account master as a raw RECFM=F image with no line separators. */
+  rawAccountFile?: boolean;
 }
 
 function runScenario(
@@ -44,8 +53,9 @@ function runScenario(
   accounts: readonly AccountRecord[],
   xrefs: readonly CardXrefRecord[],
   discgrps: readonly DisGroupRecord[],
-  parm: string = PARM,
+  options: ScenarioOptions = {},
 ): Scenario {
+  const parm = options.parm ?? PARM;
   const dir = mkdtempSync(join(tmpdir(), 'intcalc-scenario-'));
   const write = (name: string, images: readonly string[]): string => {
     const path = join(dir, name);
@@ -53,8 +63,19 @@ function runScenario(
     return path;
   };
 
-  const accountFile = write('acct.txt', accounts.map(formatAccount));
+  const accountFile = join(dir, 'acct.txt');
+  const accountImages = accounts.map(formatAccount);
+  writeFileSync(
+    accountFile,
+    options.rawAccountFile === true
+      ? accountImages.join('')
+      : accountImages.map((image) => `${image}\n`).join(''),
+    'latin1',
+  );
   const transactFile = join(dir, 'systran.txt');
+  if (options.staleTransactOut !== undefined) {
+    writeFileSync(transactFile, options.staleTransactOut, 'latin1');
+  }
 
   const exitCode = main([
     '--parm',
@@ -89,6 +110,7 @@ function runScenario(
       : [],
     accounts: new Map(updated.map((account) => [account.acctId, account])),
     transactFile,
+    accountFile,
   };
 }
 
@@ -224,6 +246,7 @@ describe('scenario: missing DEFAULT disclosure row', () => {
     [...XREFS, xrefRecord('105', '4111111111110105')],
     // No DEFAULT row for 01/0001 this time, so account 105 cannot be priced.
     [discgrpRecord(GOLD, '01', '0001', '18.00')],
+    { staleTransactOut: 'transactions left behind by an earlier successful run\n' },
   );
 
   it('abends the run', () => {
@@ -231,6 +254,8 @@ describe('scenario: missing DEFAULT disclosure row', () => {
   });
 
   it('discards the SYSTRAN generation the way DISP=(NEW,CATLG,DELETE) does', () => {
+    // Including a file left behind by an earlier successful run, which would
+    // otherwise be mistaken for this run's output.
     expect(existsSync(run.transactFile)).toBe(false);
   });
 
@@ -245,7 +270,7 @@ describe('scenario: the run-date PARM is not validated', () => {
     ACCOUNTS,
     XREFS,
     DISCGRPS,
-    'NOTADATE00',
+    { parm: 'NOTADATE00' },
   );
 
   it('accepts a non-date PARM and copies it straight into the TRAN-ID', () => {
@@ -256,5 +281,17 @@ describe('scenario: the run-date PARM is not validated', () => {
   it('timestamps from the wall clock, not from the PARM', () => {
     const today = new Date();
     expect(run.transactions[0]?.origTs.slice(0, 4)).toBe(String(today.getFullYear()));
+  });
+});
+
+describe('scenario: a raw RECFM=F account master', () => {
+  const run = runScenario(BALANCES, ACCOUNTS, XREFS, DISCGRPS, { rawAccountFile: true });
+
+  it('rewrites it without introducing record separators', () => {
+    const content = readFileSync(run.accountFile, 'latin1');
+    expect(run.exitCode).toBe(0);
+    expect(content).not.toContain('\n');
+    expect(content.length).toBe(ACCOUNTS.length * ACCOUNT_RECORD_LENGTH);
+    expect(run.accounts.get('00000000101')?.currBal.toFixed(2)).toBe('1000.98');
   });
 });

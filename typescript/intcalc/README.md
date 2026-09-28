@@ -30,7 +30,7 @@ JavaScript `number` arithmetic is used for money or rates.
 
 ## Build, test, lint
 
-Requires Node.js 22 or newer.
+Requires Node.js 22.6 or newer (`npm start` runs the sources directly with Node's native type stripping).
 
 ```bash
 npm install
@@ -68,8 +68,10 @@ directly.
 | `--account <file>` | `ACCTFILE` | LRECL 300, read and rewritten in place |
 | `--transact-out <file>` | `TRANSACT` | LRECL 350, created |
 | `--account-out <file>` | — | Write updated accounts elsewhere instead of in place |
-| `--line-terminator <t>` | — | `lf` (default), `crlf`, or `none` for a raw `RECFM=F` image |
+| `--line-terminator <t>` | — | `lf`, `crlf`, or `none` for a raw `RECFM=F` image. Defaults to the framing of the account file that was read, so a raw image stays raw. |
 | `--quiet` | — | Suppress the program's `DISPLAY` output |
+
+`SYSTRAN` is written before the account master is rewritten, and an abend deletes the `--transact-out` file, mirroring `DISP=(NEW,CATLG,DELETE)` — a failed run never leaves an earlier run's transactions in place as if they were its own. Account rewrites already applied stay committed, as on the mainframe.
 
 Exit codes: `0` success, `2` bad command line, `99` abend (the COBOL's
 `CEE3ABD` with code 999, raised when a disclosure group row is missing even for

@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import { realpathSync } from 'node:fs';
+import { existsSync, realpathSync, rmSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 
 import { runCbact04c } from './cbact04c.ts';
@@ -24,7 +24,8 @@ interface CliOptions {
   account: string;
   accountOut: string;
   transactOut: string;
-  lineTerminator: LineTerminator;
+  /** `undefined` means "keep the framing of the account file that was read". */
+  lineTerminator: LineTerminator | undefined;
   quiet: boolean;
 }
 
@@ -44,7 +45,8 @@ Required:
 
 Options:
   --account-out <file>    Write updated accounts here instead of in place
-  --line-terminator <t>   lf (default), crlf, or none for a raw RECFM=F image
+  --line-terminator <t>   lf, crlf, or none for a raw RECFM=F image; defaults
+                          to the framing of the account file that was read
   --quiet                 Suppress the program's DISPLAY output
   --help                  Show this message
 `;
@@ -105,7 +107,10 @@ export function parseArgs(argv: readonly string[]): CliOptions {
     account,
     accountOut: values.get('account-out') ?? account,
     transactOut: required('transact-out'),
-    lineTerminator: parseLineTerminator(values.get('line-terminator') ?? 'lf'),
+    lineTerminator: ((): LineTerminator | undefined => {
+      const value = values.get('line-terminator');
+      return value === undefined ? undefined : parseLineTerminator(value);
+    })(),
     quiet: flags.has('quiet'),
   };
 }
@@ -121,6 +126,7 @@ export function main(argv: readonly string[]): number {
 
   const accounts = AccountStore.fromFile(options.account);
   const transactions = new TransactionWriter();
+  const lineTerminator = options.lineTerminator ?? accounts.lineTerminator;
 
   try {
     const result = runCbact04c({
@@ -132,8 +138,11 @@ export function main(argv: readonly string[]): number {
       transactions,
       display: options.quiet ? undefined : (line: string): void => void process.stdout.write(`${line}\n`),
     });
-    accounts.writeToFile(options.accountOut, options.lineTerminator);
-    transactions.writeToFile(options.transactOut, options.lineTerminator);
+    // SYSTRAN is committed first: an unwritable transaction output must not
+    // leave posted interest in the account master with no transactions to
+    // match it.
+    transactions.writeToFile(options.transactOut, lineTerminator);
+    accounts.writeToFile(options.accountOut, lineTerminator);
     process.stdout.write(
       `RECORDS READ: ${String(result.recordCount)} ` +
         `TRANSACTIONS WRITTEN: ${String(result.transactionsWritten)} ` +
@@ -146,7 +155,10 @@ export function main(argv: readonly string[]): number {
       // SYSTRAN generation is deleted (DISP=(NEW,CATLG,DELETE)) while account
       // rewrites already applied stay applied (defect D6).
       process.stdout.write(`${error.message}\nABENDING PROGRAM\n`);
-      accounts.writeToFile(options.accountOut, options.lineTerminator);
+      if (existsSync(options.transactOut)) {
+        rmSync(options.transactOut);
+      }
+      accounts.writeToFile(options.accountOut, lineTerminator);
       return ABEND_EXIT_CODE;
     }
     throw error;

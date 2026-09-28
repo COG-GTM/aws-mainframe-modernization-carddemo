@@ -22,6 +22,22 @@ import {
 export type LineTerminator = '\n' | '\r\n' | '';
 
 /**
+ * VSAM orders keys by their byte values, so record keys are compared as raw
+ * code units. `localeCompare` would collate e.g. `a0` before `A0`.
+ */
+function compareBytes(a: string, b: string): number {
+  return a < b ? -1 : a > b ? 1 : 0;
+}
+
+/** Reports how a flat file frames its records, so a rewrite can keep that framing. */
+export function detectLineTerminator(content: string): LineTerminator {
+  if (!content.includes('\n')) {
+    return '';
+  }
+  return content.includes('\r\n') ? '\r\n' : '\n';
+}
+
+/**
  * Splits a fixed-width flat file into record images.
  *
  * The `app/data/ASCII` fixtures are newline separated (some with CRLF, and the
@@ -58,7 +74,8 @@ export function readTranCatBalFile(path: string): TranCatBalRecord[] {
   return readRecords(path, TCATBAL_RECORD_LENGTH, 'TCATBALF')
     .map(parseTranCatBal)
     .sort((a, b) =>
-      `${a.acctId}${a.tranTypeCd}${a.tranCatCd}`.localeCompare(
+      compareBytes(
+        `${a.acctId}${a.tranTypeCd}${a.tranCatCd}`,
         `${b.acctId}${b.tranTypeCd}${b.tranCatCd}`,
       ),
     );
@@ -72,7 +89,7 @@ export class XrefStore {
     // An alternate index with duplicates returns the entry whose base-cluster
     // (card number) key is lowest; there is no rule in CBACT04C for choosing
     // among several cards of one account.
-    for (const record of [...records].sort((a, b) => a.cardNum.localeCompare(b.cardNum))) {
+    for (const record of [...records].sort((a, b) => compareBytes(a.cardNum, b.cardNum))) {
       const key = unsignedDisplay(record.acctId, 11);
       if (!this.byAcctId.has(key)) {
         this.byAcctId.set(key, record);
@@ -135,7 +152,11 @@ export class AccountStore {
   private readonly order: string[] = [];
   private readonly byAcctId = new Map<string, AccountRecord>();
 
-  constructor(records: readonly AccountRecord[]) {
+  /** Framing of the file this store was read from, so a rewrite preserves it. */
+  readonly lineTerminator: LineTerminator;
+
+  constructor(records: readonly AccountRecord[], lineTerminator: LineTerminator = '\n') {
+    this.lineTerminator = lineTerminator;
     for (const record of records) {
       const key = unsignedDisplay(record.acctId, 11);
       this.order.push(key);
@@ -144,7 +165,11 @@ export class AccountStore {
   }
 
   static fromFile(path: string): AccountStore {
-    return new AccountStore(readRecords(path, ACCOUNT_RECORD_LENGTH, 'ACCTFILE').map(parseAccount));
+    const content = readFileSync(path, 'latin1');
+    return new AccountStore(
+      splitFixedWidth(content, ACCOUNT_RECORD_LENGTH, 'ACCTFILE').map(parseAccount),
+      detectLineTerminator(content),
+    );
   }
 
   /** `1100-GET-ACCT-DATA` (`cbl:372-390`) — a miss abends the run. */
@@ -175,7 +200,7 @@ export class AccountStore {
     });
   }
 
-  writeToFile(path: string, lineTerminator: LineTerminator): void {
+  writeToFile(path: string, lineTerminator: LineTerminator = this.lineTerminator): void {
     const images = this.records().map(formatAccount);
     writeFileSync(path, joinRecords(images, lineTerminator), 'latin1');
   }
