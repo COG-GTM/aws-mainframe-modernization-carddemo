@@ -1,0 +1,118 @@
+{
+  "jobDefinitionName": "carddemo-post-daily-transactions",
+  "type": "container",
+  "platformCapabilities": [
+    "FARGATE"
+  ],
+  "parameters": {},
+  "containerProperties": {
+    "image": "${IMAGE_URI}",
+    "command": [
+      "--job=post-daily-transactions"
+    ],
+    "jobRoleArn": "${JOB_ROLE_ARN}",
+    "executionRoleArn": "${EXECUTION_ROLE_ARN}",
+    "resourceRequirements": [
+      {
+        "type": "VCPU",
+        "value": "1"
+      },
+      {
+        "type": "MEMORY",
+        "value": "2048"
+      }
+    ],
+    "environment": [
+      {
+        "name": "DB_HOST",
+        "value": "${DB_HOST}"
+      },
+      {
+        "name": "DB_PORT",
+        "value": "${DB_PORT}"
+      },
+      {
+        "name": "DB_NAME",
+        "value": "${DB_NAME}"
+      },
+      {
+        "name": "DB_SCHEMA",
+        "value": "carddemo"
+      },
+      {
+        "name": "S3_BUCKET",
+        "value": "${S3_BUCKET}"
+      },
+      {
+        "name": "AWS_REGION",
+        "value": "${AWS_REGION}"
+      },
+      {
+        "name": "JAVA_TOOL_OPTIONS",
+        "value": "-XX:MaxRAMPercentage=75"
+      }
+    ],
+    "secrets": [
+      {
+        "name": "DB_USER",
+        "valueFrom": "${DB_SECRET_ARN}:username::"
+      },
+      {
+        "name": "DB_PASSWORD",
+        "valueFrom": "${DB_SECRET_ARN}:password::"
+      }
+    ],
+    "logConfiguration": {
+      "logDriver": "awslogs",
+      "options": {
+        "awslogs-group": "/aws/batch/carddemo",
+        "awslogs-region": "${AWS_REGION}",
+        "awslogs-stream-prefix": "post-daily-transactions"
+      }
+    },
+    "networkConfiguration": {
+      "assignPublicIp": "DISABLED"
+    },
+    "fargatePlatformConfiguration": {
+      "platformVersion": "LATEST"
+    },
+    "runtimePlatform": {
+      "operatingSystemFamily": "LINUX",
+      "cpuArchitecture": "X86_64"
+    }
+  },
+  "retryStrategy": {
+    "attempts": 2,
+    "evaluateOnExit": [
+      {
+        "onStatusReason": "CannotPullContainerError*",
+        "action": "RETRY"
+      },
+      {
+        "onStatusReason": "ResourceInitializationError*",
+        "action": "RETRY"
+      },
+      {
+        "onStatusReason": "Task failed to start*",
+        "action": "RETRY"
+      },
+      {
+        "onExitCode": "16",
+        "action": "RETRY"
+      },
+      {
+        "onExitCode": "*",
+        "action": "EXIT"
+      }
+    ]
+  },
+  "timeout": {
+    "attemptDurationSeconds": 3600
+  },
+  "propagateTags": true,
+  "tags": {
+    "application": "carddemo",
+    "component": "batch",
+    "legacy": "POSTTRAN (CBTRN02C)"
+  }
+}
