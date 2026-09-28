@@ -1,0 +1,35 @@
+{
+  "app": "npx ts-node --prefer-ts-exts bin/carddemo.ts",
+  "watch": {
+    "include": ["**"],
+    "exclude": ["README.md", "cdk*.json", "**/*.d.ts", "**/*.js", "tsconfig.json", "package*.json", "node_modules", "test"]
+  },
+  "context": {
+    "envName": "dev",
+    "region": "us-east-1",
+    "imageTag": "latest",
+    "natGateways": 1,
+    "auroraMinAcu": 0.5,
+    "auroraMaxAcu": 4,
+    "serviceDesiredCount": 1,
+    "logRetentionDays": 30,
+    "s3RetentionDays": 90,
+    "schemaFile": "../db/schema.sql",
+    "stateMachineDir": "../batch/aws/state-machine",
+    "enableAuthModule": false,
+    "batchCommandPrefix": ["java", "-jar", "carddemo-batch.jar"],
+    "dailyCycleCron": "cron(0 2 * * ? *)",
+    "weeklyRefreshCron": "cron(0 3 ? * SAT *)",
+    "@aws-cdk/aws-iam:minimizePolicies": true,
+    "@aws-cdk/core:checkSecretUsage": true,
+    "@aws-cdk/aws-ecs:arnFormatIncludesClusterName": true,
+    "@aws-cdk/aws-s3:createDefaultLoggingPolicy": true,
+    "@aws-cdk/aws-s3:serverAccessLogsUseBucketPolicy": true,
+    "@aws-cdk/aws-ecs:disableExplicitDeploymentControllerForCircuitBreaker": true,
+    "@aws-cdk/aws-lambda-nodejs:useLatestRuntimeVersion": true,
+    "@aws-cdk/aws-stepfunctions-tasks:useNewS3UriParametersForBedrockInvokeModelTask": true,
+    "@aws-cdk/aws-rds:auroraClusterChangeScopeOfInstanceParameterGroupWithEachParameters": true,
+    "@aws-cdk/aws-ec2:restrictDefaultSecurityGroup": true,
+    "@aws-cdk/core:defaultCrossStackReferences": "strong"
+  }
+}
