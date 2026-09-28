@@ -38,6 +38,8 @@ The JCL header states the intent as "Process transaction balance file and comput
 
 `CLOSEFIL` → **`INTCALC`** → `COMBTRAN` → `WAITSTEP` → `OPENFIL`
 
+Note that this chain **omits `TRANBKP`**, which both shell drivers run between `INTCALC` and `COMBTRAN` (`run_interest_calc.sh:22-26`, `run_full_batch.sh:54-58`). `COMBTRAN` sorts `AWS.M2.CARDDEMO.TRANSACT.BKUP(0)` together with `AWS.M2.CARDDEMO.SYSTRAN(0)` (`app/jcl/COMBTRAN.jcl:22-26`), so under the Control-M definition the interest transactions are merged with whatever transaction backup generation happens to exist — a stale one, or none at all. See D13.
+
 `INTCALC` has `INCOND MONTHLY-InterestCalculation-CLOSEFIL` and posts `OUTCOND MONTHLY-InterestCalculation-INTCALC`, which `COMBTRAN` consumes (`CardDemo.controlm:69-77`). The folder is scheduled for all twelve months with `TIMETO="23:00"`.
 
 **Shell driver** `scripts/run_interest_calc.sh` submits the same cycle over FTP/JES: `CLOSEFIL` → `INTCALC` → `TRANBKP` → `COMBTRAN` → `TRANIDX` → `OPENFIL` (`run_interest_calc.sh:14-35`).
@@ -353,7 +355,7 @@ Secondary precision notes:
 
 - `WS-TOTAL-INT` accumulates already-truncated per-category amounts; the account-level total is therefore the **sum of truncated values**, not the truncation of the sum. Preserve that order.
 - `WS-MONTHLY-INT` and `WS-TOTAL-INT` have no `VALUE` clause (`cbl:168-169`); `WS-TOTAL-INT` is explicitly zeroed at each account break (`cbl:200`), so it is safe, but the Java target should initialise both to `ZERO` deliberately.
-- Overflow: `TRAN-AMT` is `S9(09)V99` while `ACCT-CURR-BAL` is `S9(10)V99`; a computed interest above 999 999 999.99 would be silently truncated on the high-order side by the `MOVE` (`cbl:490`). No `ON SIZE ERROR` exists anywhere.
+- Overflow: `WS-MONTHLY-INT` and `TRAN-AMT` are both `S9(09)V99`, so an interest result above 999 999 999.99 loses its high-order digits **at the `COMPUTE` into `WS-MONTHLY-INT`** (`cbl:464-465`) — the later `MOVE` to `TRAN-AMT` (`cbl:490`) is size-neutral. `WS-TOTAL-INT` is also `S9(09)V99` and can overflow on accumulation even when each category fits, before being added to the wider `ACCT-CURR-BAL` (`S9(10)V99`). No `ON SIZE ERROR` exists anywhere, so all of this is silent.
 
 ### 8.3 Signed fields, dates and timestamps
 
@@ -412,7 +414,8 @@ Observability notes for the target: the job `DISPLAY`s **every input record** (`
 | D9 | `INTCALC` absent from the CA-7 schedule while present in Control-M | `CardDemo.ca7` (0 hits), `CardDemo.controlm:69` | Scheduling inventory incomplete |
 | D10 | Multi-card accounts: rate/card selection is whatever the alternate index returns first | `cbl:394-398` | Ambiguous business rule |
 | D11 | No run statistics; `WS-RECORD-COUNT` computed but unused | `cbl:192` | No reconciliation evidence |
-| D12 | Possible high-order truncation moving interest into `TRAN-AMT`; no `ON SIZE ERROR` anywhere | `cbl:490` | Silent data loss at extreme values |
+| D12 | Possible high-order truncation of interest at the `COMPUTE` (and of the accumulated total), with no `ON SIZE ERROR` anywhere | `cbl:464-465`, `cbl:467` | Silent data loss at extreme values |
+| D13 | The Control-M monthly chain omits `TRANBKP`, yet `COMBTRAN` consumes `TRANSACT.BKUP(0)` | `CardDemo.controlm:64-96`, `COMBTRAN.jcl:22-26`, `run_interest_calc.sh:22-26` | Interest transactions may be merged with a stale backup generation, or the merge fails outright |
 
 ---
 
@@ -424,7 +427,7 @@ Observability notes for the target: the job `DISPLAY`s **every input record** (`
 4. **Define restartability (D6)** — checkpointing, idempotency key, or an "already accrued for period" guard.
 5. **Define the failure policy for missing reference data (D3/D7)** — abend, skip-with-reject-file, or default-and-report.
 6. **Build a parallel-run harness**: run COBOL and Java against the same `TCATBALF`/`ACCTFILE`/`DISCGRP` extracts and diff both the `SYSTRAN` output and the updated account balances byte-for-byte.
-7. **Reconcile the scheduler inventory (D9)** so the migrated job is triggered from the same dependency chain.
+7. **Reconcile the scheduler inventory (D9) and the `TRANBKP` dependency (D13)** so the migrated job is triggered from a single, consistent dependency chain.
 
 ---
 
