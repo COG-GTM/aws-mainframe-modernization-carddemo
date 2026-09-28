@@ -1,0 +1,57 @@
+server:
+  port: ${SERVER_PORT:8080}
+
+spring:
+  application:
+    name: carddemo-online-services
+  datasource:
+    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:carddemo}?currentSchema=${DB_SCHEMA:carddemo}
+    username: ${DB_USER:carddemo}
+    password: ${DB_PASSWORD:}
+  flyway:
+    # The canonical schema is owned by the data-migration session. Enable only for stand-alone local runs/tests.
+    enabled: false
+    schemas: ${DB_SCHEMA:carddemo}
+    default-schema: ${DB_SCHEMA:carddemo}
+    table: flyway_schema_history_online
+    baseline-on-migrate: true
+  jackson:
+    default-property-inclusion: always
+    serialization:
+      write-dates-as-timestamps: false
+  mvc:
+    problemdetails:
+      enabled: false
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      probes:
+        enabled: true
+
+carddemo:
+  jwt:
+    secret: ${JWT_SECRET:}
+    ttl-minutes: ${JWT_TTL_MINUTES:60}
+  aws:
+    region: ${AWS_REGION:us-east-1}
+    sqs-queue-prefix: ${SQS_QUEUE_PREFIX:carddemo-}
+  reports:
+    # noop | sqs
+    publisher: noop
+    # local | stepfunctions
+    status: local
+    state-machine-arn: ""
+    s3-bucket: ${S3_BUCKET:}
+  messaging:
+    # Starts the SQS request/reply consumers (COACCT01 / CODATE01 replacements).
+    enabled: false
+  modules:
+    authorizations-installed: false
+  seed:
+    # Directory with the legacy ASCII sample files (app/data/ASCII); empty = no seeding.
+    ascii-dir: ""
