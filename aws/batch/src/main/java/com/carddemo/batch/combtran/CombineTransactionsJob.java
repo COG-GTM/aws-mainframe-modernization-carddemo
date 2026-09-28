@@ -17,10 +17,13 @@ import java.io.UncheckedIOException;
 import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.zip.GZIPInputStream;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
@@ -34,6 +37,8 @@ import org.springframework.stereotype.Component;
  */
 @Component
 public class CombineTransactionsJob implements CardDemoJob {
+
+    static final int BATCH = 1000;
 
     private final JdbcTemplate jdbc;
     private final ObjectStore store;
@@ -86,33 +91,73 @@ public class CombineTransactionsJob implements CardDemoJob {
 
         Integer tableRows = jdbc.queryForObject("SELECT count(*) FROM transaction", Integer.class);
         counts.put("transactionRows", tableRows);
-        long backupRows = csvRows(backupKey.get());
+        long[] backup = checkBackup(backupKey.get(), problems);
         counts.put("backupFile", store.uri(backupKey.get()));
-        counts.put("backupRows", backupRows);
-        if (tableRows == null || tableRows < backupRows) {
-            problems.add("transaction has " + tableRows + " rows, fewer than backup " + backupRows);
-        }
+        counts.put("backupRows", backup[0]);
+        counts.put("backupRowsMissing", backup[1]);
         if (!problems.isEmpty()) {
             throw new JobFailureWithCounts(ReturnCode.DATA_ERROR, String.join("; ", problems), counts, null);
         }
         return JobOutcome.ok(counts);
     }
 
-    private long csvRows(String key) {
+    /**
+     * Streams the backup CSV (tran_id is the first column) and checks that every backed-up transaction is still in
+     * the table, in batches of {@value #BATCH}. Returns {rows, missing}.
+     */
+    private long[] checkBackup(String key, List<String> problems) {
+        long[] result = {0, 0};
+        List<String> ids = new ArrayList<>(BATCH);
         try (Reader in = new BufferedReader(new InputStreamReader(new GZIPInputStream(store.open(key)),
                 StandardCharsets.UTF_8))) {
-            long lines = 0;
+            StringBuilder first = new StringBuilder();
             boolean quoted = false;
+            boolean header = true;
+            int field = 0;
             for (int c = in.read(); c >= 0; c = in.read()) {
                 if (c == '"') {
                     quoted = !quoted;
+                } else if (c == ',' && !quoted) {
+                    field++;
                 } else if (c == '\n' && !quoted) {
-                    lines++;
+                    if (!header) {
+                        result[0]++;
+                        ids.add(first.toString());
+                        if (ids.size() == BATCH) {
+                            result[1] += missing(ids, problems);
+                        }
+                    }
+                    header = false;
+                    first.setLength(0);
+                    field = 0;
+                } else if (field == 0) {
+                    first.append((char) c);
                 }
             }
-            return Math.max(0, lines - 1);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
+        result[1] += missing(ids, problems);
+        return result;
+    }
+
+    private int missing(List<String> ids, List<String> problems) {
+        if (ids.isEmpty()) {
+            return 0;
+        }
+        Set<String> present = new HashSet<>(jdbc.queryForList(
+                "SELECT tran_id FROM transaction WHERE tran_id IN (" + String.join(",", Collections.nCopies(ids.size(), "?"))
+                        + ")", String.class, ids.toArray()));
+        int missing = 0;
+        for (String id : ids) {
+            if (!present.contains(id)) {
+                missing++;
+                if (problems.size() < 20) {
+                    problems.add("backed-up transaction " + id + " missing from transaction");
+                }
+            }
+        }
+        ids.clear();
+        return missing;
     }
 }

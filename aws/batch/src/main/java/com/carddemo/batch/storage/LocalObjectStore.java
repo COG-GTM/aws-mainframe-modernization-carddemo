@@ -6,10 +6,7 @@ import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
-import java.nio.file.attribute.FileTime;
 import java.util.List;
-import java.util.Map;
-import java.util.Optional;
 import java.util.stream.Stream;
 
 /** Filesystem stand-in for the S3 bucket (local runner and tests): key = relative path. */
@@ -74,21 +71,6 @@ public class LocalObjectStore implements ObjectStore {
         }
     }
 
-    @Override
-    public Optional<String> latest(String prefix) {
-        return list(prefix).stream()
-                .map(k -> Map.entry(k, modified(k)))
-                .max(Map.Entry.<String, FileTime>comparingByValue().thenComparing(Map.Entry.comparingByKey()))
-                .map(Map.Entry::getKey);
-    }
-
-    private FileTime modified(String key) {
-        try {
-            return Files.getLastModifiedTime(resolve(key));
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
-    }
 
     @Override
     public List<String> list(String prefix) {
@@ -111,10 +93,22 @@ public class LocalObjectStore implements ObjectStore {
         return resolve(key).toUri().toString();
     }
 
+    /** Rejects keys that leave the root lexically or through a symbolic link. */
     private Path resolve(String key) {
         Path p = root.resolve(key).normalize();
         if (!p.startsWith(root)) {
             throw new IllegalArgumentException("Key escapes storage root: " + key);
+        }
+        Path existing = p;
+        while (existing != null && !Files.exists(existing)) {
+            existing = existing.getParent();
+        }
+        try {
+            if (existing != null && Files.exists(root) && !existing.toRealPath().startsWith(root.toRealPath())) {
+                throw new IllegalArgumentException("Key escapes storage root: " + key);
+            }
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
         }
         return p;
     }

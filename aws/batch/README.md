@@ -66,22 +66,28 @@ Outputs go to `target/local-bucket/` with the same key layout as S3 (`runs/<runI
   otherwise (Batch job `FAILED`). The state machine reads the JSON to tell 0 from 4.
 * **Idempotency**: `(runId, job)` that already completed is a no-op returning the recorded code. POSTTRAN
   restarts with the same `runId` continue at the first `daily_transaction` row with `post_status IS NULL`.
-  INTCALC skips accounts that already have interest transactions for the PARM date. One `runId` per job per table
-  (the Step Functions execution uses one `runId` for the whole cycle; each job name appears once per table).
+  INTCALC records `{parmDate, lastAcctId}` per account in `batch_job_run.counts` and any later run for the same PARM
+  date skips those accounts. `(runId, job)` is claimed atomically: a concurrent launch with the same key exits 16
+  without running (a RUNNING claim older than the 1-hour Batch attempt timeout can be taken over). One `runId` per
+  job per table (the Step Functions execution uses one `runId` for the whole cycle; each job name appears once per
+  table).
+* **Generations**: GDG `(0)` = lexicographically last `<runId>` under the prefix (`batch.md` §1.2). Generated run ids
+  (JobRunner default and the state machines' default) are `yyyyMMdd'T'HHmmss'Z'-<8 hex>`; explicit ids passed to
+  jobs that feed a later `(0)` lookup must sort the same way, or pass the source key explicitly.
 * **Logging**: ECS JSON to stdout (`/aws/batch/carddemo`) with `runId`, `jobName`, `businessDate` in MDC.
 
 | Job | Parameters | Reads | Writes | RC 4 when |
 |---|---|---|---|---|
 | `post-daily-transactions` | `inputKey` (default `input/dalytran/<date>/dalytran.txt`) | S3 daily file, `card_xref`, `account`, `tran_cat_balance` | `daily_transaction`, `transaction`, `account`, `tran_cat_balance`, `output/dalyrejs/<date>/<runId>.txt` | rejects exist |
 | `calculate-interest` | `parmDate` (10 chars, default `yyyyMMdd00` of businessDate) | `tran_cat_balance`, `account`, `card_xref`, `disclosure_group` | `transaction`, `account`, `output/systran/<date>/<runId>.txt` | — |
-| `combine-transactions` | `systranKey`, `backupKey` (default latest) | systran file, backup, `transaction` | — (verification; RC 12 on mismatch) | — |
+| `combine-transactions` | `systranKey`, `backupKey` (default latest) | systran file, backup, `transaction` | — (verification: every systran and backed-up `tran_id` present; RC 8 if an input is missing, RC 12 on mismatch) | — |
 | `create-statements` | — | `transaction`, `card_xref`, `customer`, `account` | `statements/<date>/<runId>/statement.{txt,html}` | cards skipped (missing customer/account) |
 | `statement-pdf` | `statementRunId` (default this `runId`) | `statement.txt` | `statement.pdf` | — |
 | `backup-transactions` | — | `transaction` | `backup/transaction/<date>/<runId>.csv.gz` | — |
 | `transaction-report` | `startDate`+`endDate`, or `dateParm="yyyy-MM-dd yyyy-MM-dd"` | `transaction`, `card_xref`, `transaction_type`, `transaction_category` | `reports/tranrept/<date>/<runId>.txt` | — |
 | `maintain-transaction-types` | `inputKey` (default `input/trantype-maint/<date>/maint.txt`) | `A`/`U`/`D`/`*` 53-byte records (`COBTUPDT` input) | `transaction_type` | any record failed |
 | `extract-transaction-types` | — | `transaction_type`, `transaction_category` | `refdata/transaction_type/<runId>.txt`, `refdata/transaction_category/<runId>.txt` | — |
-| `load-reference-data` | `table`, `sourceKey` (default latest `refdata/<table>/`, else `seed/ascii/<file>`), `deleteMissing` | S3 fixed-width file | `<table>` (keyed upsert, one DB transaction; RC 12 if a delete would orphan rows) | — |
+| `load-reference-data` | `table`, `sourceKey` (default latest `refdata/<table>/`; `seed/ascii/<file>` only if the table is empty, otherwise skipped), `deleteMissing` | S3 fixed-width file | `<table>` (keyed upsert, one DB transaction; RC 12 if a delete would orphan rows) | — |
 | `backup-reference-data` | `table` | `<table>` | `backup/<table>/<date>/<runId>.csv.gz` | — |
 
 ## JCL step → Java / ASL mapping

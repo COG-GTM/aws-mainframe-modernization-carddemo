@@ -58,7 +58,7 @@ public class JobRunner {
         this.clock = clock.orElse(Clock.systemUTC());
     }
 
-    static final Pattern RUN_ID = Pattern.compile("[A-Za-z0-9_-]{1,40}");
+    public static final Pattern RUN_ID = Pattern.compile("[A-Za-z0-9_-]{1,40}");
 
     /** Runs the job selected by {@code args}; returns the logical return code (0/4/8/12/16). */
     public int run(String... args) {
@@ -104,7 +104,15 @@ public class JobRunner {
                         "already completed (no-op)", started);
                 return published ? rc : ReturnCode.FATAL;
             }
-            runs.start(p.runId(), p.jobName(), p.businessDate());
+            if (!runs.claim(p.runId(), p.jobName(), p.businessDate())) {
+                Optional<BatchRunRepository.Run> now = runs.find(p.runId(), p.jobName());
+                if (now.isPresent() && BatchRunRepository.COMPLETED.equals(now.get().status())) {
+                    return writeResult(p, now.get().exitCode(), readCounts(now.get().counts()),
+                            "already completed (no-op)", started) ? now.get().exitCode() : ReturnCode.FATAL;
+                }
+                log.error("runId {} is already running for {}: not started", p.runId(), p.jobName());
+                return ReturnCode.FATAL;
+            }
         } catch (DataAccessException e) {
             log.error("Data store unavailable", e);
             return finishWithoutDb(p, ReturnCode.FATAL, e, started);

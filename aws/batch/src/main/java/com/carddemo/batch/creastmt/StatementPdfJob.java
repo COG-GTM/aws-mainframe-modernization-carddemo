@@ -1,8 +1,11 @@
 package com.carddemo.batch.creastmt;
 
 import com.carddemo.batch.core.CardDemoJob;
+import com.carddemo.batch.core.JobFailure;
 import com.carddemo.batch.core.JobOutcome;
 import com.carddemo.batch.core.JobParams;
+import com.carddemo.batch.core.JobRunner;
+import com.carddemo.batch.core.ReturnCode;
 import com.carddemo.batch.storage.ObjectStore;
 import com.carddemo.batch.storage.S3Keys;
 import java.io.ByteArrayOutputStream;
@@ -45,6 +48,9 @@ public class StatementPdfJob implements CardDemoJob {
     @Override
     public JobOutcome run(JobParams p) {
         String sourceRun = p.get("statementRunId").orElse(p.runId());
+        if (!JobRunner.RUN_ID.matcher(sourceRun).matches()) {
+            throw new JobFailure(ReturnCode.INPUT_ERROR, "--statementRunId must match " + JobRunner.RUN_ID);
+        }
         String txtKey = S3Keys.statement(p.businessDate(), sourceRun, "txt");
         String text = new String(store.get(txtKey), StandardCharsets.UTF_8);
         int[] pages = {0};

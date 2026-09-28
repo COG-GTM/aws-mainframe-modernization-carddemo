@@ -21,8 +21,14 @@ public interface ObjectStore {
     /** Keys under {@code prefix}, sorted ascending. */
     List<String> list(String prefix);
 
-    /** GDG {@code (0)}: the most recently written key under {@code prefix} (ties: the greatest key). */
-    Optional<String> latest(String prefix);
+    /**
+     * GDG {@code (0)}: the lexicographically last key under {@code prefix}. batch.md §1.2 makes this the newest
+     * generation because generated run ids are {@code yyyyMMdd'T'HHmmss'Z'-<8 hex>}.
+     */
+    default Optional<String> latest(String prefix) {
+        List<String> keys = list(prefix);
+        return keys.isEmpty() ? Optional.empty() : Optional.of(keys.get(keys.size() - 1));
+    }
 
     /** Human-readable location for logs, e.g. {@code s3://bucket/key}. */
     String uri(String key);

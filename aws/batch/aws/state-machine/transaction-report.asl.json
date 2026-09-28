@@ -7,7 +7,7 @@
     "Init": {
       "Type": "Pass",
       "Assign": {
-        "runId": "{% $exists($states.input.runId) ? $states.input.runId : $states.context.Execution.Name %}",
+        "runId": "{% $exists($states.input.runId) ? $states.input.runId : $fromMillis($toMillis($states.context.Execution.StartTime), '[Y0001][M01][D01]T[H01][m01][s01]Z') & '-' & $substring($uuid(), 0, 8) %}",
         "businessDate": "{% $exists($states.input.businessDate) ? $states.input.businessDate : $substring($now(), 0, 10) %}"
       },
       "Next": "DateRange"

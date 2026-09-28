@@ -13,6 +13,7 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.slf4j.Logger;
@@ -54,9 +55,15 @@ public class LoadReferenceDataJob implements CardDemoJob {
     public JobOutcome run(JobParams p) {
         TableSpec spec = TableSpec.of(p.require("table")).orElseThrow(() -> new JobFailure(ReturnCode.INPUT_ERROR,
                 "Unsupported --table=" + p.params().get("table")));
-        String key = p.get("sourceKey")
-                .or(() -> store.latest(S3Keys.refdataPrefix(spec.table())))
-                .or(() -> spec.seedFile().map(S3Keys::seedAscii))
+        Optional<String> source = p.get("sourceKey").or(() -> store.latest(S3Keys.refdataPrefix(spec.table())));
+        if (source.isEmpty() && !isEmpty(spec)) {
+            log.info("No refdata/{}/ object and table already loaded: nothing to refresh", spec.table());
+            Map<String, Object> counts = new LinkedHashMap<>();
+            counts.put("table", spec.table());
+            counts.put("skipped", true);
+            return JobOutcome.ok(counts);
+        }
+        String key = source.or(() -> spec.seedFile().map(S3Keys::seedAscii))
                 .orElseThrow(() -> new JobFailure(ReturnCode.INPUT_ERROR, "No source for " + spec.table()));
         List<Map<String, Object>> rows = parse(spec, key);
         boolean deleteMissing = Boolean.parseBoolean(p.get("deleteMissing").orElse("true"));
@@ -72,6 +79,12 @@ public class LoadReferenceDataJob implements CardDemoJob {
         counts.put("deleted", deleted);
         log.info("Loaded {} rows into {} from {} ({} deleted)", rows.size(), spec.table(), store.uri(key), deleted);
         return JobOutcome.ok(counts);
+    }
+
+    /** The seed file is only an initial load; it must never overwrite a populated table. */
+    private boolean isEmpty(TableSpec spec) {
+        return !Boolean.TRUE.equals(jdbc.queryForObject(
+                "SELECT EXISTS (SELECT 1 FROM " + spec.table() + ")", Boolean.class));
     }
 
     private List<Map<String, Object>> parse(TableSpec spec, String key) {

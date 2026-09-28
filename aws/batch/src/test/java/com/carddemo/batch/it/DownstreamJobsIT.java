@@ -55,6 +55,37 @@ class DownstreamJobsIT extends AbstractBatchIT {
     }
 
     @Test
+    void combineDetectsBackedUpTransactionRemovedEvenWhenCountIsOffset() throws IOException {
+        assertThat(run("post-daily-transactions", "cb")).isEqualTo(ReturnCode.WARNING);
+        assertThat(run("backup-transactions", "cb")).isEqualTo(ReturnCode.OK);
+        assertThat(run("calculate-interest", "cb", "--parmDate=2022071800")).isEqualTo(ReturnCode.OK);
+        String gone = jdbc.queryForObject(
+                "SELECT min(tran_id) FROM transaction WHERE source <> 'System'", String.class);
+        jdbc.update("DELETE FROM transaction WHERE tran_id = ?", gone);
+        assertThat(run("combine-transactions", "cb")).isEqualTo(ReturnCode.DATA_ERROR);
+        assertThat(result("cb", "combine-transactions").at("/counts/backupRowsMissing").asInt()).isEqualTo(1);
+    }
+
+    @Test
+    void scheduledRefreshNeverReloadsSeedOverPopulatedTable() throws IOException {
+        jdbc.update("UPDATE disclosure_group SET int_rate = 8.00");
+        assertThat(run("load-reference-data", "rf", "--table=disclosure_group")).isEqualTo(ReturnCode.OK);
+        assertThat(result("rf", "load-reference-data").at("/counts/skipped").asBoolean()).isTrue();
+        assertThat(jdbc.queryForObject("SELECT count(*) FROM disclosure_group WHERE int_rate <> 8.00", Integer.class))
+                .isZero();
+    }
+
+    @Test
+    void concurrentLaunchWithSameRunIdDoesNotExecute() {
+        jdbc.update("""
+                INSERT INTO batch_job_run (run_id, job_name, business_date, status, started_at)
+                VALUES ('busy', 'backup-transactions', DATE '2022-07-18', 'RUNNING', now())
+                """);
+        assertThat(run("backup-transactions", "busy")).isEqualTo(ReturnCode.FATAL);
+        assertThat(exists("backup/transaction/2022-07-18/busy.csv.gz")).isFalse();
+    }
+
+    @Test
     void statementsTextHtmlAndPdf() throws IOException {
         assertThat(run("post-daily-transactions", "s1")).isEqualTo(ReturnCode.WARNING);
         assertThat(run("create-statements", "s1")).isEqualTo(ReturnCode.OK);
