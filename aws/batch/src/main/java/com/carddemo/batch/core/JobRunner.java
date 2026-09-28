@@ -125,7 +125,13 @@ public class JobRunner {
                         p.jobName(), existing.get().businessDate(), p.businessDate());
                 return ReturnCode.INPUT_ERROR;
             }
-            if (!runs.start(p.runId(), p.jobName(), p.businessDate())) {
+            if (existing.isPresent() && BatchRunRepository.COMPLETED.equals(existing.get().status())
+                    && existing.get().params() != null && !runs.sameParams(existing.get().params(), p.params())) {
+                log.error("runId {} completed {} with parameters {}, not {}: use a new runId", p.runId(),
+                        p.jobName(), existing.get().params(), runs.paramsJson(p.params()));
+                return ReturnCode.INPUT_ERROR;
+            }
+            if (!runs.start(p.runId(), p.jobName(), p.businessDate(), p.params())) {
                 BatchRunRepository.Run previous = runs.find(p.runId(), p.jobName()).orElseThrow();
                 int rc = previous.exitCode();
                 log.info("runId {} already completed for {} with returnCode {}: no-op", p.runId(), p.jobName(), rc);
