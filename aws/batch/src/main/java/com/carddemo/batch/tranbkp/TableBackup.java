@@ -15,6 +15,7 @@ import java.sql.ResultSetMetaData;
 import java.time.LocalDate;
 import java.util.zip.GZIPOutputStream;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.support.TransactionTemplate;
 
@@ -68,23 +69,24 @@ public class TableBackup {
         try (Writer w = new BufferedWriter(new OutputStreamWriter(
                 new GZIPOutputStream(Files.newOutputStream(file)), StandardCharsets.UTF_8))) {
             tx.executeWithoutResult(status -> jdbc.query("SELECT * FROM " + spec.table() + " ORDER BY " + String.join(", ", spec.primaryKey()),
-                    rs -> {
+                    (ResultSetExtractor<Void>) rs -> {
                         ResultSetMetaData md = rs.getMetaData();
                         try {
-                            if (rows[0] == 0) {
-                                for (int i = 1; i <= md.getColumnCount(); i++) {
-                                    w.write((i > 1 ? "," : "") + md.getColumnName(i));
-                                }
-                                w.write("\n");
-                            }
                             for (int i = 1; i <= md.getColumnCount(); i++) {
-                                w.write((i > 1 ? "," : "") + csv(rs.getString(i)));
+                                w.write((i > 1 ? "," : "") + md.getColumnName(i));
                             }
                             w.write("\n");
+                            while (rs.next()) {
+                                for (int i = 1; i <= md.getColumnCount(); i++) {
+                                    w.write((i > 1 ? "," : "") + csv(rs.getString(i)));
+                                }
+                                w.write("\n");
+                                rows[0]++;
+                            }
                         } catch (IOException e) {
                             throw new UncheckedIOException(e);
                         }
-                        rows[0]++;
+                        return null;
                     }));
         } catch (IOException e) {
             throw new UncheckedIOException(e);

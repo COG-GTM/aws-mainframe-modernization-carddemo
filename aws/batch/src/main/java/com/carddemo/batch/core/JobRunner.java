@@ -44,15 +44,17 @@ public class JobRunner {
     private final JobCatalog catalog;
     private final JobLauncher launcher;
     private final BatchRunRepository runs;
+    private final AdvisoryLock locks;
     private final ObjectStore store;
     private final ObjectMapper mapper;
     private final Clock clock;
 
-    public JobRunner(JobCatalog catalog, JobLauncher launcher, BatchRunRepository runs, ObjectStore store,
-            ObjectMapper mapper, Optional<Clock> clock) {
+    public JobRunner(JobCatalog catalog, JobLauncher launcher, BatchRunRepository runs, AdvisoryLock locks,
+            ObjectStore store, ObjectMapper mapper, Optional<Clock> clock) {
         this.catalog = catalog;
         this.launcher = launcher;
         this.runs = runs;
+        this.locks = locks;
         this.store = store;
         this.mapper = mapper;
         this.clock = clock.orElse(Clock.systemUTC());
@@ -92,26 +94,37 @@ public class JobRunner {
         }
     }
 
+    /**
+     * Holds the {@code (runId, job)} advisory lock for the whole run: a concurrent launch exits 16 without running
+     * (Batch retries it later), while a retry after a dead attempt acquires the lock at once and resumes.
+     */
     private int execute(JobParams p) {
         Instant started = clock.instant();
-        Optional<BatchRunRepository.Run> previous;
+        Optional<AdvisoryLock.Lease> lease;
         try {
-            previous = runs.find(p.runId(), p.jobName());
-            if (previous.isPresent() && BatchRunRepository.COMPLETED.equals(previous.get().status())) {
-                int rc = previous.get().exitCode();
+            lease = locks.tryAcquire("run:" + p.jobName(), p.runId());
+        } catch (DataAccessException e) {
+            log.error("Data store unavailable", e);
+            return finishWithoutDb(p, ReturnCode.FATAL, e, started);
+        }
+        if (lease.isEmpty()) {
+            log.error("runId {} is already running for {}: not started", p.runId(), p.jobName());
+            return ReturnCode.FATAL;
+        }
+        try (AdvisoryLock.Lease held = lease.get()) {
+            return executeLocked(p, started);
+        }
+    }
+
+    private int executeLocked(JobParams p, Instant started) {
+        try {
+            if (!runs.start(p.runId(), p.jobName(), p.businessDate())) {
+                BatchRunRepository.Run previous = runs.find(p.runId(), p.jobName()).orElseThrow();
+                int rc = previous.exitCode();
                 log.info("runId {} already completed for {} with returnCode {}: no-op", p.runId(), p.jobName(), rc);
-                boolean published = writeResult(p, rc, readCounts(previous.get().counts()),
+                boolean published = writeResult(p, rc, readCounts(previous.counts()),
                         "already completed (no-op)", started);
                 return published ? rc : ReturnCode.FATAL;
-            }
-            if (!runs.claim(p.runId(), p.jobName(), p.businessDate())) {
-                Optional<BatchRunRepository.Run> now = runs.find(p.runId(), p.jobName());
-                if (now.isPresent() && BatchRunRepository.COMPLETED.equals(now.get().status())) {
-                    return writeResult(p, now.get().exitCode(), readCounts(now.get().counts()),
-                            "already completed (no-op)", started) ? now.get().exitCode() : ReturnCode.FATAL;
-                }
-                log.error("runId {} is already running for {}: not started", p.runId(), p.jobName());
-                return ReturnCode.FATAL;
             }
         } catch (DataAccessException e) {
             log.error("Data store unavailable", e);

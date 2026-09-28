@@ -1,5 +1,6 @@
 package com.carddemo.batch.intcalc;
 
+import com.carddemo.batch.core.AdvisoryLock;
 import com.carddemo.batch.core.CardDemoJob;
 import com.carddemo.batch.core.JobFailure;
 import com.carddemo.batch.core.JobOutcome;
@@ -43,7 +44,8 @@ import org.springframework.transaction.support.TransactionTemplate;
  * in this run's {@code batch_job_run.counts}. Any later run for the same {@code parmDate} (same or new
  * {@code runId}) skips accounts up to the highest recorded {@code lastAcctId}, including accounts without
  * interest, so their cycle totals are never reset twice. Interest tran ids continue after the highest existing
- * {@code <parmDate>nnnnnn} suffix.
+ * {@code <parmDate>nnnnnn} suffix. Runs for one {@code parmDate} are serialized by an advisory lock held for the
+ * whole run; a concurrent run for the same {@code parmDate} fails with RC 16 before touching any account.
  *
  * <p>{@code 1400-COMPUTE-FEES} is "To be implemented" in the COBOL source and is therefore not implemented.
  */
@@ -58,11 +60,13 @@ public class CalculateInterestJob implements CardDemoJob {
     private final JdbcTemplate jdbc;
     private final TransactionTemplate tx;
     private final ObjectStore store;
+    private final AdvisoryLock locks;
     private final Clock clock;
 
-    public CalculateInterestJob(JdbcTemplate jdbc, TransactionTemplate tx, ObjectStore store,
+    public CalculateInterestJob(JdbcTemplate jdbc, TransactionTemplate tx, ObjectStore store, AdvisoryLock locks,
             Optional<Clock> clock) {
         this.jdbc = jdbc;
+        this.locks = locks;
         this.tx = tx;
         this.store = store;
         this.clock = clock.orElse(Clock.systemUTC());
@@ -79,6 +83,13 @@ public class CalculateInterestJob implements CardDemoJob {
         if (parm.length() != 10) {
             throw new JobFailure(ReturnCode.INPUT_ERROR, "--parmDate must be 10 characters (yyyyMMddNN): " + parm);
         }
+        try (AdvisoryLock.Lease held = locks.tryAcquire(NAME, parm).orElseThrow(() -> new JobFailure(
+                ReturnCode.FATAL, "another calculate-interest run for parmDate " + parm + " is in progress"))) {
+            return run(p, parm);
+        }
+    }
+
+    private JobOutcome run(JobParams p, String parm) {
         LocalDateTime now = LocalDateTime.now(clock).truncatedTo(ChronoUnit.MICROS);
 
         List<CatBal> balances = jdbc.query("""

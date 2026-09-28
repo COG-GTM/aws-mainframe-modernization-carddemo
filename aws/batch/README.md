@@ -67,8 +67,9 @@ Outputs go to `target/local-bucket/` with the same key layout as S3 (`runs/<runI
 * **Idempotency**: `(runId, job)` that already completed is a no-op returning the recorded code. POSTTRAN
   restarts with the same `runId` continue at the first `daily_transaction` row with `post_status IS NULL`.
   INTCALC records `{parmDate, lastAcctId}` per account in `batch_job_run.counts` and any later run for the same PARM
-  date skips those accounts. `(runId, job)` is claimed atomically: a concurrent launch with the same key exits 16
-  without running (a RUNNING claim older than the 1-hour Batch attempt timeout can be taken over). One `runId` per
+  date skips those accounts. `(runId, job)` is held by a PostgreSQL session advisory lock for the whole run: a concurrent
+  launch with the same key exits 16 without running, and a Batch retry after a dead attempt (whose session, and so
+  its lock, is gone) resumes at once. INTCALC also serializes runs per PARM date the same way. One `runId` per
   job per table (the Step Functions execution uses one `runId` for the whole cycle; each job name appears once per
   table).
 * **Generations**: GDG `(0)` = lexicographically last `<runId>` under the prefix (`batch.md` §1.2). Generated run ids

@@ -2,11 +2,13 @@ package com.carddemo.batch.it;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.carddemo.batch.core.AdvisoryLock;
 import com.carddemo.batch.core.ReturnCode;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
@@ -15,11 +17,15 @@ import org.apache.pdfbox.Loader;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.text.PDFTextStripper;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 
 /** Month-start / weekly / on-demand jobs of the daily cycle, run after POSTTRAN on the sample data. */
 class DownstreamJobsIT extends AbstractBatchIT {
 
     private final ObjectMapper mapper = new ObjectMapper();
+
+    @Autowired
+    AdvisoryLock locks;
 
     JsonNode result(String runId, String job) throws IOException {
         return mapper.readTree(read("runs/" + runId + "/" + job + ".json"));
@@ -77,12 +83,39 @@ class DownstreamJobsIT extends AbstractBatchIT {
 
     @Test
     void concurrentLaunchWithSameRunIdDoesNotExecute() {
+        try (AdvisoryLock.Lease other = locks.tryAcquire("run:backup-transactions", "busy").orElseThrow()) {
+            assertThat(run("backup-transactions", "busy")).isEqualTo(ReturnCode.FATAL);
+        }
+        assertThat(exists("backup/transaction/2022-07-18/busy.csv.gz")).isFalse();
+    }
+
+    @Test
+    void retryAfterDeadAttemptResumesImmediately() {
         jdbc.update("""
                 INSERT INTO batch_job_run (run_id, job_name, business_date, status, started_at)
-                VALUES ('busy', 'backup-transactions', DATE '2022-07-18', 'RUNNING', now())
+                VALUES ('dead', 'backup-transactions', DATE '2022-07-18', 'RUNNING', now())
                 """);
-        assertThat(run("backup-transactions", "busy")).isEqualTo(ReturnCode.FATAL);
-        assertThat(exists("backup/transaction/2022-07-18/busy.csv.gz")).isFalse();
+        assertThat(run("backup-transactions", "dead")).isEqualTo(ReturnCode.OK);
+        assertThat(exists("backup/transaction/2022-07-18/dead.csv.gz")).isTrue();
+    }
+
+    @Test
+    void concurrentInterestRunForSameParmDateIsRefused() {
+        try (AdvisoryLock.Lease other = locks.tryAcquire("calculate-interest", "2022071800").orElseThrow()) {
+            assertThat(run("calculate-interest", "ic", "--parmDate=2022071800")).isEqualTo(ReturnCode.FATAL);
+        }
+        assertThat(jdbc.queryForObject("SELECT count(*) FROM transaction WHERE source = 'System'", Integer.class))
+                .isZero();
+    }
+
+    @Test
+    void backupOfEmptyTableKeepsHeader() throws IOException {
+        jdbc.update("DELETE FROM transaction");
+        assertThat(run("backup-transactions", "eb")).isEqualTo(ReturnCode.OK);
+        try (InputStream in = new GZIPInputStream(new ByteArrayInputStream(
+                readBytes("backup/transaction/2022-07-18/eb.csv.gz")))) {
+            assertThat(new String(in.readAllBytes(), StandardCharsets.UTF_8)).startsWith("tran_id,").endsWith("\n");
+        }
     }
 
     @Test
