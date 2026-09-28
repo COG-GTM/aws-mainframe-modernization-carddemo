@@ -104,7 +104,7 @@ those stacks create them (or deploy with `-c serviceDesiredCount=0` first, push,
 
 ```bash
 npx cdk deploy -c envName=$ENV_NAME -c serviceDesiredCount=0 --all
-./deploy/build-and-push.sh                       # online-services, frontend, batch, etl -> carddemo-<env>-<name>:latest
+./deploy/build-and-push.sh                       # online-services (aws/services or aws/online-services), frontend, batch, etl -> carddemo-<env>-<name>:latest; fails if a Dockerfile is missing
 npx cdk deploy -c envName=$ENV_NAME --all        # service scales to the configured count
 ```
 

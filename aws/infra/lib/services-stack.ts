@@ -1,4 +1,4 @@
-import { ArnFormat, CfnOutput, Duration, RemovalPolicy, Stack, type StackProps } from 'aws-cdk-lib';
+import { Annotations, ArnFormat, CfnOutput, Duration, RemovalPolicy, Stack, type StackProps } from 'aws-cdk-lib';
 import * as acm from 'aws-cdk-lib/aws-certificatemanager';
 import * as cloudfront from 'aws-cdk-lib/aws-cloudfront';
 import * as origins from 'aws-cdk-lib/aws-cloudfront-origins';
@@ -173,6 +173,12 @@ export class ServicesStack extends Stack {
           open: false,
         })
       : this.alb.addListener('Http', { port: 80, open: false, defaultAction: denyDirect });
+    if (!cfg.certificateArn) {
+      Annotations.of(this).addWarningV2(
+        'carddemo:no-certificate',
+        'certificateArn is not set: the CloudFront-to-ALB hop for /api uses HTTP. Set certificateArn for non-dev environments.',
+      );
+    }
     if (cfg.certificateArn) {
       this.alb.addListener('Http', {
         port: 80,
