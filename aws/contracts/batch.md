@@ -16,9 +16,13 @@ state machines). Tables: `data-model.md`. Queues: `messaging.md`. Conventions: `
 
 ### 1.1 Return codes
 
-Container exit code = legacy `RETURN-CODE` semantics:
+The job computes a legacy `RETURN-CODE` (`returnCode`) as below. The **container process** exits 0 for
+`returnCode` 0 and 4 (AWS Batch job `SUCCEEDED`) and exits with `returnCode` for 8/12/16 (`FAILED`). Every job
+writes `s3://${S3_BUCKET}/runs/<runId>/<job-name>.json` = `{"returnCode": n, "counts": {…}}` and
+`batch_job_run.exit_code` = `returnCode`; after each `batch:submitJob.sync` state the state machine reads that
+object (`s3:getObject` SDK integration) to branch on `returnCode`.
 
-| Exit | Meaning | Legacy source | Step Functions handling |
+| `returnCode` | Meaning | Legacy source | Step Functions handling |
 |---|---|---|---|
 | 0 | success | normal `GOBACK` | continue |
 | 4 | success with warnings (rejects written) | `CBTRN02C` `MOVE 4 TO RETURN-CODE` when reject count > 0; `COBTUPDT` on SQL error | continue; publish `carddemo-batch-warning` SNS/metric |
@@ -26,8 +30,9 @@ Container exit code = legacy `RETURN-CODE` semantics:
 | 12 | data/IO error, transaction rolled back | legacy `CEE3ABD` abend code 999 (all `CB*` programs) | fail flow, retry 0 |
 | 16 | fatal (IMS/DB2 unavailable) | `CBPAUP0C`, `DBUNLDGS`, `PAUDBLOD`, `PAUDBUNL` `MOVE 16 TO RETURN-CODE` | fail flow |
 
-Steps that in JCL run with `COND=(0,NE)` run in Step Functions only if the previous state exited 0; steps
-with `COND=(4,LT)` (e.g. `TRANBKP` STEP10) run if previous exit ≤ 4.
+Steps that in JCL run with `COND=(0,NE)` run in Step Functions only if the previous job's `returnCode` = 0;
+steps with `COND=(4,LT)` (e.g. `TRANBKP` STEP10) run if the previous `returnCode` ≤ 4. A `FAILED` Batch job
+(8/12/16) always fails the flow.
 
 ### 1.2 S3 key layout
 

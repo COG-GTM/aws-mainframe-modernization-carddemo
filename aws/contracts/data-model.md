@@ -236,7 +236,7 @@ Index: `ix_authfrds_card_ts (card_num, auth_ts DESC)` ← `XAUTHFRD`.
 
 ### 3.2 `pending_auth_summary` ← IMS segment `PAUTSUM0` (DBD `DBPAUTP0`, 100 bytes) / copybook `CIPAUSMY`
 
-**Replatform candidate** (see inventory §10). Defined so a relational refactor has a fixed target if chosen.
+**Replatform candidate** (see inventory §9). Defined so a relational refactor has a fixed target if chosen.
 
 | Column | Type | Null | Source field |
 |---|---|---|---|
@@ -289,6 +289,17 @@ Index: `ix_authfrds_card_ts (card_num, auth_ts DESC)` ← `XAUTHFRD`.
 
 Index: `ix_pending_auth_detail_card (card_num)`. The IMS secondary index DBD `DBPAUTX0` (segment
 `PAUTINDX`, key `INDXSEQ` over `ACCNTID`) is covered by the primary key on `pending_auth_summary`.
+
+### 3.4 `processed_message` (technical, no legacy source)
+
+SQS consumer de-duplication for side-effecting consumers (`messaging.md` §4).
+
+| Column | Type | Null | Meaning |
+|---|---|---|---|
+| `message_id` | `UUID` | PK | request `messageId` |
+| `queue` | `VARCHAR(80)` | not null | logical queue name, e.g. `pauth-request` |
+| `reply_body` | `JSONB` | null | reply sent, re-sent verbatim on redelivery |
+| `processed_at` | `TIMESTAMPTZ` | not null | purge rows older than 14 days (SQS max retention) |
 
 ## 4. Record → table cross-reference
 
