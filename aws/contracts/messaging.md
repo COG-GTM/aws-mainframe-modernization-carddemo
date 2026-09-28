@@ -173,8 +173,10 @@ expiry 50, correlation id = request message id.
 Side effects preserved by the consumer (same unit of work): read `card_xref`, `account`, `customer`;
 insert/update `pending_auth_summary` (IMS `GU`/`REPL`/`ISRT` of `PAUTSUM0`) and insert `pending_auth_detail`
 (`ISRT` of `PAUTDTL1`). Idempotency (SQS is at-least-once): in the same DB transaction as those side effects
-the consumer inserts `processed_message(message_id, queue, reply_body, processed_at)` (`data-model.md` §3.4);
-if `message_id` already exists it re-sends the stored `reply_body` and applies **no** side effects. The IMS part
+the consumer inserts `processed_message(message_id, queue, reply_payload, processed_at)` (`data-model.md` §3.4),
+where `reply_payload` holds only the six §4.2 result fields (no envelope). If `message_id` already exists it applies
+**no** side effects and sends a new reply built from the stored `reply_payload` with a fresh envelope: new
+`messageId`, `sentAt` = now, `expiresAt` = now + 5 s, `correlationId` = request `messageId` (unchanged). The IMS part
 is a **replatform candidate** (inventory §9); a replatformed consumer must apply the same `messageId` check. If the online-services
 session does not refactor it, the queue contract above still stands and is served by the replatformed
 program via an MQ↔SQS bridge.
