@@ -62,6 +62,10 @@ export function buildApp(app: App, config: CardDemoConfig = loadConfig(app)): Ca
     warningTopic: observability.warningTopic,
   });
 
+  // Explicit: services and batch must not start before the Data stack (incl. schema bootstrap) is complete.
+  services.addDependency(data);
+  batch.addDependency(data);
+
   Tags.of(app).add('Application', 'CardDemo');
   Tags.of(app).add('Environment', config.envName);
   Tags.of(app).add('ManagedBy', 'aws-cdk');

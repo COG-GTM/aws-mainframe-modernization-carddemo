@@ -37,6 +37,20 @@ test('daily cycle: purge only with auth module, then post, RC check, 36 s wait',
   expect(noAuth.States.Init.Next).toBe('Run_post-daily-transactions');
 });
 
+test('chained flows inherit runId, businessDate and force from the parent execution output', () => {
+  const monthly = flowsFor(false).find((f) => f.name === 'monthly-interest')!;
+  const doc = buildDefaultAsl(monthly, prefix);
+  const assign = doc.States.Init.Assign as Record<string, string>;
+  for (const key of ['runId', 'businessDate', 'force']) {
+    expect(assign[key]).toContain(`$parse($states.input.detail.output).${key}`);
+  }
+  for (const state of ['Done', 'Skipped']) {
+    expect(doc.States[state].Output).toEqual(
+      expect.objectContaining({ runId: '{% $runId %}', businessDate: '{% $businessDate %}', force: '{% $force %}' }),
+    );
+  }
+});
+
 test('gated flows skip via Choice', () => {
   const monthly = flowsFor(false).find((f) => f.name === 'monthly-interest')!;
   const doc = buildDefaultAsl(monthly, prefix);

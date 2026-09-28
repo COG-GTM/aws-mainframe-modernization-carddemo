@@ -1,6 +1,6 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
-import { Annotations, ArnFormat, CfnOutput, Duration, RemovalPolicy, Size, Stack, type StackProps } from 'aws-cdk-lib';
+import { ArnFormat, CfnOutput, Duration, RemovalPolicy, Size, Stack, type StackProps } from 'aws-cdk-lib';
 import * as batch from 'aws-cdk-lib/aws-batch';
 import type * as ec2 from 'aws-cdk-lib/aws-ec2';
 import * as ecr from 'aws-cdk-lib/aws-ecr';
@@ -211,10 +211,7 @@ export class BatchStack extends Stack {
       const used = findPlaceholders(text);
       const unknown = used.filter((p) => !known.has(p));
       if (unknown.length > 0) {
-        Annotations.of(this).addWarningV2(
-          `carddemo:asl-placeholders-${flow.name}`,
-          `${flow.name}: unknown DefinitionSubstitutions ${unknown.join(', ')} (supported: ${[...known].join(', ')})`,
-        );
+        throw new Error(`${flow.name}: unknown DefinitionSubstitutions ${unknown.join(', ')} (supported: ${[...known].join(', ')})`);
       }
       const usedSubs = Object.fromEntries(Object.entries(substitutions).filter(([k]) => used.includes(k)));
 

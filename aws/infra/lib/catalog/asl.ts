@@ -31,16 +31,23 @@ export function aslSubstitutionKeys(jobs: string[]): string[] {
   return [...BASE_SUBSTITUTION_KEYS, ...jobs.map(jobDefinitionKey)];
 }
 
+/** Output of the parent execution when started by an EventBridge "after <flow>" chaining rule. */
+const PARENT = '$parse($states.input.detail.output)';
+const HAS_PARENT = '$exists($states.input.detail.output)';
+
 const BUSINESS_DATE =
   "{% $exists($states.input.businessDate) ? $states.input.businessDate : " +
-  "($exists($states.input.detail.output) and $exists($parse($states.input.detail.output).businessDate)) ? " +
-  "$parse($states.input.detail.output).businessDate : $now('[Y0001]-[M01]-[D01]') %}";
+  `(${HAS_PARENT} and $exists(${PARENT}.businessDate)) ? ${PARENT}.businessDate : ` +
+  "$now('[Y0001]-[M01]-[D01]') %}";
 
 const RUN_ID =
   "{% $exists($states.input.runId) ? $states.input.runId : " +
+  `(${HAS_PARENT} and $exists(${PARENT}.runId)) ? ${PARENT}.runId : ` +
   "$now('[Y0001][M01][D01]T[H01][m01][s01]Z') & '-' & $substring($replace($uuid(), '-', ''), 0, 8) %}";
 
-const FORCE = '{% $exists($states.input.force) and $states.input.force = true %}';
+const FORCE =
+  '{% ($exists($states.input.force) and $states.input.force = true) or ' +
+  `(${HAS_PARENT} and $exists(${PARENT}.force) and ${PARENT}.force = true) %}`;
 
 const GATE_CONDITIONS: Record<NonNullable<FlowSpec['gate']>, string> = {
   monthStart: "{% $substring($businessDate, 8, 2) = '01' or $force %}",
@@ -134,7 +141,7 @@ export function buildDefaultAsl(flow: FlowSpec, commandPrefix: string[]): AslDoc
 
   states.Init = {
     Type: 'Pass',
-    Comment: 'Resolve runId (restart = same runId) and businessDate (input, triggering execution output, or today UTC)',
+    Comment: 'Resolve runId, businessDate and force from the input or the triggering execution output (restart = same runId)',
     Assign: { execInput: '{% $states.input %}', businessDate: BUSINESS_DATE, runId: RUN_ID, force: FORCE },
     Next: flow.gate ? 'Gate' : first,
   };
@@ -142,7 +149,7 @@ export function buildDefaultAsl(flow: FlowSpec, commandPrefix: string[]): AslDoc
     states.Gate = { Type: 'Choice', Choices: [{ Condition: GATE_CONDITIONS[flow.gate], Next: first }], Default: 'Skipped' };
     states.Skipped = {
       Type: 'Pass',
-      Output: { flow: flow.name, skipped: true, businessDate: '{% $businessDate %}', runId: '{% $runId %}' },
+      Output: { flow: flow.name, skipped: true, businessDate: '{% $businessDate %}', runId: '{% $runId %}', force: '{% $force %}' },
       End: true,
     };
   }
@@ -171,7 +178,7 @@ export function buildDefaultAsl(flow: FlowSpec, commandPrefix: string[]): AslDoc
   }
   states.Done = {
     Type: 'Pass',
-    Output: { flow: flow.name, skipped: false, businessDate: '{% $businessDate %}', runId: '{% $runId %}' },
+    Output: { flow: flow.name, skipped: false, businessDate: '{% $businessDate %}', runId: '{% $runId %}', force: '{% $force %}' },
     End: true,
   };
 

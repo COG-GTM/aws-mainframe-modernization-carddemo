@@ -146,6 +146,20 @@ describe('Services', () => {
     });
   });
 
+  test('ALB only forwards requests carrying the CloudFront origin-verify header', () => {
+    t.services.hasResourceProperties('AWS::ElasticLoadBalancingV2::Listener', {
+      Port: 80,
+      DefaultActions: [Match.objectLike({ Type: 'fixed-response', FixedResponseConfig: Match.objectLike({ StatusCode: '403' }) })],
+    });
+    t.services.hasResourceProperties('AWS::ElasticLoadBalancingV2::ListenerRule', {
+      Actions: [Match.objectLike({ Type: 'forward' })],
+      Conditions: [Match.objectLike({ Field: 'http-header', HttpHeaderConfig: Match.objectLike({ HttpHeaderName: 'X-CardDemo-Origin-Verify' }) })],
+    });
+    const dist = Object.values(t.services.findResources('AWS::CloudFront::Distribution'))[0];
+    const albOrigin = dist.Properties.DistributionConfig.Origins.find((o: { CustomOriginConfig?: unknown }) => o.CustomOriginConfig);
+    expect(albOrigin.OriginCustomHeaders[0].HeaderName).toBe('X-CardDemo-Origin-Verify');
+  });
+
   test('task role can only send to allowlisted reply/error/report queues', () => {
     const policies = t.services.findResources('AWS::IAM::Policy');
     const statements = Object.values(policies).flatMap((p) => p.Properties.PolicyDocument.Statement);
@@ -241,6 +255,13 @@ describe('options', () => {
     });
   });
 
+  test('supplied ASL with an unknown placeholder fails synth', () => {
+    const dir = tempDir('asl-bad-');
+    const asl = { StartAt: 'P', States: { P: { Type: 'Pass', Result: '${NoSuchThing}', End: true } } };
+    fs.writeFileSync(path.join(dir, 'daily-cycle.asl.json'), JSON.stringify(asl));
+    expect(() => synthApp({ stateMachineDir: dir })).toThrow(/unknown DefinitionSubstitutions NoSuchThing/);
+  });
+
   test('auth module adds purge job; 2 AZ / no NAT variant', () => {
     const s = synthApp({ enableAuthModule: true, azCount: 2, natGateways: 0, envName: 'qa' });
     Template.fromStack(s.batch).hasResourceProperties('AWS::Batch::JobDefinition', {
@@ -256,5 +277,7 @@ describe('options', () => {
     Template.fromStack(s.data).hasResourceProperties('AWS::RDS::DBCluster', { DeletionProtection: true });
     Template.fromStack(s.data).resourceCountIs('AWS::RDS::DBInstance', 2);
     Template.fromStack(s.storage).hasResource('AWS::S3::Bucket', { DeletionPolicy: 'Retain' });
+    Template.fromStack(s.services).hasResource('AWS::S3::Bucket', { DeletionPolicy: 'Retain' });
+    expect(Object.keys(Template.fromStack(s.services).findResources('Custom::S3AutoDeleteObjects'))).toHaveLength(0);
   });
 });

@@ -16,6 +16,8 @@ import { type CardDemoConfig, resourceName } from './config';
 import { DB_NAME, DB_PORT, DB_SCHEMA } from './data-stack';
 import type { MessagingStack } from './messaging-stack';
 
+export const ORIGIN_VERIFY_HEADER = 'X-CardDemo-Origin-Verify';
+
 export interface ServicesStackProps extends StackProps {
   readonly config: CardDemoConfig;
   readonly vpc: ec2.IVpc;
@@ -154,30 +156,43 @@ export class ServicesStack extends Stack {
       healthCheck: { path: '/actuator/health', healthyHttpCodes: '200', interval: Duration.seconds(30) },
     });
 
+    // Only requests carrying the CloudFront origin-verify header reach the service; direct ALB calls get 403.
+    const originVerify = new secretsmanager.Secret(this, 'OriginVerifySecret', {
+      secretName: `carddemo/${cfg.envName}/cloudfront-origin-verify`,
+      description: 'Header value CloudFront adds to /api requests; the ALB rejects requests without it',
+      generateSecretString: { excludePunctuation: true, passwordLength: 48 },
+    });
+    const originVerifyValue = originVerify.secretValue.unsafeUnwrap();
+    const denyDirect = elbv2.ListenerAction.fixedResponse(403, { contentType: 'text/plain', messageBody: 'Forbidden' });
+    const apiListener = cfg.certificateArn
+      ? this.alb.addListener('Https', {
+          port: 443,
+          certificates: [acm.Certificate.fromCertificateArn(this, 'Cert', cfg.certificateArn)],
+          sslPolicy: elbv2.SslPolicy.RECOMMENDED_TLS,
+          defaultAction: denyDirect,
+          open: false,
+        })
+      : this.alb.addListener('Http', { port: 80, open: false, defaultAction: denyDirect });
     if (cfg.certificateArn) {
-      this.alb.addListener('Https', {
-        port: 443,
-        certificates: [acm.Certificate.fromCertificateArn(this, 'Cert', cfg.certificateArn)],
-        sslPolicy: elbv2.SslPolicy.RECOMMENDED_TLS,
-        defaultTargetGroups: [targetGroup],
-        open: false,
-      });
       this.alb.addListener('Http', {
         port: 80,
         open: false,
         defaultAction: elbv2.ListenerAction.redirect({ protocol: 'HTTPS', port: '443', permanent: true }),
       });
-    } else {
-      this.alb.addListener('Http', { port: 80, open: false, defaultTargetGroups: [targetGroup] });
     }
+    apiListener.addAction('FromCloudFront', {
+      priority: 10,
+      conditions: [elbv2.ListenerCondition.httpHeader(ORIGIN_VERIFY_HEADER, [originVerifyValue])],
+      action: elbv2.ListenerAction.forward([targetGroup]),
+    });
 
     this.siteBucket = new s3.Bucket(this, 'SiteBucket', {
       encryption: s3.BucketEncryption.S3_MANAGED,
       blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
       enforceSSL: true,
       objectOwnership: s3.ObjectOwnership.BUCKET_OWNER_ENFORCED,
-      removalPolicy: RemovalPolicy.DESTROY,
-      autoDeleteObjects: true,
+      removalPolicy: cfg.retainData ? RemovalPolicy.RETAIN : RemovalPolicy.DESTROY,
+      autoDeleteObjects: !cfg.retainData,
     });
 
     const spaRewrite = new cloudfront.Function(this, 'SpaRewrite', {
@@ -192,6 +207,7 @@ export class ServicesStack extends Stack {
     const apiOrigin = new origins.LoadBalancerV2Origin(this.alb, {
       protocolPolicy: cfg.certificateArn ? cloudfront.OriginProtocolPolicy.HTTPS_ONLY : cloudfront.OriginProtocolPolicy.HTTP_ONLY,
       readTimeout: Duration.seconds(60),
+      customHeaders: { [ORIGIN_VERIFY_HEADER]: originVerifyValue },
     });
     const apiBehavior: cloudfront.BehaviorOptions = {
       origin: apiOrigin,

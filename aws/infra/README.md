@@ -15,16 +15,19 @@ All stacks are named `CardDemo-<env>-<Name>`; physical resources are named `card
 | `Data` | Aurora PostgreSQL 16 Serverless v2 (0.5-4 ACU, isolated subnets, DB `carddemo`), credentials in Secrets Manager (`carddemo/<env>/db-credentials`), schema bootstrap custom resource applying `aws/db/schema.sql` (re-runs when the file hash changes; skipped with a warning when the file is absent) |
 | `Messaging` | The 8 SQS queues of `contracts/messaging.md` (pauth, acct-inquiry, date-inquiry request/reply, error, report-request), each with a `-dlq`, `maxReceiveCount=5`, 14-day DLQ retention, 60 s reply retention, 30 s visibility, 5 s long polling, SSE, SSL-only |
 | `Observability` | Log groups (services, batch, frontend), SNS alarm and batch-warning topics, DLQ-depth and error-queue alarms, Step Functions failed/timed-out/aborted alarms, AWS Batch `FAILED` event rule, dashboard |
-| `Services` | ECR repos `online-services`, `frontend`; ECS Fargate service (port 8080, `/actuator/health`) behind an ALB; JWT secret; frontend on private S3 + CloudFront (OAC, SPA rewrite, `/api/*` to the ALB) |
+| `Services` | ECR repos `online-services`, `frontend`; ECS Fargate service (port 8080, `/actuator/health`) behind an ALB; JWT secret; frontend on private S3 + CloudFront (OAC, SPA rewrite, `/api/*` to the ALB). The ALB forwards only requests carrying CloudFront's `X-CardDemo-Origin-Verify` header (value in Secrets Manager `carddemo/<env>/cloudfront-origin-verify`); direct ALB calls get 403 |
 | `Batch` | ECR repos `batch`, `etl`; AWS Batch Fargate compute environment + job queue; one job definition per batch job (`--job=<name>`, 1 vCPU / 2 GiB, per-job IAM role); ETL job definition; Step Functions state machines per flow; EventBridge schedules and event chaining; SQS-triggered report dispatcher Lambda |
 
 ### Batch flows
 
 State machine definitions are loaded from `aws/batch/aws/state-machine/<flow>.asl.json` when the batch session
-provides them (placeholders `${JobQueueArn}`, `${JobDef_<job>}`, `${DataBucket}`, `${WarningTopicArn}`, ... are
-substituted; unknown placeholders fail synth). Otherwise an equivalent definition is generated from
+provides them (placeholders `${JobQueueArn}`, `${JobDefinition_<job_with_underscores>}` (e.g.
+`${JobDefinition_post_daily_transactions}`), `${DataBucket}`, `${WarningTopicArn}`, `${Partition}`, `${Region}`,
+`${AccountId}`, `${EnvName}`, `${JobDefinitionPrefix}`, `${StateMachinePrefix}` are substituted; any other
+`${...}` placeholder fails synth). Otherwise an equivalent definition is generated from
 `lib/catalog/flows.ts` that implements `contracts/batch.md`: `submitJob.sync`, read `runs/<runId>/<job>.json`,
 RC 0 continue, RC 4 publish a warning and continue, anything else fail; `Wait` states replace `COBSWAIT`.
+Chained flows inherit `runId`, `businessDate` and `force` from the parent execution's output.
 
 | Flow | Trigger | Jobs |
 |---|---|---|
@@ -76,7 +79,7 @@ Context values (`cdk.json` or `-c key=value`):
 | `imageTag` | `latest` | Tag used for all ECR images |
 | `auroraMinAcu` / `auroraMaxAcu` | `0.5` / `4` | |
 | `serviceDesiredCount` | `1` | |
-| `certificateArn` | unset | Enables HTTPS on the ALB |
+| `certificateArn` | unset | ACM certificate for the ALB: enables HTTPS between CloudFront and the ALB (recommended for anything beyond dev; without it viewers still use HTTPS to CloudFront but the CloudFront-to-ALB hop is HTTP) |
 | `albIngressCidr` | `0.0.0.0/0` | |
 | `alarmEmail` | unset | Subscribes an email to the alarm topic |
 | `schemaFile` | `../db/schema.sql` | |
