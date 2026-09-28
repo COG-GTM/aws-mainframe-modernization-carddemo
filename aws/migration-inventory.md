@@ -391,6 +391,7 @@ in each owning session's PR description.
 | `CBACT04C` paragraph `1400-COMPUTE-FEES` | `app/cbl/CBACT04C.cbl` | **Incomplete in source** ("To be implemented"); `calculate-interest` implements interest only, fees left as a documented no-op | Nothing to migrate; inventing fee rules would be fabrication |
 | `TXT2PDF` REXX | `app/jcl/TXT2PDF1.JCL` (`AWS.M2.LBD.TXT2PDF.EXEC`, external library not in repo) | Re-implemented with a Java PDF library in `statement-pdf`; byte-level PDF parity not required | Source of the REXX exec is not in the repository |
 | CSD transaction `CDV1` → `COCRDSEC` | `app/csd/CARDDEMO.CSD` | Not migrated | Program source absent from repo |
+| Batch demonstration / on-demand jobs `extract-accounts`, `print-cards`, `print-xref`, `print-customers`, `export-customer-data`, `import-customer-data`, `PRTCATBL` category-balance report | `app/jcl/READ*.jcl`, `CBEXPORT.jcl`, `CBIMPORT.jcl`, `PRTCATBL.jcl` (`CBACT01C`–`03C`, `CBCUS01C`, `CBEXPORT`, `CBIMPORT`) | **Left incomplete** by the batch session (`aws/batch/` v1); refactor later (low risk) | Not part of any scheduled chain (on demand only); the daily/weekly/monthly cycle is complete without them |
 | DB2 `COTRTLIC` / `COTRTUPC` (1,861 / 1,429 LOC) | `app/app-transaction-type-db2/cbl/` | Refactor (ON) — **H** complexity; if schedule risk, replatform with DB2 on M2 | Large but plain SQL CRUD; target tables merge with VSAM reference tables |
 
 ## 10. Coverage checklist
