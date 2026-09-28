@@ -392,6 +392,7 @@ in each owning session's PR description.
 | `TXT2PDF` REXX | `app/jcl/TXT2PDF1.JCL` (`AWS.M2.LBD.TXT2PDF.EXEC`, external library not in repo) | Re-implemented with a Java PDF library in `statement-pdf`; byte-level PDF parity not required | Source of the REXX exec is not in the repository |
 | CSD transaction `CDV1` → `COCRDSEC` | `app/csd/CARDDEMO.CSD` | Not migrated | Program source absent from repo |
 | DB2 `COTRTLIC` / `COTRTUPC` (1,861 / 1,429 LOC) | `app/app-transaction-type-db2/cbl/` | Refactor (ON) — **H** complexity; if schedule risk, replatform with DB2 on M2 | Large but plain SQL CRUD; target tables merge with VSAM reference tables |
+| Frontend screens for optional sub-apps: `COPAU00`/`COPAU01` (`/authorizations…`) and `COTRTLI`/`COTRTUP` (`/admin/transaction-types…`) | `app/app-authorization-ims-db2-mq/bms/`, `app/app-transaction-type-db2/bms/` | **Not built** in `aws/frontend/` (FE). Menu options COMEN01 #11 and COADM01 #5–#6 are listed but flagged *not installed* and return the legacy "This option … is not installed" message | Follows the backing module decisions above: authorization sub-app defaults to replatform; transaction-type screens to be added once ON ships `/api/v1/transaction-types` |
 
 ## 10. Coverage checklist
 
