@@ -46,7 +46,7 @@ up() {
     sleep 1
   done
   docker exec -i "$CONTAINER" psql -q -v ON_ERROR_STOP=1 -U "$DB_USER" -d "$DB_NAME" \
-    < "$HERE/src/test/resources/db/schema.sql"
+    < "$REPO/aws/db/schema.sql"
   mkdir -p "$BUCKET_DIR/seed/ascii"
   cp "$REPO"/app/data/ASCII/*.txt "$BUCKET_DIR/seed/ascii/"
   local seed_run="seed-$(date -u +%s)"

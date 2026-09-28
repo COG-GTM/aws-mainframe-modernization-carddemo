@@ -6,8 +6,9 @@ set -euo pipefail
 here=$(cd "$(dirname "$0")" && pwd)
 repo=$(cd "$here/../../.." && pwd)
 work=${WORK_DIR:-$here/../target/golden-work}
-out=$here/../src/test/resources/golden
+out=${GOLDEN_OUT:-$here/../src/test/resources/golden}
 ascii=$repo/app/data/ASCII
+dalytran_in=${DALYTRAN_IN:-$ascii/dailytran.txt}
 rm -rf "$work" && mkdir -p "$work"/{bin,in,posttran,intcalc} "$out"/{posttran,intcalc}
 COBC="cobc -fsign=EBCDIC -I $repo/app/cpy"
 
@@ -27,9 +28,10 @@ done
 (cd "$work/bin" && $COBC -x -o CBTRN02C "$repo/app/cbl/CBTRN02C.cbl")
 (cd "$work/bin" && $COBC -x -o RUNINTC "$here/RUNINTC.cbl" "$repo/app/cbl/CBACT04C.cbl")
 
-for f in acctdata cardxref tcatbal discgrp dailytran; do
+for f in acctdata cardxref tcatbal discgrp; do
   tr -d '\r' < "$ascii/$f.txt" > "$work/in/$f.txt"
 done
+tr -d '\r' < "$dalytran_in" > "$work/in/dailytran.txt"
 
 load() { # util seqfile idxfile
   SEQFILE=$2 IDXFILE=$3 "$work/bin/$1"

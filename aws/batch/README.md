@@ -22,7 +22,6 @@ docker run carddemo-batch --job=<job-name> ...
 | `aws/state-machine/transaction-report.asl.json` | Step Functions `carddemo-report` (on-demand `TRANREPT`) |
 | `Dockerfile`, `run-local.sh` | Image; local runner (PostgreSQL in Docker + local directory as bucket) |
 | `golden/` | GnuCOBOL harness that produced the golden files in `src/test/resources/golden/` |
-| `src/test/resources/db/schema.sql` | Test/local schema derived from `data-model.md` (the authoritative Flyway schema is `aws/db/`) |
 
 ## Build and test
 
@@ -35,7 +34,7 @@ docker build -t carddemo-batch .                             # after mvn package
 * Unit tests (Surefire): overpunch parsing/formatting, COBOL truncation, edited pictures, `aws/` artifact lint
   (every `Next`/`Catch` target exists, every Batch task has a job definition, job definitions carry exactly the
   `conventions.md` env vars, no `CLOSEFIL`/`OPENFIL`).
-* Integration tests (Failsafe, `*IT`): PostgreSQL 16 Testcontainer + `schema.sql`, reference data loaded from
+* Integration tests (Failsafe, `*IT`): PostgreSQL 16 Testcontainer + canonical `aws/db/schema.sql`, reference data loaded from
   `app/data/ASCII/*.txt` through `load-reference-data`, fixed clock `2022-07-18T10:00Z`.
   * `GoldenPosttranIntcalcIT`: POSTTRAN and INTCALC against the GnuCOBOL goldens; POSTTRAN restart/idempotency;
     INTCALC rerun no-op; RC 8 on missing input.

@@ -27,8 +27,8 @@ import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.utility.DockerImageName;
 
 /**
- * Aurora PostgreSQL stand-in (Testcontainers {@code postgres:16-alpine}) with the test schema from
- * {@code src/test/resources/db/schema.sql}, a local directory as the S3 bucket seeded with
+ * Aurora PostgreSQL stand-in (Testcontainers {@code postgres:16-alpine}) with the canonical schema
+ * {@code aws/db/schema.sql}, a local directory as the S3 bucket seeded with
  * {@code app/data/ASCII/} under {@code seed/ascii/}, and a fixed clock (2022-07-18T10:00Z).
  */
 @SpringBootTest(properties = "spring.main.web-application-type=none")
@@ -57,7 +57,7 @@ public abstract class AbstractBatchIT {
         }
         try (var c = java.sql.DriverManager.getConnection(POSTGRES.getJdbcUrl(), POSTGRES.getUsername(),
                 POSTGRES.getPassword()); var st = c.createStatement()) {
-            st.execute(Files.readString(Path.of("src/test/resources/db/schema.sql")));
+            st.execute(Files.readString(REPO_ROOT.resolve("aws/db/schema.sql")));
         } catch (Exception e) {
             throw new IllegalStateException(e);
         }

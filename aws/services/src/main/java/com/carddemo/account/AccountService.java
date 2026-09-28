@@ -184,7 +184,8 @@ public class AccountService {
         edit.mandatory("customer.addrLine1", "Address Line 1", c.addrLine1(), 50);
         edit.maxLength("customer.addrLine2", "Address Line 2", c.addrLine2(), 50);
         boolean stateOk = edit.usState("customer.addrStateCd", c.addrStateCd(), lookups);
-        boolean zipOk = edit.numericRequired("customer.addrZip", "Zip", c.addrZip(), 5);
+        boolean zipOk = edit.numericRequired("customer.addrZip", "Zip", zipPrefix(c.addrZip()), 5)
+                && edit.maxLength("customer.addrZip", "Zip", c.addrZip(), 10);
         edit.alphaRequired("customer.addrLine3", "City", c.addrLine3(), 50);
         edit.alphaRequired("customer.addrCountryCd", "Country", c.addrCountryCd(), 3);
         v.phone1 = edit.usPhone("customer.phoneNum1", "Phone Number 1", c.phoneNum1(), lookups);
@@ -199,6 +200,12 @@ public class AccountService {
         edit.maxLength("addrZip", "Account Zip", r.addrZip(), 10);
         errors.throwIfAny();
         return v;
+    }
+
+    /** The legacy ZIP field is 5 characters (ACSZIPC); ZIP+4 values stored in CUST-ADDR-ZIP X(10) keep their suffix. */
+    private static String zipPrefix(String zip) {
+        String v = Text.trimToEmpty(zip);
+        return v.length() > 5 ? v.substring(0, 5) : v;
     }
 
     private static boolean sameText(String oldValue, String newValue) {
