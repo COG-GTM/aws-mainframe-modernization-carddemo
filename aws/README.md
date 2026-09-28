@@ -58,10 +58,10 @@ flowchart LR
 
 | Service | Image / build context | Port | Notes |
 |---|---|---|---|
-| `postgres` | `postgres:16-alpine` | 5432 | DB/schema `carddemo`, user/password `carddemo`; applies `aws/db/schema.sql` on first start |
+| `postgres` | `${POSTGRES_IMAGE:-postgres:16-alpine}` | `${POSTGRES_PORT:-5432}` | DB/schema `carddemo`, user/password `carddemo`; applies `aws/db/schema.sql` on first start |
 | `localstack` | `localstack/localstack:4.4` | 4566 | S3 bucket `carddemo-local` (seeded with `app/data/ASCII` and `app/data/EBCDIC` under `seed/`), the 8 contract queues + DLQs with prefix `carddemo-` |
 | `services` | `${SERVICES_CONTEXT:-./services}` | 8080 | Env per `contracts/conventions.md` + `AWS_ENDPOINT_URL=http://localstack:4566`; network aliases `online-services`, `backend`, `api` |
-| `frontend` | `${FRONTEND_CONTEXT:-./frontend}` | 3000 | nginx; `API_UPSTREAM=http://services:8080` |
+| `frontend` | `${FRONTEND_CONTEXT:-./frontend}` | 3000 | nginx; SPA + same-origin `/api/*` proxied to `API_UPSTREAM=http://services:8080` |
 | `batch` (profile `batch`) | `${BATCH_CONTEXT:-./batch}` | - | `docker compose --profile batch run --rm batch --job=<name> ...` |
 | `etl` (profile `etl`) | `${ETL_CONTEXT:-./etl}` | - | `app/data` mounted read-only at `/data` |
 | `awscli` (profile `tools`) | `amazon/aws-cli:2.27.0` | - | Pre-pointed at LocalStack |
@@ -80,7 +80,14 @@ docker compose down -v                                     # teardown (drops the
 
 If the services project lives in `aws/online-services/` (contract name), use
 `SERVICES_CONTEXT=./online-services docker compose up -d --build`. Postgres runs the schema script only when
-its volume is empty; `docker compose down -v` resets it.
+its volume is empty; `docker compose down -v` resets it. If Maven Central rate-limits the services image build, set
+`MAVEN_MIRROR_URL=https://maven-central.storage-download.googleapis.com/maven2/` (passed as a build arg).
+
+## Validation
+
+`aws/validation/run.sh` brings up PostgreSQL 15, seeds it through `aws/etl` (EBCDIC, cross-checked against ASCII),
+starts the online services and runs the online (REST vs COBOL) and batch (Java vs GnuCOBOL) parity suites.
+Results: [`validation-report.md`](validation-report.md).
 
 ## AWS deployment
 

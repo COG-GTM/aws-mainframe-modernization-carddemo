@@ -62,6 +62,8 @@ services:
   services:
     build:
       context: ${SERVICES_CONTEXT:-./services}
+      args:
+        MAVEN_MIRROR_URL: ${MAVEN_MIRROR_URL:-}
     image: carddemo/online-services:local
     environment:
       <<: [*db-env, *aws-env]
@@ -83,13 +85,12 @@ services:
     build:
       context: ${FRONTEND_CONTEXT:-./frontend}
       args:
-        API_BASE_URL: /api/v1
+        VITE_API_BASE_URL: ""
     image: carddemo/frontend:local
     environment:
-      API_BASE_URL: /api/v1
       API_UPSTREAM: http://services:8080
     ports:
-      - "${FRONTEND_PORT:-3000}:80"
+      - "${FRONTEND_PORT:-3000}:8080"
     depends_on:
       - services
 

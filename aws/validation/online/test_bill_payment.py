@@ -33,7 +33,8 @@ def test_unknown_account(user_api):
 
 def test_pay_full_balance_then_nothing_to_pay(user_api, db, payable):
     acct, bal, card = payable
-    expected_id = f"{int(db.execute('SELECT COALESCE(MAX(CAST(tran_id AS NUMERIC)), 0) FROM transaction').fetchone()[0]) + 1:016d}"
+    last_id = db.execute("SELECT COALESCE(MAX(CAST(tran_id AS NUMERIC)), 0) FROM transaction").fetchone()[0]
+    expected_id = f"{int(last_id) + 1:016d}"
     resp = user_api.post("/bill-payments", json={"acctId": f"{acct:011d}"})
     assert resp.status_code == 201, resp.text
     body = resp.json()
