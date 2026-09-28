@@ -298,7 +298,7 @@ SQS consumer de-duplication for side-effecting consumers (`messaging.md` §4).
 |---|---|---|---|
 | `message_id` | `UUID` | PK | request `messageId` |
 | `queue` | `VARCHAR(80)` | not null | logical queue name, e.g. `pauth-request` |
-| `reply_body` | `JSONB` | null | reply sent, re-sent verbatim on redelivery |
+| `reply_payload` | `JSONB` | null | reply result fields only (no `messageId`/`sentAt`/`expiresAt`); a fresh envelope is built on each re-send |
 | `processed_at` | `TIMESTAMPTZ` | not null | purge rows older than 14 days (SQS max retention) |
 
 ## 4. Record → table cross-reference
