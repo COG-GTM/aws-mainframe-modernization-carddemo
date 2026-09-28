@@ -225,6 +225,14 @@ def convert_all(out_dir: Path) -> dict[str, int]:
     return counts
 
 
+# Genuine content differences between the two sample sets (verified byte-for-byte; not decoder issues).
+# The EBCDIC files are the load source (contract data-model.md section 5).
+KNOWN_DIFFERENCES: dict[str, frozenset[str]] = {
+    "account": frozenset({"account row 49 addr_zip: 'ZEROAPR' != 'A000000000'"}),
+    "discgrp": frozenset({"disclosure_group row 34 int_rate: Decimal('15.00') != Decimal('0.00')"}),
+}
+
+
 def crosscheck(layout: Layout) -> tuple[int, list[str]]:
     """Compare EBCDIC-decoded rows with rows decoded from the ASCII sample. Returns (rows, diffs)."""
     if layout.ascii is None or layout.record_length is None:

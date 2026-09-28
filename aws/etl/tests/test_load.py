@@ -64,3 +64,16 @@ def test_constraints_enforced(conn):
     with pytest.raises(psycopg.errors.ForeignKeyViolation):
         with conn.transaction():
             q(conn, "INSERT INTO carddemo.card VALUES ('1234567890123456', 99999, 1, 'X', NULL, 'Y', 0)")
+
+
+def test_partial_truncate_reload_is_refused_before_changes(conn, tmp_path):
+    (tmp_path / "account.csv").write_text((DEFAULT_OUT / "account.csv").read_text(encoding="utf-8"), encoding="utf-8")
+    with pytest.raises(ValueError, match="card -> account"):
+        load.load(tmp_path, DSN)
+    assert q(conn, "SELECT count(*) FROM carddemo.card") == [(50,)]
+
+
+def test_processed_message_matches_messaging_contract(conn):
+    cols = q(conn, "SELECT column_name FROM information_schema.columns "
+                   "WHERE table_schema = 'carddemo' AND table_name = 'processed_message' ORDER BY ordinal_position")
+    assert [c for (c,) in cols] == ["message_id", "queue", "reply_payload", "processed_at"]

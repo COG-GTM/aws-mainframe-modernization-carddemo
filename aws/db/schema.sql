@@ -335,12 +335,13 @@ COMMENT ON COLUMN daily_transaction.reject_reason IS 'technical: CBTRN02C reject
 CREATE TABLE IF NOT EXISTS processed_message (
     message_id    UUID        NOT NULL,
     queue         VARCHAR(80) NOT NULL,
-    reply_body    JSONB,
+    reply_payload JSONB,
     processed_at  TIMESTAMPTZ NOT NULL DEFAULT now(),
     CONSTRAINT pk_processed_message PRIMARY KEY (message_id)
 );
 CREATE INDEX IF NOT EXISTS ix_processed_message_processed_at ON processed_message (processed_at);
 COMMENT ON TABLE processed_message IS 'technical: SQS consumer de-duplication (messaging.md section 4); purge rows older than 14 days';
+COMMENT ON COLUMN processed_message.reply_payload IS 'technical: reply result fields only (no envelope); re-sent with a fresh envelope on duplicates';
 
 CREATE TABLE IF NOT EXISTS batch_job_run (
     run_id         VARCHAR(40) NOT NULL,

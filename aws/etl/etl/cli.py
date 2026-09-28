@@ -42,16 +42,23 @@ def _cmd_crosscheck(args: argparse.Namespace) -> int:
         if layout.ascii is None:
             continue
         n, diffs = convert.crosscheck(layout)
-        print(f"{layout.name}: {n} rows, {len(diffs)} differences vs {layout.ascii.name}")
+        known = convert.KNOWN_DIFFERENCES.get(layout.name, frozenset())
+        unexpected = [d for d in diffs if d not in known]
+        print(f"{layout.name}: {n} rows, {len(unexpected)} unexpected + {len(diffs) - len(unexpected)} known "
+              f"differences vs {layout.ascii.name}")
         for d in diffs[:20]:
-            print(f"  {d}")
-        failed |= bool(diffs)
+            print(f"  {'known: ' if d in known else ''}{d}")
+        failed |= bool(unexpected) or n == 0
     return 1 if failed else 0
 
 
 def _cmd_load(args: argparse.Namespace) -> int:
     schema = Path(args.schema) if args.apply_schema else None
-    counts = load.load(Path(args.csv_dir), args.dsn, schema_sql=schema, truncate=not args.no_truncate)
+    dsn = args.dsn or load.dsn_from_env()
+    if not dsn:
+        print("load: pass --dsn or set DB_HOST/DB_USER/DB_PASSWORD (conventions.md section 3)", file=sys.stderr)
+        return 2
+    counts = load.load(Path(args.csv_dir), dsn, schema_sql=schema, truncate=not args.no_truncate)
     for tbl, n in counts.items():
         print(f"{load.SCHEMA}.{tbl}: {n}")
     return 0
@@ -83,7 +90,8 @@ def main(argv: list[str] | None = None) -> int:
 
     ld = sub.add_parser("load", help="COPY <table>.csv files into the carddemo schema")
     ld.add_argument("--csv-dir", default=str(DEFAULT_OUT))
-    ld.add_argument("--dsn", required=True, help="libpq DSN / URL, e.g. postgresql://user:pw@host:5432/carddemo")
+    ld.add_argument("--dsn", help="libpq DSN / URL, e.g. postgresql://user:pw@host:5432/carddemo "
+                    "(default: built from DB_HOST, DB_PORT, DB_NAME, DB_USER, DB_PASSWORD)")
     ld.add_argument("--apply-schema", action="store_true", help="run schema.sql first (idempotent)")
     ld.add_argument("--schema", default=str(DEFAULT_SCHEMA))
     ld.add_argument("--no-truncate", action="store_true", help="append instead of truncate+reload")

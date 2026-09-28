@@ -24,7 +24,9 @@
 --
 -- The views below expose the tables with the DB2 names and types so SQL ported literally from
 -- COTRTLIC/COTRTUPC/COBTUPDT (and DB2 unload/compare scripts) keeps working during the transition.
--- They are simple views and therefore updatable in PostgreSQL for the pass-through columns.
+-- db2_transaction_type is a simple view and fully updatable. db2_transaction_type_category is read-only
+-- for trc_type_category (computed from the SMALLINT key): ported INSERTs and key changes must target
+-- carddemo.transaction_category directly; only trc_cat_data can be updated through the view.
 -- Idempotent. Requires schema.sql.
 
 CREATE OR REPLACE VIEW carddemo.db2_transaction_type AS

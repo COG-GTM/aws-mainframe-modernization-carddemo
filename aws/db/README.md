@@ -27,10 +27,12 @@ python -m etl layouts                                   # list layouts (one per 
 python -m etl convert --layout account --input ../../app/data/EBCDIC/AWS.M2.CARDDEMO.ACCTDATA.PS --out /tmp/account.csv
 python -m etl convert --layout export --out /tmp/export/  # multi-record layout: --out is a directory
 python -m etl convert-all                               # regenerate every CSV in output/
-python -m etl crosscheck                                # EBCDIC vs app/data/ASCII field-by-field comparison
+python -m etl crosscheck                                # EBCDIC vs app/data/ASCII field-by-field; exits 1 only on differences not in KNOWN_DIFFERENCES
 
 docker run -d --name carddemo-pg -e POSTGRES_PASSWORD=postgres -e POSTGRES_DB=carddemo -p 55432:5432 postgres:15
 python -m etl load --dsn postgresql://postgres:postgres@localhost:55432/carddemo --apply-schema
+# --dsn may be omitted when DB_HOST/DB_PORT/DB_NAME/DB_USER/DB_PASSWORD are set (conventions.md section 3).
+# Truncate+reload refuses a CSV set that omits tables referencing the ones being reloaded (use --no-truncate to append).
 
 pytest -q tests                                         # unit + file tests
 CARDDEMO_TEST_DSN=postgresql://postgres:postgres@localhost:55432/carddemo pytest -q tests  # + DB integration

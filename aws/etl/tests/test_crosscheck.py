@@ -9,14 +9,6 @@ from etl.layouts import LAYOUTS
 
 WITH_ASCII = [name for name, lay in LAYOUTS.items() if lay.ascii is not None]
 
-# Genuine content differences between the two sample sets (verified byte-for-byte; not decoder issues).
-# The EBCDIC files are the load source (contract data-model.md section 5).
-KNOWN_DIFFERENCES = {
-    "account": {"account row 49 addr_zip: 'ZEROAPR' != 'A000000000'"},
-    "discgrp": {"disclosure_group row 34 int_rate: Decimal('15.00') != Decimal('0.00')"},
-}
-
-
 def test_every_ascii_file_has_a_layout():
     assert {LAYOUTS[n].ascii.name for n in WITH_ASCII} == {
         "acctdata.txt", "carddata.txt", "cardxref.txt", "custdata.txt", "dailytran.txt",
@@ -28,7 +20,7 @@ def test_every_ascii_file_has_a_layout():
 def test_ebcdic_matches_ascii(name):
     n, diffs = convert.crosscheck(LAYOUTS[name])
     assert n > 0
-    assert set(diffs) == KNOWN_DIFFERENCES.get(name, set())
+    assert set(diffs) == convert.KNOWN_DIFFERENCES.get(name, frozenset())
 
 
 def test_ascii_reader_strips_crlf_and_pads(tmp_path):
