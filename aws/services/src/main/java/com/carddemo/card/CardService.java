@@ -114,6 +114,9 @@ public class CardService {
         CardRecord current = cards.findById(cardNum)
                 .filter(c -> c.acctId() == acctId)
                 .orElseThrow(() -> ApiException.notFound(UPDATE_PROGRAM, "Did not find cards for this search condition"));
+        if (current.version() != request.version()) {
+            throw ApiException.concurrentUpdate(UPDATE_PROGRAM);
+        }
 
         String name = Text.trimToEmpty(request.embossedName());
         String status = Text.upperTrim(request.activeStatus());

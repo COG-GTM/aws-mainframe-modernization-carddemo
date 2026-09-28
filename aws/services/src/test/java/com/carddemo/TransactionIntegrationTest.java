@@ -111,6 +111,12 @@ class TransactionIntegrationTest extends IntegrationTestBase {
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.message").value("Account or Card Number must be entered..."));
 
+        Map<String, Object> bothKeys = newTransaction();
+        bothKeys.put("acctId", "00000000050");
+        mvc.perform(as(token, withJson(post("/api/v1/transactions"), bothKeys)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value("Enter either Account ID or Card Number, not both"));
+
         Map<String, Object> badAmount = newTransaction();
         badAmount.put("amt", "12.3");
         badAmount.put("origDate", "2026-02-30");

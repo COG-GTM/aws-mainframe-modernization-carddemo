@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Map;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.DuplicateKeyException;
+import org.springframework.dao.PessimisticLockingFailureException;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.stereotype.Service;
@@ -121,13 +122,12 @@ public class TransactionTypeService {
         if (request.version() == null) {
             throw ApiException.validation(MAINT_PROGRAM, "version", "version is required");
         }
-        TransactionType current = jdbc.sql("SELECT * FROM transaction_type WHERE type_cd = :t FOR UPDATE")
-                .param("t", typeCd).query(MAPPER).optional().orElseThrow(() -> notFound());
-        if (current.description().strip().equalsIgnoreCase(description)) {
-            throw ApiException.businessRule(MAINT_PROGRAM, LegacyMessages.NO_CHANGE);
-        }
+        TransactionType current = lockNoWait(typeCd);
         if (current.version() != request.version()) {
             throw ApiException.concurrentUpdate(MAINT_PROGRAM);
+        }
+        if (current.description().strip().equalsIgnoreCase(description)) {
+            throw ApiException.businessRule(MAINT_PROGRAM, LegacyMessages.NO_CHANGE);
         }
         jdbc.sql("UPDATE transaction_type SET description = :d, version = version + 1 WHERE type_cd = :t")
                 .param("d", description).param("t", typeCd).update();
@@ -137,8 +137,7 @@ public class TransactionTypeService {
     @Transactional
     public void delete(String typeCdIn, Long version) {
         String typeCd = normalizeTypeCd(typeCdIn, MAINT_PROGRAM);
-        TransactionType current = jdbc.sql("SELECT * FROM transaction_type WHERE type_cd = :t FOR UPDATE")
-                .param("t", typeCd).query(MAPPER).optional().orElseThrow(() -> notFound());
+        TransactionType current = lockNoWait(typeCd);
         if (version != null && current.version() != version) {
             throw ApiException.concurrentUpdate(MAINT_PROGRAM);
         }
@@ -187,4 +186,14 @@ public class TransactionTypeService {
         errors.throwIfAny();
         return value.strip();
     }
+
+    private TransactionType lockNoWait(String typeCd) {
+        try {
+            return jdbc.sql("SELECT * FROM transaction_type WHERE type_cd = :t FOR UPDATE NOWAIT")
+                    .param("t", typeCd).query(MAPPER).optional().orElseThrow(() -> notFound());
+        } catch (PessimisticLockingFailureException ex) {
+            throw new ApiException(ErrorCode.LOCKED, LegacyMessages.COULD_NOT_LOCK, MAINT_PROGRAM);
+        }
+    }
+
 }

@@ -167,10 +167,13 @@ public class TransactionService {
     }
 
     /**
-     * VALIDATE-INPUT-KEY-FIELDS: the account (when given) takes precedence and is resolved to its card through the
-     * CXACAIX alternate index; otherwise the card number is validated against CCXREF.
+     * VALIDATE-INPUT-KEY-FIELDS: exactly one key is accepted; an account is resolved to its card through the
+     * CXACAIX alternate index, a card number is validated against CCXREF.
      */
     private String resolveCard(CreateTransactionRequest r) {
+        if (!Text.isBlank(r.acctId()) && !Text.isBlank(r.cardNum())) {
+            throw ApiException.validation(ADD_PROGRAM, "cardNum", "Enter either Account ID or Card Number, not both");
+        }
         if (!Text.isBlank(r.acctId())) {
             String acct = r.acctId().strip();
             if (!Text.isDigits(acct) || acct.length() > 11) {

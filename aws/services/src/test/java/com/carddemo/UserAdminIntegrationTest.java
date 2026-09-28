@@ -93,13 +93,51 @@ class UserAdminIntegrationTest extends IntegrationTestBase {
                 .andExpect(jsonPath("$.userType").value("A"))
                 .andExpect(jsonPath("$.version").value(1))
                 .andExpect(jsonPath("$.message").value("User USER0001 has been updated ..."));
+        body.put("version", 1);
         mvc.perform(as(admin, withJson(put("/api/v1/users/USER0001"), body)))
                 .andExpect(status().isUnprocessableEntity())
                 .andExpect(jsonPath("$.message").value("Please modify to update ..."));
         body.put("firstName", "LAWRENCE");
+        body.put("version", 0);
         mvc.perform(as(admin, withJson(put("/api/v1/users/USER0001"), body)))
                 .andExpect(status().isConflict())
                 .andExpect(jsonPath("$.errorCode").value("CONCURRENT_UPDATE"));
+    }
+
+    @Test
+    void staleVersionConflictsEvenWhenValuesAreUnchanged() throws Exception {
+        String admin = adminToken();
+        Map<String, Object> body = new HashMap<>();
+        body.put("firstName", "LARRY");
+        body.put("lastName", "THOMAS");
+        body.put("userType", "A");
+        body.put("version", 0);
+        mvc.perform(as(admin, withJson(put("/api/v1/users/USER0001"), body))).andExpect(status().isOk());
+        mvc.perform(as(admin, withJson(put("/api/v1/users/USER0001"), body)))
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.errorCode").value("CONCURRENT_UPDATE"));
+    }
+
+    @Test
+    void demotedOrDeletedUsersLoseAccessImmediately() throws Exception {
+        String admin = adminToken();
+        String demoted = token("ADMIN002", "PASSWORD");
+        String deleted = token("USER0005", "PASSWORD");
+        mvc.perform(as(demoted, get("/api/v1/users"))).andExpect(status().isOk());
+        var current = body(mvc.perform(as(admin, get("/api/v1/users/ADMIN002"))).andReturn());
+        Map<String, Object> body = new HashMap<>();
+        body.put("firstName", current.get("firstName").asText());
+        body.put("lastName", current.get("lastName").asText());
+        body.put("userType", "U");
+        body.put("version", current.get("version").asLong());
+        mvc.perform(as(admin, withJson(put("/api/v1/users/ADMIN002"), body))).andExpect(status().isOk());
+        mvc.perform(as(demoted, get("/api/v1/users"))).andExpect(status().isForbidden());
+        mvc.perform(as(demoted, get("/api/v1/menus/main"))).andExpect(status().isOk());
+
+        mvc.perform(as(admin, delete("/api/v1/users/USER0005"))).andExpect(status().isNoContent());
+        mvc.perform(as(deleted, get("/api/v1/menus/main")))
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.errorCode").value("UNAUTHENTICATED"));
     }
 
     @Test

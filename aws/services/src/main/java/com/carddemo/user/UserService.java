@@ -108,6 +108,9 @@ public class UserService {
 
         UserRecord existing = users.findById(Text.upperTrim(userIdIn))
                 .orElseThrow(() -> ApiException.notFound(program, "User ID NOT found..."));
+        if (existing.version() != request.version()) {
+            throw ApiException.concurrentUpdate(program);
+        }
         String firstName = request.firstName().strip();
         String lastName = request.lastName().strip();
         String userType = Text.upperTrim(request.userType());
@@ -117,9 +120,6 @@ public class UserService {
                 || !userType.equals(existing.userType()) || passwordChanged;
         if (!modified) {
             throw ApiException.businessRule(program, "Please modify to update ...");
-        }
-        if (existing.version() != request.version()) {
-            throw ApiException.concurrentUpdate(program);
         }
         String hash = passwordChanged ? passwordEncoder.encode(Text.upperTrim(request.password()))
                 : existing.passwordHash();

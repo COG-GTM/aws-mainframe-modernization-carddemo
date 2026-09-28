@@ -36,6 +36,7 @@ public class SqsInquiryConsumer implements SmartLifecycle {
     private static final Logger LOG = LoggerFactory.getLogger(SqsInquiryConsumer.class);
     private static final DateTimeFormatter YYMMDD = DateTimeFormatter.ofPattern("yyMMdd");
     private static final DateTimeFormatter HHMMSS = DateTimeFormatter.ofPattern("HHmmss");
+    private static final long RETRY_DELAY_MS = 5_000;
 
     private record Flow(String program, String requestQueue, String replyQueue,
             Function<InquiryRequest, Object> handler) {
@@ -87,10 +88,14 @@ public class SqsInquiryConsumer implements SmartLifecycle {
     }
 
     private void poll(Flow flow) {
-        String queueUrl = queueUrl(flow.requestQueue());
+        String queueUrl = null;
         while (running) {
             try {
-                List<Message> messages = sqs.receiveMessage(b -> b.queueUrl(queueUrl).waitTimeSeconds(5)
+                if (queueUrl == null) {
+                    queueUrl = queueUrl(flow.requestQueue());
+                }
+                String url = queueUrl;
+                List<Message> messages = sqs.receiveMessage(b -> b.queueUrl(url).waitTimeSeconds(5)
                         .maxNumberOfMessages(10).visibilityTimeout(30).messageAttributeNames("All")
                         .messageSystemAttributeNames(MessageSystemAttributeName.ALL)).messages();
                 for (Message message : messages) {
@@ -99,8 +104,18 @@ public class SqsInquiryConsumer implements SmartLifecycle {
             } catch (RuntimeException ex) {
                 if (running) {
                     LOG.error("SQS poll of {} failed", flow.requestQueue(), ex);
+                    pauseAfterFailure();
                 }
             }
+        }
+    }
+
+    private void pauseAfterFailure() {
+        try {
+            Thread.sleep(RETRY_DELAY_MS);
+        } catch (InterruptedException ex) {
+            Thread.currentThread().interrupt();
+            running = false;
         }
     }
 
@@ -109,6 +124,9 @@ public class SqsInquiryConsumer implements SmartLifecycle {
         try {
             request = objectMapper.readValue(message.body(), InquiryRequest.class);
         } catch (JsonProcessingException ex) {
+            request = null;
+        }
+        if (request == null) {
             sendError(flow, null, "1000", "INVALID MESSAGE FORMAT", flow.requestQueue());
             delete(queueUrl, message);
             return;

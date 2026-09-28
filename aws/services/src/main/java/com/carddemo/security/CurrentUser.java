@@ -19,9 +19,8 @@ public final class CurrentUser {
 
     public static Role role() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        if (auth != null && auth.getPrincipal() instanceof Jwt jwt) {
-            return Role.valueOf(jwt.getClaimAsString("role"));
-        }
-        return Role.USER;
+        boolean admin = auth != null && auth.getAuthorities().stream()
+                .anyMatch(a -> ("ROLE_" + Role.ADMIN.name()).equals(a.getAuthority()));
+        return admin ? Role.ADMIN : Role.USER;
     }
 }

@@ -62,6 +62,10 @@ public class AccountService {
             throw ApiException.validation(UPDATE_PROGRAM, "version", "version is required");
         }
         Loaded current = load(acctId, UPDATE_PROGRAM);
+        if (current.account().version() != request.version()
+                || current.customer().version() != request.customer().version()) {
+            throw ApiException.concurrentUpdate(UPDATE_PROGRAM);
+        }
         if (!changed(current, request)) {
             throw ApiException.businessRule(UPDATE_PROGRAM, LegacyMessages.NO_CHANGE);
         }
