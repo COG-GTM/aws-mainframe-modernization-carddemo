@@ -1,0 +1,10 @@
+# Stand-alone local run: creates the schema from the bundled Flyway migration and seeds app/data/ASCII.
+spring:
+  flyway:
+    enabled: true
+
+carddemo:
+  jwt:
+    secret: ${JWT_SECRET:local-dev-secret-change-me-0123456789abcdef}
+  seed:
+    ascii-dir: ${CARDDEMO_SEED_DIR:../../app/data/ASCII}

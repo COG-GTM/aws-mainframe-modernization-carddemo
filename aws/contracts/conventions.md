@@ -14,7 +14,7 @@ All new code lives under the top-level `aws/` directory. Nothing under `app/`, `
 | `aws/contracts/` | Discovery (edits by any session, called out in PR) | These contracts |
 | `aws/migration-inventory.md` | Discovery | Source inventory and replatform candidates |
 | `aws/data-migration/` | Data migration | DDL (Flyway migrations), EBCDIC/ASCII loaders, reconciliation |
-| `aws/online-services/` | Online services | Spring Boot REST service(s) replacing CICS programs |
+| `aws/services/` | Online services | Spring Boot REST service(s) replacing CICS programs |
 | `aws/batch/` | Batch | Spring Batch jobs replacing `CB*` programs + Step Functions definitions |
 | `aws/frontend/` | Frontend | React SPA replacing BMS maps |
 | `aws/infra/` | Infra | IaC (Aurora, S3, SQS, AWS Batch, Step Functions, ECS/Fargate, networking) |

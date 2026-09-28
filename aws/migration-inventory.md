@@ -16,7 +16,7 @@ Owning sessions (short codes used below):
 |---|---|---|
 | S1 | Discovery & contracts (this PR) | `aws/contracts/`, `aws/migration-inventory.md` |
 | DM | Data migration | `aws/data-migration/` |
-| ON | Online services (Spring Boot) | `aws/online-services/` |
+| ON | Online services (Spring Boot) | `aws/services/` |
 | BA | Batch (Spring Batch + Step Functions) | `aws/batch/` |
 | FE | Frontend (React + TS + Vite) | `aws/frontend/` |
 | IN | Infra (IaC) | `aws/infra/` |
@@ -384,14 +384,15 @@ in each owning session's PR description.
 
 | Module | Source | Decision | Rationale |
 |---|---|---|---|
-| IMS HIDAM pending-authorization DB (`DBPAUTP0`/`DBPAUTX0`) and its programs `COPAUA0C`, `COPAUS0C`, `COPAUS1C`, `CBPAUP0C`, `PAUDBUNL`, `PAUDBLOD`, `DBUNLDGS` | `app/app-authorization-ims-db2-mq/` | **Replatform candidate** (default). Relational model `pending_auth_summary`/`pending_auth_detail` is specified in `data-model.md` §3.2–3.3 so ON/DM *may* refactor; if they do not, the whole sub-app stays on M2 runtime | Hierarchical DL/I navigation (`GU`/`GNP`/`ISRT`/`REPL`/`DLET`), `COMP-3` keys built from date/time complements, `CHKP` restart logic in BMP, combined MQ + IMS + VSAM + DB2 unit of work with `SYNCPOINT`; no test harness in repo |
-| `COPAUS2C` + DB2 `AUTHFRDS` | same | Refactor with the IMS module (simple `INSERT`/`UPDATE`) or replatform with it | Only reachable from `COPAUS1C` |
+| IMS HIDAM pending-authorization DB (`DBPAUTP0`/`DBPAUTX0`) and its programs `COPAUA0C`, `COPAUS0C`, `COPAUS1C`, `CBPAUP0C`, `PAUDBUNL`, `PAUDBLOD`, `DBUNLDGS` | `app/app-authorization-ims-db2-mq/` | **Replatform candidate** — confirmed by ON (`aws/services/` does not implement `COPAUA0C`, the `carddemo-pauth-*` consumer, or `/api/v1/authorizations`); the whole sub-app stays on M2 runtime unless a later session refactors it onto `pending_auth_*` | Hierarchical DL/I navigation (`GU`/`GNP`/`ISRT`/`REPL`/`DLET`), `COMP-3` keys built from date/time complements, `CHKP` restart logic in BMP, combined MQ + IMS + VSAM + DB2 unit of work with `SYNCPOINT`; no test harness in repo |
+| `COPAUS2C` + DB2 `AUTHFRDS` | same | **Replatform candidate** with the IMS module (not refactored by ON) | Only reachable from `COPAUS1C` |
 | Assembler `COBDATFT` | `app/asm/COBDATFT.asm`, `app/maclib/COCDATFT.mac` | Not ported as code; behaviour re-implemented with `java.time` in `extract-accounts` | 370 assembler; only used by `CBACT01C` for date re-formatting |
 | Assembler `MVSWAIT` + `COBSWAIT` | `app/asm/MVSWAIT.asm`, `app/cbl/COBSWAIT.cbl` | Not ported; Step Functions `Wait` | Pure timing utility; existed only to space out jobs |
 | `CBACT04C` paragraph `1400-COMPUTE-FEES` | `app/cbl/CBACT04C.cbl` | **Incomplete in source** ("To be implemented"); `calculate-interest` implements interest only, fees left as a documented no-op | Nothing to migrate; inventing fee rules would be fabrication |
 | `TXT2PDF` REXX | `app/jcl/TXT2PDF1.JCL` (`AWS.M2.LBD.TXT2PDF.EXEC`, external library not in repo) | Re-implemented with a Java PDF library in `statement-pdf`; byte-level PDF parity not required | Source of the REXX exec is not in the repository |
 | CSD transaction `CDV1` → `COCRDSEC` | `app/csd/CARDDEMO.CSD` | Not migrated | Program source absent from repo |
-| DB2 `COTRTLIC` / `COTRTUPC` (1,861 / 1,429 LOC) | `app/app-transaction-type-db2/cbl/` | Refactor (ON) — **H** complexity; if schedule risk, replatform with DB2 on M2 | Large but plain SQL CRUD; target tables merge with VSAM reference tables |
+| DB2 `COTRTLIC` / `COTRTUPC` (1,861 / 1,429 LOC) | `app/app-transaction-type-db2/cbl/` | **Refactored (ON)** → `aws/services/` `/api/v1/transaction-types` (api.md §10.2) | Plain SQL CRUD; no replatforming needed |
+| MQ `COACCT01` / `CODATE01` | `app/app-vsam-mq/` | **Refactored (ON)** → `aws/services/` `SqsInquiryConsumer` (off by default, `CARDDEMO_MESSAGING_ENABLED=true`) | Request/reply over `carddemo-acct-inquiry-*` / `carddemo-date-inquiry-*`; not exercised against real SQS in the ON session |
 
 ## 10. Coverage checklist
 
