@@ -13,7 +13,7 @@ All new code lives under the top-level `aws/` directory. Nothing under `app/`, `
 |---|---|---|
 | `aws/contracts/` | Discovery (edits by any session, called out in PR) | These contracts |
 | `aws/migration-inventory.md` | Discovery | Source inventory and replatform candidates |
-| `aws/data-migration/` | Data migration | DDL (Flyway migrations), EBCDIC/ASCII loaders, reconciliation |
+| `aws/db/`, `aws/etl/` | Data migration | DDL (`aws/db/schema.sql` + `db2/`, `ims/`), EBCDIC/ASCII decoder + COPY loader, seed CSVs (`aws/etl/output/`), reconciliation tests |
 | `aws/online-services/` | Online services | Spring Boot REST service(s) replacing CICS programs |
 | `aws/batch/` | Batch | Spring Batch jobs replacing `CB*` programs + Step Functions definitions |
 | `aws/frontend/` | Frontend | React SPA replacing BMS maps |
@@ -73,7 +73,9 @@ REST base path is **`/api/v1`** (see `api.md`).
 
 * Engine: Aurora PostgreSQL (PostgreSQL 15+ compatible). Local dev/test: PostgreSQL container of same major version.
 * Schema: **`carddemo`**. All tables in `data-model.md` live in this schema.
-* Migrations: Flyway, files under `aws/data-migration/.../db/migration`, naming `V<n>__<desc>.sql`.
+* DDL: `aws/db/schema.sql` (idempotent; core + technical tables) plus `aws/db/db2/*.sql` and `aws/db/ims/*.sql`
+  for the optional sub-apps. Services using Flyway use these files, in that order, as baseline `V1__carddemo.sql`;
+  later changes are Flyway migrations `aws/db/migration/V<n>__<desc>.sql`.
   Only the data-migration session creates/changes tables; other sessions request changes via contract edits.
 * Naming: snake_case, singular table names, rules in `data-model.md` §1.
 * Transactions: one CICS task (one pseudo-conversational step that issues `REWRITE`/`WRITE`/`DELETE`,

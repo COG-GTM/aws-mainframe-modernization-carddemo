@@ -59,8 +59,8 @@ GDG `(+1)` = new `<runId>` prefix; `(0)` = latest `<runId>` under the prefix (le
 ### 1.3 Record formats in S3
 
 Fixed-width files keep the legacy copybook layout (ASCII, zoned decimal as display digits with overpunched
-sign as in `app/data/ASCII`, one record per `\n`). Parsers live in `aws/data-migration` and are reused by
-batch. Formats: daily transaction = `CVTRA06Y` 350 bytes; reject = 350-byte transaction + 80-byte trailer
+sign as in `app/data/ASCII`, one record per `\n`). The reference parser (copybook layouts + codec) is `aws/etl` (Python);
+batch ports the layouts to Java. Formats: daily transaction = `CVTRA06Y` 350 bytes; reject = 350-byte transaction + 80-byte trailer
 (`FD-REJECT-RECORD` + `FD-VALIDATION-TRAILER`: `reasonCode 9(04)` + `description X(76)`); report lines = 133
 bytes (`CBTRN03C` `FD-REPTFILE-REC`); statement text 80 bytes, HTML 100 bytes (`CBSTM03A`); export = 500-byte
 `CVEXPORT`; import errors = 132 bytes (`CBIMPORT`).

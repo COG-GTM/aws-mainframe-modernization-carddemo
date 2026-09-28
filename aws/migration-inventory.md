@@ -15,7 +15,7 @@ Owning sessions (short codes used below):
 | Code | Session | Directory |
 |---|---|---|
 | S1 | Discovery & contracts (this PR) | `aws/contracts/`, `aws/migration-inventory.md` |
-| DM | Data migration | `aws/data-migration/` |
+| DM | Data migration | `aws/db/`, `aws/etl/` |
 | ON | Online services (Spring Boot) | `aws/online-services/` |
 | BA | Batch (Spring Batch + Step Functions) | `aws/batch/` |
 | FE | Frontend (React + TS + Vite) | `aws/frontend/` |
@@ -147,7 +147,7 @@ Targets use job names from [`contracts/batch.md`](contracts/batch.md) §2; "not 
 | `TCATBALF.jcl` | (Re)define/load category balance KSDS | STEP05–15: IDCAMS | `TCATBALF.PS` → `TCATBALF.VSAM.KSDS` | DM loader / `load-reference-data --table=tran_cat_balance` | DM, BA |
 | `TRANBKP.jcl` | Back up transactions, redefine KSDS + AIX | STEP05R: `REPROC`; STEP05/10: IDCAMS | `TRANSACT.VSAM.KSDS` → `TRANSACT.BKUP(+1)` | `backup-transactions`; redefine not needed | BA |
 | `TRANCATG.jcl` | (Re)define/load transaction category KSDS | STEP05–15: IDCAMS | `TRANCATG.PS` → `TRANCATG.VSAM.KSDS` | `load-reference-data --table=transaction_category` | DM, BA |
-| `TRANFILE.jcl` | Close, (re)define transaction KSDS + AIX, load initial record, open | CLCIFIL; STEP05–30: IDCAMS; OPCIFIL | `DALYTRAN.PS.INIT` → `TRANSACT.VSAM.KSDS` | DM loader → `transaction` (+ index on `proc_ts`) | DM |
+| `TRANFILE.jcl` | Close, (re)define transaction KSDS + AIX, load initial record, open | CLCIFIL; STEP05–30: IDCAMS; OPCIFIL | `DALYTRAN.PS.INIT` → `TRANSACT.VSAM.KSDS` | not needed: Aurora tables may be empty; `transaction` + `ix_transaction_proc_ts` created by `aws/db/schema.sql` | DM |
 | `TRANIDX.jcl` | Define transaction AIX/PATH, BLDINDEX | STEP20/25/30: IDCAMS | `TRANSACT.VSAM.AIX` | Flyway index `ix_transaction_proc_ts`; not needed as a job | DM |
 | `TRANREPT.jcl` | Transaction detail report for date range | STEP05R: `REPROC` unload; STEP05R: SORT (filter/sort); STEP10R: `CBTRN03C` | see §2 | `transaction-report` | BA |
 | `TRANTYPE.jcl` | (Re)define/load transaction type KSDS | STEP05–15: IDCAMS | `TRANTYPE.PS` → `TRANTYPE.VSAM.KSDS` | `load-reference-data --table=transaction_type` | DM, BA |
@@ -335,7 +335,7 @@ DM (code page / zoned-decimal rules in `data-model.md` §5); ASCII files are equ
 | `app/data/EBCDIC/AWS.M2.CARDDEMO.CARDXREF.PS` | PS FB 50 | 50 | `CVACT03Y` | `card_xref` |
 | `app/data/EBCDIC/AWS.M2.CARDDEMO.CUSTDATA.PS` | PS FB 500 | 50 | `CVCUS01Y` | `customer` |
 | `app/data/EBCDIC/AWS.M2.CARDDEMO.DALYTRAN.PS` | PS FB 350 | 300 | `CVTRA06Y` | S3 `input/dalytran/<businessDate>/dalytran.txt` |
-| `app/data/EBCDIC/AWS.M2.CARDDEMO.DALYTRAN.PS.INIT` | PS FB 350 | 1 | `CVTRA05Y` | initial `transaction` row (`TRANFILE.jcl`) |
+| `app/data/EBCDIC/AWS.M2.CARDDEMO.DALYTRAN.PS.INIT` | PS FB 350 | 1 | `CVTRA05Y` | `TRANFILE.jcl` priming record: 350 bytes of low-values (dummy so CICS can open a non-empty KSDS) → **not loaded**, `transaction` starts empty |
 | `app/data/EBCDIC/AWS.M2.CARDDEMO.DISCGRP.PS` | PS FB 50 | 51 | `CVTRA02Y` | `disclosure_group` |
 | `app/data/EBCDIC/AWS.M2.CARDDEMO.EXPORT.DATA.PS` | PS FB 500 | 500 | `CVEXPORT` | S3 `import/` test input for `import-customer-data` |
 | `app/data/EBCDIC/AWS.M2.CARDDEMO.TCATBALF.PS` | PS FB 50 | 50 | `CVTRA01Y` | `tran_cat_balance` |
@@ -344,7 +344,7 @@ DM (code page / zoned-decimal rules in `data-model.md` §5); ASCII files are equ
 | `app/data/EBCDIC/AWS.M2.CARDDEMO.USRSEC.PS` | PS FB 80 | 10 | `CSUSR01Y` | `user_security` (hash passwords) |
 | `app/data/EBCDIC/.gitkeep` | — | — | — | placeholder, ignore |
 | `app/data/ASCII/acctdata.txt`, `carddata.txt`, `cardxref.txt`, `custdata.txt`, `dailytran.txt`, `discgrp.txt`, `tcatbal.txt`, `trancatg.txt`, `trantype.txt` | text, 1 record/line | 50, 50, 50, 50, 300, 51, 50, 18, 7 | as EBCDIC counterparts | same tables (ASCII has no `USRSEC`/`EXPORT` copy) |
-| `app/app-authorization-ims-db2-mq/data/EBCDIC/AWS.M2.CARDDEMO.IMSDATA.DBPAUTP0.dat` | IMS unload (51,736 bytes) | — | `CIPAUSMY`/`CIPAUDTY` | `pending_auth_*` (only if IMS refactored) |
+| `app/app-authorization-ims-db2-mq/data/EBCDIC/AWS.M2.CARDDEMO.IMSDATA.DBPAUTP0.dat` | IMS unload (51,736 bytes) | — | `CIPAUSMY`/`CIPAUDTY` | `pending_auth_summary` (21 roots + 1 all-spaces terminator, skipped) / `pending_auth_detail` (202); tables in `aws/db/ims/`, loaded by DM so the data is ready if IMS is refactored |
 
 ### 6.3 DB2 and IMS
 
@@ -384,7 +384,7 @@ in each owning session's PR description.
 
 | Module | Source | Decision | Rationale |
 |---|---|---|---|
-| IMS HIDAM pending-authorization DB (`DBPAUTP0`/`DBPAUTX0`) and its programs `COPAUA0C`, `COPAUS0C`, `COPAUS1C`, `CBPAUP0C`, `PAUDBUNL`, `PAUDBLOD`, `DBUNLDGS` | `app/app-authorization-ims-db2-mq/` | **Replatform candidate** (default). Relational model `pending_auth_summary`/`pending_auth_detail` is specified in `data-model.md` §3.2–3.3 so ON/DM *may* refactor; if they do not, the whole sub-app stays on M2 runtime | Hierarchical DL/I navigation (`GU`/`GNP`/`ISRT`/`REPL`/`DLET`), `COMP-3` keys built from date/time complements, `CHKP` restart logic in BMP, combined MQ + IMS + VSAM + DB2 unit of work with `SYNCPOINT`; no test harness in repo |
+| IMS HIDAM pending-authorization DB (`DBPAUTP0`/`DBPAUTX0`) and its programs `COPAUA0C`, `COPAUS0C`, `COPAUS1C`, `CBPAUP0C`, `PAUDBUNL`, `PAUDBLOD`, `DBUNLDGS` | `app/app-authorization-ims-db2-mq/` | **Replatform candidate** (default). Relational model `pending_auth_summary`/`pending_auth_detail` is specified in `data-model.md` §3.2–3.3 so ON/DM *may* refactor; if they do not, the whole sub-app stays on M2 runtime. **DM:** tables created (`aws/db/ims/pending_auth.sql`) and the `DBPAUTP0` unload is decoded and loaded (21 summaries / 202 details); the programs remain replatform candidates | Hierarchical DL/I navigation (`GU`/`GNP`/`ISRT`/`REPL`/`DLET`), `COMP-3` keys built from date/time complements, `CHKP` restart logic in BMP, combined MQ + IMS + VSAM + DB2 unit of work with `SYNCPOINT`; no test harness in repo |
 | `COPAUS2C` + DB2 `AUTHFRDS` | same | Refactor with the IMS module (simple `INSERT`/`UPDATE`) or replatform with it | Only reachable from `COPAUS1C` |
 | Assembler `COBDATFT` | `app/asm/COBDATFT.asm`, `app/maclib/COCDATFT.mac` | Not ported as code; behaviour re-implemented with `java.time` in `extract-accounts` | 370 assembler; only used by `CBACT01C` for date re-formatting |
 | Assembler `MVSWAIT` + `COBSWAIT` | `app/asm/MVSWAIT.asm`, `app/cbl/COBSWAIT.cbl` | Not ported; Step Functions `Wait` | Pure timing utility; existed only to space out jobs |

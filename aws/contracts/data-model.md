@@ -163,7 +163,7 @@ session. No FKs.
 
 | Column | Type | Null | Source field |
 |---|---|---|---|
-| `acct_id` | `NUMERIC(11,0)` | PK part 1 | `TRANCAT-ACCT-ID 9(11)` |
+| `acct_id` | `NUMERIC(11,0)` | PK part 1, FK → `account` | `TRANCAT-ACCT-ID 9(11)` (FK added by DM: `CBTRN02C` only writes a balance after the account `READ` succeeds) |
 | `type_cd` | `CHAR(2)` | PK part 2 | `TRANCAT-TYPE-CD X(02)` |
 | `cat_cd` | `SMALLINT` | PK part 3 | `TRANCAT-CD 9(04)` |
 | `balance` | `NUMERIC(11,2)` | not null | `TRAN-CAT-BAL S9(09)V99` |
@@ -177,6 +177,8 @@ session. No FKs.
 | `type_cd` | `CHAR(2)` | PK part 2 | `DIS-TRAN-TYPE-CD X(02)` |
 | `cat_cd` | `SMALLINT` | PK part 3 | `DIS-TRAN-CAT-CD 9(04)` |
 | `int_rate` | `NUMERIC(6,2)` | not null | `DIS-INT-RATE S9(04)V99` (annual %, `CBACT04C`: monthly interest = balance × rate / 1200) |
+
+No FK to `transaction_category`: the sample `DISCGRP` has rate rows for (`type_cd`,`cat_cd`) pairs not present in `TRANCATG`.
 
 ### 2.10 `transaction_type` ← `CVTRA03Y` / `TRANTYPE.VSAM.KSDS` (60 bytes, key 2 @0) **and** DB2 `CARDDEMO.TRANSACTION_TYPE`
 
