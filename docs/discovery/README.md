@@ -34,7 +34,7 @@ python3 -m pytest tests/test_discovery.py
 |   jclstep->program | 126 resolved / 0 unresolved |
 |   transaction->program | 26 resolved / 7 unresolved |
 |   program->program | 66 resolved / 47 unresolved |
-| Artifacts (total) | 237 |
+| Artifacts (total) | 240 |
 |   COBOL program | 44 |
 |   Copybook (COBOL) | 41 |
 |   Copybook (BMS symbolic map) | 21 |
@@ -52,6 +52,7 @@ python3 -m pytest tests/test_discovery.py
 |   Catalog listing | 1 |
 |   Scheduler definition | 2 |
 |   Module documentation | 3 |
+|   Directory placeholder (empty marker file) | 3 |
 |   COBOL programs classified batch | 17 |
 |   COBOL programs classified online | 25 |
 |   COBOL programs classified utility | 2 |
@@ -64,6 +65,7 @@ python3 -m pytest tests/test_discovery.py
 | Distinct datasets seen | 281 |
 | CSD DEFINE statements | 134 |
 | Scheduler job definitions | 32 |
+| README TransIDs vs CSD | reconciled (24 README / 30 CSD; 0 README-only, 0 program mismatches, 6 CSD-only) |
 
 ## Confirmed / Inferred convention
 

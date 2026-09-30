@@ -35,6 +35,9 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 OUT_DIR = Path(__file__).resolve().parent
 
+APP_DIR = "app"
+README_FILE = "README.md"
+
 SOURCE_DIRS = [
     "app/cbl",
     "app/cpy",
@@ -84,28 +87,6 @@ DIR_TYPES = {
     "ims": "ims_definition",
 }
 
-TYPE_LABELS = OrderedDict(
-    [
-        ("cobol_program", "COBOL program"),
-        ("copybook", "Copybook"),
-        ("bms_copybook", "BMS symbolic-map copybook"),
-        ("bms_map", "BMS mapset source"),
-        ("jcl_job", "JCL job"),
-        ("jcl_proc", "JCL procedure"),
-        ("csd", "CICS CSD definition file"),
-        ("assembler", "Assembler program"),
-        ("asm_macro", "Assembler macro"),
-        ("catalog_listing", "Catalog listing"),
-        ("control_card", "Utility control card"),
-        ("data_sample", "Data file (sample)"),
-        ("scheduler_def", "Scheduler definition file"),
-        ("sql_ddl", "SQL DDL"),
-        ("sql_dclgen", "SQL DCLGEN include"),
-        ("ims_definition", "IMS DBD/PSB definition"),
-        ("module_readme", "Module documentation"),
-        ("other", "Other"),
-    ]
-)
 
 # Programs supplied by the operating system, subsystems or run-time libraries.
 SYSTEM_UTILITIES = {
@@ -1232,6 +1213,115 @@ EXTRA_CATEGORIES = [
 ]
 
 
+README_TRAN_HEADER = re.compile(r"^\|\s*Transaction\s*\|\s*BMS Map\s*\|\s*Program\s*\|", re.I)
+
+
+def parse_readme_transactions(path: Path) -> list[dict]:
+    """Rows of the online transaction table in the repository README."""
+    if not path.is_file():
+        raise SystemExit(f"repository README missing: {path.name} (input to the transaction reconciliation)")
+    lines = path.read_text(encoding="utf-8").splitlines()
+    start = next((i for i, l in enumerate(lines) if README_TRAN_HEADER.match(l)), None)
+    if start is None:
+        raise SystemExit(f"online transaction table not found in {path.name}")
+    header = [c.strip() for c in lines[start].strip().strip("|").split("|")]
+    rows = []
+    for i in range(start + 1, len(lines)):
+        if not lines[i].startswith("|"):
+            break
+        cells = [c.strip() for c in lines[i].strip().strip("|").split("|")]
+        if all(re.fullmatch(r":?-+:?", c) for c in cells):
+            continue
+        rec = dict(zip(header, cells))
+        rows.append(OrderedDict([
+            ("transaction", rec["Transaction"].upper()),
+            ("map", rec.get("BMS Map", "").upper() or None),
+            ("program", rec["Program"].upper()),
+            ("function", rec.get("Function", "")),
+            ("optional_module", rec.get("Optional Module", "") or None),
+            ("line", i + 1),
+        ]))
+    return rows
+
+
+def reconcile_transactions(estate: "Estate", readme_rows: list[dict]) -> dict:
+    """README online transaction table against the CSD DEFINE TRANSACTION statements."""
+    csd = defaultdict(list)
+    for e in estate.csd_entries:
+        if e["kind"] == "TRANSACTION":
+            csd[e["name"]].append(e)
+    maps_of = defaultdict(set)
+    for e in estate.edges:
+        if e["category"] == "program->bmsmap" and e["status"] == "resolved":
+            maps_of[e["from"]].add(e["to"])
+    rows = []
+    for r in readme_rows:
+        defs = csd.get(r["transaction"], [])
+        csd_programs = sorted({(d["attrs"].get("PROGRAM") or "").upper() for d in defs})
+        prog = estate.find_program(r["program"])
+        src_maps = sorted(maps_of.get(prog["name"], ())) if prog else []
+        diffs = []
+        if not defs:
+            diffs.append("no DEFINE TRANSACTION in any CSD source")
+        elif csd_programs != [r["program"]]:
+            diffs.append(f"README program {r['program']}; CSD program {', '.join(csd_programs)}")
+        if not prog:
+            diffs.append(f"program {r['program']} has no source in repository")
+        if r["map"] and r["map"] not in src_maps:
+            diffs.append(f"README map {r['map']} is not sent by {r['program']} (source sends {', '.join(src_maps) or 'no mapset'})")
+        if not r["map"] and src_maps:
+            diffs.append(f"README lists no map; {r['program']} sends {', '.join(src_maps)}")
+        if defs and bool(r["optional_module"]) != any(d["module"] != "core" for d in defs):
+            diffs.append(f"README optional-module column is {r['optional_module'] or 'blank'}; CSD definition is in "
+                         + ", ".join(d["source"] for d in defs))
+        rows.append(OrderedDict([
+            ("transaction", r["transaction"]), ("readme_map", r["map"]), ("readme_program", r["program"]),
+            ("readme_optional_module", r["optional_module"]), ("readme_line", r["line"]),
+            ("csd_programs", csd_programs), ("csd_sources", [f"{d['source']}:{d['line']}" for d in defs]),
+            ("source_maps", src_maps), ("status", "match" if not diffs else "difference"), ("differences", diffs),
+        ]))
+    readme_ids = {r["transaction"] for r in readme_rows}
+    csd_only = []
+    for t in sorted(set(csd) - readme_ids):
+        defs = csd[t]
+        progs = sorted({(d["attrs"].get("PROGRAM") or "").upper() for d in defs})
+        diffs = ["not in the README transaction table"]
+        diffs += [f"program {p} has no source in repository" for p in progs if not estate.find_program(p)]
+        csd_only.append(OrderedDict([
+            ("transaction", t), ("csd_programs", progs), ("csd_sources", [f"{d['source']}:{d['line']}" for d in defs]),
+            ("csd_groups", sorted({d["attrs"].get("GROUP") or "?" for d in defs})), ("differences", diffs),
+        ]))
+    transid_conflicts = []
+    for e in estate.csd_entries:
+        t = (e["attrs"].get("TRANSID") or "").upper() if e["kind"] == "PROGRAM" else ""
+        if not t:
+            continue
+        tran_programs = sorted({(d["attrs"].get("PROGRAM") or "").upper() for d in csd.get(t, [])})
+        if e["name"] not in tran_programs:
+            transid_conflicts.append(OrderedDict([
+                ("program", e["name"]), ("transid", t), ("source", f"{e['source']}:{e['line']}"),
+                ("transaction_programs", tran_programs),
+                ("transaction_sources", [f"{d['source']}:{d['line']}" for d in csd.get(t, [])]),
+            ]))
+    readme_only = [r for r in rows if not r["csd_sources"]]
+    program_differs = [r for r in rows if r["csd_sources"] and r["csd_programs"] != [r["readme_program"]]]
+    counts = OrderedDict([
+        ("readme_rows", len(readme_rows)),
+        ("readme_distinct", len(readme_ids)),
+        ("csd_distinct", len(csd)),
+        ("readme_rows_matching", sum(1 for r in rows if r["status"] == "match")),
+        ("readme_rows_with_differences", sum(1 for r in rows if r["status"] != "match")),
+        ("readme_only", len(readme_only)),
+        ("program_differs", len(program_differs)),
+        ("csd_only", len(csd_only)),
+        ("program_transid_conflicts", len(transid_conflicts)),
+    ])
+    counts["verdict"] = ("reconciled" if not readme_only and not program_differs and len(readme_ids) == len(readme_rows)
+                         else "not reconciled")
+    return OrderedDict([("source", README_FILE), ("summary", counts), ("readme_rows", rows), ("csd_only", csd_only),
+                        ("program_transid_conflicts", transid_conflicts)])
+
+
 class Estate:
     def __init__(self, root: Path):
         self.root = root
@@ -1258,9 +1348,12 @@ class Estate:
                 self.notes.append(f"source directory missing: {d}")
                 continue
             for path in sorted(p for p in base.rglob("*") if p.is_file()):
-                if path.name.startswith("."):
-                    continue
                 self._add_artifact(path, d)
+        covered = {a["path"] for a in self.artifacts}
+        for path in sorted(p for p in (self.root / APP_DIR).rglob("*") if p.is_file()):
+            if rel(path) not in covered:
+                self.notes.append(f"{rel(path)} is outside the declared source directories; inventoried as other")
+                self._add_artifact(path, APP_DIR)
         self.artifacts.sort(key=lambda a: a["path"])
         for a in self.artifacts:
             self.by_path[a["path"]] = a
@@ -1274,6 +1367,8 @@ class Estate:
             sub = parts[0] if len(parts) > 1 else None
         else:
             sub = top
+        if path.name.startswith("."):
+            return "placeholder", module
         if sub is None:
             if path.suffix.lower() == ".md":
                 return "module_readme", module
@@ -1567,6 +1662,7 @@ class Estate:
         self._link_scheduler()
         self._link_catalog()
         self._finish_datasets()
+        self.readme_transactions = reconcile_transactions(self, parse_readme_transactions(self.root / README_FILE))
 
     def _bind_copied_fd_records(self):
         """A program whose FD names its record through ``COPY`` has no level-01 inside the
@@ -1743,7 +1839,8 @@ class Estate:
                 pname = attrs["PROGRAM"].upper()
                 target = self.find_program(pname)
                 if target:
-                    target["transaction_ids"].append(e["name"])
+                    if e["name"] not in target["transaction_ids"]:
+                        target["transaction_ids"].append(e["name"])
                     self.add_edge("transaction->program", e["name"], target["name"], e["source"], e["line"], "resolved",
                                   f"DEFINE TRANSACTION in group {attrs.get('GROUP', '?')}")
                 else:
@@ -2187,6 +2284,8 @@ TYPE_LABELS = OrderedDict([
     ("catalog_listing", "Catalog listing"),
     ("scheduler_def", "Scheduler definition"),
     ("module_readme", "Module documentation"),
+    ("placeholder", "Directory placeholder (empty marker file)"),
+    ("other", "Other"),
 ])
 
 LINEAGE_FILE = "04-field-lineage.md"
@@ -2262,6 +2361,7 @@ def summarize(estate: Estate) -> dict:
     s["csd_entry_counts"] = OrderedDict(sorted(Counter(e["kind"] for e in estate.csd_entries).items()))
     s["csd_entry_total"] = len(estate.csd_entries)
     s["scheduler_job_total"] = len(estate.scheduler_jobs)
+    s["readme_transactions"] = estate.readme_transactions["summary"]
     s["dynamic_calls_unresolved"] = sum(1 for e in estate.edges if e["category"] == "program->program"
                                         and e["status"] == "unresolved" and e.get("kind") == "dynamic")
     s["datasets_jcl_only"] = sum(1 for d in estate.datasets.values() if d["jcl_refs"] and not d["program_access"]
@@ -2312,6 +2412,7 @@ def serialize(estate: Estate, summary: dict) -> dict:
                          for e in estate.csd_entries]),
         ("scheduler_jobs", estate.scheduler_jobs),
         ("scheduler_edges", estate.scheduler_edges),
+        ("readme_transaction_reconciliation", estate.readme_transactions),
         ("constructs", estate.construct_rows()),
         ("notes", estate.notes),
     ])
@@ -2359,6 +2460,35 @@ def render_inventory(estate: Estate, s: dict) -> str:
     rows = [(k, fmt_int(v)) for k, v in s["csd_entry_counts"].items()]
     rows.append(("**Total DEFINE statements**", f"**{fmt_int(s['csd_entry_total'])}**"))
     out.append(md_table(["Resource kind", "DEFINE statements"], rows) + "\n")
+
+    rt = estate.readme_transactions
+    rs = rt["summary"]
+    out.append("### README transaction table vs CSD\n")
+    out.append(f"The online transaction table in the repository `{README_FILE}` lists **{fmt_int(rs['readme_rows'])} TransIDs**; "
+               f"the CSD sources (`DEFINE TRANSACTION`, including the in-stream `DFHCSDUP` input in JCL) define "
+               f"**{fmt_int(rs['csd_distinct'])}**. Verdict: **{rs['verdict']}** — {fmt_int(rs['readme_only'])} README TransIDs have no "
+               f"CSD definition, {fmt_int(rs['program_differs'])} name a different program than the CSD, "
+               f"{fmt_int(rs['csd_only'])} CSD TransIDs are absent from the README. "
+               f"{fmt_int(rs['readme_rows_matching'])} README rows agree with the CSD and the source on every column checked; "
+               f"{fmt_int(rs['readme_rows_with_differences'])} carry a difference (map sent by the program, optional-module column).\n")
+    rows = [(r["transaction"], cite(README_FILE, r["readme_line"]), r["readme_program"], r["readme_map"] or "",
+             ", ".join(r["csd_programs"]), "<br>".join(f"`{c}`" for c in r["csd_sources"]), ", ".join(r["source_maps"]),
+             r["status"], "; ".join(r["differences"])) for r in rt["readme_rows"]]
+    out.append(md_table(["TransID", "README row", "README program", "README map", "CSD program", "CSD source",
+                         "Mapsets sent by program", "Status", "Differences"], rows) + "\n")
+    out.append("#### CSD transactions absent from the README table\n")
+    rows = [(r["transaction"], ", ".join(r["csd_programs"]), ", ".join(r["csd_groups"]),
+             "<br>".join(f"`{c}`" for c in r["csd_sources"]), "; ".join(r["differences"])) for r in rt["csd_only"]]
+    out.append(md_table(["TransID", "CSD program", "CSD group", "CSD source", "Differences"], rows) + "\n")
+    out.append("#### `DEFINE PROGRAM ... TRANSID(...)` attributes that disagree with `DEFINE TRANSACTION`\n")
+    out.append(f"{fmt_int(rs['program_transid_conflicts'])} program definitions name a TransID that no `DEFINE TRANSACTION` "
+               "defines, or whose `DEFINE TRANSACTION` points at a different program. The transaction map above follows "
+               "`DEFINE TRANSACTION`; on a `DEFINE PROGRAM` the `TRANSID` attribute names the mirror transaction for a "
+               "remote (distributed program link) program, not a terminal transaction.\n")
+    rows = [(r["program"], r["transid"], f"`{r['source']}`", ", ".join(r["transaction_programs"]) or "(no DEFINE TRANSACTION)",
+             "<br>".join(f"`{c}`" for c in r["transaction_sources"])) for r in rt["program_transid_conflicts"]]
+    out.append(md_table(["Program", "TRANSID attribute", "DEFINE PROGRAM source", "Program on DEFINE TRANSACTION",
+                         "DEFINE TRANSACTION source"], rows) + "\n")
 
     out.append("### Datasets (distinct DSNs seen anywhere in source)\n")
     out.append("A dataset is counted once per normalised DSN (GDG relative generations and quotes stripped). "
@@ -2435,7 +2565,10 @@ def render_inventory(estate: Estate, s: dict) -> str:
     out.append(f"### Copybooks nobody copies ({fmt_int(len(o['copybooks']))})\n")
     out.append(md_table(["Copybook", "Path", "Lines"], [(a["name"], f"`{a['path']}`", a["line_count"]) for a in o["copybooks"]]) + "\n")
     unres_cics = [e for e in estate.edges if e["category"] == "transaction->program" and e["status"] == "unresolved"]
-    out.append(f"### CSD transactions whose program has no source ({fmt_int(len(unres_cics))})\n")
+    out.append(f"### CSD transactions whose program has no source ({fmt_int(len(unres_cics))} definitions: "
+               f"{fmt_int(len({e['from'] for e in unres_cics}))} TransIDs, {fmt_int(len({e['to'] for e in unres_cics}))} programs)\n")
+    out.append("One row per `DEFINE TRANSACTION ... PROGRAM(...)` or `DEFINE PROGRAM ... TRANSID(...)`; the same TransID can "
+               "appear in more than one CSD source.\n")
     out.append(md_table(["Transaction", "Program", "Source", "Reason"],
                         [(e["from"], e["to"], cite(e["path"], e["line"]), e["detail"]) for e in unres_cics]) + "\n")
     if estate.notes:
@@ -2583,7 +2716,8 @@ def render_dependency_map(estate: Estate, s: dict) -> str:
 
     out.append("## Online: transaction → program → BMS map → copybooks → datasets\n")
     out.append("Transactions come from `DEFINE TRANSACTION ... PROGRAM(...)` in the CSD sources; maps from `EXEC CICS SEND/RECEIVE MAP ... MAPSET(...)`; "
-               "datasets from `EXEC CICS READ/WRITE/REWRITE/DELETE/STARTBR ... FILE(...)` joined to `DEFINE FILE ... DSNAME(...)`. "
+               "datasets from `EXEC CICS READ/WRITE/REWRITE/DELETE/STARTBR ... FILE(...)` joined to `DEFINE FILE ... DSNAME(...)`; "
+               "COMMAREA is every data item named in a `COMMAREA(...)` option of the program's `EXEC CICS` statements. "
                "Programs reached only by `XCTL`/`LINK` (no transaction of their own) are listed with an empty transaction cell.\n")
     rows = []
     online_programs = sorted(a["name"] for a in estate.artifacts if a["type"] == "cobol_program" and a["subtype"] == "online")
@@ -2602,9 +2736,12 @@ def render_dependency_map(estate: Estate, s: dict) -> str:
             files.setdefault(key, [cf["dsn"] or "(no CSD DSNAME)", set()])[1].add(cf["mode"])
         dss = "<br>".join(f"{k} → {v[0]} ({'/'.join(sorted(v[1]))})" for k, v in files.items())
         sql = "yes" if a["exec_sql"] else ""
-        rows.append((", ".join(f"{t} {c}" for t, c in trans), p, f"`{a['path']}`", ", ".join(maps),
+        comms = sorted({cx["options"]["COMMAREA"]["var"] or f"'{cx['options']['COMMAREA']['literal']}'"
+                        for cx in estate.cobol[a["path"]].cics if cx["options"].get("COMMAREA")})
+        rows.append((", ".join(f"{t} {c}" for t, c in trans), p, f"`{a['path']}`", ", ".join(maps), ", ".join(comms),
                      ", ".join(_copybooks_of(estate, p)), dss, sql, ", ".join(callers)))
-    out.append(md_table(["Transaction (CSD source)", "Program", "Path", "BMS mapset(s)", "Copybooks", "CICS files → dataset (mode)", "SQL", "Reached from"], rows) + "\n")
+    out.append(md_table(["Transaction (CSD source)", "Program", "Path", "BMS mapset(s)", "COMMAREA", "Copybooks",
+                         "CICS files → dataset (mode)", "SQL", "Reached from"], rows) + "\n")
 
     out.append("## Program → program calls\n")
     rows = []
@@ -2788,6 +2925,10 @@ def render_readme(estate: Estate, s: dict) -> str:
     rows.append(("Distinct datasets seen", fmt_int(s["dataset_total"])))
     rows.append(("CSD DEFINE statements", fmt_int(s["csd_entry_total"])))
     rows.append(("Scheduler job definitions", fmt_int(s["scheduler_job_total"])))
+    rt = s["readme_transactions"]
+    rows.append(("README TransIDs vs CSD", f"{rt['verdict']} ({fmt_int(rt['readme_rows'])} README / {fmt_int(rt['csd_distinct'])} CSD; "
+                                           f"{fmt_int(rt['readme_only'])} README-only, {fmt_int(rt['program_differs'])} program mismatches, "
+                                           f"{fmt_int(rt['csd_only'])} CSD-only)"))
     out.append(md_table(["Measure", "Value"], rows) + "\n")
     out.append("## Confirmed / Inferred convention\n")
     out.append("- **Confirmed** — the statement is visible in source at the cited `path:line`; a reader can open the file and see it.\n"

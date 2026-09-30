@@ -20,7 +20,7 @@
   "app/app-vsam-mq"
  ],
  "summary": {
-  "artifact_total": 237,
+  "artifact_total": 240,
   "artifact_counts": {
    "cobol_program": 44,
    "copybook": 41,
@@ -38,7 +38,8 @@
    "data_sample": 23,
    "catalog_listing": 1,
    "scheduler_def": 2,
-   "module_readme": 3
+   "module_readme": 3,
+   "placeholder": 3
   },
   "cobol_subtypes": {
    "batch": 17,
@@ -54,7 +55,7 @@
    "app-authorization-ims-db2-mq": 40,
    "app-transaction-type-db2": 27,
    "app-vsam-mq": 4,
-   "core": 166
+   "core": 169
   },
   "headline": {
    "resolved_edges": 548,
@@ -173,6 +174,18 @@
   },
   "csd_entry_total": 134,
   "scheduler_job_total": 32,
+  "readme_transactions": {
+   "readme_rows": 24,
+   "readme_distinct": 24,
+   "csd_distinct": 30,
+   "readme_rows_matching": 23,
+   "readme_rows_with_differences": 1,
+   "readme_only": 0,
+   "program_differs": 0,
+   "csd_only": 6,
+   "program_transid_conflicts": 3,
+   "verdict": "reconciled"
+  },
   "dynamic_calls_unresolved": 20,
   "datasets_jcl_only": 8,
   "lineage": {
@@ -469,7 +482,6 @@
    "exec_sql": false,
    "files": [],
    "transaction_ids": [
-    "CP00",
     "CP00"
    ],
    "jcl_steps": [],
@@ -615,7 +627,6 @@
    "exec_sql": false,
    "files": [],
    "transaction_ids": [
-    "CPVS",
     "CPVS"
    ],
    "jcl_steps": [],
@@ -737,7 +748,6 @@
    "exec_sql": false,
    "files": [],
    "transaction_ids": [
-    "CPVD",
     "CPVD"
    ],
    "jcl_steps": [],
@@ -2742,7 +2752,6 @@
    "exec_sql": true,
    "files": [],
    "transaction_ids": [
-    "CTLI",
     "CTLI"
    ],
    "jcl_steps": [],
@@ -2880,7 +2889,6 @@
    "exec_sql": true,
    "files": [],
    "transaction_ids": [
-    "CTTU",
     "CTTU"
    ],
    "jcl_steps": [],
@@ -4101,7 +4109,6 @@
    "exec_sql": false,
    "files": [],
    "transaction_ids": [
-    "CDRA",
     "CDRA"
    ],
    "jcl_steps": [],
@@ -4255,7 +4262,6 @@
    "exec_sql": false,
    "files": [],
    "transaction_ids": [
-    "CDRD",
     "CDRD"
    ],
    "jcl_steps": [],
@@ -7598,7 +7604,6 @@
    "exec_sql": false,
    "files": [],
    "transaction_ids": [
-    "CAVW",
     "CAVW"
    ],
    "jcl_steps": [],
@@ -8175,7 +8180,6 @@
    "exec_sql": false,
    "files": [],
    "transaction_ids": [
-    "CCDL",
     "CCDL"
    ],
    "jcl_steps": [],
@@ -8614,7 +8618,6 @@
    "exec_sql": false,
    "files": [],
    "transaction_ids": [
-    "CC00",
     "CC00"
    ],
    "jcl_steps": [],
@@ -9440,6 +9443,26 @@
    "name_prefix_class": "other prefix",
    "exec_sql_statements": 0,
    "cics_files": []
+  },
+  {
+   "path": "app/cpy-bms/.gitkeep",
+   "type": "placeholder",
+   "subtype": null,
+   "module": "core",
+   "name": ".GITKEEP",
+   "line_count": 0,
+   "byte_size": 0,
+   "copy_targets": [],
+   "call_targets": [],
+   "cics_verbs": {},
+   "exec_sql": false,
+   "files": [],
+   "transaction_ids": [],
+   "jcl_steps": [],
+   "csd_definitions": [],
+   "bms": null,
+   "scheduler_jobs": [],
+   "notes": []
   },
   {
    "path": "app/cpy-bms/COACTUP.CPY",
@@ -10485,6 +10508,26 @@
    "cics_files": []
   },
   {
+   "path": "app/csd/.gitkeep",
+   "type": "placeholder",
+   "subtype": null,
+   "module": "core",
+   "name": ".GITKEEP",
+   "line_count": 0,
+   "byte_size": 0,
+   "copy_targets": [],
+   "call_targets": [],
+   "cics_verbs": {},
+   "exec_sql": false,
+   "files": [],
+   "transaction_ids": [],
+   "jcl_steps": [],
+   "csd_definitions": [],
+   "bms": null,
+   "scheduler_jobs": [],
+   "notes": []
+  },
+  {
    "path": "app/csd/CARDDEMO.CSD",
    "type": "csd",
    "subtype": null,
@@ -11269,6 +11312,26 @@
    "name": "TRANTYPE",
    "line_count": 7,
    "byte_size": 433,
+   "copy_targets": [],
+   "call_targets": [],
+   "cics_verbs": {},
+   "exec_sql": false,
+   "files": [],
+   "transaction_ids": [],
+   "jcl_steps": [],
+   "csd_definitions": [],
+   "bms": null,
+   "scheduler_jobs": [],
+   "notes": []
+  },
+  {
+   "path": "app/data/EBCDIC/.gitkeep",
+   "type": "placeholder",
+   "subtype": null,
+   "module": "core",
+   "name": ".GITKEEP",
+   "line_count": 0,
+   "byte_size": 0,
    "copy_targets": [],
    "call_targets": [],
    "cics_verbs": {},
@@ -40464,6 +40527,580 @@
    "path": "app/scheduler/CardDemo.controlm"
   }
  ],
+ "readme_transaction_reconciliation": {
+  "source": "README.md",
+  "summary": {
+   "readme_rows": 24,
+   "readme_distinct": 24,
+   "csd_distinct": 30,
+   "readme_rows_matching": 23,
+   "readme_rows_with_differences": 1,
+   "readme_only": 0,
+   "program_differs": 0,
+   "csd_only": 6,
+   "program_transid_conflicts": 3,
+   "verdict": "reconciled"
+  },
+  "readme_rows": [
+   {
+    "transaction": "CC00",
+    "readme_map": "COSGN00",
+    "readme_program": "COSGN00C",
+    "readme_optional_module": null,
+    "readme_line": 271,
+    "csd_programs": [
+     "COSGN00C"
+    ],
+    "csd_sources": [
+     "app/csd/CARDDEMO.CSD:378"
+    ],
+    "source_maps": [
+     "COSGN00"
+    ],
+    "status": "match",
+    "differences": []
+   },
+   {
+    "transaction": "CM00",
+    "readme_map": "COMEN01",
+    "readme_program": "COMEN01C",
+    "readme_optional_module": null,
+    "readme_line": 272,
+    "csd_programs": [
+     "COMEN01C"
+    ],
+    "csd_sources": [
+     "app/csd/CARDDEMO.CSD:399"
+    ],
+    "source_maps": [
+     "COMEN01"
+    ],
+    "status": "match",
+    "differences": []
+   },
+   {
+    "transaction": "CAVW",
+    "readme_map": "COACTVW",
+    "readme_program": "COACTVWC",
+    "readme_optional_module": null,
+    "readme_line": 273,
+    "csd_programs": [
+     "COACTVWC"
+    ],
+    "csd_sources": [
+     "app/csd/CARDDEMO.CSD:317"
+    ],
+    "source_maps": [
+     "COACTVW"
+    ],
+    "status": "match",
+    "differences": []
+   },
+   {
+    "transaction": "CAUP",
+    "readme_map": "COACTUP",
+    "readme_program": "COACTUPC",
+    "readme_optional_module": null,
+    "readme_line": 274,
+    "csd_programs": [
+     "COACTUPC"
+    ],
+    "csd_sources": [
+     "app/csd/CARDDEMO.CSD:306"
+    ],
+    "source_maps": [
+     "COACTUP"
+    ],
+    "status": "match",
+    "differences": []
+   },
+   {
+    "transaction": "CCLI",
+    "readme_map": "COCRDLI",
+    "readme_program": "COCRDLIC",
+    "readme_optional_module": null,
+    "readme_line": 275,
+    "csd_programs": [
+     "COCRDLIC"
+    ],
+    "csd_sources": [
+     "app/csd/CARDDEMO.CSD:357"
+    ],
+    "source_maps": [
+     "COCRDLI"
+    ],
+    "status": "match",
+    "differences": []
+   },
+   {
+    "transaction": "CCDL",
+    "readme_map": "COCRDSL",
+    "readme_program": "COCRDSLC",
+    "readme_optional_module": null,
+    "readme_line": 276,
+    "csd_programs": [
+     "COCRDSLC"
+    ],
+    "csd_sources": [
+     "app/csd/CARDDEMO.CSD:347"
+    ],
+    "source_maps": [
+     "COCRDSL"
+    ],
+    "status": "match",
+    "differences": []
+   },
+   {
+    "transaction": "CCUP",
+    "readme_map": "COCRDUP",
+    "readme_program": "COCRDUPC",
+    "readme_optional_module": null,
+    "readme_line": 277,
+    "csd_programs": [
+     "COCRDUPC"
+    ],
+    "csd_sources": [
+     "app/csd/CARDDEMO.CSD:367"
+    ],
+    "source_maps": [
+     "COCRDUP"
+    ],
+    "status": "match",
+    "differences": []
+   },
+   {
+    "transaction": "CT00",
+    "readme_map": "COTRN00",
+    "readme_program": "COTRN00C",
+    "readme_optional_module": null,
+    "readme_line": 278,
+    "csd_programs": [
+     "COTRN00C"
+    ],
+    "csd_sources": [
+     "app/csd/CARDDEMO.CSD:419"
+    ],
+    "source_maps": [
+     "COTRN00"
+    ],
+    "status": "match",
+    "differences": []
+   },
+   {
+    "transaction": "CT01",
+    "readme_map": "COTRN01",
+    "readme_program": "COTRN01C",
+    "readme_optional_module": null,
+    "readme_line": 279,
+    "csd_programs": [
+     "COTRN01C"
+    ],
+    "csd_sources": [
+     "app/csd/CARDDEMO.CSD:429"
+    ],
+    "source_maps": [
+     "COTRN01"
+    ],
+    "status": "match",
+    "differences": []
+   },
+   {
+    "transaction": "CT02",
+    "readme_map": "COTRN02",
+    "readme_program": "COTRN02C",
+    "readme_optional_module": null,
+    "readme_line": 280,
+    "csd_programs": [
+     "COTRN02C"
+    ],
+    "csd_sources": [
+     "app/csd/CARDDEMO.CSD:439"
+    ],
+    "source_maps": [
+     "COTRN02"
+    ],
+    "status": "match",
+    "differences": []
+   },
+   {
+    "transaction": "CR00",
+    "readme_map": "CORPT00",
+    "readme_program": "CORPT00C",
+    "readme_optional_module": null,
+    "readme_line": 281,
+    "csd_programs": [
+     "CORPT00C"
+    ],
+    "csd_sources": [
+     "app/csd/CARDDEMO.CSD:409"
+    ],
+    "source_maps": [
+     "CORPT00"
+    ],
+    "status": "match",
+    "differences": []
+   },
+   {
+    "transaction": "CB00",
+    "readme_map": "COBIL00",
+    "readme_program": "COBIL00C",
+    "readme_optional_module": null,
+    "readme_line": 282,
+    "csd_programs": [
+     "COBIL00C"
+    ],
+    "csd_sources": [
+     "app/csd/CARDDEMO.CSD:337"
+    ],
+    "source_maps": [
+     "COBIL00"
+    ],
+    "status": "match",
+    "differences": []
+   },
+   {
+    "transaction": "CPVS",
+    "readme_map": "COPAU00",
+    "readme_program": "COPAUS0C",
+    "readme_optional_module": "IMS-DB2-MQ: Pending Authorizations",
+    "readme_line": 283,
+    "csd_programs": [
+     "COPAUS0C"
+    ],
+    "csd_sources": [
+     "app/app-authorization-ims-db2-mq/csd/CRDDEMO2.csd:49"
+    ],
+    "source_maps": [
+     "COPAU00"
+    ],
+    "status": "match",
+    "differences": []
+   },
+   {
+    "transaction": "CPVD",
+    "readme_map": "COPAU01",
+    "readme_program": "COPAUS1C",
+    "readme_optional_module": "IMS-DB2-MQ: Pending Authorizations",
+    "readme_line": 284,
+    "csd_programs": [
+     "COPAUS1C"
+    ],
+    "csd_sources": [
+     "app/app-authorization-ims-db2-mq/csd/CRDDEMO2.csd:39"
+    ],
+    "source_maps": [
+     "COPAU01"
+    ],
+    "status": "match",
+    "differences": []
+   },
+   {
+    "transaction": "CP00",
+    "readme_map": null,
+    "readme_program": "COPAUA0C",
+    "readme_optional_module": "IMS-DB2-MQ: Pending Authorizations",
+    "readme_line": 285,
+    "csd_programs": [
+     "COPAUA0C"
+    ],
+    "csd_sources": [
+     "app/app-authorization-ims-db2-mq/csd/CRDDEMO2.csd:59"
+    ],
+    "source_maps": [],
+    "status": "match",
+    "differences": []
+   },
+   {
+    "transaction": "CA00",
+    "readme_map": "COADM01",
+    "readme_program": "COADM01C",
+    "readme_optional_module": "Db2: Transaction Type Mgmt",
+    "readme_line": 286,
+    "csd_programs": [
+     "COADM01C"
+    ],
+    "csd_sources": [
+     "app/csd/CARDDEMO.CSD:327"
+    ],
+    "source_maps": [
+     "COADM01"
+    ],
+    "status": "difference",
+    "differences": [
+     "README optional-module column is Db2: Transaction Type Mgmt; CSD definition is in app/csd/CARDDEMO.CSD"
+    ]
+   },
+   {
+    "transaction": "CU00",
+    "readme_map": "COUSR00",
+    "readme_program": "COUSR00C",
+    "readme_optional_module": null,
+    "readme_line": 287,
+    "csd_programs": [
+     "COUSR00C"
+    ],
+    "csd_sources": [
+     "app/csd/CARDDEMO.CSD:449"
+    ],
+    "source_maps": [
+     "COUSR00"
+    ],
+    "status": "match",
+    "differences": []
+   },
+   {
+    "transaction": "CU01",
+    "readme_map": "COUSR01",
+    "readme_program": "COUSR01C",
+    "readme_optional_module": null,
+    "readme_line": 288,
+    "csd_programs": [
+     "COUSR01C"
+    ],
+    "csd_sources": [
+     "app/csd/CARDDEMO.CSD:459"
+    ],
+    "source_maps": [
+     "COUSR01"
+    ],
+    "status": "match",
+    "differences": []
+   },
+   {
+    "transaction": "CU02",
+    "readme_map": "COUSR02",
+    "readme_program": "COUSR02C",
+    "readme_optional_module": null,
+    "readme_line": 289,
+    "csd_programs": [
+     "COUSR02C"
+    ],
+    "csd_sources": [
+     "app/csd/CARDDEMO.CSD:469"
+    ],
+    "source_maps": [
+     "COUSR02"
+    ],
+    "status": "match",
+    "differences": []
+   },
+   {
+    "transaction": "CU03",
+    "readme_map": "COUSR03",
+    "readme_program": "COUSR03C",
+    "readme_optional_module": null,
+    "readme_line": 290,
+    "csd_programs": [
+     "COUSR03C"
+    ],
+    "csd_sources": [
+     "app/csd/CARDDEMO.CSD:479"
+    ],
+    "source_maps": [
+     "COUSR03"
+    ],
+    "status": "match",
+    "differences": []
+   },
+   {
+    "transaction": "CTTU",
+    "readme_map": "COTRTUP",
+    "readme_program": "COTRTUPC",
+    "readme_optional_module": "Db2: Transaction Type Mgmt",
+    "readme_line": 291,
+    "csd_programs": [
+     "COTRTUPC"
+    ],
+    "csd_sources": [
+     "app/app-transaction-type-db2/csd/CRDDEMOD.csd:35"
+    ],
+    "source_maps": [
+     "COTRTUP"
+    ],
+    "status": "match",
+    "differences": []
+   },
+   {
+    "transaction": "CTLI",
+    "readme_map": "COTRTLI",
+    "readme_program": "COTRTLIC",
+    "readme_optional_module": "Db2: Transaction Type Mgmt",
+    "readme_line": 292,
+    "csd_programs": [
+     "COTRTLIC"
+    ],
+    "csd_sources": [
+     "app/app-transaction-type-db2/csd/CRDDEMOD.csd:25"
+    ],
+    "source_maps": [
+     "COTRTLI"
+    ],
+    "status": "match",
+    "differences": []
+   },
+   {
+    "transaction": "CDRD",
+    "readme_map": null,
+    "readme_program": "CODATE01",
+    "readme_optional_module": "MQ Integration",
+    "readme_line": 293,
+    "csd_programs": [
+     "CODATE01"
+    ],
+    "csd_sources": [
+     "app/app-vsam-mq/csd/CRDDEMOM.csd:27"
+    ],
+    "source_maps": [],
+    "status": "match",
+    "differences": []
+   },
+   {
+    "transaction": "CDRA",
+    "readme_map": null,
+    "readme_program": "COACCT01",
+    "readme_optional_module": "MQ Integration",
+    "readme_line": 294,
+    "csd_programs": [
+     "COACCT01"
+    ],
+    "csd_sources": [
+     "app/app-vsam-mq/csd/CRDDEMOM.csd:17"
+    ],
+    "source_maps": [],
+    "status": "match",
+    "differences": []
+   }
+  ],
+  "csd_only": [
+   {
+    "transaction": "CCDM",
+    "csd_programs": [
+     "COADM00C"
+    ],
+    "csd_sources": [
+     "app/jcl/CBADMCDJ.jcl:147"
+    ],
+    "csd_groups": [
+     "CARDDEMO"
+    ],
+    "differences": [
+     "not in the README transaction table",
+     "program COADM00C has no source in repository"
+    ]
+   },
+   {
+    "transaction": "CCT1",
+    "csd_programs": [
+     "COTSTP1C"
+    ],
+    "csd_sources": [
+     "app/jcl/CBADMCDJ.jcl:150"
+    ],
+    "csd_groups": [
+     "CARDDEMO"
+    ],
+    "differences": [
+     "not in the README transaction table",
+     "program COTSTP1C has no source in repository"
+    ]
+   },
+   {
+    "transaction": "CCT2",
+    "csd_programs": [
+     "COTSTP2C"
+    ],
+    "csd_sources": [
+     "app/jcl/CBADMCDJ.jcl:152"
+    ],
+    "csd_groups": [
+     "CARDDEMO"
+    ],
+    "differences": [
+     "not in the README transaction table",
+     "program COTSTP2C has no source in repository"
+    ]
+   },
+   {
+    "transaction": "CCT3",
+    "csd_programs": [
+     "COTSTP3C"
+    ],
+    "csd_sources": [
+     "app/jcl/CBADMCDJ.jcl:154"
+    ],
+    "csd_groups": [
+     "CARDDEMO"
+    ],
+    "differences": [
+     "not in the README transaction table",
+     "program COTSTP3C has no source in repository"
+    ]
+   },
+   {
+    "transaction": "CCT4",
+    "csd_programs": [
+     "COTSTP4C"
+    ],
+    "csd_sources": [
+     "app/jcl/CBADMCDJ.jcl:156"
+    ],
+    "csd_groups": [
+     "CARDDEMO"
+    ],
+    "differences": [
+     "not in the README transaction table",
+     "program COTSTP4C has no source in repository"
+    ]
+   },
+   {
+    "transaction": "CDV1",
+    "csd_programs": [
+     "COCRDSEC"
+    ],
+    "csd_sources": [
+     "app/csd/CARDDEMO.CSD:388"
+    ],
+    "csd_groups": [
+     "CARDDEMO"
+    ],
+    "differences": [
+     "not in the README transaction table",
+     "program COCRDSEC has no source in repository"
+    ]
+   }
+  ],
+  "program_transid_conflicts": [
+   {
+    "program": "COADM00C",
+    "transid": "CCAD",
+    "source": "app/jcl/CBADMCDJ.jcl:130",
+    "transaction_programs": [],
+    "transaction_sources": []
+   },
+   {
+    "program": "COCRDLIC",
+    "transid": "CC00",
+    "source": "app/csd/CARDDEMO.CSD:203",
+    "transaction_programs": [
+     "COSGN00C"
+    ],
+    "transaction_sources": [
+     "app/csd/CARDDEMO.CSD:378"
+    ]
+   },
+   {
+    "program": "COPAUS2C",
+    "transid": "CPVD",
+    "source": "app/app-authorization-ims-db2-mq/csd/CRDDEMO2.csd:32",
+    "transaction_programs": [
+     "COPAUS1C"
+    ],
+    "transaction_sources": [
+     "app/app-authorization-ims-db2-mq/csd/CRDDEMO2.csd:39"
+    ]
+   }
+  ]
+ },
  "constructs": [
   {
    "construct": "ALTER",

@@ -105,7 +105,7 @@ class TestControlTotals(unittest.TestCase):
 
     def test_pinned_control_totals(self):
         """Pinned to the current source tree so a change in any total is deliberate."""
-        self.assertEqual(self.s["artifact_total"], 237)
+        self.assertEqual(self.s["artifact_total"], 240)
         self.assertEqual(self.s["headline"]["resolved_edges"], 548)
         self.assertEqual(self.s["headline"]["unresolved_edges"], 125)
         self.assertEqual(self.s["construct_total"], 2658)
@@ -177,6 +177,94 @@ class TestControlTotals(unittest.TestCase):
         self.assertEqual(len(md_table_rows(dep, "### Programs no JCL, CSD, or resolved call references")), self.s["orphans"]["programs"])
         self.assertEqual(len(md_table_rows(dep, "### Copybooks nobody copies")), self.s["orphans"]["copybooks"])
         self.assertEqual(len(md_table_rows(dep, "### Data-bearing datasets no application program opens")), self.s["orphans"]["datasets"])
+
+
+class TestInventoryCoverage(unittest.TestCase):
+    """Every file under app/ is an artifact exactly once."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.paths = [a["path"] for a in load_json()["artifacts"]]
+
+    def test_every_file_under_app_listed_once(self):
+        on_disk = sorted(p.relative_to(ROOT).as_posix() for p in (ROOT / "app").rglob("*") if p.is_file())
+        self.assertEqual(sorted(self.paths), on_disk)
+        self.assertEqual(len(self.paths), len(set(self.paths)))
+
+    def test_every_tracked_file_under_app_listed(self):
+        r = subprocess.run(["git", "ls-files", "-z", "app"], cwd=ROOT, capture_output=True, text=True)
+        if r.returncode != 0:
+            self.skipTest("not a git checkout")
+        tracked = {p for p in r.stdout.split("\0") if p}
+        self.assertEqual(tracked - set(self.paths), set())
+
+    def test_placeholders_are_typed_not_skipped(self):
+        types = {a["path"]: a["type"] for a in load_json()["artifacts"]}
+        for p in ("app/cpy-bms/.gitkeep", "app/csd/.gitkeep", "app/data/EBCDIC/.gitkeep"):
+            self.assertEqual(types.get(p), "placeholder", p)
+
+
+class TestReadmeTransactionReconciliation(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.rec = load_json()["readme_transaction_reconciliation"]
+        cls.s = cls.rec["summary"]
+
+    def test_readme_table_parsed_in_full(self):
+        lines = (ROOT / "README.md").read_text(encoding="utf-8").splitlines()
+        head = next(i for i, l in enumerate(lines) if re.match(r"^\|\s*Transaction\s*\|\s*BMS Map\s*\|", l))
+        ids = []
+        for l in lines[head + 2:]:
+            if not l.startswith("|"):
+                break
+            ids.append(l.strip("|").split("|")[0].strip())
+        self.assertEqual(len(ids), 24)
+        self.assertEqual(self.s["readme_rows"], len(ids))
+        self.assertEqual(self.s["readme_distinct"], len(set(ids)))
+        self.assertEqual([r["transaction"] for r in self.rec["readme_rows"]], ids)
+
+    def test_every_readme_transid_defined_in_csd_with_same_program(self):
+        self.assertEqual(self.s["verdict"], "reconciled")
+        self.assertEqual(self.s["readme_only"], 0)
+        self.assertEqual(self.s["program_differs"], 0)
+        csd = {(e["name"], e["attrs"].get("PROGRAM", "").upper()) for e in load_json()["csd_entries"] if e["kind"] == "TRANSACTION"}
+        for r in self.rec["readme_rows"]:
+            self.assertIn((r["transaction"], r["readme_program"]), csd)
+
+    def test_csd_only_transids_are_the_sourceless_ones(self):
+        only = {r["transaction"]: r["csd_programs"] for r in self.rec["csd_only"]}
+        self.assertEqual(only, {"CCDM": ["COADM00C"], "CCT1": ["COTSTP1C"], "CCT2": ["COTSTP2C"],
+                                "CCT3": ["COTSTP3C"], "CCT4": ["COTSTP4C"], "CDV1": ["COCRDSEC"]})
+        for r in self.rec["csd_only"]:
+            self.assertTrue(any("has no source" in d for d in r["differences"]), r)
+        self.assertEqual(self.s["csd_distinct"], self.s["readme_distinct"] + self.s["csd_only"])
+
+    def test_row_level_differences_listed(self):
+        diffs = {r["transaction"]: r["differences"] for r in self.rec["readme_rows"] if r["differences"]}
+        self.assertEqual(set(diffs), {"CA00"})
+        self.assertIn("app/csd/CARDDEMO.CSD", diffs["CA00"][0])
+        self.assertEqual(self.s["readme_rows_with_differences"], len(diffs))
+
+    def test_program_transid_attribute_conflicts(self):
+        got = {(r["program"], r["transid"]) for r in self.rec["program_transid_conflicts"]}
+        self.assertEqual(got, {("COADM00C", "CCAD"), ("COCRDLIC", "CC00"), ("COPAUS2C", "CPVD")})
+
+    def test_markdown_matches_json(self):
+        text = md("01-inventory.md")
+        rows = md_table_rows(text, "### README transaction table vs CSD")
+        self.assertEqual([r[0] for r in rows], [r["transaction"] for r in self.rec["readme_rows"]])
+        only = md_table_rows(text, "#### CSD transactions absent from the README table")
+        self.assertEqual([r[0] for r in only], [r["transaction"] for r in self.rec["csd_only"]])
+        self.assertIn(f"Verdict: **{self.s['verdict']}**", text)
+
+    def test_parser_fixture(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            f = Path(tmp) / "README.md"
+            f.write_text("x\n| Transaction | BMS Map | Program | Function | Optional Module |\n|:--|:--|:--|:--|:--|\n"
+                         "| AB01 | MAP1 | PGM1 | Do it | |\n| AB02 | | PGM2 | Other | Db2 |\n\nafter\n", encoding="utf-8")
+            rows = bd.parse_readme_transactions(f)
+        self.assertEqual([(r["transaction"], r["map"], r["program"], r["optional_module"], r["line"]) for r in rows],
+                         [("AB01", "MAP1", "PGM1", None, 4), ("AB02", None, "PGM2", "Db2", 5)])
 
 
 class TestRealDependencyEdges(unittest.TestCase):
@@ -507,6 +595,7 @@ class TestStaleDetection(unittest.TestCase):
             src = ROOT / sub
             dst = Path(tmp) / sub
             shutil.copytree(src, dst, ignore=shutil.ignore_patterns("__pycache__", ".pytest_cache"))
+        shutil.copy2(ROOT / "README.md", Path(tmp) / "README.md")
 
     def test_check_fails_on_stale_generated_file(self):
         with tempfile.TemporaryDirectory() as tmp:

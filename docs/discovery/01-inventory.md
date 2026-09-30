@@ -3,7 +3,7 @@
 
 # 01 - Artifact inventory
 
-Static inventory of `app/cbl`, `app/cpy`, `app/cpy-bms`, `app/bms`, `app/jcl`, `app/proc`, `app/csd`, `app/asm`, `app/maclib`, `app/catlg`, `app/ctl`, `app/data`, `app/scheduler`, `app/app-authorization-ims-db2-mq`, `app/app-transaction-type-db2`, `app/app-vsam-mq` — **237 artifacts**. Every row below is derived from the source tree by the generator; nothing is hand-typed.
+Static inventory of `app/cbl`, `app/cpy`, `app/cpy-bms`, `app/bms`, `app/jcl`, `app/proc`, `app/csd`, `app/asm`, `app/maclib`, `app/catlg`, `app/ctl`, `app/data`, `app/scheduler`, `app/app-authorization-ims-db2-mq`, `app/app-transaction-type-db2`, `app/app-vsam-mq` — **240 artifacts**. Every row below is derived from the source tree by the generator; nothing is hand-typed.
 
 ## Counts by artifact type
 
@@ -26,7 +26,8 @@ Static inventory of `app/cbl`, `app/cpy`, `app/cpy-bms`, `app/bms`, `app/jcl`, `
 | Catalog listing | catalog_listing | 1 |
 | Scheduler definition | scheduler_def | 2 |
 | Module documentation | module_readme | 3 |
-| **Total** |  | **237** |
+| Directory placeholder (empty marker file) | placeholder | 3 |
+| **Total** |  | **240** |
 
 ### COBOL programs by classification
 
@@ -58,7 +59,7 @@ Programs whose name prefix disagrees with their content classification:
 | app-authorization-ims-db2-mq | 40 |
 | app-transaction-type-db2 | 27 |
 | app-vsam-mq | 4 |
-| core | 166 |
+| core | 169 |
 
 ### CICS CSD definitions
 
@@ -73,6 +74,58 @@ Programs whose name prefix disagrees with their content classification:
 | TDQUEUE | 1 |
 | TRANSACTION | 30 |
 | **Total DEFINE statements** | **134** |
+
+### README transaction table vs CSD
+
+The online transaction table in the repository `README.md` lists **24 TransIDs**; the CSD sources (`DEFINE TRANSACTION`, including the in-stream `DFHCSDUP` input in JCL) define **30**. Verdict: **reconciled** — 0 README TransIDs have no CSD definition, 0 name a different program than the CSD, 6 CSD TransIDs are absent from the README. 23 README rows agree with the CSD and the source on every column checked; 1 carry a difference (map sent by the program, optional-module column).
+
+| TransID | README row | README program | README map | CSD program | CSD source | Mapsets sent by program | Status | Differences |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| CC00 | `README.md:271` | COSGN00C | COSGN00 | COSGN00C | `app/csd/CARDDEMO.CSD:378` | COSGN00 | match |  |
+| CM00 | `README.md:272` | COMEN01C | COMEN01 | COMEN01C | `app/csd/CARDDEMO.CSD:399` | COMEN01 | match |  |
+| CAVW | `README.md:273` | COACTVWC | COACTVW | COACTVWC | `app/csd/CARDDEMO.CSD:317` | COACTVW | match |  |
+| CAUP | `README.md:274` | COACTUPC | COACTUP | COACTUPC | `app/csd/CARDDEMO.CSD:306` | COACTUP | match |  |
+| CCLI | `README.md:275` | COCRDLIC | COCRDLI | COCRDLIC | `app/csd/CARDDEMO.CSD:357` | COCRDLI | match |  |
+| CCDL | `README.md:276` | COCRDSLC | COCRDSL | COCRDSLC | `app/csd/CARDDEMO.CSD:347` | COCRDSL | match |  |
+| CCUP | `README.md:277` | COCRDUPC | COCRDUP | COCRDUPC | `app/csd/CARDDEMO.CSD:367` | COCRDUP | match |  |
+| CT00 | `README.md:278` | COTRN00C | COTRN00 | COTRN00C | `app/csd/CARDDEMO.CSD:419` | COTRN00 | match |  |
+| CT01 | `README.md:279` | COTRN01C | COTRN01 | COTRN01C | `app/csd/CARDDEMO.CSD:429` | COTRN01 | match |  |
+| CT02 | `README.md:280` | COTRN02C | COTRN02 | COTRN02C | `app/csd/CARDDEMO.CSD:439` | COTRN02 | match |  |
+| CR00 | `README.md:281` | CORPT00C | CORPT00 | CORPT00C | `app/csd/CARDDEMO.CSD:409` | CORPT00 | match |  |
+| CB00 | `README.md:282` | COBIL00C | COBIL00 | COBIL00C | `app/csd/CARDDEMO.CSD:337` | COBIL00 | match |  |
+| CPVS | `README.md:283` | COPAUS0C | COPAU00 | COPAUS0C | `app/app-authorization-ims-db2-mq/csd/CRDDEMO2.csd:49` | COPAU00 | match |  |
+| CPVD | `README.md:284` | COPAUS1C | COPAU01 | COPAUS1C | `app/app-authorization-ims-db2-mq/csd/CRDDEMO2.csd:39` | COPAU01 | match |  |
+| CP00 | `README.md:285` | COPAUA0C |  | COPAUA0C | `app/app-authorization-ims-db2-mq/csd/CRDDEMO2.csd:59` |  | match |  |
+| CA00 | `README.md:286` | COADM01C | COADM01 | COADM01C | `app/csd/CARDDEMO.CSD:327` | COADM01 | difference | README optional-module column is Db2: Transaction Type Mgmt; CSD definition is in app/csd/CARDDEMO.CSD |
+| CU00 | `README.md:287` | COUSR00C | COUSR00 | COUSR00C | `app/csd/CARDDEMO.CSD:449` | COUSR00 | match |  |
+| CU01 | `README.md:288` | COUSR01C | COUSR01 | COUSR01C | `app/csd/CARDDEMO.CSD:459` | COUSR01 | match |  |
+| CU02 | `README.md:289` | COUSR02C | COUSR02 | COUSR02C | `app/csd/CARDDEMO.CSD:469` | COUSR02 | match |  |
+| CU03 | `README.md:290` | COUSR03C | COUSR03 | COUSR03C | `app/csd/CARDDEMO.CSD:479` | COUSR03 | match |  |
+| CTTU | `README.md:291` | COTRTUPC | COTRTUP | COTRTUPC | `app/app-transaction-type-db2/csd/CRDDEMOD.csd:35` | COTRTUP | match |  |
+| CTLI | `README.md:292` | COTRTLIC | COTRTLI | COTRTLIC | `app/app-transaction-type-db2/csd/CRDDEMOD.csd:25` | COTRTLI | match |  |
+| CDRD | `README.md:293` | CODATE01 |  | CODATE01 | `app/app-vsam-mq/csd/CRDDEMOM.csd:27` |  | match |  |
+| CDRA | `README.md:294` | COACCT01 |  | COACCT01 | `app/app-vsam-mq/csd/CRDDEMOM.csd:17` |  | match |  |
+
+#### CSD transactions absent from the README table
+
+| TransID | CSD program | CSD group | CSD source | Differences |
+| --- | --- | --- | --- | --- |
+| CCDM | COADM00C | CARDDEMO | `app/jcl/CBADMCDJ.jcl:147` | not in the README transaction table; program COADM00C has no source in repository |
+| CCT1 | COTSTP1C | CARDDEMO | `app/jcl/CBADMCDJ.jcl:150` | not in the README transaction table; program COTSTP1C has no source in repository |
+| CCT2 | COTSTP2C | CARDDEMO | `app/jcl/CBADMCDJ.jcl:152` | not in the README transaction table; program COTSTP2C has no source in repository |
+| CCT3 | COTSTP3C | CARDDEMO | `app/jcl/CBADMCDJ.jcl:154` | not in the README transaction table; program COTSTP3C has no source in repository |
+| CCT4 | COTSTP4C | CARDDEMO | `app/jcl/CBADMCDJ.jcl:156` | not in the README transaction table; program COTSTP4C has no source in repository |
+| CDV1 | COCRDSEC | CARDDEMO | `app/csd/CARDDEMO.CSD:388` | not in the README transaction table; program COCRDSEC has no source in repository |
+
+#### `DEFINE PROGRAM ... TRANSID(...)` attributes that disagree with `DEFINE TRANSACTION`
+
+3 program definitions name a TransID that no `DEFINE TRANSACTION` defines, or whose `DEFINE TRANSACTION` points at a different program. The transaction map above follows `DEFINE TRANSACTION`; on a `DEFINE PROGRAM` the `TRANSID` attribute names the mirror transaction for a remote (distributed program link) program, not a terminal transaction.
+
+| Program | TRANSID attribute | DEFINE PROGRAM source | Program on DEFINE TRANSACTION | DEFINE TRANSACTION source |
+| --- | --- | --- | --- | --- |
+| COADM00C | CCAD | `app/jcl/CBADMCDJ.jcl:130` | (no DEFINE TRANSACTION) |  |
+| COCRDLIC | CC00 | `app/csd/CARDDEMO.CSD:203` | COSGN00C | `app/csd/CARDDEMO.CSD:378` |
+| COPAUS2C | CPVD | `app/app-authorization-ims-db2-mq/csd/CRDDEMO2.csd:32` | COPAUS1C | `app/app-authorization-ims-db2-mq/csd/CRDDEMO2.csd:39` |
 
 ### Datasets (distinct DSNs seen anywhere in source)
 
@@ -137,9 +190,9 @@ One row per artifact. `Depends on` lists `COPY`/`INCLUDE` targets for COBOL, `CO
 | `app/app-authorization-ims-db2-mq/bms/COPAU00.bms` | bms_map | COPAU00 | 515 | mapset COPAU00; maps COPAU0A |  |  |  |  |
 | `app/app-authorization-ims-db2-mq/bms/COPAU01.bms` | bms_map | COPAU01 | 294 | mapset COPAU01; maps COPAU1A |  |  |  |  |
 | `app/app-authorization-ims-db2-mq/cbl/CBPAUP0C.cbl` | cobol_program / batch | CBPAUP0C | 386 | CIPAUSMY, CIPAUDTY |  |  |  |  |
-| `app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl` | cobol_program / online | COPAUA0C | 1,026 | CMQODV (unresolved), CMQMDV (unresolved), CMQODV (unresolved), CMQMDV (unresolved), CMQV (unresolved), CMQTML (unresolved), CMQPMOV (unresolved), CMQGMOV (unresolved), CCPAURQY, CCPAURLY, CCPAUERY, CIPAUSMY, CIPAUDTY, CVACT03Y, CVACT01Y, CVCUS01Y | MQOPEN [static], MQGET [static], MQPUT1 [static], MQCLOSE [static] | ASKTIME×2, FORMATTIME×2, READ×3, RETRIEVE×1, RETURN×2, SYNCPOINT×1, WRITEQ×1 |  | CP00, CP00 |
-| `app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl` | cobol_program / online | COPAUS0C | 1,032 | COCOM01Y, COPAU00, COTTL01Y, CSDAT01Y, CSMSG01Y, CSMSG02Y, CVACT01Y, CVACT02Y, CVACT03Y, CVCUS01Y, CIPAUSMY, CIPAUDTY, DFHAID (unresolved), DFHBMSCA (unresolved) |  | READ×3, RECEIVE MAP×1, RETURN×1, SEND MAP×2, SYNCPOINT×1, XCTL×2 |  | CPVS, CPVS |
-| `app/app-authorization-ims-db2-mq/cbl/COPAUS1C.cbl` | cobol_program / online | COPAUS1C | 604 | COCOM01Y, COPAU01, COTTL01Y, CSDAT01Y, CSMSG01Y, CSMSG02Y, CIPAUSMY, CIPAUDTY, DFHAID (unresolved), DFHBMSCA (unresolved) |  | LINK×1, RECEIVE MAP×1, RETURN×1, SEND MAP×2, SYNCPOINT×2, XCTL×1 |  | CPVD, CPVD |
+| `app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl` | cobol_program / online | COPAUA0C | 1,026 | CMQODV (unresolved), CMQMDV (unresolved), CMQODV (unresolved), CMQMDV (unresolved), CMQV (unresolved), CMQTML (unresolved), CMQPMOV (unresolved), CMQGMOV (unresolved), CCPAURQY, CCPAURLY, CCPAUERY, CIPAUSMY, CIPAUDTY, CVACT03Y, CVACT01Y, CVCUS01Y | MQOPEN [static], MQGET [static], MQPUT1 [static], MQCLOSE [static] | ASKTIME×2, FORMATTIME×2, READ×3, RETRIEVE×1, RETURN×2, SYNCPOINT×1, WRITEQ×1 |  | CP00 |
+| `app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl` | cobol_program / online | COPAUS0C | 1,032 | COCOM01Y, COPAU00, COTTL01Y, CSDAT01Y, CSMSG01Y, CSMSG02Y, CVACT01Y, CVACT02Y, CVACT03Y, CVCUS01Y, CIPAUSMY, CIPAUDTY, DFHAID (unresolved), DFHBMSCA (unresolved) |  | READ×3, RECEIVE MAP×1, RETURN×1, SEND MAP×2, SYNCPOINT×1, XCTL×2 |  | CPVS |
+| `app/app-authorization-ims-db2-mq/cbl/COPAUS1C.cbl` | cobol_program / online | COPAUS1C | 604 | COCOM01Y, COPAU01, COTTL01Y, CSDAT01Y, CSMSG01Y, CSMSG02Y, CIPAUSMY, CIPAUDTY, DFHAID (unresolved), DFHBMSCA (unresolved) |  | LINK×1, RECEIVE MAP×1, RETURN×1, SEND MAP×2, SYNCPOINT×2, XCTL×1 |  | CPVD |
 | `app/app-authorization-ims-db2-mq/cbl/COPAUS2C.cbl` | cobol_program / online | COPAUS2C | 244 | CIPAUDTY, SQLCA (unresolved), AUTHFRDS |  | ASKTIME×1, FORMATTIME×1, RETURN×1 | yes | CPVD |
 | `app/app-authorization-ims-db2-mq/cbl/DBUNLDGS.CBL` | cobol_program / batch | DBUNLDGS | 366 | IMSFUNCS, CIPAUSMY, CIPAUDTY, PAUTBPCB, PASFLPCB, PADFLPCB | CBLTDLI [static], CBLTDLI [static], CBLTDLI [static], CBLTDLI [static] |  |  |  |
 | `app/app-authorization-ims-db2-mq/cbl/PAUDBLOD.CBL` | cobol_program / batch | PAUDBLOD | 369 | IMSFUNCS, CIPAUSMY, CIPAUDTY, PAUTBPCB | CBLTDLI [static], CBLTDLI [static], CBLTDLI [static] |  |  |  |
@@ -177,8 +230,8 @@ One row per artifact. `Depends on` lists `COPY`/`INCLUDE` targets for COBOL, `CO
 | `app/app-transaction-type-db2/bms/COTRTLI.bms` | bms_map | COTRTLI | 338 | mapset COTRTLI; maps CTRTLIA |  |  |  |  |
 | `app/app-transaction-type-db2/bms/COTRTUP.bms` | bms_map | COTRTUP | 137 | mapset COTRTUP; maps CTRTUPA |  |  |  |  |
 | `app/app-transaction-type-db2/cbl/COBTUPDT.cbl` | cobol_program / batch | COBTUPDT | 237 | SQLCA (unresolved), DCLTRTYP |  |  | yes |  |
-| `app/app-transaction-type-db2/cbl/COTRTLIC.cbl` | cobol_program / online | COTRTLIC | 2,098 | CVCRD01Y, COCOM01Y, DFHBMSCA (unresolved), DFHAID (unresolved), COTTL01Y, COTRTLI, CSDAT01Y, CSMSG01Y, CSUSR01Y, CVACT02Y, CSSTRPFY, CSDB2RWY, SQLCA (unresolved), DCLTRTYP, CSDB2RPY | via LIT-DSNTIAC [dynamic] (from COPY CSDB2RPY) | RECEIVE MAP×1, RETURN×3, SEND MAP×1, SEND TEXT×2, SYNCPOINT×3, XCTL×2 | yes | CTLI, CTLI |
-| `app/app-transaction-type-db2/cbl/COTRTUPC.cbl` | cobol_program / online | COTRTUPC | 1,702 | CSUTLDWY, CVCRD01Y, DFHBMSCA (unresolved), DFHAID (unresolved), COTTL01Y, COTRTUP, CSDAT01Y, CSMSG01Y, CSMSG02Y, CSUSR01Y, COCOM01Y, CSSETATY, CSSTRPFY, SQLCA (unresolved), DCLTRTYP, DCLTRCAT |  | ABEND×1, HANDLE ABEND×2, RECEIVE MAP×1, RETURN×1, SEND×1, SEND MAP×1, SYNCPOINT×4, XCTL×1 | yes | CTTU, CTTU |
+| `app/app-transaction-type-db2/cbl/COTRTLIC.cbl` | cobol_program / online | COTRTLIC | 2,098 | CVCRD01Y, COCOM01Y, DFHBMSCA (unresolved), DFHAID (unresolved), COTTL01Y, COTRTLI, CSDAT01Y, CSMSG01Y, CSUSR01Y, CVACT02Y, CSSTRPFY, CSDB2RWY, SQLCA (unresolved), DCLTRTYP, CSDB2RPY | via LIT-DSNTIAC [dynamic] (from COPY CSDB2RPY) | RECEIVE MAP×1, RETURN×3, SEND MAP×1, SEND TEXT×2, SYNCPOINT×3, XCTL×2 | yes | CTLI |
+| `app/app-transaction-type-db2/cbl/COTRTUPC.cbl` | cobol_program / online | COTRTUPC | 1,702 | CSUTLDWY, CVCRD01Y, DFHBMSCA (unresolved), DFHAID (unresolved), COTTL01Y, COTRTUP, CSDAT01Y, CSMSG01Y, CSMSG02Y, CSUSR01Y, COCOM01Y, CSSETATY, CSSTRPFY, SQLCA (unresolved), DCLTRTYP, DCLTRCAT |  | ABEND×1, HANDLE ABEND×2, RECEIVE MAP×1, RETURN×1, SEND×1, SEND MAP×1, SYNCPOINT×4, XCTL×1 | yes | CTTU |
 | `app/app-transaction-type-db2/cpy-bms/COTRTLI.cpy` | bms_copybook | COTRTLI | 500 |  |  |  |  |  |
 | `app/app-transaction-type-db2/cpy-bms/COTRTUP.cpy` | bms_copybook | COTRTUP | 200 |  |  |  |  |  |
 | `app/app-transaction-type-db2/cpy/CSDB2RPY.cpy` | copybook | CSDB2RPY | 89 |  | via LIT-DSNTIAC [dynamic] |  | yes |  |
@@ -201,8 +254,8 @@ One row per artifact. `Depends on` lists `COPY`/`INCLUDE` targets for COBOL, `CO
 | `app/app-transaction-type-db2/jcl/MNTTRDB2.jcl` | jcl_job | MNTTRDB2 | 30 | STEP1→IKJEFT01 |  |  |  |  |
 | `app/app-transaction-type-db2/jcl/TRANEXTR.jcl` | jcl_job | TRANEXTR | 122 | STEP10→IEBGENER; STEP20→IEBGENER; STEP30→IEFBR14; STEP40→IKJEFT01; STEP50→IKJEFT01 |  |  |  |  |
 | `app/app-vsam-mq/README.md` | module_readme | README | 144 |  |  |  |  |  |
-| `app/app-vsam-mq/cbl/COACCT01.cbl` | cobol_program / online | COACCT01 | 620 | CMQGMOV (unresolved), CMQPMOV (unresolved), CMQMDV (unresolved), CMQODV (unresolved), CMQV (unresolved), CMQTML (unresolved), CVACT01Y | MQOPEN [static], MQOPEN [static], MQOPEN [static], MQGET [static], MQPUT [static], MQPUT [static], MQCLOSE [static], MQCLOSE [static], MQCLOSE [static] | READ×1, RETRIEVE×1, RETURN×1, SYNCPOINT×1 |  | CDRA, CDRA |
-| `app/app-vsam-mq/cbl/CODATE01.cbl` | cobol_program / online | CODATE01 | 524 | CMQGMOV (unresolved), CMQPMOV (unresolved), CMQMDV (unresolved), CMQODV (unresolved), CMQV (unresolved), CMQTML (unresolved) | MQOPEN [static], MQOPEN [static], MQOPEN [static], MQGET [static], MQPUT [static], MQPUT [static], MQCLOSE [static], MQCLOSE [static], MQCLOSE [static] | ASKTIME×1, FORMATTIME×1, RETRIEVE×1, RETURN×1, SYNCPOINT×1 |  | CDRD, CDRD |
+| `app/app-vsam-mq/cbl/COACCT01.cbl` | cobol_program / online | COACCT01 | 620 | CMQGMOV (unresolved), CMQPMOV (unresolved), CMQMDV (unresolved), CMQODV (unresolved), CMQV (unresolved), CMQTML (unresolved), CVACT01Y | MQOPEN [static], MQOPEN [static], MQOPEN [static], MQGET [static], MQPUT [static], MQPUT [static], MQCLOSE [static], MQCLOSE [static], MQCLOSE [static] | READ×1, RETRIEVE×1, RETURN×1, SYNCPOINT×1 |  | CDRA |
+| `app/app-vsam-mq/cbl/CODATE01.cbl` | cobol_program / online | CODATE01 | 524 | CMQGMOV (unresolved), CMQPMOV (unresolved), CMQMDV (unresolved), CMQODV (unresolved), CMQV (unresolved), CMQTML (unresolved) | MQOPEN [static], MQOPEN [static], MQOPEN [static], MQGET [static], MQPUT [static], MQPUT [static], MQCLOSE [static], MQCLOSE [static], MQCLOSE [static] | ASKTIME×1, FORMATTIME×1, RETRIEVE×1, RETURN×1, SYNCPOINT×1 |  | CDRD |
 | `app/app-vsam-mq/csd/CRDDEMOM.csd` | csd | CRDDEMOM | 41 | 5 DEFINE statements |  |  |  |  |
 | `app/asm/COBDATFT.asm` | assembler | COBDATFT | 84 | COCDATFT (COPY) |  |  |  |  |
 | `app/asm/MVSWAIT.asm` | assembler | MVSWAIT | 30 | ASMWAIT (macro instruction) |  |  |  |  |
@@ -237,16 +290,16 @@ One row per artifact. `Depends on` lists `COPY`/`INCLUDE` targets for COBOL, `CO
 | `app/cbl/CBTRN02C.cbl` | cobol_program / batch | CBTRN02C | 731 | CVTRA06Y, CVTRA05Y, CVACT03Y, CVACT01Y, CVTRA01Y | CEE3ABD [static] |  |  |  |
 | `app/cbl/CBTRN03C.cbl` | cobol_program / batch | CBTRN03C | 649 | CVTRA05Y, CVACT03Y, CVTRA03Y, CVTRA04Y, CVTRA07Y | CEE3ABD [static] |  |  |  |
 | `app/cbl/COACTUPC.cbl` | cobol_program / online | COACTUPC | 4,236 | CSUTLDWY, CVCRD01Y, CSLKPCDY, DFHBMSCA (unresolved), DFHAID (unresolved), COTTL01Y, COACTUP, CSDAT01Y, CSMSG01Y, CSMSG02Y, CSUSR01Y, CVACT01Y, CVACT03Y, CVCUS01Y, COCOM01Y, CSSETATY, CSSETATY, CSSETATY, CSSETATY, CSSETATY, CSSETATY, CSSETATY, CSSETATY, CSSETATY, CSSETATY, CSSETATY, CSSETATY, CSSETATY, CSSETATY, CSSETATY, CSSETATY, CSSETATY, CSSETATY, CSSETATY, CSSETATY, CSSETATY, CSSETATY, CSSETATY, CSSETATY, CSSETATY, CSSETATY, CSSETATY, CSSETATY, CSSETATY, CSSETATY, CSSETATY, CSSETATY, CSSETATY, CSSETATY, CSSETATY, CSSETATY, CSSETATY, CSSETATY, CSSETATY, CSSTRPFY, CSUTLDPY | CSUTLDTC [static] (from COPY CSUTLDPY) | ABEND×1, HANDLE ABEND×2, READ×5, RECEIVE MAP×1, RETURN×1, REWRITE×2, SEND×1, SEND MAP×1, SYNCPOINT×2, XCTL×1 |  | CAUP |
-| `app/cbl/COACTVWC.cbl` | cobol_program / online | COACTVWC | 941 | CVCRD01Y, COCOM01Y, DFHBMSCA (unresolved), DFHAID (unresolved), COTTL01Y, COACTVW, CSDAT01Y, CSMSG01Y, CSMSG02Y, CSUSR01Y, CVACT01Y, CVACT02Y, CVACT03Y, CVCUS01Y, CSSTRPFY |  | ABEND×1, HANDLE ABEND×2, READ×3, RECEIVE MAP×1, RETURN×3, SEND×1, SEND MAP×1, SEND TEXT×2, XCTL×1 |  | CAVW, CAVW |
+| `app/cbl/COACTVWC.cbl` | cobol_program / online | COACTVWC | 941 | CVCRD01Y, COCOM01Y, DFHBMSCA (unresolved), DFHAID (unresolved), COTTL01Y, COACTVW, CSDAT01Y, CSMSG01Y, CSMSG02Y, CSUSR01Y, CVACT01Y, CVACT02Y, CVACT03Y, CVCUS01Y, CSSTRPFY |  | ABEND×1, HANDLE ABEND×2, READ×3, RECEIVE MAP×1, RETURN×3, SEND×1, SEND MAP×1, SEND TEXT×2, XCTL×1 |  | CAVW |
 | `app/cbl/COADM01C.cbl` | cobol_program / online | COADM01C | 288 | COCOM01Y, COADM02Y, COADM01, COTTL01Y, CSDAT01Y, CSMSG01Y, CSUSR01Y, DFHAID (unresolved), DFHBMSCA (unresolved) |  | HANDLE CONDITION×1, RECEIVE MAP×1, RETURN×2, SEND MAP×1, XCTL×2 |  | CA00 |
 | `app/cbl/COBIL00C.cbl` | cobol_program / online | COBIL00C | 572 | COCOM01Y, COBIL00, COTTL01Y, CSDAT01Y, CSMSG01Y, CVACT01Y, CVACT03Y, CVTRA05Y, DFHAID (unresolved), DFHBMSCA (unresolved) |  | ASKTIME×1, ENDBR×1, FORMATTIME×1, READ×2, READPREV×1, RECEIVE MAP×1, RETURN×1, REWRITE×1, SEND MAP×1, STARTBR×1, WRITE×1, XCTL×1 |  | CB00 |
 | `app/cbl/COBSWAIT.cbl` | cobol_program / utility | COBSWAIT | 41 |  | MVSWAIT [static] |  |  |  |
 | `app/cbl/COCRDLIC.cbl` | cobol_program / online | COCRDLIC | 1,459 | CVCRD01Y, COCOM01Y, DFHBMSCA (unresolved), DFHAID (unresolved), COTTL01Y, COCRDLI, CSDAT01Y, CSMSG01Y, CSUSR01Y, CVACT02Y, CSSTRPFY |  | ENDBR×2, READNEXT×2, READPREV×2, RECEIVE MAP×1, RETURN×3, SEND MAP×1, SEND TEXT×2, STARTBR×2, XCTL×3 |  | CC00, CCLI |
-| `app/cbl/COCRDSLC.cbl` | cobol_program / online | COCRDSLC | 887 | CVCRD01Y, COCOM01Y, DFHBMSCA (unresolved), DFHAID (unresolved), COTTL01Y, COCRDSL, CSDAT01Y, CSMSG01Y, CSMSG02Y, CSUSR01Y, CVACT02Y, CVCUS01Y, CSSTRPFY |  | ABEND×1, HANDLE ABEND×2, READ×2, RECEIVE MAP×1, RETURN×3, SEND×1, SEND MAP×1, SEND TEXT×2, XCTL×1 |  | CCDL, CCDL |
+| `app/cbl/COCRDSLC.cbl` | cobol_program / online | COCRDSLC | 887 | CVCRD01Y, COCOM01Y, DFHBMSCA (unresolved), DFHAID (unresolved), COTTL01Y, COCRDSL, CSDAT01Y, CSMSG01Y, CSMSG02Y, CSUSR01Y, CVACT02Y, CVCUS01Y, CSSTRPFY |  | ABEND×1, HANDLE ABEND×2, READ×2, RECEIVE MAP×1, RETURN×3, SEND×1, SEND MAP×1, SEND TEXT×2, XCTL×1 |  | CCDL |
 | `app/cbl/COCRDUPC.cbl` | cobol_program / online | COCRDUPC | 1,560 | CVCRD01Y, COCOM01Y, DFHBMSCA (unresolved), DFHAID (unresolved), COTTL01Y, COCRDUP, CSDAT01Y, CSMSG01Y, CSMSG02Y, CSUSR01Y, CVACT02Y, CVCUS01Y, CSSTRPFY |  | ABEND×1, HANDLE ABEND×2, READ×2, RECEIVE MAP×1, RETURN×1, REWRITE×1, SEND×1, SEND MAP×1, SYNCPOINT×1, XCTL×1 |  | CCUP |
 | `app/cbl/COMEN01C.cbl` | cobol_program / online | COMEN01C | 308 | COCOM01Y, COMEN02Y, COMEN01, COTTL01Y, CSDAT01Y, CSMSG01Y, CSUSR01Y, DFHAID (unresolved), DFHBMSCA (unresolved) |  | INQUIRE×1, RECEIVE MAP×1, RETURN×1, SEND MAP×1, XCTL×3 |  | CM00 |
 | `app/cbl/CORPT00C.cbl` | cobol_program / online | CORPT00C | 649 | COCOM01Y, CORPT00, COTTL01Y, CSDAT01Y, CSMSG01Y, CVTRA05Y, DFHAID (unresolved), DFHBMSCA (unresolved) | CSUTLDTC [static], CSUTLDTC [static] | RECEIVE MAP×1, RETURN×2, SEND MAP×2, WRITEQ×1, XCTL×1 |  | CR00 |
-| `app/cbl/COSGN00C.cbl` | cobol_program / online | COSGN00C | 260 | COCOM01Y, COSGN00, COTTL01Y, CSDAT01Y, CSMSG01Y, CSUSR01Y, DFHAID (unresolved), DFHBMSCA (unresolved) |  | ASSIGN×2, READ×1, RECEIVE MAP×1, RETURN×2, SEND MAP×1, SEND TEXT×1, XCTL×2 |  | CC00, CC00 |
+| `app/cbl/COSGN00C.cbl` | cobol_program / online | COSGN00C | 260 | COCOM01Y, COSGN00, COTTL01Y, CSDAT01Y, CSMSG01Y, CSUSR01Y, DFHAID (unresolved), DFHBMSCA (unresolved) |  | ASSIGN×2, READ×1, RECEIVE MAP×1, RETURN×2, SEND MAP×1, SEND TEXT×1, XCTL×2 |  | CC00 |
 | `app/cbl/COTRN00C.cbl` | cobol_program / online | COTRN00C | 699 | COCOM01Y, COTRN00, COTTL01Y, CSDAT01Y, CSMSG01Y, CVTRA05Y, DFHAID (unresolved), DFHBMSCA (unresolved) |  | ENDBR×1, READNEXT×1, READPREV×1, RECEIVE MAP×1, RETURN×1, SEND MAP×2, STARTBR×1, XCTL×2 |  | CT00 |
 | `app/cbl/COTRN01C.cbl` | cobol_program / online | COTRN01C | 330 | COCOM01Y, COTRN01, COTTL01Y, CSDAT01Y, CSMSG01Y, CVTRA05Y, DFHAID (unresolved), DFHBMSCA (unresolved) |  | READ×1, RECEIVE MAP×1, RETURN×1, SEND MAP×1, XCTL×1 |  | CT01 |
 | `app/cbl/COTRN02C.cbl` | cobol_program / online | COTRN02C | 783 | COCOM01Y, COTRN02, COTTL01Y, CSDAT01Y, CSMSG01Y, CVTRA05Y, CVACT01Y, CVACT03Y, DFHAID (unresolved), DFHBMSCA (unresolved) | CSUTLDTC [static], CSUTLDTC [static] | ENDBR×1, READ×2, READPREV×1, RECEIVE MAP×1, RETURN×2, SEND MAP×1, STARTBR×1, WRITE×1, XCTL×1 |  | CT02 |
@@ -255,6 +308,7 @@ One row per artifact. `Depends on` lists `COPY`/`INCLUDE` targets for COBOL, `CO
 | `app/cbl/COUSR02C.cbl` | cobol_program / online | COUSR02C | 414 | COCOM01Y, COUSR02, COTTL01Y, CSDAT01Y, CSMSG01Y, CSUSR01Y, DFHAID (unresolved), DFHBMSCA (unresolved) |  | READ×1, RECEIVE MAP×1, RETURN×1, REWRITE×1, SEND MAP×1, XCTL×1 |  | CU02 |
 | `app/cbl/COUSR03C.cbl` | cobol_program / online | COUSR03C | 359 | COCOM01Y, COUSR03, COTTL01Y, CSDAT01Y, CSMSG01Y, CSUSR01Y, DFHAID (unresolved), DFHBMSCA (unresolved) |  | DELETE×1, READ×1, RECEIVE MAP×1, RETURN×1, SEND MAP×1, XCTL×1 |  | CU03 |
 | `app/cbl/CSUTLDTC.cbl` | cobol_program / utility | CSUTLDTC | 157 |  | CEEDAYS [static] |  |  |  |
+| `app/cpy-bms/.gitkeep` | placeholder | .GITKEEP | 0 |  |  |  |  |  |
 | `app/cpy-bms/COACTUP.CPY` | bms_copybook | COACTUP | 668 |  |  |  |  |  |
 | `app/cpy-bms/COACTVW.CPY` | bms_copybook | COACTVW | 464 |  |  |  |  |  |
 | `app/cpy-bms/COADM01.CPY` | bms_copybook | COADM01 | 260 |  |  |  |  |  |
@@ -302,6 +356,7 @@ One row per artifact. `Depends on` lists `COPY`/`INCLUDE` targets for COBOL, `CO
 | `app/cpy/CVTRA06Y.cpy` | copybook | CVTRA06Y | 21 |  |  |  |  |  |
 | `app/cpy/CVTRA07Y.cpy` | copybook | CVTRA07Y | 73 |  |  |  |  |  |
 | `app/cpy/UNUSED1Y.cpy` | copybook | UNUSED1Y | 10 |  |  |  |  |  |
+| `app/csd/.gitkeep` | placeholder | .GITKEEP | 0 |  |  |  |  |  |
 | `app/csd/CARDDEMO.CSD` | csd | CARDDEMO | 505 | 64 DEFINE statements |  |  |  |  |
 | `app/ctl/REPROCT.ctl` | control_card | REPROCT | 15 |  |  |  |  |  |
 | `app/data/ASCII/acctdata.txt` | data_sample | ACCTDATA | 50 |  |  |  |  |  |
@@ -313,6 +368,7 @@ One row per artifact. `Depends on` lists `COPY`/`INCLUDE` targets for COBOL, `CO
 | `app/data/ASCII/tcatbal.txt` | data_sample | TCATBAL | 50 |  |  |  |  |  |
 | `app/data/ASCII/trancatg.txt` | data_sample | TRANCATG | 18 |  |  |  |  |  |
 | `app/data/ASCII/trantype.txt` | data_sample | TRANTYPE | 7 |  |  |  |  |  |
+| `app/data/EBCDIC/.gitkeep` | placeholder | .GITKEEP | 0 |  |  |  |  |  |
 | `app/data/EBCDIC/AWS.M2.CARDDEMO.ACCDATA.PS` | data_sample | AWS.M2.CARDDEMO.ACCDATA.PS | n/a |  |  |  |  |  |
 | `app/data/EBCDIC/AWS.M2.CARDDEMO.ACCTDATA.PS` | data_sample | AWS.M2.CARDDEMO.ACCTDATA.PS | n/a |  |  |  |  |  |
 | `app/data/EBCDIC/AWS.M2.CARDDEMO.CARDDATA.PS` | data_sample | AWS.M2.CARDDEMO.CARDDATA.PS | n/a |  |  |  |  |  |
@@ -463,7 +519,9 @@ No JCL `EXEC PGM=`, no CSD `DEFINE PROGRAM`/`TRANSACTION`, and no resolved `CALL
 | --- | --- | --- |
 | UNUSED1Y | `app/cpy/UNUSED1Y.cpy` | 10 |
 
-### CSD transactions whose program has no source (11)
+### CSD transactions whose program has no source (11 definitions: 7 TransIDs, 6 programs)
+
+One row per `DEFINE TRANSACTION ... PROGRAM(...)` or `DEFINE PROGRAM ... TRANSID(...)`; the same TransID can appear in more than one CSD source.
 
 | Transaction | Program | Source | Reason |
 | --- | --- | --- | --- |
