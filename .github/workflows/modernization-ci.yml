@@ -7,6 +7,9 @@ on:
   pull_request:
     paths:
       - "modernization/**"
+      - "modernization/carddemo-ui/**"
+      - "app/bms/**"
+      - "app/cpy-bms/**"
       - "app/cpy/**"
       - "app/cbl/**"
       - "app/data/**"
@@ -20,6 +23,9 @@ on:
     branches: [main]
     paths:
       - "modernization/**"
+      - "modernization/carddemo-ui/**"
+      - "app/bms/**"
+      - "app/cpy-bms/**"
       - "app/cpy/**"
       - "app/cbl/**"
       - "app/data/**"
@@ -96,6 +102,7 @@ jobs:
       CARDDEMO_DB_PASSWORD: ci-only-not-a-secret
       CARDDEMO_HTTP_PORT: "18080"
       CARDDEMO_DB_PORT: "15432"
+      CARDDEMO_UI_PORT: "18085"
     defaults:
       run:
         working-directory: modernization
@@ -109,6 +116,12 @@ jobs:
           body="$(curl -fsS "http://localhost:${CARDDEMO_HTTP_PORT}/actuator/health")"
           echo "$body"
           echo "$body" | grep -q '"status":"UP"'
+      - name: UI reachable on CARDDEMO_UI_PORT (static build + /api proxy)
+        run: |
+          curl -fsS "http://localhost:${CARDDEMO_UI_PORT}/" | grep -q '<div id="root">'
+          curl -fsS "http://localhost:${CARDDEMO_UI_PORT}/menu" | grep -q '<div id="root">'
+          curl -fsS "http://localhost:${CARDDEMO_UI_PORT}/api/v1/auth/login" | grep -q '"header"'
+          curl -fsS -o /dev/null "http://localhost:${CARDDEMO_UI_PORT}/v3/api-docs"
       - name: initial-load populated PostgreSQL (local profile)
         run: |
           q() { docker compose exec -T postgres psql -U carddemo -d carddemo -tAc "$1"; }
@@ -119,12 +132,52 @@ jobs:
             table="${pair%%=*}"; want="${pair#*=}"; got="$(q "select count(*) from \"$table\"")"
             echo "$table: $got (expected $want)"; test "$got" = "$want"
           done
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+          cache-dependency-path: modernization/carddemo-ui/package-lock.json
+      - name: Playwright e2e against the stack (USER0001 + ADMIN001 flows)
+        working-directory: modernization/carddemo-ui
+        run: |
+          npm ci --no-audit --no-fund
+          npx playwright install --with-deps chromium
+          npm run e2e
+      - name: Upload Playwright report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: modernization/carddemo-ui/playwright-report/
+          if-no-files-found: ignore
       - name: Logs
         if: always()
         run: docker compose logs --no-color
       - name: Tear down
         if: always()
         run: docker compose down -v
+
+  # React UI (UNT51-22, ADR-0022): lint, typecheck, vitest, production build. The Playwright e2e suite runs in the
+  # compose job against the full stack.
+  ui:
+    name: UI (Node 20 lint, vitest, vite build)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: modernization/carddemo-ui
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+          cache-dependency-path: modernization/carddemo-ui/package-lock.json
+      - run: npm ci --no-audit --no-fund
+      - run: npm run lint
+      - run: npm run typecheck
+      - run: npx vitest --run
+      - run: npx vite build
 
   baseline:
     name: GnuCOBOL baseline (--fast)
