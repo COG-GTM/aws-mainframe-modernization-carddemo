@@ -30,10 +30,10 @@ Input: `ACCTSID` (11). Only ENTER and PF3 are recognised (`CSSTRPFY`); other AID
 | # | Given | Then |
 |---|---|---|
 | R-10 | `9200-GETCARDXREF-BYACCT` `READ DATASET('CXACAIX ') RIDFLD(account)` NORMAL | `CDEMO-CUST-ID ← XREF-CUST-ID`; `CDEMO-CARD-NUM ← XREF-CARD-NUM`. |
-| R-11 | `NOTFND` | `INPUT-ERROR`; `FLG-ACCTFILTER-NOT-OK`; message `Account:<11-digit id> not found in Cross ref file.  Resp: Reas:` (the RESP values are **not** appended — literal text only). Stop. |
-| R-12 | Other RESP | `INPUT-ERROR`; message `File Error: READ on CXACAIX  Resp: <resp> Reas: <reas>` form (`WS-FILE-ERROR-MESSAGE`). Stop. |
-| R-13 | `9300-GETACCTDATA-BYACCT` `READ DATASET('ACCTDAT ')` NORMAL | `FOUND-ACCT-IN-MASTER`. `NOTFND` → `Account:<id> not found in Acct Master file.Resp: Reas:`; other → file error message. Stop on failure. |
-| R-14 | `9400-GETCUSTDATA-BYCUST` `READ DATASET('CUSTDAT ') RIDFLD(CDEMO-CUST-ID X(9))` NORMAL | `FOUND-CUST-IN-MASTER`. `NOTFND` → `FLG-CUSTFILTER-NOT-OK`, message `CustId:<9-digit id> not found in customer master.Resp:  REAS:`; other → file error message. |
+| R-11 | `NOTFND` | `INPUT-ERROR`; `FLG-ACCTFILTER-NOT-OK`; message `Account:<11-digit id> not found in Cross ref file.  Resp:<resp> Reas:<resp2>` — `ERROR-RESP`/`ERROR-RESP2` are `X(10)` images of the 9-digit `WS-RESP-CD`/`WS-REAS-CD` (`000000013 `, `000000080 `) and the whole string is cut at `WS-RETURN-MSG X(75)`, so the shown text is `Account:00000000099 not found in Cross ref file.  Resp:000000013  Reas:0000`. Stop. |
+| R-12 | Other RESP | `INPUT-ERROR`; message `WS-FILE-ERROR-MESSAGE`: `File Error: ` + op `X(8)` + ` on ` + dataset `X(9)` + ` returned RESP ` + resp `X(10)` + `,RESP2 ` + resp2 `X(10)`, e.g. `File Error: READ     on CXACAIX   returned RESP 000000017 ,RESP2 000000000`. Stop. |
+| R-13 | `9300-GETACCTDATA-BYACCT` `READ DATASET('ACCTDAT ')` NORMAL | `FOUND-ACCT-IN-MASTER`. `NOTFND` → `Account:<id> not found in Acct Master file.Resp:<resp> Reas:<resp2>` (75-char cut: `…Resp:000000013  Reas:0000`); other → file error message. Stop on failure. |
+| R-14 | `9400-GETCUSTDATA-BYCUST` `READ DATASET('CUSTDAT ') RIDFLD(CDEMO-CUST-ID X(9))` NORMAL | `FOUND-CUST-IN-MASTER`. `NOTFND` → `FLG-CUSTFILTER-NOT-OK`, message `CustId:<9-digit id> not found in customer master.Resp: <resp> REAS:<resp2>` (75-char cut: `…Resp: 000000013  REAS:0000000`); other → file error message. |
 
 ## 1200-SETUP-SCREEN-VARS (display)
 
@@ -50,3 +50,20 @@ Input: `ACCTSID` (11). Only ENTER and PF3 are recognised (`CSSTRPFY`); other AID
 | # | Given | Then |
 |---|---|---|
 | R-20 | Abend | Default `UNEXPECTED ABEND OCCURRED.`; culprit `COACTVWC`; send `ABEND-DATA`; `HANDLE ABEND CANCEL`; `ABEND ABCODE('9999')`. |
+
+## Java port (`GET /api/v1/accounts/{id}`)
+
+`com.carddemo.web.account.AccountController#view` → `com.carddemo.account.online.AccountLookup` (domain). Tests:
+`com.carddemo.web.AccountViewRulesTest` (one test per R-id), `OnlineApiIT` (PostgreSQL + sample data).
+
+- R-1/R-5/R-19: stateless request with a bearer token; no token → 401 `SIGNON_REQUIRED`. Any signed-on user (type U or
+  A) may view any account — the program has no ownership check.
+- R-2: the response `exit` (`NavigationContext`) is the PF3 target `CM00`/`COMEN01C`.
+- R-7..R-9: the path id is `ACCTSIDI`; `*`/blank → 400 `No input received`, otherwise not 1..11 digits or zero → 400
+  `Account Filter must  be a non-zero 11 digit number` (field `acctId`).
+- R-10..R-14: xref (`card_xref` by account, lowest card number = the AIX first record) → account → customer; NOTFND →
+  404 `NOTFND` with the source message text above. A database failure on any read → 500 `ABEND` with
+  `WS-FILE-ERROR-MESSAGE`, reported as `DFHRESP(IOERR)` (17) / RESP2 0.
+- R-15/R-16: response fields are the `CACTVWA` map fields (`AccountViewScreen`) plus `cardNumbers` (every card of the
+  account), `accountVersion`/`customerVersion` and `updateForm` (the `PUT` body prefilled with the fetched values).
+

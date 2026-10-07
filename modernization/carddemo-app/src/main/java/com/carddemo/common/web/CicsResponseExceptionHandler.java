@@ -2,6 +2,7 @@ package com.carddemo.common.web;
 
 import com.carddemo.common.AbendException;
 import com.carddemo.common.DuplicateRecordException;
+import com.carddemo.common.FieldEditException;
 import com.carddemo.common.InvalidRequestException;
 import com.carddemo.common.RecordNotFoundException;
 import com.carddemo.common.online.CommonMessages;
@@ -48,7 +49,11 @@ public class CicsResponseExceptionHandler extends ResponseEntityExceptionHandler
 
     @ExceptionHandler(InvalidRequestException.class)
     ProblemDetail invalid(InvalidRequestException e) {
-        return problem(HttpStatus.BAD_REQUEST, e.field(), e.getMessage(), "INVREQ");
+        ProblemDetail problem = problem(HttpStatus.BAD_REQUEST, e.field(), e.getMessage(), "INVREQ");
+        if (e instanceof FieldEditException edit) {
+            problem.setProperty("invalidFields", edit.invalidFields());
+        }
+        return problem;
     }
 
     @ExceptionHandler(ObjectOptimisticLockingFailureException.class)

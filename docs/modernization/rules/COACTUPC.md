@@ -89,3 +89,36 @@ address line 2 (free text, carried through).
 | # | Given | Then |
 |---|---|---|
 | R-41 | Info text by state | enter/not fetched → `Enter or update id of account to update`; `S`/`E` → `Update account details presented above.`; `N` → `Changes validated.Press F5 to save`; `C` → `Changes committed to database`; `L`/`F` → `Changes unsuccessful. Please try again`. `ERRMSGO ← WS-RETURN-MSG`. `SEND MAP('CACTUPA') MAPSET('COACTUP') CURSOR ERASE FREEKB`. |
+
+## Java port (`PUT /api/v1/accounts/{id}`)
+
+`com.carddemo.web.account.AccountController#update` → `com.carddemo.account.online.AccountUpdateService` (one
+`@Transactional` unit), edits in `AccountUpdateEdits` (paragraph order of `1200-EDIT-MAP-INPUTS`), lookup tables
+`com.carddemo.common.online.Cslkpcdy` (read from `CSLKPCDY.cpy` on the classpath), amounts `common.codec.NumvalC`.
+Tests: `com.carddemo.web.AccountUpdateRulesTest` (one test per R-id; R-10..R-30 parameterized, one row per message),
+`OnlineApiIT`.
+
+- Dialogue: the request body is the `CACTUPA` input (dates/SSN/phones split as on the map) plus `accountVersion`,
+  `customerVersion` and `confirm`. Clients start from `updateForm` of `GET /api/v1/accounts/{id}` (= R-31 fetch, state
+  `S`). `confirm=false` is ENTER: edits only, response state `VALIDATED` (`N`, `Changes validated.Press F5 to save`),
+  nothing written. `confirm=true` is ENTER + PF5 in one request: edits, then rewrite → `COMMITTED` (`C`). No changes →
+  200 state `SHOW` with `No change detected with respect to values fetched.` (R-32, case/trailing-space-insensitive as
+  `9700`/`1205`).
+- Edit errors → 400 `INVREQ`; `field`/`message` = the first failing edit (what `ERRMSG` shows), `invalidFields` = every
+  field the program would turn red, in edit order. R-30 reports `zip` with `invalidFields` `[zip, state]`.
+- Protected map fields (group id, government id, address line 2) are carried through to the rewrite as typed; country is
+  not on the request (protected) but is still edited from the stored value (R-26).
+- R-37/R-38: no `READ … UPDATE` lock across requests (ADR-0010): the supplied versions are compared with the current
+  rows. On `confirm=true` both rows are then locked for the rest of the transaction (`AccountRepository.lockVersion` /
+  `CustomerRepository.lockVersion`, `SELECT version … FOR UPDATE`, the `READ … UPDATE` of `9600`) and their committed
+  versions compared again, so a concurrent change to the record the request leaves unchanged (which the JPA `@Version`
+  check at flush does not cover) is still caught; any mismatch → 409 `CHANGED`
+  `Record changed by some one else. Please review`, nothing written. Row missing or lock not obtained → 500 `ABEND`
+  `Could not lock account record for update` / `Could not lock customer record for update`.
+- R-27: the optional-phone test compares part A twice (`A = SPACES OR C = LOW-VALUES`); because `1100-RECEIVE-MAP`
+  stores blank parts as LOW-VALUES, that clause is "C blank", so the phone is optional only when all three parts are
+  blank (a line number alone goes through the part edits, as in the COBOL).
+- R-40: a failed rewrite → 500 `ABEND` `Update of record failed`; the transaction rolls back both rows (the
+  `SYNCPOINT ROLLBACK`). State `L`/`F` (`Changes unsuccessful. Please try again`) is therefore never returned with 200.
+- R-36: malformed JSON / missing versions → 400 `INVREQ`.
+
