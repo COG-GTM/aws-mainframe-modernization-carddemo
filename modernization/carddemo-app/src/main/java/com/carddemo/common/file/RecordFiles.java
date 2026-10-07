@@ -85,7 +85,8 @@ public final class RecordFiles {
         write(ddname, path, out.toByteArray());
     }
 
-    /** Reads every record payload of a {@link RecordPrefix#GNUCOBOL_VARSEQ} or {@link RecordPrefix#ZOS_RDW} file. */
+    /** Reads every record payload of a {@link RecordPrefix#GNUCOBOL_VARSEQ}, {@link RecordPrefix#GNUCOBOL_VARSEQ_0} or
+     * {@link RecordPrefix#ZOS_RDW} file. */
     public static List<byte[]> readVariable(String ddname, Path path, RecordPrefix prefix) {
         if (prefix == RecordPrefix.NONE) {
             throw new IllegalArgumentException("unframed variable records cannot be split");
@@ -97,10 +98,13 @@ public final class RecordFiles {
             if (pos + 4 > data.length) {
                 throw new FileStatusException(ddname, "READ", FileStatus.RECORD_LENGTH_MISMATCH);
             }
-            int length = prefix == RecordPrefix.GNUCOBOL_VARSEQ
-                    ? ((data[pos] & 0xFF) << 24) | ((data[pos + 1] & 0xFF) << 16)
-                      | ((data[pos + 2] & 0xFF) << 8) | (data[pos + 3] & 0xFF)
-                    : (((data[pos] & 0xFF) << 8) | (data[pos + 1] & 0xFF)) - 4;
+            int length = switch (prefix) {
+                case GNUCOBOL_VARSEQ -> ((data[pos] & 0xFF) << 24) | ((data[pos + 1] & 0xFF) << 16)
+                        | ((data[pos + 2] & 0xFF) << 8) | (data[pos + 3] & 0xFF);
+                case GNUCOBOL_VARSEQ_0 -> ((data[pos] & 0xFF) << 8) | (data[pos + 1] & 0xFF);
+                case ZOS_RDW -> (((data[pos] & 0xFF) << 8) | (data[pos + 1] & 0xFF)) - 4;
+                case NONE -> throw new IllegalStateException("unframed");
+            };
             pos += 4;
             if (length < 0 || length > data.length - pos) {
                 throw new FileStatusException(ddname, "READ", FileStatus.RECORD_LENGTH_MISMATCH);

@@ -18,5 +18,6 @@ Rules every Java ticket applies. Code lives in `modernization/` (see its README)
 | [ADR-0012](ADR-0012-gdg-to-dated-storage.md) | GDG → dated rows / dated files |
 | [ADR-0013](ADR-0013-cee3abd-to-abend-exception.md) | `CALL 'CEE3ABD'` → unchecked `AbendException` with the original code |
 | [ADR-0014](ADR-0014-baseline-clock-pin.md) | Reproduce the baseline clock pin and JCL date parameters in Java |
+| [ADR-0015](ADR-0015-batch-harness-return-codes.md) | Batch CLI `--job=`, DD statements as job parameters (file path or `table`), JCL RCs 0/4/8/12/16 in `batch_run` and as the process exit code, `COND=` chaining |
 
 New ADRs: next free number, same headings (Status/Applies to, Context, Decision). Supersede, do not edit, an accepted ADR.

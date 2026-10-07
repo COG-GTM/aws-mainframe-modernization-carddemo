@@ -52,6 +52,26 @@ Flyway owns the whole schema, including the Spring Batch job repository (`V1__sp
 copied from `spring-batch-core`), so `spring.batch.jdbc.initialize-schema=never`. Jobs never launch at startup
 (`spring.batch.job.enabled=false`); the in-app scheduler and REST trigger launch them.
 
+## Batch CLI
+
+`java -jar carddemo-app.jar --job=<name> [--run-date=YYYY-MM-DD] [--<DD>=<path>|table ...]` runs one job without
+a web server and exits with its JCL condition code 0/4/8/12/16
+([ADR-0015](../docs/modernization/adr/ADR-0015-batch-harness-return-codes.md)); every run is recorded in
+`batch_run` (one job row + one row per step: status, RC, read/write counts). Jobs so far: `initial-load`,
+`cbexport`, `cbimport`, and the print jobs `READACCT` (CBACT01C), `READCARD` (CBACT02C), `READXREF` (CBACT03C),
+`READCUST` (CBCUS01C) in `com.carddemo.batch.print`. Example (the GnuCOBOL baseline's inputs and output framing):
+
+```bash
+java -jar carddemo-app/target/carddemo-app.jar --spring.profiles.active=golden --job=READACCT \
+  --ACCTFILE=../app/data/ASCII/acctdata.txt --encoding=ASCII --record-prefix=GNUCOBOL_VARSEQ_0 \
+  --OUTFILE=/tmp/READACCT/OUTFILE --ARRYFILE=/tmp/READACCT/ARRYFILE --VBRCFILE=/tmp/READACCT/VBRCFILE \
+  --SYSOUT=/tmp/READACCT/sysout.txt; echo "RC=$?"
+```
+
+Without `--ACCTFILE` the job reads the `account` table. `make batch-equivalence` runs the four print jobs from
+files and from PostgreSQL and compares them with `docs/validation/baseline/<JOB>/`
+(`scripts/batch/run_print_jobs.sh`, `scripts/batch/compare_print_jobs.py`).
+
 ## Run locally (docker compose)
 
 `docker-compose.yml` starts PostgreSQL 16 and the application (one service: the modular monolith), both with
@@ -102,14 +122,14 @@ JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64 mvn -B -pl carddemo-app spring-boot
 
 `.github/workflows/modernization-ci.yml` runs on pull requests (any base branch, since board PRs are stacked)
 and pushes to `main` that touch `modernization/**`, `app/cpy|cbl|data/**`, `scripts/baseline/**`,
-`docs/validation/baseline/**`, the `Makefile` or the workflow:
+`scripts/batch/**`, `docs/validation/baseline/**`, the `Makefile` or the workflow:
 
 | Job | What |
 | --- | --- |
 | `build` | Temurin 21, `mvn -B verify -Dcarddemo.test.profiles=test,ci` (unit tests, ArchUnit, JaCoCo codec gate, Testcontainers Postgres ITs); uploads `jacoco-report` and `test-reports` artifacts |
 | `compose` | `docker compose up -d --build --wait`, asserts `/actuator/health` is `UP` |
 | `baseline` | installs `gnucobol` (3.1.2), `make baseline-check`: compiles and runs the 26 batch jobs with `--fast`, asserts `jobs=26 compile failures=0`, and fails if any job output, report or gnucobol patch differs from `docs/validation/baseline/` (toolchain-specific `00-COMPILE/*.log`, `cobc-*.txt` are reported, not gated) |
-| `equivalence` | phase 6: will run the Java jobs under `golden` and compare with the `baseline` outputs |
+| `batch-equivalence` | PostgreSQL 16 service + packaged jar: `make batch-equivalence` runs READACCT/READCARD/READXREF/READCUST through the batch CLI (file input, then table input after `initial-load`), compares SYSOUT (trailing spaces normalised), datasets (byte-level) and exit codes with `docs/validation/baseline/<JOB>/`, and checks that an abend exits 16 with a `batch_run` row; report in the job summary, outputs as the `batch-equivalence` artifact |
 
 Locally: `make verify`, `make baseline-check` (needs `cobc` 3.1.2: `sudo apt-get install gnucobol`).
 

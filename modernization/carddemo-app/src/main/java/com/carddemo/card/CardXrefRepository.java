@@ -2,6 +2,7 @@ package com.carddemo.card;
 
 import java.util.List;
 import java.util.Optional;
+import org.springframework.data.domain.Limit;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 /**
@@ -12,6 +13,9 @@ import org.springframework.data.jpa.repository.JpaRepository;
 public interface CardXrefRepository extends JpaRepository<CardXref, String> {
 
     List<CardXref> findAllByOrderByCardNumAsc();
+
+    /** Keyset browse in key order (batch sequential read of CARDXREF). */
+    List<CardXref> findByCardNumGreaterThanOrderByCardNumAsc(String lastCardNum, Limit limit);
 
     /** CXACAIX {@code READ} by XREF-ACCT-ID: the first cross-reference of the account (lowest card number). */
     Optional<CardXref> findFirstByAcctIdOrderByCardNumAsc(long acctId);

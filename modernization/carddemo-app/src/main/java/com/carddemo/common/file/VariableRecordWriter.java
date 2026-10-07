@@ -32,6 +32,9 @@ public final class VariableRecordWriter {
         if (prefix == RecordPrefix.ZOS_RDW && maxLength > MAX_RDW_PAYLOAD) {
             throw new IllegalArgumentException("an RDW holds at most " + MAX_RDW_PAYLOAD + " payload bytes");
         }
+        if (prefix == RecordPrefix.GNUCOBOL_VARSEQ_0 && maxLength > 0xFFFF) {
+            throw new IllegalArgumentException("COB_VARSEQ_FORMAT=0 holds at most 65535 payload bytes");
+        }
         this.ddname = ddname;
         this.path = path;
         this.prefix = prefix;
@@ -69,6 +72,12 @@ public final class VariableRecordWriter {
                     out.write((length >>> 16) & 0xFF);
                     out.write((length >>> 8) & 0xFF);
                     out.write(length & 0xFF);
+                }
+                case GNUCOBOL_VARSEQ_0 -> {
+                    out.write((length >>> 8) & 0xFF);
+                    out.write(length & 0xFF);
+                    out.write(0);
+                    out.write(0);
                 }
                 case ZOS_RDW -> {
                     int rdw = length + 4;
