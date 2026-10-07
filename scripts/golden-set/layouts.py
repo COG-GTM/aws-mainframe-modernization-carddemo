@@ -141,7 +141,7 @@ def render(f: Field, raw: str) -> str:
 def read_records(path: Path, lrecl: int) -> list[str]:
     """Line-sequential file (one record per line, the format of docs/validation/baseline and `unload`)."""
     if not path.exists():
-        return []
+        raise SystemExit(f"required dataset is missing: {path}")
     lines = path.read_text(encoding="latin-1").split("\n")
     if lines and lines[-1] == "":
         lines.pop()

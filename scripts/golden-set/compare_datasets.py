@@ -11,6 +11,8 @@ Each entry must match exactly one difference and must carry a justification; an 
 more than once) fails the run like an unexplained difference does. Key `*` is the one exception, for a field that
 differs the same way in every record (e.g. TCATBALF FILLER, not persisted, ADR-0011): it must match the field of
 every record compared on both sides, once each — a record where it does not differ fails the entry too.
+A difference matched by more than one entry fails (no overlapping explanations); a repeated record key on either
+side and a missing dataset file fail the run too.
 Lines starting with # are comments.
 
 Exit 0 only when every difference is explained and every entry is used. Writes --report (markdown) and --json.
@@ -43,9 +45,21 @@ def load_expected(path: Path | None) -> list[dict]:
 
 def compare(dataset: str, cobol: list[str], java: list[str]) -> tuple[list[dict], dict]:
     lay = Layout(dataset)
-    c = {lay.key(r): r for r in cobol}
-    j = {lay.key(r): r for r in java}
     diffs = []
+
+    def index(side: str, records: list[str]) -> dict[str, str]:
+        out = {}
+        for r in records:
+            k = lay.key(r)
+            if k in out:
+                diffs.append({"dataset": dataset, "key": k.strip(), "field": "*duplicate key*",
+                              "cobol": "duplicate" if side == "cobol" else "-",
+                              "java": "duplicate" if side == "java" else "-", "fatal": True})
+            out[k] = r
+        return out
+
+    c = index("cobol", cobol)
+    j = index("java", java)
     for key in sorted(set(c) | set(j), key=lambda k: k.encode("latin-1")):
         shown = key.strip()
         if key not in c or key not in j:
@@ -74,7 +88,7 @@ def main() -> int:
     a = ap.parse_args()
 
     entries = load_expected(a.expected_diffs)
-    all_diffs, stats = [], []
+    all_diffs, stats, overlapping = [], [], []
     for ds in a.datasets.split(","):
         lrecl = DATASETS[ds][1]
         diffs, st = compare(ds, read_records(a.cobol_dir / f"{ds}.txt", lrecl),
@@ -84,7 +98,11 @@ def main() -> int:
                     (d["dataset"], d["field"], d["cobol"], d["java"]) and e["key"] in (d["key"], "*")]
             for e in hits:
                 e["matched"] += 1
-            d["explained"] = hits[0]["why"] if hits else None
+            if d.get("fatal"):
+                hits = []
+            elif len(hits) > 1:
+                overlapping.append((d, hits))
+            d["explained"] = hits[0]["why"] if len(hits) == 1 else None
         for e in entries:
             if e["dataset"] == ds and e["key"] == "*":
                 e["records"] = st["compared"]
@@ -120,6 +138,10 @@ def main() -> int:
                  f"{d['explained'] or '**UNEXPLAINED**'} |")
     if not all_diffs:
         L.append("| - | - | - | - | - | no differences |")
+    for d, hits in overlapping:
+        L.append(f"| {d['dataset']} | {d['key']} | {d['field']} | `{d['cobol']}` | `{d['java']}` | "
+                 f"**matched by {len(hits)} allow-list entries ({', '.join(e['source'] for e in hits)}); "
+                 "each difference must match exactly one** |")
     for e in bad_entries:
         L.append(f"| {e['dataset']} | {e['key']} | {e['field']} | `{e['cobol']}` | `{e['java']}` | "
                  f"**allow-list entry {e['source']} matched {e['matched']} times (must be {e.get('records', 1)})** |")
@@ -136,6 +158,9 @@ def main() -> int:
         print(f"  UNEXPLAINED {d['dataset']} key {d['key']} {d['field']}: COBOL {d['cobol']!r} / Java {d['java']!r}")
     if len(unexplained) > 20:
         print(f"  ... {len(unexplained) - 20} more unexplained differences (see {a.report})")
+    for d, hits in overlapping:
+        print(f"  OVERLAP {d['dataset']} key {d['key']} {d['field']}: matched by "
+              f"{', '.join(e['source'] for e in hits)}")
     for e in bad_entries:
         print(f"  ALLOW-LIST {e['source']} matched {e['matched']} times")
     return 0 if ok else 1

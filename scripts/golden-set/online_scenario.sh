@@ -27,7 +27,8 @@ FAILED=0
 # transcript is identical across runs.
 MASK='walk(if type == "object" then with_entries(if .key == "token" then .value = "<redacted>"
       elif (.key | IN("expiresAt", "submittedAt", "startTime", "endTime")) then .value = "<wall clock>"
-      elif .key == "cardRef" then .value = "<opaque, per run>" else . end)
+      elif .key == "cardRef" then .value = "<opaque, per run>"
+      elif .key == "password" then .value = "<redacted>" else . end)
       else . end)'
 # step <id> <expected status> <title> <method> <path> [json body] [token]
 step() {
@@ -39,7 +40,7 @@ step() {
   code=$(curl "${args[@]}")
   {
     printf '#### %s %s\n\n```\n%s /api/v1%s' "$id" "$title" "$method" "$path"
-    [ -n "$data" ] && printf '\n%s' "$(jq -S '(.. | objects | select(has("password")) | .password) |= .' <<<"$data")"
+    [ -n "$data" ] && printf '\n%s' "$(jq -S '(.. | objects | select(has("password")) | .password) |= "<redacted>"' <<<"$data")"
     printf '\n\nHTTP %s\n' "$code"
     if [ -s "$BODY" ]; then
       jq -S "$MASK" "$BODY" 2>/dev/null || cat "$BODY"
@@ -61,8 +62,8 @@ login() {
 }
 
 {
-  echo "Scenario inputs: \`scripts/golden-set/scenario.json\`. Bearer tokens are redacted, wall-clock values (JWT expiry, report submission, batch_run step times) are shown as \`<wall clock>\`, the encrypted \`cardRef\` (random nonce, ADR-0020) as \`<opaque, per run>\`; sample passwords are the"
-  echo "plaintext values of the USRSEC sample file. Each step asserts its HTTP status (\`steps.tsv\`)."
+  echo "Scenario inputs: \`scripts/golden-set/scenario.json\`. Bearer tokens are redacted, wall-clock values (JWT expiry, report submission, batch_run step times) are shown as \`<wall clock>\`, the encrypted \`cardRef\` (random nonce, ADR-0020) as \`<opaque, per run>\`; sample passwords (and the GOLDEN01 password) come from \`scenario.json\` /"
+  echo "USRSEC sample values and are redacted (\`<redacted>\`) in requests and responses. Each step asserts its HTTP status (\`steps.tsv\`)."
   echo
 } >>"$T"
 AA=""

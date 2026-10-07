@@ -185,15 +185,15 @@ Differences the compare scripts document without an entry (same behaviour as `ma
 
 ## Appendix A. Request/response transcript
 
-Scenario inputs: `scripts/golden-set/scenario.json`. Bearer tokens are redacted, wall-clock values (JWT expiry, report submission, batch_run step times) are shown as `<wall clock>`, the encrypted `cardRef` (random nonce, ADR-0020) as `<opaque, per run>`; sample passwords are the
-plaintext values of the USRSEC sample file. Each step asserts its HTTP status (`steps.tsv`).
+Scenario inputs: `scripts/golden-set/scenario.json`. Bearer tokens are redacted, wall-clock values (JWT expiry, report submission, batch_run step times) are shown as `<wall clock>`, the encrypted `cardRef` (random nonce, ADR-0020) as `<opaque, per run>`; sample passwords (and the GOLDEN01 password) come from `scenario.json` /
+USRSEC sample values and are redacted (`<redacted>`) in requests and responses. Each step asserts its HTTP status (`steps.tsv`).
 
 #### S01 sign on as USER0001 (COSGN00C)
 
 ```
 POST /api/v1/auth/login
 {
-  "password": "PASSWORD",
+  "password": "<redacted>",
   "userId": "USER0001"
 }
 
@@ -225,7 +225,7 @@ HTTP 200
 ```
 POST /api/v1/auth/login
 {
-  "password": "PASSWORD",
+  "password": "<redacted>",
   "userId": "ADMIN001"
 }
 
@@ -1947,7 +1947,7 @@ POST /api/v1/users
 {
   "firstName": "Grace",
   "lastName": "Golden",
-  "password": "GOLDPASS",
+  "password": "<redacted>",
   "userId": "GOLDEN01",
   "userType": "U"
 }
@@ -1979,7 +1979,7 @@ HTTP 201
   "user": {
     "firstName": "Grace",
     "lastName": "Golden",
-    "password": null,
+    "password": "<redacted>",
     "userId": "GOLDEN01",
     "userType": "U",
     "version": 0
@@ -2019,7 +2019,7 @@ HTTP 200
   "user": {
     "firstName": "Grace",
     "lastName": "Golden",
-    "password": "GOLDPASS",
+    "password": "<redacted>",
     "userId": "GOLDEN01",
     "userType": "U",
     "version": 0
@@ -2034,7 +2034,7 @@ PUT /api/v1/users/GOLDEN01
 {
   "firstName": "Grace",
   "lastName": "Goldensen",
-  "password": "GOLDPASS",
+  "password": "<redacted>",
   "userType": "A",
   "version": 0
 }
@@ -2066,7 +2066,7 @@ HTTP 200
   "user": {
     "firstName": "Grace",
     "lastName": "Goldensen",
-    "password": "GOLDPASS",
+    "password": "<redacted>",
     "userId": "GOLDEN01",
     "userType": "A",
     "version": 1
@@ -2106,7 +2106,7 @@ HTTP 200
   "user": {
     "firstName": "LEE",
     "lastName": "TING",
-    "password": null,
+    "password": "<redacted>",
     "userId": "USER0005",
     "userType": "U",
     "version": 0
@@ -2146,7 +2146,7 @@ HTTP 200
   "user": {
     "firstName": "LEE",
     "lastName": "TING",
-    "password": null,
+    "password": "<redacted>",
     "userId": "USER0005",
     "userType": "U",
     "version": 0
