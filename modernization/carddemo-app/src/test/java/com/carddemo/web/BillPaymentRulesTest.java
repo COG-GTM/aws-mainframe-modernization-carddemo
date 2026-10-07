@@ -48,6 +48,8 @@ class BillPaymentRulesTest extends TransactionWebTest {
     void R4_pf3ReturnsToTheCallerOrTheMainMenu() throws Exception {
         pay("1", "", null).andExpect(jsonPath("$.exit.toProgram").value("COMEN01C"));
         pay("1", "", null, "fromProgram", "COTRN00C").andExpect(jsonPath("$.exit.toProgram").value("COTRN00C"));
+        pay("1", "", null, "fromProgram", "COACTVWC").andExpect(jsonPath("$.exit.toProgram").value("COACTVWC"))
+                .andExpect(jsonPath("$.exit.toTranId").value("CAVW"));
     }
 
     @Test

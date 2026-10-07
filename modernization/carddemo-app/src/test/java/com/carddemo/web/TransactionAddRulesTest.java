@@ -61,6 +61,8 @@ class TransactionAddRulesTest extends TransactionWebTest {
         add(form()).andExpect(jsonPath("$.exit.toProgram").value("COMEN01C"))
                 .andExpect(jsonPath("$.exit.toTranId").value("CM00"));
         add(form(), "fromProgram", "COTRN00C").andExpect(jsonPath("$.exit.toProgram").value("COTRN00C"));
+        add(form(), "fromProgram", "COACTVWC").andExpect(jsonPath("$.exit.toProgram").value("COACTVWC"))
+                .andExpect(jsonPath("$.exit.toTranId").value("CAVW"));
     }
 
     @Test

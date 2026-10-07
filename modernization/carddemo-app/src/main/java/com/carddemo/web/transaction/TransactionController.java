@@ -21,6 +21,7 @@ import com.carddemo.web.ScreenHeaders;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -55,6 +56,29 @@ public class TransactionController {
     public static final int PAGE_SIZE = 10;
     public static final String MSG_LIMIT = "limit must be 10 (rows on COTRN0A)";
     public static final String MSG_ONE_CURSOR = "Send either after (PF8) or before (PF7), not both";
+    private static final String EXAMPLE_HEADER = "\"header\":{\"title01\":\"AWS Mainframe Modernization\",\"title02\":\"CardDemo\","
+            + "\"tranId\":\"CT02\",\"programName\":\"COTRN02C\",\"currentDate\":\"07/06/22\","
+            + "\"currentTime\":\"10:15:00\",\"applId\":\"CARDDEMO\",\"sysId\":\"CDMO\"}";
+    private static final String EXAMPLE_EXIT = "\"exit\":{\"fromTranId\":\"CT02\",\"fromProgram\":\"COTRN02C\","
+            + "\"toTranId\":\"CM00\",\"toProgram\":\"COMEN01C\",\"pgmContext\":\"ENTER\","
+            + "\"custId\":null,\"acctId\":null,\"cardNum\":null}";
+    private static final String EXAMPLE_FORM = "{\"accountId\":\"00000000001\",\"cardNumber\":\"4111111111111111\","
+            + "\"typeCode\":\"01\",\"categoryCode\":\"0001\",\"source\":\"POS TERM\",\"description\":\"Online purchase\","
+            + "\"amount\":\"-00000012.34\",\"origDate\":\"2022-07-06\",\"procDate\":\"2022-07-06\","
+            + "\"merchantId\":\"000000001\",\"merchantName\":\"Corner Store\",\"merchantCity\":\"Seattle\","
+            + "\"merchantZip\":\"98101\",\"confirm\":\"\",\"copyLast\":false}";
+    static final String VALIDATED_EXAMPLE = "{" + EXAMPLE_HEADER + ",\"state\":\"VALIDATED\",\"form\":" + EXAMPLE_FORM
+            + ",\"transaction\":null,\"message\":\"Confirm to add this transaction...\"," + EXAMPLE_EXIT + "}";
+    static final String ADDED_EXAMPLE = "{" + EXAMPLE_HEADER + ",\"state\":\"ADDED\",\"form\":{\"accountId\":\"\","
+            + "\"cardNumber\":\"\",\"typeCode\":\"\",\"categoryCode\":\"\",\"source\":\"\",\"description\":\"\","
+            + "\"amount\":\"\",\"origDate\":\"\",\"procDate\":\"\",\"merchantId\":\"\",\"merchantName\":\"\","
+            + "\"merchantCity\":\"\",\"merchantZip\":\"\",\"confirm\":\"\",\"copyLast\":false},"
+            + "\"transaction\":{\"tranId\":\"0000000000000301\",\"cardNumber\":\"4111111111111111\",\"typeCode\":\"01\","
+            + "\"categoryCode\":\"0001\",\"source\":\"POS TERM\",\"amount\":\"-00000012.34\","
+            + "\"description\":\"Online purchase\",\"origTimestamp\":\"2022-07-06\",\"procTimestamp\":\"2022-07-06\","
+            + "\"merchantId\":\"000000001\",\"merchantName\":\"Corner Store\",\"merchantCity\":\"Seattle\","
+            + "\"merchantZip\":\"98101\"},\"message\":\"Transaction added successfully.  Your Tran ID is 0000000000000301.\","
+            + EXAMPLE_EXIT + "}";
     public static final String MSG_INVALID_SELECTION = "Invalid selection. Valid value is S";
 
     private final TransactionBrowse browse;
@@ -176,9 +200,11 @@ public class TransactionController {
             requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(required = true,
                     content = @Content(schema = @Schema(implementation = TransactionAddRequest.class))))
     @ApiResponse(responseCode = "200", description = "VALIDATED: nothing written",
-            content = @Content(schema = @Schema(implementation = TransactionAddResponse.class)))
+            content = @Content(schema = @Schema(implementation = TransactionAddResponse.class),
+                    examples = @ExampleObject(name = "validated", value = VALIDATED_EXAMPLE)))
     @ApiResponse(responseCode = "201", description = "ADDED",
-            content = @Content(schema = @Schema(implementation = TransactionAddResponse.class)))
+            content = @Content(schema = @Schema(implementation = TransactionAddResponse.class),
+                    examples = @ExampleObject(name = "added", value = ADDED_EXAMPLE)))
     @ApiResponse(responseCode = "400", description = "INVREQ: a key or field edit failed (R-8..R-27c)",
             content = @Content(mediaType = "application/problem+json",
                     schema = @Schema(implementation = ApiError.class)))

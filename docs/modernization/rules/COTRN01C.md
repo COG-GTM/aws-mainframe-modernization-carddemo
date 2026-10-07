@@ -44,6 +44,6 @@ when a list row is selected with `S`).
 
 - The id is looked up as typed after right-trim (R-10: no numeric check, no zero padding); blank is 400, NOTFND 404,
   other errors 500 `ABEND`. Nothing is read for update (the COBOL `READ UPDATE` lock is never used).
-- `exit` = PF3 (`fromProgram` query parameter, else COMEN01C), `list` = PF5 (COTRN00C). PF4 is a client-side clear.
+- `exit` = PF3 (`fromProgram` query parameter when it names another installed program, else COMEN01C; same for COTRN02C and COBIL00C), `list` = PF5 (COTRN00C). PF4 is a client-side clear.
 - COTRN1A shows the full card number, so the detail returns it (ADR-0020: full PAN only where the map shows it).
 - Role: no ownership check — COTRN01C has none (ADR-0020 §4).

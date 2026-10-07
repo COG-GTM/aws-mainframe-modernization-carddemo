@@ -38,6 +38,9 @@ class TransactionViewRulesTest extends TransactionWebTest {
         mvc.perform(get(next).header(HttpHeaders.AUTHORIZATION, user())).andExpect(status().isOk())
                 .andExpect(jsonPath("$.transaction.tranId").value(id(3)))
                 .andExpect(jsonPath("$.exit.toProgram").value("COTRN00C"));
+        view(id(5), "fromProgram", "COACTVWC").andExpect(jsonPath("$.exit.toTranId").value("CAVW"))
+                .andExpect(jsonPath("$.exit.toProgram").value("COACTVWC"));
+        view(id(5), "fromProgram", "NOTAPGM").andExpect(jsonPath("$.exit.toProgram").value("COMEN01C"));
     }
 
     @Test

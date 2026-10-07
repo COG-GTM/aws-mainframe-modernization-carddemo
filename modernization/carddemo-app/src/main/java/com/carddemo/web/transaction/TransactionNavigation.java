@@ -1,5 +1,6 @@
 package com.carddemo.web.transaction;
 
+import com.carddemo.common.online.OnlineProgram;
 import com.carddemo.web.NavigationContext;
 
 /** Transaction ids and programs of the four screens and the PF3 targets. */
@@ -19,11 +20,12 @@ final class TransactionNavigation {
     private TransactionNavigation() {
     }
 
-    /** PF3: {@code CDEMO-FROM-PROGRAM} when it is the list, else the main menu. */
+    /** PF3: {@code CDEMO-FROM-PROGRAM} when it names another installed program, else the main menu. */
     static NavigationContext exit(String tranId, String program, String fromProgram) {
-        if (LIST_PROGRAM.equals(fromProgram) && !LIST_PROGRAM.equals(program)) {
-            return NavigationContext.transfer(tranId, program, LIST_TRAN, LIST_PROGRAM);
-        }
-        return NavigationContext.transfer(tranId, program, MENU_TRAN, MENU_PROGRAM);
+        String caller = fromProgram == null ? "" : fromProgram.strip();
+        return OnlineProgram.find(caller)
+                .filter(p -> !p.programId().equals(program))
+                .map(p -> NavigationContext.transfer(tranId, program, p.tranId(), p.programId()))
+                .orElseGet(() -> NavigationContext.transfer(tranId, program, MENU_TRAN, MENU_PROGRAM));
     }
 }
