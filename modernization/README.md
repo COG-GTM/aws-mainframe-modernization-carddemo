@@ -102,7 +102,34 @@ online changes followed by the whole nightly cycle give the same result in Java 
 
 Knobs: `GOLDEN_OUT` (default `build/golden-set`), `GOLDEN_DATE`/`GOLDEN_DOC_DIR`, `GOLDEN_PG_PORT` (55433),
 `GOLDEN_APP_PORT` (18095), `CARDDEMO_JAR`, `GOLDEN_JAVA_HOME`. Credentials are random per run and never written.
-For CI (s6.2) the job needs the same tools as `batch-equivalence` plus `cobc`, then `make golden-set`.
+
+### Golden set in CI (`golden-set` job, gate g-golden)
+
+The `golden-set` job of `.github/workflows/modernization-ci.yml` runs on every PR and push to `main` that touches the
+workflow's path filters (including `scripts/golden-set/**` and `docs/validation/golden-set/**`). It installs Temurin
+21 (Maven cache) and the `gnucobol` + `jq` apt packages, packages the jar with `mvn -DskipTests package` (the `build`
+job runs the test suite; packaging here keeps the job parallel with the others instead of waiting for `build`), and
+runs `make golden-set-check` with `CARDDEMO_JAR` pointing at it. Docker on the runner hosts the script's own
+throwaway `postgres:16-alpine`, so the script runs unchanged. The GnuCOBOL compile takes seconds, so there is no
+binary cache.
+
+`make golden-set-check` (`scripts/golden-set/ci_check.sh`) is to the golden set what `make baseline-check` is to the
+baseline. It runs `run_golden_set.sh` with `GOLDEN_DOC_DIR=build/golden-set-doc` and fails when:
+
+- the run fails (any unexplained difference, any allow-list entry not matched exactly once, missing dataset,
+  duplicate key, load/scenario failure), or
+- the reconciliation it wrote differs from the newest committed `docs/validation/golden-set/<date>/`
+  (`GOLDEN_COMMITTED_DIR` overrides). Two things are normalised because they vary by host: the `Toolchain:` line of
+  `reconciliation.md` (JDK vendor/build, cobc patch level), and trailing fraction zeros on transcript lines that hold
+  a bare JSON number (jq 1.6 pretty-prints the API's `1020.00` as `1020`, jq 1.7 keeps the literal; the runner's
+  apt jq is 1.7.1, the committed transcript was written with 1.6). Every other table, count, digest and transcript
+  line must be identical.
+
+The job writes `build/golden-set/summary.md` (verdict, per-comparison lines, allow-list count, elapsed, plus any
+unexplained-difference lines or drift diff) to the step summary. It uploads `golden-set-reconciliation` (the
+`docs/validation/golden-set/<date>/` layout) and `golden-set-work` (datasets, compare reports, logs) as artifacts. When a
+change is meant to alter the reconciliation (a new scenario step, a new allow-list entry), regenerate the dated
+directory with `make golden-set` and commit it together with the change.
 
 ## Run locally (docker compose)
 

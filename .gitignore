@@ -14,4 +14,5 @@ build/baseline-work/
 .jqwik-database
 build/batch-equivalence/
 build/golden-set/
+build/golden-set-doc/
 __pycache__/
