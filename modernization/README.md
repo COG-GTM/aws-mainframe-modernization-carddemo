@@ -119,8 +119,11 @@ baseline. It runs `run_golden_set.sh` with `GOLDEN_DOC_DIR=build/golden-set-doc`
 - the run fails (any unexplained difference, any allow-list entry not matched exactly once, missing dataset,
   duplicate key, load/scenario failure), or
 - the reconciliation it wrote differs from the newest committed `docs/validation/golden-set/<date>/`
-  (`GOLDEN_COMMITTED_DIR` overrides). Only the `Toolchain:` line of `reconciliation.md` is normalised (JDK vendor/build
-  and cobc patch level vary by host). Every table, count, digest and the transcript must be identical.
+  (`GOLDEN_COMMITTED_DIR` overrides). Two things are normalised because they vary by host: the `Toolchain:` line of
+  `reconciliation.md` (JDK vendor/build, cobc patch level), and trailing fraction zeros on transcript lines that hold
+  a bare JSON number (jq 1.6 pretty-prints the API's `1020.00` as `1020`, jq 1.7 keeps the literal; the runner's
+  apt jq is 1.7.1, the committed transcript was written with 1.6). Every other table, count, digest and transcript
+  line must be identical.
 
 The job writes `build/golden-set/summary.md` (verdict, per-comparison lines, allow-list count, elapsed, plus any
 unexplained-difference lines or drift diff) to the step summary. It uploads `golden-set-reconciliation` (the

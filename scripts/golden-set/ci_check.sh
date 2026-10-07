@@ -25,7 +25,13 @@ scripts/golden-set/run_golden_set.sh 2>&1 | tee "$run_log"
 run_rc=${PIPESTATUS[0]}
 mv "$run_log" "$OUT/run.log"
 
-normalise() { sed -E 's/^Toolchain: .*$/Toolchain: <normalised>/' "$1"; }
+# jq 1.6 prints the API's BigDecimal 1020.00 as 1020 in the pretty-printed transcript, jq >= 1.7 keeps the literal:
+# drop trailing fraction zeros on transcript lines that are a bare JSON number (`"key": n,` or `n,`).
+normalise() {
+    sed -E -e 's/^Toolchain: .*$/Toolchain: <normalised>/' \
+        -e 's/^( *("[^"]*": )?-?[0-9]+)\.0+(,?)$/\1\3/' \
+        -e 's/^( *("[^"]*": )?-?[0-9]+\.[0-9]*[1-9])0+(,?)$/\1\3/' "$1"
+}
 drift="$OUT/reproducibility.diff"
 : >"$drift"
 if [ -d "$GOLDEN_DOC_DIR" ]; then
@@ -49,7 +55,7 @@ if [ -s "$drift" ]; then repro_rc=1; else repro_rc=0; fi
     echo "| check | result |"
     echo "|---|---|"
     echo "| \`run_golden_set.sh\` (zero unexplained differences, allow-list matched exactly once) | $([ $run_rc = 0 ] && echo PASS || echo "FAIL (exit $run_rc)") |"
-    echo "| reconciliation reproduces \`$COMMITTED/\` (Toolchain line normalised) | $([ $repro_rc = 0 ] && echo "PASS (identical)" || echo FAIL) |"
+    echo "| reconciliation reproduces \`$COMMITTED/\` (Toolchain line and jq number formatting normalised) | $([ $repro_rc = 0 ] && echo "PASS (identical)" || echo FAIL) |"
     echo
     echo '```'
     cat "$OUT/summary.txt" 2>/dev/null || echo "(no summary.txt: the run stopped before the reconciliation)"
