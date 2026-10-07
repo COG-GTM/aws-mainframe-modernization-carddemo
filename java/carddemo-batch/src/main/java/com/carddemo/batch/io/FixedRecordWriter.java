@@ -46,6 +46,10 @@ public final class FixedRecordWriter {
         }
     }
 
+    public boolean isOpen() {
+        return out != null;
+    }
+
     public void close() {
         if (out == null) {
             throw new FileStatusException(ddname, "CLOSE", FileStatusException.NOT_OPEN);

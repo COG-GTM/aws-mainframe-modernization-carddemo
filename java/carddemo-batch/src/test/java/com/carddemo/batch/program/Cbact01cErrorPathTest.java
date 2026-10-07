@@ -70,6 +70,18 @@ class Cbact01cErrorPathTest {
     }
 
     @Test
+    void outputsAlreadyOpenAreReleasedWhenALaterOpenAbends(@TempDir Path tmp) {
+        ByteArrayOutputStream buf = new ByteArrayOutputStream();
+        PrintStream ps = new PrintStream(buf, true, StandardCharsets.ISO_8859_1);
+        Cbact01c prog = new Cbact01c(Repo.SAMPLE_ACCTDATA, tmp.resolve("OUTFILE"), tmp.resolve("ARRYFILE"),
+                tmp.resolve("missing-dir").resolve("VBRCFILE"), ps);
+        assertThrows(AbendException.class, prog::run);
+        assertTrue(buf.toString(StandardCharsets.ISO_8859_1).contains("ERROR OPENING VBRC FILE"), buf.toString(StandardCharsets.ISO_8859_1));
+        assertFalse(prog.anyOutputOpen(), "OUTFILE and ARRYFILE must be closed after the abend");
+        assertTrue(Files.exists(tmp.resolve("OUTFILE")) && Files.exists(tmp.resolve("ARRYFILE")));
+    }
+
+    @Test
     void badRecordLengthIsAttributeMismatch39(@TempDir Path tmp) throws IOException {
         Path acct = tmp.resolve("acct.txt");
         Files.write(acct, "0000000000A short record\n".getBytes(StandardCharsets.ISO_8859_1));

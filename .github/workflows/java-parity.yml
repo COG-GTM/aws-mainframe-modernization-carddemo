@@ -5,6 +5,8 @@ on:
     paths:
       - 'java/**'
       - 'golden-files/**'
+      - 'test-harness/**'
+      - 'app/data/ASCII/**'
       - '.github/workflows/java-parity.yml'
   push:
     branches:
@@ -13,6 +15,8 @@ on:
     paths:
       - 'java/**'
       - 'golden-files/**'
+      - 'test-harness/**'
+      - 'app/data/ASCII/**'
 
 jobs:
   verify:

@@ -158,6 +158,36 @@ class FixedWidthRecordTest {
     }
 
     @Test
+    void packedSettersTruncateToThePicNotToTheStorage() {
+        OutAcctRec out = new OutAcctRec();
+        out.setOutAcctCurrCycDebit(new BigDecimal("10000000000.00"));
+        assertEquals(0, out.outAcctCurrCycDebit().signum(), "PIC S9(10)V99 drops the 11th integer digit");
+        assertEquals(0x00, out.encode()[90] & 0xFF, "spare high nibble stays zero");
+        out.setOutAcctCurrCycDebit(new BigDecimal("-9999999999.99"));
+        assertEquals(0, new BigDecimal("-9999999999.99").compareTo(out.outAcctCurrCycDebit()));
+    }
+
+    @Test
+    void nestedOccursKeepTheirCountsWhenAnOuterOccurrenceIsRelocated() {
+        Layout.Builder builder = Layout.builder("NESTED");
+        Field outer = builder.group("OUTER", 2, g -> g.group("INNER", 3, i -> i.text("X", 1)));
+        Layout nested = builder.build();
+        assertEquals(2, outer.occurs());
+        assertEquals(3, outer.child("INNER").occurs());
+        assertEquals(3, outer.occurrence(1).child("INNER").occurs(), "inner OCCURS survives relocation");
+        assertEquals(3, outer.occurrence(1).child("INNER").offset());
+        assertEquals(1, outer.occurrence(1).occurs());
+        assertEquals(6, nested.length());
+        byte[] buf = new byte[6];
+        FixedWidth.initialize(buf, nested);
+        assertEquals("      ", new String(buf, StandardCharsets.ISO_8859_1), "all six inner entries initialised");
+        @SuppressWarnings("unchecked")
+        List<Map<String, Object>> outerList = (List<Map<String, Object>>) FixedWidth.toMap(buf, nested).get("OUTER");
+        assertEquals(2, outerList.size());
+        assertEquals(3, ((List<?>) outerList.get(1).get("INNER")).size());
+    }
+
+    @Test
     void decodeRejectsWrongRecordLength() {
         assertThrows(CodecException.class, () -> AccountRecord.decode(new byte[299]));
         assertThrows(CodecException.class, () -> OutAcctRec.decode(new byte[108]));

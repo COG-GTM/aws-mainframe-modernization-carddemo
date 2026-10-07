@@ -95,8 +95,10 @@ public final class Cbact01c {
     }
 
     /**
-     * {@code java -jar carddemo-batch.jar [ACCTFILE OUTFILE ARRYFILE VBRCFILE]}; defaults to the sample data
-     * in {@code app/data/ASCII/acctdata.txt} and output files in the current directory.
+     * {@code java -jar carddemo-batch.jar [ACCTFILE OUTFILE ARRYFILE VBRCFILE]}. Paths are resolved against
+     * the working directory; with no arguments the program expects to be run from the repository root
+     * (input {@code app/data/ASCII/acctdata.txt}, outputs {@code OUTFILE}, {@code ARRYFILE}, {@code VBRCFILE}
+     * in the current directory).
      */
     public static void main(String[] args) {
         Path acct = args.length > 0 ? Paths.get(args[0]) : Paths.get("app", "data", "ASCII", "acctdata.txt");
@@ -116,27 +118,47 @@ public final class Cbact01c {
     /** PROCEDURE DIVISION. Returns the COBOL RETURN-CODE (0); abends surface as {@link AbendException}. */
     public int run() {
         display.println("START OF EXECUTION OF PROGRAM CBACT01C");
-        acctfileOpen();            // 0000-ACCTFILE-OPEN
-        outfileOpen();             // 2000-OUTFILE-OPEN
-        arrfileOpen();             // 3000-ARRFILE-OPEN
-        vbrfileOpen();             // 4000-VBRFILE-OPEN
+        try {
+            acctfileOpen();            // 0000-ACCTFILE-OPEN
+            outfileOpen();             // 2000-OUTFILE-OPEN
+            arrfileOpen();             // 3000-ARRFILE-OPEN
+            vbrfileOpen();             // 4000-VBRFILE-OPEN
 
-        while (!endOfFile) {
-            acctfileGetNext();     // 1000-ACCTFILE-GET-NEXT
-            if (!endOfFile) {
-                display.println(accountRecord.display());
+            while (!endOfFile) {
+                acctfileGetNext();     // 1000-ACCTFILE-GET-NEXT
+                if (!endOfFile) {
+                    display.println(accountRecord.display());
+                }
             }
-        }
 
-        acctfileClose();           // 9000-ACCTFILE-CLOSE
-        // The COBOL program never CLOSEs its three output files; GOBACK closes them implicitly.
-        outFile.close();
-        arryFile.close();
-        vbrcFile.close();
+            acctfileClose();           // 9000-ACCTFILE-CLOSE
+            // The COBOL program never CLOSEs its three output files; GOBACK closes them implicitly.
+            outFile.close();
+            arryFile.close();
+            vbrcFile.close();
+        } finally {
+            // Also implicit on z/OS: an abend releases the files the step had allocated.
+            releaseOutputFiles();
+        }
 
         display.println("END OF EXECUTION OF PROGRAM CBACT01C");
         display.flush();
         return 0;
+    }
+
+    private void releaseOutputFiles() {
+        for (Runnable close : new Runnable[] {outFile::close, arryFile::close, vbrcFile::close}) {
+            try {
+                close.run();
+            } catch (FileStatusException ignored) {
+                // not open (42) or failed to flush: the original abend is what the caller must see
+            }
+        }
+    }
+
+    /** True while any of OUTFILE, ARRYFILE or VBRCFILE is still open (test hook). */
+    boolean anyOutputOpen() {
+        return outFile.isOpen() || arryFile.isOpen() || vbrcFile.isOpen();
     }
 
     // ----- 1000-ACCTFILE-GET-NEXT -------------------------------------------------------------

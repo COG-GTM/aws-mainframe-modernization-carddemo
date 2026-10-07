@@ -58,7 +58,7 @@ public final class FixedWidth {
                 ZonedDecimal.encode(buf, f.offset(), f.length(), f.scale(), f.signed(), value);
                 break;
             case PACKED:
-                PackedDecimal.encode(buf, f.offset(), f.length(), f.scale(), f.signed(), value);
+                PackedDecimal.encode(buf, f.offset(), f.length(), f.digits(), f.scale(), f.signed(), value);
                 break;
             default:
                 throw new IllegalArgumentException(f.name() + " is not numeric");

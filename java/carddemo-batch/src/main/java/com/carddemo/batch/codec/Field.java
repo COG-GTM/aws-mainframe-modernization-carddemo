@@ -89,7 +89,7 @@ public final class Field {
         if (index < 0 || index >= occurs) {
             throw new IndexOutOfBoundsException(name + " has " + occurs + " occurrences, asked for " + index);
         }
-        return shifted(index * length);
+        return relocated(index * length, 1);
     }
 
     /** Child of this group named {@code childName}, with its offset already absolute. */
@@ -102,9 +102,14 @@ public final class Field {
         throw new IllegalArgumentException("no field " + childName + " in group " + name);
     }
 
+    /** Same field (and descendants, keeping their own OCCURS counts) moved {@code delta} bytes. */
     Field shifted(int delta) {
+        return relocated(delta, occurs);
+    }
+
+    private Field relocated(int delta, int occursOfResult) {
         List<Field> kids = children.stream().map(c -> c.shifted(delta)).toList();
-        return new Field(name, offset + delta, length, usage, digits, scale, signed, 1, kids);
+        return new Field(name, offset + delta, length, usage, digits, scale, signed, occursOfResult, kids);
     }
 
     @Override

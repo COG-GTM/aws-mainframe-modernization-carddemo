@@ -71,6 +71,10 @@ public final class VariableRecordWriter {
         }
     }
 
+    public boolean isOpen() {
+        return out != null;
+    }
+
     public void close() {
         if (out == null) {
             throw new FileStatusException(ddname, "CLOSE", FileStatusException.NOT_OPEN);

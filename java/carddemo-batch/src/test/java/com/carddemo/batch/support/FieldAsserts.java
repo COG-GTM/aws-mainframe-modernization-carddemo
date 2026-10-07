@@ -110,6 +110,12 @@ public final class FieldAsserts {
                 checks.add(textField(file, key, field, (String) e.getValue(), act));
             }
         }
+        for (String extra : actual.keySet()) {
+            if (!golden.containsKey(extra)) {
+                checks.add(() -> assertTrue(false, file + " record " + key + " field " + prefix + extra
+                        + " is produced by Java but absent from the golden"));
+            }
+        }
         return checks;
     }
 

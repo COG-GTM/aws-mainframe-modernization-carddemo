@@ -42,13 +42,26 @@ public final class PackedDecimal {
         return new BigDecimal(new BigInteger(digits.toString()), scale);
     }
 
+    /** Encodes using every digit nibble the {@code len} bytes can hold ({@code 2 * len - 1} digits). */
     public static void encode(byte[] buf, int off, int len, int scale, boolean signed, BigDecimal value) {
+        encode(buf, off, len, len * 2 - 1, scale, signed, value);
+    }
+
+    /**
+     * Encodes {@code value} into a {@code PIC S9(picDigits - scale)V9(scale) COMP-3} item of {@code len}
+     * bytes: digits beyond {@code picDigits} are dropped high-order first (COBOL MOVE truncation), extra
+     * decimals are truncated, and any spare high nibble is zero.
+     */
+    public static void encode(byte[] buf, int off, int len, int picDigits, int scale, boolean signed, BigDecimal value) {
+        int ndig = len * 2 - 1;
+        if (picDigits < 1 || picDigits > ndig) {
+            throw new CodecException("PIC with " + picDigits + " digits does not fit " + len + " COMP-3 bytes");
+        }
         BigDecimal scaled = value.setScale(scale, RoundingMode.DOWN);
         boolean negative = scaled.signum() < 0;
-        int ndig = len * 2 - 1;
         String digits = scaled.abs().unscaledValue().toString();
-        if (digits.length() > ndig) {
-            digits = digits.substring(digits.length() - ndig);
+        if (digits.length() > picDigits) {
+            digits = digits.substring(digits.length() - picDigits);
         }
         StringBuilder sb = new StringBuilder(ndig + 1);
         for (int i = digits.length(); i < ndig; i++) {

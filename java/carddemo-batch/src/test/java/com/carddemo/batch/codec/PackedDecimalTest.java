@@ -71,12 +71,17 @@ class PackedDecimalTest {
     }
 
     @Test
-    void oversizedValuesTruncateHighOrderDigitsLikeACobolMove() {
+    void oversizedValuesTruncateToThePicDigitsLikeACobolMove() {
         byte[] buf = new byte[7];
-        PackedDecimal.encode(buf, 0, 7, 2, true, new BigDecimal("12345678901234.56"));
-        assertArrayEquals(hex("4567890123456C"), buf, "16 digits into 13 nibbles keeps the low-order 13");
-        PackedDecimal.encode(buf, 0, 7, 2, true, new BigDecimal("1.999"));
+        PackedDecimal.encode(buf, 0, 7, 12, 2, true, new BigDecimal("12345678901234.56"));
+        assertArrayEquals(hex("0567890123456C"), buf, "16 digits into PIC S9(10)V99 keeps the low-order 12, spare nibble 0");
+        PackedDecimal.encode(buf, 0, 7, 12, 2, true, new BigDecimal("10000000000.00"));
+        assertArrayEquals(hex("0000000000000C"), buf, "11 integer digits into 9(10): the leading 1 is dropped");
+        PackedDecimal.encode(buf, 0, 7, 12, 2, true, new BigDecimal("1.999"));
         assertArrayEquals(hex("0000000000199C"), buf, "extra decimals are truncated, not rounded");
+        PackedDecimal.encode(buf, 0, 7, 2, true, new BigDecimal("12345678901234.56"));
+        assertArrayEquals(hex("4567890123456C"), buf, "without a PIC width every nibble is used");
+        assertThrows(CodecException.class, () -> PackedDecimal.encode(buf, 0, 7, 14, 2, true, BigDecimal.ONE));
     }
 
     @Test
