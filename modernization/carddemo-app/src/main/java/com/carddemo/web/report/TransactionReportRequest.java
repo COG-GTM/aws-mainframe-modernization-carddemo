@@ -8,7 +8,7 @@ import jakarta.validation.constraints.Size;
 @Schema(description = "Transaction report request (CORPT00C)")
 public record TransactionReportRequest(
         @Schema(description = "MONTHLY, YEARLY or CUSTOM (or M/Y/C, any case)", example = "CUSTOM")
-        String reportType,
+        @Size(max = 7) String reportType,
         @Schema(description = "Custom start date (SDTMM/SDTDD/SDTYYYY); ignored for Monthly/Yearly") @Valid
         ReportDateFields startDate,
         @Schema(description = "Custom end date (EDTMM/EDTDD/EDTYYYY); ignored for Monthly/Yearly") @Valid

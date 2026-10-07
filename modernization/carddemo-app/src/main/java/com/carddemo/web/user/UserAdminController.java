@@ -46,6 +46,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.util.UriComponentsBuilder;
 
 /**
  * COUSR00C (CU00 list), COUSR01C (CU01 add), COUSR02C (CU02 update) and COUSR03C (CU03 delete). In CICS these are
@@ -144,13 +145,13 @@ public class UserAdminController {
                 continue;
             }
             UserListBrowse.Action action = UserListBrowse.Action.of(row.selection(), "rows[" + i + "].selection");
-            String userId = row.userId().strip();
+            String userId = ScreenInput.rightTrim(row.userId());
             NavigationContext target = action == UserListBrowse.Action.UPDATE
                     ? NavigationContext.transfer(LIST_TRAN, LIST_PROGRAM, UPDATE_TRAN, UPDATE_PROGRAM)
                     : NavigationContext.transfer(LIST_TRAN, LIST_PROGRAM, DELETE_TRAN, DELETE_PROGRAM);
             String next = action == UserListBrowse.Action.UPDATE
-                    ? "GET " + PATH + "/" + userId + "?fromProgram=" + LIST_PROGRAM
-                    : "DELETE " + PATH + "/" + userId + "?fromProgram=" + LIST_PROGRAM;
+                    ? "GET " + userPath(userId) + "?fromProgram=" + LIST_PROGRAM
+                    : "DELETE " + userPath(userId) + "?fromProgram=" + LIST_PROGRAM;
             return new UserSelectionResponse(headers.of(LIST_TRAN, LIST_PROGRAM), target, userId, next);
         }
         return new UserSelectionResponse(headers.of(LIST_TRAN, LIST_PROGRAM), null, null, null);
@@ -178,7 +179,7 @@ public class UserAdminController {
         UserScreen screen = new UserScreen(headers.of(ADD_TRAN, ADD_PROGRAM), UserScreen.State.ADDED,
                 UserScreen.User.of(user, false), UserAdminMessages.added(user.getUsrId()),
                 UserNavigation.adminMenu(ADD_TRAN, ADD_PROGRAM));
-        return ResponseEntity.created(URI.create(PATH + "/" + user.getUsrId())).body(screen);
+        return ResponseEntity.created(URI.create(userPath(user.getUsrId()))).body(screen);
     }
 
     @GetMapping("/{id}")
@@ -268,5 +269,10 @@ public class UserAdminController {
         UserScreen.User user = outcome.user() == null ? null : UserScreen.User.of(outcome.user(), false);
         return new UserScreen(headers.of(DELETE_TRAN, DELETE_PROGRAM), state, user, outcome.message(),
                 UserNavigation.exit(DELETE_TRAN, DELETE_PROGRAM, fromProgram));
+    }
+
+    /** PATH/{id} with the id encoded as one path segment (ids may contain spaces). */
+    private static String userPath(String userId) {
+        return UriComponentsBuilder.fromPath(PATH).pathSegment("{id}").buildAndExpand(userId).encode().toUriString();
     }
 }

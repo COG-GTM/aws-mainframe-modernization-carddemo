@@ -1208,7 +1208,7 @@ status COMPLETED
     "encoding": "EBCDIC",
     "downloadUrl": "/api/v1/reports/transactions/3/report",
     "lines": [
-      "... (-4 more lines)"
+      "... (0 more lines)"
     ]
   }
 }

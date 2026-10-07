@@ -107,6 +107,13 @@ class UserListRulesTest extends UserWebTest {
     }
 
     @Test
+    void selectionKeepsLeadingSpacesOfTheIdAndEncodesItInTheNextRequest() throws Exception {
+        select(List.of(" A123   "), List.of("U")).andExpect(status().isOk())
+                .andExpect(jsonPath("$.userId").value(" A123"))
+                .andExpect(jsonPath("$.next").value("GET /api/v1/users/%20A123?fromProgram=COUSR00C"));
+    }
+
+    @Test
     void R11_dOrLowerDTransfersToCousr03c() throws Exception {
         for (String code : List.of("D", "d")) {
             select(List.of(userId(4)), List.of(code)).andExpect(status().isOk())

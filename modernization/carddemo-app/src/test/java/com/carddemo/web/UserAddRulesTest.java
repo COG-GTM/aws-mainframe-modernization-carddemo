@@ -110,6 +110,13 @@ class UserAddRulesTest extends UserWebTest {
     }
 
     @Test
+    void anIdWithSpacesIsStoredAsTypedAndItsLocationIsEncoded() throws Exception {
+        add(addForm().put("userId", "JOE DOE")).andExpect(status().isCreated())
+                .andExpect(header().string(HttpHeaders.LOCATION, endsWith("/api/v1/users/JOE%20DOE")));
+        assertThat(store).containsKey("JOE DOE");
+    }
+
+    @Test
     void R14_returnCarriesTheFromFields() throws Exception {
         add(addForm()).andExpect(jsonPath("$.exit.fromTranId").value("CU01"))
                 .andExpect(jsonPath("$.exit.fromProgram").value("COUSR01C"));

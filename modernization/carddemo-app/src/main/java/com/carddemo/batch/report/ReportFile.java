@@ -8,19 +8,11 @@ import java.util.List;
 /** A TRANREPT generation: its catalogue row, the file bytes as written and their encoding. */
 public record ReportFile(BatchOutputFile catalog, byte[] content, RecordEncoding encoding) {
 
-    /** Report lines (LRECL = file size / record count), trailing spaces removed. */
+    /** Report lines of the fixed-record generation (LRECL = file size / record count), trailing spaces removed. */
     public List<String> lines() {
         List<String> lines = new ArrayList<>();
         long count = catalog.getRecordCount();
         if (count <= 0 || content.length == 0) {
-            return lines;
-        }
-        if (encoding != RecordEncoding.EBCDIC) {
-            for (String line : new String(content, encoding.charset()).split("\r?\n", -1)) {
-                if (lines.size() < count) {
-                    lines.add(line.stripTrailing());
-                }
-            }
             return lines;
         }
         int lrecl = (int) (content.length / count);

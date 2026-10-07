@@ -53,7 +53,7 @@ poll() {
     case $state in COMPLETED|FAILED) break ;; esac
     sleep 0.5
   done
-  jq 'if .report then .report.lines |= (.[:4] + ["... (" + ((length - 4) | tostring) + " more lines)"]) else . end' \
+  jq 'if .report then .report.lines |= (.[:4] + ["... (" + ([length - 4, 0] | max | tostring) + " more lines)"]) else . end' \
     "$BODY"
   printf '\n'
 }
