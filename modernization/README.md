@@ -74,6 +74,7 @@ copybooks from `app/cpy`. Variables (shell or `.env`):
 | `CARDDEMO_DB_PASSWORD` | none (required) | Postgres password for both containers |
 | `CARDDEMO_HTTP_PORT` | `8080` | host port of the app; set it when 8080/8084 are taken |
 | `CARDDEMO_DB_PORT` | `5432` | host port of Postgres |
+| `CARDDEMO_BIND_ADDRESS` | `127.0.0.1` | host interface both ports are published on (`local` shows health details) |
 | `CARDDEMO_DB_NAME` / `CARDDEMO_DB_USER` | `carddemo` | database and user |
 | `CARDDEMO_PROFILES` | `local` | `SPRING_PROFILES_ACTIVE` of the app container |
 | `MAVEN_MIRROR_URL` | Central | Maven mirror for the image build (use when Central answers 429) |

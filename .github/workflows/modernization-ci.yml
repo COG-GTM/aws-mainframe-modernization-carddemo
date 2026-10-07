@@ -12,6 +12,7 @@ on:
       - "app/data/**"
       - "scripts/baseline/**"
       - "docs/validation/baseline/**"
+      - "docs/modernization/dependency-map.json"
       - "Makefile"
       - ".github/workflows/modernization-ci.yml"
   push:
@@ -23,6 +24,7 @@ on:
       - "app/data/**"
       - "scripts/baseline/**"
       - "docs/validation/baseline/**"
+      - "docs/modernization/dependency-map.json"
       - "Makefile"
       - ".github/workflows/modernization-ci.yml"
   workflow_dispatch:
