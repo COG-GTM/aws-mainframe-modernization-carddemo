@@ -513,6 +513,7 @@
         "web.signon.SignOnController"
       ],
       "classes": [
+        "user.UserPasswords",
         "user.UserSecurity",
         "user.UserSecurityRepository",
         "user.signon.SignOnFailure",
@@ -1863,7 +1864,8 @@
       "line": 558,
       "status": "mapped",
       "methods": [
-        "batch.creastmt.Cbstm03a#createStatement"
+        "batch.creastmt.Cbstm03a#createStatement",
+        "batch.creastmt.Cbstm03a#dataLine"
       ],
       "category": null,
       "destination": null,
@@ -1876,7 +1878,7 @@
       "status": "not-mapped",
       "methods": [],
       "category": "folded",
-      "destination": "batch.creastmt.Cbstm03a#createStatement",
+      "destination": "batch.creastmt.Cbstm03a#createStatement, batch.creastmt.Cbstm03a#dataLine",
       "note": "PERFORM ... THRU exit point of 5200-WRITE-HTML-NMADBS"
     },
     {
@@ -9132,6 +9134,11 @@
       "adr": "ADR-0022",
       "title": "ADR-0022: React + Vite SPA per BMS map, served by nginx in front of the API",
       "file": "docs/modernization/adr/ADR-0022-react-ui.md"
+    },
+    {
+      "adr": "ADR-0023",
+      "title": "ADR-0023: BCrypt `password_hash` next to `SEC-USR-PWD`, upgraded on first successful sign-on",
+      "file": "docs/modernization/adr/ADR-0023-bcrypt-password-hash.md"
     }
   ],
   "deviations": [
@@ -9139,6 +9146,16 @@
       "file": "docs/modernization/rules/CBSTM03A.md",
       "line": 33,
       "text": "R-4 — **Table limits** — `WS-TRNX-TABLE`: `WS-CARD-TBL OCCURS 51` × (`WS-CARD-NUM X(16)` + `WS-TRAN-TBL OCCURS 10` × (`X(16)` + `X(318)`)) = 51 × 3356 bytes; `WS-TRN-TBL-CNTR`: 51 × `S9(4) COMP`. Subscripts are not checked. A card with **more than 10 transa..."
+    },
+    {
+      "file": "docs/modernization/rules/CBSTM03A.md",
+      "line": 45,
+      "text": "## Deviations"
+    },
+    {
+      "file": "docs/modernization/rules/CBTRN02C.md",
+      "line": 46,
+      "text": "## Deviations"
     },
     {
       "file": "docs/modernization/rules/COACTUPC.md",

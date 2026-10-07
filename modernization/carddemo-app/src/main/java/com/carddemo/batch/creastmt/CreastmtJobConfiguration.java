@@ -40,6 +40,7 @@ import org.springframework.batch.core.job.builder.JobBuilder;
 import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.core.step.builder.StepBuilder;
 import org.springframework.batch.repeat.RepeatStatus;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.domain.Limit;
@@ -162,7 +163,8 @@ public class CreastmtJobConfiguration {
     @Bean
     Job cbstm03aJob(JobRepository jobRepository, PlatformTransactionManager transactionManager,
                     SequentialDatasets datasets, CardXrefRepository xrefs, CustomerRepository customers,
-                    AccountRepository accounts) {
+                    AccountRepository accounts,
+                    @Value("${carddemo.batch.creastmt.html-escape:false}") boolean htmlEscape) {
         return new JobBuilder(CBSTM03A_JOB, jobRepository)
                 .start(new StepBuilder(STEP040, jobRepository).tasklet((contribution, chunk) -> {
                     StepExecution step = chunk.getStepContext().getStepExecution();
@@ -177,7 +179,8 @@ public class CreastmtJobConfiguration {
                                         Cbstm03b.TRNXFILE, TRXFL, Cbstm03a.TRNX_LAYOUT, encoding)),
                                 xreffile(parameters, encoding, xrefs), custfile(parameters, encoding, customers),
                                 acctfile(parameters, encoding, accounts), encoding);
-                        result = new Cbstm03a(files, stmt, html, encoding, sysout, "CREASTMT", STEP040).run();
+                        result = new Cbstm03a(files, stmt, html, encoding, sysout, "CREASTMT", STEP040, htmlEscape)
+                                .run();
                     }
                     String stmtFile = datasets.write(step, Cbstm03a.STMTFILE, STATEMNT_PS, stmt.records(), encoding);
                     String htmlFile = datasets.write(step, Cbstm03a.HTMLFILE, STATEMNT_HTML, html.records(),

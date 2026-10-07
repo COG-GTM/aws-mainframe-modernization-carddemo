@@ -128,11 +128,28 @@ CORPT00C screen runs the same `tranrept` stream with the requested window.
 The legacy schedule closed the CICS files (`CLOSEFIL`) before batch; the Java app keeps the online API up. Online
 writes during the cycle are protected per row (optimistic `version`, `SELECT ... FOR UPDATE`), but:
 
-- **Transaction ids.** Online transaction adds and bill payments take `pg_advisory_xact_lock(TRAN_ID_LOCK)` and use
-  `max(tran_id)+1`; the batch jobs that write `transaction` (POSTTRAN, COMBTRAN's reload) do not take that lock. An
-  online add while they run can collide with a batch-written id (DUPREC → 409 online), and an add between TRANBKP
-  and COMBTRAN lands in the emptied table and can make COMBTRAN's REPRO fail on a duplicate key (RC 12). Until this
-  is closed (hardening candidate), keep online transaction adds and bill payments out of the cycle window, or
-  schedule the cron when the online day is over.
-- `TRANBKP` empties `transaction` until `COMBTRAN` reloads it: transaction lists and views show nothing in between.
+- **Transaction ids (closed in s6.4).** Online transaction adds and bill payments take
+  `pg_advisory_xact_lock(TRAN_ID_LOCK)` and use `max(tran_id)+1` (bill payment takes it before its account row lock).
+  POSTTRAN's CBTRN02C step holds the same key as a **session** lock for the whole step in table mode (the OPEN OUTPUT
+  clear and every posting; `TransactionIdStepLock`), and every load of `transaction` through `VsamDatasetLoader`
+  (COMBTRAN's IDCAMS REPRO, `repro`, `initial-load`) holds it for its database transaction. A per-record lock was
+  measured first and rejected: DALYTRAN ids ascend, so an online `max+1` taken between two postings can equal the
+  next posted id. Effect: **online adds and bill payments wait while CBTRN02C runs** (≈ 1 s on the sample data,
+  ≈ 100 s for 100,000 records, `docs/validation/hardening/volume-smoke.md`), the equivalent of the closed CICS file;
+  `TransactionIdLockIT` proves the wait and distinct ids. What the lock cannot change is the legacy data flow below.
+- **The batch window: `TRANBKP` → `COMBTRAN` empties `transaction`.** TRANBKP's REPRO copies `transaction` to the
+  `TRANSACT.BKUP` generation and its IDCAMS DELETE/DEFINE leaves the table **empty**; COMBTRAN sorts the backup with
+  `SYSTRAN` and reloads the table (`idcams-repro`). In between, transaction lists, views and the TRANREPT report see
+  no transactions. POSTTRAN also opens TRANFILE OUTPUT, i.e. it replaces the table with its postings. Consequences
+  for online work during the cycle:
+  - an online transaction add or bill payment made after TRANBKP's backup and before COMBTRAN's reload is **lost**
+    (COMBTRAN reloads the backup, not the live table) or, if its id is also in the backup, makes COMBTRAN's REPRO
+    fail on a duplicate key (RC 12);
+  - an add made before POSTTRAN's TRANFILE open is removed by that open (legacy OPEN OUTPUT semantics).
+
+  The legacy schedule avoided both by closing the CICS files (`CLOSEFIL`) for the window. Operate the same way:
+  schedule `CARDDEMO_NIGHTLY_CYCLE_CRON` after the online day, and keep online transaction adds and bill payments
+  out of the window (maintenance banner or a proxy rule on `POST /api/v1/transactions` and
+  `POST /api/v1/accounts/*/bill-payment` while a `nightly-cycle` `batch_run` row is `STARTED`). The window lasts from
+  the start of `tranbkp` to the end of `combtran` (seconds on the sample data; see `batch_run` timestamps).
 - Reports requested online queue behind a running `tranrept` only within the report executor, not behind the cycle.

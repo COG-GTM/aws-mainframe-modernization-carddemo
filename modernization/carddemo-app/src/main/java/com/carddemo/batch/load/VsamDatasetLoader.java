@@ -154,6 +154,10 @@ public class VsamDatasetLoader {
      */
     @Transactional
     public LoadResult load(Dataset dataset, List<FixedWidthRecord> records, LoadMode mode) {
+        if (dataset == Dataset.TRANSACT) {
+            // s6.4: COMBTRAN/REPRO loads take the online id lock (TransactionIds) until this transaction commits
+            transactions.lockIdAssignment(TransactionRepository.TRAN_ID_LOCK);
+        }
         List<Object> entities = new ArrayList<>(records.size());
         List<LoadResult.Reject> rejects = new ArrayList<>();
         int empty = 0;

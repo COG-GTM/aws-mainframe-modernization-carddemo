@@ -5,8 +5,10 @@ import java.util.List;
 import java.util.Optional;
 import org.springframework.data.domain.Limit;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * USRSEC access paths: {@code READ} by SEC-USR-ID (COSGN00C, COUSR02C, COUSR03C), {@code WRITE}/{@code REWRITE}/
@@ -46,4 +48,19 @@ public interface UserSecurityRepository extends JpaRepository<UserSecurity, Stri
      */
     @Query(value = "select version from user_security where usr_id = :usrId for update", nativeQuery = true)
     Optional<Long> lockVersion(@Param("usrId") String usrId);
+
+    /**
+     * First-sign-on hash upgrade (ADR-0023). Only fills a missing hash, and only while the plain-text value is still
+     * the one that was verified, so a concurrent COUSR02C password change wins. Does not bump {@code version}.
+     */
+    @Transactional
+    @Modifying
+    @Query(value = "update user_security set password_hash = :hash where usr_id = :usrId and password_hash is null"
+            + " and password = :password", nativeQuery = true)
+    int storePasswordHash(@Param("usrId") String usrId, @Param("password") String password,
+            @Param("hash") String hash);
+
+    /** Current {@code SEC-USR-TYPE} for the per-request admin check; empty when the user no longer exists. */
+    @Query("select u.usrType from UserSecurity u where u.usrId = :usrId")
+    Optional<UserType> findUsrTypeByUsrId(@Param("usrId") String usrId);
 }

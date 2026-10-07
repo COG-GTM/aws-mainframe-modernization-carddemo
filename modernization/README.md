@@ -165,7 +165,8 @@ Flyway migrates the schema on start, the UI waits for a healthy app.
 
 ```bash
 cd modernization
-cp .env.example .env          # set CARDDEMO_DB_PASSWORD; no password default is shipped
+cp .env.example .env          # set CARDDEMO_DB_PASSWORD; no password or key default is shipped
+echo "CARDDEMO_JWT_SECRET=$(openssl rand -base64 48)" >> .env
 # If the image build fails with "status code: 429" from repo.maven.apache.org, add to .env:
 #   MAVEN_MIRROR_URL=https://maven-central.storage-download.googleapis.com/maven2/
 docker compose up -d --build --wait
@@ -182,7 +183,7 @@ copybooks from `app/cpy`. Variables (shell or `.env`):
 | Variable | Default | Purpose |
 | --- | --- | --- |
 | `CARDDEMO_DB_PASSWORD` | none (required) | Postgres password for both containers |
-| `CARDDEMO_JWT_SECRET` | none outside `local`/`test` | HS256 key (≥ 32 bytes) of the online API tokens (ADR-0017); `local` has a development-only fallback |
+| `CARDDEMO_JWT_SECRET` | none (required) | HS256 key (≥ 32 bytes) of the online API tokens (ADR-0017); compose and the app refuse to start without it |
 | `CARDDEMO_JWT_TTL` | `PT1H` | lifetime of a sign-on token |
 | `CARDDEMO_HTTP_PORT` | `8080` | host port of the app; set it when 8080/8084 are taken |
 | `CARDDEMO_DB_PORT` | `5432` | host port of Postgres |
@@ -201,6 +202,7 @@ Without Docker for the app (Postgres still needed):
 
 ```bash
 export CARDDEMO_DB_PASSWORD=...   # CARDDEMO_DB_URL defaults to jdbc:postgresql://localhost:5432/carddemo
+export CARDDEMO_JWT_SECRET="$(openssl rand -base64 48)"   # required, >= 32 bytes
 JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64 mvn -B -pl carddemo-app spring-boot:run -Dspring-boot.run.profiles=local
 ```
 

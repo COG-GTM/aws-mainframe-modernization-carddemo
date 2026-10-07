@@ -42,6 +42,12 @@ STEP040 catalogues neither statement file.
 | R-13 | End | Close TRNXFILE, XREFFILE, CUSTFILE, ACCTFILE (`C`; not `00`/`04` → `ERROR CLOSING <dd>` + R-14), `CLOSE STMT-FILE HTML-FILE`, `GOBACK` (RC 0). No end-of-job DISPLAY, no counts. |
 | R-14 | Abend (`9999-ABEND-PROGRAM`) | `ABENDING PROGRAM`, `CALL 'CEE3ABD'` without an abend code. Java: `AbendException` → step RC 16; the buffered statement files are discarded (no generation). |
 
+## Deviations
+
+| # | Legacy | Java | Why / test |
+|---|---|---|---|
+| D-1 | R-12: names and addresses are written into STATEMNT.HTML raw (`&`, `<`, `>` in customer data would become markup). | Default unchanged (`carddemo.batch.creastmt.html-escape=false`, byte parity, golden set). With `true`, the name line and the three address lines are HTML-escaped (`&` `<` `>` → entities; quotes need no escaping in text content) after the `DELIMITED BY '  '` cut; an entity that would not fit in the 100-byte record is dropped whole, never cut. STATEMNT.PS, the account/balance/FICO lines and the transaction lines are not affected. | s6.4 hardening (stored XSS in a statement opened in a browser). `Cbstm03aHtmlEscapeTest`: markup raw when off, escaped when on, only those lines change, sample data identical in both modes. |
+
 ## Record formats
 
 - `STMTFILE` 80 bytes. Per statement: `ST-LINE0`, name (X(75) + 5), address 1, address 2 (X(50) + 30), address 3 (X(80)),
@@ -72,6 +78,7 @@ the step ends normally.
   `HTMLFILE.txt`, byte for byte.
 - `Cbstm03aEdgeCaseTest` vs GnuCOBOL output for the same synthetic inputs: cards without transactions (R-9), a card with
   12 transactions (R-4 overlay), empty TRXFL (R-3 abend); and the Java-only table-overflow abend (R-4).
+- `Cbstm03aHtmlEscapeTest`: D-1 in both modes.
 - `CreastmtJobIT` (Testcontainers PostgreSQL): the `creastmt` stream in table mode from `initial-load` + `repro` of the
   baseline after-images, file mode, the empty-TRXFL abend (no statement generation) and the bypass of later steps.
 - `scripts/batch/run_creastmt.sh file|table` + `compare_creastmt.py` (CI job `batch-equivalence`).

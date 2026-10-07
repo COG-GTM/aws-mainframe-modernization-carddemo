@@ -11,7 +11,7 @@ import org.springframework.boot.env.YamlPropertySourceLoader;
 import org.springframework.core.env.PropertySource;
 import org.springframework.core.io.ClassPathResource;
 
-/** The runtime profiles (local, test, ci, golden) exist and never ship a database password. */
+/** The runtime profiles (local, test, ci, golden) exist and never ship a database password or a JWT key. */
 class ProfileFilesTest {
 
     private static PropertySource<?> load(String file) throws IOException {
@@ -41,6 +41,33 @@ class ProfileFilesTest {
             PropertySource<?> source = load(file);
             assertThat(source.getProperty("spring.datasource.password")).as(file).isNull();
             assertThat(source.getProperty("spring.datasource.url")).as(file).isNull();
+        }
+    }
+
+    @Test
+    void noProfileShipsAJwtKey() throws IOException {
+        assertThat(load("application.yml").getProperty("carddemo.security.jwt.secret"))
+                .isEqualTo("${CARDDEMO_JWT_SECRET:}");
+        for (String file : List.of("application-local.yml", "application-test.yml", "application-ci.yml",
+                "application-golden.yml")) {
+            assertThat(load(file).getProperty("carddemo.security.jwt.secret")).as(file).isNull();
+        }
+    }
+
+    /** Framework DEBUG/TRACE logs request paths and entity state, which can carry a full PAN (s6.4). */
+    @Test
+    void noProfileEnablesFrameworkDebugLogging() throws IOException {
+        for (String file : List.of("application.yml", "application-local.yml", "application-test.yml",
+                "application-ci.yml", "application-golden.yml")) {
+            PropertySource<?> source = load(file);
+            if (source instanceof org.springframework.core.env.EnumerablePropertySource<?> e) {
+                for (String name : e.getPropertyNames()) {
+                    if (name.startsWith("logging.level.") && !name.startsWith("logging.level.com.carddemo")) {
+                        assertThat(String.valueOf(source.getProperty(name))).as(file + " " + name)
+                                .isNotIn("DEBUG", "TRACE", "debug", "trace");
+                    }
+                }
+            }
         }
     }
 

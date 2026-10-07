@@ -86,7 +86,7 @@ class CoreSchemaIT {
 
     @Test
     void flywayAppliesTheCoreSchemaOnTopOfTheBatchRepository() {
-        assertThat(flyway.info().current().getVersion().getVersion()).isEqualTo("5");
+        assertThat(flyway.info().current().getVersion().getVersion()).isEqualTo("6");
         List<String> tables = jdbc.queryForList("select table_name from information_schema.tables"
                 + " where table_schema = 'public' and table_name not like 'batch_job%'"
                 + " and table_name not like 'batch_step%' and table_name <> 'flyway_schema_history' order by 1",

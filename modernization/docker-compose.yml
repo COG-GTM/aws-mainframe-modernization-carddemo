@@ -1,5 +1,5 @@
 # Local runtime: PostgreSQL 16 + the CardDemo application (modular monolith, one service) + its web UI.
-#   cd modernization && cp .env.example .env    # then set CARDDEMO_DB_PASSWORD
+#   cd modernization && cp .env.example .env    # then set CARDDEMO_DB_PASSWORD and CARDDEMO_JWT_SECRET
 #   docker compose up -d --build --wait
 #   curl http://localhost:${CARDDEMO_HTTP_PORT:-8080}/actuator/health
 #   open http://localhost:${CARDDEMO_UI_PORT:-8085}/            # React UI (ADR-0022)
@@ -38,12 +38,13 @@ services:
       CARDDEMO_DB_URL: jdbc:postgresql://postgres:5432/${CARDDEMO_DB_NAME:-carddemo}
       CARDDEMO_DB_USER: ${CARDDEMO_DB_USER:-carddemo}
       CARDDEMO_DB_PASSWORD: ${CARDDEMO_DB_PASSWORD:?set CARDDEMO_DB_PASSWORD (copy modernization/.env.example to .env)}
-      # JWT signing key (ADR-0017), passed through only when set in the shell/.env; the local profile has a
-      # development-only fallback, every other profile refuses to start without it
-      CARDDEMO_JWT_SECRET:
+      # JWT signing key (ADR-0017), >= 32 bytes; no default anywhere (s6.4), the app refuses to start without it
+      CARDDEMO_JWT_SECRET: ${CARDDEMO_JWT_SECRET:?set CARDDEMO_JWT_SECRET to >= 32 random bytes in .env (openssl rand -base64 48)}
       # local profile: the initial-load job loads app/data/EBCDIC (baked into the image) before the app turns healthy
       CARDDEMO_INITIAL_LOAD: ${CARDDEMO_INITIAL_LOAD:-true}
       CARDDEMO_INITIAL_LOAD_MODE: ${CARDDEMO_INITIAL_LOAD_MODE:-replace}
+      # OpenAPI + Swagger UI; set false outside development
+      CARDDEMO_API_DOCS_ENABLED: ${CARDDEMO_API_DOCS_ENABLED:-true}
     volumes:
       # cbexport/cbimport generations; cataloged in batch_output_file, so they must outlive the container
       - carddemo-batch-output:/app/batch-output

@@ -6,8 +6,8 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 /**
  * Signing settings of the session token (ADR-0017).
  *
- * @param secret HS256 key, at least 32 bytes; from {@code CARDDEMO_JWT_SECRET}, defaulted only by the
- *               {@code local} and {@code test} profiles
+ * @param secret HS256 key, at least 32 bytes; from {@code CARDDEMO_JWT_SECRET}, no default in any
+ *               profile (s6.4)
  * @param issuer {@code iss} claim written and required
  * @param ttl    lifetime of a token
  */

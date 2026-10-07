@@ -4,6 +4,7 @@ import static com.carddemo.common.online.ScreenInput.isSpacesOrLowValues;
 import static com.carddemo.common.online.ScreenInput.rightTrim;
 import static com.carddemo.common.online.ScreenInput.upperCase;
 
+import com.carddemo.user.UserPasswords;
 import com.carddemo.user.UserSecurity;
 import com.carddemo.user.UserSecurityRepository;
 import java.util.Optional;
@@ -14,8 +15,9 @@ import org.springframework.stereotype.Service;
 
 /**
  * {@code COSGN00C} {@code PROCESS-ENTER-KEY} + {@code READ-USER-SEC-FILE}: validates the two input fields, reads
- * {@code USRSEC} by the upper-cased user id and compares the stored password with the upper-cased input, in plain
- * text (ADR-0018). Messages are the program's literals.
+ * {@code USRSEC} by the upper-cased user id and compares the stored password with the upper-cased input: against the
+ * BCrypt hash once stored, otherwise in plain text, storing the hash after the first plain-text match (ADR-0023,
+ * superseding the storage part of ADR-0018). Messages are the program's literals.
  */
 @Service
 public class SignOnService {
@@ -34,15 +36,14 @@ public class SignOnService {
     public static final String MSG_USER_NOT_FOUND = "User not found. Try again ...";
     public static final String MSG_UNABLE_TO_VERIFY = "Unable to verify the User ...";
 
-    /** {@code SEC-USR-ID} / {@code SEC-USR-PWD} are {@code PIC X(08)}. */
-    static final int FIELD_LENGTH = 8;
-
     private static final Logger log = LoggerFactory.getLogger(SignOnService.class);
 
     private final UserSecurityRepository users;
+    private final UserPasswords passwords;
 
-    public SignOnService(UserSecurityRepository users) {
+    public SignOnService(UserSecurityRepository users, UserPasswords passwords) {
         this.users = users;
+        this.passwords = passwords;
     }
 
     /** {@code PROCESS-ENTER-KEY}: R-5 (user id first), R-6, R-7 upper-case, R-8 no read after an edit error. */
@@ -71,19 +72,26 @@ public class SignOnService {
             return new SignOnResult.Rejected(SignOnFailure.USER_NOT_FOUND, USER_ID_FIELD, MSG_USER_NOT_FOUND);
         }
         UserSecurity user = found.get();
-        if (!pic8(user.getPassword()).equals(pic8(password))) {
+        if (!passwords.matches(user, password)) {
             return new SignOnResult.Rejected(SignOnFailure.WRONG_PASSWORD, PASSWORD_FIELD, MSG_WRONG_PASSWORD);
+        }
+        if (user.getPasswordHash() == null) {
+            storeHash(user);
         }
         return new SignOnResult.SignedOn(user.getUsrId(), user.getUsrType(), user.getFirstName(),
                 user.getLastName());
     }
 
-    /**
-     * The value space-padded to the 8-byte field COBOL compares ({@code SEC-USR-PWD = WS-USER-PWD}); longer input
-     * is never truncated, so it cannot match.
-     */
+    /** ADR-0023 upgrade-on-sign-on; a failure is logged and the sign-on still succeeds (plain text stays valid). */
+    private void storeHash(UserSecurity user) {
+        try {
+            users.storePasswordHash(user.getUsrId(), user.getPassword(), passwords.hash(user.getPassword()));
+        } catch (DataAccessException e) {
+            log.warn("Could not store the password hash of user {}", user.getUsrId(), e);
+        }
+    }
+
     static String pic8(String value) {
-        String v = value == null ? "" : value;
-        return v.length() >= FIELD_LENGTH ? v : v + " ".repeat(FIELD_LENGTH - v.length());
+        return UserPasswords.pic8(value);
     }
 }

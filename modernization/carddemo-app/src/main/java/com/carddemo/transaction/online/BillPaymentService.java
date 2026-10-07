@@ -124,6 +124,7 @@ public class BillPaymentService {
         if (version == null) {
             throw new InvalidRequestException(VERSION_FIELD, MSG_VERSION_REQUIRED);
         }
+        ids.lock();
         long locked = read(() -> accounts.lockVersion(acctId), MSG_LOOKUP_FAILED)
                 .orElseThrow(() -> new RecordNotFoundException(MSG_NOT_FOUND));
         Versions.requireCurrent(Account.class, acctId, version, locked);

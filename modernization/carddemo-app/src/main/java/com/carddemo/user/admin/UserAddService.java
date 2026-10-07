@@ -8,6 +8,7 @@ import static com.carddemo.user.admin.UserAdminMessages.USER_TYPE_FIELD;
 
 import com.carddemo.common.AbendException;
 import com.carddemo.common.DuplicateRecordException;
+import com.carddemo.user.UserPasswords;
 import com.carddemo.user.UserSecurity;
 import com.carddemo.user.UserSecurityRecord;
 import com.carddemo.user.UserSecurityRepository;
@@ -18,15 +19,17 @@ import org.springframework.stereotype.Service;
 
 /**
  * COUSR01C (CU01): all five fields required in screen order, then {@code WRITE} USRSEC. The password is stored in
- * plaintext like the VSAM record (ADR-0018; hashing is step s6.4).
+ * the 8-byte {@code SEC-USR-PWD} column like the VSAM record and as a BCrypt hash (ADR-0023).
  */
 @Service
 public class UserAddService {
 
     private final UserSecurityRepository users;
+    private final UserPasswords passwords;
 
-    public UserAddService(UserSecurityRepository users) {
+    public UserAddService(UserSecurityRepository users, UserPasswords passwords) {
         this.users = users;
+        this.passwords = passwords;
     }
 
     /** ENTER: R-8..R-13, then {@link #writeUserSecFile}; returns the user written (R-15). */
@@ -50,7 +53,9 @@ public class UserAddService {
     /** {@code WRITE-USER-SEC-FILE}: NORMAL (R-15), DUPKEY/DUPREC (R-16), other (R-17). */
     UserSecurity writeUserSecFile(UserSecurityRecord record) {
         try {
-            return users.saveAndFlush(UserSecurity.newRecord(record));
+            UserSecurity user = UserSecurity.newRecord(record);
+            user.setPasswordHash(passwords.hash(record.password()));
+            return users.saveAndFlush(user);
         } catch (DataIntegrityViolationException e) {
             if (existsQuietly(record.usrId())) {
                 throw new DuplicateRecordException(UserAdminMessages.MSG_DUPLICATE);

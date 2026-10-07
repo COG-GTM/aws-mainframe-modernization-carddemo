@@ -99,7 +99,9 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: jacoco-report
-          path: modernization/carddemo-app/target/site/jacoco/
+          path: |
+            modernization/carddemo-app/target/site/jacoco/
+            modernization/carddemo-app/target/site/jacoco-merged/
           if-no-files-found: warn
       - name: Upload test reports
         if: always()
@@ -125,6 +127,8 @@ jobs:
         working-directory: modernization
     steps:
       - uses: actions/checkout@v4
+      - name: Per-run JWT key (no key is shipped)
+        run: echo "CARDDEMO_JWT_SECRET=$(openssl rand -base64 48 | tr -d '\n')" >> "$GITHUB_ENV"
       - name: docker compose up -d --build --wait
         run: docker compose up -d --build --wait --wait-timeout 240
       - name: curl /actuator/health
@@ -158,6 +162,7 @@ jobs:
         working-directory: modernization/carddemo-ui
         run: |
           npm ci --no-audit --no-fund
+          echo 'Acquire::Retries "5"; Acquire::http::Timeout "30"; Acquire::https::Timeout "30";' | sudo tee /etc/apt/apt.conf.d/99ci-timeouts >/dev/null
           npx playwright install --with-deps chromium
           npm run e2e
       - name: Upload Playwright report
@@ -204,7 +209,8 @@ jobs:
       - uses: actions/checkout@v4
       - name: Install GnuCOBOL
         run: |
-          sudo apt-get update -q
+          echo 'Acquire::Retries "5"; Acquire::http::Timeout "30"; Acquire::https::Timeout "30";' | sudo tee /etc/apt/apt.conf.d/99ci-timeouts >/dev/null
+          for i in 1 2 3; do timeout 120 sudo apt-get update -q && break; echo "apt-get update attempt $i stalled"; done
           sudo apt-get install -y -q gnucobol
           cobc --version | head -1
       - name: make baseline-check
@@ -245,7 +251,9 @@ jobs:
           java-version: "21"
           cache: maven
       - name: Install psql
-        run: command -v psql || (sudo apt-get update -q && sudo apt-get install -y -q postgresql-client)
+        run: |
+          echo 'Acquire::Retries "5"; Acquire::http::Timeout "30"; Acquire::https::Timeout "30";' | sudo tee /etc/apt/apt.conf.d/99ci-timeouts >/dev/null
+          command -v psql || { { for i in 1 2 3; do timeout 120 sudo apt-get update -q && break; echo "apt-get update attempt $i stalled"; done; } && sudo apt-get install -y -q postgresql-client; }
       - name: mvn package (skip tests; the build job runs them)
         run: mvn -B -ntp -f modernization/pom.xml -DskipTests package
       - name: make batch-equivalence
@@ -290,7 +298,8 @@ jobs:
           cache: maven
       - name: Install GnuCOBOL (as the baseline job), jq and psql (nightly-cycle batch_run queries)
         run: |
-          sudo apt-get update -q
+          echo 'Acquire::Retries "5"; Acquire::http::Timeout "30"; Acquire::https::Timeout "30";' | sudo tee /etc/apt/apt.conf.d/99ci-timeouts >/dev/null
+          for i in 1 2 3; do timeout 120 sudo apt-get update -q && break; echo "apt-get update attempt $i stalled"; done
           sudo apt-get install -y -q gnucobol jq postgresql-client
           cobc --version | head -1
       - name: mvn package (skip tests; the build job runs them)

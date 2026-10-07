@@ -4,7 +4,7 @@ export JAVA_HOME
 COMPOSE := docker compose -f modernization/docker-compose.yml
 CARDDEMO_HTTP_PORT ?= 8080
 
-.PHONY: help baseline baseline-fast baseline-check batch-equivalence nightly-cycle golden-set golden-set-check traceability traceability-check verify up down health
+.PHONY: help baseline baseline-fast baseline-check batch-equivalence nightly-cycle golden-set golden-set-check traceability traceability-check dependency-scan volume-smoke verify up down health
 
 help:
 	@echo "baseline        compile all batch COBOL with GnuCOBOL and run the 26 baseline jobs (WAITSTEP waits 36 s)"
@@ -23,8 +23,12 @@ help:
 	@echo "                  docs/validation/golden-set/<date>/ (Toolchain line normalised); CI job golden-set"
 	@echo "traceability    regenerate docs/modernization/07-traceability.md + traceability.json (COBOL/JCL/scheduler -> Java)"
 	@echo "traceability-check  regenerate into a temp dir; fail on any diff or GAP (CI build job)"
+	@echo "dependency-scan npm audit --omit=dev (UI) + Snyk CLI or OWASP dependency-check (Java); not a CI gate (network-flaky);"
+	@echo "                triage in docs/validation/hardening/dependency-scan.md"
+	@echo "volume-smoke    100,000 generated DALYTRAN records: initial-load -> posttran -> intcalc in table mode, -Xmx512m;"
+	@echo "                wall clock / RSS / SQL hot spots in build/volume-smoke/metrics.md (needs Docker; not in CI)"
 	@echo "verify          mvn -B verify on JDK 21 (unit + Testcontainers ITs; needs Docker)"
-	@echo "up / down       docker compose: PostgreSQL 16 + carddemo-app (needs CARDDEMO_DB_PASSWORD or modernization/.env)"
+	@echo "up / down       docker compose: PostgreSQL 16 + carddemo-app (needs CARDDEMO_DB_PASSWORD + CARDDEMO_JWT_SECRET or modernization/.env)"
 	@echo "health          curl /actuator/health on CARDDEMO_HTTP_PORT (default 8080)"
 
 baseline:
@@ -69,6 +73,12 @@ traceability:
 
 traceability-check:
 	python3 scripts/traceability/build_traceability.py --check
+
+dependency-scan:
+	scripts/hardening/dependency_scan.sh
+
+volume-smoke:
+	scripts/volume/run_volume_smoke.sh
 
 verify:
 	cd modernization && mvn -B verify
