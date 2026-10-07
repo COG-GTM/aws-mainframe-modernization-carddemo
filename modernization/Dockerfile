@@ -32,5 +32,5 @@ USER carddemo
 EXPOSE 8080
 ENV JAVA_TOOL_OPTIONS="-XX:MaxRAMPercentage=75"
 HEALTHCHECK --interval=10s --timeout=3s --start-period=60s --retries=6 \
-    CMD curl -fsS http://localhost:8080/actuator/health || exit 1
+    CMD curl -fsS http://localhost:8080/actuator/health/readiness || exit 1
 ENTRYPOINT ["java", "-jar", "/app/carddemo-app.jar"]

@@ -188,6 +188,18 @@ public class VsamDatasetLoader {
         return new LoadResult(dataset, records.size(), entities.size(), empty, rejects);
     }
 
+    /**
+     * Empties the datasets' tables in the given order (children first) in one transaction, so the deferred foreign
+     * keys are checked only once every listed table is empty.
+     */
+    @Transactional
+    public void clear(List<Dataset> childrenFirst) {
+        for (Dataset dataset : childrenFirst) {
+            repository(dataset).deleteAllInBatch();
+        }
+        entityManager.clear();
+    }
+
     /** Rows currently in the dataset's table. */
     @Transactional(readOnly = true)
     public long count(Dataset dataset) {

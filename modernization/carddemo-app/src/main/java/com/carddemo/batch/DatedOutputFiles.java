@@ -15,16 +15,24 @@ import java.time.LocalDate;
 import java.util.HexFormat;
 import java.util.List;
 import java.util.Optional;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Limit;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 /**
  * Writes a new generation of a GDG-style output (ADR-0012): {@code <output-dir>/<base>/<base>.<business date>.<job
  * execution id>}, fixed-length records, registered in {@code batch_output_file} with its record count and SHA-256.
+ * Files follow the catalog transaction: a new file is removed if it rolls back, expired generations are deleted only
+ * after it commits.
  */
 @Component
 public class DatedOutputFiles {
+
+    private static final Logger log = LoggerFactory.getLogger(DatedOutputFiles.class);
 
     private final BatchOutputFileRepository files;
     private final BatchOutputProperties properties;
@@ -43,6 +51,7 @@ public class DatedOutputFiles {
         Path path = properties.outputDir().resolve(gdgBase)
                 .resolve(gdgBase + "." + businessDate + "." + jobExecutionId).toAbsolutePath().normalize();
         RecordFiles.writeFixed(gdgBase, path, records);
+        onRollback(() -> deleteQuietly(path));
         BatchOutputFile saved = files.save(new BatchOutputFile(gdgBase, businessDate, jobExecutionId,
                 path.toString(), records.size(), sha256(path)));
         prune(gdgBase);
@@ -60,12 +69,43 @@ public class DatedOutputFiles {
                 files.findByGdgBaseOrderByBusinessDateDescJobExecutionIdDesc(gdgBase, Limit.unlimited());
         for (BatchOutputFile old : newestFirst.subList(Math.min(properties.retain(), newestFirst.size()),
                 newestFirst.size())) {
-            try {
-                Files.deleteIfExists(Path.of(old.getFilePath()));
-            } catch (IOException e) {
-                throw new UncheckedIOException("cannot delete expired generation " + old.getFilePath(), e);
-            }
             files.delete(old);
+            Path expired = Path.of(old.getFilePath());
+            onCommit(() -> deleteQuietly(expired));
+        }
+    }
+
+    private static void onCommit(Runnable action) {
+        if (!TransactionSynchronizationManager.isSynchronizationActive()) {
+            action.run();
+            return;
+        }
+        TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+            @Override
+            public void afterCommit() {
+                action.run();
+            }
+        });
+    }
+
+    private static void onRollback(Runnable action) {
+        if (TransactionSynchronizationManager.isSynchronizationActive()) {
+            TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+                @Override
+                public void afterCompletion(int status) {
+                    if (status == STATUS_ROLLED_BACK) {
+                        action.run();
+                    }
+                }
+            });
+        }
+    }
+
+    private static void deleteQuietly(Path path) {
+        try {
+            Files.deleteIfExists(path);
+        } catch (IOException e) {
+            log.warn("cannot delete {}: {}", path, e.toString());
         }
     }
 

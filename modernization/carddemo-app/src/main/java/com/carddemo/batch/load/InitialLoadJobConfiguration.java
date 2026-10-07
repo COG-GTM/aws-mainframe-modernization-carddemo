@@ -7,6 +7,7 @@ import java.nio.file.Path;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HexFormat;
 import java.util.List;
 import org.slf4j.Logger;
@@ -53,8 +54,9 @@ public class InitialLoadJobConfiguration {
         for (InitialLoadInput input : InitialLoadInput.values()) {
             steps.add(loadStep(input, jobRepository, transactionManager, loader, properties));
         }
-        SimpleJobBuilder job = new JobBuilder(JOB_NAME, jobRepository).start(steps.get(0));
-        steps.subList(1, steps.size()).forEach(job::next);
+        SimpleJobBuilder job = new JobBuilder(JOB_NAME, jobRepository)
+                .start(clearStep(jobRepository, transactionManager, loader));
+        steps.forEach(job::next);
         return job.next(reconcileStep(jobRepository, transactionManager, loader)).build();
     }
 
@@ -65,6 +67,29 @@ public class InitialLoadJobConfiguration {
                 .addString(MODE, mode.name())
                 .addString(SOURCE_SHA256, digest(sourceDir))
                 .toJobParameters();
+    }
+
+    /**
+     * REPLACE mode: empties all eleven tables children-first in one transaction before the per-dataset steps load
+     * parents before children. Otherwise a reload whose parent keys differ from the stored ones would fail the
+     * (commit-time) foreign keys of children that are only replaced in a later step.
+     */
+    private static Step clearStep(JobRepository jobRepository, PlatformTransactionManager transactionManager,
+                                  VsamDatasetLoader loader) {
+        return new StepBuilder("clear-tables", jobRepository).tasklet((contribution, chunk) -> {
+            LoadMode mode = LoadMode.valueOf(chunk.getStepContext().getStepExecution().getJobParameters()
+                    .getString(MODE));
+            if (mode == LoadMode.REPLACE) {
+                List<VsamDatasetLoader.Dataset> childrenFirst = new ArrayList<>();
+                for (InitialLoadInput input : InitialLoadInput.values()) {
+                    childrenFirst.add(input.dataset());
+                }
+                Collections.reverse(childrenFirst);
+                loader.clear(childrenFirst);
+                log.info("clear-tables: emptied {}", childrenFirst);
+            }
+            return RepeatStatus.FINISHED;
+        }, transactionManager).build();
     }
 
     private static Step loadStep(InitialLoadInput input, JobRepository jobRepository,
