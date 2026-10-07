@@ -1,0 +1,11 @@
+# Profile used by golden-set / parity runs against the GnuCOBOL baseline (ADR-0014).
+# Values mirror scripts/baseline/run_baseline.sh and scripts/baseline/README.md "Fixed values".
+carddemo:
+  clock:
+    fixed: 2022-07-06T00:00:00        # COB_CURRENT_DATE=2022/07/06 00:00:00.00
+    zone: UTC
+  baseline:
+    intcalc-parm-date: "2022071800"   # app/jcl/INTCALC.jcl  EXEC PGM=CBACT04C,PARM='2022071800'
+    tranrept-start-date: 2022-01-01   # app/jcl/TRANREPT.jcl SYMNAMES PARM-START-DATE / DATEPARM
+    tranrept-end-date: 2022-07-06     # app/jcl/TRANREPT.jcl SYMNAMES PARM-END-DATE / DATEPARM
+    waitstep-centiseconds: 3600       # app/jcl/WAITSTEP.jcl SYSIN 00003600

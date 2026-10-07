@@ -1,0 +1,22 @@
+# Architecture decision records: CardDemo COBOL/CICS → Java 21
+
+Rules every Java ticket applies. Code lives in `modernization/` (see its README).
+
+| ADR | Rule |
+| --- | --- |
+| [ADR-0001](ADR-0001-modular-monolith.md) | One Spring Boot application, domain packages enforced by ArchUnit |
+| [ADR-0002](ADR-0002-paragraph-to-method.md) | COBOL paragraph → camelCase Java method, original name in Javadoc |
+| [ADR-0003](ADR-0003-pic-x-to-string.md) | `PIC X(n)` → trimmed `String` with maximum length validation |
+| [ADR-0004](ADR-0004-numeric-to-bigdecimal.md) | `PIC S9(n)V99` / `COMP-3` → `BigDecimal` with explicit scale |
+| [ADR-0005](ADR-0005-rounding.md) | `RoundingMode.HALF_UP` only where COBOL says `ROUNDED`; truncate otherwise |
+| [ADR-0006](ADR-0006-level-88-to-enum.md) | Level-88 condition names → enum |
+| [ADR-0007](ADR-0007-commarea-to-session-context.md) | COMMAREA → authenticated session context |
+| [ADR-0008](ADR-0008-xctl-link.md) | `EXEC CICS XCTL` → controller dispatch; `EXEC CICS LINK` / `CALL` → service call |
+| [ADR-0009](ADR-0009-cics-resp-to-http.md) | CICS RESP conditions → HTTP status |
+| [ADR-0010](ADR-0010-read-update-optimistic-locking.md) | `READ UPDATE` / `REWRITE` → `@Transactional` + `@Version` optimistic locking |
+| [ADR-0011](ADR-0011-vsam-to-relational.md) | VSAM KSDS → table with primary key; AIX → index |
+| [ADR-0012](ADR-0012-gdg-to-dated-storage.md) | GDG → dated rows / dated files |
+| [ADR-0013](ADR-0013-cee3abd-to-abend-exception.md) | `CALL 'CEE3ABD'` → unchecked `AbendException` with the original code |
+| [ADR-0014](ADR-0014-baseline-clock-pin.md) | Reproduce the baseline clock pin and JCL date parameters in Java |
+
+New ADRs: next free number, same headings (Status/Applies to, Context, Decision). Supersede, do not edit, an accepted ADR.
