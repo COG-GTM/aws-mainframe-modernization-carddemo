@@ -19,7 +19,19 @@ public interface TransactionRepository extends JpaRepository<Transaction, String
     /** COTRN00C {@code WS-IDX >= 11}: transactions per screen. */
     int COTRN00C_SCREEN_ROWS = 10;
 
+    /** PostgreSQL advisory lock key that serialises online transaction-id assignment ("TRANSACT" in ASCII). */
+    long TRAN_ID_LOCK = 0x5452414E53414354L;
+
     List<Transaction> findAllByOrderByTranIdAsc();
+
+    /**
+     * Transaction-scoped advisory lock on {@code key}, held until commit/rollback: COTRN02C and COBIL00C take it
+     * before reading the highest id ({@code READPREV} from HIGH-VALUES) so two concurrent writers never compute the
+     * same next id. A {@code SELECT ... FOR UPDATE} on the max row would not do: the second writer would re-read the
+     * old max row after the wait and still miss the row the first writer inserted.
+     */
+    @Query(value = "select 1 from pg_advisory_xact_lock(:key)", nativeQuery = true)
+    Integer lockIdAssignment(@Param("key") long key);
 
     Optional<Transaction> findFirstByOrderByTranIdDesc();
 

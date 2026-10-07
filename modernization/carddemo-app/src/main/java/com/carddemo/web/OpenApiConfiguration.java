@@ -8,10 +8,17 @@ import com.carddemo.card.online.CardLookup;
 import com.carddemo.card.online.CardSelection;
 import com.carddemo.card.online.CardUpdateEdits;
 import com.carddemo.card.online.CardUpdateService;
+import com.carddemo.transaction.online.BillPaymentService;
+import com.carddemo.transaction.online.TransactionAddEdits;
+import com.carddemo.transaction.online.TransactionAddService;
+import com.carddemo.transaction.online.TransactionBrowse;
+import com.carddemo.transaction.online.TransactionIds;
+import com.carddemo.transaction.online.TransactionLookup;
 import com.carddemo.user.menu.MenuService;
 import com.carddemo.user.signon.SignOnService;
 import com.carddemo.web.card.CardController;
 import com.carddemo.web.security.ProblemResponses;
+import com.carddemo.web.transaction.TransactionController;
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.Operation;
@@ -161,6 +168,63 @@ public class OpenApiConfiguration {
                 new ErrorExample("notInCustomerMaster", "NOTFND", null, AccountLookup.customerNotFound(999_999_999)));
     }
 
+    private static final String TRANSACTIONS = "/api/v1/transactions";
+    private static final String BILL_PAYMENT = "/api/v1/accounts/{id}/bill-payment";
+
+    private static final Map<String, List<ErrorExample>> TRANSACTION_EXAMPLES = Map.ofEntries(
+            Map.entry("GET " + TRANSACTIONS + " 400", List.of(
+                    new ErrorExample("startIdNotNumeric", "INVREQ", TransactionBrowse.TRAN_ID_FIELD,
+                            TransactionBrowse.MSG_TRAN_ID_NOT_NUMERIC),
+                    new ErrorExample("bothCursors", "INVREQ", "before", TransactionController.MSG_ONE_CURSOR),
+                    new ErrorExample("badLimit", "INVREQ", "limit", TransactionController.MSG_LIMIT))),
+            Map.entry("GET " + TRANSACTIONS + " 500", List.of(
+                    new ErrorExample("browseFailed", "ABEND", null, TransactionBrowse.MSG_LOOKUP_FAILED))),
+            Map.entry("POST " + TRANSACTIONS + "/selection 400", List.of(
+                    new ErrorExample("invalidSelection", "INVREQ", "rows[0].selection",
+                            TransactionController.MSG_INVALID_SELECTION))),
+            Map.entry("GET " + TRANSACTIONS + "/{tranId} 400", List.of(
+                    new ErrorExample("tranIdEmpty", "INVREQ", TransactionLookup.TRAN_ID_FIELD,
+                            TransactionLookup.MSG_EMPTY))),
+            Map.entry("GET " + TRANSACTIONS + "/{tranId} 404", List.of(
+                    new ErrorExample("tranIdNotFound", "NOTFND", null, TransactionLookup.MSG_NOT_FOUND))),
+            Map.entry("POST " + TRANSACTIONS + " 400", List.of(
+                    new ErrorExample("noKey", "INVREQ", TransactionAddEdits.ACCOUNT_FIELD,
+                            TransactionAddEdits.MSG_KEY_REQUIRED),
+                    new ErrorExample("accountNotNumeric", "INVREQ", TransactionAddEdits.ACCOUNT_FIELD,
+                            TransactionAddEdits.MSG_ACCOUNT_NOT_NUMERIC),
+                    new ErrorExample("typeEmpty", "INVREQ", TransactionAddEdits.TYPE_FIELD,
+                            TransactionAddEdits.MSG_TYPE_EMPTY),
+                    new ErrorExample("amountFormat", "INVREQ", TransactionAddEdits.AMOUNT_FIELD,
+                            TransactionAddEdits.MSG_AMOUNT_FORMAT),
+                    new ErrorExample("origDateInvalid", "INVREQ", TransactionAddEdits.ORIG_DATE_FIELD,
+                            TransactionAddEdits.MSG_ORIG_DATE_INVALID),
+                    new ErrorExample("typeUnknown", "INVREQ", TransactionAddEdits.TYPE_FIELD,
+                            TransactionAddEdits.MSG_TYPE_UNKNOWN),
+                    new ErrorExample("invalidConfirm", "INVREQ", TransactionAddService.CONFIRM_FIELD,
+                            TransactionAddService.MSG_INVALID_CONFIRM))),
+            Map.entry("POST " + TRANSACTIONS + " 404", List.of(
+                    new ErrorExample("accountNotFound", "NOTFND", null, TransactionAddEdits.MSG_ACCOUNT_NOT_FOUND),
+                    new ErrorExample("cardNotFound", "NOTFND", null, TransactionAddEdits.MSG_CARD_NOT_FOUND))),
+            Map.entry("POST " + TRANSACTIONS + " 409", List.of(
+                    new ErrorExample("duplicateTranId", "DUPREC", null, TransactionIds.MSG_DUPLICATE))),
+            Map.entry("POST " + TRANSACTIONS + " 500", List.of(
+                    new ErrorExample("writeFailed", "ABEND", null, TransactionAddService.MSG_ADD_FAILED))),
+            Map.entry("POST " + BILL_PAYMENT + " 400", List.of(
+                    new ErrorExample("nothingToPay", "INVREQ", BillPaymentService.ACCOUNT_FIELD,
+                            BillPaymentService.MSG_NOTHING_TO_PAY),
+                    new ErrorExample("invalidConfirm", "INVREQ", BillPaymentService.CONFIRM_FIELD,
+                            BillPaymentService.MSG_INVALID_CONFIRM),
+                    new ErrorExample("versionMissing", "INVREQ", BillPaymentService.VERSION_FIELD,
+                            BillPaymentService.MSG_VERSION_REQUIRED))),
+            Map.entry("POST " + BILL_PAYMENT + " 404", List.of(
+                    new ErrorExample("accountNotFound", "NOTFND", null, BillPaymentService.MSG_NOT_FOUND))),
+            Map.entry("POST " + BILL_PAYMENT + " 409", List.of(
+                    new ErrorExample("concurrentPayment", "CHANGED", null, CHANGED),
+                    new ErrorExample("duplicateTranId", "DUPREC", null, TransactionIds.MSG_DUPLICATE))),
+            Map.entry("POST " + BILL_PAYMENT + " 500", List.of(
+                    new ErrorExample("writeFailed", "ABEND", null, BillPaymentService.MSG_ADD_FAILED),
+                    new ErrorExample("updateFailed", "ABEND", null, BillPaymentService.MSG_UPDATE_FAILED))));
+
     private static final ErrorExample SIGNON_REQUIRED = new ErrorExample("signOnRequired",
             ProblemResponses.SIGNON_REQUIRED, null, ProblemResponses.MSG_SIGNON_REQUIRED);
 
@@ -205,8 +269,8 @@ public class OpenApiConfiguration {
                 return;
             }
             String key = method + " " + path + " " + status;
-            List<ErrorExample> examples = EXAMPLES.getOrDefault(key,
-                    ACCOUNT_EXAMPLES.getOrDefault(key, CARD_EXAMPLES.get(key)));
+            List<ErrorExample> examples = EXAMPLES.getOrDefault(key, ACCOUNT_EXAMPLES.getOrDefault(key,
+                    CARD_EXAMPLES.getOrDefault(key, TRANSACTION_EXAMPLES.get(key))));
             if (examples == null && "401".equals(status) && secured) {
                 examples = List.of(SIGNON_REQUIRED);
             }

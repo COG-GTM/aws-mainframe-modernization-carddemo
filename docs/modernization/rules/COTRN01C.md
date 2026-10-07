@@ -39,3 +39,11 @@ when a list row is selected with `S`).
 |---|---|---|
 | R-15 | Return | Blank target → `COSGN00C`; `CDEMO-FROM-TRANID='CT01'`, `CDEMO-FROM-PROGRAM='COTRN01C'`, context 0; `XCTL ... COMMAREA`. |
 | R-16 | Send | Standard header (`CT01`, `COTRN01C`); `SEND MAP('COTRN1A') MAPSET('COTRN01') ERASE CURSOR`. |
+
+## Java port notes (UNT51-20, `GET /api/v1/transactions/{tranId}`)
+
+- The id is looked up as typed after right-trim (R-10: no numeric check, no zero padding); blank is 400, NOTFND 404,
+  other errors 500 `ABEND`. Nothing is read for update (the COBOL `READ UPDATE` lock is never used).
+- `exit` = PF3 (`fromProgram` query parameter, else COMEN01C), `list` = PF5 (COTRN00C). PF4 is a client-side clear.
+- COTRN1A shows the full card number, so the detail returns it (ADR-0020: full PAN only where the map shows it).
+- Role: no ownership check — COTRN01C has none (ADR-0020 §4).

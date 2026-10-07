@@ -131,6 +131,11 @@ public class Account {
         this.groupId = record.groupId();
     }
 
+    /** COBIL00C: {@code COMPUTE ACCT-CURR-BAL = ACCT-CURR-BAL - TRAN-AMT}; nothing else changes. */
+    public void subtractFromBalance(BigDecimal amount) {
+        this.currBal = currBal.subtract(amount);
+    }
+
     public long getAcctId() {
         return acctId;
     }

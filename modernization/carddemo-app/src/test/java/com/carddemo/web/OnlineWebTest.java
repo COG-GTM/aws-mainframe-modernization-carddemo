@@ -13,6 +13,15 @@ import com.carddemo.card.online.CardUpdateService;
 import com.carddemo.common.online.CsdInstalledPrograms;
 import com.carddemo.common.time.ClockConfiguration;
 import com.carddemo.common.time.ClockProperties;
+import com.carddemo.transaction.TransactionCategoryRepository;
+import com.carddemo.transaction.TransactionRepository;
+import com.carddemo.transaction.TransactionTypeRepository;
+import com.carddemo.transaction.online.BillPaymentService;
+import com.carddemo.transaction.online.TransactionAddEdits;
+import com.carddemo.transaction.online.TransactionAddService;
+import com.carddemo.transaction.online.TransactionBrowse;
+import com.carddemo.transaction.online.TransactionIds;
+import com.carddemo.transaction.online.TransactionLookup;
 import com.carddemo.user.UserSecurity;
 import com.carddemo.user.UserSecurityRecord;
 import com.carddemo.user.UserSecurityRepository;
@@ -29,6 +38,8 @@ import com.carddemo.web.security.JwtProperties;
 import com.carddemo.web.security.SecurityConfiguration;
 import com.carddemo.web.security.TokenService;
 import com.carddemo.web.signon.SignOnController;
+import com.carddemo.web.transaction.BillPaymentController;
+import com.carddemo.web.transaction.TransactionController;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -51,10 +62,12 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
  * mocked. The business clock is pinned so screen headers are deterministic.
  */
 @WebMvcTest(controllers = {SignOnController.class, MenuController.class, AccountController.class,
-        CardController.class})
+        CardController.class, TransactionController.class, BillPaymentController.class})
 @Import({SecurityConfiguration.class, TokenService.class, SignOnService.class, MenuService.class, MenuCatalog.class,
         CsdInstalledPrograms.class, ScreenHeaders.class, ClockConfiguration.class, AccountLookup.class,
-        AccountUpdateService.class, CardBrowse.class, CardLookup.class, CardUpdateService.class, CardReferences.class})
+        AccountUpdateService.class, CardBrowse.class, CardLookup.class, CardUpdateService.class, CardReferences.class,
+        TransactionBrowse.class, TransactionLookup.class, TransactionAddEdits.class, TransactionIds.class,
+        TransactionAddService.class, BillPaymentService.class})
 @EnableConfigurationProperties({JwtProperties.class, OnlineProperties.class, ClockProperties.class})
 @ActiveProfiles("test")
 @TestPropertySource(properties = {"carddemo.clock.fixed=2022-07-06T13:45:10", "carddemo.online.applid=CARDDEMO",
@@ -87,6 +100,15 @@ public abstract class OnlineWebTest {
 
     @MockBean
     protected CardRepository cards;
+
+    @MockBean
+    protected TransactionRepository transactions;
+
+    @MockBean
+    protected TransactionTypeRepository types;
+
+    @MockBean
+    protected TransactionCategoryRepository categories;
 
     protected void givenUser(String userId, String password, UserType type) {
         given(users.findById(userId)).willReturn(Optional.of(

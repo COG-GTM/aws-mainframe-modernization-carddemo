@@ -86,3 +86,23 @@ its message and ends the task; later rules are not evaluated.
 |---|---|---|
 | R-33 | Return | Blank target → `COSGN00C`; from-fields `CT02`/`COTRN02C`, context 0; `XCTL ... COMMAREA`. |
 | R-34 | Send | Standard header (`CT02`, `COTRN02C`); `SEND MAP('COTRN2A') MAPSET('COTRN02') ERASE CURSOR` **then `RETURN TRANSID('CT02') COMMAREA`** (task ends). |
+
+## Java port notes (UNT51-20, `POST /api/v1/transactions`)
+
+- One request runs the dialogue: keys (R-8..R-14) → presence (R-15..R-22) → format (R-23..R-26) → confirm (R-27).
+  `confirm` blank/`N` = validate only (200 `VALIDATED`), `Y` = write (201 `ADDED`, `Location` header), other = 400.
+  `copyLast=true` is PF5 (R-32). Errors are the first failing edit, in source order, on its field.
+- Addition required by the migration plan (not in the COBOL): after R-26 the type code must exist in TRANTYPE
+  (`Type CD not found in TRANTYPE...`) and the type/category pair in TRANCATG
+  (`Category CD not found in TRANCATG for this Type CD...`), so online rows always resolve in TRANREPT.
+- **Race-safe id (R-28).** COBOL reads the last key (HIGH-VALUES `READPREV`) and adds one, which two concurrent tasks can
+  both do. The port takes `pg_advisory_xact_lock(TransactionRepository.TRAN_ID_LOCK)` first, then reads
+  `max(tran_id)` (`findFirstByOrderByTranIdDesc`), adds one (16 digits, zero-padded; empty table → `0000000000000001`;
+  wraps at 10^16 like `PIC 9(16)`) and inserts, all in the request's transaction; the lock is released at commit or
+  rollback. COBIL00C uses the same lock, so online adds and bill payments are serialised on id assignment only. A
+  database sequence was not used because it would not continue from ids written by POSTTRAN/repro and leaves gaps
+  on rollback. A duplicate key that still happens (a writer outside the lock) is 409 `DUPREC` `Tran ID already exist...`.
+- R-29: rows go to the shared `transaction` table in the TRANSACT layout, so the TRANREPT job stream reports them
+  (`TransactionApiIT`). `orig_ts`/`proc_ts` hold the 10-character date as typed (the COBOL trailing spaces are not
+  stored; fixed-width unloads pad them back). TRANREPT selects on `proc_ts(1:10)`.
+- Role: no ownership check — COTRN02C has none (ADR-0020 §4).
