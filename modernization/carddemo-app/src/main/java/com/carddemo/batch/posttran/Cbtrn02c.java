@@ -117,6 +117,10 @@ public final class Cbtrn02c {
         for (KeyedDataset<?, ?> dataset : datasets) {
             try {
                 dataset.close();
+            } catch (FileStatusException e) {
+                if (e.status() != FileStatus.NOT_OPEN) {
+                    abend.addSuppressed(e);
+                }
             } catch (RuntimeException e) {
                 abend.addSuppressed(e);
             }
@@ -160,16 +164,16 @@ public final class Cbtrn02c {
                     writeReject(image, outcome[0]);
                 }
             }
+            io(dalytran::close, "ERROR CLOSING DALYTRAN FILE");
+            io(tranfile::close, "ERROR CLOSING TRANSACTION FILE");
+            io(xreffile::close, "ERROR CLOSING CROSS REF FILE");
+            io(dalyrejs::close, "ERROR CLOSING DAILY REJECTS FILE");
+            io(acctfile::close, "ERROR CLOSING ACCOUNT FILE");
+            io(tcatbalf::close, "ERROR CLOSING TRANSACTION BALANCE FILE");
         } catch (RuntimeException abend) {
             flushOnAbend(abend, tranfile, acctfile, tcatbalf);
             throw abend;
         }
-        io(dalytran::close, "ERROR CLOSING DALYTRAN FILE");
-        io(tranfile::close, "ERROR CLOSING TRANSACTION FILE");
-        io(xreffile::close, "ERROR CLOSING CROSS REF FILE");
-        io(dalyrejs::close, "ERROR CLOSING DAILY REJECTS FILE");
-        io(acctfile::close, "ERROR CLOSING ACCOUNT FILE");
-        io(tcatbalf::close, "ERROR CLOSING TRANSACTION BALANCE FILE");
         sysout.display(String.format(Locale.ROOT, "TRANSACTIONS PROCESSED :%09d", processed));
         sysout.display(String.format(Locale.ROOT, "TRANSACTIONS REJECTED  :%09d", rejected));
         ReturnCode rc = rejected > 0 ? ReturnCode.WARNING : ReturnCode.OK;

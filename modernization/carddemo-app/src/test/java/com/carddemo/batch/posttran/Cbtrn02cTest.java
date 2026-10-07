@@ -275,4 +275,35 @@ class Cbtrn02cTest {
         assertThatThrownBy(unwritable::open).isInstanceOfSatisfying(FileStatusException.class,
                 e -> assertThat(e.status()).isEqualTo(FileStatus.PERMANENT_ERROR));
     }
+
+    @Test
+    void failedTranfileCloseStillWritesTheMasterFiles() throws IOException {
+        Path acctPath = dir.resolve("ACCTFILE");
+        RecordFiles.writeLines("ACCTFILE", acctPath,
+                List.of(AccountRecord.MAPPER.toRecord(acct(), RecordEncoding.ASCII)), false);
+        accounts = KeyedDataset.file("ACCTFILE", acctPath, KeyedDataset.Mode.I_O, AccountRecord.MAPPER,
+                AccountRecord::acctId, k -> String.format("%011d", k), RecordEncoding.ASCII);
+        Path tranPath = dir.resolve("TRANFILE");
+        KeyedDataset<String, TransactionRecord> output = KeyedDataset.file("TRANFILE", tranPath,
+                KeyedDataset.Mode.OUTPUT, TransactionRecord.MAPPER, TransactionRecord::tranId, k -> k,
+                RecordEncoding.ASCII);
+        transactions = new KeyedDataset<>() {
+            public String ddname() { return output.ddname(); }
+            public void open() { output.open(); }
+            public java.util.Optional<TransactionRecord> read(String key) { return output.read(key); }
+            public void write(TransactionRecord data) { output.write(data); }
+            public boolean rewrite(TransactionRecord data) { return output.rewrite(data); }
+            public List<TransactionRecord> contents() { return output.contents(); }
+            public void close() {
+                output.close();
+                throw new FileStatusException("TRANFILE", "CLOSE", FileStatus.PERMANENT_ERROR);
+            }
+        };
+
+        assertThatThrownBy(() -> run(tran("T1", CARD, "1.00"))).isInstanceOf(RuntimeException.class);
+
+        List<FixedWidthRecord> after = RecordFiles.readLines("ACCTFILE", acctPath, AccountRecord.MAPPER.layout(),
+                RecordEncoding.ASCII);
+        assertThat(AccountRecord.MAPPER.fromRecord(after.get(0)).currBal()).isEqualByComparingTo("41.00");
+    }
 }
