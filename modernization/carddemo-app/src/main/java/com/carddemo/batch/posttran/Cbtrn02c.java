@@ -1,6 +1,7 @@
 package com.carddemo.batch.posttran;
 
 import com.carddemo.account.AccountRecord;
+import com.carddemo.batch.harness.KeyedDataset;
 import com.carddemo.batch.harness.KsdsInput;
 import com.carddemo.batch.harness.RecordSink;
 import com.carddemo.batch.harness.ReturnCode;
@@ -49,7 +50,7 @@ public final class Cbtrn02c {
     public static final int EXPIRED = 103;
 
     /** {@code Z-GET-DB2-FORMAT-TIMESTAMP}: {@code YYYY-MM-DD-HH.MM.SS.hh0000} (hundredths, then '0000'). */
-    static final DateTimeFormatter PROC_TS = DateTimeFormatter.ofPattern("yyyy-MM-dd-HH.mm.ss.SS'0000'", Locale.ROOT);
+    public static final DateTimeFormatter PROC_TS = DateTimeFormatter.ofPattern("yyyy-MM-dd-HH.mm.ss.SS'0000'", Locale.ROOT);
 
     /** The database transaction around one record's validation reads and posting updates. */
     @FunctionalInterface

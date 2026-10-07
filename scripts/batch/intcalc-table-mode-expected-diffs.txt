@@ -1,0 +1,15 @@
+# Known differences when INTCALC runs on PostgreSQL loaded by `initial-load` from app/data/EBCDIC instead of the
+# app/data/ASCII samples the GnuCOBOL baseline ran on (root cause:
+# modernization/carddemo-app/src/test/resources/codec/ebcdic-vs-ascii-expected-diffs.txt).
+#
+# - DISCGRP record 34 (DEFAULT/07/0001): DIS-INT-RATE 15.00 (EBCDIC) vs 0.00 (ASCII). It is loaded into
+#   disclosure_group, but CBACT04C only reads the DISCGRP keys built from TCATBALF rows: every sample account has a
+#   blank ACCT-GROUP-ID, so each row falls back to DEFAULT/<type>/<cat>, and the 100 TCATBALF rows INTCALC reads
+#   have types 01 and 03 only. The type-07 row is never read, so it cannot change SYSTRAN, ACCTDATA or SYSOUT;
+#   compare_intcalc.py recomputes and reports the number of lookups that hit it (0) on every run.
+# - ACCTDATA record 49 ACCT-ADDR-ZIP: run_intcalc.sh re-loads ACCTDATA and TCATBALF from the POSTTRAN after-images
+#   of the baseline (`--job=repro`, the state the baseline INTCALC read), which carry the ASCII value, so the
+#   EBCDIC 'ZEROAPR' does not survive into INTCALC's input.
+#
+# No field differences are expected; FILLER-only differences (not persisted, ADR-0011) are reported, not listed.
+# DATASET|record-number|FIELD|baseline-text|java-text
