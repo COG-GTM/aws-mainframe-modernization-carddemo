@@ -55,7 +55,8 @@ public class AccountLookup {
     }
 
     /**
-     * {@code 2210-EDIT-ACCOUNT} / {@code 1210-EDIT-ACCOUNT}: {@code *} or spaces is "no input"; otherwise up to 11
+     * COACTVWC {@code 2200-EDIT-MAP-INPUTS} with {@code 2210-EDIT-ACCOUNT} / COACTUPC {@code 1210-EDIT-ACCOUNT}: {@code
+     * *} or spaces is "no input"; otherwise up to 11
      * digits, not all zeros ({@code CC-ACCT-ID PIC X(11)} tested {@code NUMERIC}; shorter input is the number
      * right-justified with leading zeros, as {@code CDEMO-ACCT-ID PIC 9(11)} holds it).
      */

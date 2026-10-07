@@ -262,7 +262,8 @@ public final class AccountUpdateEdits {
     /**
      * {@code 1260-EDIT-US-PHONE-NUM}: optional as a whole (all parts blank; the source tests part A twice, which only
      * matters for a literal space-filled part A, impossible after {@code 1100-RECEIVE-MAP}); each part is then
-     * required, numeric, non-zero, and the area code must be a general-purpose NANP code.
+     * required, numeric, non-zero, and the area code must be a general-purpose NANP code ({@code EDIT-AREA-CODE},
+     * {@code EDIT-US-PHONE-PREFIX}, {@code EDIT-US-PHONE-LINENUM}).
      */
     private void phone(String field, String label, PhoneParts phone) {
         if (phone.blank()) {

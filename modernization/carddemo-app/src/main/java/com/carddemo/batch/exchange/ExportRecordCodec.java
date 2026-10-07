@@ -34,11 +34,19 @@ public final class ExportRecordCodec {
     private ExportRecordCodec() {
     }
 
-    /** {@code WS-FORMATTED-TIMESTAMP} of CBEXPORT: {@code YYYY-MM-DD HH:MM:SS.hh}, hundredths from the clock. */
+    /**
+     * {@code WS-FORMATTED-TIMESTAMP} of CBEXPORT {@code 1050-GENERATE-TIMESTAMP}: {@code YYYY-MM-DD HH:MM:SS.hh},
+     * hundredths from the clock.
+     */
     public static String timestamp(LocalDateTime now) {
         return now.format(EXPORT_TS) + "." + String.format("%02d", now.getNano() / 10_000_000);
     }
 
+    /**
+     * CBEXPORT {@code 2200-CREATE-CUSTOMER-EXP-REC}, {@code 3200-CREATE-ACCOUNT-EXP-REC},
+     * {@code 4200-CREATE-XREF-EXPORT-RECORD}, {@code 5200-CREATE-TRAN-EXP-REC}, {@code 5700-CREATE-CARD-EXPORT-RECORD}:
+     * header fields, then the type's field moves.
+     */
     public static FixedWidthRecord export(ExportRecordType type, FixedWidthRecord source, String timestamp,
                                           long sequence) {
         FixedWidthRecord out = FixedWidthRecord.spaces(LAYOUT, source.encoding());
@@ -53,6 +61,11 @@ public final class ExportRecordCodec {
         return out;
     }
 
+    /**
+     * CBIMPORT {@code 2300-PROCESS-CUSTOMER-RECORD}, {@code 2400-PROCESS-ACCOUNT-RECORD},
+     * {@code 2500-PROCESS-XREF-RECORD}, {@code 2600-PROCESS-TRAN-RECORD}, {@code 2650-PROCESS-CARD-RECORD}: the
+     * type's field moves back into the dataset layout.
+     */
     public static FixedWidthRecord importRecord(ExportRecordType type, FixedWidthRecord export) {
         FixedWidthRecord out = FixedWidthRecord.spaces(type.datasetLayout(), export.encoding());
         for (ExportRecordType.Move m : type.moves()) {
@@ -70,7 +83,8 @@ public final class ExportRecordCodec {
     }
 
     /**
-     * {@code WS-ERROR-RECORD} of CBIMPORT {@code 2900-WRITE-ERROR}: {@code FUNCTION CURRENT-DATE} (21 characters in
+     * {@code WS-ERROR-RECORD} of CBIMPORT {@code 2700-PROCESS-UNKNOWN-RECORD} / {@code 2750-WRITE-ERROR}: {@code
+     * FUNCTION CURRENT-DATE} (21 characters in
      * a 26-byte field), record type, sequence ({@code PIC 9(07)}, high-order digits truncated) and message, pipe
      * separated, written into the 132-byte error record.
      */

@@ -19,6 +19,11 @@ on:
       - "docs/validation/baseline/**"
       - "docs/validation/golden-set/**"
       - "docs/modernization/dependency-map.json"
+      - "docs/modernization/**"
+      - "scripts/traceability/**"
+      - "app/jcl/**"
+      - "app/scheduler/**"
+      - "app/csd/**"
       - "Makefile"
       - ".github/workflows/modernization-ci.yml"
   push:
@@ -37,6 +42,11 @@ on:
       - "docs/validation/baseline/**"
       - "docs/validation/golden-set/**"
       - "docs/modernization/dependency-map.json"
+      - "docs/modernization/**"
+      - "scripts/traceability/**"
+      - "app/jcl/**"
+      - "app/scheduler/**"
+      - "app/csd/**"
       - "Makefile"
       - ".github/workflows/modernization-ci.yml"
   workflow_dispatch:
@@ -63,6 +73,9 @@ jobs:
           distribution: temurin
           java-version: "21"
           cache: maven
+      - name: make traceability-check (07-traceability.md up to date, no GAP)
+        working-directory: ${{ github.workspace }}
+        run: make traceability-check
       - name: mvn -B verify
         run: mvn -B -ntp verify -Dcarddemo.test.profiles=test,ci
       - name: Test summary

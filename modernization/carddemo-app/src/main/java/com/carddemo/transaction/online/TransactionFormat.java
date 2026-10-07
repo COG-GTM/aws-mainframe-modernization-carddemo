@@ -19,7 +19,7 @@ public final class TransactionFormat {
         return NumericEdited.format(amount, AMOUNT_PICTURE);
     }
 
-    /** COTRN00C R-17: {@code MM/DD/YY} from {@code TRAN-ORIG-TS} (6:2), (9:2) and (3:2). */
+    /** COTRN00C {@code POPULATE-TRAN-DATA} R-17: {@code MM/DD/YY} from {@code TRAN-ORIG-TS} (6:2), (9:2) and (3:2). */
     public static String listDate(String origTs) {
         String ts = pad(origTs, 10);
         return ts.substring(5, 7) + "/" + ts.substring(8, 10) + "/" + ts.substring(2, 4);

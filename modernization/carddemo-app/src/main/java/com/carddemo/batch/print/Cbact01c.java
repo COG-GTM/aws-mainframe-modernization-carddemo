@@ -204,6 +204,7 @@ public final class Cbact01c {
         sysout.display("VBRC-REC2:", vbrcRec2.text());
     }
 
+    /** {@code 1350-WRITE-ACCT-RECORD} / {@code 1450-WRITE-ARRY-RECORD}: {@code WRITE} and its status check. */
     private void write(RecordSink sink, FixedWidthRecord rec, String message) {
         try {
             sink.write(rec.copy());
@@ -213,7 +214,10 @@ public final class Cbact01c {
         written++;
     }
 
-    /** {@code MOVE rec TO VBR-REC(1:len)} + {@code WRITE VBR-REC}. */
+    /**
+     * {@code 1550-WRITE-VB1-RECORD} / {@code 1575-WRITE-VB2-RECORD}: {@code MOVE rec TO VBR-REC(1:len)} +
+     * {@code WRITE VBR-REC}.
+     */
     private void writeVariable(FixedWidthRecord rec, int length) {
         byte[] area = Arrays.copyOf(rec.bytes(), VBRC_MAX);
         try {

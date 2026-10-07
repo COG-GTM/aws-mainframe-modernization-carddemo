@@ -17,7 +17,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
- * COTRN02C (CT02) PROCESS-ENTER-KEY / COPY-LAST-TRAN-DATA / ADD-TRANSACTION: key edits, data edits, the CONFIRM
+ * COTRN02C (CT02) {@code PROCESS-ENTER-KEY} / {@code COPY-LAST-TRAN-DATA} / {@code ADD-TRANSACTION}: key edits, data
+ * edits, the CONFIRM
  * field, then id assignment and WRITE to the shared {@code transaction} table in one database transaction.
  */
 @Component

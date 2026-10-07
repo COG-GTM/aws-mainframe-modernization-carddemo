@@ -56,6 +56,7 @@ public final class Sysout implements AutoCloseable {
     /**
      * The programs' error path: {@code DISPLAY message}, {@code 9910-DISPLAY-IO-STATUS},
      * {@code 9999-ABEND-PROGRAM} ({@code ABENDING PROGRAM} + {@code CEE3ABD} 999). Returns the abend to throw.
+     * Some programs name the same two paragraphs {@code Z-DISPLAY-IO-STATUS} and {@code Z-ABEND-PROGRAM}.
      */
     public AbendException ioAbend(String message, FileStatusException failure) {
         display(message);

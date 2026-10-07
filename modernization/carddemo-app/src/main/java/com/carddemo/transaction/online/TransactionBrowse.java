@@ -65,7 +65,10 @@ public class TransactionBrowse {
         return new Screen(first.rows(), 1, false, first.more(), first.more() ? "" : MSG_REACHED_BOTTOM);
     }
 
-    /** R-15/R-16/R-19: the rows after the last one shown; nothing after it → R-16 (rows left as they were). */
+    /**
+     * {@code PROCESS-PF8-KEY} / {@code PROCESS-PAGE-FORWARD}, R-15/R-16/R-19: the rows after the last one shown;
+     * nothing after it → R-16 (rows left as they were).
+     */
     private Screen forward(String lastShown, int page) {
         KeysetPage<Transaction> next = read(() -> transactions.nextPage(lastShown));
         if (next.isEmpty()) {
@@ -74,7 +77,10 @@ public class TransactionBrowse {
         return new Screen(next.rows(), page + 1, true, next.more(), next.more() ? "" : MSG_REACHED_BOTTOM);
     }
 
-    /** R-13/R-14/R-20: PF7 on page 1 (or with nothing before) re-shows the page from the first id shown. */
+    /**
+     * {@code PROCESS-PF7-KEY} / {@code PROCESS-PAGE-BACKWARD}, R-13/R-14/R-20: PF7 on page 1 (or with nothing before)
+     * re-shows the page from the first id shown.
+     */
     private Screen backward(String firstShown, Integer page) {
         KeysetPage<Transaction> previous = page != null && page <= 1 ? new KeysetPage<>(List.of(), false)
                 : read(() -> transactions.previousPage(firstShown));

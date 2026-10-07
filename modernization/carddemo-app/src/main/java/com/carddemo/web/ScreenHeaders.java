@@ -21,6 +21,7 @@ public class ScreenHeaders {
         this.region = region;
     }
 
+    /** {@code POPULATE-HEADER-INFO}: titles, tran id, program name, business-clock date/time and the region ids. */
     public ScreenHeader of(String tranId, String programName) {
         LocalDateTime now = LocalDateTime.now(clock);
         return new ScreenHeader(CommonMessages.TITLE01, CommonMessages.TITLE02, tranId, programName, DATE.format(now),

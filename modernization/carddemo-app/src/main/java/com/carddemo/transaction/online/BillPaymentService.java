@@ -96,6 +96,11 @@ public class BillPaymentService {
         return String.format(MSG_PAID, tranId);
     }
 
+    /**
+     * COBIL00C {@code PROCESS-ENTER-KEY}: account and CONFIRM edits, {@code READ-ACCTDAT-FILE} (row lock on confirm),
+     * {@code READ-CXACAIX-FILE} for the card, {@code GET-CURRENT-TIMESTAMP}, the payment written and the balance
+     * rewritten ({@code UPDATE-ACCTDAT-FILE}) in one database transaction.
+     */
     @Transactional
     public Outcome pay(String accountId, String confirm, Long version) {
         if (ScreenInput.isSpacesOrLowValues(accountId)) {

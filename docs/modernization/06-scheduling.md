@@ -9,7 +9,7 @@ folders) and `app/scheduler/CardDemo.ca7` (CA-7 `LJOB` listing); see also `02-de
 
 ### 1a. Control-M (`CardDemo.controlm`)
 
-Five folders, 14 job definitions (9 distinct jobs). Every job has `TIMETO="23:00"`, `MAXWAIT="7"`, `MAXRERUN="5"`,
+Five folders, 15 job definitions (9 distinct jobs; the monthly folder gives `WAITSTEP` and `OPENFIL` the same `JOBISN="4"`). Every job has `TIMETO="23:00"`, `MAXWAIT="7"`, `MAXRERUN="5"`,
 all twelve months; conditions are `ODATE="ODAT"` (same order date). `+` adds a condition, `-` deletes one.
 
 | Folder (type) | Calendar | Job | In-condition (predecessor) | Out-conditions |

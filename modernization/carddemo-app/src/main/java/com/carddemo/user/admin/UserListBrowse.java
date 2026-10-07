@@ -81,7 +81,7 @@ public class UserListBrowse {
         return new Screen(first.rows(), 1, false, first.more(), first.more() ? "" : MSG_REACHED_BOTTOM);
     }
 
-    /** R-16/R-17/R-25: the users after the last one shown; nothing after it → R-17. */
+    /** {@code PROCESS-PF8-KEY} / {@code PROCESS-PAGE-FORWARD}, R-16/R-17/R-25: the users after the last one shown. */
     private Screen forward(String lastShown, int page) {
         KeysetPage<UserSecurity> next = read(() -> users.nextPage(lastShown));
         if (next.isEmpty()) {
@@ -90,7 +90,10 @@ public class UserListBrowse {
         return new Screen(next.rows(), page + 1, true, next.more(), next.more() ? "" : MSG_REACHED_BOTTOM);
     }
 
-    /** R-14/R-15/R-23/R-26: PF7 on page 1 (or with nothing before) re-shows the page from the first id shown. */
+    /**
+     * {@code PROCESS-PF7-KEY} / {@code PROCESS-PAGE-BACKWARD}, R-14/R-15/R-23/R-26: PF7 on page 1 (or with nothing
+     * before) re-shows the page from the first id shown.
+     */
     private Screen backward(String firstShown, Integer page) {
         KeysetPage<UserSecurity> previous = page != null && page <= 1 ? new KeysetPage<>(List.of(), false)
                 : read(() -> users.previousPage(firstShown));

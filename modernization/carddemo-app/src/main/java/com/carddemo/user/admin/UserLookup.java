@@ -25,7 +25,7 @@ public class UserLookup {
         this.users = users;
     }
 
-    /** COUSR02C R-9/R-10, COUSR03C R-10/R-11. */
+    /** COUSR02C {@code PROCESS-ENTER-KEY} (R-9/R-10), COUSR03C {@code PROCESS-ENTER-KEY} (R-10/R-11). */
     @Transactional(readOnly = true)
     public UserSecurity byId(String userId) {
         String key = key(userId);

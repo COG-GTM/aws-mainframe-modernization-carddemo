@@ -13,7 +13,7 @@ import com.carddemo.user.UserType;
  */
 public record MenuOption(int number, String name, String programId, UserType userType) {
 
-    /** {@code OPTN0nnO}: {@code <NN>. <name>} (COMEN01C R-14, COADM01C R-13). */
+    /** {@code BUILD-MENU-OPTIONS}: {@code OPTN0nnO} = {@code <NN>. <name>} (COMEN01C R-14, COADM01C R-13). */
     public String label() {
         return "%02d. %s".formatted(number, name);
     }

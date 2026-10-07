@@ -10,7 +10,7 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-/** COTRN01C (CT01) PROCESS-ENTER-KEY / READ-TRANSACT-FILE: one transaction by id. */
+/** COTRN01C (CT01) {@code PROCESS-ENTER-KEY} / {@code READ-TRANSACT-FILE}: one transaction by id. */
 @Component
 public class TransactionLookup {
 

@@ -86,6 +86,10 @@ public final class Cbact04c {
         this.clock = clock;
     }
 
+    /**
+     * The main line: TCATBALF in key order ({@code 1000-TCATBALF-GET-NEXT}), the account break, the rate lookup and
+     * the interest transaction per category balance.
+     */
     public Result run() {
         sysout.display("START OF EXECUTION OF PROGRAM " + PROGRAM);
         long read = 0;

@@ -39,6 +39,7 @@ public final class Csutldtc {
     private Csutldtc() {
     }
 
+    /** {@code A000-MAIN}: {@code CEEDAYS} on the date and mask, then the severity/message of {@code WS-MESSAGE}. */
     public static Result validate(String date, String mask) {
         String lsDate = fit(date, FIELD_LENGTH);
         String lsMask = fit(mask, FIELD_LENGTH);

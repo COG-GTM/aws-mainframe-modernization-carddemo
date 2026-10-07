@@ -128,6 +128,7 @@ public final class Cbtrn02c {
         }
     }
 
+    /** The main line: DALYTRAN to end of file ({@code 1000-DALYTRAN-GET-NEXT}), validate, post or reject. */
     public Result run() {
         sysout.display("START OF EXECUTION OF PROGRAM " + PROGRAM);
         io(dalytran::open, "ERROR OPENING DALYTRAN");
@@ -182,7 +183,7 @@ public final class Cbtrn02c {
         return new Result(processed, rejected, rc);
     }
 
-    /** {@code 1500-VALIDATE-TRAN}. */
+    /** {@code 1500-VALIDATE-TRAN}: {@code 1500-A-LOOKUP-XREF}, then the account read of {@code 1500-B-LOOKUP-ACCT}. */
     private Checked validate(DailyTransactionRecord tran) {
         Optional<CardXrefRecord> xref = xreffile.read(tran.cardNum());
         if (xref.isEmpty()) {
@@ -209,7 +210,10 @@ public final class Cbtrn02c {
         return result;
     }
 
-    /** {@code 2000-POST-TRANSACTION}: 2700 TCATBALF, 2800 ACCTFILE, 2900 TRANFILE. */
+    /**
+     * {@code 2000-POST-TRANSACTION}: {@code 2700-UPDATE-TCATBAL} ({@code 2700-A-CREATE-TCATBAL-REC} for a new key,
+     * else {@code 2700-B-UPDATE-TCATBAL-REC}), {@code 2800-UPDATE-ACCOUNT-REC}, {@code 2900-WRITE-TRANSACTION-FILE}.
+     */
     private void post(DailyTransactionRecord tran, CardXrefRecord xref, AccountRecord account) {
         BigDecimal amount = tran.amount();
         TransactionRecord transaction = new TransactionRecord(tran.tranId(), tran.tranTypeCd(), tran.tranCatCd(),

@@ -55,7 +55,9 @@ public record CardKeys(Long acctId, String cardNum) {
     /**
      * COCRDSLC {@code 2200-EDIT-MAP-INPUTS} / COCRDUPC {@code 1200-EDIT-MAP-INPUTS} search phase: {@code *} or
      * spaces = low-values (R-10); both keys are required; the first message wins, except that two blank keys give
-     * {@code No input received} (COCRDSLC R-11..R-15, COCRDUPC R-10..R-12).
+     * {@code No input received} (COCRDSLC R-11..R-15, COCRDUPC R-10..R-12). The key edits are COCRDSLC
+     * {@code 2210-EDIT-ACCOUNT}, COCRDSLC {@code 2220-EDIT-CARD}, COCRDUPC {@code 1210-EDIT-ACCOUNT}, COCRDUPC
+     * {@code 1220-EDIT-CARD}.
      */
     public static CardKeys searchKeys(String account, String card) {
         Parsed a = parse(account, 11, true);

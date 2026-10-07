@@ -36,7 +36,10 @@ public class TransactionIds {
         this.transactions = transactions;
     }
 
-    /** The next id, holding the id lock until the caller's transaction ends. */
+    /**
+     * The next id, holding the id lock until the caller's transaction ends; replaces {@code STARTBR-TRANSACT-FILE}
+     * (HIGH-VALUES), {@code READPREV-TRANSACT-FILE} and {@code ENDBR-TRANSACT-FILE}.
+     */
     @Transactional(propagation = Propagation.MANDATORY)
     public String next() {
         try {
@@ -63,7 +66,10 @@ public class TransactionIds {
         return String.format("%016d", (Long.parseLong(id) + 1) % ID_MODULUS);
     }
 
-    /** {@code WRITE FILE('TRANSACT')}: DUPKEY/DUPREC → 409 {@code Tran ID already exist...}; other → abend. */
+    /**
+     * {@code WRITE-TRANSACT-FILE}: {@code WRITE FILE('TRANSACT')}: DUPKEY/DUPREC → 409 {@code Tran ID already
+     * exist...}; other → abend.
+     */
     @Transactional(propagation = Propagation.MANDATORY)
     public Transaction write(TransactionRecord record, String failure) {
         try {
