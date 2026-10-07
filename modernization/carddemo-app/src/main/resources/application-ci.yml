@@ -1,0 +1,10 @@
+# GitHub Actions (.github/workflows/modernization-ci.yml), layered on top of `test`: plain, non-ANSI log
+# output for the job log, and SQL/Flyway detail so a red build shows why without re-running.
+spring:
+  output:
+    ansi:
+      enabled: never
+logging:
+  level:
+    org.flywaydb: INFO
+    org.testcontainers: INFO

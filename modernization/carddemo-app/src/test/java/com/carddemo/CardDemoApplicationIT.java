@@ -20,6 +20,7 @@ import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
 import org.springframework.context.annotation.Bean;
+import org.springframework.core.env.Environment;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -48,6 +49,9 @@ class CardDemoApplicationIT {
 
     @Autowired
     Flyway flyway;
+
+    @Autowired
+    Environment environment;
 
     @Autowired
     JobLauncher jobLauncher;
@@ -81,6 +85,14 @@ class CardDemoApplicationIT {
         ResponseEntity<String> health = http.getForEntity("/actuator/health", String.class);
         assertThat(health.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(health.getBody()).contains("\"status\":\"UP\"");
+        assertThat(health.getBody()).as("test profile shows health details").contains("\"db\":{\"status\":\"UP\"");
+    }
+
+    @Test
+    void runsWithTheProfilesTheBuildSelects() {
+        String selected = System.getProperty("spring.profiles.active", "test");
+        assertThat(environment.getActiveProfiles()).containsExactly(selected.split(","));
+        assertThat(environment.getActiveProfiles()).contains("test");
     }
 
     @Test

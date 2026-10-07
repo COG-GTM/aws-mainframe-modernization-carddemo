@@ -1,0 +1,15 @@
+# Automated tests (activated by Surefire/Failsafe, see carddemo-app/pom.xml). The datasource comes from
+# Testcontainers (@ServiceConnection), so nothing here points at a real database.
+spring:
+  main:
+    banner-mode: off
+  flyway:
+    clean-disabled: true
+management:
+  endpoint:
+    health:
+      show-details: always
+logging:
+  level:
+    root: WARN
+    com.carddemo: INFO
