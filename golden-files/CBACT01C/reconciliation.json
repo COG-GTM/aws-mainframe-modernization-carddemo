@@ -1,0 +1,324 @@
+{
+  "job": "CBACT01C",
+  "summary": {
+    "checks": 29,
+    "passed": 29,
+    "failed": 0,
+    "failed_ids": [],
+    "skipped": 0,
+    "skipped_ids": [],
+    "status": "PASS"
+  },
+  "checks": [
+    {
+      "id": "CBACT01C-COUNT-01",
+      "group": "counts",
+      "description": "input accounts = OUTFILE records",
+      "expected": 50,
+      "actual": 50,
+      "status": "PASS"
+    },
+    {
+      "id": "CBACT01C-COUNT-02",
+      "group": "counts",
+      "description": "input accounts = ARRYFILE records",
+      "expected": 50,
+      "actual": 50,
+      "status": "PASS"
+    },
+    {
+      "id": "CBACT01C-COUNT-03",
+      "group": "counts",
+      "description": "input accounts = VBRCFILE records / 2 (and the count is even)",
+      "expected": {
+        "accounts": 50,
+        "even": true
+      },
+      "actual": {
+        "accounts": 50,
+        "even": true
+      },
+      "status": "PASS"
+    },
+    {
+      "id": "CBACT01C-COUNT-04",
+      "group": "counts",
+      "description": "VBRCFILE: one 12-byte VBRC-REC1 and one 39-byte VBRC-REC2 per account, alternating",
+      "expected": {
+        "rec1": 50,
+        "rec2": 50,
+        "alternating": true
+      },
+      "actual": {
+        "rec1": 50,
+        "rec2": 50,
+        "alternating": true
+      },
+      "status": "PASS"
+    },
+    {
+      "id": "CBACT01C-TOTAL-ACCT-CURR-BAL",
+      "group": "totals",
+      "description": "sum ACCT-CURR-BAL in = sum OUT-ACCT-CURR-BAL",
+      "expected": "12269.00",
+      "actual": "12269.00",
+      "status": "PASS"
+    },
+    {
+      "id": "CBACT01C-TOTAL-ACCT-CREDIT-LIMIT",
+      "group": "totals",
+      "description": "sum ACCT-CREDIT-LIMIT in = sum OUT-ACCT-CREDIT-LIMIT",
+      "expected": "233711.00",
+      "actual": "233711.00",
+      "status": "PASS"
+    },
+    {
+      "id": "CBACT01C-TOTAL-ACCT-CASH-CREDIT-LIMIT",
+      "group": "totals",
+      "description": "sum ACCT-CASH-CREDIT-LIMIT in = sum OUT-ACCT-CASH-CREDIT-LIMIT",
+      "expected": "122148.00",
+      "actual": "122148.00",
+      "status": "PASS"
+    },
+    {
+      "id": "CBACT01C-TOTAL-ACCT-CURR-CYC-CREDIT",
+      "group": "totals",
+      "description": "sum ACCT-CURR-CYC-CREDIT in = sum OUT-ACCT-CURR-CYC-CREDIT",
+      "expected": "0.00",
+      "actual": "0.00",
+      "status": "PASS"
+    },
+    {
+      "id": "CBACT01C-TOTAL-CYC-DEBIT",
+      "group": "totals",
+      "description": "sum OUT-ACCT-CURR-CYC-DEBIT = legacy simulation (2525.00 where input ACCT-CURR-CYC-DEBIT = 0, otherwise the previous record's output value is retained; rows before the first zero input are undefined and excluded)",
+      "expected": "126250.00",
+      "actual": "126250.00",
+      "status": "PASS",
+      "detail": {
+        "inputs_with_zero_cyc_debit": 50,
+        "inputs_with_nonzero_cyc_debit": 0,
+        "undefined_rows": [],
+        "business_intent_total_if_nonzero_inputs_were_copied": "126250.00",
+        "note": "the program only MOVEs when the input is zero and never re-initialises OUT-ACCT-REC; see TEST_STRATEGY.md section 7"
+      }
+    },
+    {
+      "id": "CBACT01C-FIELD-CYC-DEBIT",
+      "group": "derived",
+      "description": "OUT-ACCT-CURR-CYC-DEBIT per record = legacy simulation (2525.00 on zero input, else carried value)",
+      "expected": 0,
+      "actual": 0,
+      "status": "PASS",
+      "detail": {
+        "mismatches": [],
+        "undefined_rows": 0
+      }
+    },
+    {
+      "id": "CBACT01C-TOTAL-ARR-ARR-ACCT-CURR-CYC-DEBIT-1",
+      "group": "totals",
+      "description": "sum ARR-ACCT-CURR-CYC-DEBIT(1) = records x 1005.00",
+      "expected": "50250.00",
+      "actual": "50250.00",
+      "status": "PASS"
+    },
+    {
+      "id": "CBACT01C-TOTAL-ARR-ARR-ACCT-CURR-CYC-DEBIT-2",
+      "group": "totals",
+      "description": "sum ARR-ACCT-CURR-CYC-DEBIT(2) = records x 1525.00",
+      "expected": "76250.00",
+      "actual": "76250.00",
+      "status": "PASS"
+    },
+    {
+      "id": "CBACT01C-TOTAL-ARR-ARR-ACCT-CURR-BAL-3",
+      "group": "totals",
+      "description": "sum ARR-ACCT-CURR-BAL(3) = records x -1025.00",
+      "expected": "-51250.00",
+      "actual": "-51250.00",
+      "status": "PASS"
+    },
+    {
+      "id": "CBACT01C-TOTAL-ARR-ARR-ACCT-CURR-CYC-DEBIT-3",
+      "group": "totals",
+      "description": "sum ARR-ACCT-CURR-CYC-DEBIT(3) = records x -2500.00",
+      "expected": "-125000.00",
+      "actual": "-125000.00",
+      "status": "PASS"
+    },
+    {
+      "id": "CBACT01C-TOTAL-ARR-ACCT-CURR-BAL-1",
+      "group": "totals",
+      "description": "sum ARR-ACCT-CURR-BAL(1) = sum input ACCT-CURR-BAL",
+      "expected": "12269.00",
+      "actual": "12269.00",
+      "status": "PASS"
+    },
+    {
+      "id": "CBACT01C-TOTAL-ARR-ACCT-CURR-BAL-2",
+      "group": "totals",
+      "description": "sum ARR-ACCT-CURR-BAL(2) = sum input ACCT-CURR-BAL",
+      "expected": "12269.00",
+      "actual": "12269.00",
+      "status": "PASS"
+    },
+    {
+      "id": "CBACT01C-TOTAL-ARR-ZERO-4",
+      "group": "totals",
+      "description": "ARR-ACCT-BAL(4) is INITIALIZEd to zero (both fields) in every record",
+      "expected": {
+        "curr_bal": "0.00",
+        "cyc_debit": "0.00"
+      },
+      "actual": {
+        "curr_bal": "0.00",
+        "cyc_debit": "0.00"
+      },
+      "status": "PASS"
+    },
+    {
+      "id": "CBACT01C-TOTAL-ARR-ZERO-5",
+      "group": "totals",
+      "description": "ARR-ACCT-BAL(5) is INITIALIZEd to zero (both fields) in every record",
+      "expected": {
+        "curr_bal": "0.00",
+        "cyc_debit": "0.00"
+      },
+      "actual": {
+        "curr_bal": "0.00",
+        "cyc_debit": "0.00"
+      },
+      "status": "PASS"
+    },
+    {
+      "id": "CBACT01C-TOTAL-VB2-CURR-BAL",
+      "group": "totals",
+      "description": "sum VB2-ACCT-CURR-BAL = sum input ACCT-CURR-BAL",
+      "expected": "12269.00",
+      "actual": "12269.00",
+      "status": "PASS"
+    },
+    {
+      "id": "CBACT01C-TOTAL-VB2-CREDIT-LIMIT",
+      "group": "totals",
+      "description": "sum VB2-ACCT-CREDIT-LIMIT = sum input ACCT-CREDIT-LIMIT",
+      "expected": "233711.00",
+      "actual": "233711.00",
+      "status": "PASS"
+    },
+    {
+      "id": "CBACT01C-FIELD-REISSUE-DATE",
+      "group": "derived",
+      "description": "OUT-ACCT-REISSUE-DATE = COBDATFT(YYYY-MM-DD -> YYYYMMDD) + 2 spaces",
+      "expected": 0,
+      "actual": 0,
+      "status": "PASS",
+      "detail": {
+        "mismatching_ids": []
+      }
+    },
+    {
+      "id": "CBACT01C-FIELD-VB2-YYYY",
+      "group": "derived",
+      "description": "VB2-ACCT-REISSUE-YYYY = first 4 chars of input ACCT-REISSUE-DATE",
+      "expected": 0,
+      "actual": 0,
+      "status": "PASS",
+      "detail": {
+        "mismatching_ids": []
+      }
+    },
+    {
+      "id": "CBACT01C-FIELD-VB1-STATUS",
+      "group": "derived",
+      "description": "VB1-ACCT-ACTIVE-STATUS = input ACCT-ACTIVE-STATUS",
+      "expected": 0,
+      "actual": 0,
+      "status": "PASS",
+      "detail": {
+        "mismatching_ids": []
+      }
+    },
+    {
+      "id": "CBACT01C-XREF-00",
+      "group": "xref",
+      "description": "input ACCT-ID is unique (KSDS primary key)",
+      "expected": 0,
+      "actual": 0,
+      "status": "PASS"
+    },
+    {
+      "id": "CBACT01C-XREF-01",
+      "group": "xref",
+      "description": "every OUT-ACCT-ID exists exactly once in the input and every input account appears once",
+      "expected": {
+        "unknown": [],
+        "duplicated": [],
+        "missing": []
+      },
+      "actual": {
+        "unknown": [],
+        "duplicated": [],
+        "missing": []
+      },
+      "status": "PASS"
+    },
+    {
+      "id": "CBACT01C-XREF-02",
+      "group": "xref",
+      "description": "every ARR-ACCT-ID exists exactly once in the input and every input account appears once",
+      "expected": {
+        "unknown": [],
+        "duplicated": [],
+        "missing": []
+      },
+      "actual": {
+        "unknown": [],
+        "duplicated": [],
+        "missing": []
+      },
+      "status": "PASS"
+    },
+    {
+      "id": "CBACT01C-XREF-03",
+      "group": "xref",
+      "description": "every VB1-ACCT-ID exists exactly once in the input and every input account appears once",
+      "expected": {
+        "unknown": [],
+        "duplicated": [],
+        "missing": []
+      },
+      "actual": {
+        "unknown": [],
+        "duplicated": [],
+        "missing": []
+      },
+      "status": "PASS"
+    },
+    {
+      "id": "CBACT01C-XREF-04",
+      "group": "xref",
+      "description": "every VB2-ACCT-ID exists exactly once in the input and every input account appears once",
+      "expected": {
+        "unknown": [],
+        "duplicated": [],
+        "missing": []
+      },
+      "actual": {
+        "unknown": [],
+        "duplicated": [],
+        "missing": []
+      },
+      "status": "PASS"
+    },
+    {
+      "id": "CBACT01C-XREF-05",
+      "group": "xref",
+      "description": "OUTFILE order = input key order (sequential KSDS read is ascending by ACCT-ID)",
+      "expected": true,
+      "actual": true,
+      "status": "PASS"
+    }
+  ]
+}

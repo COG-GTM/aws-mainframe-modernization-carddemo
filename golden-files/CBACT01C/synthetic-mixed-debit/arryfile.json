@@ -1,0 +1,132 @@
+[
+  {
+    "ARR-ACCT-ID": "1",
+    "ARR-ACCT-BAL": [
+      {
+        "ARR-ACCT-CURR-BAL": "194.00",
+        "ARR-ACCT-CURR-CYC-DEBIT": "1005.00"
+      },
+      {
+        "ARR-ACCT-CURR-BAL": "194.00",
+        "ARR-ACCT-CURR-CYC-DEBIT": "1525.00"
+      },
+      {
+        "ARR-ACCT-CURR-BAL": "-1025.00",
+        "ARR-ACCT-CURR-CYC-DEBIT": "-2500.00"
+      },
+      {
+        "ARR-ACCT-CURR-BAL": "0.00",
+        "ARR-ACCT-CURR-CYC-DEBIT": "0.00"
+      },
+      {
+        "ARR-ACCT-CURR-BAL": "0.00",
+        "ARR-ACCT-CURR-CYC-DEBIT": "0.00"
+      }
+    ],
+    "ARR-FILLER": "    "
+  },
+  {
+    "ARR-ACCT-ID": "2",
+    "ARR-ACCT-BAL": [
+      {
+        "ARR-ACCT-CURR-BAL": "158.00",
+        "ARR-ACCT-CURR-CYC-DEBIT": "1005.00"
+      },
+      {
+        "ARR-ACCT-CURR-BAL": "158.00",
+        "ARR-ACCT-CURR-CYC-DEBIT": "1525.00"
+      },
+      {
+        "ARR-ACCT-CURR-BAL": "-1025.00",
+        "ARR-ACCT-CURR-CYC-DEBIT": "-2500.00"
+      },
+      {
+        "ARR-ACCT-CURR-BAL": "0.00",
+        "ARR-ACCT-CURR-CYC-DEBIT": "0.00"
+      },
+      {
+        "ARR-ACCT-CURR-BAL": "0.00",
+        "ARR-ACCT-CURR-CYC-DEBIT": "0.00"
+      }
+    ],
+    "ARR-FILLER": "    "
+  },
+  {
+    "ARR-ACCT-ID": "3",
+    "ARR-ACCT-BAL": [
+      {
+        "ARR-ACCT-CURR-BAL": "147.00",
+        "ARR-ACCT-CURR-CYC-DEBIT": "1005.00"
+      },
+      {
+        "ARR-ACCT-CURR-BAL": "147.00",
+        "ARR-ACCT-CURR-CYC-DEBIT": "1525.00"
+      },
+      {
+        "ARR-ACCT-CURR-BAL": "-1025.00",
+        "ARR-ACCT-CURR-CYC-DEBIT": "-2500.00"
+      },
+      {
+        "ARR-ACCT-CURR-BAL": "0.00",
+        "ARR-ACCT-CURR-CYC-DEBIT": "0.00"
+      },
+      {
+        "ARR-ACCT-CURR-BAL": "0.00",
+        "ARR-ACCT-CURR-CYC-DEBIT": "0.00"
+      }
+    ],
+    "ARR-FILLER": "    "
+  },
+  {
+    "ARR-ACCT-ID": "4",
+    "ARR-ACCT-BAL": [
+      {
+        "ARR-ACCT-CURR-BAL": "40.00",
+        "ARR-ACCT-CURR-CYC-DEBIT": "1005.00"
+      },
+      {
+        "ARR-ACCT-CURR-BAL": "40.00",
+        "ARR-ACCT-CURR-CYC-DEBIT": "1525.00"
+      },
+      {
+        "ARR-ACCT-CURR-BAL": "-1025.00",
+        "ARR-ACCT-CURR-CYC-DEBIT": "-2500.00"
+      },
+      {
+        "ARR-ACCT-CURR-BAL": "0.00",
+        "ARR-ACCT-CURR-CYC-DEBIT": "0.00"
+      },
+      {
+        "ARR-ACCT-CURR-BAL": "0.00",
+        "ARR-ACCT-CURR-CYC-DEBIT": "0.00"
+      }
+    ],
+    "ARR-FILLER": "    "
+  },
+  {
+    "ARR-ACCT-ID": "5",
+    "ARR-ACCT-BAL": [
+      {
+        "ARR-ACCT-CURR-BAL": "345.00",
+        "ARR-ACCT-CURR-CYC-DEBIT": "1005.00"
+      },
+      {
+        "ARR-ACCT-CURR-BAL": "345.00",
+        "ARR-ACCT-CURR-CYC-DEBIT": "1525.00"
+      },
+      {
+        "ARR-ACCT-CURR-BAL": "-1025.00",
+        "ARR-ACCT-CURR-CYC-DEBIT": "-2500.00"
+      },
+      {
+        "ARR-ACCT-CURR-BAL": "0.00",
+        "ARR-ACCT-CURR-CYC-DEBIT": "0.00"
+      },
+      {
+        "ARR-ACCT-CURR-BAL": "0.00",
+        "ARR-ACCT-CURR-CYC-DEBIT": "0.00"
+      }
+    ],
+    "ARR-FILLER": "    "
+  }
+]

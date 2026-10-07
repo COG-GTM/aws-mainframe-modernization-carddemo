@@ -1,0 +1,26 @@
+[
+  {
+    "tran_id": "0000000000683580",
+    "card_num": "4859452612877065",
+    "xref_found": true,
+    "acct_id": "7",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000001774260",
+    "card_num": "9999999999999999",
+    "xref_found": false,
+    "acct_id": null,
+    "acct_found": null,
+    "outcome": "CARD_NOT_FOUND"
+  },
+  {
+    "tran_id": "0000000006292564",
+    "card_num": "8888888888888888",
+    "xref_found": true,
+    "acct_id": "99999999999",
+    "acct_found": false,
+    "outcome": "ACCOUNT_NOT_FOUND"
+  }
+]
