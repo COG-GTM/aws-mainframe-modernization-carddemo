@@ -1,7 +1,7 @@
 name: modernization-ci
 
-# Java 21 build/test gate for modernization/ plus the GnuCOBOL baseline the phase-6 equivalence job compares
-# against. PRs on the migration board are stacked (base = previous ticket's branch), so pull_request runs for
+# Java 21 build/test gate for modernization/, the GnuCOBOL baseline, the per-job batch equivalence and the end-to-end
+# golden set (online scenario + nightly cycle, Java vs GnuCOBOL). PRs on the migration board are stacked (base = previous ticket's branch), so pull_request runs for
 # every base branch.
 on:
   pull_request:
@@ -15,7 +15,9 @@ on:
       - "app/data/**"
       - "scripts/baseline/**"
       - "scripts/batch/**"
+      - "scripts/golden-set/**"
       - "docs/validation/baseline/**"
+      - "docs/validation/golden-set/**"
       - "docs/modernization/dependency-map.json"
       - "Makefile"
       - ".github/workflows/modernization-ci.yml"
@@ -31,7 +33,9 @@ on:
       - "app/data/**"
       - "scripts/baseline/**"
       - "scripts/batch/**"
+      - "scripts/golden-set/**"
       - "docs/validation/baseline/**"
+      - "docs/validation/golden-set/**"
       - "docs/modernization/dependency-map.json"
       - "Makefile"
       - ".github/workflows/modernization-ci.yml"
@@ -246,4 +250,58 @@ jobs:
         with:
           name: batch-equivalence
           path: build/batch-equivalence/
+          if-no-files-found: warn
+
+  # End-to-end golden set (UNT51-23/24, gate g-golden, decision d-verify): make golden-set-check runs
+  # scripts/golden-set/run_golden_set.sh unchanged — its own throwaway postgres:16-alpine container (Docker on the
+  # runner), initial-load, the 30-step REST scenario under the `golden` profile, the GnuCOBOL cycle on the
+  # independently derived after-online files vs --job=nightly-cycle — and fails on any unexplained difference or
+  # allow-list entry not matched exactly once, or when the reconciliation it writes (build/golden-set-doc/) is not
+  # identical to the newest committed docs/validation/golden-set/<date>/ (Toolchain line normalised). The jar is
+  # packaged here with -DskipTests (the build job runs the suite) so this job runs in parallel with the others; the
+  # GnuCOBOL compile of the 14 batch programs takes a few seconds, so no binary cache.
+  golden-set:
+    name: golden set (online scenario + nightly cycle, Java vs GnuCOBOL; reconciliation reproducible)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    env:
+      CARDDEMO_JAR: modernization/carddemo-app/target/carddemo-app.jar
+      GOLDEN_DOC_DIR: build/golden-set-doc
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        id: jdk
+        with:
+          distribution: temurin
+          java-version: "21"
+          cache: maven
+      - name: Install GnuCOBOL (as the baseline job) and jq
+        run: |
+          sudo apt-get update -q
+          sudo apt-get install -y -q gnucobol jq
+          cobc --version | head -1
+      - name: mvn package (skip tests; the build job runs them)
+        run: mvn -B -ntp -f modernization/pom.xml -DskipTests package
+      - name: make golden-set-check
+        env:
+          GOLDEN_JAVA_HOME: ${{ steps.jdk.outputs.path }}
+        run: make golden-set-check
+      - name: Summary
+        if: always()
+        run: cat build/golden-set/summary.md >> "$GITHUB_STEP_SUMMARY" 2>/dev/null || echo "no summary.md" >> "$GITHUB_STEP_SUMMARY"
+      - name: Upload reconciliation (docs/validation/golden-set layout)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: golden-set-reconciliation
+          path: build/golden-set-doc/
+          if-no-files-found: warn
+      - name: Upload work directory (datasets, compare reports, logs)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: golden-set-work
+          path: |
+            build/golden-set/
+            !build/golden-set/cobol/work/
           if-no-files-found: warn

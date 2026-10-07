@@ -4,7 +4,7 @@ export JAVA_HOME
 COMPOSE := docker compose -f modernization/docker-compose.yml
 CARDDEMO_HTTP_PORT ?= 8080
 
-.PHONY: help baseline baseline-fast baseline-check batch-equivalence nightly-cycle golden-set verify up down health
+.PHONY: help baseline baseline-fast baseline-check batch-equivalence nightly-cycle golden-set golden-set-check verify up down health
 
 help:
 	@echo "baseline        compile all batch COBOL with GnuCOBOL and run the 26 baseline jobs (WAITSTEP waits 36 s)"
@@ -19,6 +19,8 @@ help:
 	@echo "golden-set      online scenario (REST) + whole nightly cycle, Java vs GnuCOBOL from the same sample data;"
 	@echo "                field-by-field + report compare, allow-list scripts/golden-set/expected-diffs (needs Docker,"
 	@echo "                cobc, the packaged jar); reconciliation in docs/validation/golden-set/<date>/ (gate g-golden)"
+	@echo "golden-set-check  golden-set into build/golden-set-doc + no drift vs the newest committed"
+	@echo "                  docs/validation/golden-set/<date>/ (Toolchain line normalised); CI job golden-set"
 	@echo "verify          mvn -B verify on JDK 21 (unit + Testcontainers ITs; needs Docker)"
 	@echo "up / down       docker compose: PostgreSQL 16 + carddemo-app (needs CARDDEMO_DB_PASSWORD or modernization/.env)"
 	@echo "health          curl /actuator/health on CARDDEMO_HTTP_PORT (default 8080)"
@@ -56,6 +58,9 @@ nightly-cycle:
 
 golden-set:
 	scripts/golden-set/run_golden_set.sh
+
+golden-set-check:
+	scripts/golden-set/ci_check.sh
 
 verify:
 	cd modernization && mvn -B verify
