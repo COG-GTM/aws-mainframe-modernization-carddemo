@@ -53,3 +53,7 @@ carddemo:
   batch:
     output-dir: ${CARDDEMO_BATCH_OUTPUT_DIR:batch-output}   # dated outputs, ADR-0012
     retain: 5
+    scheduler:                   # in-app cron of nightly-cycle (docs/modernization/06-scheduling.md)
+      enabled: ${CARDDEMO_SCHEDULER_ENABLED:true}   # web app only; false in the test and golden profiles
+      nightly-cycle:
+        cron: "${CARDDEMO_NIGHTLY_CYCLE_CRON:0 0 22 * * *}"   # sec min hour dom mon dow, zone carddemo.clock.zone

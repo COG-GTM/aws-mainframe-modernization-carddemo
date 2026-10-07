@@ -13,3 +13,7 @@ logging:
   level:
     root: WARN
     com.carddemo: INFO
+carddemo:
+  batch:
+    scheduler:
+      enabled: false   # no cron fire in automated tests / CI

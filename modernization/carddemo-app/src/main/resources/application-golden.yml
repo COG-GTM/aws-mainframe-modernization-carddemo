@@ -1,6 +1,9 @@
 # Profile used by golden-set / parity runs against the GnuCOBOL baseline (ADR-0014).
 # Values mirror scripts/baseline/run_baseline.sh and scripts/baseline/README.md "Fixed values".
 carddemo:
+  batch:
+    scheduler:
+      enabled: false                  # parity runs are launched explicitly, never by the cron
   clock:
     fixed: 2022-07-06T00:00:00        # COB_CURRENT_DATE=2022/07/06 00:00:00.00
     zone: UTC
