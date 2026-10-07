@@ -1,0 +1,474 @@
+<!DOCTYPE html>                                                                                     
+<html lang="en">                                                                                    
+<head>                                                                                              
+<meta charset="utf-8">                                                                              
+<title>HTML Table Layout</title>                                                                    
+</head>                                                                                             
+<body style="margin:0px;">                                                                          
+<table  align="center" frame="box" style="width:70%; font:12px Segoe UI,sans-serif;">               
+<tr>                                                                                                
+<td colspan="3" style="padding:0px 5px;background-color:#1d1d96b3;">                                
+<h3>Statement for Account Number: 00000000002         </h3>                                         
+</td>                                                                                               
+</tr>                                                                                               
+<tr>                                                                                                
+<td colspan="3" style="padding:0px 5px;background-color:#FFAF33;">                                  
+<p style="font-size:16px">Bank of XYZ</p>                                                           
+<p>410 Terry Ave N</p>                                                                              
+<p>Seattle WA 99999</p>                                                                             
+</td>                                                                                               
+</tr>                                                                                               
+<tr>                                                                                                
+<td colspan="3" style="padding:0px 5px;background-color:#f2f2f2;">                                  
+<p style="font-size:16px">Enrico April Rosenbaum  </p>                                              
+<p>4917 Myrna Flats  </p>                                                                           
+<p>Apt. 453  </p>                                                                                   
+<p>West IN USA 22770  </p>                                                                          
+</td>                                                                                               
+</tr>                                                                                               
+<tr>                                                                                                
+<td colspan="3" style="padding:0px 5px;background-color:#33FFD1; text-align:center;">               
+<p style="font-size:16px">Basic Details</p>                                                         
+</td>                                                                                               
+</tr>                                                                                               
+<tr>                                                                                                
+<td colspan="3" style="padding:0px 5px;background-color:#f2f2f2;">                                  
+<p>Account ID         : 00000000002         </p>                                                    
+<p>Current Balance    : 000001764.21 </p>                                                           
+<p>FICO Score         : 268                 </p>                                                    
+</td>                                                                                               
+</tr>                                                                                               
+<tr>                                                                                                
+<td colspan="3" style="padding:0px 5px;background-color:#33FFD1; text-align:center;">               
+<p style="font-size:16px">Transaction Summary</p>                                                   
+</td>                                                                                               
+</tr>                                                                                               
+<tr>                                                                                                
+<td style="width:25%; padding:0px 5px; background-color:#33FF5E; text-align:left;">                 
+<p style="font-size:16px">Tran ID</p>                                                               
+</td>                                                                                               
+<td style="width:55%; padding:0px 5px; background-color:#33FF5E; text-align:left;">                 
+<p style="font-size:16px">Tran Details</p>                                                          
+</td>                                                                                               
+<td style="width:20%; padding:0px 5px; background-color:#33FF5E; text-align:right;">                
+<p style="font-size:16px">Amount</p>                                                                
+</td>                                                                                               
+</tr>                                                                                               
+<tr>                                                                                                
+<td colspan="3" style="padding:0px 5px;background-color:#1d1d96b3;">                                
+<h3>End of Statement</h3>                                                                           
+</td>                                                                                               
+</tr>                                                                                               
+</table>                                                                                            
+</body>                                                                                             
+</html>                                                                                             
+<!DOCTYPE html>                                                                                     
+<html lang="en">                                                                                    
+<head>                                                                                              
+<meta charset="utf-8">                                                                              
+<title>HTML Table Layout</title>                                                                    
+</head>                                                                                             
+<body style="margin:0px;">                                                                          
+<table  align="center" frame="box" style="width:70%; font:12px Segoe UI,sans-serif;">               
+<tr>                                                                                                
+<td colspan="3" style="padding:0px 5px;background-color:#1d1d96b3;">                                
+<h3>Statement for Account Number: 00000000050         </h3>                                         
+</td>                                                                                               
+</tr>                                                                                               
+<tr>                                                                                                
+<td colspan="3" style="padding:0px 5px;background-color:#FFAF33;">                                  
+<p style="font-size:16px">Bank of XYZ</p>                                                           
+<p>410 Terry Ave N</p>                                                                              
+<p>Seattle WA 99999</p>                                                                             
+</td>                                                                                               
+</tr>                                                                                               
+<tr>                                                                                                
+<td colspan="3" style="padding:0px 5px;background-color:#f2f2f2;">                                  
+<p style="font-size:16px">Aniya Alba Von  </p>                                                      
+<p>1588 Nienow Cape  </p>                                                                           
+<p>Suite 187  </p>                                                                                  
+<p>New OR USA 04257  </p>                                                                           
+</td>                                                                                               
+</tr>                                                                                               
+<tr>                                                                                                
+<td colspan="3" style="padding:0px 5px;background-color:#33FFD1; text-align:center;">               
+<p style="font-size:16px">Basic Details</p>                                                         
+</td>                                                                                               
+</tr>                                                                                               
+<tr>                                                                                                
+<td colspan="3" style="padding:0px 5px;background-color:#f2f2f2;">                                  
+<p>Account ID         : 00000000050         </p>                                                    
+<p>Current Balance    : 000001945.87 </p>                                                           
+<p>FICO Score         : 623                 </p>                                                    
+</td>                                                                                               
+</tr>                                                                                               
+<tr>                                                                                                
+<td colspan="3" style="padding:0px 5px;background-color:#33FFD1; text-align:center;">               
+<p style="font-size:16px">Transaction Summary</p>                                                   
+</td>                                                                                               
+</tr>                                                                                               
+<tr>                                                                                                
+<td style="width:25%; padding:0px 5px; background-color:#33FF5E; text-align:left;">                 
+<p style="font-size:16px">Tran ID</p>                                                               
+</td>                                                                                               
+<td style="width:55%; padding:0px 5px; background-color:#33FF5E; text-align:left;">                 
+<p style="font-size:16px">Tran Details</p>                                                          
+</td>                                                                                               
+<td style="width:20%; padding:0px 5px; background-color:#33FF5E; text-align:right;">                
+<p style="font-size:16px">Amount</p>                                                                
+</td>                                                                                               
+</tr>                                                                                               
+<tr>                                                                                                
+<td style="width:25%; padding:0px 5px; background-color:#f2f2f2; text-align:left;">                 
+<p>0000000058866561</p>                                                                             
+</td>                                                                                               
+<td style="width:55%; padding:0px 5px; background-color:#f2f2f2; text-align:left;">                 
+<p>Purchase at Blick-Rippin                         </p>                                            
+</td>                                                                                               
+<td style="width:20%; padding:0px 5px; background-color:#f2f2f2; text-align:right;">                
+<p>      183.88 </p>                                                                                
+</td>                                                                                               
+</tr>                                                                                               
+<tr>                                                                                                
+<td style="width:25%; padding:0px 5px; background-color:#f2f2f2; text-align:left;">                 
+<p>0000000329724245</p>                                                                             
+</td>                                                                                               
+<td style="width:55%; padding:0px 5px; background-color:#f2f2f2; text-align:left;">                 
+<p>Purchase at Reichel Group                        </p>                                            
+</td>                                                                                               
+<td style="width:20%; padding:0px 5px; background-color:#f2f2f2; text-align:right;">                
+<p>       14.00 </p>                                                                                
+</td>                                                                                               
+</tr>                                                                                               
+<tr>                                                                                                
+<td style="width:25%; padding:0px 5px; background-color:#f2f2f2; text-align:left;">                 
+<p>0000000475746885</p>                                                                             
+</td>                                                                                               
+<td style="width:55%; padding:0px 5px; background-color:#f2f2f2; text-align:left;">                 
+<p>Purchase at Adams-Watsica                        </p>                                            
+</td>                                                                                               
+<td style="width:20%; padding:0px 5px; background-color:#f2f2f2; text-align:right;">                
+<p>      967.44 </p>                                                                                
+</td>                                                                                               
+</tr>                                                                                               
+<tr>                                                                                                
+<td style="width:25%; padding:0px 5px; background-color:#f2f2f2; text-align:left;">                 
+<p>0000000577826814</p>                                                                             
+</td>                                                                                               
+<td style="width:55%; padding:0px 5px; background-color:#f2f2f2; text-align:left;">                 
+<p>Return item at DuBuque, Wuckert and Mraz         </p>                                            
+</td>                                                                                               
+<td style="width:20%; padding:0px 5px; background-color:#f2f2f2; text-align:right;">                
+<p>       47.88-</p>                                                                                
+</td>                                                                                               
+</tr>                                                                                               
+<tr>                                                                                                
+<td style="width:25%; padding:0px 5px; background-color:#f2f2f2; text-align:left;">                 
+<p>0000000685488982</p>                                                                             
+</td>                                                                                               
+<td style="width:55%; padding:0px 5px; background-color:#f2f2f2; text-align:left;">                 
+<p>Purchase at Williamson Group                     </p>                                            
+</td>                                                                                               
+<td style="width:20%; padding:0px 5px; background-color:#f2f2f2; text-align:right;">                
+<p>       94.77 </p>                                                                                
+</td>                                                                                               
+</tr>                                                                                               
+<tr>                                                                                                
+<td style="width:25%; padding:0px 5px; background-color:#f2f2f2; text-align:left;">                 
+<p>0000000838587312</p>                                                                             
+</td>                                                                                               
+<td style="width:55%; padding:0px 5px; background-color:#f2f2f2; text-align:left;">                 
+<p>Purchase at Abbott-Gerlach                       </p>                                            
+</td>                                                                                               
+<td style="width:20%; padding:0px 5px; background-color:#f2f2f2; text-align:right;">                
+<p>      241.66 </p>                                                                                
+</td>                                                                                               
+</tr>                                                                                               
+<tr>                                                                                                
+<td style="width:25%; padding:0px 5px; background-color:#f2f2f2; text-align:left;">                 
+<p>2022071800000050</p>                                                                             
+</td>                                                                                               
+<td style="width:55%; padding:0px 5px; background-color:#f2f2f2; text-align:left;">                 
+<p>Int. for a/c 00000000050                         </p>                                            
+</td>                                                                                               
+<td style="width:20%; padding:0px 5px; background-color:#f2f2f2; text-align:right;">                
+<p>       18.77 </p>                                                                                
+</td>                                                                                               
+</tr>                                                                                               
+<tr>                                                                                                
+<td colspan="3" style="padding:0px 5px;background-color:#1d1d96b3;">                                
+<h3>End of Statement</h3>                                                                           
+</td>                                                                                               
+</tr>                                                                                               
+</table>                                                                                            
+</body>                                                                                             
+</html>                                                                                             
+<!DOCTYPE html>                                                                                     
+<html lang="en">                                                                                    
+<head>                                                                                              
+<meta charset="utf-8">                                                                              
+<title>HTML Table Layout</title>                                                                    
+</head>                                                                                             
+<body style="margin:0px;">                                                                          
+<table  align="center" frame="box" style="width:70%; font:12px Segoe UI,sans-serif;">               
+<tr>                                                                                                
+<td colspan="3" style="padding:0px 5px;background-color:#1d1d96b3;">                                
+<h3>Statement for Account Number: 00000000020         </h3>                                         
+</td>                                                                                               
+</tr>                                                                                               
+<tr>                                                                                                
+<td colspan="3" style="padding:0px 5px;background-color:#FFAF33;">                                  
+<p style="font-size:16px">Bank of XYZ</p>                                                           
+<p>410 Terry Ave N</p>                                                                              
+<p>Seattle WA 99999</p>                                                                             
+</td>                                                                                               
+</tr>                                                                                               
+<tr>                                                                                                
+<td colspan="3" style="padding:0px 5px;background-color:#f2f2f2;">                                  
+<p style="font-size:16px">Carter Oren Veum  </p>                                                    
+<p>5845 Allison Valleys  </p>                                                                       
+<p>Suite 934  </p>                                                                                  
+<p>Mitchellmouth MH USA 72362  </p>                                                                 
+</td>                                                                                               
+</tr>                                                                                               
+<tr>                                                                                                
+<td colspan="3" style="padding:0px 5px;background-color:#33FFD1; text-align:center;">               
+<p style="font-size:16px">Basic Details</p>                                                         
+</td>                                                                                               
+</tr>                                                                                               
+<tr>                                                                                                
+<td colspan="3" style="padding:0px 5px;background-color:#f2f2f2;">                                  
+<p>Account ID         : 00000000020         </p>                                                    
+<p>Current Balance    : 000001933.76 </p>                                                           
+<p>FICO Score         : 493                 </p>                                                    
+</td>                                                                                               
+</tr>                                                                                               
+<tr>                                                                                                
+<td colspan="3" style="padding:0px 5px;background-color:#33FFD1; text-align:center;">               
+<p style="font-size:16px">Transaction Summary</p>                                                   
+</td>                                                                                               
+</tr>                                                                                               
+<tr>                                                                                                
+<td style="width:25%; padding:0px 5px; background-color:#33FF5E; text-align:left;">                 
+<p style="font-size:16px">Tran ID</p>                                                               
+</td>                                                                                               
+<td style="width:55%; padding:0px 5px; background-color:#33FF5E; text-align:left;">                 
+<p style="font-size:16px">Tran Details</p>                                                          
+</td>                                                                                               
+<td style="width:20%; padding:0px 5px; background-color:#33FF5E; text-align:right;">                
+<p style="font-size:16px">Amount</p>                                                                
+</td>                                                                                               
+</tr>                                                                                               
+<tr>                                                                                                
+<td colspan="3" style="padding:0px 5px;background-color:#1d1d96b3;">                                
+<h3>End of Statement</h3>                                                                           
+</td>                                                                                               
+</tr>                                                                                               
+</table>                                                                                            
+</body>                                                                                             
+</html>                                                                                             
+<!DOCTYPE html>                                                                                     
+<html lang="en">                                                                                    
+<head>                                                                                              
+<meta charset="utf-8">                                                                              
+<title>HTML Table Layout</title>                                                                    
+</head>                                                                                             
+<body style="margin:0px;">                                                                          
+<table  align="center" frame="box" style="width:70%; font:12px Segoe UI,sans-serif;">               
+<tr>                                                                                                
+<td colspan="3" style="padding:0px 5px;background-color:#1d1d96b3;">                                
+<h3>Statement for Account Number: 00000000027         </h3>                                         
+</td>                                                                                               
+</tr>                                                                                               
+<tr>                                                                                                
+<td colspan="3" style="padding:0px 5px;background-color:#FFAF33;">                                  
+<p style="font-size:16px">Bank of XYZ</p>                                                           
+<p>410 Terry Ave N</p>                                                                              
+<p>Seattle WA 99999</p>                                                                             
+</td>                                                                                               
+</tr>                                                                                               
+<tr>                                                                                                
+<td colspan="3" style="padding:0px 5px;background-color:#f2f2f2;">                                  
+<p style="font-size:16px">Ward Henri Jones  </p>                                                    
+<p>210 Amaya Turnpike  </p>                                                                         
+<p>Suite 180  </p>                                                                                  
+<p>Port GU USA 07923-8822  </p>                                                                     
+</td>                                                                                               
+</tr>                                                                                               
+<tr>                                                                                                
+<td colspan="3" style="padding:0px 5px;background-color:#33FFD1; text-align:center;">               
+<p style="font-size:16px">Basic Details</p>                                                         
+</td>                                                                                               
+</tr>                                                                                               
+<tr>                                                                                                
+<td colspan="3" style="padding:0px 5px;background-color:#f2f2f2;">                                  
+<p>Account ID         : 00000000027         </p>                                                    
+<p>Current Balance    : 000003540.45 </p>                                                           
+<p>FICO Score         : 078                 </p>                                                    
+</td>                                                                                               
+</tr>                                                                                               
+<tr>                                                                                                
+<td colspan="3" style="padding:0px 5px;background-color:#33FFD1; text-align:center;">               
+<p style="font-size:16px">Transaction Summary</p>                                                   
+</td>                                                                                               
+</tr>                                                                                               
+<tr>                                                                                                
+<td style="width:25%; padding:0px 5px; background-color:#33FF5E; text-align:left;">                 
+<p style="font-size:16px">Tran ID</p>                                                               
+</td>                                                                                               
+<td style="width:55%; padding:0px 5px; background-color:#33FF5E; text-align:left;">                 
+<p style="font-size:16px">Tran Details</p>                                                          
+</td>                                                                                               
+<td style="width:20%; padding:0px 5px; background-color:#33FF5E; text-align:right;">                
+<p style="font-size:16px">Amount</p>                                                                
+</td>                                                                                               
+</tr>                                                                                               
+<tr>                                                                                                
+<td style="width:25%; padding:0px 5px; background-color:#f2f2f2; text-align:left;">                 
+<p>0000000130111733</p>                                                                             
+</td>                                                                                               
+<td style="width:55%; padding:0px 5px; background-color:#f2f2f2; text-align:left;">                 
+<p>Purchase at Rogahn Group                         </p>                                            
+</td>                                                                                               
+<td style="width:20%; padding:0px 5px; background-color:#f2f2f2; text-align:right;">                
+<p>      777.33 </p>                                                                                
+</td>                                                                                               
+</tr>                                                                                               
+<tr>                                                                                                
+<td style="width:25%; padding:0px 5px; background-color:#f2f2f2; text-align:left;">                 
+<p>0000000187573156</p>                                                                             
+</td>                                                                                               
+<td style="width:55%; padding:0px 5px; background-color:#f2f2f2; text-align:left;">                 
+<p>Purchase at Cruickshank and Daughters            </p>                                            
+</td>                                                                                               
+<td style="width:20%; padding:0px 5px; background-color:#f2f2f2; text-align:right;">                
+<p>      579.77 </p>                                                                                
+</td>                                                                                               
+</tr>                                                                                               
+<tr>                                                                                                
+<td style="width:25%; padding:0px 5px; background-color:#f2f2f2; text-align:left;">                 
+<p>0000000486159054</p>                                                                             
+</td>                                                                                               
+<td style="width:55%; padding:0px 5px; background-color:#f2f2f2; text-align:left;">                 
+<p>Purchase at Christiansen-Jacobi                  </p>                                            
+</td>                                                                                               
+<td style="width:20%; padding:0px 5px; background-color:#f2f2f2; text-align:right;">                
+<p>      319.88 </p>                                                                                
+</td>                                                                                               
+</tr>                                                                                               
+<tr>                                                                                                
+<td style="width:25%; padding:0px 5px; background-color:#f2f2f2; text-align:left;">                 
+<p>0000000802663079</p>                                                                             
+</td>                                                                                               
+<td style="width:55%; padding:0px 5px; background-color:#f2f2f2; text-align:left;">                 
+<p>Purchase at Zulauf-O'Keefe                       </p>                                            
+</td>                                                                                               
+<td style="width:20%; padding:0px 5px; background-color:#f2f2f2; text-align:right;">                
+<p>      975.11 </p>                                                                                
+</td>                                                                                               
+</tr>                                                                                               
+<tr>                                                                                                
+<td style="width:25%; padding:0px 5px; background-color:#f2f2f2; text-align:left;">                 
+<p>0000000903281896</p>                                                                             
+</td>                                                                                               
+<td style="width:55%; padding:0px 5px; background-color:#f2f2f2; text-align:left;">                 
+<p>Purchase at Schmitt, Mills and Yundt             </p>                                            
+</td>                                                                                               
+<td style="width:20%; padding:0px 5px; background-color:#f2f2f2; text-align:right;">                
+<p>      932.55 </p>                                                                                
+</td>                                                                                               
+</tr>                                                                                               
+<tr>                                                                                                
+<td style="width:25%; padding:0px 5px; background-color:#f2f2f2; text-align:left;">                 
+<p>0000000925687557</p>                                                                             
+</td>                                                                                               
+<td style="width:55%; padding:0px 5px; background-color:#f2f2f2; text-align:left;">                 
+<p>Return item at Zboncak-Franecki                  </p>                                            
+</td>                                                                                               
+<td style="width:20%; padding:0px 5px; background-color:#f2f2f2; text-align:right;">                
+<p>      372.99-</p>                                                                                
+</td>                                                                                               
+</tr>                                                                                               
+<tr>                                                                                                
+<td style="width:25%; padding:0px 5px; background-color:#f2f2f2; text-align:left;">                 
+<p>2022071800000027</p>                                                                             
+</td>                                                                                               
+<td style="width:55%; padding:0px 5px; background-color:#f2f2f2; text-align:left;">                 
+<p>Int. for a/c 00000000027                         </p>                                            
+</td>                                                                                               
+<td style="width:20%; padding:0px 5px; background-color:#f2f2f2; text-align:right;">                
+<p>       44.80 </p>                                                                                
+</td>                                                                                               
+</tr>                                                                                               
+<tr>                                                                                                
+<td colspan="3" style="padding:0px 5px;background-color:#1d1d96b3;">                                
+<h3>End of Statement</h3>                                                                           
+</td>                                                                                               
+</tr>                                                                                               
+</table>                                                                                            
+</body>                                                                                             
+</html>                                                                                             
+<!DOCTYPE html>                                                                                     
+<html lang="en">                                                                                    
+<head>                                                                                              
+<meta charset="utf-8">                                                                              
+<title>HTML Table Layout</title>                                                                    
+</head>                                                                                             
+<body style="margin:0px;">                                                                          
+<table  align="center" frame="box" style="width:70%; font:12px Segoe UI,sans-serif;">               
+<tr>                                                                                                
+<td colspan="3" style="padding:0px 5px;background-color:#1d1d96b3;">                                
+<h3>Statement for Account Number: 00000000012         </h3>                                         
+</td>                                                                                               
+</tr>                                                                                               
+<tr>                                                                                                
+<td colspan="3" style="padding:0px 5px;background-color:#FFAF33;">                                  
+<p style="font-size:16px">Bank of XYZ</p>                                                           
+<p>410 Terry Ave N</p>                                                                              
+<p>Seattle WA 99999</p>                                                                             
+</td>                                                                                               
+</tr>                                                                                               
+<tr>                                                                                                
+<td colspan="3" style="padding:0px 5px;background-color:#f2f2f2;">                                  
+<p style="font-size:16px">Maci Alan Robel  </p>                                                     
+<p>80501 Isac Cliffs  </p>                                                                          
+<p>Suite 623  </p>                                                                                  
+<p>Predovicton MN USA 78861  </p>                                                                   
+</td>                                                                                               
+</tr>                                                                                               
+<tr>                                                                                                
+<td colspan="3" style="padding:0px 5px;background-color:#33FFD1; text-align:center;">               
+<p style="font-size:16px">Basic Details</p>                                                         
+</td>                                                                                               
+</tr>                                                                                               
+<tr>                                                                                                
+<td colspan="3" style="padding:0px 5px;background-color:#f2f2f2;">                                  
+<p>Account ID         : 00000000012         </p>                                                    
+<p>Current Balance    : 000001800.11 </p>                                                           
+<p>FICO Score         : 688                 </p>                                                    
+</td>                                                                                               
+</tr>                                                                                               
+<tr>                                                                                                
+<td colspan="3" style="padding:0px 5px;background-color:#33FFD1; text-align:center;">               
+<p style="font-size:16px">Transaction Summary</p>                                                   
+</td>                                                                                               
+</tr>                                                                                               
+<tr>                                                                                                
+<td style="width:25%; padding:0px 5px; background-color:#33FF5E; text-align:left;">                 
+<p style="font-size:16px">Tran ID</p>                                                               
+</td>                                                                                               
+<td style="width:55%; padding:0px 5px; background-color:#33FF5E; text-align:left;">                 
+<p style="font-size:16px">Tran Details</p>                                                          
+</td>                                                                                               
+<td style="width:20%; padding:0px 5px; background-color:#33FF5E; text-align:right;">                
+<p style="font-size:16px">Amount</p>                                                                
+</td>                                                                                               
+</tr>                                                                                               
+<tr>                                                                                                
+<td colspan="3" style="padding:0px 5px;background-color:#1d1d96b3;">                                
+<h3>End of Statement</h3>                                                                           
+</td>                                                                                               
+</tr>                                                                                               
+</table>                                                                                            
+</body>                                                                                             
+</html>                                                                                             
