@@ -20,3 +20,6 @@ carddemo:
   batch:
     scheduler:
       enabled: false   # no cron fire in automated tests / CI
+  reports:
+    async:
+      enabled: false   # report requests run on the calling thread (ITs opt in)

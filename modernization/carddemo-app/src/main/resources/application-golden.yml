@@ -4,6 +4,9 @@ carddemo:
   batch:
     scheduler:
       enabled: false                  # parity runs are launched explicitly, never by the cron
+  reports:
+    async:
+      enabled: false   # report requests run on the calling thread (ITs opt in)
   clock:
     fixed: 2022-07-06T00:00:00        # COB_CURRENT_DATE=2022/07/06 00:00:00.00
     zone: UTC

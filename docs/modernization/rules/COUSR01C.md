@@ -49,3 +49,12 @@ Each failure sets `WS-ERR-FLG='Y'` and re-sends the screen with the message.
 | # | Given | Then |
 |---|---|---|
 | R-18 | Every send | Standard header (`TRNNAME='CU01'`, `PGMNAME='COUSR01C'`); `SEND MAP('COUSR1A') MAPSET('COUSR01') ERASE CURSOR`. |
+
+## Java port notes (UNT51-21, `POST /api/v1/users`)
+
+- Edits in R-8..R-12 order; one 400 `INVREQ` per request with the COBOL text and `field`. User id longer than 8
+  characters is 400 (the map field is `PIC X(08)`); user type is upper-cased and must be `A` or `U` (the COBOL
+  accepts any character, a deliberate tightening shared with COUSR02C).
+- `WRITE` = JPA insert (`UserSecurity.newRecord`, `Persistable.isNew`), so an existing id is a primary-key violation →
+  409 `DUPREC` `User ID already exist...` (R-16), never an update. Password stored as typed (ADR-0018).
+- Success: 201, `Location`, state `ADDED`, `User <id> has been added ...` (R-15). Role: ADMIN only.

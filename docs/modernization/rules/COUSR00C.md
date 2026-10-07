@@ -75,3 +75,13 @@ page with the partially-filled rows is what the user sees, with the EOF message 
 |---|---|---|
 | R-27 | Return | Blank target → `COSGN00C`; from-fields `CU00`/`COUSR00C`; context 0; `XCTL ... COMMAREA`. |
 | R-28 | Send | Standard header (`CU00`, `COUSR00C`); `SEND MAP('COUSR0A') MAPSET('COUSR00') CURSOR`, with `ERASE` unless `SEND-ERASE-NO` (R-15/R-17). |
+
+## Java port notes (UNT51-21, `GET /api/v1/users`, `POST /api/v1/users/selection`)
+
+- `startUserId` = USRIDIN (ENTER, R-4/R-13), `after` = last id shown (PF8), `before` = first id shown (PF7), `page` =
+  PAGENUM shown; `limit` must be 10. Keyset browse on `user_security` (ADR-0011, `COLLATE "C"` = USRSEC byte order)
+  with the 10 + 1 look-ahead of R-20.
+- Selection: first row with a non-blank code wins (R-9); `U`/`u` and `D`/`d` return the `NavigationContext` for
+  COUSR02C / COUSR03C plus the follow-up request; other codes are 400 `INVREQ` with the R-12 text.
+- R-17: the response carries the message and no rows (the client keeps the page on screen, like the un-erased map).
+- Role: ADMIN only (403 `NOTAUTH` `No access - Admin Only option...` for a USER token), as COADM01C gates CU00.
