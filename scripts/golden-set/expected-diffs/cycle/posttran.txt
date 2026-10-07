@@ -1,0 +1,8 @@
+# Expected differences of compare_posttran.py in the golden run (scripts/batch/run_nightly_cycle.sh table with
+# NIGHTLY_CYCLE_EXPECTED_DIFFS=scripts/golden-set/expected-diffs/cycle): DATASET|record-number|FIELD|baseline|java.
+# Each entry must apply exactly once. TCATBALF FILLER-only differences are reported by the script itself (ADR-0011).
+#
+# ACCTDATA record 10 (account 00000000010, updated online): docs/modernization/rules/COACTUPC.md "Deviation (R-39, ACCT-ADDR-ZIP)": COBOL ACCT-UPDATE-RECORD has no ACCT-ADDR-ZIP, so the update writes the (blank) group id over the ZIP; Java keeps the stored ZIP.
+ACCTDATA|10|ACCT-ADDR-ZIP||A000000000
+# ACCTDATA record 49: Sample data, not behaviour: ACCT-ADDR-ZIP is A000000000 in app/data/ASCII (COBOL input) and ZEROAPR in app/data/EBCDIC (initial-load input); modernization/carddemo-app/src/test/resources/codec/ebcdic-vs-ascii-expected-diffs.txt.
+ACCTDATA|49|ACCT-ADDR-ZIP|A000000000|ZEROAPR

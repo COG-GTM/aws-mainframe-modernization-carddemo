@@ -1,0 +1,11 @@
+# Allow-list of the online-change comparison (independent expected files from apply_online_scenario.py vs the Java
+# --job=unload export after online_scenario.sh), read by compare_datasets.py.
+# DATASET|key|FIELD|cobol-value|java-value|justification — each entry must match exactly once (key * = every record).
+# Values are rendered per PIC: numbers as decimals, text right-trimmed, an all-blank field as ''.
+#
+# Account 00000000010 is the account the scenario updates through COACTUPC (scenario.json accountUpdate). The COBOL
+# rewrite record puts ACCT-UPDATE-GROUP-ID (blank for every sample account) at the offset of ACCT-ADDR-ZIP; the Java
+# port keeps the ZIP. Documented deviation, not a scenario error.
+ACCTDATA|00000000010|ACCT-ADDR-ZIP|''|A000000000|docs/modernization/rules/COACTUPC.md "Deviation (R-39, ACCT-ADDR-ZIP)": COBOL ACCT-UPDATE-RECORD has no ACCT-ADDR-ZIP, so the update writes the (blank) group id over the ZIP; Java keeps the stored ZIP
+# Account 00000000049 is not touched by the scenario: the two sides start from different sample files.
+ACCTDATA|00000000049|ACCT-ADDR-ZIP|A000000000|ZEROAPR|Sample data, not behaviour: ACCT-ADDR-ZIP is A000000000 in app/data/ASCII (COBOL input) and ZEROAPR in app/data/EBCDIC (initial-load input); modernization/carddemo-app/src/test/resources/codec/ebcdic-vs-ascii-expected-diffs.txt

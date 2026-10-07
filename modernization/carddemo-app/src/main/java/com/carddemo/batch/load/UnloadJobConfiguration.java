@@ -5,17 +5,23 @@ import com.carddemo.account.AccountRecord;
 import com.carddemo.batch.harness.DdParameters;
 import com.carddemo.batch.harness.ReturnCode;
 import com.carddemo.batch.harness.ReturnCodeException;
+import com.carddemo.card.CardRecord;
+import com.carddemo.card.CardRepository;
 import com.carddemo.card.CardXrefRecord;
 import com.carddemo.card.CardXrefRepository;
 import com.carddemo.common.codec.FixedWidthRecord;
 import com.carddemo.common.codec.RecordEncoding;
 import com.carddemo.common.file.RecordFiles;
+import com.carddemo.customer.CustomerRecord;
+import com.carddemo.customer.CustomerRepository;
 import com.carddemo.transaction.DailyTransactionRecord;
 import com.carddemo.transaction.DailyTransactionRepository;
 import com.carddemo.transaction.TranCatBalanceRecord;
 import com.carddemo.transaction.TranCatBalanceRepository;
 import com.carddemo.transaction.TransactionRecord;
 import com.carddemo.transaction.TransactionRepository;
+import com.carddemo.user.UserSecurityRecord;
+import com.carddemo.user.UserSecurityRepository;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Locale;
@@ -28,11 +34,12 @@ import org.springframework.batch.core.step.builder.StepBuilder;
 import org.springframework.batch.repeat.RepeatStatus;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.domain.Sort;
 import org.springframework.transaction.PlatformTransactionManager;
 
 /**
  * {@code unload}: IDCAMS {@code REPRO} of a table to a sequential file, in key order:
- * {@code --DATASET=ACCTDATA|CARDXREF|TRANSACT|TCATBALF|DALYTRAN --OUTFILE=<path> [--encoding=ASCII|EBCDIC]}.
+ * {@code --DATASET=ACCTDATA|CUSTDATA|CARDDATA|CARDXREF|TRANSACT|TCATBALF|DALYTRAN|USRSEC --OUTFILE=<path> [--encoding=ASCII|EBCDIC]}.
  * ASCII writes one full-length record per line (the after-image format of {@code docs/validation/baseline}), EBCDIC
  * fixed-length records. Used to compare the tables a job updated with the baseline's KSDS after-images.
  */
@@ -46,7 +53,8 @@ public class UnloadJobConfiguration {
     @Bean
     Job unloadJob(JobRepository jobRepository, PlatformTransactionManager transactionManager,
                   AccountRepository accounts, CardXrefRepository xrefs, TransactionRepository transactions,
-                  TranCatBalanceRepository balances, DailyTransactionRepository dailyTransactions) {
+                  TranCatBalanceRepository balances, DailyTransactionRepository dailyTransactions,
+                  CustomerRepository customers, CardRepository cards, UserSecurityRepository users) {
         return new JobBuilder(UNLOAD, jobRepository)
                 .start(new StepBuilder("STEP05", jobRepository).tasklet((contribution, chunk) -> {
                     StepExecution step = chunk.getStepContext().getStepExecution();
@@ -60,6 +68,12 @@ public class UnloadJobConfiguration {
                     List<FixedWidthRecord> records = switch (dataset) {
                         case "ACCTDATA" -> accounts.findAllByOrderByAcctIdAsc().stream()
                                 .map(a -> AccountRecord.MAPPER.toRecord(a.toRecord(), encoding)).toList();
+                        case "CUSTDATA" -> customers.findAllByOrderByCustIdAsc().stream()
+                                .map(c -> CustomerRecord.MAPPER.toRecord(c.toRecord(), encoding)).toList();
+                        case "CARDDATA" -> cards.findAllByOrderByCardNumAsc().stream()
+                                .map(c -> CardRecord.MAPPER.toRecord(c.toRecord(), encoding)).toList();
+                        case "USRSEC" -> users.findAll(Sort.by("usrId")).stream()
+                                .map(u -> UserSecurityRecord.MAPPER.toRecord(u.toRecord(), encoding)).toList();
                         case "CARDXREF" -> xrefs.findAllByOrderByCardNumAsc().stream()
                                 .map(x -> CardXrefRecord.MAPPER.toRecord(x.toRecord(), encoding)).toList();
                         case "TRANSACT" -> transactions.findAllByOrderByTranIdAsc().stream()
@@ -69,7 +83,8 @@ public class UnloadJobConfiguration {
                         case "DALYTRAN" -> dailyTransactions.findAllByOrderByRecordSeqAsc().stream()
                                 .map(d -> DailyTransactionRecord.MAPPER.toRecord(d.toRecord(), encoding)).toList();
                         default -> throw new ReturnCodeException(ReturnCode.TERMINAL,
-                                "--DATASET must be ACCTDATA, CARDXREF, TRANSACT, TCATBALF or DALYTRAN, got '"
+                                "--DATASET must be ACCTDATA, CUSTDATA, CARDDATA, CARDXREF, TRANSACT, TCATBALF, DALYTRAN"
+                                        + " or USRSEC, got '"
                                         + dataset + "'");
                     };
                     if (encoding == RecordEncoding.EBCDIC) {

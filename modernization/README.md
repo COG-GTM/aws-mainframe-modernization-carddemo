@@ -80,6 +80,30 @@ TRANBKP, COMBTRAN, TRANREPT, CREASTMT, PRTCATBL) as one Spring Batch flow job wi
 the `test` and `golden` profiles disable the cron. `make nightly-cycle` runs it from freshly loaded sample data in
 file and table mode and compares every output with the baseline.
 
+## Golden set (end-to-end equivalence)
+
+`make golden-set` (`scripts/golden-set/run_golden_set.sh`, about two minutes, needs Docker, GnuCOBOL `cobc` and the
+packaged jar — it builds it when missing, `GOLDEN_BUILD=1` forces a rebuild) is the one end-to-end proof that
+online changes followed by the whole nightly cycle give the same result in Java and in COBOL:
+
+1. Java: throwaway `postgres:16-alpine`, `initial-load` from `app/data/EBCDIC`, the web app under the `golden`
+   profile, the scripted REST scenario `online_scenario.sh` (inputs in `scenario.json`: account/customer update,
+   card update, two transaction adds, a bill payment, user add/update/delete, a Custom report + download), then
+   `--job=unload` of the six online datasets.
+2. COBOL: `apply_online_scenario.py` applies the same scenario to the pristine sample records from the rules
+   documents (copybook offsets, no Java code); `compare_datasets.py` compares the two field by field — the online
+   equivalence proof. The report download must be byte-identical to the GnuCOBOL TRANREPT for the same window.
+3. `cobol_cycle.py` runs the GnuCOBOL cycle on the after-online files (baseline machinery, same clock pins);
+   `run_nightly_cycle.sh table` runs `--job=nightly-cycle` on the online-changed database and compares every job
+   with that run (`CARDDEMO_BASELINE_DIR`); the final datasets are compared field by field.
+4. `golden_report.py` writes `docs/validation/golden-set/<UTC date>/reconciliation.md` (+ `what-this-does-not-prove.md`)
+   and exits non-zero on any unexplained difference or unused allow-list entry (`scripts/golden-set/expected-diffs/`,
+   one entry per difference with its ADR/rules reference; key `*` = the same field in every record).
+
+Knobs: `GOLDEN_OUT` (default `build/golden-set`), `GOLDEN_DATE`/`GOLDEN_DOC_DIR`, `GOLDEN_PG_PORT` (55433),
+`GOLDEN_APP_PORT` (18095), `CARDDEMO_JAR`, `GOLDEN_JAVA_HOME`. Credentials are random per run and never written.
+For CI (s6.2) the job needs the same tools as `batch-equivalence` plus `cobc`, then `make golden-set`.
+
 ## Run locally (docker compose)
 
 `docker-compose.yml` starts PostgreSQL 16, the application (one service: the modular monolith) and the web UI

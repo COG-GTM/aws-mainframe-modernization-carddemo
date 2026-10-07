@@ -121,4 +121,11 @@ Tests: `com.carddemo.web.AccountUpdateRulesTest` (one test per R-id; R-10..R-30 
 - R-40: a failed rewrite → 500 `ABEND` `Update of record failed`; the transaction rolls back both rows (the
   `SYNCPOINT ROLLBACK`). State `L`/`F` (`Changes unsuccessful. Please try again`) is therefore never returned with 200.
 - R-36: malformed JSON / missing versions → 400 `INVREQ`.
+- Deviation (R-39, `ACCT-ADDR-ZIP`): the program's `ACCT-UPDATE-RECORD` (WORKING-STORAGE of `COACTUPC.cbl`) is not
+  `CVACT01Y`: it has no `ACCT-ADDR-ZIP`, so `ACCT-UPDATE-GROUP-ID` is written at offset 102 (where the file record has
+  `ACCT-ADDR-ZIP`) and the `FILLER PIC X(188)` blanks `ACCT-GROUP-ID` at offset 112. Every COBOL account update
+  therefore overwrites the account ZIP with the group id and blanks the group id. The Java port keeps the stored
+  `ACCT-ADDR-ZIP` (not on the map) and writes the group id to `ACCT-GROUP-ID` (`AccountUpdateService.accountRecord`)
+  — a deliberate fix of a record-layout defect, found by the golden set (`docs/validation/golden-set/`): it is the
+  `ACCTDATA|<updated account>|ACCT-ADDR-ZIP` entry of `scripts/golden-set/expected-diffs/`.
 

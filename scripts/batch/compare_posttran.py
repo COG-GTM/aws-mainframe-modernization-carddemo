@@ -16,6 +16,7 @@ fixed-length dated generation, the .ksds files one full-length record per line.
 from __future__ import annotations
 
 import argparse
+import os
 import re
 import sys
 from collections import Counter
@@ -25,7 +26,7 @@ REPO = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(REPO / "scripts" / "baseline"))
 from baseline import render_record, render_sysout  # noqa: E402
 
-BASELINE = REPO / "docs" / "validation" / "baseline"
+BASELINE = Path(os.environ.get("CARDDEMO_BASELINE_DIR") or REPO / "docs" / "validation" / "baseline")
 HARNESS_LINE = re.compile(r"^(--- EXEC |libcob: |rc=-?\d+$|--- IDCAMS-EMU |IDCAMS-EMU \w+: REPRO UNLOADED )")
 
 TRAN_FIELDS = [("ID", 16), ("TYPE-CD", 2), ("CAT-CD", 4), ("SOURCE", 10), ("DESC", 100), ("AMT", 11),
