@@ -1,0 +1,8 @@
+# Expected differences of compare_print_jobs.py in the golden run: JOB|FILE|line-prefix|baseline-text|java-text
+# (on the one baseline line starting with line-prefix, baseline-text is replaced by java-text). Each must apply once.
+# CBACT01C DISPLAYs the whole ACCOUNT-RECORD, so each ACCTDATA ZIP difference shows up as one READACCT SYSOUT line.
+#
+# Account 00000000010 (updated online): docs/modernization/rules/COACTUPC.md "Deviation (R-39, ACCT-ADDR-ZIP)": COBOL ACCT-UPDATE-RECORD has no ACCT-ADDR-ZIP, so the update writes the (blank) group id over the ZIP; Java keeps the stored ZIP.
+READACCT|sysout|00000000010Y|00000000000{00000000000{|00000000000{00000000000{A000000000
+# Account 00000000049: Sample data, not behaviour: ACCT-ADDR-ZIP is A000000000 in app/data/ASCII (COBOL input) and ZEROAPR in app/data/EBCDIC (initial-load input); modernization/carddemo-app/src/test/resources/codec/ebcdic-vs-ascii-expected-diffs.txt.
+READACCT|sysout|00000000049|A000000000|ZEROAPR   

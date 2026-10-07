@@ -12,12 +12,13 @@ the baseline RC, and batch_run holds the cycle job row, one row per member step 
 from __future__ import annotations
 
 import argparse
+import os
 import json
 import re
 import sys
 from pathlib import Path
 
-BASELINE = Path("docs/validation/baseline")
+BASELINE = Path(os.environ.get("CARDDEMO_BASELINE_DIR") or "docs/validation/baseline")
 JOBS = ["READACCT", "READCARD", "READCUST", "READXREF", "POSTTRAN", "INTCALC", "TRANBKP", "COMBTRAN", "TRANREPT",
         "CREASTMT", "PRTCATBL"]
 GROUP = {"READACCT": "print", "READCARD": "print", "READCUST": "print", "READXREF": "print", "POSTTRAN": "posttran",

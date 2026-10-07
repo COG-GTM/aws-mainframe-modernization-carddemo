@@ -22,6 +22,7 @@ Exit status 0 when every job matches, 1 otherwise. --report writes the summary a
 from __future__ import annotations
 
 import argparse
+import os
 import difflib
 import re
 import sys
@@ -31,7 +32,7 @@ REPO = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(REPO / "scripts" / "baseline"))
 from baseline import fold, fold_varseq0, render_record, render_sysout  # noqa: E402
 
-BASELINE = REPO / "docs" / "validation" / "baseline"
+BASELINE = Path(os.environ.get("CARDDEMO_BASELINE_DIR") or REPO / "docs" / "validation" / "baseline")
 DEFAULT_JOBS = ["READACCT", "READCARD", "READXREF", "READCUST"]
 HARNESS_LINE = re.compile(r"^(--- EXEC |libcob: |rc=-?\d+$)")
 FIXED = re.compile(r"`(\w+)\.txt`: \d+ records x LRECL (\d+)")

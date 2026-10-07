@@ -1,0 +1,10 @@
+# Allow-list of the final-dataset comparison (GnuCOBOL cycle FINAL/<DATASET>.txt vs Java --job=unload after
+# --job=nightly-cycle), read by compare_datasets.py.
+# DATASET|key|FIELD|cobol-value|java-value|justification — each entry must match exactly once (key * = every record).
+# Values are rendered per PIC: numbers as decimals, text right-trimmed, an all-blank field as ''.
+#
+# The two online-state differences survive the cycle: POSTTRAN and INTCALC rewrite accounts without touching the ZIP.
+ACCTDATA|00000000010|ACCT-ADDR-ZIP|''|A000000000|docs/modernization/rules/COACTUPC.md "Deviation (R-39, ACCT-ADDR-ZIP)": COBOL ACCT-UPDATE-RECORD has no ACCT-ADDR-ZIP, so the update writes the (blank) group id over the ZIP; Java keeps the stored ZIP
+ACCTDATA|00000000049|ACCT-ADDR-ZIP|A000000000|ZEROAPR|Sample data, not behaviour: ACCT-ADDR-ZIP is A000000000 in app/data/ASCII (COBOL input) and ZEROAPR in app/data/EBCDIC (initial-load input); modernization/carddemo-app/src/test/resources/codec/ebcdic-vs-ascii-expected-diffs.txt
+# TCATBALF FILLER (22 bytes, zeros in the sample) is not a column of tran_cat_balance, so the unload writes spaces.
+TCATBALF|*|FILLER|0000000000000000000000|''|docs/modernization/adr/ADR-0011-vsam-to-relational.md: FILLER is not persisted in table mode

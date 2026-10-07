@@ -17,6 +17,11 @@
 #   scripts/batch/run_nightly_cycle.sh table <out-dir>   KSDS DDs are the PostgreSQL tables after --job=initial-load
 #
 # Needs the packaged jar and CARDDEMO_DB_URL / CARDDEMO_DB_USER / CARDDEMO_DB_PASSWORD (psql for the batch_run checks).
+# Used by scripts/golden-set/run_golden_set.sh through three optional variables:
+#   CARDDEMO_BASELINE_DIR=<dir>        COBOL outputs to compare with (default docs/validation/baseline)
+#   NIGHTLY_CYCLE_SKIP_LOAD=1          table mode: keep the database as it is instead of running initial-load
+#   NIGHTLY_CYCLE_EXPECTED_DIFFS=<dir> the only expected-diffs files (<dir>/<group>.txt), instead of the
+#                                      stand-alone and chained files under scripts/batch/
 set -uo pipefail
 cd "$(dirname "$0")/../.."
 mode="${1:?usage: $0 file|table <out-dir>}"
@@ -27,7 +32,8 @@ java="${JAVA_HOME:+$JAVA_HOME/bin/}java"
 case "$mode" in file|table) ;; *) echo "mode must be file or table" >&2; exit 2 ;; esac
 rm -rf "$out" && mkdir -p "$out/ds" "$out/reports"
 export CARDDEMO_BATCH_OUTPUT_DIR="$out/output"
-base=docs/validation/baseline
+base="${CARDDEMO_BASELINE_DIR:-docs/validation/baseline}"
+export CARDDEMO_BASELINE_DIR="$base"
 ds="$out/ds"
 jobs="READACCT READCARD READCUST READXREF POSTTRAN INTCALC TRANBKP COMBTRAN TRANREPT CREASTMT PRTCATBL"
 declare -A steps=([TRANBKP]="STEP05R STEP05 STEP10" [COMBTRAN]="STEP05R STEP10" [TRANREPT]="STEP05 STEP10 STEP15"
@@ -57,8 +63,12 @@ keep() {  # keep <JOB> <gdg> [first|last]: copy a generation of <gdg> into the j
 }
 
 "$java" -version 2>&1 | head -1
-echo "initial-load (REPLACE from app/data/EBCDIC)"
-batch "$out/initial-load.log" --job=initial-load --mode=REPLACE || { tail -50 "$out/initial-load.log"; exit 1; }
+if [ "${NIGHTLY_CYCLE_SKIP_LOAD:-0}" = 1 ] && [ "$mode" = table ]; then
+    echo "initial-load skipped (NIGHTLY_CYCLE_SKIP_LOAD=1: the cycle runs on the database as it is)"
+else
+    echo "initial-load (REPLACE from app/data/EBCDIC)"
+    batch "$out/initial-load.log" --job=initial-load --mode=REPLACE || { tail -50 "$out/initial-load.log"; exit 1; }
+fi
 
 args=(--job=nightly-cycle --run-date=2022-07-06 --encoding=ASCII --AFTER-IMAGES="$out"
       --READACCT.record-prefix=GNUCOBOL_VARSEQ_0 --READACCT.OUTFILE="$out/READACCT/OUTFILE"
@@ -126,6 +136,10 @@ for gdg in TCATBALF.BKUP TCATBALF.REPT; do keep PRTCATBL "$gdg"; done
 expected() {  # expected <group> <stand-alone table-mode file>: --expected-diffs for this group, if any
     local chained="scripts/batch/nightly-cycle-$mode-expected-diffs/$1.txt"
     local files=()
+    if [ -n "${NIGHTLY_CYCLE_EXPECTED_DIFFS:-}" ]; then
+        [ -f "$NIGHTLY_CYCLE_EXPECTED_DIFFS/$1.txt" ] && echo "--expected-diffs" "$NIGHTLY_CYCLE_EXPECTED_DIFFS/$1.txt"
+        return
+    fi
     [ "$mode" = table ] && [ -n "$2" ] && [ -f "scripts/batch/$2" ] && files+=("scripts/batch/$2")
     [ -f "$chained" ] && files+=("$chained")
     [ ${#files[@]} -eq 0 ] && return

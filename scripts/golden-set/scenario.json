@@ -1,0 +1,36 @@
+{
+  "_comment": "The golden-set online scenario: what an operator types on the screens. online_scenario.sh sends it to the REST API; apply_online_scenario.py applies the same inputs to the pristine sample files from the COBOL business rules. Every value is fixed, so both sides are deterministic.",
+  "clock": "2022-07-06 00:00:00",
+  "window": {"start": "2022-01-01", "end": "2022-07-06"},
+  "signOn": ["USER0001", "ADMIN001"],
+  "accountView": "00000000001",
+  "accountUpdate": {
+    "acctId": "00000000010",
+    "_why": "creditLimit is the account field; zip is the customer field (the stored zip 44803 fails the state/zip edit for CT; CSLKPCDY lists CT60..CT69, so the new zip starts with 6x)",
+    "set": {"creditLimit": "6000.00", "zip": "61003"}
+  },
+  "cardUpdate": {
+    "acctId": "00000000010",
+    "cardNum": "3260763612337560",
+    "embossedName": "Maybell C Mann",
+    "expiryMonth": "12",
+    "expiryYear": "2027",
+    "activeStatus": "Y"
+  },
+  "transactions": [
+    {"accountId": "00000000001", "cardNumber": "", "typeCode": "01", "categoryCode": "0001", "source": "POS TERM",
+     "description": "GOLDEN SET PURCHASE ONE", "amount": "+00000050.25", "origDate": "2022-06-14",
+     "procDate": "2022-06-15", "merchantId": "800000001", "merchantName": "GOLDEN GROCERY",
+     "merchantCity": "SEATTLE", "merchantZip": "98101"},
+    {"accountId": "", "cardNumber": "3999169246375885", "typeCode": "03", "categoryCode": "0001",
+     "source": "OPERATOR", "description": "GOLDEN SET CREDIT TWO", "amount": "-00000012.34",
+     "origDate": "2022-06-30", "procDate": "2022-07-01", "merchantId": "800000002",
+     "merchantName": "GOLDEN HARDWARE", "merchantCity": "PORTLAND", "merchantZip": "97201"}
+  ],
+  "billPayment": {"acctId": "00000000002"},
+  "userAdd": {"userId": "GOLDEN01", "firstName": "Grace", "lastName": "Golden", "password": "GOLDPASS", "userType": "U"},
+  "userUpdate": {"userId": "GOLDEN01", "lastName": "Goldensen", "userType": "A"},
+  "userDelete": "USER0005",
+  "report": {"reportType": "Custom", "startDate": {"month": "01", "day": "01", "year": "2022"},
+             "endDate": {"month": "07", "day": "06", "year": "2022"}}
+}
