@@ -4,16 +4,18 @@ export JAVA_HOME
 COMPOSE := docker compose -f modernization/docker-compose.yml
 CARDDEMO_HTTP_PORT ?= 8080
 
-.PHONY: help baseline baseline-fast baseline-check batch-equivalence verify up down health
+.PHONY: help baseline baseline-fast baseline-check batch-equivalence nightly-cycle verify up down health
 
 help:
 	@echo "baseline        compile all batch COBOL with GnuCOBOL and run the 26 baseline jobs (WAITSTEP waits 36 s)"
 	@echo "baseline-fast   same, skipping the WAITSTEP sleep (outputs identical)"
 	@echo "baseline-check  baseline-fast + assert 'jobs=26 compile failures=0' + no drift vs docs/validation/baseline (CI gate)"
 	@echo "batch-equivalence  run READACCT/READCARD/READXREF/READCUST, POSTTRAN, INTCALC, TRANBKP/COMBTRAN/TRANREPT/PRTCATBL"
-	@echo "                   and CREASTMT"
+	@echo "                   and CREASTMT one by one, then the whole nightly-cycle (one launch, chained outputs)"
 	@echo "                   via the batch CLI (file + table DDs) and"
 	@echo "                   compare with docs/validation/baseline (needs the packaged jar + CARDDEMO_DB_*; CI gate)"
+	@echo "nightly-cycle   --job=nightly-cycle (file + table) from freshly loaded sample data, every job vs the baseline;"
+	@echo "                job x mode x result matrix in build/batch-equivalence/nightly-cycle-*/REPORT.md (gate g-batch)"
 	@echo "verify          mvn -B verify on JDK 21 (unit + Testcontainers ITs; needs Docker)"
 	@echo "up / down       docker compose: PostgreSQL 16 + carddemo-app (needs CARDDEMO_DB_PASSWORD or modernization/.env)"
 	@echo "health          curl /actuator/health on CARDDEMO_HTTP_PORT (default 8080)"
@@ -38,6 +40,16 @@ batch-equivalence:
 	scripts/batch/run_tranrept.sh table build/batch-equivalence/tranrept-table
 	scripts/batch/run_creastmt.sh file build/batch-equivalence/creastmt-file
 	scripts/batch/run_creastmt.sh table build/batch-equivalence/creastmt-table
+	$(MAKE) nightly-cycle
+
+nightly-cycle:
+	@rc=0; \
+	scripts/batch/run_nightly_cycle.sh file build/batch-equivalence/nightly-cycle-file || rc=1; \
+	scripts/batch/run_nightly_cycle.sh table build/batch-equivalence/nightly-cycle-table || rc=1; \
+	python3 scripts/batch/nightly_cycle_report.py --combine build/batch-equivalence/nightly-cycle-file \
+	    build/batch-equivalence/nightly-cycle-table --report build/batch-equivalence/nightly-cycle-matrix/REPORT.md \
+	    || rc=1; \
+	exit $$rc
 
 verify:
 	cd modernization && mvn -B verify

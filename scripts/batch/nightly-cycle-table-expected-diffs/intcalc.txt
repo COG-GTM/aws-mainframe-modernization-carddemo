@@ -1,0 +1,12 @@
+# Chained-run-only difference of INTCALC in nightly-cycle table mode (scripts/batch/run_nightly_cycle.sh table).
+#
+# ACCTDATA record 49 ACCT-ADDR-ZIP: 'A000000000' in the app/data/ASCII sample the GnuCOBOL baseline loaded,
+# 'ZEROAPR' in the app/data/EBCDIC sample `initial-load` loads into PostgreSQL (root cause:
+# modernization/carddemo-app/src/test/resources/codec/ebcdic-vs-ascii-expected-diffs.txt). The stand-alone
+# run_intcalc.sh re-loads ACCTDATA from the baseline POSTTRAN after-image, so it never sees the EBCDIC value; in the
+# chained run INTCALC reads the account rows Java POSTTRAN rewrote, which kept the ZIP it read (the same entry is in
+# posttran-table-mode-expected-diffs.txt). CBACT04C rewrites the account (balance, cycle credit/debit) without
+# touching the ZIP, so the value survives into the INTCALC after-image. Not a computation difference: SYSTRAN, the
+# balances and the TCATBALF after-image match.
+# DATASET|record-number|FIELD|baseline-text|java-text
+ACCTDATA|49|ACCT-ADDR-ZIP|A000000000|ZEROAPR

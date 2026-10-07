@@ -72,6 +72,14 @@ Without `--ACCTFILE` the job reads the `account` table. `make batch-equivalence`
 files and from PostgreSQL and compares them with `docs/validation/baseline/<JOB>/`
 (`scripts/batch/run_print_jobs.sh`, `scripts/batch/compare_print_jobs.py`).
 
+`--job=nightly-cycle --run-date=YYYY-MM-DD` runs the whole nightly batch cycle (print jobs, POSTTRAN, INTCALC,
+TRANBKP, COMBTRAN, TRANREPT, CREASTMT, PRTCATBL) as one Spring Batch flow job with the scheduler conditions as
+`COND`, exit code = JCL MAXCC ([ADR-0016](../docs/modernization/adr/ADR-0016-nightly-cycle-flow-job.md),
+`docs/modernization/06-scheduling.md`). The web app also fires it on the cron
+`carddemo.batch.scheduler.nightly-cycle.cron` (default `0 0 22 * * *`) unless `CARDDEMO_SCHEDULER_ENABLED=false`;
+the `test` and `golden` profiles disable the cron. `make nightly-cycle` runs it from freshly loaded sample data in
+file and table mode and compares every output with the baseline.
+
 ## Run locally (docker compose)
 
 `docker-compose.yml` starts PostgreSQL 16 and the application (one service: the modular monolith), both with
@@ -129,7 +137,7 @@ and pushes to `main` that touch `modernization/**`, `app/cpy|cbl|data/**`, `scri
 | `build` | Temurin 21, `mvn -B verify -Dcarddemo.test.profiles=test,ci` (unit tests, ArchUnit, JaCoCo codec gate, Testcontainers Postgres ITs); uploads `jacoco-report` and `test-reports` artifacts |
 | `compose` | `docker compose up -d --build --wait`, asserts `/actuator/health` is `UP` |
 | `baseline` | installs `gnucobol` (3.1.2), `make baseline-check`: compiles and runs the 26 batch jobs with `--fast`, asserts `jobs=26 compile failures=0`, and fails if any job output, report or gnucobol patch differs from `docs/validation/baseline/` (toolchain-specific `00-COMPILE/*.log`, `cobc-*.txt` are reported, not gated) |
-| `batch-equivalence` | PostgreSQL 16 service + packaged jar: `make batch-equivalence` runs READACCT/READCARD/READXREF/READCUST through the batch CLI (file input, then table input after `initial-load`), compares SYSOUT (trailing spaces normalised), datasets (byte-level) and exit codes with `docs/validation/baseline/<JOB>/`, and checks that an abend exits 16 with a `batch_run` row; report in the job summary, outputs as the `batch-equivalence` artifact |
+| `batch-equivalence` | PostgreSQL 16 service + packaged jar: `make batch-equivalence` runs READACCT/READCARD/READXREF/READCUST through the batch CLI (file input, then table input after `initial-load`), compares SYSOUT (trailing spaces normalised), datasets (byte-level) and exit codes with `docs/validation/baseline/<JOB>/`, and checks that an abend exits 16 with a `batch_run` row; the same for POSTTRAN, INTCALC, TRANBKP/COMBTRAN/TRANREPT/PRTCATBL and CREASTMT, then `make nightly-cycle` (one `--job=nightly-cycle` launch per mode, chained Java outputs, job × mode × result matrix); report in the job summary, outputs as the `batch-equivalence` artifact |
 
 Locally: `make verify`, `make baseline-check` (needs `cobc` 3.1.2: `sudo apt-get install gnucobol`).
 
