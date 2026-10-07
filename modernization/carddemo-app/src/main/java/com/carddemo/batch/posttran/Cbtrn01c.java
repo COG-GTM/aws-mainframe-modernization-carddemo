@@ -48,6 +48,10 @@ public final class Cbtrn01c {
         this.sysout = sysout;
     }
 
+    /**
+     * {@code MAIN-PARA}: open the six files, then per DALYTRAN record ({@code 1000-DALYTRAN-GET-NEXT}) the XREF
+     * lookup ({@code 2000-LOOKUP-XREF}) and the account read ({@code 3000-READ-ACCOUNT}), inline.
+     */
     public ProgramCounts run() {
         sysout.display("START OF EXECUTION OF PROGRAM " + PROGRAM);
         io(dalytran::open, "ERROR OPENING DAILY TRANSACTION FILE");

@@ -57,9 +57,12 @@ copied from `spring-batch-core`), so `spring.batch.jdbc.initialize-schema=never`
 `java -jar carddemo-app.jar --job=<name> [--run-date=YYYY-MM-DD] [--<DD>=<path>|table ...]` runs one job without
 a web server and exits with its JCL condition code 0/4/8/12/16
 ([ADR-0015](../docs/modernization/adr/ADR-0015-batch-harness-return-codes.md)); every run is recorded in
-`batch_run` (one job row + one row per step: status, RC, read/write counts). Jobs so far: `initial-load`,
-`cbexport`, `cbimport`, and the print jobs `READACCT` (CBACT01C), `READCARD` (CBACT02C), `READXREF` (CBACT03C),
-`READCUST` (CBCUS01C) in `com.carddemo.batch.print`. Example (the GnuCOBOL baseline's inputs and output framing):
+`batch_run` (one job row + one row per step: status, RC, read/write counts). Jobs: `initial-load`, `cbexport`,
+`cbimport`, `unload`/`repro`, the print jobs `READACCT` (CBACT01C), `READCARD` (CBACT02C), `READXREF` (CBACT03C),
+`READCUST` (CBCUS01C), the streams `posttran`, `intcalc`, `tranbkp`, `combtran`, `tranrept`, `creastmt`,
+`prtcatbl`, and `nightly-cycle` (JCL member → job: `docs/modernization/07-traceability.md` §4). DD parameters,
+file vs table mode and output locations: `docs/modernization/09-configuration.md` §4. Example (the GnuCOBOL
+baseline's inputs and output framing):
 
 ```bash
 java -jar carddemo-app/target/carddemo-app.jar --spring.profiles.active=golden --job=READACCT \
@@ -79,6 +82,29 @@ TRANBKP, COMBTRAN, TRANREPT, CREASTMT, PRTCATBL) as one Spring Batch flow job wi
 `carddemo.batch.scheduler.nightly-cycle.cron` (default `0 0 22 * * *`) unless `CARDDEMO_SCHEDULER_ENABLED=false`;
 the `test` and `golden` profiles disable the cron. `make nightly-cycle` runs it from freshly loaded sample data in
 file and table mode and compares every output with the baseline.
+
+Against the compose database, the same CLI runs inside the app container (it reuses the container's datasource
+settings; the web app keeps running):
+
+```bash
+docker compose exec carddemo-app java -jar /app/carddemo-app.jar --job=readacct; echo "RC=$?"
+docker compose exec carddemo-app java -jar /app/carddemo-app.jar --job=nightly-cycle --run-date=2022-07-06
+```
+
+Operating the cycle (order, bypass rules, RCs, `batch_run` queries, reruns after a failure, CycleLock):
+[`docs/modernization/10-runbook-nightly-cycle.md`](../docs/modernization/10-runbook-nightly-cycle.md).
+
+## Equivalence levels
+
+| Level | Command | Proves | Needs |
+| --- | --- | --- | --- |
+| 1 | `make baseline-check` | the GnuCOBOL baseline in `docs/validation/baseline/` is reproducible | `cobc` 3.1.2 |
+| 2 | `make batch-equivalence` | every Java batch job (and `nightly-cycle`) matches the baseline, file and table mode | PostgreSQL 16 via `CARDDEMO_DB_URL`/`CARDDEMO_DB_USER`/`CARDDEMO_DB_PASSWORD`, packaged jar |
+| 3 | `make golden-set` | online scenario + whole cycle: Java == COBOL field by field; writes `docs/validation/golden-set/<date>/` | Docker, `cobc`, jar |
+| 4 | `make golden-set-check` | level 3 plus no drift from the newest committed reconciliation (CI gate) | as level 3 |
+
+`make traceability-check` (CI `build` job) keeps the COBOL → Java traceability matrix
+(`docs/modernization/07-traceability.md`) in step with the sources and fails on any unmapped item.
 
 ## Golden set (end-to-end equivalence)
 
@@ -140,9 +166,12 @@ Flyway migrates the schema on start, the UI waits for a healthy app.
 ```bash
 cd modernization
 cp .env.example .env          # set CARDDEMO_DB_PASSWORD; no password default is shipped
+# If the image build fails with "status code: 429" from repo.maven.apache.org, add to .env:
+#   MAVEN_MIRROR_URL=https://maven-central.storage-download.googleapis.com/maven2/
 docker compose up -d --build --wait
 curl http://localhost:8080/actuator/health      # {"status":"UP","components":{"db":{"status":"UP",...
-# Swagger UI: http://localhost:8080/swagger-ui.html
+# On start-up (local profile) the app runs initial-load of app/data/EBCDIC before it reports healthy.
+# Swagger UI: http://localhost:8080/swagger-ui.html   (OpenAPI JSON: /v3/api-docs; also via the UI port)
 # Web UI:     http://localhost:8085  (sign on as USER0001 or ADMIN001)
 docker compose down           # add -v to drop the database volume
 ```
@@ -162,6 +191,9 @@ copybooks from `app/cpy`. Variables (shell or `.env`):
 | `CARDDEMO_DB_NAME` / `CARDDEMO_DB_USER` | `carddemo` | database and user |
 | `CARDDEMO_PROFILES` | `local` | `SPRING_PROFILES_ACTIVE` of the app container |
 | `MAVEN_MIRROR_URL` | Central | Maven mirror for the image build (use when Central answers 429) |
+
+Every other `CARDDEMO_*` variable and `carddemo.*` property (scheduler cron, batch output directory, report queue,
+initial-load mode, ...) is in [`docs/modernization/09-configuration.md`](../docs/modernization/09-configuration.md).
 
 From the repo root the same is `make up`, `make health`, `make down`.
 

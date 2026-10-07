@@ -88,7 +88,8 @@ public final class Cbstm03b {
     }
 
     /**
-     * One {@code CALL 'CBSTM03B'}: {@code dd} selects the file ({@code EVALUATE LK-M03B-DD}), {@code key} and
+     * One {@code CALL 'CBSTM03B'} ({@code 0000-START}): {@code dd} selects the file ({@code EVALUATE LK-M03B-DD}),
+     * {@code key} and
      * {@code keyLength} are {@code LK-M03B-KEY} / {@code LK-M03B-KEY-LN} for {@code K}.
      */
     public Response call(String dd, Operation operation, String key, int keyLength) {
@@ -104,6 +105,10 @@ public final class Cbstm03b {
         };
     }
 
+    /**
+     * {@code 1000-TRNXFILE-PROC} / {@code 2000-XREFFILE-PROC}: O/R/C on a sequential DD, status returned as {@code
+     * LK-M03B-RC}.
+     */
     private Response sequential(String dd, KsdsInput file, Operation operation) {
         Optional<FixedWidthRecord> record = Optional.empty();
         try {
@@ -129,6 +134,10 @@ public final class Cbstm03b {
         return new Response(status.getOrDefault(dd, NO_STATUS), record);
     }
 
+    /**
+     * {@code 3000-CUSTFILE-PROC} / {@code 4000-ACCTFILE-PROC}: O/K/C on a keyed DD, status returned as {@code
+     * LK-M03B-RC}.
+     */
     private <K, D extends Record> Response keyed(String dd, KeyedDataset<K, D> file, CopybookRecordMapper<D> mapper,
                                                  Function<String, K> parse, Operation operation, String key,
                                                  int keyLength) {

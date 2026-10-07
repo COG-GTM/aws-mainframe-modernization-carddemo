@@ -49,6 +49,10 @@ public final class RecordPrintProgram {
         this.sysout = sysout;
     }
 
+    /**
+     * The read loop: {@code 1000-CARDFILE-GET-NEXT} (CBACT02C), {@code 1000-XREFFILE-GET-NEXT} (CBACT03C),
+     * {@code 1000-CUSTFILE-GET-NEXT} (CBCUS01C) until end of file, with the program's open/read/close errors.
+     */
     public ProgramCounts run() {
         sysout.display("START OF EXECUTION OF PROGRAM " + program.name());
         try {

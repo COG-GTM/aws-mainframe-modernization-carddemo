@@ -6,6 +6,16 @@
 ## Executive Summary
 CardDemo is a comprehensive mainframe application that simulates a credit card management system. Designed specifically to showcase AWS and partner technologies for mainframe migration and modernization scenarios, it provides a realistic environment for testing various modernization approaches including discovery, migration, performance testing, service enablement, and more.
 
+## Java 21 modernization
+
+This fork also contains a behaviour-preserving rewrite of the core CardDemo application (online CICS programs,
+JCL batch, VSAM data) as one Java 21 Spring Boot modular monolith with a React UI and an in-app `nightly-cycle`
+batch flow, proven equal to the COBOL by a GnuCOBOL baseline and an end-to-end golden set. Start with
+[`modernization/README.md`](modernization/README.md) (build, run, batch, tests); design documents, ADRs and rules
+are in [`docs/modernization/`](docs/modernization/), the COBOL → Java mapping in the
+[traceability matrix](docs/modernization/07-traceability.md), and the equivalence evidence in the
+[golden-set reconciliation](docs/validation/golden-set/).
+
 ## Table of Contents
 - [Description](#description)
 - [Technologies](#technologies)

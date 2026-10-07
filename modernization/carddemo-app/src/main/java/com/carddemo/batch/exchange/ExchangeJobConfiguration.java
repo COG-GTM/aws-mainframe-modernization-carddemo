@@ -70,6 +70,12 @@ public class ExchangeJobConfiguration {
 
     private static final Logger log = LoggerFactory.getLogger(ExchangeJobConfiguration.class);
 
+    /**
+     * CBEXPORT {@code 0000-MAIN-PROCESSING}: {@code 1000-INITIALIZE}, {@code 2000-EXPORT-CUSTOMERS},
+     * {@code 3000-EXPORT-ACCOUNTS}, {@code 4000-EXPORT-XREFS}, {@code 5000-EXPORT-TRANSACTIONS}, {@code
+     * 5500-EXPORT-CARDS}
+     * (key-order repository reads), {@code 6000-FINALIZE} (counts).
+     */
     @Bean
     Job cbexportJob(JobRepository jobRepository, PlatformTransactionManager transactionManager,
                     CustomerRepository customers, AccountRepository accounts, CardXrefRepository xrefs,
@@ -111,6 +117,11 @@ public class ExchangeJobConfiguration {
                 }, transactionManager).build()).build();
     }
 
+    /**
+     * CBIMPORT {@code 0000-MAIN-PROCESSING}: {@code 1000-INITIALIZE} (input generation, import timestamp from the
+     * clock), {@code 2000-PROCESS-EXPORT-FILE} with {@code 2200-PROCESS-RECORD-BY-TYPE} per record, unknown types to
+     * {@code IMPORT.ERRORS}, then {@code 3000-VALIDATE-IMPORT} / {@code 4000-FINALIZE} (counts).
+     */
     @Bean
     Job cbimportJob(JobRepository jobRepository, PlatformTransactionManager transactionManager,
                     DatedOutputFiles outputs, VsamDatasetLoader loader, Clock clock) {

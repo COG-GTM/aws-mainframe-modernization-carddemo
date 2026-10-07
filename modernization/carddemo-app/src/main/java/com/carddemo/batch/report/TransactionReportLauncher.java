@@ -71,7 +71,10 @@ public class TransactionReportLauncher {
         this.encoding = RecordEncoding.of(encoding) == RecordEncoding.EBCDIC ? "EBCDIC" : "ASCII";
     }
 
-    /** Queues the stream for {@code window} and returns the QUEUED request (COMPLETED/FAILED without an executor). */
+    /**
+     * Queues the stream for {@code window} and returns the QUEUED request (COMPLETED/FAILED without an executor);
+     * replaces CORPT00C {@code WIRTE-JOBSUB-TDQ} (sic), the JCL written to the {@code JOBS} TD queue.
+     */
     public ReportExecution submit(ReportWindow window, String requestedBy) {
         LocalDate runDate = LocalDate.now(clock);
         long id = store.insert(TranreptJobConfiguration.TRANREPT, window, runDate, encoding, requestedBy);

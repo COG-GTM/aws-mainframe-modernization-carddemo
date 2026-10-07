@@ -93,6 +93,10 @@ public final class Cbtrn03c {
         this.sysout = sysout;
     }
 
+    /**
+     * The main line: TRANFILE to end of file ({@code 1000-TRANFILE-GET-NEXT}) within the DATEPARM window, with the
+     * card break, page and grand totals.
+     */
     public Result run() {
         sysout.display("START OF EXECUTION OF PROGRAM " + PROGRAM);
         io(tranfile::open, "ERROR OPENING TRANFILE");
@@ -177,18 +181,21 @@ public final class Cbtrn03c {
         return true;
     }
 
+    /** {@code 1500-A-LOOKUP-XREF}. */
     private void lookupXref(String cardNum) {
         CardXrefRecord xref = cardxref.read(cardNum).orElseThrow(() -> sysout.ioAbend(
                 "INVALID CARD NUMBER : " + cardNum, notFound(CARDXREF)));
         xrefAcctId = xref.acctId();
     }
 
+    /** {@code 1500-B-LOOKUP-TRANTYPE}. */
     private void lookupTrantype(String type) {
         TransactionTypeRecord record = trantype.read(type).orElseThrow(() -> sysout.ioAbend(
                 "INVALID TRANSACTION TYPE : " + pad(type, 2), notFound(TRANTYPE)));
         typeDesc = record.description();
     }
 
+    /** {@code 1500-C-LOOKUP-TRANCATG}. */
     private void lookupTrancatg(TransactionCategoryId key) {
         TransactionCategoryRecord record = trancatg.read(key).orElseThrow(() -> sysout.ioAbend(
                 "INVALID TRAN CATG KEY : " + categoryKey(key), notFound(TRANCATG)));
@@ -216,6 +223,7 @@ public final class Cbtrn03c {
         writeDetail(tran, amount);
     }
 
+    /** {@code 1110-WRITE-PAGE-TOTALS}: adds the page total to the grand total. */
     private void writePageTotals() {
         write(pad("Page Total", 11) + ".".repeat(86) + NumericEdited.format(pageTotal, TOTAL_AMOUNT));
         grandTotal = add(grandTotal, pageTotal);
@@ -225,6 +233,7 @@ public final class Cbtrn03c {
         lineCounter++;
     }
 
+    /** {@code 1120-WRITE-ACCOUNT-TOTALS}. */
     private void writeAccountTotals() {
         write("Account Total" + ".".repeat(84) + NumericEdited.format(accountTotal, TOTAL_AMOUNT));
         accountTotal = BigDecimal.ZERO;
@@ -233,10 +242,12 @@ public final class Cbtrn03c {
         lineCounter++;
     }
 
+    /** {@code 1110-WRITE-GRAND-TOTALS}. */
     private void writeGrandTotals() {
         write("Grand Total" + ".".repeat(86) + NumericEdited.format(grandTotal, TOTAL_AMOUNT));
     }
 
+    /** {@code 1120-WRITE-HEADERS}. */
     private void writeHeaders() {
         write(reportNameHeader(reptStartDate, reptEndDate));
         lineCounter++;
@@ -272,6 +283,7 @@ public final class Cbtrn03c {
                 + "    " + NumericEdited.format(amount, DETAIL_AMOUNT) + "  ";
     }
 
+    /** {@code 1111-WRITE-REPORT-REC}: {@code WRITE FD-REPTFILE-REC}, abend on a bad status. */
     private void write(String line) {
         try {
             report.write(new FixedWidthRecord(encoding.encode(pad(line, REPORT_LRECL)), encoding));

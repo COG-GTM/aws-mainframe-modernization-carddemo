@@ -144,6 +144,12 @@ public final class Cbstm03a {
         this.table = new TransactionTable(encoding);
     }
 
+    /**
+     * {@code 1000-MAINLINE}: per CARDXREF record ({@code 1000-XREFFILE-GET-NEXT}) the customer and account reads,
+     * the statement and its transactions; the opens at the top replace the {@code 0000-START} {@code ALTER}/{@code GO
+     * TO}
+     * open sequence.
+     */
     public Result run() {
         // DISPLAY 'Running JCL : ' TIOTNJOB ' Step ' TIOTJSTP; the TIOT DD walk that follows is z/OS control-block
         // introspection and is not reproduced (rules doc CBSTM03A.md, R-1).
@@ -180,7 +186,9 @@ public final class Cbstm03a {
         return new Result(read, statements, transactions, stmtfile.count(), htmlfile.count(), ReturnCode.OK);
     }
 
-    /** 8100-TRNXFILE-OPEN + 8500-READTRNX-READ: the whole TRXFL into WS-TRNX-TABLE / WS-TRN-TBL-CNTR. */
+    /**
+     * {@code 8100-TRNXFILE-OPEN} + {@code 8500-READTRNX-READ}: the whole TRXFL into WS-TRNX-TABLE / WS-TRN-TBL-CNTR.
+     */
     private void loadTransactions() {
         open(Cbstm03b.TRNXFILE);
         Response first = files.call(Cbstm03b.TRNXFILE, Operation.READ);
@@ -225,7 +233,7 @@ public final class Cbstm03a {
         return image;
     }
 
-    /** 4000-TRNXFILE-GET: the XREF card's transactions, the total and the statement trailers. */
+    /** {@code 4000-TRNXFILE-GET}: the XREF card's transactions, the total and the statement trailers. */
     private void writeTransactions(byte[] xrefCard) {
         BigDecimal total = BigDecimal.ZERO;
         for (int crJmp = 1; crJmp <= table.cards
@@ -251,7 +259,7 @@ public final class Cbstm03a {
         html(HTML_LTRS, HTML_L10, HTML_L75, HTML_LTDE, HTML_LTRE, HTML_L78, HTML_L79, HTML_L80);
     }
 
-    /** 6000-WRITE-TRANS. */
+    /** {@code 6000-WRITE-TRANS}. */
     private void writeTransaction(String tranId, String desc, BigDecimal amount) {
         transactions++;
         String stTranId = pad(tranId, 16);
@@ -267,7 +275,7 @@ public final class Cbstm03a {
         html(HTML_LTDE, HTML_LTRE);
     }
 
-    /** 5000-CREATE-STATEMENT + 5100-WRITE-HTML-HEADER + 5200-WRITE-HTML-NMADBS. */
+    /** {@code 5000-CREATE-STATEMENT} + {@code 5100-WRITE-HTML-HEADER} + {@code 5200-WRITE-HTML-NMADBS}. */
     private void createStatement(FixedWidthRecord customer, FixedWidthRecord account) {
         String acctId = account.getString("ACCT-ID");
         stmt(ST_LINE0);
@@ -319,6 +327,10 @@ public final class Cbstm03a {
         stmt(ST_LINE5);
     }
 
+    /**
+     * CBSTM03A {@code 2000-CUSTFILE-GET} / CBSTM03A {@code 3000-ACCTFILE-GET}: keyed read through CBSTM03B; anything
+     * but 00 abends.
+     */
     private FixedWidthRecord keyed(String dd, String key) {
         Response response = files.call(dd, Operation.READ_KEY, key, key.length());
         if (!response.is("00")) {

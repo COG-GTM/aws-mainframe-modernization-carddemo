@@ -69,6 +69,10 @@ public class AccountUpdateService {
     public record Outcome(State state, String message, AccountDetails details) {
     }
 
+    /**
+     * {@code 2000-DECIDE-ACTION} for one stateless request: version check, change detection, edits, then on confirm
+     * the locked re-check and rewrite ({@code 9600-WRITE-PROCESSING}).
+     */
     @Transactional
     public Outcome update(long acctId, AccountChanges typed, long accountVersion, long customerVersion,
             boolean confirm) {

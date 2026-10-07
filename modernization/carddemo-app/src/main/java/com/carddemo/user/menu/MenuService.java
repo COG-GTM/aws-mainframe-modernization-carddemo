@@ -93,7 +93,8 @@ public class MenuService {
 
     /**
      * COADM01C R-9/R-10: XCTL unless DUMMY; a DUMMY row, or a program that is not installed ({@code HANDLE
-     * CONDITION PGMIDERR(PGMIDERR-ERR-PARA)} in MAIN-PARA), re-sends the menu with the same green message.
+     * CONDITION PGMIDERR(PGMIDERR-ERR-PARA)} in MAIN-PARA), re-sends the menu with the same green message ({@code
+     * PGMIDERR-ERR-PARA}).
      */
     private MenuSelection dispatchAdmin(MenuDefinition menu, String option, MenuOption target) {
         Optional<String> tranId = installed.tranIdOf(target.programId());
