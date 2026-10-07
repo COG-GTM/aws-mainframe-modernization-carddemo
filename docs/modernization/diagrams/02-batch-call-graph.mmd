@@ -1,0 +1,53 @@
+flowchart LR
+    classDef high fill:#f8d7da,stroke:#c00;
+    classDef medium fill:#fff3cd,stroke:#c90;
+    classDef low fill:#d4edda,stroke:#090;
+    classDef ext fill:#eee,stroke:#999,stroke-dasharray: 3 3;
+    classDef ds fill:#e7f0ff,stroke:#36c;
+    classDef job fill:#f3e8ff,stroke:#63c;
+    CBACT01C["CBACT01C<br/>batch Medium"]
+    class CBACT01C medium;
+    CBACT02C["CBACT02C<br/>batch Low"]
+    class CBACT02C low;
+    CBACT03C["CBACT03C<br/>batch Low"]
+    class CBACT03C low;
+    CBACT04C["CBACT04C<br/>batch Medium"]
+    class CBACT04C medium;
+    CBCUS01C["CBCUS01C<br/>batch Low"]
+    class CBCUS01C low;
+    CBEXPORT["CBEXPORT<br/>batch Medium"]
+    class CBEXPORT medium;
+    CBIMPORT["CBIMPORT<br/>batch Medium"]
+    class CBIMPORT medium;
+    CBSTM03A["CBSTM03A<br/>batch High"]
+    class CBSTM03A high;
+    CBSTM03B["CBSTM03B<br/>batch Medium"]
+    class CBSTM03B medium;
+    CBTRN01C["CBTRN01C<br/>batch Low"]
+    class CBTRN01C low;
+    CBTRN02C["CBTRN02C<br/>batch Medium"]
+    class CBTRN02C medium;
+    CBTRN03C["CBTRN03C<br/>batch Medium"]
+    class CBTRN03C medium;
+    COBSWAIT["COBSWAIT<br/>utility Low"]
+    class COBSWAIT low;
+    CSUTLDTC["CSUTLDTC<br/>utility Low"]
+    class CSUTLDTC low;
+    COBDATFT[/"COBDATFT<br/>Assembler"/]
+    MVSWAIT[/"MVSWAIT<br/>Assembler"/]
+    CEE3ABD(("CEE3ABD<br/>LE abend service"))
+    CEEDAYS(("CEEDAYS<br/>LE date service"))
+    CBACT01C -->|"CALL x1"| CEE3ABD
+    CBACT01C -->|"CALL x1"| COBDATFT
+    CBACT02C -->|"CALL x1"| CEE3ABD
+    CBACT03C -->|"CALL x1"| CEE3ABD
+    CBACT04C -->|"CALL x1"| CEE3ABD
+    CBCUS01C -->|"CALL x1"| CEE3ABD
+    CBEXPORT -->|"CALL x1"| CEE3ABD
+    CBIMPORT -->|"CALL x1"| CEE3ABD
+    CBSTM03A -->|"CALL x13"| CBSTM03B
+    CBSTM03A -->|"CALL x1"| CEE3ABD
+    CBTRN01C -->|"CALL x1"| CEE3ABD
+    CBTRN02C -->|"CALL x1"| CEE3ABD
+    CBTRN03C -->|"CALL x1"| CEE3ABD
+    COBSWAIT -->|"CALL x1"| MVSWAIT

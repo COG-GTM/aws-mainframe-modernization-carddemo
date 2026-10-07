@@ -1,0 +1,7082 @@
+{
+  "generated_by": "docs/modernization/build_dependency_map.py",
+  "inputs": [
+    "docs/modernization/inventory.json"
+  ],
+  "scope": "core module (app/) only; extension apps appear only as out-of-scope XCTL targets",
+  "program_edges": [
+    {
+      "source": "CBACT01C",
+      "target": "CEE3ABD",
+      "kind": "CALL",
+      "count": 1,
+      "target_type": "runtime",
+      "resolution": "static"
+    },
+    {
+      "source": "CBACT01C",
+      "target": "COBDATFT",
+      "kind": "CALL",
+      "count": 1,
+      "target_type": "assembler",
+      "resolution": "static"
+    },
+    {
+      "source": "CBACT02C",
+      "target": "CEE3ABD",
+      "kind": "CALL",
+      "count": 1,
+      "target_type": "runtime",
+      "resolution": "static"
+    },
+    {
+      "source": "CBACT03C",
+      "target": "CEE3ABD",
+      "kind": "CALL",
+      "count": 1,
+      "target_type": "runtime",
+      "resolution": "static"
+    },
+    {
+      "source": "CBACT04C",
+      "target": "CEE3ABD",
+      "kind": "CALL",
+      "count": 1,
+      "target_type": "runtime",
+      "resolution": "static"
+    },
+    {
+      "source": "CBCUS01C",
+      "target": "CEE3ABD",
+      "kind": "CALL",
+      "count": 1,
+      "target_type": "runtime",
+      "resolution": "static"
+    },
+    {
+      "source": "CBEXPORT",
+      "target": "CEE3ABD",
+      "kind": "CALL",
+      "count": 1,
+      "target_type": "runtime",
+      "resolution": "static"
+    },
+    {
+      "source": "CBIMPORT",
+      "target": "CEE3ABD",
+      "kind": "CALL",
+      "count": 1,
+      "target_type": "runtime",
+      "resolution": "static"
+    },
+    {
+      "source": "CBSTM03A",
+      "target": "CBSTM03B",
+      "kind": "CALL",
+      "count": 13,
+      "target_type": "program",
+      "resolution": "static"
+    },
+    {
+      "source": "CBSTM03A",
+      "target": "CEE3ABD",
+      "kind": "CALL",
+      "count": 1,
+      "target_type": "runtime",
+      "resolution": "static"
+    },
+    {
+      "source": "CBTRN01C",
+      "target": "CEE3ABD",
+      "kind": "CALL",
+      "count": 1,
+      "target_type": "runtime",
+      "resolution": "static"
+    },
+    {
+      "source": "CBTRN02C",
+      "target": "CEE3ABD",
+      "kind": "CALL",
+      "count": 1,
+      "target_type": "runtime",
+      "resolution": "static"
+    },
+    {
+      "source": "CBTRN03C",
+      "target": "CEE3ABD",
+      "kind": "CALL",
+      "count": 1,
+      "target_type": "runtime",
+      "resolution": "static"
+    },
+    {
+      "source": "COACTUPC",
+      "target": "COMEN01C",
+      "kind": "XCTL",
+      "count": 1,
+      "target_type": "program",
+      "resolution": "via `CDEMO-TO-PROGRAM`"
+    },
+    {
+      "source": "COACTVWC",
+      "target": "COMEN01C",
+      "kind": "XCTL",
+      "count": 1,
+      "target_type": "program",
+      "resolution": "via `CDEMO-TO-PROGRAM`"
+    },
+    {
+      "source": "COADM01C",
+      "target": "COUSR00C",
+      "kind": "XCTL",
+      "count": 1,
+      "target_type": "program",
+      "resolution": "via `CDEMO-ADMIN-OPT-PGMNAME(WS-OPTION)`"
+    },
+    {
+      "source": "COADM01C",
+      "target": "COUSR01C",
+      "kind": "XCTL",
+      "count": 1,
+      "target_type": "program",
+      "resolution": "via `CDEMO-ADMIN-OPT-PGMNAME(WS-OPTION)`"
+    },
+    {
+      "source": "COADM01C",
+      "target": "COUSR02C",
+      "kind": "XCTL",
+      "count": 1,
+      "target_type": "program",
+      "resolution": "via `CDEMO-ADMIN-OPT-PGMNAME(WS-OPTION)`"
+    },
+    {
+      "source": "COADM01C",
+      "target": "COUSR03C",
+      "kind": "XCTL",
+      "count": 1,
+      "target_type": "program",
+      "resolution": "via `CDEMO-ADMIN-OPT-PGMNAME(WS-OPTION)`"
+    },
+    {
+      "source": "COADM01C",
+      "target": "COTRTLIC",
+      "kind": "XCTL",
+      "count": 1,
+      "target_type": "out-of-scope program",
+      "resolution": "via `CDEMO-ADMIN-OPT-PGMNAME(WS-OPTION)`"
+    },
+    {
+      "source": "COADM01C",
+      "target": "COTRTUPC",
+      "kind": "XCTL",
+      "count": 1,
+      "target_type": "out-of-scope program",
+      "resolution": "via `CDEMO-ADMIN-OPT-PGMNAME(WS-OPTION)`"
+    },
+    {
+      "source": "COADM01C",
+      "target": "COSGN00C",
+      "kind": "XCTL",
+      "count": 2,
+      "target_type": "program",
+      "resolution": "via `CDEMO-TO-PROGRAM`"
+    },
+    {
+      "source": "COBIL00C",
+      "target": "COSGN00C",
+      "kind": "XCTL",
+      "count": 2,
+      "target_type": "program",
+      "resolution": "via `CDEMO-TO-PROGRAM`"
+    },
+    {
+      "source": "COBIL00C",
+      "target": "COMEN01C",
+      "kind": "XCTL",
+      "count": 1,
+      "target_type": "program",
+      "resolution": "via `CDEMO-TO-PROGRAM`"
+    },
+    {
+      "source": "COBSWAIT",
+      "target": "MVSWAIT",
+      "kind": "CALL",
+      "count": 1,
+      "target_type": "assembler",
+      "resolution": "static"
+    },
+    {
+      "source": "COCRDLIC",
+      "target": "COMEN01C",
+      "kind": "XCTL",
+      "count": 1,
+      "target_type": "program",
+      "resolution": "static"
+    },
+    {
+      "source": "COCRDLIC",
+      "target": "COCRDSLC",
+      "kind": "XCTL",
+      "count": 2,
+      "target_type": "program",
+      "resolution": "via `CCARD-NEXT-PROG`"
+    },
+    {
+      "source": "COCRDLIC",
+      "target": "COCRDUPC",
+      "kind": "XCTL",
+      "count": 2,
+      "target_type": "program",
+      "resolution": "via `CCARD-NEXT-PROG`"
+    },
+    {
+      "source": "COCRDSLC",
+      "target": "COMEN01C",
+      "kind": "XCTL",
+      "count": 1,
+      "target_type": "program",
+      "resolution": "via `CDEMO-TO-PROGRAM`"
+    },
+    {
+      "source": "COCRDUPC",
+      "target": "COMEN01C",
+      "kind": "XCTL",
+      "count": 1,
+      "target_type": "program",
+      "resolution": "via `CDEMO-TO-PROGRAM`"
+    },
+    {
+      "source": "COMEN01C",
+      "target": "COACTVWC",
+      "kind": "XCTL",
+      "count": 2,
+      "target_type": "program",
+      "resolution": "via `CDEMO-MENU-OPT-PGMNAME(WS-OPTION)`"
+    },
+    {
+      "source": "COMEN01C",
+      "target": "COACTUPC",
+      "kind": "XCTL",
+      "count": 2,
+      "target_type": "program",
+      "resolution": "via `CDEMO-MENU-OPT-PGMNAME(WS-OPTION)`"
+    },
+    {
+      "source": "COMEN01C",
+      "target": "COCRDLIC",
+      "kind": "XCTL",
+      "count": 2,
+      "target_type": "program",
+      "resolution": "via `CDEMO-MENU-OPT-PGMNAME(WS-OPTION)`"
+    },
+    {
+      "source": "COMEN01C",
+      "target": "COCRDSLC",
+      "kind": "XCTL",
+      "count": 2,
+      "target_type": "program",
+      "resolution": "via `CDEMO-MENU-OPT-PGMNAME(WS-OPTION)`"
+    },
+    {
+      "source": "COMEN01C",
+      "target": "COCRDUPC",
+      "kind": "XCTL",
+      "count": 2,
+      "target_type": "program",
+      "resolution": "via `CDEMO-MENU-OPT-PGMNAME(WS-OPTION)`"
+    },
+    {
+      "source": "COMEN01C",
+      "target": "COTRN00C",
+      "kind": "XCTL",
+      "count": 2,
+      "target_type": "program",
+      "resolution": "via `CDEMO-MENU-OPT-PGMNAME(WS-OPTION)`"
+    },
+    {
+      "source": "COMEN01C",
+      "target": "COTRN01C",
+      "kind": "XCTL",
+      "count": 2,
+      "target_type": "program",
+      "resolution": "via `CDEMO-MENU-OPT-PGMNAME(WS-OPTION)`"
+    },
+    {
+      "source": "COMEN01C",
+      "target": "COTRN02C",
+      "kind": "XCTL",
+      "count": 2,
+      "target_type": "program",
+      "resolution": "via `CDEMO-MENU-OPT-PGMNAME(WS-OPTION)`"
+    },
+    {
+      "source": "COMEN01C",
+      "target": "CORPT00C",
+      "kind": "XCTL",
+      "count": 2,
+      "target_type": "program",
+      "resolution": "via `CDEMO-MENU-OPT-PGMNAME(WS-OPTION)`"
+    },
+    {
+      "source": "COMEN01C",
+      "target": "COBIL00C",
+      "kind": "XCTL",
+      "count": 2,
+      "target_type": "program",
+      "resolution": "via `CDEMO-MENU-OPT-PGMNAME(WS-OPTION)`"
+    },
+    {
+      "source": "COMEN01C",
+      "target": "COPAUS0C",
+      "kind": "XCTL",
+      "count": 2,
+      "target_type": "out-of-scope program",
+      "resolution": "via `CDEMO-MENU-OPT-PGMNAME(WS-OPTION)`"
+    },
+    {
+      "source": "COMEN01C",
+      "target": "COSGN00C",
+      "kind": "XCTL",
+      "count": 2,
+      "target_type": "program",
+      "resolution": "via `CDEMO-TO-PROGRAM`"
+    },
+    {
+      "source": "CORPT00C",
+      "target": "CSUTLDTC",
+      "kind": "CALL",
+      "count": 2,
+      "target_type": "program",
+      "resolution": "static"
+    },
+    {
+      "source": "CORPT00C",
+      "target": "COSGN00C",
+      "kind": "XCTL",
+      "count": 2,
+      "target_type": "program",
+      "resolution": "via `CDEMO-TO-PROGRAM`"
+    },
+    {
+      "source": "CORPT00C",
+      "target": "COMEN01C",
+      "kind": "XCTL",
+      "count": 1,
+      "target_type": "program",
+      "resolution": "via `CDEMO-TO-PROGRAM`"
+    },
+    {
+      "source": "CORPT00C",
+      "target": "TRANREPT",
+      "kind": "SUBMIT",
+      "count": 1,
+      "target_type": "jcl",
+      "resolution": "JCL written to TDQ JOBS (internal reader)"
+    },
+    {
+      "source": "COSGN00C",
+      "target": "COADM01C",
+      "kind": "XCTL",
+      "count": 1,
+      "target_type": "program",
+      "resolution": "static"
+    },
+    {
+      "source": "COSGN00C",
+      "target": "COMEN01C",
+      "kind": "XCTL",
+      "count": 1,
+      "target_type": "program",
+      "resolution": "static"
+    },
+    {
+      "source": "COTRN00C",
+      "target": "COSGN00C",
+      "kind": "XCTL",
+      "count": 4,
+      "target_type": "program",
+      "resolution": "via `CDEMO-TO-PROGRAM`"
+    },
+    {
+      "source": "COTRN00C",
+      "target": "COMEN01C",
+      "kind": "XCTL",
+      "count": 2,
+      "target_type": "program",
+      "resolution": "via `CDEMO-TO-PROGRAM`"
+    },
+    {
+      "source": "COTRN00C",
+      "target": "COTRN01C",
+      "kind": "XCTL",
+      "count": 2,
+      "target_type": "program",
+      "resolution": "via `CDEMO-TO-PROGRAM`"
+    },
+    {
+      "source": "COTRN01C",
+      "target": "COSGN00C",
+      "kind": "XCTL",
+      "count": 2,
+      "target_type": "program",
+      "resolution": "via `CDEMO-TO-PROGRAM`"
+    },
+    {
+      "source": "COTRN01C",
+      "target": "COMEN01C",
+      "kind": "XCTL",
+      "count": 1,
+      "target_type": "program",
+      "resolution": "via `CDEMO-TO-PROGRAM`"
+    },
+    {
+      "source": "COTRN01C",
+      "target": "COTRN00C",
+      "kind": "XCTL",
+      "count": 1,
+      "target_type": "program",
+      "resolution": "via `CDEMO-TO-PROGRAM`"
+    },
+    {
+      "source": "COTRN02C",
+      "target": "CSUTLDTC",
+      "kind": "CALL",
+      "count": 2,
+      "target_type": "program",
+      "resolution": "static"
+    },
+    {
+      "source": "COTRN02C",
+      "target": "COSGN00C",
+      "kind": "XCTL",
+      "count": 2,
+      "target_type": "program",
+      "resolution": "via `CDEMO-TO-PROGRAM`"
+    },
+    {
+      "source": "COTRN02C",
+      "target": "COMEN01C",
+      "kind": "XCTL",
+      "count": 1,
+      "target_type": "program",
+      "resolution": "via `CDEMO-TO-PROGRAM`"
+    },
+    {
+      "source": "COUSR00C",
+      "target": "COSGN00C",
+      "kind": "XCTL",
+      "count": 6,
+      "target_type": "program",
+      "resolution": "via `CDEMO-TO-PROGRAM`"
+    },
+    {
+      "source": "COUSR00C",
+      "target": "COADM01C",
+      "kind": "XCTL",
+      "count": 3,
+      "target_type": "program",
+      "resolution": "via `CDEMO-TO-PROGRAM`"
+    },
+    {
+      "source": "COUSR00C",
+      "target": "COUSR02C",
+      "kind": "XCTL",
+      "count": 3,
+      "target_type": "program",
+      "resolution": "via `CDEMO-TO-PROGRAM`"
+    },
+    {
+      "source": "COUSR00C",
+      "target": "COUSR03C",
+      "kind": "XCTL",
+      "count": 3,
+      "target_type": "program",
+      "resolution": "via `CDEMO-TO-PROGRAM`"
+    },
+    {
+      "source": "COUSR01C",
+      "target": "COSGN00C",
+      "kind": "XCTL",
+      "count": 2,
+      "target_type": "program",
+      "resolution": "via `CDEMO-TO-PROGRAM`"
+    },
+    {
+      "source": "COUSR01C",
+      "target": "COADM01C",
+      "kind": "XCTL",
+      "count": 1,
+      "target_type": "program",
+      "resolution": "via `CDEMO-TO-PROGRAM`"
+    },
+    {
+      "source": "COUSR02C",
+      "target": "COSGN00C",
+      "kind": "XCTL",
+      "count": 2,
+      "target_type": "program",
+      "resolution": "via `CDEMO-TO-PROGRAM`"
+    },
+    {
+      "source": "COUSR02C",
+      "target": "COADM01C",
+      "kind": "XCTL",
+      "count": 2,
+      "target_type": "program",
+      "resolution": "via `CDEMO-TO-PROGRAM`"
+    },
+    {
+      "source": "COUSR03C",
+      "target": "COSGN00C",
+      "kind": "XCTL",
+      "count": 2,
+      "target_type": "program",
+      "resolution": "via `CDEMO-TO-PROGRAM`"
+    },
+    {
+      "source": "COUSR03C",
+      "target": "COADM01C",
+      "kind": "XCTL",
+      "count": 2,
+      "target_type": "program",
+      "resolution": "via `CDEMO-TO-PROGRAM`"
+    }
+  ],
+  "dynamic_transfer_notes": {
+    "COACTUPC": [
+      "`CDEMO-TO-PROGRAM` <- `CDEMO-FROM-PROGRAM` (returns to whichever program transferred in)"
+    ],
+    "COACTVWC": [
+      "`CDEMO-TO-PROGRAM` <- `CDEMO-FROM-PROGRAM` (returns to whichever program transferred in)"
+    ],
+    "COADM01C": [
+      "`CDEMO-ADMIN-OPT-PGMNAME(WS-OPTION)` <- table `CDEMO-ADMIN-OPT-PGMNAME` in copybook `COADM02Y` (6 program-name entries)"
+    ],
+    "COBIL00C": [
+      "`CDEMO-TO-PROGRAM` <- `CDEMO-FROM-PROGRAM` (returns to whichever program transferred in)"
+    ],
+    "COCRDSLC": [
+      "`CDEMO-TO-PROGRAM` <- `CDEMO-FROM-PROGRAM` (returns to whichever program transferred in)"
+    ],
+    "COCRDUPC": [
+      "`CDEMO-TO-PROGRAM` <- `CDEMO-FROM-PROGRAM` (returns to whichever program transferred in)"
+    ],
+    "COMEN01C": [
+      "`CDEMO-MENU-OPT-PGMNAME(WS-OPTION)` <- table `CDEMO-MENU-OPT-PGMNAME` in copybook `COMEN02Y` (11 program-name entries)"
+    ],
+    "COTRN01C": [
+      "`CDEMO-TO-PROGRAM` <- `CDEMO-FROM-PROGRAM` (returns to whichever program transferred in)"
+    ],
+    "COTRN02C": [
+      "`CDEMO-TO-PROGRAM` <- `CDEMO-FROM-PROGRAM` (returns to whichever program transferred in)"
+    ],
+    "COUSR02C": [
+      "`CDEMO-TO-PROGRAM` <- `CDEMO-FROM-PROGRAM` (returns to whichever program transferred in)"
+    ],
+    "COUSR03C": [
+      "`CDEMO-TO-PROGRAM` <- `CDEMO-FROM-PROGRAM` (returns to whichever program transferred in)"
+    ]
+  },
+  "file_edges": [
+    {
+      "program": "CBACT01C",
+      "kind": "batch",
+      "logical": "ACCTFILE",
+      "organization": "INDEXED",
+      "access_mode": "SEQUENTIAL",
+      "open_modes": [
+        "INPUT"
+      ],
+      "verbs": [
+        "READ"
+      ],
+      "datasets": [
+        "AWS.M2.CARDDEMO.ACCTDATA.VSAM.KSDS"
+      ],
+      "record_key": "FD-ACCT-ID",
+      "alternate_keys": []
+    },
+    {
+      "program": "CBACT01C",
+      "kind": "batch",
+      "logical": "OUTFILE",
+      "organization": "SEQUENTIAL",
+      "access_mode": "SEQUENTIAL",
+      "open_modes": [
+        "OUTPUT"
+      ],
+      "verbs": [
+        "WRITE"
+      ],
+      "datasets": [
+        "AWS.M2.CARDDEMO.ACCTDATA.PSCOMP"
+      ],
+      "record_key": null,
+      "alternate_keys": []
+    },
+    {
+      "program": "CBACT01C",
+      "kind": "batch",
+      "logical": "ARRYFILE",
+      "organization": "SEQUENTIAL",
+      "access_mode": "SEQUENTIAL",
+      "open_modes": [
+        "OUTPUT"
+      ],
+      "verbs": [
+        "WRITE"
+      ],
+      "datasets": [
+        "AWS.M2.CARDDEMO.ACCTDATA.ARRYPS"
+      ],
+      "record_key": null,
+      "alternate_keys": []
+    },
+    {
+      "program": "CBACT01C",
+      "kind": "batch",
+      "logical": "VBRCFILE",
+      "organization": "SEQUENTIAL",
+      "access_mode": "SEQUENTIAL",
+      "open_modes": [
+        "OUTPUT"
+      ],
+      "verbs": [
+        "WRITE"
+      ],
+      "datasets": [
+        "AWS.M2.CARDDEMO.ACCTDATA.VBPS"
+      ],
+      "record_key": null,
+      "alternate_keys": []
+    },
+    {
+      "program": "CBACT02C",
+      "kind": "batch",
+      "logical": "CARDFILE",
+      "organization": "INDEXED",
+      "access_mode": "SEQUENTIAL",
+      "open_modes": [
+        "INPUT"
+      ],
+      "verbs": [
+        "READ"
+      ],
+      "datasets": [
+        "AWS.M2.CARDDEMO.CARDDATA.VSAM.KSDS"
+      ],
+      "record_key": "FD-CARD-NUM",
+      "alternate_keys": []
+    },
+    {
+      "program": "CBACT03C",
+      "kind": "batch",
+      "logical": "XREFFILE",
+      "organization": "INDEXED",
+      "access_mode": "SEQUENTIAL",
+      "open_modes": [
+        "INPUT"
+      ],
+      "verbs": [
+        "READ"
+      ],
+      "datasets": [
+        "AWS.M2.CARDDEMO.CARDXREF.VSAM.KSDS"
+      ],
+      "record_key": "FD-XREF-CARD-NUM",
+      "alternate_keys": []
+    },
+    {
+      "program": "CBACT04C",
+      "kind": "batch",
+      "logical": "TCATBALF",
+      "organization": "INDEXED",
+      "access_mode": "SEQUENTIAL",
+      "open_modes": [
+        "INPUT"
+      ],
+      "verbs": [
+        "READ"
+      ],
+      "datasets": [
+        "AWS.M2.CARDDEMO.TCATBALF.VSAM.KSDS"
+      ],
+      "record_key": "FD-TRAN-CAT-KEY",
+      "alternate_keys": []
+    },
+    {
+      "program": "CBACT04C",
+      "kind": "batch",
+      "logical": "XREFFILE",
+      "organization": "INDEXED",
+      "access_mode": "RANDOM",
+      "open_modes": [
+        "INPUT"
+      ],
+      "verbs": [
+        "READ"
+      ],
+      "datasets": [
+        "AWS.M2.CARDDEMO.CARDXREF.VSAM.KSDS"
+      ],
+      "record_key": "FD-XREF-CARD-NUM",
+      "alternate_keys": [
+        "FD-XREF-ACCT-ID"
+      ]
+    },
+    {
+      "program": "CBACT04C",
+      "kind": "batch",
+      "logical": "ACCTFILE",
+      "organization": "INDEXED",
+      "access_mode": "RANDOM",
+      "open_modes": [
+        "I-O"
+      ],
+      "verbs": [
+        "REWRITE",
+        "READ"
+      ],
+      "datasets": [
+        "AWS.M2.CARDDEMO.ACCTDATA.VSAM.KSDS"
+      ],
+      "record_key": "FD-ACCT-ID",
+      "alternate_keys": []
+    },
+    {
+      "program": "CBACT04C",
+      "kind": "batch",
+      "logical": "DISCGRP",
+      "organization": "INDEXED",
+      "access_mode": "RANDOM",
+      "open_modes": [
+        "INPUT"
+      ],
+      "verbs": [
+        "READ"
+      ],
+      "datasets": [
+        "AWS.M2.CARDDEMO.DISCGRP.VSAM.KSDS"
+      ],
+      "record_key": "FD-DISCGRP-KEY",
+      "alternate_keys": []
+    },
+    {
+      "program": "CBACT04C",
+      "kind": "batch",
+      "logical": "TRANSACT",
+      "organization": "SEQUENTIAL",
+      "access_mode": "SEQUENTIAL",
+      "open_modes": [
+        "OUTPUT"
+      ],
+      "verbs": [
+        "WRITE"
+      ],
+      "datasets": [
+        "AWS.M2.CARDDEMO.SYSTRAN(+1)"
+      ],
+      "record_key": null,
+      "alternate_keys": []
+    },
+    {
+      "program": "CBCUS01C",
+      "kind": "batch",
+      "logical": "CUSTFILE",
+      "organization": "INDEXED",
+      "access_mode": "SEQUENTIAL",
+      "open_modes": [
+        "INPUT"
+      ],
+      "verbs": [
+        "READ"
+      ],
+      "datasets": [
+        "AWS.M2.CARDDEMO.CUSTDATA.VSAM.KSDS"
+      ],
+      "record_key": "FD-CUST-ID",
+      "alternate_keys": []
+    },
+    {
+      "program": "CBEXPORT",
+      "kind": "batch",
+      "logical": "CUSTFILE",
+      "organization": "INDEXED",
+      "access_mode": "SEQUENTIAL",
+      "open_modes": [
+        "INPUT"
+      ],
+      "verbs": [
+        "READ"
+      ],
+      "datasets": [
+        "AWS.M2.CARDDEMO.CUSTDATA.VSAM.KSDS"
+      ],
+      "record_key": "CUST-ID",
+      "alternate_keys": []
+    },
+    {
+      "program": "CBEXPORT",
+      "kind": "batch",
+      "logical": "ACCTFILE",
+      "organization": "INDEXED",
+      "access_mode": "SEQUENTIAL",
+      "open_modes": [
+        "INPUT"
+      ],
+      "verbs": [
+        "READ"
+      ],
+      "datasets": [
+        "AWS.M2.CARDDEMO.ACCTDATA.VSAM.KSDS"
+      ],
+      "record_key": "ACCT-ID",
+      "alternate_keys": []
+    },
+    {
+      "program": "CBEXPORT",
+      "kind": "batch",
+      "logical": "XREFFILE",
+      "organization": "INDEXED",
+      "access_mode": "SEQUENTIAL",
+      "open_modes": [
+        "INPUT"
+      ],
+      "verbs": [
+        "READ"
+      ],
+      "datasets": [
+        "AWS.M2.CARDDEMO.CARDXREF.VSAM.KSDS"
+      ],
+      "record_key": "XREF-CARD-NUM",
+      "alternate_keys": []
+    },
+    {
+      "program": "CBEXPORT",
+      "kind": "batch",
+      "logical": "TRANSACT",
+      "organization": "INDEXED",
+      "access_mode": "SEQUENTIAL",
+      "open_modes": [
+        "INPUT"
+      ],
+      "verbs": [
+        "READ"
+      ],
+      "datasets": [
+        "AWS.M2.CARDDEMO.TRANSACT.VSAM.KSDS"
+      ],
+      "record_key": "TRAN-ID",
+      "alternate_keys": []
+    },
+    {
+      "program": "CBEXPORT",
+      "kind": "batch",
+      "logical": "CARDFILE",
+      "organization": "INDEXED",
+      "access_mode": "SEQUENTIAL",
+      "open_modes": [
+        "INPUT"
+      ],
+      "verbs": [
+        "READ"
+      ],
+      "datasets": [
+        "AWS.M2.CARDDEMO.CARDDATA.VSAM.KSDS"
+      ],
+      "record_key": "CARD-NUM",
+      "alternate_keys": []
+    },
+    {
+      "program": "CBEXPORT",
+      "kind": "batch",
+      "logical": "EXPFILE",
+      "organization": "INDEXED",
+      "access_mode": "SEQUENTIAL",
+      "open_modes": [
+        "OUTPUT"
+      ],
+      "verbs": [
+        "WRITE"
+      ],
+      "datasets": [
+        "AWS.M2.CARDDEMO.EXPORT.DATA"
+      ],
+      "record_key": "EXPORT-SEQUENCE-NUM",
+      "alternate_keys": []
+    },
+    {
+      "program": "CBIMPORT",
+      "kind": "batch",
+      "logical": "EXPFILE",
+      "organization": "INDEXED",
+      "access_mode": "SEQUENTIAL",
+      "open_modes": [
+        "INPUT"
+      ],
+      "verbs": [
+        "READ"
+      ],
+      "datasets": [
+        "AWS.M2.CARDDEMO.EXPORT.DATA"
+      ],
+      "record_key": "EXPORT-SEQUENCE-NUM",
+      "alternate_keys": []
+    },
+    {
+      "program": "CBIMPORT",
+      "kind": "batch",
+      "logical": "CUSTOUT",
+      "organization": "SEQUENTIAL",
+      "access_mode": "SEQUENTIAL",
+      "open_modes": [
+        "OUTPUT"
+      ],
+      "verbs": [
+        "WRITE"
+      ],
+      "datasets": [
+        "AWS.M2.CARDDEMO.CUSTDATA.IMPORT"
+      ],
+      "record_key": null,
+      "alternate_keys": []
+    },
+    {
+      "program": "CBIMPORT",
+      "kind": "batch",
+      "logical": "ACCTOUT",
+      "organization": "SEQUENTIAL",
+      "access_mode": "SEQUENTIAL",
+      "open_modes": [
+        "OUTPUT"
+      ],
+      "verbs": [
+        "WRITE"
+      ],
+      "datasets": [
+        "AWS.M2.CARDDEMO.ACCTDATA.IMPORT"
+      ],
+      "record_key": null,
+      "alternate_keys": []
+    },
+    {
+      "program": "CBIMPORT",
+      "kind": "batch",
+      "logical": "XREFOUT",
+      "organization": "SEQUENTIAL",
+      "access_mode": "SEQUENTIAL",
+      "open_modes": [
+        "OUTPUT"
+      ],
+      "verbs": [
+        "WRITE"
+      ],
+      "datasets": [
+        "AWS.M2.CARDDEMO.CARDXREF.IMPORT"
+      ],
+      "record_key": null,
+      "alternate_keys": []
+    },
+    {
+      "program": "CBIMPORT",
+      "kind": "batch",
+      "logical": "TRNXOUT",
+      "organization": "SEQUENTIAL",
+      "access_mode": "SEQUENTIAL",
+      "open_modes": [
+        "OUTPUT"
+      ],
+      "verbs": [
+        "WRITE"
+      ],
+      "datasets": [
+        "AWS.M2.CARDDEMO.TRANSACT.IMPORT"
+      ],
+      "record_key": null,
+      "alternate_keys": []
+    },
+    {
+      "program": "CBIMPORT",
+      "kind": "batch",
+      "logical": "CARDOUT",
+      "organization": "SEQUENTIAL",
+      "access_mode": "SEQUENTIAL",
+      "open_modes": [
+        "OUTPUT"
+      ],
+      "verbs": [
+        "WRITE"
+      ],
+      "datasets": [],
+      "record_key": null,
+      "alternate_keys": []
+    },
+    {
+      "program": "CBIMPORT",
+      "kind": "batch",
+      "logical": "ERROUT",
+      "organization": "SEQUENTIAL",
+      "access_mode": "SEQUENTIAL",
+      "open_modes": [
+        "OUTPUT"
+      ],
+      "verbs": [
+        "WRITE"
+      ],
+      "datasets": [
+        "AWS.M2.CARDDEMO.IMPORT.ERRORS"
+      ],
+      "record_key": null,
+      "alternate_keys": []
+    },
+    {
+      "program": "CBSTM03A",
+      "kind": "batch",
+      "logical": "STMTFILE",
+      "organization": "SEQUENTIAL",
+      "access_mode": "SEQUENTIAL",
+      "open_modes": [
+        "OUTPUT"
+      ],
+      "verbs": [
+        "WRITE"
+      ],
+      "datasets": [
+        "AWS.M2.CARDDEMO.STATEMNT.PS"
+      ],
+      "record_key": null,
+      "alternate_keys": []
+    },
+    {
+      "program": "CBSTM03A",
+      "kind": "batch",
+      "logical": "HTMLFILE",
+      "organization": "SEQUENTIAL",
+      "access_mode": "SEQUENTIAL",
+      "open_modes": [
+        "OUTPUT"
+      ],
+      "verbs": [
+        "WRITE"
+      ],
+      "datasets": [
+        "AWS.M2.CARDDEMO.STATEMNT.HTML"
+      ],
+      "record_key": null,
+      "alternate_keys": []
+    },
+    {
+      "program": "CBSTM03B",
+      "kind": "batch",
+      "logical": "TRNXFILE",
+      "organization": "INDEXED",
+      "access_mode": "SEQUENTIAL",
+      "open_modes": [
+        "INPUT"
+      ],
+      "verbs": [
+        "READ"
+      ],
+      "datasets": [
+        "AWS.M2.CARDDEMO.TRXFL.VSAM.KSDS"
+      ],
+      "record_key": "FD-TRNXS-ID",
+      "alternate_keys": []
+    },
+    {
+      "program": "CBSTM03B",
+      "kind": "batch",
+      "logical": "XREFFILE",
+      "organization": "INDEXED",
+      "access_mode": "SEQUENTIAL",
+      "open_modes": [
+        "INPUT"
+      ],
+      "verbs": [
+        "READ"
+      ],
+      "datasets": [
+        "AWS.M2.CARDDEMO.CARDXREF.VSAM.KSDS"
+      ],
+      "record_key": "FD-XREF-CARD-NUM",
+      "alternate_keys": []
+    },
+    {
+      "program": "CBSTM03B",
+      "kind": "batch",
+      "logical": "CUSTFILE",
+      "organization": "INDEXED",
+      "access_mode": "RANDOM",
+      "open_modes": [
+        "INPUT"
+      ],
+      "verbs": [
+        "READ"
+      ],
+      "datasets": [
+        "AWS.M2.CARDDEMO.CUSTDATA.VSAM.KSDS"
+      ],
+      "record_key": "FD-CUST-ID",
+      "alternate_keys": []
+    },
+    {
+      "program": "CBSTM03B",
+      "kind": "batch",
+      "logical": "ACCTFILE",
+      "organization": "INDEXED",
+      "access_mode": "RANDOM",
+      "open_modes": [
+        "INPUT"
+      ],
+      "verbs": [
+        "READ"
+      ],
+      "datasets": [
+        "AWS.M2.CARDDEMO.ACCTDATA.VSAM.KSDS"
+      ],
+      "record_key": "FD-ACCT-ID",
+      "alternate_keys": []
+    },
+    {
+      "program": "CBTRN01C",
+      "kind": "batch",
+      "logical": "DALYTRAN",
+      "organization": "SEQUENTIAL",
+      "access_mode": "SEQUENTIAL",
+      "open_modes": [
+        "INPUT"
+      ],
+      "verbs": [
+        "READ"
+      ],
+      "datasets": [],
+      "record_key": null,
+      "alternate_keys": []
+    },
+    {
+      "program": "CBTRN01C",
+      "kind": "batch",
+      "logical": "CUSTFILE",
+      "organization": "INDEXED",
+      "access_mode": "RANDOM",
+      "open_modes": [
+        "INPUT"
+      ],
+      "verbs": [],
+      "datasets": [],
+      "record_key": "FD-CUST-ID",
+      "alternate_keys": []
+    },
+    {
+      "program": "CBTRN01C",
+      "kind": "batch",
+      "logical": "XREFFILE",
+      "organization": "INDEXED",
+      "access_mode": "RANDOM",
+      "open_modes": [
+        "INPUT"
+      ],
+      "verbs": [
+        "READ"
+      ],
+      "datasets": [],
+      "record_key": "FD-XREF-CARD-NUM",
+      "alternate_keys": []
+    },
+    {
+      "program": "CBTRN01C",
+      "kind": "batch",
+      "logical": "CARDFILE",
+      "organization": "INDEXED",
+      "access_mode": "RANDOM",
+      "open_modes": [
+        "INPUT"
+      ],
+      "verbs": [],
+      "datasets": [],
+      "record_key": "FD-CARD-NUM",
+      "alternate_keys": []
+    },
+    {
+      "program": "CBTRN01C",
+      "kind": "batch",
+      "logical": "ACCTFILE",
+      "organization": "INDEXED",
+      "access_mode": "RANDOM",
+      "open_modes": [
+        "INPUT"
+      ],
+      "verbs": [
+        "READ"
+      ],
+      "datasets": [],
+      "record_key": "FD-ACCT-ID",
+      "alternate_keys": []
+    },
+    {
+      "program": "CBTRN01C",
+      "kind": "batch",
+      "logical": "TRANFILE",
+      "organization": "INDEXED",
+      "access_mode": "RANDOM",
+      "open_modes": [
+        "INPUT"
+      ],
+      "verbs": [],
+      "datasets": [],
+      "record_key": "FD-TRANS-ID",
+      "alternate_keys": []
+    },
+    {
+      "program": "CBTRN02C",
+      "kind": "batch",
+      "logical": "DALYTRAN",
+      "organization": "SEQUENTIAL",
+      "access_mode": "SEQUENTIAL",
+      "open_modes": [
+        "INPUT"
+      ],
+      "verbs": [
+        "READ"
+      ],
+      "datasets": [
+        "AWS.M2.CARDDEMO.DALYTRAN.PS"
+      ],
+      "record_key": null,
+      "alternate_keys": []
+    },
+    {
+      "program": "CBTRN02C",
+      "kind": "batch",
+      "logical": "TRANFILE",
+      "organization": "INDEXED",
+      "access_mode": "RANDOM",
+      "open_modes": [
+        "OUTPUT"
+      ],
+      "verbs": [
+        "WRITE"
+      ],
+      "datasets": [
+        "AWS.M2.CARDDEMO.TRANSACT.VSAM.KSDS"
+      ],
+      "record_key": "FD-TRANS-ID",
+      "alternate_keys": []
+    },
+    {
+      "program": "CBTRN02C",
+      "kind": "batch",
+      "logical": "XREFFILE",
+      "organization": "INDEXED",
+      "access_mode": "RANDOM",
+      "open_modes": [
+        "INPUT"
+      ],
+      "verbs": [
+        "READ"
+      ],
+      "datasets": [
+        "AWS.M2.CARDDEMO.CARDXREF.VSAM.KSDS"
+      ],
+      "record_key": "FD-XREF-CARD-NUM",
+      "alternate_keys": []
+    },
+    {
+      "program": "CBTRN02C",
+      "kind": "batch",
+      "logical": "DALYREJS",
+      "organization": "SEQUENTIAL",
+      "access_mode": "SEQUENTIAL",
+      "open_modes": [
+        "OUTPUT"
+      ],
+      "verbs": [
+        "WRITE"
+      ],
+      "datasets": [
+        "AWS.M2.CARDDEMO.DALYREJS(+1)"
+      ],
+      "record_key": null,
+      "alternate_keys": []
+    },
+    {
+      "program": "CBTRN02C",
+      "kind": "batch",
+      "logical": "ACCTFILE",
+      "organization": "INDEXED",
+      "access_mode": "RANDOM",
+      "open_modes": [
+        "I-O"
+      ],
+      "verbs": [
+        "READ",
+        "REWRITE"
+      ],
+      "datasets": [
+        "AWS.M2.CARDDEMO.ACCTDATA.VSAM.KSDS"
+      ],
+      "record_key": "FD-ACCT-ID",
+      "alternate_keys": []
+    },
+    {
+      "program": "CBTRN02C",
+      "kind": "batch",
+      "logical": "TCATBALF",
+      "organization": "INDEXED",
+      "access_mode": "RANDOM",
+      "open_modes": [
+        "I-O"
+      ],
+      "verbs": [
+        "READ",
+        "WRITE",
+        "REWRITE"
+      ],
+      "datasets": [
+        "AWS.M2.CARDDEMO.TCATBALF.VSAM.KSDS"
+      ],
+      "record_key": "FD-TRAN-CAT-KEY",
+      "alternate_keys": []
+    },
+    {
+      "program": "CBTRN03C",
+      "kind": "batch",
+      "logical": "TRANFILE",
+      "organization": "SEQUENTIAL",
+      "access_mode": "SEQUENTIAL",
+      "open_modes": [
+        "INPUT"
+      ],
+      "verbs": [
+        "READ"
+      ],
+      "datasets": [
+        "AWS.M2.CARDDEMO.TRANSACT.DALY(+1)"
+      ],
+      "record_key": null,
+      "alternate_keys": []
+    },
+    {
+      "program": "CBTRN03C",
+      "kind": "batch",
+      "logical": "CARDXREF",
+      "organization": "INDEXED",
+      "access_mode": "RANDOM",
+      "open_modes": [
+        "INPUT"
+      ],
+      "verbs": [
+        "READ"
+      ],
+      "datasets": [
+        "AWS.M2.CARDDEMO.CARDXREF.VSAM.KSDS"
+      ],
+      "record_key": "FD-XREF-CARD-NUM",
+      "alternate_keys": []
+    },
+    {
+      "program": "CBTRN03C",
+      "kind": "batch",
+      "logical": "TRANTYPE",
+      "organization": "INDEXED",
+      "access_mode": "RANDOM",
+      "open_modes": [
+        "INPUT"
+      ],
+      "verbs": [
+        "READ"
+      ],
+      "datasets": [
+        "AWS.M2.CARDDEMO.TRANTYPE.VSAM.KSDS"
+      ],
+      "record_key": "FD-TRAN-TYPE",
+      "alternate_keys": []
+    },
+    {
+      "program": "CBTRN03C",
+      "kind": "batch",
+      "logical": "TRANCATG",
+      "organization": "INDEXED",
+      "access_mode": "RANDOM",
+      "open_modes": [
+        "INPUT"
+      ],
+      "verbs": [
+        "READ"
+      ],
+      "datasets": [
+        "AWS.M2.CARDDEMO.TRANCATG.VSAM.KSDS"
+      ],
+      "record_key": "FD-TRAN-CAT-KEY",
+      "alternate_keys": []
+    },
+    {
+      "program": "CBTRN03C",
+      "kind": "batch",
+      "logical": "TRANREPT",
+      "organization": "SEQUENTIAL",
+      "access_mode": "SEQUENTIAL",
+      "open_modes": [
+        "OUTPUT"
+      ],
+      "verbs": [
+        "WRITE"
+      ],
+      "datasets": [
+        "AWS.M2.CARDDEMO.TRANREPT(+1)"
+      ],
+      "record_key": null,
+      "alternate_keys": []
+    },
+    {
+      "program": "CBTRN03C",
+      "kind": "batch",
+      "logical": "DATEPARM",
+      "organization": "SEQUENTIAL",
+      "access_mode": "SEQUENTIAL",
+      "open_modes": [
+        "INPUT"
+      ],
+      "verbs": [
+        "READ"
+      ],
+      "datasets": [
+        "AWS.M2.CARDDEMO.DATEPARM"
+      ],
+      "record_key": null,
+      "alternate_keys": []
+    },
+    {
+      "program": "COACTUPC",
+      "kind": "cics",
+      "logical": "CXACAIX",
+      "organization": "VSAM KSDS (AIX path)",
+      "access_mode": "RANDOM/R",
+      "open_modes": [],
+      "verbs": [
+        "READ"
+      ],
+      "datasets": [
+        "AWS.M2.CARDDEMO.CARDXREF.VSAM.AIX.PATH"
+      ],
+      "record_key": null,
+      "alternate_keys": []
+    },
+    {
+      "program": "COACTUPC",
+      "kind": "cics",
+      "logical": "ACCTDAT",
+      "organization": "VSAM KSDS",
+      "access_mode": "RANDOM/RW",
+      "open_modes": [],
+      "verbs": [
+        "READ",
+        "REWRITE"
+      ],
+      "datasets": [
+        "AWS.M2.CARDDEMO.ACCTDATA.VSAM.KSDS"
+      ],
+      "record_key": null,
+      "alternate_keys": []
+    },
+    {
+      "program": "COACTUPC",
+      "kind": "cics",
+      "logical": "CUSTDAT",
+      "organization": "VSAM KSDS",
+      "access_mode": "RANDOM/RW",
+      "open_modes": [],
+      "verbs": [
+        "READ",
+        "REWRITE"
+      ],
+      "datasets": [
+        "AWS.M2.CARDDEMO.CUSTDATA.VSAM.KSDS"
+      ],
+      "record_key": null,
+      "alternate_keys": []
+    },
+    {
+      "program": "COACTVWC",
+      "kind": "cics",
+      "logical": "CXACAIX",
+      "organization": "VSAM KSDS (AIX path)",
+      "access_mode": "RANDOM/R",
+      "open_modes": [],
+      "verbs": [
+        "READ"
+      ],
+      "datasets": [
+        "AWS.M2.CARDDEMO.CARDXREF.VSAM.AIX.PATH"
+      ],
+      "record_key": null,
+      "alternate_keys": []
+    },
+    {
+      "program": "COACTVWC",
+      "kind": "cics",
+      "logical": "ACCTDAT",
+      "organization": "VSAM KSDS",
+      "access_mode": "RANDOM/R",
+      "open_modes": [],
+      "verbs": [
+        "READ"
+      ],
+      "datasets": [
+        "AWS.M2.CARDDEMO.ACCTDATA.VSAM.KSDS"
+      ],
+      "record_key": null,
+      "alternate_keys": []
+    },
+    {
+      "program": "COACTVWC",
+      "kind": "cics",
+      "logical": "CUSTDAT",
+      "organization": "VSAM KSDS",
+      "access_mode": "RANDOM/R",
+      "open_modes": [],
+      "verbs": [
+        "READ"
+      ],
+      "datasets": [
+        "AWS.M2.CARDDEMO.CUSTDATA.VSAM.KSDS"
+      ],
+      "record_key": null,
+      "alternate_keys": []
+    },
+    {
+      "program": "COBIL00C",
+      "kind": "cics",
+      "logical": "ACCTDAT",
+      "organization": "VSAM KSDS",
+      "access_mode": "RANDOM/RW",
+      "open_modes": [],
+      "verbs": [
+        "READ",
+        "REWRITE"
+      ],
+      "datasets": [
+        "AWS.M2.CARDDEMO.ACCTDATA.VSAM.KSDS"
+      ],
+      "record_key": null,
+      "alternate_keys": []
+    },
+    {
+      "program": "COBIL00C",
+      "kind": "cics",
+      "logical": "CXACAIX",
+      "organization": "VSAM KSDS (AIX path)",
+      "access_mode": "RANDOM/R",
+      "open_modes": [],
+      "verbs": [
+        "READ"
+      ],
+      "datasets": [
+        "AWS.M2.CARDDEMO.CARDXREF.VSAM.AIX.PATH"
+      ],
+      "record_key": null,
+      "alternate_keys": []
+    },
+    {
+      "program": "COBIL00C",
+      "kind": "cics",
+      "logical": "TRANSACT",
+      "organization": "VSAM KSDS",
+      "access_mode": "BROWSE/RW",
+      "open_modes": [],
+      "verbs": [
+        "STARTBR",
+        "READPREV",
+        "ENDBR",
+        "WRITE"
+      ],
+      "datasets": [
+        "AWS.M2.CARDDEMO.TRANSACT.VSAM.KSDS"
+      ],
+      "record_key": null,
+      "alternate_keys": []
+    },
+    {
+      "program": "COCRDLIC",
+      "kind": "cics",
+      "logical": "CARDDAT",
+      "organization": "VSAM KSDS",
+      "access_mode": "BROWSE/R",
+      "open_modes": [],
+      "verbs": [
+        "STARTBR",
+        "READNEXT",
+        "ENDBR",
+        "READPREV"
+      ],
+      "datasets": [
+        "AWS.M2.CARDDEMO.CARDDATA.VSAM.KSDS"
+      ],
+      "record_key": null,
+      "alternate_keys": []
+    },
+    {
+      "program": "COCRDSLC",
+      "kind": "cics",
+      "logical": "CARDDAT",
+      "organization": "VSAM KSDS",
+      "access_mode": "RANDOM/R",
+      "open_modes": [],
+      "verbs": [
+        "READ"
+      ],
+      "datasets": [
+        "AWS.M2.CARDDEMO.CARDDATA.VSAM.KSDS"
+      ],
+      "record_key": null,
+      "alternate_keys": []
+    },
+    {
+      "program": "COCRDSLC",
+      "kind": "cics",
+      "logical": "CARDAIX",
+      "organization": "VSAM KSDS (AIX path)",
+      "access_mode": "RANDOM/R",
+      "open_modes": [],
+      "verbs": [
+        "READ"
+      ],
+      "datasets": [
+        "AWS.M2.CARDDEMO.CARDDATA.VSAM.AIX.PATH"
+      ],
+      "record_key": null,
+      "alternate_keys": []
+    },
+    {
+      "program": "COCRDUPC",
+      "kind": "cics",
+      "logical": "CARDDAT",
+      "organization": "VSAM KSDS",
+      "access_mode": "RANDOM/RW",
+      "open_modes": [],
+      "verbs": [
+        "READ",
+        "REWRITE"
+      ],
+      "datasets": [
+        "AWS.M2.CARDDEMO.CARDDATA.VSAM.KSDS"
+      ],
+      "record_key": null,
+      "alternate_keys": []
+    },
+    {
+      "program": "COSGN00C",
+      "kind": "cics",
+      "logical": "USRSEC",
+      "organization": "VSAM KSDS",
+      "access_mode": "RANDOM/R",
+      "open_modes": [],
+      "verbs": [
+        "READ"
+      ],
+      "datasets": [
+        "AWS.M2.CARDDEMO.USRSEC.VSAM.KSDS"
+      ],
+      "record_key": null,
+      "alternate_keys": []
+    },
+    {
+      "program": "COTRN00C",
+      "kind": "cics",
+      "logical": "TRANSACT",
+      "organization": "VSAM KSDS",
+      "access_mode": "BROWSE/R",
+      "open_modes": [],
+      "verbs": [
+        "STARTBR",
+        "READNEXT",
+        "READPREV",
+        "ENDBR"
+      ],
+      "datasets": [
+        "AWS.M2.CARDDEMO.TRANSACT.VSAM.KSDS"
+      ],
+      "record_key": null,
+      "alternate_keys": []
+    },
+    {
+      "program": "COTRN01C",
+      "kind": "cics",
+      "logical": "TRANSACT",
+      "organization": "VSAM KSDS",
+      "access_mode": "RANDOM/R",
+      "open_modes": [],
+      "verbs": [
+        "READ"
+      ],
+      "datasets": [
+        "AWS.M2.CARDDEMO.TRANSACT.VSAM.KSDS"
+      ],
+      "record_key": null,
+      "alternate_keys": []
+    },
+    {
+      "program": "COTRN02C",
+      "kind": "cics",
+      "logical": "CXACAIX",
+      "organization": "VSAM KSDS (AIX path)",
+      "access_mode": "RANDOM/R",
+      "open_modes": [],
+      "verbs": [
+        "READ"
+      ],
+      "datasets": [
+        "AWS.M2.CARDDEMO.CARDXREF.VSAM.AIX.PATH"
+      ],
+      "record_key": null,
+      "alternate_keys": []
+    },
+    {
+      "program": "COTRN02C",
+      "kind": "cics",
+      "logical": "CCXREF",
+      "organization": "VSAM KSDS",
+      "access_mode": "RANDOM/R",
+      "open_modes": [],
+      "verbs": [
+        "READ"
+      ],
+      "datasets": [
+        "AWS.M2.CARDDEMO.CARDXREF.VSAM.KSDS"
+      ],
+      "record_key": null,
+      "alternate_keys": []
+    },
+    {
+      "program": "COTRN02C",
+      "kind": "cics",
+      "logical": "TRANSACT",
+      "organization": "VSAM KSDS",
+      "access_mode": "BROWSE/RW",
+      "open_modes": [],
+      "verbs": [
+        "STARTBR",
+        "READPREV",
+        "ENDBR",
+        "WRITE"
+      ],
+      "datasets": [
+        "AWS.M2.CARDDEMO.TRANSACT.VSAM.KSDS"
+      ],
+      "record_key": null,
+      "alternate_keys": []
+    },
+    {
+      "program": "COUSR00C",
+      "kind": "cics",
+      "logical": "USRSEC",
+      "organization": "VSAM KSDS",
+      "access_mode": "BROWSE/R",
+      "open_modes": [],
+      "verbs": [
+        "STARTBR",
+        "READNEXT",
+        "READPREV",
+        "ENDBR"
+      ],
+      "datasets": [
+        "AWS.M2.CARDDEMO.USRSEC.VSAM.KSDS"
+      ],
+      "record_key": null,
+      "alternate_keys": []
+    },
+    {
+      "program": "COUSR01C",
+      "kind": "cics",
+      "logical": "USRSEC",
+      "organization": "VSAM KSDS",
+      "access_mode": "RANDOM/W",
+      "open_modes": [],
+      "verbs": [
+        "WRITE"
+      ],
+      "datasets": [
+        "AWS.M2.CARDDEMO.USRSEC.VSAM.KSDS"
+      ],
+      "record_key": null,
+      "alternate_keys": []
+    },
+    {
+      "program": "COUSR02C",
+      "kind": "cics",
+      "logical": "USRSEC",
+      "organization": "VSAM KSDS",
+      "access_mode": "RANDOM/RW",
+      "open_modes": [],
+      "verbs": [
+        "READ",
+        "REWRITE"
+      ],
+      "datasets": [
+        "AWS.M2.CARDDEMO.USRSEC.VSAM.KSDS"
+      ],
+      "record_key": null,
+      "alternate_keys": []
+    },
+    {
+      "program": "COUSR03C",
+      "kind": "cics",
+      "logical": "USRSEC",
+      "organization": "VSAM KSDS",
+      "access_mode": "RANDOM/RW",
+      "open_modes": [],
+      "verbs": [
+        "READ",
+        "DELETE"
+      ],
+      "datasets": [
+        "AWS.M2.CARDDEMO.USRSEC.VSAM.KSDS"
+      ],
+      "record_key": null,
+      "alternate_keys": []
+    }
+  ],
+  "copybook_usage": [
+    {
+      "copybook": "COADM02Y",
+      "kind": "data",
+      "path": "app/cpy/COADM02Y.cpy",
+      "loc": 32,
+      "record_length": 272,
+      "comp3": 0,
+      "used_by": [
+        "COADM01C"
+      ],
+      "nested_copies": []
+    },
+    {
+      "copybook": "COCOM01Y",
+      "kind": "data",
+      "path": "app/cpy/COCOM01Y.cpy",
+      "loc": 26,
+      "record_length": 160,
+      "comp3": 0,
+      "used_by": [
+        "COACTUPC",
+        "COACTVWC",
+        "COADM01C",
+        "COBIL00C",
+        "COCRDLIC",
+        "COCRDSLC",
+        "COCRDUPC",
+        "COMEN01C",
+        "CORPT00C",
+        "COSGN00C",
+        "COTRN00C",
+        "COTRN01C",
+        "COTRN02C",
+        "COUSR00C",
+        "COUSR01C",
+        "COUSR02C",
+        "COUSR03C",
+        "COPAUS0C",
+        "COPAUS1C",
+        "COTRTLIC",
+        "COTRTUPC"
+      ],
+      "nested_copies": []
+    },
+    {
+      "copybook": "CODATECN",
+      "kind": "data",
+      "path": "app/cpy/CODATECN.cpy",
+      "loc": 36,
+      "record_length": 80,
+      "comp3": 0,
+      "used_by": [
+        "CBACT01C"
+      ],
+      "nested_copies": []
+    },
+    {
+      "copybook": "COMEN02Y",
+      "kind": "data",
+      "path": "app/cpy/COMEN02Y.cpy",
+      "loc": 64,
+      "record_length": 508,
+      "comp3": 0,
+      "used_by": [
+        "COMEN01C"
+      ],
+      "nested_copies": []
+    },
+    {
+      "copybook": "COSTM01",
+      "kind": "data",
+      "path": "app/cpy/COSTM01.CPY",
+      "loc": 17,
+      "record_length": 350,
+      "comp3": 0,
+      "used_by": [
+        "CBSTM03A"
+      ],
+      "nested_copies": []
+    },
+    {
+      "copybook": "COTTL01Y",
+      "kind": "data",
+      "path": "app/cpy/COTTL01Y.cpy",
+      "loc": 7,
+      "record_length": 120,
+      "comp3": 0,
+      "used_by": [
+        "COACTUPC",
+        "COACTVWC",
+        "COADM01C",
+        "COBIL00C",
+        "COCRDLIC",
+        "COCRDSLC",
+        "COCRDUPC",
+        "COMEN01C",
+        "CORPT00C",
+        "COSGN00C",
+        "COTRN00C",
+        "COTRN01C",
+        "COTRN02C",
+        "COUSR00C",
+        "COUSR01C",
+        "COUSR02C",
+        "COUSR03C",
+        "COPAUS0C",
+        "COPAUS1C",
+        "COTRTLIC",
+        "COTRTUPC"
+      ],
+      "nested_copies": []
+    },
+    {
+      "copybook": "CSDAT01Y",
+      "kind": "data",
+      "path": "app/cpy/CSDAT01Y.cpy",
+      "loc": 39,
+      "record_length": 58,
+      "comp3": 0,
+      "used_by": [
+        "COACTUPC",
+        "COACTVWC",
+        "COADM01C",
+        "COBIL00C",
+        "COCRDLIC",
+        "COCRDSLC",
+        "COCRDUPC",
+        "COMEN01C",
+        "CORPT00C",
+        "COSGN00C",
+        "COTRN00C",
+        "COTRN01C",
+        "COTRN02C",
+        "COUSR00C",
+        "COUSR01C",
+        "COUSR02C",
+        "COUSR03C",
+        "COPAUS0C",
+        "COPAUS1C",
+        "COTRTLIC",
+        "COTRTUPC"
+      ],
+      "nested_copies": []
+    },
+    {
+      "copybook": "CSLKPCDY",
+      "kind": "data",
+      "path": "app/cpy/CSLKPCDY.cpy",
+      "loc": 1283,
+      "record_length": 7,
+      "comp3": 0,
+      "used_by": [
+        "COACTUPC"
+      ],
+      "nested_copies": []
+    },
+    {
+      "copybook": "CSMSG01Y",
+      "kind": "data",
+      "path": "app/cpy/CSMSG01Y.cpy",
+      "loc": 5,
+      "record_length": 100,
+      "comp3": 0,
+      "used_by": [
+        "COACTUPC",
+        "COACTVWC",
+        "COADM01C",
+        "COBIL00C",
+        "COCRDLIC",
+        "COCRDSLC",
+        "COCRDUPC",
+        "COMEN01C",
+        "CORPT00C",
+        "COSGN00C",
+        "COTRN00C",
+        "COTRN01C",
+        "COTRN02C",
+        "COUSR00C",
+        "COUSR01C",
+        "COUSR02C",
+        "COUSR03C",
+        "COPAUS0C",
+        "COPAUS1C",
+        "COTRTLIC",
+        "COTRTUPC"
+      ],
+      "nested_copies": []
+    },
+    {
+      "copybook": "CSMSG02Y",
+      "kind": "data",
+      "path": "app/cpy/CSMSG02Y.cpy",
+      "loc": 9,
+      "record_length": 134,
+      "comp3": 0,
+      "used_by": [
+        "COACTUPC",
+        "COACTVWC",
+        "COCRDSLC",
+        "COCRDUPC",
+        "COPAUS0C",
+        "COPAUS1C",
+        "COTRTUPC"
+      ],
+      "nested_copies": []
+    },
+    {
+      "copybook": "CSSETATY",
+      "kind": "procedure",
+      "path": "app/cpy/CSSETATY.cpy",
+      "loc": 10,
+      "record_length": null,
+      "comp3": 0,
+      "used_by": [
+        "COACTUPC",
+        "COTRTUPC"
+      ],
+      "nested_copies": []
+    },
+    {
+      "copybook": "CSSTRPFY",
+      "kind": "procedure",
+      "path": "app/cpy/CSSTRPFY.cpy",
+      "loc": 63,
+      "record_length": null,
+      "comp3": 0,
+      "used_by": [],
+      "nested_copies": []
+    },
+    {
+      "copybook": "CSUSR01Y",
+      "kind": "data",
+      "path": "app/cpy/CSUSR01Y.cpy",
+      "loc": 7,
+      "record_length": 80,
+      "comp3": 0,
+      "used_by": [
+        "COACTUPC",
+        "COACTVWC",
+        "COADM01C",
+        "COCRDLIC",
+        "COCRDSLC",
+        "COCRDUPC",
+        "COMEN01C",
+        "COSGN00C",
+        "COUSR00C",
+        "COUSR01C",
+        "COUSR02C",
+        "COUSR03C",
+        "COTRTLIC",
+        "COTRTUPC"
+      ],
+      "nested_copies": []
+    },
+    {
+      "copybook": "CSUTLDPY",
+      "kind": "procedure",
+      "path": "app/cpy/CSUTLDPY.cpy",
+      "loc": 289,
+      "record_length": null,
+      "comp3": 0,
+      "used_by": [
+        "COACTUPC"
+      ],
+      "nested_copies": []
+    },
+    {
+      "copybook": "CSUTLDWY",
+      "kind": "data",
+      "path": "app/cpy/CSUTLDWY.cpy",
+      "loc": 82,
+      "record_length": null,
+      "comp3": 0,
+      "used_by": [],
+      "nested_copies": []
+    },
+    {
+      "copybook": "CUSTREC",
+      "kind": "data",
+      "path": "app/cpy/CUSTREC.cpy",
+      "loc": 20,
+      "record_length": 500,
+      "comp3": 0,
+      "used_by": [
+        "CBSTM03A"
+      ],
+      "nested_copies": []
+    },
+    {
+      "copybook": "CVACT01Y",
+      "kind": "data",
+      "path": "app/cpy/CVACT01Y.cpy",
+      "loc": 14,
+      "record_length": 300,
+      "comp3": 0,
+      "used_by": [
+        "CBACT01C",
+        "CBACT04C",
+        "CBEXPORT",
+        "CBIMPORT",
+        "CBSTM03A",
+        "CBTRN01C",
+        "CBTRN02C",
+        "COACTUPC",
+        "COACTVWC",
+        "COBIL00C",
+        "COTRN02C",
+        "COPAUA0C",
+        "COPAUS0C",
+        "COACCT01"
+      ],
+      "nested_copies": []
+    },
+    {
+      "copybook": "CVACT02Y",
+      "kind": "data",
+      "path": "app/cpy/CVACT02Y.cpy",
+      "loc": 8,
+      "record_length": 150,
+      "comp3": 0,
+      "used_by": [
+        "CBACT02C",
+        "CBEXPORT",
+        "CBIMPORT",
+        "CBTRN01C",
+        "COACTVWC",
+        "COCRDLIC",
+        "COCRDSLC",
+        "COCRDUPC",
+        "COPAUS0C",
+        "COTRTLIC"
+      ],
+      "nested_copies": []
+    },
+    {
+      "copybook": "CVACT03Y",
+      "kind": "data",
+      "path": "app/cpy/CVACT03Y.cpy",
+      "loc": 5,
+      "record_length": 50,
+      "comp3": 0,
+      "used_by": [
+        "CBACT03C",
+        "CBACT04C",
+        "CBEXPORT",
+        "CBIMPORT",
+        "CBSTM03A",
+        "CBTRN01C",
+        "CBTRN02C",
+        "CBTRN03C",
+        "COACTUPC",
+        "COACTVWC",
+        "COBIL00C",
+        "COTRN02C",
+        "COPAUA0C",
+        "COPAUS0C"
+      ],
+      "nested_copies": []
+    },
+    {
+      "copybook": "CVCRD01Y",
+      "kind": "data",
+      "path": "app/cpy/CVCRD01Y.cpy",
+      "loc": 34,
+      "record_length": 213,
+      "comp3": 0,
+      "used_by": [
+        "COACTUPC",
+        "COACTVWC",
+        "COCRDLIC",
+        "COCRDSLC",
+        "COCRDUPC",
+        "COTRTLIC",
+        "COTRTUPC"
+      ],
+      "nested_copies": []
+    },
+    {
+      "copybook": "CVCUS01Y",
+      "kind": "data",
+      "path": "app/cpy/CVCUS01Y.cpy",
+      "loc": 20,
+      "record_length": 500,
+      "comp3": 0,
+      "used_by": [
+        "CBCUS01C",
+        "CBEXPORT",
+        "CBIMPORT",
+        "CBTRN01C",
+        "COACTUPC",
+        "COACTVWC",
+        "COCRDSLC",
+        "COCRDUPC",
+        "COPAUA0C",
+        "COPAUS0C"
+      ],
+      "nested_copies": []
+    },
+    {
+      "copybook": "CVEXPORT",
+      "kind": "data",
+      "path": "app/cpy/CVEXPORT.cpy",
+      "loc": 72,
+      "record_length": 500,
+      "comp3": 4,
+      "used_by": [
+        "CBEXPORT",
+        "CBIMPORT"
+      ],
+      "nested_copies": []
+    },
+    {
+      "copybook": "CVTRA01Y",
+      "kind": "data",
+      "path": "app/cpy/CVTRA01Y.cpy",
+      "loc": 7,
+      "record_length": 50,
+      "comp3": 0,
+      "used_by": [
+        "CBACT04C",
+        "CBTRN02C"
+      ],
+      "nested_copies": []
+    },
+    {
+      "copybook": "CVTRA02Y",
+      "kind": "data",
+      "path": "app/cpy/CVTRA02Y.cpy",
+      "loc": 7,
+      "record_length": 50,
+      "comp3": 0,
+      "used_by": [
+        "CBACT04C"
+      ],
+      "nested_copies": []
+    },
+    {
+      "copybook": "CVTRA03Y",
+      "kind": "data",
+      "path": "app/cpy/CVTRA03Y.cpy",
+      "loc": 4,
+      "record_length": 60,
+      "comp3": 0,
+      "used_by": [
+        "CBTRN03C"
+      ],
+      "nested_copies": []
+    },
+    {
+      "copybook": "CVTRA04Y",
+      "kind": "data",
+      "path": "app/cpy/CVTRA04Y.cpy",
+      "loc": 6,
+      "record_length": 60,
+      "comp3": 0,
+      "used_by": [
+        "CBTRN03C"
+      ],
+      "nested_copies": []
+    },
+    {
+      "copybook": "CVTRA05Y",
+      "kind": "data",
+      "path": "app/cpy/CVTRA05Y.cpy",
+      "loc": 15,
+      "record_length": 350,
+      "comp3": 0,
+      "used_by": [
+        "CBACT04C",
+        "CBEXPORT",
+        "CBIMPORT",
+        "CBTRN01C",
+        "CBTRN02C",
+        "CBTRN03C",
+        "COBIL00C",
+        "CORPT00C",
+        "COTRN00C",
+        "COTRN01C",
+        "COTRN02C"
+      ],
+      "nested_copies": []
+    },
+    {
+      "copybook": "CVTRA06Y",
+      "kind": "data",
+      "path": "app/cpy/CVTRA06Y.cpy",
+      "loc": 15,
+      "record_length": 350,
+      "comp3": 0,
+      "used_by": [
+        "CBTRN01C",
+        "CBTRN02C"
+      ],
+      "nested_copies": []
+    },
+    {
+      "copybook": "CVTRA07Y",
+      "kind": "data",
+      "path": "app/cpy/CVTRA07Y.cpy",
+      "loc": 57,
+      "record_length": 133,
+      "comp3": 0,
+      "used_by": [
+        "CBTRN03C"
+      ],
+      "nested_copies": []
+    },
+    {
+      "copybook": "UNUSED1Y",
+      "kind": "data",
+      "path": "app/cpy/UNUSED1Y.cpy",
+      "loc": 7,
+      "record_length": 80,
+      "comp3": 0,
+      "used_by": [],
+      "nested_copies": []
+    },
+    {
+      "copybook": "COACTUP",
+      "kind": "bms symbolic map",
+      "path": "app/cpy-bms/COACTUP.CPY",
+      "loc": 652,
+      "record_length": 1095,
+      "comp3": 0,
+      "used_by": [
+        "COACTUPC"
+      ],
+      "nested_copies": []
+    },
+    {
+      "copybook": "COACTVW",
+      "kind": "bms symbolic map",
+      "path": "app/cpy-bms/COACTVW.CPY",
+      "loc": 448,
+      "record_length": 955,
+      "comp3": 0,
+      "used_by": [
+        "COACTVWC"
+      ],
+      "nested_copies": []
+    },
+    {
+      "copybook": "COADM01",
+      "kind": "bms symbolic map",
+      "path": "app/cpy-bms/COADM01.CPY",
+      "loc": 244,
+      "record_length": 820,
+      "comp3": 0,
+      "used_by": [
+        "COADM01C"
+      ],
+      "nested_copies": []
+    },
+    {
+      "copybook": "COBIL00",
+      "kind": "bms symbolic map",
+      "path": "app/cpy-bms/COBIL00.CPY",
+      "loc": 124,
+      "record_length": 294,
+      "comp3": 0,
+      "used_by": [
+        "COBIL00C"
+      ],
+      "nested_copies": []
+    },
+    {
+      "copybook": "COCRDLI",
+      "kind": "bms symbolic map",
+      "path": "app/cpy-bms/COCRDLI.CPY",
+      "loc": 544,
+      "record_length": 797,
+      "comp3": 0,
+      "used_by": [
+        "COCRDLIC"
+      ],
+      "nested_copies": []
+    },
+    {
+      "copybook": "COCRDSL",
+      "kind": "bms symbolic map",
+      "path": "app/cpy-bms/COCRDSL.CPY",
+      "loc": 184,
+      "record_length": 504,
+      "comp3": 0,
+      "used_by": [
+        "COCRDSLC"
+      ],
+      "nested_copies": []
+    },
+    {
+      "copybook": "COCRDUP",
+      "kind": "bms symbolic map",
+      "path": "app/cpy-bms/COCRDUP.CPY",
+      "loc": 208,
+      "record_length": 484,
+      "comp3": 0,
+      "used_by": [
+        "COCRDUPC"
+      ],
+      "nested_copies": []
+    },
+    {
+      "copybook": "COMEN01",
+      "kind": "bms symbolic map",
+      "path": "app/cpy-bms/COMEN01.CPY",
+      "loc": 244,
+      "record_length": 820,
+      "comp3": 0,
+      "used_by": [
+        "COMEN01C"
+      ],
+      "nested_copies": []
+    },
+    {
+      "copybook": "CORPT00",
+      "kind": "bms symbolic map",
+      "path": "app/cpy-bms/CORPT00.CPY",
+      "loc": 208,
+      "record_length": 337,
+      "comp3": 0,
+      "used_by": [
+        "CORPT00C"
+      ],
+      "nested_copies": []
+    },
+    {
+      "copybook": "COSGN00",
+      "kind": "bms symbolic map",
+      "path": "app/cpy-bms/COSGN00.CPY",
+      "loc": 136,
+      "record_length": 308,
+      "comp3": 0,
+      "used_by": [
+        "COSGN00C"
+      ],
+      "nested_copies": []
+    },
+    {
+      "copybook": "COTRN00",
+      "kind": "bms symbolic map",
+      "path": "app/cpy-bms/COTRN00.CPY",
+      "loc": 712,
+      "record_length": 1265,
+      "comp3": 0,
+      "used_by": [
+        "COTRN00C"
+      ],
+      "nested_copies": []
+    },
+    {
+      "copybook": "COTRN01",
+      "kind": "bms symbolic map",
+      "path": "app/cpy-bms/COTRN01.CPY",
+      "loc": 256,
+      "record_length": 575,
+      "comp3": 0,
+      "used_by": [
+        "COTRN01C"
+      ],
+      "nested_copies": []
+    },
+    {
+      "copybook": "COTRN02",
+      "kind": "bms symbolic map",
+      "path": "app/cpy-bms/COTRN02.CPY",
+      "loc": 256,
+      "record_length": 555,
+      "comp3": 0,
+      "used_by": [
+        "COTRN02C"
+      ],
+      "nested_copies": []
+    },
+    {
+      "copybook": "COUSR00",
+      "kind": "bms symbolic map",
+      "path": "app/cpy-bms/COUSR00.CPY",
+      "loc": 712,
+      "record_length": 1127,
+      "comp3": 0,
+      "used_by": [
+        "COUSR00C"
+      ],
+      "nested_copies": []
+    },
+    {
+      "copybook": "COUSR01",
+      "kind": "bms symbolic map",
+      "path": "app/cpy-bms/COUSR01.CPY",
+      "loc": 148,
+      "record_length": 339,
+      "comp3": 0,
+      "used_by": [
+        "COUSR01C"
+      ],
+      "nested_copies": []
+    },
+    {
+      "copybook": "COUSR02",
+      "kind": "bms symbolic map",
+      "path": "app/cpy-bms/COUSR02.CPY",
+      "loc": 148,
+      "record_length": 339,
+      "comp3": 0,
+      "used_by": [
+        "COUSR02C"
+      ],
+      "nested_copies": []
+    },
+    {
+      "copybook": "COUSR03",
+      "kind": "bms symbolic map",
+      "path": "app/cpy-bms/COUSR03.CPY",
+      "loc": 136,
+      "record_length": 324,
+      "comp3": 0,
+      "used_by": [
+        "COUSR03C"
+      ],
+      "nested_copies": []
+    }
+  ],
+  "jcl_chains": {
+    "ACCTFILE": {
+      "job": "ACCTFILE",
+      "path": "app/jcl/ACCTFILE.jcl",
+      "uses_gdg": false,
+      "programs": [],
+      "steps": [
+        {
+          "step": "STEP05",
+          "program": "IDCAMS",
+          "proc": null,
+          "program_class": "system utility",
+          "utility_commands": [
+            "DELETE"
+          ],
+          "cond": null,
+          "dds": [],
+          "instream_datasets": []
+        },
+        {
+          "step": "STEP10",
+          "program": "IDCAMS",
+          "proc": null,
+          "program_class": "system utility",
+          "utility_commands": [
+            "DEFINE CLUSTER"
+          ],
+          "cond": null,
+          "dds": [],
+          "instream_datasets": [
+            "AWS.M2.CARDDEMO.ACCTDATA.VSAM.KSDS",
+            "AWS.M2.CARDDEMO.ACCTDATA.VSAM.KSDS.DATA",
+            "AWS.M2.CARDDEMO.ACCTDATA.VSAM.KSDS.INDEX"
+          ]
+        },
+        {
+          "step": "STEP15",
+          "program": "IDCAMS",
+          "proc": null,
+          "program_class": "system utility",
+          "utility_commands": [
+            "REPRO"
+          ],
+          "cond": null,
+          "dds": [
+            {
+              "dd": "ACCTDATA",
+              "dataset": "AWS.M2.CARDDEMO.ACCTDATA.PS",
+              "gdg_generation": null,
+              "gdg": false,
+              "disp": "SHR",
+              "direction": "read"
+            },
+            {
+              "dd": "ACCTVSAM",
+              "dataset": "AWS.M2.CARDDEMO.ACCTDATA.VSAM.KSDS",
+              "gdg_generation": null,
+              "gdg": false,
+              "disp": "SHR",
+              "direction": "write"
+            }
+          ],
+          "instream_datasets": []
+        }
+      ]
+    },
+    "CARDFILE": {
+      "job": "CARDFILE",
+      "path": "app/jcl/CARDFILE.jcl",
+      "uses_gdg": false,
+      "programs": [],
+      "steps": [
+        {
+          "step": "CLCIFIL",
+          "program": "SDSF",
+          "proc": null,
+          "program_class": "application",
+          "utility_commands": [],
+          "cond": null,
+          "dds": [],
+          "instream_datasets": []
+        },
+        {
+          "step": "STEP05",
+          "program": "IDCAMS",
+          "proc": null,
+          "program_class": "system utility",
+          "utility_commands": [
+            "DELETE",
+            "DELETE"
+          ],
+          "cond": null,
+          "dds": [],
+          "instream_datasets": []
+        },
+        {
+          "step": "STEP10",
+          "program": "IDCAMS",
+          "proc": null,
+          "program_class": "system utility",
+          "utility_commands": [
+            "DEFINE CLUSTER"
+          ],
+          "cond": null,
+          "dds": [],
+          "instream_datasets": [
+            "AWS.M2.CARDDEMO.CARDDATA.VSAM.KSDS",
+            "AWS.M2.CARDDEMO.CARDDATA.VSAM.KSDS.DATA",
+            "AWS.M2.CARDDEMO.CARDDATA.VSAM.KSDS.INDEX"
+          ]
+        },
+        {
+          "step": "STEP15",
+          "program": "IDCAMS",
+          "proc": null,
+          "program_class": "system utility",
+          "utility_commands": [
+            "REPRO"
+          ],
+          "cond": null,
+          "dds": [
+            {
+              "dd": "CARDDATA",
+              "dataset": "AWS.M2.CARDDEMO.CARDDATA.PS",
+              "gdg_generation": null,
+              "gdg": false,
+              "disp": "SHR",
+              "direction": "read"
+            },
+            {
+              "dd": "CARDVSAM",
+              "dataset": "AWS.M2.CARDDEMO.CARDDATA.VSAM.KSDS",
+              "gdg_generation": null,
+              "gdg": false,
+              "disp": "SHR",
+              "direction": "write"
+            }
+          ],
+          "instream_datasets": []
+        },
+        {
+          "step": "STEP40",
+          "program": "IDCAMS",
+          "proc": null,
+          "program_class": "system utility",
+          "utility_commands": [
+            "DEFINE ALTERNATEINDEX"
+          ],
+          "cond": null,
+          "dds": [],
+          "instream_datasets": [
+            "AWS.M2.CARDDEMO.CARDDATA.VSAM.AIX",
+            "AWS.M2.CARDDEMO.CARDDATA.VSAM.KSDS",
+            "AWS.M2.CARDDEMO.CARDDATA.VSAM.AIX.DATA",
+            "AWS.M2.CARDDEMO.CARDDATA.VSAM.AIX.INDEX"
+          ]
+        },
+        {
+          "step": "STEP50",
+          "program": "IDCAMS",
+          "proc": null,
+          "program_class": "system utility",
+          "utility_commands": [
+            "DEFINE PATH"
+          ],
+          "cond": null,
+          "dds": [],
+          "instream_datasets": [
+            "AWS.M2.CARDDEMO.CARDDATA.VSAM.AIX.PATH",
+            "AWS.M2.CARDDEMO.CARDDATA.VSAM.AIX"
+          ]
+        },
+        {
+          "step": "STEP60",
+          "program": "IDCAMS",
+          "proc": null,
+          "program_class": "system utility",
+          "utility_commands": [
+            "BLDINDEX"
+          ],
+          "cond": null,
+          "dds": [],
+          "instream_datasets": [
+            "AWS.M2.CARDDEMO.CARDDATA.VSAM.KSDS",
+            "AWS.M2.CARDDEMO.CARDDATA.VSAM.AIX"
+          ]
+        },
+        {
+          "step": "OPCIFIL",
+          "program": "SDSF",
+          "proc": null,
+          "program_class": "application",
+          "utility_commands": [],
+          "cond": null,
+          "dds": [],
+          "instream_datasets": []
+        }
+      ]
+    },
+    "CBADMCDJ": {
+      "job": "CBADMCDJ",
+      "path": "app/jcl/CBADMCDJ.jcl",
+      "uses_gdg": false,
+      "programs": [],
+      "steps": [
+        {
+          "step": "STEP1",
+          "program": "DFHCSDUP",
+          "proc": null,
+          "program_class": "system utility",
+          "utility_commands": [
+            "DEFINE LIBRARY",
+            "DEFINE MAPSET",
+            "DEFINE MAPSET",
+            "DEFINE MAPSET",
+            "DEFINE MAPSET",
+            "DEFINE MAPSET",
+            "DEFINE MAPSET",
+            "DEFINE MAPSET",
+            "DEFINE MAPSET",
+            "DEFINE MAPSET",
+            "DEFINE MAPSET",
+            "DEFINE MAPSET",
+            "DEFINE MAPSET",
+            "DEFINE MAPSET",
+            "DEFINE MAPSET",
+            "DEFINE MAPSET",
+            "DEFINE MAPSET",
+            "DEFINE MAPSET",
+            "DEFINE MAPSET",
+            "DEFINE MAPSET",
+            "DEFINE MAPSET",
+            "DEFINE PROGRAM",
+            "DEFINE PROGRAM",
+            "DEFINE PROGRAM",
+            "DEFINE PROGRAM",
+            "DEFINE PROGRAM",
+            "DEFINE PROGRAM",
+            "DEFINE PROGRAM",
+            "DEFINE PROGRAM",
+            "DEFINE PROGRAM",
+            "DEFINE PROGRAM",
+            "DEFINE PROGRAM",
+            "DEFINE PROGRAM",
+            "DEFINE PROGRAM",
+            "DEFINE PROGRAM",
+            "DEFINE PROGRAM",
+            "DEFINE PROGRAM",
+            "DEFINE PROGRAM",
+            "DEFINE PROGRAM",
+            "DEFINE PROGRAM",
+            "DEFINE TRANSACTION",
+            "DEFINE TRANSACTION",
+            "DEFINE TRANSACTION",
+            "DEFINE TRANSACTION",
+            "DEFINE TRANSACTION"
+          ],
+          "cond": null,
+          "dds": [
+            {
+              "dd": "STEPLIB",
+              "dataset": "OEM.CICSTS.V05R06M0.CICS.SDFHLOAD",
+              "gdg_generation": null,
+              "gdg": false,
+              "disp": "SHR",
+              "direction": "library"
+            },
+            {
+              "dd": "DFHCSD",
+              "dataset": "OEM.CICSTS.DFHCSD",
+              "gdg_generation": null,
+              "gdg": false,
+              "disp": "SHR",
+              "direction": "read"
+            }
+          ],
+          "instream_datasets": []
+        }
+      ]
+    },
+    "CBEXPORT": {
+      "job": "CBEXPORT",
+      "path": "app/jcl/CBEXPORT.jcl",
+      "uses_gdg": false,
+      "programs": [
+        "CBEXPORT"
+      ],
+      "steps": [
+        {
+          "step": "STEP01",
+          "program": "IDCAMS",
+          "proc": null,
+          "program_class": "system utility",
+          "utility_commands": [
+            "DELETE",
+            "SET",
+            "DEFINE CLUSTER"
+          ],
+          "cond": null,
+          "dds": [],
+          "instream_datasets": [
+            "AWS.M2.CARDDEMO.EXPORT.DATA",
+            "AWS.M2.CARDDEMO.EXPORT.DATA.DATA",
+            "AWS.M2.CARDDEMO.EXPORT.DATA.INDEX"
+          ]
+        },
+        {
+          "step": "STEP02",
+          "program": "CBEXPORT",
+          "proc": null,
+          "program_class": "application",
+          "utility_commands": [],
+          "cond": null,
+          "dds": [
+            {
+              "dd": "STEPLIB",
+              "dataset": "AWS.M2.CARDDEMO.LOADLIB",
+              "gdg_generation": null,
+              "gdg": false,
+              "disp": "SHR",
+              "direction": "library"
+            },
+            {
+              "dd": "CUSTFILE",
+              "dataset": "AWS.M2.CARDDEMO.CUSTDATA.VSAM.KSDS",
+              "gdg_generation": null,
+              "gdg": false,
+              "disp": "SHR",
+              "direction": "read"
+            },
+            {
+              "dd": "ACCTFILE",
+              "dataset": "AWS.M2.CARDDEMO.ACCTDATA.VSAM.KSDS",
+              "gdg_generation": null,
+              "gdg": false,
+              "disp": "SHR",
+              "direction": "read"
+            },
+            {
+              "dd": "XREFFILE",
+              "dataset": "AWS.M2.CARDDEMO.CARDXREF.VSAM.KSDS",
+              "gdg_generation": null,
+              "gdg": false,
+              "disp": "SHR",
+              "direction": "read"
+            },
+            {
+              "dd": "TRANSACT",
+              "dataset": "AWS.M2.CARDDEMO.TRANSACT.VSAM.KSDS",
+              "gdg_generation": null,
+              "gdg": false,
+              "disp": "SHR",
+              "direction": "read"
+            },
+            {
+              "dd": "CARDFILE",
+              "dataset": "AWS.M2.CARDDEMO.CARDDATA.VSAM.KSDS",
+              "gdg_generation": null,
+              "gdg": false,
+              "disp": "SHR",
+              "direction": "read"
+            },
+            {
+              "dd": "EXPFILE",
+              "dataset": "AWS.M2.CARDDEMO.EXPORT.DATA",
+              "gdg_generation": null,
+              "gdg": false,
+              "disp": "SHR",
+              "direction": "write"
+            }
+          ],
+          "instream_datasets": []
+        }
+      ]
+    },
+    "CBIMPORT": {
+      "job": "CBIMPORT",
+      "path": "app/jcl/CBIMPORT.jcl",
+      "uses_gdg": false,
+      "programs": [
+        "CBIMPORT"
+      ],
+      "steps": [
+        {
+          "step": "STEP01",
+          "program": "CBIMPORT",
+          "proc": null,
+          "program_class": "application",
+          "utility_commands": [],
+          "cond": null,
+          "dds": [
+            {
+              "dd": "STEPLIB",
+              "dataset": "AWS.M2.CARDDEMO.LOADLIB",
+              "gdg_generation": null,
+              "gdg": false,
+              "disp": "SHR",
+              "direction": "library"
+            },
+            {
+              "dd": "EXPFILE",
+              "dataset": "AWS.M2.CARDDEMO.EXPORT.DATA",
+              "gdg_generation": null,
+              "gdg": false,
+              "disp": "SHR",
+              "direction": "read"
+            },
+            {
+              "dd": "CUSTOUT",
+              "dataset": "AWS.M2.CARDDEMO.CUSTDATA.IMPORT",
+              "gdg_generation": null,
+              "gdg": false,
+              "disp": "(NEW,CATLG,DELETE)",
+              "direction": "write"
+            },
+            {
+              "dd": "ACCTOUT",
+              "dataset": "AWS.M2.CARDDEMO.ACCTDATA.IMPORT",
+              "gdg_generation": null,
+              "gdg": false,
+              "disp": "(NEW,CATLG,DELETE)",
+              "direction": "write"
+            },
+            {
+              "dd": "XREFOUT",
+              "dataset": "AWS.M2.CARDDEMO.CARDXREF.IMPORT",
+              "gdg_generation": null,
+              "gdg": false,
+              "disp": "(NEW,CATLG,DELETE)",
+              "direction": "write"
+            },
+            {
+              "dd": "TRNXOUT",
+              "dataset": "AWS.M2.CARDDEMO.TRANSACT.IMPORT",
+              "gdg_generation": null,
+              "gdg": false,
+              "disp": "(NEW,CATLG,DELETE)",
+              "direction": "write"
+            },
+            {
+              "dd": "ERROUT",
+              "dataset": "AWS.M2.CARDDEMO.IMPORT.ERRORS",
+              "gdg_generation": null,
+              "gdg": false,
+              "disp": "(NEW,CATLG,DELETE)",
+              "direction": "write"
+            }
+          ],
+          "instream_datasets": []
+        }
+      ]
+    },
+    "CLOSEFIL": {
+      "job": "CLOSEFIL",
+      "path": "app/jcl/CLOSEFIL.jcl",
+      "uses_gdg": false,
+      "programs": [],
+      "steps": [
+        {
+          "step": "CLCIFIL",
+          "program": "SDSF",
+          "proc": null,
+          "program_class": "application",
+          "utility_commands": [],
+          "cond": null,
+          "dds": [],
+          "instream_datasets": []
+        }
+      ]
+    },
+    "COMBTRAN": {
+      "job": "COMBTRAN",
+      "path": "app/jcl/COMBTRAN.jcl",
+      "uses_gdg": true,
+      "programs": [],
+      "steps": [
+        {
+          "step": "STEP05R",
+          "program": "SORT",
+          "proc": null,
+          "program_class": "system utility",
+          "utility_commands": [
+            "SORT"
+          ],
+          "cond": null,
+          "dds": [
+            {
+              "dd": "SORTIN",
+              "dataset": "AWS.M2.CARDDEMO.TRANSACT.BKUP",
+              "gdg_generation": "0",
+              "gdg": true,
+              "disp": "SHR",
+              "direction": "read"
+            },
+            {
+              "dd": "SORTIN",
+              "dataset": "AWS.M2.CARDDEMO.SYSTRAN",
+              "gdg_generation": "0",
+              "gdg": true,
+              "disp": "SHR",
+              "direction": "read"
+            },
+            {
+              "dd": "SORTOUT",
+              "dataset": "AWS.M2.CARDDEMO.TRANSACT.COMBINED",
+              "gdg_generation": "+1",
+              "gdg": true,
+              "disp": "(NEW,CATLG,DELETE)",
+              "direction": "write"
+            }
+          ],
+          "instream_datasets": []
+        },
+        {
+          "step": "STEP10",
+          "program": "IDCAMS",
+          "proc": null,
+          "program_class": "system utility",
+          "utility_commands": [
+            "REPRO"
+          ],
+          "cond": null,
+          "dds": [
+            {
+              "dd": "TRANSACT",
+              "dataset": "AWS.M2.CARDDEMO.TRANSACT.COMBINED",
+              "gdg_generation": "+1",
+              "gdg": true,
+              "disp": "SHR",
+              "direction": "read"
+            },
+            {
+              "dd": "TRANVSAM",
+              "dataset": "AWS.M2.CARDDEMO.TRANSACT.VSAM.KSDS",
+              "gdg_generation": null,
+              "gdg": false,
+              "disp": "SHR",
+              "direction": "write"
+            }
+          ],
+          "instream_datasets": []
+        }
+      ]
+    },
+    "CREASTMT": {
+      "job": "CREASTMT",
+      "path": "app/jcl/CREASTMT.JCL",
+      "uses_gdg": false,
+      "programs": [
+        "CBSTM03A"
+      ],
+      "steps": [
+        {
+          "step": "DELDEF01",
+          "program": "IDCAMS",
+          "proc": null,
+          "program_class": "system utility",
+          "utility_commands": [
+            "DELETE",
+            "DELETE",
+            "SET",
+            "DEFINE CLUSTER"
+          ],
+          "cond": null,
+          "dds": [],
+          "instream_datasets": [
+            "AWS.M2.CARDDEMO.TRXFL.VSAM.KSDS",
+            "AWS.M2.CARDDEMO.TRXFL.DATA",
+            "AWS.M2.CARDDEMO.TRXFL.INDEX"
+          ]
+        },
+        {
+          "step": "STEP010",
+          "program": "SORT",
+          "proc": null,
+          "program_class": "system utility",
+          "utility_commands": [
+            "SORT",
+            "OUTREC"
+          ],
+          "cond": null,
+          "dds": [
+            {
+              "dd": "SORTIN",
+              "dataset": "AWS.M2.CARDDEMO.TRANSACT.VSAM.KSDS",
+              "gdg_generation": null,
+              "gdg": false,
+              "disp": "SHR",
+              "direction": "read"
+            },
+            {
+              "dd": "SORTOUT",
+              "dataset": "AWS.M2.CARDDEMO.TRXFL.SEQ",
+              "gdg_generation": null,
+              "gdg": false,
+              "disp": "(NEW,CATLG,DELETE)",
+              "direction": "write"
+            }
+          ],
+          "instream_datasets": []
+        },
+        {
+          "step": "STEP020",
+          "program": "IDCAMS",
+          "proc": null,
+          "program_class": "system utility",
+          "utility_commands": [
+            "REPRO"
+          ],
+          "cond": "(0,NE)",
+          "dds": [
+            {
+              "dd": "INFILE",
+              "dataset": "AWS.M2.CARDDEMO.TRXFL.SEQ",
+              "gdg_generation": null,
+              "gdg": false,
+              "disp": "SHR",
+              "direction": "read"
+            },
+            {
+              "dd": "OUTFILE",
+              "dataset": "AWS.M2.CARDDEMO.TRXFL.VSAM.KSDS",
+              "gdg_generation": null,
+              "gdg": false,
+              "disp": "SHR",
+              "direction": "write"
+            }
+          ],
+          "instream_datasets": []
+        },
+        {
+          "step": "STEP030",
+          "program": "IEFBR14",
+          "proc": null,
+          "program_class": "system utility",
+          "utility_commands": [],
+          "cond": "(0,NE)",
+          "dds": [
+            {
+              "dd": "HTMLFILE",
+              "dataset": "AWS.M2.CARDDEMO.STATEMNT.HTML",
+              "gdg_generation": null,
+              "gdg": false,
+              "disp": "(MOD,DELETE,DELETE)",
+              "direction": "delete"
+            },
+            {
+              "dd": "STMTFILE",
+              "dataset": "AWS.M2.CARDDEMO.STATEMNT.PS",
+              "gdg_generation": null,
+              "gdg": false,
+              "disp": "(MOD,DELETE,DELETE)",
+              "direction": "delete"
+            }
+          ],
+          "instream_datasets": []
+        },
+        {
+          "step": "STEP040",
+          "program": "CBSTM03A",
+          "proc": null,
+          "program_class": "application",
+          "utility_commands": [],
+          "cond": "(0,NE)",
+          "dds": [
+            {
+              "dd": "STEPLIB",
+              "dataset": "AWS.M2.CARDDEMO.LOADLIB",
+              "gdg_generation": null,
+              "gdg": false,
+              "disp": "SHR",
+              "direction": "library"
+            },
+            {
+              "dd": "TRNXFILE",
+              "dataset": "AWS.M2.CARDDEMO.TRXFL.VSAM.KSDS",
+              "gdg_generation": null,
+              "gdg": false,
+              "disp": "SHR",
+              "direction": "read"
+            },
+            {
+              "dd": "XREFFILE",
+              "dataset": "AWS.M2.CARDDEMO.CARDXREF.VSAM.KSDS",
+              "gdg_generation": null,
+              "gdg": false,
+              "disp": "SHR",
+              "direction": "read"
+            },
+            {
+              "dd": "ACCTFILE",
+              "dataset": "AWS.M2.CARDDEMO.ACCTDATA.VSAM.KSDS",
+              "gdg_generation": null,
+              "gdg": false,
+              "disp": "SHR",
+              "direction": "read"
+            },
+            {
+              "dd": "CUSTFILE",
+              "dataset": "AWS.M2.CARDDEMO.CUSTDATA.VSAM.KSDS",
+              "gdg_generation": null,
+              "gdg": false,
+              "disp": "SHR",
+              "direction": "read"
+            },
+            {
+              "dd": "STMTFILE",
+              "dataset": "AWS.M2.CARDDEMO.STATEMNT.PS",
+              "gdg_generation": null,
+              "gdg": false,
+              "disp": "(NEW,CATLG,DELETE)",
+              "direction": "write"
+            },
+            {
+              "dd": "HTMLFILE",
+              "dataset": "AWS.M2.CARDDEMO.STATEMNT.HTML",
+              "gdg_generation": null,
+              "gdg": false,
+              "disp": "(NEW,CATLG,DELETE)",
+              "direction": "write"
+            }
+          ],
+          "instream_datasets": []
+        }
+      ]
+    },
+    "CUSTFILE": {
+      "job": "CUSTFILE",
+      "path": "app/jcl/CUSTFILE.jcl",
+      "uses_gdg": false,
+      "programs": [],
+      "steps": [
+        {
+          "step": "CLCIFIL",
+          "program": "SDSF",
+          "proc": null,
+          "program_class": "application",
+          "utility_commands": [],
+          "cond": null,
+          "dds": [],
+          "instream_datasets": []
+        },
+        {
+          "step": "STEP05",
+          "program": "IDCAMS",
+          "proc": null,
+          "program_class": "system utility",
+          "utility_commands": [
+            "DELETE"
+          ],
+          "cond": null,
+          "dds": [],
+          "instream_datasets": []
+        },
+        {
+          "step": "STEP10",
+          "program": "IDCAMS",
+          "proc": null,
+          "program_class": "system utility",
+          "utility_commands": [
+            "DEFINE CLUSTER"
+          ],
+          "cond": null,
+          "dds": [],
+          "instream_datasets": [
+            "AWS.M2.CARDDEMO.CUSTDATA.VSAM.KSDS",
+            "AWS.M2.CARDDEMO.CUSTDATA.VSAM.KSDS.DATA",
+            "AWS.M2.CARDDEMO.CUSTDATA.VSAM.KSDS.INDEX"
+          ]
+        },
+        {
+          "step": "STEP15",
+          "program": "IDCAMS",
+          "proc": null,
+          "program_class": "system utility",
+          "utility_commands": [
+            "REPRO"
+          ],
+          "cond": null,
+          "dds": [
+            {
+              "dd": "CUSTDATA",
+              "dataset": "AWS.M2.CARDDEMO.CUSTDATA.PS",
+              "gdg_generation": null,
+              "gdg": false,
+              "disp": "SHR",
+              "direction": "read"
+            },
+            {
+              "dd": "CUSTVSAM",
+              "dataset": "AWS.M2.CARDDEMO.CUSTDATA.VSAM.KSDS",
+              "gdg_generation": null,
+              "gdg": false,
+              "disp": "SHR",
+              "direction": "write"
+            }
+          ],
+          "instream_datasets": []
+        },
+        {
+          "step": "OPCIFIL",
+          "program": "SDSF",
+          "proc": null,
+          "program_class": "application",
+          "utility_commands": [],
+          "cond": null,
+          "dds": [],
+          "instream_datasets": []
+        }
+      ]
+    },
+    "DALYREJS": {
+      "job": "DALYREJS",
+      "path": "app/jcl/DALYREJS.jcl",
+      "uses_gdg": false,
+      "programs": [],
+      "steps": [
+        {
+          "step": "STEP05",
+          "program": "IDCAMS",
+          "proc": null,
+          "program_class": "system utility",
+          "utility_commands": [
+            "DEFINE GENERATIONDATAGROUP"
+          ],
+          "cond": null,
+          "dds": [],
+          "instream_datasets": [
+            "AWS.M2.CARDDEMO.DALYREJS"
+          ]
+        }
+      ]
+    },
+    "DEFCUST": {
+      "job": "DEFCUST",
+      "path": "app/jcl/DEFCUST.jcl",
+      "uses_gdg": false,
+      "programs": [],
+      "steps": [
+        {
+          "step": "STEP05",
+          "program": "IDCAMS",
+          "proc": null,
+          "program_class": "system utility",
+          "utility_commands": [
+            "DELETE"
+          ],
+          "cond": null,
+          "dds": [],
+          "instream_datasets": []
+        },
+        {
+          "step": "STEP05",
+          "program": "IDCAMS",
+          "proc": null,
+          "program_class": "system utility",
+          "utility_commands": [
+            "DEFINE CLUSTER"
+          ],
+          "cond": null,
+          "dds": [],
+          "instream_datasets": [
+            "AWS.CUSTDATA.CLUSTER",
+            "AWS.CUSTDATA.CLUSTER.DATA",
+            "AWS.CUSTDATA.CLUSTER.INDEX"
+          ]
+        }
+      ]
+    },
+    "DEFGDGB": {
+      "job": "DEFGDGB",
+      "path": "app/jcl/DEFGDGB.jcl",
+      "uses_gdg": false,
+      "programs": [],
+      "steps": [
+        {
+          "step": "STEP05",
+          "program": "IDCAMS",
+          "proc": null,
+          "program_class": "system utility",
+          "utility_commands": [
+            "DEFINE GENERATIONDATAGROUP",
+            "DEFINE GENERATIONDATAGROUP",
+            "DEFINE GENERATIONDATAGROUP",
+            "DEFINE GENERATIONDATAGROUP",
+            "DEFINE GENERATIONDATAGROUP",
+            "DEFINE GENERATIONDATAGROUP"
+          ],
+          "cond": null,
+          "dds": [],
+          "instream_datasets": [
+            "AWS.M2.CARDDEMO.TRANSACT.BKUP",
+            "AWS.M2.CARDDEMO.TRANSACT.DALY",
+            "AWS.M2.CARDDEMO.TRANREPT",
+            "AWS.M2.CARDDEMO.TCATBALF.BKUP",
+            "AWS.M2.CARDDEMO.SYSTRAN",
+            "AWS.M2.CARDDEMO.TRANSACT.COMBINED"
+          ]
+        }
+      ]
+    },
+    "DEFGDGD": {
+      "job": "DEFGDGD",
+      "path": "app/jcl/DEFGDGD.jcl",
+      "uses_gdg": true,
+      "programs": [],
+      "steps": [
+        {
+          "step": "STEP10",
+          "program": "IDCAMS",
+          "proc": null,
+          "program_class": "system utility",
+          "utility_commands": [
+            "DEFINE GENERATIONDATAGROUP"
+          ],
+          "cond": null,
+          "dds": [],
+          "instream_datasets": [
+            "AWS.M2.CARDDEMO.TRANTYPE.BKUP"
+          ]
+        },
+        {
+          "step": "STEP20",
+          "program": "IEBGENER",
+          "proc": null,
+          "program_class": "system utility",
+          "utility_commands": [],
+          "cond": "(0,NE)",
+          "dds": [
+            {
+              "dd": "SYSUT1",
+              "dataset": "AWS.M2.CARDDEMO.TRANTYPE.PS",
+              "gdg_generation": null,
+              "gdg": false,
+              "disp": "SHR",
+              "direction": "read"
+            },
+            {
+              "dd": "SYSUT2",
+              "dataset": "AWS.M2.CARDDEMO.TRANTYPE.BKUP",
+              "gdg_generation": "+1",
+              "gdg": true,
+              "disp": "(NEW,CATLG)",
+              "direction": "write"
+            }
+          ],
+          "instream_datasets": []
+        },
+        {
+          "step": "STEP30",
+          "program": "IDCAMS",
+          "proc": null,
+          "program_class": "system utility",
+          "utility_commands": [
+            "DEFINE GENERATIONDATAGROUP"
+          ],
+          "cond": "(0,NE)",
+          "dds": [],
+          "instream_datasets": [
+            "AWS.M2.CARDDEMO.TRANCATG.PS.BKUP"
+          ]
+        },
+        {
+          "step": "STEP40",
+          "program": "IEBGENER",
+          "proc": null,
+          "program_class": "system utility",
+          "utility_commands": [],
+          "cond": "(0,NE)",
+          "dds": [
+            {
+              "dd": "SYSUT1",
+              "dataset": "AWS.M2.CARDDEMO.TRANCATG.PS",
+              "gdg_generation": null,
+              "gdg": false,
+              "disp": "SHR",
+              "direction": "read"
+            },
+            {
+              "dd": "SYSUT2",
+              "dataset": "AWS.M2.CARDDEMO.TRANCATG.PS.BKUP",
+              "gdg_generation": "+1",
+              "gdg": true,
+              "disp": "(NEW,CATLG)",
+              "direction": "write"
+            }
+          ],
+          "instream_datasets": []
+        },
+        {
+          "step": "STEP50",
+          "program": "IDCAMS",
+          "proc": null,
+          "program_class": "system utility",
+          "utility_commands": [
+            "DEFINE GENERATIONDATAGROUP"
+          ],
+          "cond": null,
+          "dds": [],
+          "instream_datasets": [
+            "AWS.M2.CARDDEMO.DISCGRP.BKUP"
+          ]
+        },
+        {
+          "step": "STEP60",
+          "program": "IEBGENER",
+          "proc": null,
+          "program_class": "system utility",
+          "utility_commands": [],
+          "cond": "(0,NE)",
+          "dds": [
+            {
+              "dd": "SYSUT1",
+              "dataset": "AWS.M2.CARDDEMO.DISCGRP.PS",
+              "gdg_generation": null,
+              "gdg": false,
+              "disp": "SHR",
+              "direction": "read"
+            },
+            {
+              "dd": "SYSUT2",
+              "dataset": "AWS.M2.CARDDEMO.DISCGRP.BKUP",
+              "gdg_generation": "+1",
+              "gdg": true,
+              "disp": "(NEW,CATLG)",
+              "direction": "write"
+            }
+          ],
+          "instream_datasets": []
+        }
+      ]
+    },
+    "DISCGRP": {
+      "job": "DISCGRP",
+      "path": "app/jcl/DISCGRP.jcl",
+      "uses_gdg": false,
+      "programs": [],
+      "steps": [
+        {
+          "step": "STEP05",
+          "program": "IDCAMS",
+          "proc": null,
+          "program_class": "system utility",
+          "utility_commands": [
+            "DELETE",
+            "SET"
+          ],
+          "cond": null,
+          "dds": [],
+          "instream_datasets": []
+        },
+        {
+          "step": "STEP10",
+          "program": "IDCAMS",
+          "proc": null,
+          "program_class": "system utility",
+          "utility_commands": [
+            "DEFINE CLUSTER"
+          ],
+          "cond": null,
+          "dds": [],
+          "instream_datasets": [
+            "AWS.M2.CARDDEMO.DISCGRP.VSAM.KSDS",
+            "AWS.M2.CARDDEMO.DISCGRP.VSAM.KSDS.DATA",
+            "AWS.M2.CARDDEMO.DISCGRP.VSAM.KSDS.INDEX"
+          ]
+        },
+        {
+          "step": "STEP15",
+          "program": "IDCAMS",
+          "proc": null,
+          "program_class": "system utility",
+          "utility_commands": [
+            "REPRO"
+          ],
+          "cond": null,
+          "dds": [
+            {
+              "dd": "DISCGRP",
+              "dataset": "AWS.M2.CARDDEMO.DISCGRP.PS",
+              "gdg_generation": null,
+              "gdg": false,
+              "disp": "SHR",
+              "direction": "read"
+            },
+            {
+              "dd": "DISCVSAM",
+              "dataset": "AWS.M2.CARDDEMO.DISCGRP.VSAM.KSDS",
+              "gdg_generation": null,
+              "gdg": false,
+              "disp": "OLD",
+              "direction": "write"
+            }
+          ],
+          "instream_datasets": []
+        }
+      ]
+    },
+    "DUSRSECJ": {
+      "job": "DUSRSECJ",
+      "path": "app/jcl/DUSRSECJ.jcl",
+      "uses_gdg": false,
+      "programs": [],
+      "steps": [
+        {
+          "step": "PREDEL",
+          "program": "IEFBR14",
+          "proc": null,
+          "program_class": "system utility",
+          "utility_commands": [],
+          "cond": null,
+          "dds": [
+            {
+              "dd": "DD01",
+              "dataset": "AWS.M2.CARDDEMO.USRSEC.PS",
+              "gdg_generation": null,
+              "gdg": false,
+              "disp": "(MOD,DELETE,DELETE)",
+              "direction": "delete"
+            }
+          ],
+          "instream_datasets": []
+        },
+        {
+          "step": "STEP01",
+          "program": "IEBGENER",
+          "proc": null,
+          "program_class": "system utility",
+          "utility_commands": [],
+          "cond": null,
+          "dds": [
+            {
+              "dd": "SYSUT2",
+              "dataset": "AWS.M2.CARDDEMO.USRSEC.PS",
+              "gdg_generation": null,
+              "gdg": false,
+              "disp": "(NEW,CATLG,DELETE)",
+              "direction": "write"
+            }
+          ],
+          "instream_datasets": []
+        },
+        {
+          "step": "STEP02",
+          "program": "IDCAMS",
+          "proc": null,
+          "program_class": "system utility",
+          "utility_commands": [
+            "DELETE",
+            "SET",
+            "DEFINE CLUSTER"
+          ],
+          "cond": null,
+          "dds": [],
+          "instream_datasets": [
+            "AWS.M2.CARDDEMO.USRSEC.VSAM.KSDS",
+            "AWS.M2.CARDDEMO.USRSEC.VSAM.KSDS.DAT",
+            "AWS.M2.CARDDEMO.USRSEC.VSAM.KSDS.IDX"
+          ]
+        },
+        {
+          "step": "STEP03",
+          "program": "IDCAMS",
+          "proc": null,
+          "program_class": "system utility",
+          "utility_commands": [
+            "REPRO"
+          ],
+          "cond": null,
+          "dds": [
+            {
+              "dd": "IN",
+              "dataset": "AWS.M2.CARDDEMO.USRSEC.PS",
+              "gdg_generation": null,
+              "gdg": false,
+              "disp": "SHR",
+              "direction": "read"
+            },
+            {
+              "dd": "OUT",
+              "dataset": "AWS.M2.CARDDEMO.USRSEC.VSAM.KSDS",
+              "gdg_generation": null,
+              "gdg": false,
+              "disp": "SHR",
+              "direction": "write"
+            }
+          ],
+          "instream_datasets": []
+        }
+      ]
+    },
+    "ESDSRRDS": {
+      "job": "ESDSRRDS",
+      "path": "app/jcl/ESDSRRDS.jcl",
+      "uses_gdg": false,
+      "programs": [],
+      "steps": [
+        {
+          "step": "PREDEL",
+          "program": "IEFBR14",
+          "proc": null,
+          "program_class": "system utility",
+          "utility_commands": [],
+          "cond": null,
+          "dds": [
+            {
+              "dd": "DD01",
+              "dataset": "AWS.M2.CARDDEMO.ESDSRRDS.PS",
+              "gdg_generation": null,
+              "gdg": false,
+              "disp": "(MOD,DELETE,DELETE)",
+              "direction": "delete"
+            }
+          ],
+          "instream_datasets": []
+        },
+        {
+          "step": "STEP01",
+          "program": "IEBGENER",
+          "proc": null,
+          "program_class": "system utility",
+          "utility_commands": [],
+          "cond": null,
+          "dds": [
+            {
+              "dd": "SYSUT2",
+              "dataset": "AWS.M2.CARDDEMO.ESDSRRDS.PS",
+              "gdg_generation": null,
+              "gdg": false,
+              "disp": "(NEW,CATLG,DELETE)",
+              "direction": "write"
+            }
+          ],
+          "instream_datasets": []
+        },
+        {
+          "step": "STEP02",
+          "program": "IDCAMS",
+          "proc": null,
+          "program_class": "system utility",
+          "utility_commands": [
+            "DELETE",
+            "SET",
+            "DEFINE CLUSTER"
+          ],
+          "cond": null,
+          "dds": [],
+          "instream_datasets": [
+            "AWS.M2.CARDDEMO.USRSEC.VSAM.ESDS",
+            "AWS.M2.CARDDEMO.USRSEC.VSAM.ESDS.DAT"
+          ]
+        },
+        {
+          "step": "STEP03",
+          "program": "IDCAMS",
+          "proc": null,
+          "program_class": "system utility",
+          "utility_commands": [
+            "REPRO"
+          ],
+          "cond": null,
+          "dds": [
+            {
+              "dd": "IN",
+              "dataset": "AWS.M2.CARDDEMO.ESDSRRDS.PS",
+              "gdg_generation": null,
+              "gdg": false,
+              "disp": "SHR",
+              "direction": "read"
+            },
+            {
+              "dd": "OUT",
+              "dataset": "AWS.M2.CARDDEMO.USRSEC.VSAM.ESDS",
+              "gdg_generation": null,
+              "gdg": false,
+              "disp": "SHR",
+              "direction": "write"
+            }
+          ],
+          "instream_datasets": []
+        },
+        {
+          "step": "STEP04",
+          "program": "IDCAMS",
+          "proc": null,
+          "program_class": "system utility",
+          "utility_commands": [
+            "DELETE",
+            "SET",
+            "DEFINE CLUSTER"
+          ],
+          "cond": null,
+          "dds": [],
+          "instream_datasets": [
+            "AWS.M2.CARDDEMO.USRSEC.VSAM.RRDS",
+            "AWS.M2.CARDDEMO.USRSEC.VSAM.RRDS.DAT"
+          ]
+        },
+        {
+          "step": "STEP05",
+          "program": "IDCAMS",
+          "proc": null,
+          "program_class": "system utility",
+          "utility_commands": [
+            "REPRO"
+          ],
+          "cond": null,
+          "dds": [
+            {
+              "dd": "IN",
+              "dataset": "AWS.M2.CARDDEMO.ESDSRRDS.PS",
+              "gdg_generation": null,
+              "gdg": false,
+              "disp": "SHR",
+              "direction": "read"
+            },
+            {
+              "dd": "OUT",
+              "dataset": "AWS.M2.CARDDEMO.USRSEC.VSAM.RRDS",
+              "gdg_generation": null,
+              "gdg": false,
+              "disp": "SHR",
+              "direction": "write"
+            }
+          ],
+          "instream_datasets": []
+        }
+      ]
+    },
+    "FTPJCL": {
+      "job": "FTPJCLS",
+      "path": "app/jcl/FTPJCL.JCL",
+      "uses_gdg": false,
+      "programs": [],
+      "steps": [
+        {
+          "step": "STEP1",
+          "program": "FTP",
+          "proc": null,
+          "program_class": "system utility",
+          "utility_commands": [],
+          "cond": null,
+          "dds": [],
+          "instream_datasets": []
+        }
+      ]
+    },
+    "INTCALC": {
+      "job": "INTCALC",
+      "path": "app/jcl/INTCALC.jcl",
+      "uses_gdg": true,
+      "programs": [
+        "CBACT04C"
+      ],
+      "steps": [
+        {
+          "step": "STEP15",
+          "program": "CBACT04C",
+          "proc": null,
+          "program_class": "application",
+          "utility_commands": [],
+          "cond": null,
+          "dds": [
+            {
+              "dd": "STEPLIB",
+              "dataset": "AWS.M2.CARDDEMO.LOADLIB",
+              "gdg_generation": null,
+              "gdg": false,
+              "disp": "SHR",
+              "direction": "library"
+            },
+            {
+              "dd": "TCATBALF",
+              "dataset": "AWS.M2.CARDDEMO.TCATBALF.VSAM.KSDS",
+              "gdg_generation": null,
+              "gdg": false,
+              "disp": "SHR",
+              "direction": "read"
+            },
+            {
+              "dd": "XREFFILE",
+              "dataset": "AWS.M2.CARDDEMO.CARDXREF.VSAM.KSDS",
+              "gdg_generation": null,
+              "gdg": false,
+              "disp": "SHR",
+              "direction": "read"
+            },
+            {
+              "dd": "XREFFIL1",
+              "dataset": "AWS.M2.CARDDEMO.CARDXREF.VSAM.AIX.PATH",
+              "gdg_generation": null,
+              "gdg": false,
+              "disp": "SHR",
+              "direction": "read"
+            },
+            {
+              "dd": "ACCTFILE",
+              "dataset": "AWS.M2.CARDDEMO.ACCTDATA.VSAM.KSDS",
+              "gdg_generation": null,
+              "gdg": false,
+              "disp": "SHR",
+              "direction": "update"
+            },
+            {
+              "dd": "DISCGRP",
+              "dataset": "AWS.M2.CARDDEMO.DISCGRP.VSAM.KSDS",
+              "gdg_generation": null,
+              "gdg": false,
+              "disp": "SHR",
+              "direction": "read"
+            },
+            {
+              "dd": "TRANSACT",
+              "dataset": "AWS.M2.CARDDEMO.SYSTRAN",
+              "gdg_generation": "+1",
+              "gdg": true,
+              "disp": "(NEW,CATLG,DELETE)",
+              "direction": "write"
+            }
+          ],
+          "instream_datasets": []
+        }
+      ]
+    },
+    "INTRDRJ1": {
+      "job": "INTRDRJ1",
+      "path": "app/jcl/INTRDRJ1.JCL",
+      "uses_gdg": false,
+      "programs": [],
+      "steps": [
+        {
+          "step": "IDCAMS",
+          "program": "IDCAMS",
+          "proc": null,
+          "program_class": "system utility",
+          "utility_commands": [
+            "REPRO"
+          ],
+          "cond": null,
+          "dds": [
+            {
+              "dd": "IN",
+              "dataset": "AWS.M2.CARDEMO.FTP.TEST",
+              "gdg_generation": null,
+              "gdg": false,
+              "disp": "SHR",
+              "direction": "read"
+            },
+            {
+              "dd": "OUT",
+              "dataset": "AWS.M2.CARDEMO.FTP.TEST.BKUP",
+              "gdg_generation": null,
+              "gdg": false,
+              "disp": "SHR",
+              "direction": "write"
+            }
+          ],
+          "instream_datasets": []
+        },
+        {
+          "step": "STEP01",
+          "program": "IEBGENER",
+          "proc": null,
+          "program_class": "system utility",
+          "utility_commands": [],
+          "cond": null,
+          "dds": [
+            {
+              "dd": "SYSUT1",
+              "dataset": "AWS.M2.CARDDEMO.JCL(INTRDRJ2)",
+              "gdg_generation": null,
+              "gdg": false,
+              "disp": "SHR",
+              "direction": "read"
+            }
+          ],
+          "instream_datasets": []
+        }
+      ]
+    },
+    "INTRDRJ2": {
+      "job": "INTRDRJ2",
+      "path": "app/jcl/INTRDRJ2.JCL",
+      "uses_gdg": false,
+      "programs": [],
+      "steps": [
+        {
+          "step": "IDCAMS",
+          "program": "IDCAMS",
+          "proc": null,
+          "program_class": "system utility",
+          "utility_commands": [
+            "REPRO"
+          ],
+          "cond": null,
+          "dds": [
+            {
+              "dd": "IN",
+              "dataset": "AWS.M2.CARDEMO.FTP.TEST.BKUP",
+              "gdg_generation": null,
+              "gdg": false,
+              "disp": "SHR",
+              "direction": "read"
+            },
+            {
+              "dd": "OUT",
+              "dataset": "AWS.M2.CARDEMO.FTP.TEST.BKUP.INTRDR",
+              "gdg_generation": null,
+              "gdg": false,
+              "disp": "SHR",
+              "direction": "write"
+            }
+          ],
+          "instream_datasets": []
+        }
+      ]
+    },
+    "OPENFIL": {
+      "job": "OPENFIL",
+      "path": "app/jcl/OPENFIL.jcl",
+      "uses_gdg": false,
+      "programs": [],
+      "steps": [
+        {
+          "step": "OPCIFIL",
+          "program": "SDSF",
+          "proc": null,
+          "program_class": "application",
+          "utility_commands": [],
+          "cond": null,
+          "dds": [],
+          "instream_datasets": []
+        }
+      ]
+    },
+    "POSTTRAN": {
+      "job": "POSTTRAN",
+      "path": "app/jcl/POSTTRAN.jcl",
+      "uses_gdg": true,
+      "programs": [
+        "CBTRN02C"
+      ],
+      "steps": [
+        {
+          "step": "STEP15",
+          "program": "CBTRN02C",
+          "proc": null,
+          "program_class": "application",
+          "utility_commands": [],
+          "cond": null,
+          "dds": [
+            {
+              "dd": "STEPLIB",
+              "dataset": "AWS.M2.CARDDEMO.LOADLIB",
+              "gdg_generation": null,
+              "gdg": false,
+              "disp": "SHR",
+              "direction": "library"
+            },
+            {
+              "dd": "TRANFILE",
+              "dataset": "AWS.M2.CARDDEMO.TRANSACT.VSAM.KSDS",
+              "gdg_generation": null,
+              "gdg": false,
+              "disp": "SHR",
+              "direction": "write"
+            },
+            {
+              "dd": "DALYTRAN",
+              "dataset": "AWS.M2.CARDDEMO.DALYTRAN.PS",
+              "gdg_generation": null,
+              "gdg": false,
+              "disp": "SHR",
+              "direction": "read"
+            },
+            {
+              "dd": "XREFFILE",
+              "dataset": "AWS.M2.CARDDEMO.CARDXREF.VSAM.KSDS",
+              "gdg_generation": null,
+              "gdg": false,
+              "disp": "SHR",
+              "direction": "read"
+            },
+            {
+              "dd": "DALYREJS",
+              "dataset": "AWS.M2.CARDDEMO.DALYREJS",
+              "gdg_generation": "+1",
+              "gdg": true,
+              "disp": "(NEW,CATLG,DELETE)",
+              "direction": "write"
+            },
+            {
+              "dd": "ACCTFILE",
+              "dataset": "AWS.M2.CARDDEMO.ACCTDATA.VSAM.KSDS",
+              "gdg_generation": null,
+              "gdg": false,
+              "disp": "SHR",
+              "direction": "update"
+            },
+            {
+              "dd": "TCATBALF",
+              "dataset": "AWS.M2.CARDDEMO.TCATBALF.VSAM.KSDS",
+              "gdg_generation": null,
+              "gdg": false,
+              "disp": "SHR",
+              "direction": "update"
+            }
+          ],
+          "instream_datasets": []
+        }
+      ]
+    },
+    "PRTCATBL": {
+      "job": "PRTCATBL",
+      "path": "app/jcl/PRTCATBL.jcl",
+      "uses_gdg": true,
+      "programs": [],
+      "steps": [
+        {
+          "step": "DELDEF",
+          "program": "IEFBR14",
+          "proc": null,
+          "program_class": "system utility",
+          "utility_commands": [],
+          "cond": null,
+          "dds": [
+            {
+              "dd": "THEFILE",
+              "dataset": "AWS.M2.CARDDEMO.TCATBALF.REPT",
+              "gdg_generation": null,
+              "gdg": false,
+              "disp": "(MOD,DELETE)",
+              "direction": "delete"
+            }
+          ],
+          "instream_datasets": []
+        },
+        {
+          "step": "STEP05R",
+          "program": null,
+          "proc": "REPROC",
+          "program_class": "procedure",
+          "utility_commands": [],
+          "cond": null,
+          "dds": [
+            {
+              "dd": "PRC001.FILEIN",
+              "dataset": "AWS.M2.CARDDEMO.TCATBALF.VSAM.KSDS",
+              "gdg_generation": null,
+              "gdg": false,
+              "disp": "SHR",
+              "direction": "read"
+            },
+            {
+              "dd": "PRC001.FILEOUT",
+              "dataset": "AWS.M2.CARDDEMO.TCATBALF.BKUP",
+              "gdg_generation": "+1",
+              "gdg": true,
+              "disp": "(NEW,CATLG,DELETE)",
+              "direction": "write"
+            }
+          ],
+          "instream_datasets": []
+        },
+        {
+          "step": "STEP10R",
+          "program": "SORT",
+          "proc": null,
+          "program_class": "system utility",
+          "utility_commands": [
+            "SORT",
+            "OUTREC"
+          ],
+          "cond": null,
+          "dds": [
+            {
+              "dd": "SORTIN",
+              "dataset": "AWS.M2.CARDDEMO.TCATBALF.BKUP",
+              "gdg_generation": "+1",
+              "gdg": true,
+              "disp": "SHR",
+              "direction": "read"
+            },
+            {
+              "dd": "SORTOUT",
+              "dataset": "AWS.M2.CARDDEMO.TCATBALF.REPT",
+              "gdg_generation": null,
+              "gdg": false,
+              "disp": "(NEW,CATLG,DELETE)",
+              "direction": "write"
+            }
+          ],
+          "instream_datasets": []
+        }
+      ]
+    },
+    "READACCT": {
+      "job": "READACCT",
+      "path": "app/jcl/READACCT.jcl",
+      "uses_gdg": false,
+      "programs": [
+        "CBACT01C"
+      ],
+      "steps": [
+        {
+          "step": "PREDEL",
+          "program": "IEFBR14",
+          "proc": null,
+          "program_class": "system utility",
+          "utility_commands": [],
+          "cond": null,
+          "dds": [
+            {
+              "dd": "DD01",
+              "dataset": "AWS.M2.CARDDEMO.ACCTDATA.PSCOMP",
+              "gdg_generation": null,
+              "gdg": false,
+              "disp": "(MOD,DELETE,DELETE)",
+              "direction": "delete"
+            },
+            {
+              "dd": "DD02",
+              "dataset": "AWS.M2.CARDDEMO.ACCTDATA.ARRYPS",
+              "gdg_generation": null,
+              "gdg": false,
+              "disp": "(MOD,DELETE,DELETE)",
+              "direction": "delete"
+            },
+            {
+              "dd": "DD03",
+              "dataset": "AWS.M2.CARDDEMO.ACCTDATA.VBPS",
+              "gdg_generation": null,
+              "gdg": false,
+              "disp": "(MOD,DELETE,DELETE)",
+              "direction": "delete"
+            }
+          ],
+          "instream_datasets": []
+        },
+        {
+          "step": "STEP05",
+          "program": "CBACT01C",
+          "proc": null,
+          "program_class": "application",
+          "utility_commands": [],
+          "cond": null,
+          "dds": [
+            {
+              "dd": "STEPLIB",
+              "dataset": "AWS.M2.CARDDEMO.LOADLIB",
+              "gdg_generation": null,
+              "gdg": false,
+              "disp": "SHR",
+              "direction": "library"
+            },
+            {
+              "dd": "ACCTFILE",
+              "dataset": "AWS.M2.CARDDEMO.ACCTDATA.VSAM.KSDS",
+              "gdg_generation": null,
+              "gdg": false,
+              "disp": "SHR",
+              "direction": "read"
+            },
+            {
+              "dd": "OUTFILE",
+              "dataset": "AWS.M2.CARDDEMO.ACCTDATA.PSCOMP",
+              "gdg_generation": null,
+              "gdg": false,
+              "disp": "(NEW,CATLG,DELETE)",
+              "direction": "write"
+            },
+            {
+              "dd": "ARRYFILE",
+              "dataset": "AWS.M2.CARDDEMO.ACCTDATA.ARRYPS",
+              "gdg_generation": null,
+              "gdg": false,
+              "disp": "(NEW,CATLG,DELETE)",
+              "direction": "write"
+            },
+            {
+              "dd": "VBRCFILE",
+              "dataset": "AWS.M2.CARDDEMO.ACCTDATA.VBPS",
+              "gdg_generation": null,
+              "gdg": false,
+              "disp": "(NEW,CATLG,DELETE)",
+              "direction": "write"
+            }
+          ],
+          "instream_datasets": []
+        }
+      ]
+    },
+    "READCARD": {
+      "job": "READCARD",
+      "path": "app/jcl/READCARD.jcl",
+      "uses_gdg": false,
+      "programs": [
+        "CBACT02C"
+      ],
+      "steps": [
+        {
+          "step": "STEP05",
+          "program": "CBACT02C",
+          "proc": null,
+          "program_class": "application",
+          "utility_commands": [],
+          "cond": null,
+          "dds": [
+            {
+              "dd": "STEPLIB",
+              "dataset": "AWS.M2.CARDDEMO.LOADLIB",
+              "gdg_generation": null,
+              "gdg": false,
+              "disp": "SHR",
+              "direction": "library"
+            },
+            {
+              "dd": "CARDFILE",
+              "dataset": "AWS.M2.CARDDEMO.CARDDATA.VSAM.KSDS",
+              "gdg_generation": null,
+              "gdg": false,
+              "disp": "SHR",
+              "direction": "read"
+            }
+          ],
+          "instream_datasets": []
+        }
+      ]
+    },
+    "READCUST": {
+      "job": "READCUST",
+      "path": "app/jcl/READCUST.jcl",
+      "uses_gdg": false,
+      "programs": [
+        "CBCUS01C"
+      ],
+      "steps": [
+        {
+          "step": "STEP05",
+          "program": "CBCUS01C",
+          "proc": null,
+          "program_class": "application",
+          "utility_commands": [],
+          "cond": null,
+          "dds": [
+            {
+              "dd": "STEPLIB",
+              "dataset": "AWS.M2.CARDDEMO.LOADLIB",
+              "gdg_generation": null,
+              "gdg": false,
+              "disp": "SHR",
+              "direction": "library"
+            },
+            {
+              "dd": "CUSTFILE",
+              "dataset": "AWS.M2.CARDDEMO.CUSTDATA.VSAM.KSDS",
+              "gdg_generation": null,
+              "gdg": false,
+              "disp": "SHR",
+              "direction": "read"
+            }
+          ],
+          "instream_datasets": []
+        }
+      ]
+    },
+    "READXREF": {
+      "job": "READXREF",
+      "path": "app/jcl/READXREF.jcl",
+      "uses_gdg": false,
+      "programs": [
+        "CBACT03C"
+      ],
+      "steps": [
+        {
+          "step": "STEP05",
+          "program": "CBACT03C",
+          "proc": null,
+          "program_class": "application",
+          "utility_commands": [],
+          "cond": null,
+          "dds": [
+            {
+              "dd": "STEPLIB",
+              "dataset": "AWS.M2.CARDDEMO.LOADLIB",
+              "gdg_generation": null,
+              "gdg": false,
+              "disp": "SHR",
+              "direction": "library"
+            },
+            {
+              "dd": "XREFFILE",
+              "dataset": "AWS.M2.CARDDEMO.CARDXREF.VSAM.KSDS",
+              "gdg_generation": null,
+              "gdg": false,
+              "disp": "SHR",
+              "direction": "read"
+            }
+          ],
+          "instream_datasets": []
+        }
+      ]
+    },
+    "REPTFILE": {
+      "job": "REPTFILE",
+      "path": "app/jcl/REPTFILE.jcl",
+      "uses_gdg": false,
+      "programs": [],
+      "steps": [
+        {
+          "step": "STEP05",
+          "program": "IDCAMS",
+          "proc": null,
+          "program_class": "system utility",
+          "utility_commands": [
+            "DEFINE GENERATIONDATAGROUP"
+          ],
+          "cond": null,
+          "dds": [],
+          "instream_datasets": [
+            "AWS.M2.CARDDEMO.TRANREPT"
+          ]
+        }
+      ]
+    },
+    "TCATBALF": {
+      "job": "TCATBALF",
+      "path": "app/jcl/TCATBALF.jcl",
+      "uses_gdg": false,
+      "programs": [],
+      "steps": [
+        {
+          "step": "STEP05",
+          "program": "IDCAMS",
+          "proc": null,
+          "program_class": "system utility",
+          "utility_commands": [
+            "DELETE",
+            "SET"
+          ],
+          "cond": null,
+          "dds": [],
+          "instream_datasets": []
+        },
+        {
+          "step": "STEP10",
+          "program": "IDCAMS",
+          "proc": null,
+          "program_class": "system utility",
+          "utility_commands": [
+            "DEFINE CLUSTER"
+          ],
+          "cond": null,
+          "dds": [],
+          "instream_datasets": [
+            "AWS.M2.CARDDEMO.TCATBALF.VSAM.KSDS",
+            "AWS.M2.CARDDEMO.TCATBALF.VSAM.KSDS.DATA",
+            "AWS.M2.CARDDEMO.TCATBALF.VSAM.KSDS.INDEX"
+          ]
+        },
+        {
+          "step": "STEP15",
+          "program": "IDCAMS",
+          "proc": null,
+          "program_class": "system utility",
+          "utility_commands": [
+            "REPRO"
+          ],
+          "cond": null,
+          "dds": [
+            {
+              "dd": "TCATBAL",
+              "dataset": "AWS.M2.CARDDEMO.TCATBALF.PS",
+              "gdg_generation": null,
+              "gdg": false,
+              "disp": "SHR",
+              "direction": "read"
+            },
+            {
+              "dd": "TCATBALV",
+              "dataset": "AWS.M2.CARDDEMO.TCATBALF.VSAM.KSDS",
+              "gdg_generation": null,
+              "gdg": false,
+              "disp": "OLD",
+              "direction": "write"
+            }
+          ],
+          "instream_datasets": []
+        }
+      ]
+    },
+    "TRANBKP": {
+      "job": "TRANBKP",
+      "path": "app/jcl/TRANBKP.jcl",
+      "uses_gdg": true,
+      "programs": [],
+      "steps": [
+        {
+          "step": "STEP05R",
+          "program": null,
+          "proc": "REPROC",
+          "program_class": "procedure",
+          "utility_commands": [],
+          "cond": null,
+          "dds": [
+            {
+              "dd": "PRC001.FILEIN",
+              "dataset": "AWS.M2.CARDDEMO.TRANSACT.VSAM.KSDS",
+              "gdg_generation": null,
+              "gdg": false,
+              "disp": "SHR",
+              "direction": "read"
+            },
+            {
+              "dd": "PRC001.FILEOUT",
+              "dataset": "AWS.M2.CARDDEMO.TRANSACT.BKUP",
+              "gdg_generation": "+1",
+              "gdg": true,
+              "disp": "(NEW,CATLG,DELETE)",
+              "direction": "write"
+            }
+          ],
+          "instream_datasets": []
+        },
+        {
+          "step": "STEP05",
+          "program": "IDCAMS",
+          "proc": null,
+          "program_class": "system utility",
+          "utility_commands": [
+            "DELETE",
+            "DELETE"
+          ],
+          "cond": null,
+          "dds": [],
+          "instream_datasets": []
+        },
+        {
+          "step": "STEP10",
+          "program": "IDCAMS",
+          "proc": null,
+          "program_class": "system utility",
+          "utility_commands": [
+            "DEFINE CLUSTER"
+          ],
+          "cond": "(4,LT)",
+          "dds": [],
+          "instream_datasets": [
+            "AWS.M2.CARDDEMO.TRANSACT.VSAM.KSDS",
+            "AWS.M2.CARDDEMO.TRANSACT.VSAM.KSDS.DATA",
+            "AWS.M2.CARDDEMO.TRANSACT.VSAM.KSDS.INDEX"
+          ]
+        }
+      ]
+    },
+    "TRANCATG": {
+      "job": "TRANCATG",
+      "path": "app/jcl/TRANCATG.jcl",
+      "uses_gdg": false,
+      "programs": [],
+      "steps": [
+        {
+          "step": "STEP05",
+          "program": "IDCAMS",
+          "proc": null,
+          "program_class": "system utility",
+          "utility_commands": [
+            "DELETE",
+            "SET"
+          ],
+          "cond": null,
+          "dds": [],
+          "instream_datasets": []
+        },
+        {
+          "step": "STEP10",
+          "program": "IDCAMS",
+          "proc": null,
+          "program_class": "system utility",
+          "utility_commands": [
+            "DEFINE CLUSTER"
+          ],
+          "cond": null,
+          "dds": [],
+          "instream_datasets": [
+            "AWS.M2.CARDDEMO.TRANCATG.VSAM.KSDS",
+            "AWS.M2.CARDDEMO.TRANCATG.VSAM.KSDS.DATA",
+            "AWS.M2.CARDDEMO.TRANCATG.VSAM.KSDS.INDEX"
+          ]
+        },
+        {
+          "step": "STEP15",
+          "program": "IDCAMS",
+          "proc": null,
+          "program_class": "system utility",
+          "utility_commands": [
+            "REPRO"
+          ],
+          "cond": null,
+          "dds": [
+            {
+              "dd": "TRANCATG",
+              "dataset": "AWS.M2.CARDDEMO.TRANCATG.PS",
+              "gdg_generation": null,
+              "gdg": false,
+              "disp": "SHR",
+              "direction": "read"
+            },
+            {
+              "dd": "TCATVSAM",
+              "dataset": "AWS.M2.CARDDEMO.TRANCATG.VSAM.KSDS",
+              "gdg_generation": null,
+              "gdg": false,
+              "disp": "OLD",
+              "direction": "write"
+            }
+          ],
+          "instream_datasets": []
+        }
+      ]
+    },
+    "TRANFILE": {
+      "job": "TRANFILE",
+      "path": "app/jcl/TRANFILE.jcl",
+      "uses_gdg": false,
+      "programs": [],
+      "steps": [
+        {
+          "step": "CLCIFIL",
+          "program": "SDSF",
+          "proc": null,
+          "program_class": "application",
+          "utility_commands": [],
+          "cond": null,
+          "dds": [],
+          "instream_datasets": []
+        },
+        {
+          "step": "STEP05",
+          "program": "IDCAMS",
+          "proc": null,
+          "program_class": "system utility",
+          "utility_commands": [
+            "DELETE",
+            "DELETE"
+          ],
+          "cond": null,
+          "dds": [],
+          "instream_datasets": []
+        },
+        {
+          "step": "STEP10",
+          "program": "IDCAMS",
+          "proc": null,
+          "program_class": "system utility",
+          "utility_commands": [
+            "DEFINE CLUSTER"
+          ],
+          "cond": null,
+          "dds": [],
+          "instream_datasets": [
+            "AWS.M2.CARDDEMO.TRANSACT.VSAM.KSDS",
+            "AWS.M2.CARDDEMO.TRANSACT.VSAM.KSDS.DATA",
+            "AWS.M2.CARDDEMO.TRANSACT.VSAM.KSDS.INDEX"
+          ]
+        },
+        {
+          "step": "STEP15",
+          "program": "IDCAMS",
+          "proc": null,
+          "program_class": "system utility",
+          "utility_commands": [
+            "REPRO"
+          ],
+          "cond": null,
+          "dds": [
+            {
+              "dd": "TRANSACT",
+              "dataset": "AWS.M2.CARDDEMO.DALYTRAN.PS.INIT",
+              "gdg_generation": null,
+              "gdg": false,
+              "disp": "SHR",
+              "direction": "read"
+            },
+            {
+              "dd": "TRANVSAM",
+              "dataset": "AWS.M2.CARDDEMO.TRANSACT.VSAM.KSDS",
+              "gdg_generation": null,
+              "gdg": false,
+              "disp": "SHR",
+              "direction": "write"
+            }
+          ],
+          "instream_datasets": []
+        },
+        {
+          "step": "STEP20",
+          "program": "IDCAMS",
+          "proc": null,
+          "program_class": "system utility",
+          "utility_commands": [
+            "DEFINE ALTERNATEINDEX"
+          ],
+          "cond": null,
+          "dds": [],
+          "instream_datasets": [
+            "AWS.M2.CARDDEMO.TRANSACT.VSAM.AIX",
+            "AWS.M2.CARDDEMO.TRANSACT.VSAM.KSDS",
+            "AWS.M2.CARDDEMO.TRANSACT.VSAM.AIX.DATA",
+            "AWS.M2.CARDDEMO.TRANSACT.VSAM.AIX.INDEX"
+          ]
+        },
+        {
+          "step": "STEP25",
+          "program": "IDCAMS",
+          "proc": null,
+          "program_class": "system utility",
+          "utility_commands": [
+            "DEFINE PATH"
+          ],
+          "cond": null,
+          "dds": [],
+          "instream_datasets": [
+            "AWS.M2.CARDDEMO.TRANSACT.VSAM.AIX.PATH",
+            "AWS.M2.CARDDEMO.TRANSACT.VSAM.AIX"
+          ]
+        },
+        {
+          "step": "STEP30",
+          "program": "IDCAMS",
+          "proc": null,
+          "program_class": "system utility",
+          "utility_commands": [
+            "BLDINDEX"
+          ],
+          "cond": null,
+          "dds": [],
+          "instream_datasets": [
+            "AWS.M2.CARDDEMO.TRANSACT.VSAM.KSDS",
+            "AWS.M2.CARDDEMO.TRANSACT.VSAM.AIX"
+          ]
+        },
+        {
+          "step": "OPCIFIL",
+          "program": "SDSF",
+          "proc": null,
+          "program_class": "application",
+          "utility_commands": [],
+          "cond": null,
+          "dds": [],
+          "instream_datasets": []
+        }
+      ]
+    },
+    "TRANIDX": {
+      "job": "TRANIDX",
+      "path": "app/jcl/TRANIDX.jcl",
+      "uses_gdg": false,
+      "programs": [],
+      "steps": [
+        {
+          "step": "STEP20",
+          "program": "IDCAMS",
+          "proc": null,
+          "program_class": "system utility",
+          "utility_commands": [
+            "DEFINE ALTERNATEINDEX"
+          ],
+          "cond": null,
+          "dds": [],
+          "instream_datasets": [
+            "AWS.M2.CARDDEMO.TRANSACT.VSAM.AIX",
+            "AWS.M2.CARDDEMO.TRANSACT.VSAM.KSDS",
+            "AWS.M2.CARDDEMO.TRANSACT.VSAM.AIX.DATA",
+            "AWS.M2.CARDDEMO.TRANSACT.VSAM.AIX.INDEX"
+          ]
+        },
+        {
+          "step": "STEP25",
+          "program": "IDCAMS",
+          "proc": null,
+          "program_class": "system utility",
+          "utility_commands": [
+            "DEFINE PATH"
+          ],
+          "cond": null,
+          "dds": [],
+          "instream_datasets": [
+            "AWS.M2.CARDDEMO.TRANSACT.VSAM.AIX.PATH",
+            "AWS.M2.CARDDEMO.TRANSACT.VSAM.AIX"
+          ]
+        },
+        {
+          "step": "STEP30",
+          "program": "IDCAMS",
+          "proc": null,
+          "program_class": "system utility",
+          "utility_commands": [
+            "BLDINDEX"
+          ],
+          "cond": null,
+          "dds": [],
+          "instream_datasets": [
+            "AWS.M2.CARDDEMO.TRANSACT.VSAM.KSDS",
+            "AWS.M2.CARDDEMO.TRANSACT.VSAM.AIX"
+          ]
+        }
+      ]
+    },
+    "TRANREPT": {
+      "job": "TRANREPT",
+      "path": "app/jcl/TRANREPT.jcl",
+      "uses_gdg": true,
+      "programs": [
+        "CBTRN03C"
+      ],
+      "steps": [
+        {
+          "step": "STEP05R",
+          "program": null,
+          "proc": "REPROC",
+          "program_class": "procedure",
+          "utility_commands": [],
+          "cond": null,
+          "dds": [
+            {
+              "dd": "PRC001.FILEIN",
+              "dataset": "AWS.M2.CARDDEMO.TRANSACT.VSAM.KSDS",
+              "gdg_generation": null,
+              "gdg": false,
+              "disp": "SHR",
+              "direction": "read"
+            },
+            {
+              "dd": "PRC001.FILEOUT",
+              "dataset": "AWS.M2.CARDDEMO.TRANSACT.BKUP",
+              "gdg_generation": "+1",
+              "gdg": true,
+              "disp": "(NEW,CATLG,DELETE)",
+              "direction": "write"
+            }
+          ],
+          "instream_datasets": []
+        },
+        {
+          "step": "STEP05R",
+          "program": "SORT",
+          "proc": null,
+          "program_class": "system utility",
+          "utility_commands": [
+            "SORT",
+            "INCLUDE"
+          ],
+          "cond": null,
+          "dds": [
+            {
+              "dd": "SORTIN",
+              "dataset": "AWS.M2.CARDDEMO.TRANSACT.BKUP",
+              "gdg_generation": "+1",
+              "gdg": true,
+              "disp": "SHR",
+              "direction": "read"
+            },
+            {
+              "dd": "SORTOUT",
+              "dataset": "AWS.M2.CARDDEMO.TRANSACT.DALY",
+              "gdg_generation": "+1",
+              "gdg": true,
+              "disp": "(NEW,CATLG,DELETE)",
+              "direction": "write"
+            }
+          ],
+          "instream_datasets": []
+        },
+        {
+          "step": "STEP10R",
+          "program": "CBTRN03C",
+          "proc": null,
+          "program_class": "application",
+          "utility_commands": [],
+          "cond": null,
+          "dds": [
+            {
+              "dd": "STEPLIB",
+              "dataset": "AWS.M2.CARDDEMO.LOADLIB",
+              "gdg_generation": null,
+              "gdg": false,
+              "disp": "SHR",
+              "direction": "library"
+            },
+            {
+              "dd": "TRANFILE",
+              "dataset": "AWS.M2.CARDDEMO.TRANSACT.DALY",
+              "gdg_generation": "+1",
+              "gdg": true,
+              "disp": "SHR",
+              "direction": "read"
+            },
+            {
+              "dd": "CARDXREF",
+              "dataset": "AWS.M2.CARDDEMO.CARDXREF.VSAM.KSDS",
+              "gdg_generation": null,
+              "gdg": false,
+              "disp": "SHR",
+              "direction": "read"
+            },
+            {
+              "dd": "TRANTYPE",
+              "dataset": "AWS.M2.CARDDEMO.TRANTYPE.VSAM.KSDS",
+              "gdg_generation": null,
+              "gdg": false,
+              "disp": "SHR",
+              "direction": "read"
+            },
+            {
+              "dd": "TRANCATG",
+              "dataset": "AWS.M2.CARDDEMO.TRANCATG.VSAM.KSDS",
+              "gdg_generation": null,
+              "gdg": false,
+              "disp": "SHR",
+              "direction": "read"
+            },
+            {
+              "dd": "DATEPARM",
+              "dataset": "AWS.M2.CARDDEMO.DATEPARM",
+              "gdg_generation": null,
+              "gdg": false,
+              "disp": "SHR",
+              "direction": "read"
+            },
+            {
+              "dd": "TRANREPT",
+              "dataset": "AWS.M2.CARDDEMO.TRANREPT",
+              "gdg_generation": "+1",
+              "gdg": true,
+              "disp": "(NEW,CATLG,DELETE)",
+              "direction": "write"
+            }
+          ],
+          "instream_datasets": []
+        }
+      ]
+    },
+    "TRANTYPE": {
+      "job": "TRANTYPE",
+      "path": "app/jcl/TRANTYPE.jcl",
+      "uses_gdg": false,
+      "programs": [],
+      "steps": [
+        {
+          "step": "STEP05",
+          "program": "IDCAMS",
+          "proc": null,
+          "program_class": "system utility",
+          "utility_commands": [
+            "DELETE",
+            "SET"
+          ],
+          "cond": null,
+          "dds": [],
+          "instream_datasets": []
+        },
+        {
+          "step": "STEP10",
+          "program": "IDCAMS",
+          "proc": null,
+          "program_class": "system utility",
+          "utility_commands": [
+            "DEFINE CLUSTER"
+          ],
+          "cond": null,
+          "dds": [],
+          "instream_datasets": [
+            "AWS.M2.CARDDEMO.TRANTYPE.VSAM.KSDS",
+            "AWS.M2.CARDDEMO.TRANTYPE.VSAM.KSDS.DATA",
+            "AWS.M2.CARDDEMO.TRANTYPE.VSAM.KSDS.INDEX"
+          ]
+        },
+        {
+          "step": "STEP15",
+          "program": "IDCAMS",
+          "proc": null,
+          "program_class": "system utility",
+          "utility_commands": [
+            "REPRO"
+          ],
+          "cond": null,
+          "dds": [
+            {
+              "dd": "TRANTYPE",
+              "dataset": "AWS.M2.CARDDEMO.TRANTYPE.PS",
+              "gdg_generation": null,
+              "gdg": false,
+              "disp": "SHR",
+              "direction": "read"
+            },
+            {
+              "dd": "TTYPVSAM",
+              "dataset": "AWS.M2.CARDDEMO.TRANTYPE.VSAM.KSDS",
+              "gdg_generation": null,
+              "gdg": false,
+              "disp": "OLD",
+              "direction": "write"
+            }
+          ],
+          "instream_datasets": []
+        }
+      ]
+    },
+    "TXT2PDF1": {
+      "job": "TXT2PDF1",
+      "path": "app/jcl/TXT2PDF1.JCL",
+      "uses_gdg": false,
+      "programs": [],
+      "steps": [
+        {
+          "step": "TXT2PDF",
+          "program": "IKJEFT1B",
+          "proc": null,
+          "program_class": "system utility",
+          "utility_commands": [],
+          "cond": "(0,NE)",
+          "dds": [
+            {
+              "dd": "STEPLIB",
+              "dataset": "AWS.M2.LBD.TXT2PDF.LOAD",
+              "gdg_generation": null,
+              "gdg": false,
+              "disp": "SHR",
+              "direction": "library"
+            },
+            {
+              "dd": "SYSEXEC",
+              "dataset": "AWS.M2.LBD.TXT2PDF.EXEC",
+              "gdg_generation": null,
+              "gdg": false,
+              "disp": "SHR",
+              "direction": "library"
+            },
+            {
+              "dd": "INDD",
+              "dataset": "AWS.M2.CARDDEMO.STATEMNT.PS",
+              "gdg_generation": null,
+              "gdg": false,
+              "disp": "SHR",
+              "direction": "read"
+            }
+          ],
+          "instream_datasets": []
+        }
+      ]
+    },
+    "WAITSTEP": {
+      "job": "WAITSTEP",
+      "path": "app/jcl/WAITSTEP.jcl",
+      "uses_gdg": false,
+      "programs": [
+        "COBSWAIT"
+      ],
+      "steps": [
+        {
+          "step": "WAIT",
+          "program": "COBSWAIT",
+          "proc": null,
+          "program_class": "application",
+          "utility_commands": [],
+          "cond": null,
+          "dds": [
+            {
+              "dd": "STEPLIB",
+              "dataset": "AWS.M2.CARDDEMO.LOADLIB",
+              "gdg_generation": null,
+              "gdg": false,
+              "disp": "SHR",
+              "direction": "library"
+            }
+          ],
+          "instream_datasets": []
+        }
+      ]
+    },
+    "XREFFILE": {
+      "job": "XREFFILE",
+      "path": "app/jcl/XREFFILE.jcl",
+      "uses_gdg": false,
+      "programs": [],
+      "steps": [
+        {
+          "step": "STEP05",
+          "program": "IDCAMS",
+          "proc": null,
+          "program_class": "system utility",
+          "utility_commands": [
+            "DELETE",
+            "DELETE"
+          ],
+          "cond": null,
+          "dds": [],
+          "instream_datasets": []
+        },
+        {
+          "step": "STEP10",
+          "program": "IDCAMS",
+          "proc": null,
+          "program_class": "system utility",
+          "utility_commands": [
+            "DEFINE CLUSTER"
+          ],
+          "cond": null,
+          "dds": [],
+          "instream_datasets": [
+            "AWS.M2.CARDDEMO.CARDXREF.VSAM.KSDS",
+            "AWS.M2.CARDDEMO.CARDXREF.VSAM.KSDS.DATA",
+            "AWS.M2.CARDDEMO.CARDXREF.VSAM.KSDS.INDEX"
+          ]
+        },
+        {
+          "step": "STEP15",
+          "program": "IDCAMS",
+          "proc": null,
+          "program_class": "system utility",
+          "utility_commands": [
+            "REPRO"
+          ],
+          "cond": null,
+          "dds": [
+            {
+              "dd": "XREFDATA",
+              "dataset": "AWS.M2.CARDDEMO.CARDXREF.PS",
+              "gdg_generation": null,
+              "gdg": false,
+              "disp": "SHR",
+              "direction": "read"
+            },
+            {
+              "dd": "XREFVSAM",
+              "dataset": "AWS.M2.CARDDEMO.CARDXREF.VSAM.KSDS",
+              "gdg_generation": null,
+              "gdg": false,
+              "disp": "SHR",
+              "direction": "write"
+            }
+          ],
+          "instream_datasets": []
+        },
+        {
+          "step": "STEP20",
+          "program": "IDCAMS",
+          "proc": null,
+          "program_class": "system utility",
+          "utility_commands": [
+            "DEFINE ALTERNATEINDEX"
+          ],
+          "cond": null,
+          "dds": [],
+          "instream_datasets": [
+            "AWS.M2.CARDDEMO.CARDXREF.VSAM.AIX",
+            "AWS.M2.CARDDEMO.CARDXREF.VSAM.KSDS",
+            "AWS.M2.CARDDEMO.CARDXREF.VSAM.AIX.DATA",
+            "AWS.M2.CARDDEMO.CARDXREF.VSAM.AIX.INDEX"
+          ]
+        },
+        {
+          "step": "STEP25",
+          "program": "IDCAMS",
+          "proc": null,
+          "program_class": "system utility",
+          "utility_commands": [
+            "DEFINE PATH"
+          ],
+          "cond": null,
+          "dds": [],
+          "instream_datasets": [
+            "AWS.M2.CARDDEMO.CARDXREF.VSAM.AIX.PATH",
+            "AWS.M2.CARDDEMO.CARDXREF.VSAM.AIX"
+          ]
+        },
+        {
+          "step": "STEP30",
+          "program": "IDCAMS",
+          "proc": null,
+          "program_class": "system utility",
+          "utility_commands": [
+            "BLDINDEX"
+          ],
+          "cond": null,
+          "dds": [],
+          "instream_datasets": [
+            "AWS.M2.CARDDEMO.CARDXREF.VSAM.KSDS",
+            "AWS.M2.CARDDEMO.CARDXREF.VSAM.AIX"
+          ]
+        }
+      ]
+    },
+    "REPROC (PROC)": {
+      "job": "REPROC",
+      "path": "app/proc/REPROC.prc",
+      "uses_gdg": false,
+      "programs": [],
+      "steps": [
+        {
+          "step": "PRC001",
+          "program": "IDCAMS",
+          "proc": null,
+          "program_class": "system utility",
+          "utility_commands": [],
+          "cond": null,
+          "dds": [
+            {
+              "dd": "FILEIN",
+              "dataset": "NULLFILE",
+              "gdg_generation": null,
+              "gdg": false,
+              "disp": "SHR",
+              "direction": "read"
+            },
+            {
+              "dd": "FILEOUT",
+              "dataset": "NULLFILE",
+              "gdg_generation": null,
+              "gdg": false,
+              "disp": "SHR",
+              "direction": "read"
+            },
+            {
+              "dd": "SYSIN",
+              "dataset": "&CNTLLIB(REPROCT)",
+              "gdg_generation": null,
+              "gdg": false,
+              "disp": "SHR",
+              "direction": "read"
+            }
+          ],
+          "instream_datasets": []
+        }
+      ]
+    },
+    "TRANREPT (PROC)": {
+      "job": "REPROC",
+      "path": "app/proc/TRANREPT.prc",
+      "uses_gdg": true,
+      "programs": [
+        "CBTRN03C"
+      ],
+      "steps": [
+        {
+          "step": "STEP01R",
+          "program": null,
+          "proc": "REPROC",
+          "program_class": "procedure",
+          "utility_commands": [],
+          "cond": null,
+          "dds": [
+            {
+              "dd": "PRC001.FILEIN",
+              "dataset": "AWS.M2.CARDDEMO.TRANSACT.VSAM.KSDS",
+              "gdg_generation": null,
+              "gdg": false,
+              "disp": "SHR",
+              "direction": "read"
+            },
+            {
+              "dd": "PRC001.FILEOUT",
+              "dataset": "AWS.M2.CARDDEMO.TRANSACT.BKUP",
+              "gdg_generation": "+1",
+              "gdg": true,
+              "disp": "(NEW,CATLG,DELETE)",
+              "direction": "write"
+            }
+          ],
+          "instream_datasets": []
+        },
+        {
+          "step": "STEP05R",
+          "program": "SORT",
+          "proc": null,
+          "program_class": "system utility",
+          "utility_commands": [
+            "SORT",
+            "INCLUDE"
+          ],
+          "cond": null,
+          "dds": [
+            {
+              "dd": "SORTIN",
+              "dataset": "AWS.M2.CARDDEMO.TRANSACT.BKUP",
+              "gdg_generation": "+1",
+              "gdg": true,
+              "disp": "SHR",
+              "direction": "read"
+            },
+            {
+              "dd": "SORTOUT",
+              "dataset": "AWS.M2.CARDDEMO.TRANSACT.DALY",
+              "gdg_generation": "+1",
+              "gdg": true,
+              "disp": "(NEW,CATLG,DELETE)",
+              "direction": "write"
+            }
+          ],
+          "instream_datasets": []
+        },
+        {
+          "step": "STEP10R",
+          "program": "CBTRN03C",
+          "proc": null,
+          "program_class": "application",
+          "utility_commands": [],
+          "cond": null,
+          "dds": [
+            {
+              "dd": "STEPLIB",
+              "dataset": "AWS.M2.CARDDEMO.LOADLIB",
+              "gdg_generation": null,
+              "gdg": false,
+              "disp": "SHR",
+              "direction": "library"
+            },
+            {
+              "dd": "TRANFILE",
+              "dataset": "AWS.M2.CARDDEMO.TRANSACT.DALY",
+              "gdg_generation": "+1",
+              "gdg": true,
+              "disp": "SHR",
+              "direction": "read"
+            },
+            {
+              "dd": "CARDXREF",
+              "dataset": "AWS.M2.CARDDEMO.CARDXREF.VSAM.KSDS",
+              "gdg_generation": null,
+              "gdg": false,
+              "disp": "SHR",
+              "direction": "read"
+            },
+            {
+              "dd": "TRANTYPE",
+              "dataset": "AWS.M2.CARDDEMO.TRANTYPE.VSAM.KSDS",
+              "gdg_generation": null,
+              "gdg": false,
+              "disp": "SHR",
+              "direction": "read"
+            },
+            {
+              "dd": "TRANCATG",
+              "dataset": "AWS.M2.CARDDEMO.TRANCATG.VSAM.KSDS",
+              "gdg_generation": null,
+              "gdg": false,
+              "disp": "SHR",
+              "direction": "read"
+            },
+            {
+              "dd": "DATEPARM",
+              "dataset": "AWS.M2.CARDDEMO.DATEPARM",
+              "gdg_generation": null,
+              "gdg": false,
+              "disp": "SHR",
+              "direction": "read"
+            },
+            {
+              "dd": "TRANREPT",
+              "dataset": "AWS.M2.CARDDEMO.TRANREPT",
+              "gdg_generation": "+1",
+              "gdg": true,
+              "disp": "(NEW,CATLG,DELETE)",
+              "direction": "write"
+            }
+          ],
+          "instream_datasets": []
+        }
+      ]
+    }
+  },
+  "job_dependencies": {
+    "ACCTFILE": {},
+    "CARDFILE": {},
+    "CBADMCDJ": {},
+    "CBEXPORT": {
+      "CUSTFILE": [
+        "AWS.M2.CARDDEMO.CUSTDATA.VSAM.KSDS"
+      ],
+      "ACCTFILE": [
+        "AWS.M2.CARDDEMO.ACCTDATA.VSAM.KSDS"
+      ],
+      "INTCALC": [
+        "AWS.M2.CARDDEMO.ACCTDATA.VSAM.KSDS"
+      ],
+      "POSTTRAN": [
+        "AWS.M2.CARDDEMO.ACCTDATA.VSAM.KSDS",
+        "AWS.M2.CARDDEMO.TRANSACT.VSAM.KSDS"
+      ],
+      "XREFFILE": [
+        "AWS.M2.CARDDEMO.CARDXREF.VSAM.KSDS"
+      ],
+      "COMBTRAN": [
+        "AWS.M2.CARDDEMO.TRANSACT.VSAM.KSDS"
+      ],
+      "TRANBKP": [
+        "AWS.M2.CARDDEMO.TRANSACT.VSAM.KSDS"
+      ],
+      "TRANFILE": [
+        "AWS.M2.CARDDEMO.TRANSACT.VSAM.KSDS"
+      ],
+      "TRANIDX": [
+        "AWS.M2.CARDDEMO.TRANSACT.VSAM.KSDS"
+      ],
+      "CARDFILE": [
+        "AWS.M2.CARDDEMO.CARDDATA.VSAM.KSDS"
+      ]
+    },
+    "CBIMPORT": {
+      "CBEXPORT": [
+        "AWS.M2.CARDDEMO.EXPORT.DATA"
+      ]
+    },
+    "CLOSEFIL": {},
+    "COMBTRAN": {
+      "DEFGDGB": [
+        "AWS.M2.CARDDEMO.TRANSACT.BKUP",
+        "AWS.M2.CARDDEMO.SYSTRAN",
+        "AWS.M2.CARDDEMO.TRANSACT.COMBINED"
+      ],
+      "TRANBKP": [
+        "AWS.M2.CARDDEMO.TRANSACT.BKUP"
+      ],
+      "TRANREPT": [
+        "AWS.M2.CARDDEMO.TRANSACT.BKUP"
+      ],
+      "INTCALC": [
+        "AWS.M2.CARDDEMO.SYSTRAN"
+      ]
+    },
+    "CREASTMT": {
+      "COMBTRAN": [
+        "AWS.M2.CARDDEMO.TRANSACT.VSAM.KSDS"
+      ],
+      "POSTTRAN": [
+        "AWS.M2.CARDDEMO.TRANSACT.VSAM.KSDS",
+        "AWS.M2.CARDDEMO.ACCTDATA.VSAM.KSDS"
+      ],
+      "TRANBKP": [
+        "AWS.M2.CARDDEMO.TRANSACT.VSAM.KSDS"
+      ],
+      "TRANFILE": [
+        "AWS.M2.CARDDEMO.TRANSACT.VSAM.KSDS"
+      ],
+      "TRANIDX": [
+        "AWS.M2.CARDDEMO.TRANSACT.VSAM.KSDS"
+      ],
+      "XREFFILE": [
+        "AWS.M2.CARDDEMO.CARDXREF.VSAM.KSDS"
+      ],
+      "ACCTFILE": [
+        "AWS.M2.CARDDEMO.ACCTDATA.VSAM.KSDS"
+      ],
+      "INTCALC": [
+        "AWS.M2.CARDDEMO.ACCTDATA.VSAM.KSDS"
+      ],
+      "CUSTFILE": [
+        "AWS.M2.CARDDEMO.CUSTDATA.VSAM.KSDS"
+      ]
+    },
+    "CUSTFILE": {},
+    "DALYREJS": {},
+    "DEFCUST": {},
+    "DEFGDGB": {},
+    "DEFGDGD": {},
+    "DISCGRP": {},
+    "DUSRSECJ": {},
+    "ESDSRRDS": {},
+    "FTPJCL": {},
+    "INTCALC": {
+      "POSTTRAN": [
+        "AWS.M2.CARDDEMO.TCATBALF.VSAM.KSDS",
+        "AWS.M2.CARDDEMO.ACCTDATA.VSAM.KSDS"
+      ],
+      "TCATBALF": [
+        "AWS.M2.CARDDEMO.TCATBALF.VSAM.KSDS"
+      ],
+      "XREFFILE": [
+        "AWS.M2.CARDDEMO.CARDXREF.VSAM.KSDS",
+        "AWS.M2.CARDDEMO.CARDXREF.VSAM.AIX.PATH"
+      ],
+      "ACCTFILE": [
+        "AWS.M2.CARDDEMO.ACCTDATA.VSAM.KSDS"
+      ],
+      "DISCGRP": [
+        "AWS.M2.CARDDEMO.DISCGRP.VSAM.KSDS"
+      ]
+    },
+    "INTRDRJ1": {},
+    "INTRDRJ2": {
+      "INTRDRJ1": [
+        "AWS.M2.CARDEMO.FTP.TEST.BKUP"
+      ]
+    },
+    "OPENFIL": {},
+    "POSTTRAN": {
+      "XREFFILE": [
+        "AWS.M2.CARDDEMO.CARDXREF.VSAM.KSDS"
+      ],
+      "ACCTFILE": [
+        "AWS.M2.CARDDEMO.ACCTDATA.VSAM.KSDS"
+      ],
+      "INTCALC": [
+        "AWS.M2.CARDDEMO.ACCTDATA.VSAM.KSDS"
+      ],
+      "TCATBALF": [
+        "AWS.M2.CARDDEMO.TCATBALF.VSAM.KSDS"
+      ]
+    },
+    "PRTCATBL": {
+      "POSTTRAN": [
+        "AWS.M2.CARDDEMO.TCATBALF.VSAM.KSDS"
+      ],
+      "TCATBALF": [
+        "AWS.M2.CARDDEMO.TCATBALF.VSAM.KSDS"
+      ],
+      "DEFGDGB": [
+        "AWS.M2.CARDDEMO.TCATBALF.BKUP"
+      ]
+    },
+    "READACCT": {
+      "ACCTFILE": [
+        "AWS.M2.CARDDEMO.ACCTDATA.VSAM.KSDS"
+      ],
+      "INTCALC": [
+        "AWS.M2.CARDDEMO.ACCTDATA.VSAM.KSDS"
+      ],
+      "POSTTRAN": [
+        "AWS.M2.CARDDEMO.ACCTDATA.VSAM.KSDS"
+      ]
+    },
+    "READCARD": {
+      "CARDFILE": [
+        "AWS.M2.CARDDEMO.CARDDATA.VSAM.KSDS"
+      ]
+    },
+    "READCUST": {
+      "CUSTFILE": [
+        "AWS.M2.CARDDEMO.CUSTDATA.VSAM.KSDS"
+      ]
+    },
+    "READXREF": {
+      "XREFFILE": [
+        "AWS.M2.CARDDEMO.CARDXREF.VSAM.KSDS"
+      ]
+    },
+    "REPTFILE": {},
+    "TCATBALF": {},
+    "TRANBKP": {
+      "COMBTRAN": [
+        "AWS.M2.CARDDEMO.TRANSACT.VSAM.KSDS"
+      ],
+      "POSTTRAN": [
+        "AWS.M2.CARDDEMO.TRANSACT.VSAM.KSDS"
+      ],
+      "TRANFILE": [
+        "AWS.M2.CARDDEMO.TRANSACT.VSAM.KSDS"
+      ],
+      "TRANIDX": [
+        "AWS.M2.CARDDEMO.TRANSACT.VSAM.KSDS"
+      ]
+    },
+    "TRANCATG": {},
+    "TRANFILE": {},
+    "TRANIDX": {},
+    "TRANREPT": {
+      "COMBTRAN": [
+        "AWS.M2.CARDDEMO.TRANSACT.VSAM.KSDS"
+      ],
+      "POSTTRAN": [
+        "AWS.M2.CARDDEMO.TRANSACT.VSAM.KSDS"
+      ],
+      "TRANBKP": [
+        "AWS.M2.CARDDEMO.TRANSACT.VSAM.KSDS",
+        "AWS.M2.CARDDEMO.TRANSACT.BKUP"
+      ],
+      "TRANFILE": [
+        "AWS.M2.CARDDEMO.TRANSACT.VSAM.KSDS"
+      ],
+      "TRANIDX": [
+        "AWS.M2.CARDDEMO.TRANSACT.VSAM.KSDS"
+      ],
+      "DEFGDGB": [
+        "AWS.M2.CARDDEMO.TRANSACT.BKUP",
+        "AWS.M2.CARDDEMO.TRANSACT.DALY"
+      ],
+      "XREFFILE": [
+        "AWS.M2.CARDDEMO.CARDXREF.VSAM.KSDS"
+      ],
+      "TRANTYPE": [
+        "AWS.M2.CARDDEMO.TRANTYPE.VSAM.KSDS"
+      ],
+      "TRANCATG": [
+        "AWS.M2.CARDDEMO.TRANCATG.VSAM.KSDS"
+      ]
+    },
+    "TRANTYPE": {},
+    "TXT2PDF1": {
+      "CREASTMT": [
+        "AWS.M2.CARDDEMO.STATEMNT.PS"
+      ]
+    },
+    "WAITSTEP": {},
+    "XREFFILE": {}
+  },
+  "scheduler_edges": [
+    {
+      "source": "CLOSEFIL",
+      "target": "CBPAUP0J",
+      "scheduler": "CardDemo.ca7",
+      "schid": "030"
+    },
+    {
+      "source": "CLOSEFIL",
+      "target": "TRANTYPE",
+      "scheduler": "CardDemo.ca7",
+      "schid": "030"
+    },
+    {
+      "source": "CLOSEFIL",
+      "target": "READACCT",
+      "scheduler": "CardDemo.ca7",
+      "schid": "030"
+    },
+    {
+      "source": "CLOSEFIL",
+      "target": "CREASTMT",
+      "scheduler": "CardDemo.ca7",
+      "schid": "030"
+    },
+    {
+      "source": "CLOSEFIL",
+      "target": "PRTCATBL",
+      "scheduler": "CardDemo.ca7",
+      "schid": "031"
+    },
+    {
+      "source": "CBPAUP0J",
+      "target": "POSTTRAN",
+      "scheduler": "CardDemo.ca7",
+      "schid": "030"
+    },
+    {
+      "source": "POSTTRAN",
+      "target": "WAITSTEP",
+      "scheduler": "CardDemo.ca7",
+      "schid": "030"
+    },
+    {
+      "source": "WAITSTEP",
+      "target": "OPENFIL",
+      "scheduler": "CardDemo.ca7",
+      "schid": "030"
+    },
+    {
+      "source": "WAITSTEP",
+      "target": "CLOSEFIL1",
+      "scheduler": "CardDemo.ca7",
+      "schid": "031"
+    },
+    {
+      "source": "WAITSTEP",
+      "target": "CLOSEFIL2",
+      "scheduler": "CardDemo.ca7",
+      "schid": "032"
+    },
+    {
+      "source": "WAITSTEP",
+      "target": "CLOSEFIL",
+      "scheduler": "CardDemo.ca7",
+      "schid": "030"
+    },
+    {
+      "source": "WAITSTEP",
+      "target": "OPENFIL",
+      "scheduler": "CardDemo.ca7",
+      "schid": "031"
+    },
+    {
+      "source": "OPENFIL",
+      "target": "CLOSEFIL",
+      "scheduler": "CardDemo.ca7",
+      "schid": "031"
+    },
+    {
+      "source": "TRANTYPE",
+      "target": "WAITSTEP",
+      "scheduler": "CardDemo.ca7",
+      "schid": "030"
+    },
+    {
+      "source": "CLOSEFIL1",
+      "target": "TRANCATG",
+      "scheduler": "CardDemo.ca7",
+      "schid": "031"
+    },
+    {
+      "source": "CLOSEFIL2",
+      "target": "TCATBALF",
+      "scheduler": "CardDemo.ca7",
+      "schid": "032"
+    },
+    {
+      "source": "TRANCATG",
+      "target": "WAITSTEP",
+      "scheduler": "CardDemo.ca7",
+      "schid": "031"
+    },
+    {
+      "source": "TCATBALF",
+      "target": "WAITSTEP",
+      "scheduler": "CardDemo.ca7",
+      "schid": "032"
+    },
+    {
+      "source": "READACCT",
+      "target": "READCARD",
+      "scheduler": "CardDemo.ca7",
+      "schid": "030"
+    },
+    {
+      "source": "READCARD",
+      "target": "READCUST",
+      "scheduler": "CardDemo.ca7",
+      "schid": "030"
+    },
+    {
+      "source": "READCUST",
+      "target": "READXREF",
+      "scheduler": "CardDemo.ca7",
+      "schid": "030"
+    },
+    {
+      "source": "READXREF",
+      "target": "WAITSTEP",
+      "scheduler": "CardDemo.ca7",
+      "schid": "030"
+    },
+    {
+      "source": "CREASTMT",
+      "target": "TXT2PDF1",
+      "scheduler": "CardDemo.ca7",
+      "schid": "030"
+    },
+    {
+      "source": "TXT2PDF1",
+      "target": "WAITSTEP",
+      "scheduler": "CardDemo.ca7",
+      "schid": "030"
+    },
+    {
+      "source": "PRTCATBL",
+      "target": "WAITSTEP",
+      "scheduler": "CardDemo.ca7",
+      "schid": "031"
+    },
+    {
+      "source": "CLOSEFIL",
+      "target": "TRANBKP",
+      "scheduler": "CardDemo.controlm",
+      "folder": "DAILY-TransactionBackup"
+    },
+    {
+      "source": "TRANBKP",
+      "target": "WAITSTEP",
+      "scheduler": "CardDemo.controlm",
+      "folder": "DAILY-TransactionBackup"
+    },
+    {
+      "source": "WAITSTEP",
+      "target": "OPENFIL",
+      "scheduler": "CardDemo.controlm",
+      "folder": "DAILY-TransactionBackup"
+    },
+    {
+      "source": "CLOSEFIL",
+      "target": "DISCGRP",
+      "scheduler": "CardDemo.controlm",
+      "folder": "WEEKLY-DisclosureGroupsRefresh"
+    },
+    {
+      "source": "DISCGRP",
+      "target": "WAITSTEP",
+      "scheduler": "CardDemo.controlm",
+      "folder": "WEEKLY-DisclosureGroupsRefresh"
+    },
+    {
+      "source": "WAITSTEP",
+      "target": "OPENFIL",
+      "scheduler": "CardDemo.controlm",
+      "folder": "WEEKLY-DisclosureGroupsRefresh"
+    },
+    {
+      "source": "CLOSEFIL",
+      "target": "INTCALC",
+      "scheduler": "CardDemo.controlm",
+      "folder": "MONTHLY-InterestCalculation"
+    },
+    {
+      "source": "INTCALC",
+      "target": "COMBTRAN",
+      "scheduler": "CardDemo.controlm",
+      "folder": "MONTHLY-InterestCalculation"
+    },
+    {
+      "source": "COMBTRAN",
+      "target": "WAITSTEP",
+      "scheduler": "CardDemo.controlm",
+      "folder": "MONTHLY-InterestCalculation"
+    },
+    {
+      "source": "WAITSTEP",
+      "target": "OPENFIL",
+      "scheduler": "CardDemo.controlm",
+      "folder": "MONTHLY-InterestCalculation"
+    }
+  ],
+  "hubs": {
+    "menus_reach_all_online": {
+      "claim": "COMEN01C/COADM01C XCTL to every online program",
+      "verdict": "corrected",
+      "detail": "COMEN01C -> 12 programs via COMEN02Y, COADM01C -> 7 via COADM02Y; together they reach 15/17 core online programs. Not reached: COADM01C, COMEN01C (the sign-on program XCTLs *to* the menus, and sub-screens COCRDSLC/COCRDUPC, COTRN01C, COUSR02C/COUSR03C are also reached from their list screens). Menu tables also name COPAUS0C, COTRTLIC, COTRTUPC, which are not core programs (extension apps, out of scope).",
+      "menu_targets": {
+        "COMEN01C": [
+          "COACTUPC",
+          "COACTVWC",
+          "COBIL00C",
+          "COCRDLIC",
+          "COCRDSLC",
+          "COCRDUPC",
+          "COPAUS0C",
+          "CORPT00C",
+          "COSGN00C",
+          "COTRN00C",
+          "COTRN01C",
+          "COTRN02C"
+        ],
+        "COADM01C": [
+          "COSGN00C",
+          "COTRTLIC",
+          "COTRTUPC",
+          "COUSR00C",
+          "COUSR01C",
+          "COUSR02C",
+          "COUSR03C"
+        ]
+      },
+      "not_reached": [
+        "COADM01C",
+        "COMEN01C"
+      ]
+    },
+    "cbstm03b_calls": {
+      "claim": "CBSTM03A calls CBSTM03B 13 times",
+      "verdict": "confirmed",
+      "detail": "13 CALL 'CBSTM03B' statements in CBSTM03A"
+    },
+    "csutldtc_callers": {
+      "claim": "CSUTLDTC called from 4 programs",
+      "verdict": "corrected",
+      "detail": "2 direct callers (CORPT00C, COTRN02C) + 1 through copybook procedure code (COACTUPC via CSUTLDPY) = 3 calling programs, not 4.",
+      "direct": [
+        "CORPT00C",
+        "COTRN02C"
+      ],
+      "via_copybook": [
+        {
+          "program": "COACTUPC",
+          "copybook": "CSUTLDPY"
+        }
+      ]
+    },
+    "cbact01c_asm": {
+      "claim": "CBACT01C calls COBDATFT/MVSWAIT",
+      "verdict": "corrected",
+      "detail": "CBACT01C calls COBDATFT (and CEE3ABD) only; MVSWAIT is called by COBSWAIT (WAITSTEP job), not by CBACT01C.",
+      "assembler_callers": {
+        "COBDATFT": [
+          "CBACT01C"
+        ],
+        "MVSWAIT": [
+          "COBSWAIT"
+        ]
+      }
+    },
+    "cee3abd_sites": {
+      "claim": "CEE3ABD used in 11 places",
+      "verdict": "confirmed",
+      "detail": "CALL 'CEE3ABD' appears once in each of 11 batch programs: CBACT01C, CBACT02C, CBACT03C, CBACT04C, CBCUS01C, CBEXPORT, CBIMPORT, CBSTM03A, CBTRN01C, CBTRN02C, CBTRN03C",
+      "programs": [
+        "CBACT01C",
+        "CBACT02C",
+        "CBACT03C",
+        "CBACT04C",
+        "CBCUS01C",
+        "CBEXPORT",
+        "CBIMPORT",
+        "CBSTM03A",
+        "CBTRN01C",
+        "CBTRN02C",
+        "CBTRN03C"
+      ]
+    },
+    "no_cics_start": {
+      "claim": "EXEC CICS START edges",
+      "verdict": "none found",
+      "detail": "No program issues EXEC CICS START; the only asynchronous hand-off is CORPT00C writing TRANREPT JCL to TDQ JOBS."
+    }
+  },
+  "ratings": {
+    "CBACT01C": {
+      "program": "CBACT01C",
+      "type": "batch",
+      "rating": "Medium",
+      "score": 5,
+      "points": {
+        "loc": 1,
+        "files": 2,
+        "control_flow": 0,
+        "arithmetic": 1,
+        "coupling": 1
+      },
+      "metrics": {
+        "loc_code": 358,
+        "files_touched": 4,
+        "go_to": 0,
+        "alter": 0,
+        "evaluate_max_depth": 0,
+        "comp3": 2,
+        "rounded": 0,
+        "compute": 0,
+        "arithmetic_verbs": 3,
+        "fan_in": 0,
+        "fan_out": 1,
+        "cics_commands": 0
+      }
+    },
+    "CBACT02C": {
+      "program": "CBACT02C",
+      "type": "batch",
+      "rating": "Low",
+      "score": 1,
+      "points": {
+        "loc": 0,
+        "files": 1,
+        "control_flow": 0,
+        "arithmetic": 0,
+        "coupling": 0
+      },
+      "metrics": {
+        "loc_code": 129,
+        "files_touched": 1,
+        "go_to": 0,
+        "alter": 0,
+        "evaluate_max_depth": 0,
+        "comp3": 0,
+        "rounded": 0,
+        "compute": 0,
+        "arithmetic_verbs": 3,
+        "fan_in": 0,
+        "fan_out": 0,
+        "cics_commands": 0
+      }
+    },
+    "CBACT03C": {
+      "program": "CBACT03C",
+      "type": "batch",
+      "rating": "Low",
+      "score": 1,
+      "points": {
+        "loc": 0,
+        "files": 1,
+        "control_flow": 0,
+        "arithmetic": 0,
+        "coupling": 0
+      },
+      "metrics": {
+        "loc_code": 130,
+        "files_touched": 1,
+        "go_to": 0,
+        "alter": 0,
+        "evaluate_max_depth": 0,
+        "comp3": 0,
+        "rounded": 0,
+        "compute": 0,
+        "arithmetic_verbs": 3,
+        "fan_in": 0,
+        "fan_out": 0,
+        "cics_commands": 0
+      }
+    },
+    "CBACT04C": {
+      "program": "CBACT04C",
+      "type": "batch",
+      "rating": "Medium",
+      "score": 6,
+      "points": {
+        "loc": 2,
+        "files": 3,
+        "control_flow": 0,
+        "arithmetic": 1,
+        "coupling": 0
+      },
+      "metrics": {
+        "loc_code": 552,
+        "files_touched": 5,
+        "go_to": 0,
+        "alter": 0,
+        "evaluate_max_depth": 0,
+        "comp3": 0,
+        "rounded": 0,
+        "compute": 1,
+        "arithmetic_verbs": 5,
+        "fan_in": 0,
+        "fan_out": 0,
+        "cics_commands": 0
+      }
+    },
+    "CBCUS01C": {
+      "program": "CBCUS01C",
+      "type": "batch",
+      "rating": "Low",
+      "score": 1,
+      "points": {
+        "loc": 0,
+        "files": 1,
+        "control_flow": 0,
+        "arithmetic": 0,
+        "coupling": 0
+      },
+      "metrics": {
+        "loc_code": 130,
+        "files_touched": 1,
+        "go_to": 0,
+        "alter": 0,
+        "evaluate_max_depth": 0,
+        "comp3": 0,
+        "rounded": 0,
+        "compute": 0,
+        "arithmetic_verbs": 3,
+        "fan_in": 0,
+        "fan_out": 0,
+        "cics_commands": 0
+      }
+    },
+    "CBEXPORT": {
+      "program": "CBEXPORT",
+      "type": "batch",
+      "rating": "Medium",
+      "score": 5,
+      "points": {
+        "loc": 1,
+        "files": 3,
+        "control_flow": 0,
+        "arithmetic": 1,
+        "coupling": 0
+      },
+      "metrics": {
+        "loc_code": 396,
+        "files_touched": 6,
+        "go_to": 0,
+        "alter": 0,
+        "evaluate_max_depth": 0,
+        "comp3": 4,
+        "rounded": 0,
+        "compute": 0,
+        "arithmetic_verbs": 15,
+        "fan_in": 0,
+        "fan_out": 0,
+        "cics_commands": 0
+      }
+    },
+    "CBIMPORT": {
+      "program": "CBIMPORT",
+      "type": "batch",
+      "rating": "Medium",
+      "score": 5,
+      "points": {
+        "loc": 1,
+        "files": 3,
+        "control_flow": 0,
+        "arithmetic": 1,
+        "coupling": 0
+      },
+      "metrics": {
+        "loc_code": 337,
+        "files_touched": 7,
+        "go_to": 0,
+        "alter": 0,
+        "evaluate_max_depth": 1,
+        "comp3": 4,
+        "rounded": 0,
+        "compute": 0,
+        "arithmetic_verbs": 8,
+        "fan_in": 0,
+        "fan_out": 0,
+        "cics_commands": 0
+      }
+    },
+    "CBSTM03A": {
+      "program": "CBSTM03A",
+      "type": "batch",
+      "rating": "High",
+      "score": 8,
+      "points": {
+        "loc": 2,
+        "files": 1,
+        "control_flow": 3,
+        "arithmetic": 1,
+        "coupling": 1
+      },
+      "metrics": {
+        "loc_code": 784,
+        "files_touched": 2,
+        "go_to": 14,
+        "alter": 4,
+        "evaluate_max_depth": 2,
+        "comp3": 1,
+        "rounded": 0,
+        "compute": 4,
+        "arithmetic_verbs": 7,
+        "fan_in": 0,
+        "fan_out": 1,
+        "cics_commands": 0
+      }
+    },
+    "CBSTM03B": {
+      "program": "CBSTM03B",
+      "type": "batch",
+      "rating": "Medium",
+      "score": 5,
+      "points": {
+        "loc": 0,
+        "files": 2,
+        "control_flow": 2,
+        "arithmetic": 0,
+        "coupling": 1
+      },
+      "metrics": {
+        "loc_code": 162,
+        "files_touched": 4,
+        "go_to": 13,
+        "alter": 0,
+        "evaluate_max_depth": 1,
+        "comp3": 0,
+        "rounded": 0,
+        "compute": 0,
+        "arithmetic_verbs": 0,
+        "fan_in": 1,
+        "fan_out": 0,
+        "cics_commands": 0
+      }
+    },
+    "CBTRN01C": {
+      "program": "CBTRN01C",
+      "type": "batch",
+      "rating": "Low",
+      "score": 4,
+      "points": {
+        "loc": 1,
+        "files": 3,
+        "control_flow": 0,
+        "arithmetic": 0,
+        "coupling": 0
+      },
+      "metrics": {
+        "loc_code": 415,
+        "files_touched": 6,
+        "go_to": 0,
+        "alter": 0,
+        "evaluate_max_depth": 0,
+        "comp3": 0,
+        "rounded": 0,
+        "compute": 0,
+        "arithmetic_verbs": 6,
+        "fan_in": 0,
+        "fan_out": 0,
+        "cics_commands": 0
+      }
+    },
+    "CBTRN02C": {
+      "program": "CBTRN02C",
+      "type": "batch",
+      "rating": "Medium",
+      "score": 6,
+      "points": {
+        "loc": 2,
+        "files": 3,
+        "control_flow": 0,
+        "arithmetic": 1,
+        "coupling": 0
+      },
+      "metrics": {
+        "loc_code": 619,
+        "files_touched": 6,
+        "go_to": 0,
+        "alter": 0,
+        "evaluate_max_depth": 0,
+        "comp3": 0,
+        "rounded": 0,
+        "compute": 1,
+        "arithmetic_verbs": 8,
+        "fan_in": 0,
+        "fan_out": 0,
+        "cics_commands": 0
+      }
+    },
+    "CBTRN03C": {
+      "program": "CBTRN03C",
+      "type": "batch",
+      "rating": "Medium",
+      "score": 6,
+      "points": {
+        "loc": 2,
+        "files": 3,
+        "control_flow": 0,
+        "arithmetic": 1,
+        "coupling": 0
+      },
+      "metrics": {
+        "loc_code": 545,
+        "files_touched": 6,
+        "go_to": 0,
+        "alter": 0,
+        "evaluate_max_depth": 1,
+        "comp3": 2,
+        "rounded": 0,
+        "compute": 0,
+        "arithmetic_verbs": 18,
+        "fan_in": 0,
+        "fan_out": 0,
+        "cics_commands": 0
+      }
+    },
+    "COACTUPC": {
+      "program": "COACTUPC",
+      "type": "online",
+      "rating": "High",
+      "score": 11,
+      "points": {
+        "loc": 3,
+        "files": 2,
+        "control_flow": 3,
+        "arithmetic": 2,
+        "coupling": 1
+      },
+      "metrics": {
+        "loc_code": 3368,
+        "files_touched": 3,
+        "go_to": 51,
+        "alter": 0,
+        "evaluate_max_depth": 2,
+        "comp3": 4,
+        "rounded": 0,
+        "compute": 5,
+        "arithmetic_verbs": 5,
+        "fan_in": 1,
+        "fan_out": 1,
+        "cics_commands": 17
+      }
+    },
+    "COACTVWC": {
+      "program": "COACTVWC",
+      "type": "online",
+      "rating": "Medium",
+      "score": 6,
+      "points": {
+        "loc": 2,
+        "files": 2,
+        "control_flow": 1,
+        "arithmetic": 0,
+        "coupling": 1
+      },
+      "metrics": {
+        "loc_code": 703,
+        "files_touched": 3,
+        "go_to": 9,
+        "alter": 0,
+        "evaluate_max_depth": 1,
+        "comp3": 0,
+        "rounded": 0,
+        "compute": 0,
+        "arithmetic_verbs": 0,
+        "fan_in": 1,
+        "fan_out": 1,
+        "cics_commands": 15
+      }
+    },
+    "COADM01C": {
+      "program": "COADM01C",
+      "type": "online",
+      "rating": "Low",
+      "score": 3,
+      "points": {
+        "loc": 0,
+        "files": 0,
+        "control_flow": 0,
+        "arithmetic": 0,
+        "coupling": 3
+      },
+      "metrics": {
+        "loc_code": 189,
+        "files_touched": 0,
+        "go_to": 0,
+        "alter": 0,
+        "evaluate_max_depth": 1,
+        "comp3": 0,
+        "rounded": 0,
+        "compute": 0,
+        "arithmetic_verbs": 0,
+        "fan_in": 5,
+        "fan_out": 7,
+        "cics_commands": 7
+      }
+    },
+    "COBIL00C": {
+      "program": "COBIL00C",
+      "type": "online",
+      "rating": "Medium",
+      "score": 6,
+      "points": {
+        "loc": 1,
+        "files": 2,
+        "control_flow": 0,
+        "arithmetic": 1,
+        "coupling": 2
+      },
+      "metrics": {
+        "loc_code": 420,
+        "files_touched": 3,
+        "go_to": 0,
+        "alter": 0,
+        "evaluate_max_depth": 1,
+        "comp3": 1,
+        "rounded": 0,
+        "compute": 1,
+        "arithmetic_verbs": 2,
+        "fan_in": 1,
+        "fan_out": 2,
+        "cics_commands": 13
+      }
+    },
+    "COBSWAIT": {
+      "program": "COBSWAIT",
+      "type": "utility",
+      "rating": "Low",
+      "score": 1,
+      "points": {
+        "loc": 0,
+        "files": 0,
+        "control_flow": 0,
+        "arithmetic": 0,
+        "coupling": 1
+      },
+      "metrics": {
+        "loc_code": 13,
+        "files_touched": 0,
+        "go_to": 0,
+        "alter": 0,
+        "evaluate_max_depth": 0,
+        "comp3": 0,
+        "rounded": 0,
+        "compute": 0,
+        "arithmetic_verbs": 0,
+        "fan_in": 0,
+        "fan_out": 1,
+        "cics_commands": 0
+      }
+    },
+    "COCRDLIC": {
+      "program": "COCRDLIC",
+      "type": "online",
+      "rating": "High",
+      "score": 10,
+      "points": {
+        "loc": 3,
+        "files": 1,
+        "control_flow": 3,
+        "arithmetic": 1,
+        "coupling": 2
+      },
+      "metrics": {
+        "loc_code": 1093,
+        "files_touched": 1,
+        "go_to": 16,
+        "alter": 0,
+        "evaluate_max_depth": 2,
+        "comp3": 1,
+        "rounded": 0,
+        "compute": 1,
+        "arithmetic_verbs": 7,
+        "fan_in": 1,
+        "fan_out": 3,
+        "cics_commands": 18
+      }
+    },
+    "COCRDSLC": {
+      "program": "COCRDSLC",
+      "type": "online",
+      "rating": "Medium",
+      "score": 6,
+      "points": {
+        "loc": 2,
+        "files": 1,
+        "control_flow": 1,
+        "arithmetic": 0,
+        "coupling": 2
+      },
+      "metrics": {
+        "loc_code": 642,
+        "files_touched": 2,
+        "go_to": 9,
+        "alter": 0,
+        "evaluate_max_depth": 1,
+        "comp3": 0,
+        "rounded": 0,
+        "compute": 0,
+        "arithmetic_verbs": 0,
+        "fan_in": 2,
+        "fan_out": 1,
+        "cics_commands": 14
+      }
+    },
+    "COCRDUPC": {
+      "program": "COCRDUPC",
+      "type": "online",
+      "rating": "High",
+      "score": 9,
+      "points": {
+        "loc": 3,
+        "files": 1,
+        "control_flow": 3,
+        "arithmetic": 0,
+        "coupling": 2
+      },
+      "metrics": {
+        "loc_code": 1194,
+        "files_touched": 1,
+        "go_to": 21,
+        "alter": 0,
+        "evaluate_max_depth": 2,
+        "comp3": 0,
+        "rounded": 0,
+        "compute": 0,
+        "arithmetic_verbs": 0,
+        "fan_in": 2,
+        "fan_out": 1,
+        "cics_commands": 12
+      }
+    },
+    "COMEN01C": {
+      "program": "COMEN01C",
+      "type": "online",
+      "rating": "Low",
+      "score": 4,
+      "points": {
+        "loc": 1,
+        "files": 0,
+        "control_flow": 0,
+        "arithmetic": 0,
+        "coupling": 3
+      },
+      "metrics": {
+        "loc_code": 213,
+        "files_touched": 0,
+        "go_to": 0,
+        "alter": 0,
+        "evaluate_max_depth": 1,
+        "comp3": 0,
+        "rounded": 0,
+        "compute": 0,
+        "arithmetic_verbs": 0,
+        "fan_in": 11,
+        "fan_out": 12,
+        "cics_commands": 7
+      }
+    },
+    "CORPT00C": {
+      "program": "CORPT00C",
+      "type": "online",
+      "rating": "Medium",
+      "score": 7,
+      "points": {
+        "loc": 1,
+        "files": 0,
+        "control_flow": 2,
+        "arithmetic": 2,
+        "coupling": 2
+      },
+      "metrics": {
+        "loc_code": 498,
+        "files_touched": 0,
+        "go_to": 1,
+        "alter": 0,
+        "evaluate_max_depth": 2,
+        "comp3": 0,
+        "rounded": 0,
+        "compute": 7,
+        "arithmetic_verbs": 9,
+        "fan_in": 1,
+        "fan_out": 3,
+        "cics_commands": 7
+      }
+    },
+    "COSGN00C": {
+      "program": "COSGN00C",
+      "type": "online",
+      "rating": "Low",
+      "score": 4,
+      "points": {
+        "loc": 0,
+        "files": 1,
+        "control_flow": 0,
+        "arithmetic": 0,
+        "coupling": 3
+      },
+      "metrics": {
+        "loc_code": 172,
+        "files_touched": 1,
+        "go_to": 0,
+        "alter": 0,
+        "evaluate_max_depth": 1,
+        "comp3": 0,
+        "rounded": 0,
+        "compute": 0,
+        "arithmetic_verbs": 0,
+        "fan_in": 11,
+        "fan_out": 2,
+        "cics_commands": 10
+      }
+    },
+    "COTRN00C": {
+      "program": "COTRN00C",
+      "type": "online",
+      "rating": "Medium",
+      "score": 6,
+      "points": {
+        "loc": 2,
+        "files": 1,
+        "control_flow": 0,
+        "arithmetic": 1,
+        "coupling": 2
+      },
+      "metrics": {
+        "loc_code": 529,
+        "files_touched": 1,
+        "go_to": 0,
+        "alter": 0,
+        "evaluate_max_depth": 1,
+        "comp3": 0,
+        "rounded": 0,
+        "compute": 4,
+        "arithmetic_verbs": 5,
+        "fan_in": 2,
+        "fan_out": 3,
+        "cics_commands": 10
+      }
+    },
+    "COTRN01C": {
+      "program": "COTRN01C",
+      "type": "online",
+      "rating": "Low",
+      "score": 4,
+      "points": {
+        "loc": 1,
+        "files": 1,
+        "control_flow": 0,
+        "arithmetic": 0,
+        "coupling": 2
+      },
+      "metrics": {
+        "loc_code": 231,
+        "files_touched": 1,
+        "go_to": 0,
+        "alter": 0,
+        "evaluate_max_depth": 1,
+        "comp3": 0,
+        "rounded": 0,
+        "compute": 0,
+        "arithmetic_verbs": 0,
+        "fan_in": 2,
+        "fan_out": 3,
+        "cics_commands": 5
+      }
+    },
+    "COTRN02C": {
+      "program": "COTRN02C",
+      "type": "online",
+      "rating": "Medium",
+      "score": 7,
+      "points": {
+        "loc": 2,
+        "files": 2,
+        "control_flow": 0,
+        "arithmetic": 1,
+        "coupling": 2
+      },
+      "metrics": {
+        "loc_code": 614,
+        "files_touched": 3,
+        "go_to": 0,
+        "alter": 0,
+        "evaluate_max_depth": 1,
+        "comp3": 0,
+        "rounded": 0,
+        "compute": 4,
+        "arithmetic_verbs": 5,
+        "fan_in": 1,
+        "fan_out": 3,
+        "cics_commands": 11
+      }
+    },
+    "COUSR00C": {
+      "program": "COUSR00C",
+      "type": "online",
+      "rating": "Medium",
+      "score": 6,
+      "points": {
+        "loc": 2,
+        "files": 1,
+        "control_flow": 0,
+        "arithmetic": 1,
+        "coupling": 2
+      },
+      "metrics": {
+        "loc_code": 531,
+        "files_touched": 1,
+        "go_to": 0,
+        "alter": 0,
+        "evaluate_max_depth": 1,
+        "comp3": 0,
+        "rounded": 0,
+        "compute": 4,
+        "arithmetic_verbs": 5,
+        "fan_in": 1,
+        "fan_out": 4,
+        "cics_commands": 11
+      }
+    },
+    "COUSR01C": {
+      "program": "COUSR01C",
+      "type": "online",
+      "rating": "Low",
+      "score": 3,
+      "points": {
+        "loc": 0,
+        "files": 1,
+        "control_flow": 0,
+        "arithmetic": 0,
+        "coupling": 2
+      },
+      "metrics": {
+        "loc_code": 198,
+        "files_touched": 1,
+        "go_to": 0,
+        "alter": 0,
+        "evaluate_max_depth": 1,
+        "comp3": 0,
+        "rounded": 0,
+        "compute": 0,
+        "arithmetic_verbs": 0,
+        "fan_in": 1,
+        "fan_out": 2,
+        "cics_commands": 5
+      }
+    },
+    "COUSR02C": {
+      "program": "COUSR02C",
+      "type": "online",
+      "rating": "Low",
+      "score": 4,
+      "points": {
+        "loc": 1,
+        "files": 1,
+        "control_flow": 0,
+        "arithmetic": 0,
+        "coupling": 2
+      },
+      "metrics": {
+        "loc_code": 303,
+        "files_touched": 1,
+        "go_to": 0,
+        "alter": 0,
+        "evaluate_max_depth": 1,
+        "comp3": 0,
+        "rounded": 0,
+        "compute": 0,
+        "arithmetic_verbs": 0,
+        "fan_in": 2,
+        "fan_out": 2,
+        "cics_commands": 6
+      }
+    },
+    "COUSR03C": {
+      "program": "COUSR03C",
+      "type": "online",
+      "rating": "Low",
+      "score": 4,
+      "points": {
+        "loc": 1,
+        "files": 1,
+        "control_flow": 0,
+        "arithmetic": 0,
+        "coupling": 2
+      },
+      "metrics": {
+        "loc_code": 251,
+        "files_touched": 1,
+        "go_to": 0,
+        "alter": 0,
+        "evaluate_max_depth": 1,
+        "comp3": 0,
+        "rounded": 0,
+        "compute": 0,
+        "arithmetic_verbs": 0,
+        "fan_in": 2,
+        "fan_out": 2,
+        "cics_commands": 6
+      }
+    },
+    "CSUTLDTC": {
+      "program": "CSUTLDTC",
+      "type": "utility",
+      "rating": "Low",
+      "score": 1,
+      "points": {
+        "loc": 0,
+        "files": 0,
+        "control_flow": 0,
+        "arithmetic": 0,
+        "coupling": 1
+      },
+      "metrics": {
+        "loc_code": 114,
+        "files_touched": 0,
+        "go_to": 0,
+        "alter": 0,
+        "evaluate_max_depth": 1,
+        "comp3": 0,
+        "rounded": 0,
+        "compute": 0,
+        "arithmetic_verbs": 0,
+        "fan_in": 2,
+        "fan_out": 0,
+        "cics_commands": 0
+      }
+    }
+  },
+  "rating_criteria": {
+    "points": "each criterion scores 0-3; total 0-15; Low <= 4, Medium 5-8, High >= 9; a program containing ALTER is raised one level (ALTER has no Java equivalent and forces a control-flow rewrite)",
+    "loc": "code lines (comments/blank excluded): >=200 ->1, >=500 ->2, >=1000 ->3",
+    "files": "distinct datasets touched (batch SELECT/ASSIGN + CICS FILE via CSD): >=1 ->1, >=3 ->2, >=5 ->3",
+    "control_flow": "GO TO + ALTER count: >=1 ->1, >=10 ->2, >=30 ->3; +1 if any ALTER; +1 if EVALUATE nests >= 2 deep (capped at 3)",
+    "arithmetic": "COMP-3 fields (own + via copybooks) + ROUNDED + COMPUTE statements: >=1 ->1, >=6 ->2, >=15 ->3",
+    "coupling": "fan-in + fan-out over program/assembler edges (CALL, XCTL, LINK, resolved dynamic targets): >=1 ->1, >=3 ->2, >=6 ->3"
+  },
+  "migration_order": [
+    {
+      "phase": "A",
+      "title": "Data-only utilities and plumbing (no business logic)",
+      "rationale": "Dataset definitions, loads, backups and operator jobs translate to schema/DDL, seed loaders and Spring Batch infrastructure; they have no COBOL business rules and unblock every later phase.",
+      "steps": [
+        {
+          "step": "A1",
+          "items": [
+            "COBSWAIT",
+            "MVSWAIT",
+            "WAITSTEP"
+          ],
+          "kind": "programs/jobs",
+          "note": "Timer utility (COBSWAIT -> MVSWAIT STIMER); becomes a scheduler delay, no port needed."
+        },
+        {
+          "step": "A2",
+          "items": [
+            "CSUTLDTC",
+            "CEEDAYS"
+          ],
+          "kind": "programs",
+          "note": "Pure date-validation subprogram shared by CORPT00C, COTRN02C and COACTUPC (via CSUTLDPY); port first as a java.time utility so online phases reuse it."
+        },
+        {
+          "step": "A3",
+          "items": [
+            "DEFGDGB",
+            "DEFGDGD",
+            "DEFCUST",
+            "DALYREJS",
+            "REPTFILE",
+            "TRANIDX",
+            "ESDSRRDS",
+            "CBADMCDJ"
+          ],
+          "kind": "jobs",
+          "note": "IDCAMS DEFINE CLUSTER/AIX/GDG and CSD upload: become Flyway DDL + table/sequence definitions."
+        },
+        {
+          "step": "A4",
+          "items": [
+            "ACCTFILE",
+            "CARDFILE",
+            "CUSTFILE",
+            "XREFFILE",
+            "TRANFILE",
+            "TRANTYPE",
+            "TRANCATG",
+            "DISCGRP",
+            "TCATBALF",
+            "DUSRSECJ"
+          ],
+          "kind": "jobs",
+          "note": "File loads (REPRO PS -> VSAM): become seed-data loaders for the golden set; needed before any batch or online program can be verified."
+        },
+        {
+          "step": "A5",
+          "items": [
+            "OPENFIL",
+            "CLOSEFIL",
+            "TRANBKP",
+            "PRTCATBL",
+            "COMBTRAN",
+            "FTPJCL",
+            "INTRDRJ1",
+            "INTRDRJ2",
+            "TXT2PDF1"
+          ],
+          "kind": "jobs",
+          "note": "CICS file open/close, GDG backups, SORT merges and transfer jobs: become batch job steps/ops scripts with no COBOL to translate."
+        }
+      ]
+    },
+    {
+      "phase": "B",
+      "title": "Batch jobs in JCL/dataset dependency order",
+      "rationale": "Order follows the dataset lineage in section 4: each job only reads datasets written by jobs earlier in the list (POSTTRAN updates ACCTFILE/TCATBALF that INTCALC reads; INTCALC writes SYSTRAN(+1) that COMBTRAN merges back; TRANREPT and CREASTMT read the posted TRANSACT file).",
+      "steps": [
+        {
+          "step": "B1",
+          "items": [
+            "READACCT",
+            "READCARD",
+            "READCUST",
+            "READXREF"
+          ],
+          "kind": "jobs",
+          "programs": [
+            "CBACT01C",
+            "CBACT02C",
+            "CBACT03C",
+            "CBCUS01C",
+            "COBDATFT"
+          ],
+          "note": "Read-only file dump programs: lowest risk, exercise the VSAM -> JPA repositories and the COBDATFT date formatter."
+        },
+        {
+          "step": "B2",
+          "items": [
+            "POSTTRAN"
+          ],
+          "kind": "jobs",
+          "programs": [
+            "CBTRN02C",
+            "CBTRN01C"
+          ],
+          "note": "Daily transaction posting (validation + account/category balance update, rejects to DALYREJS(+1)). CBTRN01C is the earlier validation-only variant with no JCL; port alongside as the validation module."
+        },
+        {
+          "step": "B3",
+          "items": [
+            "INTCALC"
+          ],
+          "kind": "jobs",
+          "programs": [
+            "CBACT04C"
+          ],
+          "note": "Interest calculation over TCATBALF/DISCGRP, writes SYSTRAN(+1) and updates ACCTFILE; depends on POSTTRAN output."
+        },
+        {
+          "step": "B4",
+          "items": [
+            "TRANREPT",
+            "CREASTMT"
+          ],
+          "kind": "jobs",
+          "programs": [
+            "CBTRN03C",
+            "CBSTM03A",
+            "CBSTM03B"
+          ],
+          "note": "Reporting: TRANREPT (REPROC backup -> SORT -> CBTRN03C report GDG) and CREASTMT (SORT -> REPRO -> CBSTM03A/B statements). CBSTM03A/B carry the GO TO/ALTER logic and are the hardest batch port."
+        },
+        {
+          "step": "B5",
+          "items": [
+            "CBEXPORT",
+            "CBIMPORT"
+          ],
+          "kind": "jobs",
+          "programs": [
+            "CBEXPORT",
+            "CBIMPORT"
+          ],
+          "note": "Branch migration export/import; independent of the daily chain, last because they are operational tooling."
+        }
+      ]
+    },
+    {
+      "phase": "C",
+      "title": "Online programs from leaf screens to menus",
+      "rationale": "Leaf screens have no forward XCTL (they only return to the menu/sign-on), so each can be verified in isolation against its BMS map; list screens that XCTL into detail/update screens follow; menus and sign-on last because they depend on every target existing.",
+      "steps": [
+        {
+          "step": "C1",
+          "items": [
+            "COUSR01C",
+            "COUSR02C",
+            "COUSR03C",
+            "COACTVWC",
+            "COBIL00C",
+            "COCRDSLC",
+            "CORPT00C",
+            "COTRN02C",
+            "COCRDUPC",
+            "COACTUPC"
+          ],
+          "kind": "programs",
+          "note": "Leaf screens, ordered by complexity score (lowest first)."
+        },
+        {
+          "step": "C2",
+          "items": [
+            "COUSR00C",
+            "COCRDLIC",
+            "COTRN01C",
+            "COTRN00C"
+          ],
+          "kind": "programs",
+          "note": "List screens that transfer to detail/update screens (COUSR00C -> COUSR02C, COUSR03C; COCRDLIC -> COCRDSLC, COCRDUPC; COTRN01C -> COTRN00C; COTRN00C -> COTRN01C). Mutual transfers (COTRN00C <-> COTRN01C) are ported as a pair."
+        },
+        {
+          "step": "C3",
+          "items": [
+            "COMEN01C",
+            "COADM01C"
+          ],
+          "kind": "programs",
+          "note": "Menus (table-driven XCTL from COMEN02Y/COADM02Y)."
+        },
+        {
+          "step": "C4",
+          "items": [
+            "COSGN00C"
+          ],
+          "kind": "programs",
+          "note": "Sign-on / entry transaction CC00 (USRSEC read, XCTL to the two menus); last so the full navigation path can be verified end to end."
+        }
+      ]
+    }
+  ],
+  "order_coverage": {
+    "programs_total": 31,
+    "programs_in_order": [
+      "CBACT01C",
+      "CBACT02C",
+      "CBACT03C",
+      "CBACT04C",
+      "CBCUS01C",
+      "CBEXPORT",
+      "CBIMPORT",
+      "CBSTM03A",
+      "CBSTM03B",
+      "CBTRN01C",
+      "CBTRN02C",
+      "CBTRN03C",
+      "COACTUPC",
+      "COACTVWC",
+      "COADM01C",
+      "COBIL00C",
+      "COBSWAIT",
+      "COCRDLIC",
+      "COCRDSLC",
+      "COCRDUPC",
+      "COMEN01C",
+      "CORPT00C",
+      "COSGN00C",
+      "COTRN00C",
+      "COTRN01C",
+      "COTRN02C",
+      "COUSR00C",
+      "COUSR01C",
+      "COUSR02C",
+      "COUSR03C",
+      "CSUTLDTC"
+    ],
+    "programs_missing_from_order": [],
+    "jobs_total": 38,
+    "jobs_missing_from_order": []
+  },
+  "counts": {
+    "programs": 31,
+    "online": 17,
+    "program_edges": 67,
+    "file_edges": 72,
+    "copybooks": 47,
+    "jcl_jobs": 38,
+    "jcl_procs": 2,
+    "ratings": {
+      "Medium": 14,
+      "Low": 13,
+      "High": 4
+    }
+  },
+  "diagrams": {
+    "01-online-call-graph": "docs/modernization/diagrams/01-online-call-graph.mmd",
+    "02-batch-call-graph": "docs/modernization/diagrams/02-batch-call-graph.mmd",
+    "03-online-program-files": "docs/modernization/diagrams/03-online-program-files.mmd",
+    "04-batch-program-datasets": "docs/modernization/diagrams/04-batch-program-datasets.mmd",
+    "05-jcl-dataset-lineage": "docs/modernization/diagrams/05-jcl-dataset-lineage.mmd"
+  }
+}
