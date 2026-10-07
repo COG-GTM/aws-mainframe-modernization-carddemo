@@ -1,6 +1,7 @@
 package com.carddemo.account;
 
 import java.util.List;
+import org.springframework.data.domain.Limit;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 /**
@@ -10,4 +11,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 public interface AccountRepository extends JpaRepository<Account, Long> {
 
     List<Account> findAllByOrderByAcctIdAsc();
+
+    /** Keyset browse in key order (batch sequential read of ACCTDATA). */
+    List<Account> findByAcctIdGreaterThanOrderByAcctIdAsc(long lastAcctId, Limit limit);
 }

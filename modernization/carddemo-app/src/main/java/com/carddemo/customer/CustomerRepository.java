@@ -1,6 +1,7 @@
 package com.carddemo.customer;
 
 import java.util.List;
+import org.springframework.data.domain.Limit;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 /**
@@ -10,4 +11,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 public interface CustomerRepository extends JpaRepository<Customer, Integer> {
 
     List<Customer> findAllByOrderByCustIdAsc();
+
+    /** Keyset browse in key order (batch sequential read of CUSTDATA). */
+    List<Customer> findByCustIdGreaterThanOrderByCustIdAsc(int lastCustId, Limit limit);
 }
