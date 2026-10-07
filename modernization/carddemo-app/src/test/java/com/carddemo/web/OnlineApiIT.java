@@ -118,6 +118,15 @@ class OnlineApiIT {
         assertThat(examples.has("admin")).isTrue();
         assertThat(examples.has("wrongPassword")).isTrue();
         assertThat(login.at("/responses/401").isMissingNode()).isFalse();
+        assertThat(login.at("/responses/401/content/application~1problem+json/examples/wrongPassword/value/code")
+                .asText()).isEqualTo("WRONG_PASSWORD");
+        assertThat(login.at("/responses/400/content/application~1problem+json/examples/blankUserId/value/message")
+                .asText()).isEqualTo("Please enter User ID ...");
+        assertThat(doc.at("/paths/~1api~1v1~1menu/get/responses/401/content/application~1problem+json/examples"
+                + "/signOnRequired/value/code").asText()).isEqualTo("SIGNON_REQUIRED");
+        assertThat(doc.at("/paths/~1api~1v1~1menu~1{menu}~1selection/post/responses/403/content"
+                + "/application~1problem+json/examples/adminOnly/value/message").asText())
+                .isEqualTo("No access - Admin Only option...");
         assertThat(doc.at("/paths/~1api~1v1~1menu/get").isMissingNode()).isFalse();
         assertThat(doc.at("/paths/~1api~1v1~1menu~1{menu}~1selection/post/requestBody/content/application~1json"
                 + "/examples/accountView").isMissingNode()).isFalse();
