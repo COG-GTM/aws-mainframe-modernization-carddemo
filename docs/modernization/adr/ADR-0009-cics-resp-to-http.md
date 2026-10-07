@@ -11,7 +11,7 @@ Domain services signal file-control outcomes with the exceptions in `com.carddem
 | --- | --- | --- |
 | `NORMAL` | (none) | 200 / 201 / 204 |
 | `NOTFND` | `RecordNotFoundException` | 404 |
-| `DUPREC`, `DUPKEY` | `DuplicateRecordException` | 409 |
+| `DUPREC`, `DUPKEY` | `DuplicateRecordException` (`Condition.DUPREC` / `DUPKEY`, reported as `cicsResp`) | 409 |
 | `INVREQ`, and map edit errors | `InvalidRequestException` (or Bean Validation) | 400 |
 | `ENDFILE` while browsing | not an error: empty/last page | 200 |
 | `OTHER` / anything else | `AbendException` or unexpected exception | 500 |

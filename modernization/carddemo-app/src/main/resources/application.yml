@@ -4,7 +4,7 @@ spring:
   datasource:
     url: ${CARDDEMO_DB_URL:jdbc:postgresql://localhost:5432/carddemo}
     username: ${CARDDEMO_DB_USER:carddemo}
-    password: ${CARDDEMO_DB_PASSWORD:carddemo}
+    password: ${CARDDEMO_DB_PASSWORD:}   # no default; set it in the environment
   jpa:
     open-in-view: false
     hibernate:

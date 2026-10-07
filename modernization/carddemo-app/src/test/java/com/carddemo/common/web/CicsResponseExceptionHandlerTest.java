@@ -43,6 +43,13 @@ class CicsResponseExceptionHandlerTest {
     }
 
     @Test
+    void dupkeyIs409AndKeepsItsCondition() throws Exception {
+        mvc.perform(get("/dupkey"))
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.cicsResp").value("DUPKEY"));
+    }
+
+    @Test
     void invreqIs400() throws Exception {
         mvc.perform(get("/invreq"))
                 .andExpect(status().isBadRequest())
@@ -76,6 +83,11 @@ class CicsResponseExceptionHandlerTest {
         @GetMapping("/duprec")
         void duprec() {
             throw new DuplicateRecordException("User ID already exist...");
+        }
+
+        @GetMapping("/dupkey")
+        void dupkey() {
+            throw DuplicateRecordException.duplicateKey("Alternate key already exists");
         }
 
         @GetMapping("/invreq")

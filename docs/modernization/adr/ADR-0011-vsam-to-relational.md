@@ -21,7 +21,12 @@
 - Each AIX becomes a database index on the alternate key column(s): `CARDAIX` `KEYS(11 16) NONUNIQUEKEY` → non-unique
   index on `card.acct_id`; `CXACAIX` `KEYS(11,25)` → index on `card_xref.acct_id`; TRANSACT AIX `KEYS(26 304)` → index
   on the processed timestamp. `UNIQUEKEY` AIXs become unique indexes. The PATH name is not modelled.
-- `STARTBR`/`READNEXT`/`READPREV` browses become keyset-paginated queries ordered by the key
-  (`WHERE key > :last ORDER BY key LIMIT n`), never `OFFSET`, so paging matches the COBOL screens.
+- `STARTBR`/`READNEXT`/`READPREV` browses become keyset-paginated queries ordered by the key, never `OFFSET`, so
+  paging matches the COBOL screens. `STARTBR` (default `GTEQ`) includes the start key; continuation cursors exclude
+  the boundary record already shown:
+  - first page from a start key: `WHERE key >= :startKey ORDER BY key LIMIT n`
+  - next page (`READNEXT`, PF8): `WHERE key > :lastKeyShown ORDER BY key LIMIT n`
+  - previous page (`READPREV`, PF7): `WHERE key < :firstKeyShown ORDER BY key DESC LIMIT n`, then reverse for display
+  Tests cover an exact-key start, a start key that does not exist, and both directions at the file boundaries.
 - Record layout fields with no business meaning (`FILLER`) are not stored. Copybook names go in column comments.
 - Sequential files (DALYTRAN, reports, exports) are not tables; they stay files read/written by Spring Batch.

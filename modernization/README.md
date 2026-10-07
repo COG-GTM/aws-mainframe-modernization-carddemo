@@ -57,11 +57,12 @@ copied from `spring-batch-core`), so `spring.batch.jdbc.initialize-schema=never`
 ```bash
 docker run -d --name carddemo-db -p 5432:5432 \
   -e POSTGRES_DB=carddemo -e POSTGRES_USER=carddemo -e POSTGRES_PASSWORD=carddemo postgres:16-alpine
+export CARDDEMO_DB_PASSWORD=carddemo   # no password default is shipped
 JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64 mvn -B -pl carddemo-app spring-boot:run
 # http://localhost:8080/actuator/health   http://localhost:8080/swagger-ui.html
 ```
 
-Connection settings: `CARDDEMO_DB_URL`, `CARDDEMO_DB_USER`, `CARDDEMO_DB_PASSWORD`.
+Connection settings: `CARDDEMO_DB_URL`, `CARDDEMO_DB_USER` (defaults: local `carddemo`), `CARDDEMO_DB_PASSWORD` (required, no default).
 
 ## Reproducing the COBOL baseline (golden profile)
 

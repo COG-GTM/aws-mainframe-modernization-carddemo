@@ -29,7 +29,7 @@ public class CicsResponseExceptionHandler {
 
     @ExceptionHandler(DuplicateRecordException.class)
     ProblemDetail duplicate(DuplicateRecordException e) {
-        return problem(HttpStatus.CONFLICT, e.getMessage(), "DUPREC");
+        return problem(HttpStatus.CONFLICT, e.getMessage(), e.condition().name());
     }
 
     @ExceptionHandler(InvalidRequestException.class)

@@ -27,7 +27,6 @@ class GoldenProfileTest {
     @Test
     void clockIsPinnedToCobCurrentDate() {
         assertThat(LocalDateTime.now(clock)).isEqualTo(LocalDateTime.of(2022, 7, 6, 0, 0));
-        assertThat(LocalDateTime.now(clock)).isEqualTo(LocalDateTime.now(clock));
     }
 
     @Test
