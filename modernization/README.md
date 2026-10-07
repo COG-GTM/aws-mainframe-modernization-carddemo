@@ -82,8 +82,9 @@ file and table mode and compares every output with the baseline.
 
 ## Run locally (docker compose)
 
-`docker-compose.yml` starts PostgreSQL 16 and the application (one service: the modular monolith), both with
-health checks; the app waits for a healthy database and Flyway migrates the schema on start.
+`docker-compose.yml` starts PostgreSQL 16, the application (one service: the modular monolith) and the web UI
+(`carddemo-ui`, nginx serving the React build), all with health checks; the app waits for a healthy database and
+Flyway migrates the schema on start, the UI waits for a healthy app.
 
 ```bash
 cd modernization
@@ -91,6 +92,7 @@ cp .env.example .env          # set CARDDEMO_DB_PASSWORD; no password default is
 docker compose up -d --build --wait
 curl http://localhost:8080/actuator/health      # {"status":"UP","components":{"db":{"status":"UP",...
 # Swagger UI: http://localhost:8080/swagger-ui.html
+# Web UI:     http://localhost:8085  (sign on as USER0001 or ADMIN001)
 docker compose down           # add -v to drop the database volume
 ```
 
@@ -104,7 +106,8 @@ copybooks from `app/cpy`. Variables (shell or `.env`):
 | `CARDDEMO_JWT_TTL` | `PT1H` | lifetime of a sign-on token |
 | `CARDDEMO_HTTP_PORT` | `8080` | host port of the app; set it when 8080/8084 are taken |
 | `CARDDEMO_DB_PORT` | `5432` | host port of Postgres |
-| `CARDDEMO_BIND_ADDRESS` | `127.0.0.1` | host interface both ports are published on (`local` shows health details) |
+| `CARDDEMO_UI_PORT` | `8085` | host port of the web UI (nginx: static React build, proxies `/api/`, `/v3/`, `/swagger-ui*` to the app) |
+| `CARDDEMO_BIND_ADDRESS` | `127.0.0.1` | host interface all ports are published on (`local` shows health details) |
 | `CARDDEMO_DB_NAME` / `CARDDEMO_DB_USER` | `carddemo` | database and user |
 | `CARDDEMO_PROFILES` | `local` | `SPRING_PROFILES_ACTIVE` of the app container |
 | `MAVEN_MIRROR_URL` | Central | Maven mirror for the image build (use when Central answers 429) |
@@ -117,6 +120,33 @@ Without Docker for the app (Postgres still needed):
 export CARDDEMO_DB_PASSWORD=...   # CARDDEMO_DB_URL defaults to jdbc:postgresql://localhost:5432/carddemo
 JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64 mvn -B -pl carddemo-app spring-boot:run -Dspring-boot.run.profiles=local
 ```
+
+## Web UI (`carddemo-ui/`)
+
+React 18 + Vite + TypeScript, one route per BMS map (`docs/modernization/08-ui-map.md`, ADR-0022). It talks only to
+`/api/v1`; routing follows `NavigationContext.toProgram`, the JWT and navigation context live in `sessionStorage`.
+
+```bash
+cd modernization/carddemo-ui
+npm ci
+npm run dev        # http://localhost:5173; proxies /api, /v3, /swagger-ui to CARDDEMO_API_URL (default http://localhost:8084)
+npm run lint && npm run typecheck && npm test && npm run build
+```
+
+Run the API for the dev server with `CARDDEMO_HTTP_PORT=8084 docker compose up -d --wait carddemo-app` (or set
+`CARDDEMO_API_URL=http://localhost:8080`). In compose the `carddemo-ui` image (multi-stage: Node 20 build → nginx)
+serves the same build on `CARDDEMO_UI_PORT`.
+
+End-to-end (Playwright, Chromium) against the running compose stack: signs in as USER0001 and ADMIN001 and completes
+every transaction once on the sample data (account 00000000010):
+
+```bash
+docker compose up -d --build --wait          # from modernization/
+cd carddemo-ui && npx playwright install chromium
+npm run e2e                                  # CARDDEMO_UI_URL / CARDDEMO_UI_PORT select the UI (default :8085)
+```
+
+What the E2E suite and recordings do not cover is listed in `docs/modernization/08-ui-map.md` ("Not tested").
 
 ## Spring profiles
 
@@ -132,12 +162,14 @@ JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64 mvn -B -pl carddemo-app spring-boot
 
 `.github/workflows/modernization-ci.yml` runs on pull requests (any base branch, since board PRs are stacked)
 and pushes to `main` that touch `modernization/**`, `app/cpy|cbl|data/**`, `scripts/baseline/**`,
-`scripts/batch/**`, `docs/validation/baseline/**`, the `Makefile` or the workflow:
+`scripts/batch/**`, `docs/validation/baseline/**`, `app/bms/**`, `app/cpy-bms/**`, the `Makefile` or the workflow
+(`modernization/carddemo-ui/**` is listed explicitly):
 
 | Job | What |
 | --- | --- |
 | `build` | Temurin 21, `mvn -B verify -Dcarddemo.test.profiles=test,ci` (unit tests, ArchUnit, JaCoCo codec gate, Testcontainers Postgres ITs); uploads `jacoco-report` and `test-reports` artifacts |
-| `compose` | `docker compose up -d --build --wait`, asserts `/actuator/health` is `UP` |
+| `compose` | `docker compose up -d --build --wait`, asserts `/actuator/health` is `UP` and the UI answers, then runs the Playwright USER/ADMIN flows (`npm run e2e`) against the stack; report as the `playwright-report` artifact |
+| `ui` | Node 20 in `modernization/carddemo-ui`: `npm ci`, `npm run lint`, `npm run typecheck`, `vitest --run`, `vite build` |
 | `baseline` | installs `gnucobol` (3.1.2), `make baseline-check`: compiles and runs the 26 batch jobs with `--fast`, asserts `jobs=26 compile failures=0`, and fails if any job output, report or gnucobol patch differs from `docs/validation/baseline/` (toolchain-specific `00-COMPILE/*.log`, `cobc-*.txt` are reported, not gated) |
 | `batch-equivalence` | PostgreSQL 16 service + packaged jar: `make batch-equivalence` runs READACCT/READCARD/READXREF/READCUST through the batch CLI (file input, then table input after `initial-load`), compares SYSOUT (trailing spaces normalised), datasets (byte-level) and exit codes with `docs/validation/baseline/<JOB>/`, and checks that an abend exits 16 with a `batch_run` row; the same for POSTTRAN, INTCALC, TRANBKP/COMBTRAN/TRANREPT/PRTCATBL and CREASTMT, then `make nightly-cycle` (one `--job=nightly-cycle` launch per mode, chained Java outputs, job × mode × result matrix); report in the job summary, outputs as the `batch-equivalence` artifact |
 
