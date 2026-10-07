@@ -1,0 +1,6 @@
+# Applies to modernization/Dockerfile (context = repo root): send only what the image build needs.
+*
+!modernization/pom.xml
+!modernization/carddemo-app/pom.xml
+!modernization/carddemo-app/src/
+!app/cpy/

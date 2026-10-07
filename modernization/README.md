@@ -52,17 +52,66 @@ Flyway owns the whole schema, including the Spring Batch job repository (`V1__sp
 copied from `spring-batch-core`), so `spring.batch.jdbc.initialize-schema=never`. Jobs never launch at startup
 (`spring.batch.job.enabled=false`); the in-app scheduler and REST trigger launch them.
 
-## Run
+## Run locally (docker compose)
+
+`docker-compose.yml` starts PostgreSQL 16 and the application (one service: the modular monolith), both with
+health checks; the app waits for a healthy database and Flyway migrates the schema on start.
 
 ```bash
-docker run -d --name carddemo-db -p 5432:5432 \
-  -e POSTGRES_DB=carddemo -e POSTGRES_USER=carddemo -e POSTGRES_PASSWORD=carddemo postgres:16-alpine
-export CARDDEMO_DB_PASSWORD=carddemo   # no password default is shipped
-JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64 mvn -B -pl carddemo-app spring-boot:run
-# http://localhost:8080/actuator/health   http://localhost:8080/swagger-ui.html
+cd modernization
+cp .env.example .env          # set CARDDEMO_DB_PASSWORD; no password default is shipped
+docker compose up -d --build --wait
+curl http://localhost:8080/actuator/health      # {"status":"UP","components":{"db":{"status":"UP",...
+# Swagger UI: http://localhost:8080/swagger-ui.html
+docker compose down           # add -v to drop the database volume
 ```
 
-Connection settings: `CARDDEMO_DB_URL`, `CARDDEMO_DB_USER` (defaults: local `carddemo`), `CARDDEMO_DB_PASSWORD` (required, no default).
+The image is built from the repository root (`Dockerfile`, context `..`), because the codec reads the legacy
+copybooks from `app/cpy`. Variables (shell or `.env`):
+
+| Variable | Default | Purpose |
+| --- | --- | --- |
+| `CARDDEMO_DB_PASSWORD` | none (required) | Postgres password for both containers |
+| `CARDDEMO_HTTP_PORT` | `8080` | host port of the app; set it when 8080/8084 are taken |
+| `CARDDEMO_DB_PORT` | `5432` | host port of Postgres |
+| `CARDDEMO_BIND_ADDRESS` | `127.0.0.1` | host interface both ports are published on (`local` shows health details) |
+| `CARDDEMO_DB_NAME` / `CARDDEMO_DB_USER` | `carddemo` | database and user |
+| `CARDDEMO_PROFILES` | `local` | `SPRING_PROFILES_ACTIVE` of the app container |
+| `MAVEN_MIRROR_URL` | Central | Maven mirror for the image build (use when Central answers 429) |
+
+From the repo root the same is `make up`, `make health`, `make down`.
+
+Without Docker for the app (Postgres still needed):
+
+```bash
+export CARDDEMO_DB_PASSWORD=...   # CARDDEMO_DB_URL defaults to jdbc:postgresql://localhost:5432/carddemo
+JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64 mvn -B -pl carddemo-app spring-boot:run -Dspring-boot.run.profiles=local
+```
+
+## Spring profiles
+
+| Profile | Used by | Sets |
+| --- | --- | --- |
+| (none) | everything | `application.yml`: datasource from `CARDDEMO_DB_*`, Flyway, Batch (no start-up launch), actuator `health,info` |
+| `local` | docker compose, `spring-boot:run` | health details, `com.carddemo` DEBUG logging |
+| `test` | Surefire/Failsafe (system property from `carddemo.test.profiles`, default `test`) | health details, quiet logs, `flyway.clean-disabled`; datasource comes from Testcontainers |
+| `ci` | GitHub Actions (`-Dcarddemo.test.profiles=test,ci`) | no ANSI colours, Flyway/Testcontainers INFO logs |
+| `golden` | parity / equivalence runs | baseline clock and JCL parameters (below) |
+
+## CI
+
+`.github/workflows/modernization-ci.yml` runs on pull requests (any base branch, since board PRs are stacked)
+and pushes to `main` that touch `modernization/**`, `app/cpy|cbl|data/**`, `scripts/baseline/**`,
+`docs/validation/baseline/**`, the `Makefile` or the workflow:
+
+| Job | What |
+| --- | --- |
+| `build` | Temurin 21, `mvn -B verify -Dcarddemo.test.profiles=test,ci` (unit tests, ArchUnit, JaCoCo codec gate, Testcontainers Postgres ITs); uploads `jacoco-report` and `test-reports` artifacts |
+| `compose` | `docker compose up -d --build --wait`, asserts `/actuator/health` is `UP` |
+| `baseline` | installs `gnucobol` (3.1.2), `make baseline-check`: compiles and runs the 26 batch jobs with `--fast`, asserts `jobs=26 compile failures=0`, and fails if any job output, report or gnucobol patch differs from `docs/validation/baseline/` (toolchain-specific `00-COMPILE/*.log`, `cobc-*.txt` are reported, not gated) |
+| `equivalence` | phase 6: will run the Java jobs under `golden` and compare with the `baseline` outputs |
+
+Locally: `make verify`, `make baseline-check` (needs `cobc` 3.1.2: `sudo apt-get install gnucobol`).
 
 ## Reproducing the COBOL baseline (golden profile)
 

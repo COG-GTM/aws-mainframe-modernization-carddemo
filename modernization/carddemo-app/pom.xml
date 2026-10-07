@@ -14,6 +14,11 @@
     <name>CardDemo application</name>
     <description>Single Spring Boot application: online (one REST resource per CICS program) and batch (one Spring Batch job per JCL job), domain packages enforced by ArchUnit</description>
 
+    <properties>
+        <!-- Spring profiles for Surefire/Failsafe; CI runs with -Dcarddemo.test.profiles=test,ci -->
+        <carddemo.test.profiles>test</carddemo.test.profiles>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -113,7 +118,21 @@
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <systemPropertyVariables>
+                        <spring.profiles.active>${carddemo.test.profiles}</spring.profiles.active>
+                    </systemPropertyVariables>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-failsafe-plugin</artifactId>
+                <configuration>
+                    <systemPropertyVariables>
+                        <spring.profiles.active>${carddemo.test.profiles}</spring.profiles.active>
+                    </systemPropertyVariables>
+                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.jacoco</groupId>

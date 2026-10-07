@@ -1,0 +1,9 @@
+# Developer machine / docker compose (modernization/docker-compose.yml).
+# Connection settings still come from CARDDEMO_DB_URL / CARDDEMO_DB_USER / CARDDEMO_DB_PASSWORD (no default).
+management:
+  endpoint:
+    health:
+      show-details: always
+logging:
+  level:
+    com.carddemo: DEBUG
