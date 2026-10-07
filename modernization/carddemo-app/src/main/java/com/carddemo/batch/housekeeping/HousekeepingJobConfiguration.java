@@ -125,8 +125,9 @@ public class HousekeepingJobConfiguration {
     JobStream combtranStream() {
         return stream(COMBTRAN, (launcher, parameters) -> new JobChain(launcher)
                 .step("STEP05R", COMBTRAN_SORT, JobStream.forStep(parameters, "STEP05R"), null)
-                .step("STEP10", IDCAMS_REPRO, with(JobStream.forStep(parameters, "STEP10"),
-                        Map.of(DATASET, Dataset.TRANSACT.name(), GDG, TRANSACT_COMBINED)), null));
+                .step("STEP10", IDCAMS_REPRO, SequentialDatasets.bind(with(JobStream.forStep(parameters, "STEP10"),
+                        Map.of(DATASET, Dataset.TRANSACT.name(), GDG, TRANSACT_COMBINED)), INFILE, "STEP05R", SORTOUT),
+                        null));
     }
 
     @Bean
@@ -134,7 +135,8 @@ public class HousekeepingJobConfiguration {
         return stream(PRTCATBL, (launcher, parameters) -> new JobChain(launcher)
                 .step("STEP05R", REPROC, with(JobStream.forStep(parameters, "STEP05R"),
                         Map.of(DATASET, Dataset.TCATBALF.name(), GDG, TCATBALF_BKUP)), null)
-                .step("STEP10R", PRTCATBL_SORT, JobStream.forStep(parameters, "STEP10R"), null));
+                .step("STEP10R", PRTCATBL_SORT, SequentialDatasets.bind(JobStream.forStep(parameters, "STEP10R"),
+                        SORTIN, "STEP05R", FILEOUT), null));
     }
 
     // --- utility steps ---
@@ -171,7 +173,7 @@ public class HousekeepingJobConfiguration {
             if (!DdParameters.isTable(parameters, CLUSTER)) {
                 Path path = DdParameters.path(parameters, CLUSTER);
                 existed = Files.exists(path);
-                deleted = existed ? dataset.read(path, DdParameters.encoding(parameters)).size() : 0;
+                deleted = existed ? countForDelete(dataset, path, DdParameters.encoding(parameters)) : 0;
                 try {
                     Files.deleteIfExists(path);
                 } catch (IOException e) {
@@ -203,7 +205,7 @@ public class HousekeepingJobConfiguration {
             if (!DdParameters.isTable(parameters, CLUSTER)) {
                 Path path = DdParameters.path(parameters, CLUSTER);
                 try {
-                    exists = Files.exists(path) && Files.size(path) > 0;
+                    exists = Files.exists(path);
                     if (!exists) {
                         Path parent = path.toAbsolutePath().getParent();
                         if (parent != null) {
@@ -445,6 +447,17 @@ public class HousekeepingJobConfiguration {
 
     private static String key(FixedWidthRecord record, int keyLength) {
         return HexFormat.of().formatHex(record.bytes(), 0, keyLength);
+    }
+
+    /** The record count logged for a deleted unload file; DELETE itself never depends on the records being readable. */
+    private static long countForDelete(Dataset dataset, Path path, RecordEncoding encoding) {
+        try {
+            return dataset.read(path, encoding).size();
+        } catch (RuntimeException e) {
+            log.warn("{}: {} is not a readable {} unload ({}); deleting it anyway", IDCAMS_DELETE, path, dataset,
+                    e.getMessage());
+            return 0;
+        }
     }
 
     private static String source(JobParameters parameters, String dd) {

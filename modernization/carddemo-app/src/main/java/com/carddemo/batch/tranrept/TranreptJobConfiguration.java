@@ -57,10 +57,12 @@ import org.springframework.transaction.PlatformTransactionManager;
  * <li>{@code STEP05} {@code reproc}: TRANSACT (table, or {@code --STEP05.FILEIN=<unload>}) to
  * {@code TRANSACT.BKUP(+1)}.</li>
  * <li>{@code STEP10} {@code tranrept-sort}: the SORT {@code INCLUDE COND=(TRAN-PROC-DT,GE,PARM-START-DATE,AND,
- * TRAN-PROC-DT,LE,PARM-END-DATE)} / {@code SORT FIELDS=(TRAN-CARD-NUM,A)} becomes a date-range query on
- * {@code transaction} ({@link TransactionRepository#findByProcDateWindow}); {@code --SORTIN=<unload>} filters a file
- * instead. Output {@code TRANSACT.DALY(+1)}.</li>
- * <li>{@code STEP15} {@code cbtrn03c}: {@link Cbtrn03c} reads TRANSACT.DALY(0) and writes {@code TRANREPT(+1)}.</li>
+ * TRAN-PROC-DT,LE,PARM-END-DATE)} / {@code SORT FIELDS=(TRAN-CARD-NUM,A)} over the backup STEP05 wrote (bound with
+ * {@link SequentialDatasets#bind}, as the JCL's SORTIN is that generation); {@code --STEP10.SORTIN=<unload>} filters
+ * a file instead. Run on its own with no SORTIN, the job is a date-range query on {@code transaction}
+ * ({@link TransactionRepository#findByProcDateWindow}). Output {@code TRANSACT.DALY(+1)}.</li>
+ * <li>{@code STEP15} {@code cbtrn03c}: {@link Cbtrn03c} reads the TRANSACT.DALY generation STEP10 wrote and writes
+ * {@code TRANREPT(+1)}.</li>
  * </ul>
  * The window is {@code --PARM-START-DATE} / {@code --PARM-END-DATE}, else {@code carddemo.baseline.tranrept-*-date}
  * (golden profile: 2022-01-01..2022-07-06), else the run date for both; DATEPARM defaults to a record built from the
@@ -102,8 +104,10 @@ public class TranreptJobConfiguration {
                                 Map.of(HousekeepingJobConfiguration.DATASET, Dataset.TRANSACT.name(),
                                         HousekeepingJobConfiguration.GDG, HousekeepingJobConfiguration.TRANSACT_BKUP)),
                                 null)
-                        .step(STEP10, TRANREPT_SORT, JobStream.forStep(parameters, STEP10), null)
-                        .step(STEP15, CBTRN03C_JOB, JobStream.forStep(parameters, STEP15), null);
+                        .step(STEP10, TRANREPT_SORT, SequentialDatasets.bind(JobStream.forStep(parameters, STEP10),
+                                HousekeepingJobConfiguration.SORTIN, STEP05, HousekeepingJobConfiguration.FILEOUT), null)
+                        .step(STEP15, CBTRN03C_JOB, SequentialDatasets.bind(JobStream.forStep(parameters, STEP15),
+                                Cbtrn03c.TRANFILE, STEP10, HousekeepingJobConfiguration.SORTOUT), null);
             }
         };
     }
@@ -120,13 +124,17 @@ public class TranreptJobConfiguration {
                     String sortin = HousekeepingJobConfiguration.SORTIN;
                     List<FixedWidthRecord> in;
                     long inCount;
-                    if (DdParameters.isTable(parameters, sortin)) {
+                    if (!DdParameters.isTable(parameters, sortin)) {
+                        in = datasets.ksds(Dataset.TRANSACT, parameters, sortin, encoding);
+                        inCount = in.size();
+                    } else if (parameters.getString(sortin + SequentialDatasets.GENERATION_SUFFIX) != null) {
+                        in = datasets.sequential(parameters, sortin, HousekeepingJobConfiguration.TRANSACT_BKUP,
+                                TransactionRecord.MAPPER.layout(), encoding);
+                        inCount = in.size();
+                    } else {
                         in = transactions.findByProcDateWindow(window[0], window[1]).stream()
                                 .map(t -> TransactionRecord.MAPPER.toRecord(t.toRecord(), encoding)).toList();
                         inCount = transactions.count();
-                    } else {
-                        in = datasets.ksds(Dataset.TRANSACT, parameters, sortin, encoding);
-                        inCount = in.size();
                     }
                     List<FixedWidthRecord> sorted = extract(in, window[0], window[1], encoding);
                     String file = datasets.write(step, HousekeepingJobConfiguration.SORTOUT, TRANSACT_DALY, sorted,

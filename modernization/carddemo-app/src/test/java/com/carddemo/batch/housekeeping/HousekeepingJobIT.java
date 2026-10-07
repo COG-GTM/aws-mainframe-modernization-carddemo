@@ -20,6 +20,7 @@ import com.carddemo.transaction.Transaction;
 import com.carddemo.transaction.TransactionRecord;
 import com.carddemo.transaction.TransactionRepository;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.sql.Date;
 import java.time.LocalDate;
@@ -187,5 +188,71 @@ class HousekeepingJobIT {
         assertThat(launcher.run(HousekeepingJobConfiguration.IDCAMS_DEFINE, define).returnCode())
                 .isEqualTo(ReturnCode.SEVERE);
         assertThat(transactions.count()).isEqualTo(262);
+    }
+
+    @Test
+    void theReportIsBuiltFromTheBackupStep05WroteEvenWhenNewerGenerationsAreCatalogued() throws IOException {
+        // The table holds POSTTRAN's 262 rows; STEP05 backs up COMBTRAN's 312 from a file instead. A later-dated run's
+        // TRANSACT.BKUP / TRANSACT.DALY generations are catalogued too: (0) would resolve to them.
+        baselineInputState();
+        Path empty = Files.createFile(dir.resolve("newer-generation"));
+        for (String gdg : List.of("TRANSACT.BKUP", "TRANSACT.DALY")) {
+            jdbc.update("""
+                    insert into batch_output_file (gdg_base, business_date, job_execution_id, file_path, record_count,
+                    sha256) select ?, date '2099-01-01', max(job_execution_id), ?, 0, 'none'
+                    from batch_job_execution""", gdg, empty.toString());
+        }
+        try {
+            JobChain.Result tranrept = run(TranreptJobConfiguration.TRANREPT, parameters().addString("STEP05.FILEIN",
+                    TestData.resolve("docs/validation/baseline/COMBTRAN/TRANSACT.ksds.txt").toString()));
+            assertThat(tranrept.maxReturnCode()).isEqualTo(ReturnCode.OK);
+            List<String> report = PrintProgramsBaselineTest.baselineFile("TRANREPT", "TRANREPT");
+            assertThat(generation("TRANREPT", Cbtrn03c.REPORT_LRECL, report.size()))
+                    .containsExactlyElementsOf(report);
+            assertThat(transactions.count()).isEqualTo(262);
+        } finally {
+            jdbc.update("delete from batch_output_file where business_date = date '2099-01-01'");
+        }
+    }
+
+    @Test
+    void theDateWindowQuerySelectsWhatTheSortExtractSelects() {
+        baselineInputState();
+        List<FixedWidthRecord> table = transactions.findAllByOrderByTranIdAsc().stream()
+                .map(t -> TransactionRecord.MAPPER.toRecord(t.toRecord(), RecordEncoding.ASCII)).toList();
+        for (String[] window : List.of(new String[] {"2022-01-01", "2022-07-06"},
+                new String[] {"2022-06-15", "2022-06-30"}, new String[] {"2023-01-01", "2023-12-31"})) {
+            List<String> extract = TranreptJobConfiguration.extract(table, window[0], window[1], RecordEncoding.ASCII)
+                    .stream().map(FixedWidthRecord::text).toList();
+            List<String> query = TranreptJobConfiguration.extract(transactions.findByProcDateWindow(window[0],
+                            window[1]).stream()
+                    .map(t -> TransactionRecord.MAPPER.toRecord(t.toRecord(), RecordEncoding.ASCII)).toList(),
+                    window[0], window[1], RecordEncoding.ASCII).stream().map(FixedWidthRecord::text).toList();
+            assertThat(query).as("window %s..%s", window[0], window[1]).containsExactlyElementsOf(extract);
+        }
+    }
+
+    @Test
+    void fileModeDeleteRemovesAClusterWhoseRecordsDoNotDecode() throws IOException {
+        Path cluster = Files.writeString(dir.resolve("TRANSACT.ksds"), "truncated");
+        JobParameters delete = parameters().addString(HousekeepingJobConfiguration.DATASET, "TRANSACT")
+                .addString(HousekeepingJobConfiguration.CLUSTER, cluster.toString()).toJobParameters();
+        assertThat(launcher.run(HousekeepingJobConfiguration.IDCAMS_DELETE, delete).returnCode())
+                .isEqualTo(ReturnCode.OK);
+        assertThat(cluster).doesNotExist();
+    }
+
+    @Test
+    void fileModeDefineRefusesAnExistingEmptyCluster() {
+        Path cluster = dir.resolve("TRANSACT.ksds");
+        JobParametersBuilder define = parameters().addString(HousekeepingJobConfiguration.DATASET, "TRANSACT")
+                .addString(HousekeepingJobConfiguration.CLUSTER, cluster.toString());
+        assertThat(launcher.run(HousekeepingJobConfiguration.IDCAMS_DEFINE, define.toJobParameters()).returnCode())
+                .isEqualTo(ReturnCode.OK);
+        assertThat(cluster).isEmptyFile();
+        define.addLong("run.id", System.nanoTime());
+        assertThat(launcher.run(HousekeepingJobConfiguration.IDCAMS_DEFINE, define.toJobParameters()).returnCode())
+                .isEqualTo(ReturnCode.SEVERE);
+        assertThat(cluster).isEmptyFile();
     }
 }

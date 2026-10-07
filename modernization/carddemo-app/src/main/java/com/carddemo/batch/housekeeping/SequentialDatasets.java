@@ -4,6 +4,7 @@ import com.carddemo.batch.BatchOutputProperties;
 import com.carddemo.batch.DatedOutputFiles;
 import com.carddemo.batch.harness.BatchCommandLine;
 import com.carddemo.batch.harness.DdParameters;
+import com.carddemo.batch.harness.JobOutcome;
 import com.carddemo.batch.harness.ReturnCode;
 import com.carddemo.batch.harness.ReturnCodeException;
 import com.carddemo.batch.harness.Sysout;
@@ -21,7 +22,13 @@ import com.carddemo.transaction.TransactionRepository;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.function.Function;
+import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.JobParameters;
+import org.springframework.batch.core.JobParametersBuilder;
 import org.springframework.batch.core.StepExecution;
 import org.springframework.stereotype.Component;
 
@@ -30,12 +37,17 @@ import org.springframework.stereotype.Component;
  * {@code --<DD>=<path>} names an unload file; a GDG DD is generation {@code (0)} (input) or {@code (+1)} (output) of
  * its base in {@code batch_output_file} unless {@code --<DD>=<path>} names a file. Generations are fixed-length
  * records; explicit files use the run format of every other file DD (line sequential for ASCII, fixed for EBCDIC).
+ * Inside a stream, a step reading what an earlier step of the same stream wrote is bound to that step's file with
+ * {@link #bind} ({@code --<DD>.GENERATION=<file>}), not to a fresh {@code (0)} lookup, which ranks generations by
+ * business date and could pick another run's output.
  */
 @Component
 public class SequentialDatasets {
 
     public static final String SYSOUT_CONTEXT_KEY = "SYSOUT";
     public static final String OUTPUT_CONTEXT_KEY = "OUTPUT";
+    /** {@code --<DD>.GENERATION=<file>}: the catalogued generation a preceding step of the stream wrote. */
+    public static final String GENERATION_SUFFIX = ".GENERATION";
 
     private final DatedOutputFiles generations;
     private final BatchOutputProperties output;
@@ -79,8 +91,39 @@ public class SequentialDatasets {
         if (!DdParameters.isTable(parameters, dd)) {
             return DdParameters.path(parameters, dd);
         }
+        String bound = parameters.getString(dd + GENERATION_SUFFIX);
+        if (bound != null) {
+            return Path.of(bound);
+        }
         return generations.generation(gdgBase, 0)
                 .orElseThrow(() -> new FileStatusException(dd, "OPEN", FileStatus.FILE_NOT_FOUND));
+    }
+
+    /**
+     * {@code consumer} with DD {@code consumerDd} bound to the file step {@code producerStep} wrote for
+     * {@code producerDd}: {@code --<consumerDd>=<file>} when the producer wrote an explicit file (same run format),
+     * {@code --<consumerDd>.GENERATION=<file>} when it catalogued a generation. An explicit {@code --<consumerDd>=}
+     * wins; a producer that did not run or wrote nothing leaves {@code consumer} unchanged.
+     */
+    public static Function<Map<String, JobOutcome>, JobParameters> bind(JobParameters consumer, String consumerDd,
+                                                                       String producerStep, String producerDd) {
+        return ran -> bind(consumer, consumerDd, ran.get(producerStep), producerDd);
+    }
+
+    static JobParameters bind(JobParameters consumer, String consumerDd, JobOutcome producer, String producerDd) {
+        if (!DdParameters.isTable(consumer, consumerDd) || producer == null || !producer.launched()) {
+            return consumer;
+        }
+        JobExecution execution = producer.execution();
+        Optional<String> file = execution.getStepExecutions().stream()
+                .map(s -> s.getExecutionContext().getString(OUTPUT_CONTEXT_KEY + "." + producerDd, null))
+                .filter(Objects::nonNull).findFirst();
+        if (file.isEmpty()) {
+            return consumer;
+        }
+        String key = DdParameters.isTable(execution.getJobParameters(), producerDd)
+                ? consumerDd + GENERATION_SUFFIX : consumerDd;
+        return new JobParametersBuilder(consumer).addString(key, file.get()).toJobParameters();
     }
 
     /** Writes {@code --<dd>=<path>}, else catalogues generation {@code (+1)} of {@code gdgBase}; returns the file. */
