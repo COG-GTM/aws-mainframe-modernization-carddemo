@@ -1,5 +1,6 @@
 # Automated tests (activated by Surefire/Failsafe, see carddemo-app/pom.xml). The datasource comes from
-# Testcontainers (@ServiceConnection), so nothing here points at a real database.
+# Testcontainers (@ServiceConnection), so nothing here points at a real database. The JWT key is a random
+# per-JVM value from the test-only com.carddemo.support.RandomJwtSecretForTests (no key is shipped).
 spring:
   main:
     banner-mode: off
@@ -14,9 +15,6 @@ logging:
     root: WARN
     com.carddemo: INFO
 carddemo:
-  security:
-    jwt:
-      secret: ${CARDDEMO_JWT_SECRET:test-only-jwt-secret-for-automated-tests-0123456789}
   batch:
     scheduler:
       enabled: false   # no cron fire in automated tests / CI

@@ -9,6 +9,7 @@ import com.carddemo.common.AbendException;
 import com.carddemo.common.InvalidRequestException;
 import com.carddemo.common.RecordNotFoundException;
 import com.carddemo.common.Versions;
+import com.carddemo.user.UserPasswords;
 import com.carddemo.user.UserSecurity;
 import com.carddemo.user.UserSecurityRecord;
 import com.carddemo.user.UserSecurityRepository;
@@ -35,10 +36,12 @@ public class UserUpdateService {
 
     private final UserSecurityRepository users;
     private final UserLookup lookup;
+    private final UserPasswords passwords;
 
-    public UserUpdateService(UserSecurityRepository users, UserLookup lookup) {
+    public UserUpdateService(UserSecurityRepository users, UserLookup lookup, UserPasswords passwords) {
         this.users = users;
         this.lookup = lookup;
+        this.passwords = passwords;
     }
 
     @Transactional
@@ -77,9 +80,13 @@ public class UserUpdateService {
                 || user.getUsrType() != typed.usrType();
     }
 
-    /** {@code UPDATE-USER-SEC-FILE}: NORMAL (R-20), other RESP (R-22). */
+    /** {@code UPDATE-USER-SEC-FILE}: NORMAL (R-20), other RESP (R-22). Plain-text field and hash together (ADR-0023). */
     private UserSecurity updateUserSecFile(UserSecurity user, UserSecurityRecord typed) {
+        boolean passwordChanged = !Objects.equals(UserEdits.text(user.getPassword()), typed.password());
         user.update(typed);
+        if (passwordChanged || user.getPasswordHash() == null) {
+            user.setPasswordHash(passwords.hash(typed.password()));
+        }
         try {
             return users.saveAndFlush(user);
         } catch (ObjectOptimisticLockingFailureException e) {

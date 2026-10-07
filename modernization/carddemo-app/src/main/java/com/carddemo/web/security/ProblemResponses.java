@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import com.carddemo.common.PanMask;
 import java.net.URI;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -54,7 +55,7 @@ public class ProblemResponses implements AuthenticationEntryPoint, AccessDeniedH
 
     private void write(HttpServletRequest request, HttpServletResponse response, ProblemDetail problem)
             throws IOException {
-        problem.setInstance(URI.create(request.getRequestURI()));
+        problem.setInstance(URI.create(PanMask.maskCardPath(request.getRequestURI())));
         response.setStatus(problem.getStatus());
         response.setContentType(MediaType.APPLICATION_PROBLEM_JSON_VALUE);
         mapper.writeValue(response.getOutputStream(), problem);

@@ -5,6 +5,10 @@ spring:
     url: ${CARDDEMO_DB_URL:jdbc:postgresql://localhost:5432/carddemo}
     username: ${CARDDEMO_DB_USER:carddemo}
     password: ${CARDDEMO_DB_PASSWORD:}   # no default; set it in the environment
+    hikari:
+      data-source-properties:
+        # PgJDBC: keep bind values (PANs, passwords) out of exception messages and therefore out of logs (s6.4)
+        logServerErrorDetail: false
   jpa:
     open-in-view: false
     hibernate:
@@ -60,6 +64,8 @@ carddemo:
     max-rejects: 0
   batch:
     output-dir: ${CARDDEMO_BATCH_OUTPUT_DIR:batch-output}   # dated outputs, ADR-0012
+    creastmt:
+      html-escape: false         # true: escape names/addresses in STATEMNT.HTML (CBSTM03A.md D-1); false = legacy bytes
     retain: 5
     scheduler:                   # in-app cron of nightly-cycle (docs/modernization/06-scheduling.md)
       enabled: ${CARDDEMO_SCHEDULER_ENABLED:true}   # web app only; false in the test and golden profiles

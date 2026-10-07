@@ -7,7 +7,13 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import static org.mockito.BDDMockito.given;
+
+import com.carddemo.user.UserType;
+import java.util.Optional;
 import java.util.stream.Stream;
+import org.junit.jupiter.api.Test;
+import org.springframework.dao.DataAccessResourceFailureException;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.http.HttpHeaders;
@@ -35,5 +41,42 @@ class UserAdminRoleTest extends UserWebTest {
         mvc.perform(request.header(HttpHeaders.AUTHORIZATION, user()))
                 .andExpect(status().isForbidden()).andExpect(jsonPath("$.code").value("NOTAUTH"))
                 .andExpect(jsonPath("$.message").value("No access - Admin Only option..."));
+    }
+
+    @ParameterizedTest
+    @MethodSource("adminOnly")
+    void anAdminTokenOfADemotedUserIsRefusedAtOnce(MockHttpServletRequestBuilder request) throws Exception {
+        String token = admin();
+        given(users.findUsrTypeByUsrId(ADMIN)).willReturn(Optional.of(UserType.USER));
+        mvc.perform(request.header(HttpHeaders.AUTHORIZATION, token))
+                .andExpect(status().isForbidden()).andExpect(jsonPath("$.code").value("NOTAUTH"))
+                .andExpect(jsonPath("$.message").value("No access - Admin Only option..."));
+    }
+
+    @Test
+    void anAdminTokenOfADeletedUserIsRefused() throws Exception {
+        String token = admin();
+        given(users.findUsrTypeByUsrId(ADMIN)).willReturn(Optional.empty());
+        mvc.perform(get(USERS).header(HttpHeaders.AUTHORIZATION, token))
+                .andExpect(status().isForbidden()).andExpect(jsonPath("$.code").value("NOTAUTH"));
+    }
+
+    @Test
+    void theAdminCheckDeniesWhenUsrsecCannotBeRead() throws Exception {
+        String token = admin();
+        given(users.findUsrTypeByUsrId(ADMIN)).willThrow(new DataAccessResourceFailureException("down"));
+        mvc.perform(get(MENU + "/admin").header(HttpHeaders.AUTHORIZATION, token))
+                .andExpect(status().isForbidden()).andExpect(jsonPath("$.code").value("NOTAUTH"));
+    }
+
+    @Test
+    void aStillAdministratorPasses() throws Exception {
+        mvc.perform(get(MENU + "/admin").header(HttpHeaders.AUTHORIZATION, admin())).andExpect(status().isOk());
+    }
+
+    @Test
+    void noTokenOnAnAdminPathIsStillSignOnRequired() throws Exception {
+        mvc.perform(get(USERS)).andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.code").value("SIGNON_REQUIRED"));
     }
 }

@@ -26,6 +26,7 @@ import com.carddemo.transaction.online.TransactionAddService;
 import com.carddemo.transaction.online.TransactionBrowse;
 import com.carddemo.transaction.online.TransactionIds;
 import com.carddemo.transaction.online.TransactionLookup;
+import com.carddemo.user.UserPasswords;
 import com.carddemo.user.UserSecurity;
 import com.carddemo.user.UserSecurityRecord;
 import com.carddemo.user.UserSecurityRepository;
@@ -74,7 +75,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 @WebMvcTest(controllers = {SignOnController.class, MenuController.class, AccountController.class,
         CardController.class, TransactionController.class, BillPaymentController.class, UserAdminController.class,
         TransactionReportController.class})
-@Import({SecurityConfiguration.class, TokenService.class, SignOnService.class, MenuService.class, MenuCatalog.class,
+@Import({SecurityConfiguration.class, TokenService.class, SignOnService.class, UserPasswords.class, MenuService.class, MenuCatalog.class,
         CsdInstalledPrograms.class, ScreenHeaders.class, ClockConfiguration.class, AccountLookup.class,
         AccountUpdateService.class, CardBrowse.class, CardLookup.class, CardUpdateService.class, CardReferences.class,
         TransactionBrowse.class, TransactionLookup.class, TransactionAddEdits.class, TransactionIds.class,
@@ -131,7 +132,11 @@ public abstract class OnlineWebTest {
                 UserSecurity.from(new UserSecurityRecord(userId, "First", "Last", password, type))));
     }
 
+    /** A token for {@code userId}; an ADMIN is also still an administrator in the mocked USRSEC (ADR-0023 check). */
     protected String bearer(String userId, UserType type) {
+        if (type == UserType.ADMIN) {
+            given(users.findUsrTypeByUsrId(userId)).willReturn(Optional.of(UserType.ADMIN));
+        }
         return "Bearer " + tokens.issue(userId, type).value();
     }
 

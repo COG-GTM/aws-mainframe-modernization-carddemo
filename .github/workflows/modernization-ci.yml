@@ -125,6 +125,8 @@ jobs:
         working-directory: modernization
     steps:
       - uses: actions/checkout@v4
+      - name: Per-run JWT key (no key is shipped)
+        run: echo "CARDDEMO_JWT_SECRET=$(openssl rand -base64 48 | tr -d '\n')" >> "$GITHUB_ENV"
       - name: docker compose up -d --build --wait
         run: docker compose up -d --build --wait --wait-timeout 240
       - name: curl /actuator/health

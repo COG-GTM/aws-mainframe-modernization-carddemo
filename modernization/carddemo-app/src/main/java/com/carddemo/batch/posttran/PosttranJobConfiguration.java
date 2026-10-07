@@ -258,8 +258,15 @@ public class PosttranJobConfiguration {
         }
         return KeyedDataset.table(dd, KeyedDataset.Mode.OUTPUT,
                 k -> transactions.findById(k).map(Transaction::toRecord), transactions::existsById,
-                r -> transactions.save(Transaction.from(r)), r -> false,
-                () -> unit.run(transactions::deleteAllInBatch), TransactionRecord::tranId);
+                r -> {
+                    // s6.4: same id lock as online TransactionIds, held until this record's unit of work commits
+                    transactions.lockIdAssignment(TransactionRepository.TRAN_ID_LOCK);
+                    transactions.save(Transaction.from(r));
+                }, r -> false,
+                () -> unit.run(() -> {
+                    transactions.lockIdAssignment(TransactionRepository.TRAN_ID_LOCK);
+                    transactions.deleteAllInBatch();
+                }), TransactionRecord::tranId);
     }
 
     private static <E, K, D extends Record> KsdsInput input(JobParameters parameters, String ddname,

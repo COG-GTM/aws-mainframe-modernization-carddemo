@@ -38,9 +38,13 @@ final class CreastmtTestSupport {
     }
 
     static Cbstm03b files(Supplier<List<FixedWidthRecord>> trnx, Path xref) {
+        return files(CUSTDATA, trnx, xref);
+    }
+
+    static Cbstm03b files(Path custdata, Supplier<List<FixedWidthRecord>> trnx, Path xref) {
         return new Cbstm03b(KsdsInput.records(Cbstm03b.TRNXFILE, trnx),
                 KsdsInput.file(Cbstm03b.XREFFILE, xref, CardXrefRecord.MAPPER.layout(), ASCII),
-                KeyedDataset.file(Cbstm03b.CUSTFILE, CUSTDATA, KeyedDataset.Mode.INPUT, CustomerRecord.MAPPER,
+                KeyedDataset.file(Cbstm03b.CUSTFILE, custdata, KeyedDataset.Mode.INPUT, CustomerRecord.MAPPER,
                         CustomerRecord::custId, k -> String.format("%09d", k), ASCII),
                 KeyedDataset.file(Cbstm03b.ACCTFILE, ACCTDATA, KeyedDataset.Mode.INPUT, AccountRecord.MAPPER,
                         AccountRecord::acctId, k -> String.format("%011d", k), ASCII),

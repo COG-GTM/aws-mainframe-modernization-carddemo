@@ -1,6 +1,6 @@
 # Developer machine / docker compose (modernization/docker-compose.yml).
 # Connection settings still come from CARDDEMO_DB_URL / CARDDEMO_DB_USER / CARDDEMO_DB_PASSWORD (no default).
-# CARDDEMO_JWT_SECRET falls back to a development-only key here (and in `test`), nowhere else.
+# CARDDEMO_JWT_SECRET has no default in any profile (s6.4): set it in the shell or modernization/.env.
 management:
   endpoint:
     health:
@@ -11,6 +11,3 @@ logging:
 carddemo:
   initial-load:
     on-startup: ${CARDDEMO_INITIAL_LOAD:true}   # load app/data/EBCDIC once per distinct set of files
-  security:
-    jwt:
-      secret: ${CARDDEMO_JWT_SECRET:local-development-only-jwt-secret-not-for-production}

@@ -1,5 +1,6 @@
 package com.carddemo.web.security;
 
+import com.carddemo.user.UserSecurityRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nimbusds.jose.jwk.source.ImmutableSecret;
 import java.nio.charset.StandardCharsets;
@@ -28,7 +29,8 @@ import org.springframework.security.web.SecurityFilterChain;
 /**
  * Stateless bearer-token security of the online API (ADR-0017): no HTTP session, no CSRF token (no cookies are
  * used), HS256 tokens signed with {@code carddemo.security.jwt.secret}. Only the sign-on endpoints, health, info and
- * the OpenAPI document are anonymous; {@link #ADMIN_PATHS} need role {@code ADMIN} (ADR-0007).
+ * the OpenAPI document are anonymous; {@link #ADMIN_PATHS} need role {@code ADMIN} (ADR-0007) and a user that is still
+ * an administrator in USRSEC ({@link CurrentAdminAuthorization}, ADR-0023).
  * Only active in a servlet web application, so batch launches ({@code --job=}) need no secret.
  */
 @Configuration(proxyBeanMethods = false)
@@ -53,16 +55,12 @@ public class SecurityConfiguration {
         String secret = properties.secret();
         if (secret == null || secret.isBlank()) {
             throw new IllegalStateException("carddemo.security.jwt.secret is not set: export CARDDEMO_JWT_SECRET "
-                    + "(at least " + MIN_SECRET_BYTES + " bytes); only the local and test profiles have a default");
+                    + "(at least " + MIN_SECRET_BYTES + " bytes, e.g. `openssl rand -base64 48`); no profile has a default");
         }
         byte[] key = secret.getBytes(StandardCharsets.UTF_8);
         if (key.length < MIN_SECRET_BYTES) {
             throw new IllegalStateException("CARDDEMO_JWT_SECRET must be at least " + MIN_SECRET_BYTES
                     + " bytes for HS256, got " + key.length);
-        }
-        if (secret.startsWith("local-development-only") || secret.startsWith("test-only")) {
-            log.warn("Signing tokens with the built-in development key: anyone who knows it can forge tokens. "
-                    + "Set CARDDEMO_JWT_SECRET for any shared deployment.");
         }
         return new SecretKeySpec(key, "HmacSHA256");
     }
@@ -114,7 +112,7 @@ public class SecurityConfiguration {
     @Bean
     @Order(2)
     SecurityFilterChain apiSecurity(HttpSecurity http, JwtAuthenticationConverter jwtAuthenticationConverter,
-            ObjectMapper objectMapper) throws Exception {
+            ObjectMapper objectMapper, UserSecurityRepository users) throws Exception {
         ProblemResponses problems = new ProblemResponses(objectMapper);
         http
                 .csrf(AbstractHttpConfigurer::disable)
@@ -124,7 +122,7 @@ public class SecurityConfiguration {
                 .requestCache(AbstractHttpConfigurer::disable)
                 .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(ADMIN_PATHS).hasRole("ADMIN")
+                        .requestMatchers(ADMIN_PATHS).access(new CurrentAdminAuthorization(users))
                         .anyRequest().authenticated())
                 .oauth2ResourceServer(o -> o
                         .jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter))

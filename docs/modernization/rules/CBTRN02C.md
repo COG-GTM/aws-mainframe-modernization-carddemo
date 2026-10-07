@@ -43,6 +43,12 @@ against the source. Java: `com.carddemo.batch.posttran.Cbtrn02c`, job `cbtrn02c`
 | R-13 | `DISP=(NEW,CATLG,DELETE)` | The generation is catalogued only when the step ends normally. Java: `DatedOutputFiles` writes `DALYREJS/DALYREJS.<business-date>.<job-execution-id>` + a `batch_output_file` row (ADR-0012) after the program ends; an abend catalogues nothing. `--DALYREJS=<path>` writes a plain file instead. |
 | R-14 | Rerun after an abend | COBOL POSTTRAN cannot be restarted: earlier postings are already in ACCTFILE/TCATBALF and TRANFILE is opened OUTPUT again, so a plain rerun posts them twice. Recovery is restore ACCTDATA/TCATBALF, then rerun. Java: `cbtrn02c` is `preventRestart()`, so relaunching a failed instance (same `--run.id`) is refused; after restoring the data, run a new instance. |
 
+## Deviations
+
+| # | Legacy | Java | Why / test |
+|---|---|---|---|
+| D-1 | CICS files were closed (`CLOSEFIL`) while POSTTRAN ran, so no online add could race a TRANFILE write. | Table mode keeps the online API up, so the TRANFILE OPEN OUTPUT clear and every TRANFILE `WRITE` first take `pg_advisory_xact_lock(TransactionRepository.TRAN_ID_LOCK)`, the lock online `TransactionIds` holds from `max(tran_id)` to commit. The lock is held until the record's unit of work commits. No change to what is posted (golden set unchanged). | s6.4 hardening; `TransactionIdLockIT` (a held online lock blocks the posting; 20 online adds racing the postings all succeed with distinct ids). Batch window caveats: `10-runbook-nightly-cycle.md` §7. |
+
 ## FILLER and record areas
 
 `READ … INTO` copies the whole record into working storage, `INITIALIZE` and field MOVEs never touch FILLER, so a

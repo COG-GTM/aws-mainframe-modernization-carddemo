@@ -5,6 +5,7 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
 import com.carddemo.common.online.ScreenInput;
+import com.carddemo.user.UserPasswords;
 import com.carddemo.user.UserSecurity;
 import com.carddemo.user.UserSecurityRecord;
 import com.carddemo.user.UserSecurityRepository;
@@ -39,7 +40,7 @@ class SignOnServiceTest {
         UserSecurityRepository repo = mock(UserSecurityRepository.class);
         given(repo.findById("USER0001")).willReturn(Optional.of(UserSecurity.from(
                 new UserSecurityRecord("USER0001", "A", "B", "PASS", UserType.USER))));
-        SignOnService service = new SignOnService(repo);
+        SignOnService service = new SignOnService(repo, new UserPasswords());
         assertThat(service.signOn("USER0001", "pass    ")).isInstanceOf(SignOnResult.SignedOn.class);
         assertThat(service.signOn("USER0001", "pass")).isInstanceOf(SignOnResult.SignedOn.class);
         assertThat(service.signOn("USER0001", " pass")).isInstanceOf(SignOnResult.Rejected.class);

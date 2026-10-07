@@ -40,6 +40,10 @@ public class UserSecurity implements Persistable<String> {
     @Column(name = "usr_type")
     private UserType usrType;
 
+    /** One-way hash of {@link #password} (ADR-0023); not part of the VSAM record, {@code null} until first stored. */
+    @Column(name = "password_hash")
+    private String passwordHash;
+
     /** Optimistic-lock version (ADR-0010); not part of the VSAM record. */
     @Version
     @Column(name = "version")
@@ -114,6 +118,15 @@ public class UserSecurity implements Persistable<String> {
 
     public String getPassword() {
         return password;
+    }
+
+    public String getPasswordHash() {
+        return passwordHash;
+    }
+
+    /** Stores the hash of the current {@link #password}, computed by {@link UserPasswords#hash}. */
+    public void setPasswordHash(String passwordHash) {
+        this.passwordHash = passwordHash;
     }
 
     public UserType getUsrType() {

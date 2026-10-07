@@ -10,8 +10,8 @@ below, `modernization/docker-compose.yml` and `modernization/.env.example`.
 | Profile | Activated by | What it changes |
 | --- | --- | --- |
 | (none) | always | `application.yml`: datasource from `CARDDEMO_DB_*`, Flyway `classpath:db/migration`, Spring Batch never launches at start-up, actuator `health,info`, springdoc paths, every `carddemo.*` default below. `CARDDEMO_DB_PASSWORD` and `CARDDEMO_JWT_SECRET` have **no default**: the web app does not start without the JWT key. |
-| `local` | docker compose (`CARDDEMO_PROFILES`, default `local`), `mvn spring-boot:run -Dspring-boot.run.profiles=local` | health details, `com.carddemo` DEBUG, `carddemo.initial-load.on-startup=${CARDDEMO_INITIAL_LOAD:true}`, development-only JWT key fallback when `CARDDEMO_JWT_SECRET` is unset |
-| `test` | Surefire / Failsafe (`-Dcarddemo.test.profiles`, default `test`) | datasource from Testcontainers, quiet logs, `flyway.clean-disabled`, test-only JWT key fallback, `carddemo.batch.scheduler.enabled=false`, `carddemo.reports.async.enabled=false` |
+| `local` | docker compose (`CARDDEMO_PROFILES`, default `local`), `mvn spring-boot:run -Dspring-boot.run.profiles=local` | health details, `com.carddemo` DEBUG, `carddemo.initial-load.on-startup=${CARDDEMO_INITIAL_LOAD:true}` |
+| `test` | Surefire / Failsafe (`-Dcarddemo.test.profiles`, default `test`) | datasource from Testcontainers, quiet logs, `flyway.clean-disabled`, a random per-JVM JWT key from the test-only `RandomJwtSecretForTests` (nothing committed), `carddemo.batch.scheduler.enabled=false`, `carddemo.reports.async.enabled=false` |
 | `ci` | GitHub Actions, layered on `test` (`-Dcarddemo.test.profiles=test,ci`) | no ANSI colours, Flyway/Testcontainers INFO logs |
 | `golden` | golden-set / parity runs (`scripts/golden-set`, `scripts/batch`, `--spring.profiles.active=golden`) | frozen clock `2022-07-06T00:00:00` UTC and the pinned JCL parameters of the GnuCOBOL baseline (ADR-0014), cron off, synchronous reports |
 
@@ -21,7 +21,7 @@ below, `modernization/docker-compose.yml` and `modernization/.env.example`.
 | --- | --- | --- | --- | --- |
 | `carddemo.clock.fixed` | unset (system clock) | — | `common.time.ClockProperties` | freezes the injected business `Clock` (`COB_CURRENT_DATE`); `golden`: `2022-07-06T00:00:00` |
 | `carddemo.clock.zone` | `UTC` | — | `ClockProperties` | zone of `FUNCTION CURRENT-DATE` / `ASKTIME` values and of the scheduler cron |
-| `carddemo.security.jwt.secret` | none | `CARDDEMO_JWT_SECRET` | `web.security.JwtProperties` | HS256 key of the session token, ≥ 32 bytes (ADR-0017); `local`/`test` have development fallbacks |
+| `carddemo.security.jwt.secret` | none | `CARDDEMO_JWT_SECRET` | `web.security.JwtProperties` | HS256 key of the session token, ≥ 32 bytes (ADR-0017); no default in any profile, compose refuses to start without it (s6.4) |
 | `carddemo.security.jwt.issuer` | `carddemo` | — | `JwtProperties` | `iss` claim written and required |
 | `carddemo.security.jwt.ttl` | `PT1H` | `CARDDEMO_JWT_TTL` | `JwtProperties` | token lifetime (ISO-8601 duration) |
 | `carddemo.online.applid` | `CARDDEMO` | `CARDDEMO_APPLID` | `web.OnlineProperties` | `EXEC CICS ASSIGN APPLID` in every screen header |
@@ -32,6 +32,7 @@ below, `modernization/docker-compose.yml` and `modernization/.env.example`.
 | `carddemo.initial-load.max-rejects` | `0` | — | `InitialLoadProperties` | records per dataset that may fail to map before the step fails |
 | `carddemo.batch.output-dir` | `batch-output` | `CARDDEMO_BATCH_OUTPUT_DIR` | `batch.BatchOutputProperties` | root of dated outputs and default output DDs (§4); compose mounts the `carddemo-batch-output` volume at `/app/batch-output` |
 | `carddemo.batch.retain` | `5` | — | `BatchOutputProperties` | generations kept per GDG base (`LIMIT(5) SCRATCH`), must be ≥ 1 |
+| `carddemo.batch.creastmt.html-escape` | `false` | — | `batch.creastmt.CreastmtJobConfiguration` (`@Value`) | `true` escapes customer names/addresses in STATEMNT.HTML (rules `CBSTM03A.md` D-1); `false` keeps the legacy bytes the golden set compares |
 | `carddemo.batch.scheduler.enabled` | `true` (`test`/`golden`: `false`) | `CARDDEMO_SCHEDULER_ENABLED` | `batch.scheduler.NightlyCycleScheduling` (`@ConditionalOnProperty`) | registers the `nightly-cycle` cron trigger; web application only, never in a `--job=` CLI process |
 | `carddemo.batch.scheduler.nightly-cycle.cron` | `0 0 22 * * *` | `CARDDEMO_NIGHTLY_CYCLE_CRON` | `NightlyCycleTrigger` (`@Scheduled`) | Spring 6-field cron (sec min hour dom mon dow) in `carddemo.clock.zone`; `run-date` = today on the business clock |
 | `carddemo.reports.async.enabled` | `true` (`test`/`golden`: `false`) | — | `batch.report.ReportExecutorConfiguration` | CORPT00C report requests run on the single-thread `ReportExecutor`; off = on the calling thread (202 + COMPLETED) |
@@ -54,7 +55,7 @@ Spring's own settings that matter: `spring.datasource.url|username|password` ←
 | `CARDDEMO_DB_URL` | app | `jdbc:postgresql://localhost:5432/carddemo` | compose sets `jdbc:postgresql://postgres:5432/<db>` |
 | `CARDDEMO_DB_USER` / `CARDDEMO_DB_NAME` | app, compose | `carddemo` | |
 | `CARDDEMO_DB_PORT` | compose | `5432` | host port of Postgres |
-| `CARDDEMO_JWT_SECRET` | app | none outside `local`/`test` | ≥ 32 bytes, e.g. `openssl rand -base64 48`; also keys the opaque `cardRef` (ADR-0020), so rotating it invalidates tokens and card references |
+| `CARDDEMO_JWT_SECRET` | app, compose (required) | none | ≥ 32 bytes, e.g. `openssl rand -base64 48`; also keys the opaque `cardRef` (ADR-0020), so rotating it invalidates tokens and card references |
 | `CARDDEMO_JWT_TTL` | app | `PT1H` | |
 | `CARDDEMO_APPLID` / `CARDDEMO_SYSID` | app | `CARDDEMO` / `CDMO` | screen header region ids |
 | `CARDDEMO_INITIAL_LOAD` | app (`local`), compose | `true` | |

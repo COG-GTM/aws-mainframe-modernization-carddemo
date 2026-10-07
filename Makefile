@@ -24,7 +24,7 @@ help:
 	@echo "traceability    regenerate docs/modernization/07-traceability.md + traceability.json (COBOL/JCL/scheduler -> Java)"
 	@echo "traceability-check  regenerate into a temp dir; fail on any diff or GAP (CI build job)"
 	@echo "verify          mvn -B verify on JDK 21 (unit + Testcontainers ITs; needs Docker)"
-	@echo "up / down       docker compose: PostgreSQL 16 + carddemo-app (needs CARDDEMO_DB_PASSWORD or modernization/.env)"
+	@echo "up / down       docker compose: PostgreSQL 16 + carddemo-app (needs CARDDEMO_DB_PASSWORD + CARDDEMO_JWT_SECRET or modernization/.env)"
 	@echo "health          curl /actuator/health on CARDDEMO_HTTP_PORT (default 8080)"
 
 baseline:

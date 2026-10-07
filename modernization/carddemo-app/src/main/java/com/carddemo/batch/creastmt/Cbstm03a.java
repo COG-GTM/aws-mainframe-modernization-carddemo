@@ -128,12 +128,23 @@ public final class Cbstm03a {
     private final String stepName;
 
     private final TransactionTable table;
+    private final boolean htmlEscape;
     private long read;
     private long statements;
     private long transactions;
 
     public Cbstm03a(Cbstm03b files, RecordSink stmtfile, RecordSink htmlfile, RecordEncoding encoding, Sysout sysout,
                     String jobName, String stepName) {
+        this(files, stmtfile, htmlfile, encoding, sysout, jobName, stepName, false);
+    }
+
+    /**
+     * @param htmlEscape {@code carddemo.batch.creastmt.html-escape}: escape the customer name and address lines of
+     *                   STATEMNT.HTML (rules doc CBSTM03A.md, Deviation D-1); {@code false} keeps the legacy bytes
+     */
+    public Cbstm03a(Cbstm03b files, RecordSink stmtfile, RecordSink htmlfile, RecordEncoding encoding, Sysout sysout,
+                    String jobName, String stepName, boolean htmlEscape) {
+        this.htmlEscape = htmlEscape;
         this.files = files;
         this.stmtfile = stmtfile;
         this.htmlfile = htmlfile;
@@ -299,9 +310,9 @@ public final class Cbstm03a {
         String stFicoScore = pad(customer.getString("CUST-FICO-CREDIT-SCORE"), 20);
 
         String l23Name = stName.substring(0, 50);
-        html(string(HTML_LRECL, HTML_P16, "*", l23Name, "  ", "  ", null, "</p>", "*"));
+        html(dataLine(HTML_P16, l23Name));
         for (String address : List.of(stAdd1, stAdd2, stAdd3)) {
-            html(string(HTML_LRECL, "<p>", "*", address, "  ", "  ", null, "</p>", "*"));
+            html(dataLine("<p>", address));
         }
         html(HTML_LTDE, HTML_LTRE, HTML_LTRS, HTML_L30_42, HTML_L31, HTML_LTDE, HTML_LTRE, HTML_LTRS, HTML_L22_35);
         html(string(HTML_LRECL, "<p>Account ID         : ", "*", stAcctId, "*", "</p>", "*"));
@@ -363,6 +374,40 @@ public final class Cbstm03a {
 
     private void stmt(String line) {
         stmtfile.write(new FixedWidthRecord(encoding.encode(pad(line, STMT_LRECL)), encoding));
+    }
+
+    /**
+     * A name/address line of {@code 5200-WRITE-HTML-NMADBS}: {@code prefix} + {@code value DELIMITED BY '  '} + two
+     * spaces + {@code </p>}. With {@link #htmlEscape} the value is HTML-escaped first, cut before an entity that
+     * would not fit in the 100-byte record.
+     */
+    private String dataLine(String prefix, String value) {
+        if (!htmlEscape) {
+            return string(HTML_LRECL, prefix, "*", value, "  ", "  ", null, "</p>", "*");
+        }
+        int cut = value.indexOf("  ");
+        String text = cut < 0 ? value : value.substring(0, cut);
+        String escaped = escape(text, HTML_LRECL - prefix.length() - "  </p>".length());
+        return string(HTML_LRECL, prefix, "*", escaped, null, "  ", null, "</p>", "*");
+    }
+
+    /** {@code & < >} as entities (text content only, quotes need no escaping there), at most {@code room} characters, never cutting inside an entity. */
+    static String escape(String text, int room) {
+        StringBuilder out = new StringBuilder(text.length());
+        for (int i = 0; i < text.length(); i++) {
+            char c = text.charAt(i);
+            String piece = switch (c) {
+                case '&' -> "&amp;";
+                case '<' -> "&lt;";
+                case '>' -> "&gt;";
+                default -> String.valueOf(c);
+            };
+            if (out.length() + piece.length() > room) {
+                break;
+            }
+            out.append(piece);
+        }
+        return out.toString();
     }
 
     private void html(String... lines) {

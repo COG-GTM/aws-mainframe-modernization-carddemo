@@ -34,6 +34,7 @@ Errors: 0, Skipped: 0`; Failsafe (Testcontainers PostgreSQL 16) `Tests run: 122,
 
 ```bash
 cp .env.example .env          # CARDDEMO_DB_PASSWORD set to a random value (not recorded)
+# since s6.4 also required: echo "CARDDEMO_JWT_SECRET=$(openssl rand -base64 48)" >> .env
 docker compose up -d --build --wait
 ```
 
