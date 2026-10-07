@@ -61,6 +61,9 @@ class BatchHarnessIT {
     @Autowired
     Environment environment;
 
+    @Autowired
+    List<JobStream> streams;
+
     @TempDir
     Path dir;
 
@@ -91,7 +94,7 @@ class BatchHarnessIT {
 
     private int cli(String... args) {
         BatchExitCodes exitCodes = new BatchExitCodes();
-        new BatchCommandLineRunner(launcher, exitCodes, runLog, adapters, clock, environment)
+        new BatchCommandLineRunner(launcher, exitCodes, runLog, adapters, clock, environment, streams)
                 .run(new DefaultApplicationArguments(args));
         return exitCodes.getExitCode();
     }
@@ -159,7 +162,7 @@ class BatchHarnessIT {
 
         BatchExitCodes bootRunner = new BatchExitCodes();
         new BatchCommandLineRunner(launcher, bootRunner, runLog, adapters, clock,
-                new MockEnvironment().withProperty("spring.batch.job.enabled", "true"))
+                new MockEnvironment().withProperty("spring.batch.job.enabled", "true"), streams)
                 .run(new DefaultApplicationArguments("--job=readcust"));
         assertThat(bootRunner.getExitCode()).isEqualTo(16);
         assertThat(lastJobRow("readcust").message()).contains("spring.batch.job.enabled");

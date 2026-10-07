@@ -47,7 +47,16 @@ public class DatedOutputFiles {
     /** The {@code (+1)} generation of {@code gdgBase}, written and registered. */
     @Transactional
     public BatchOutputFile write(String gdgBase, long jobExecutionId, List<FixedWidthRecord> records) {
-        LocalDate businessDate = LocalDate.now(clock);
+        return write(gdgBase, null, jobExecutionId, records);
+    }
+
+    /** As {@link #write(String, long, List)}, dated {@code businessDate} (the clock's date when null). */
+    @Transactional
+    public BatchOutputFile write(String gdgBase, LocalDate businessDate, long jobExecutionId,
+                                 List<FixedWidthRecord> records) {
+        if (businessDate == null) {
+            businessDate = LocalDate.now(clock);
+        }
         Path path = properties.outputDir().resolve(gdgBase)
                 .resolve(gdgBase + "." + businessDate + "." + jobExecutionId).toAbsolutePath().normalize();
         RecordFiles.writeFixed(gdgBase, path, records);

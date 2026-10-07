@@ -146,7 +146,7 @@ jobs:
   # datasets and exit codes must equal docs/validation/baseline/<JOB>/ (scripts/batch/compare_print_jobs.py).
   # The `baseline` job guarantees those committed outputs are what GnuCOBOL produces today.
   batch-equivalence:
-    name: batch print jobs vs GnuCOBOL baseline
+    name: batch jobs (print, POSTTRAN) vs GnuCOBOL baseline
     runs-on: ubuntu-24.04
     timeout-minutes: 20
     services:
