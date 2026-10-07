@@ -1,0 +1,7 @@
+# Known differences when the print jobs read PostgreSQL (loaded by `initial-load` from app/data/EBCDIC) instead of
+# the app/data/ASCII samples the GnuCOBOL baseline ran on. Same root cause as
+# modernization/carddemo-app/src/test/resources/codec/ebcdic-vs-ascii-expected-diffs.txt: ACCTDATA record 49 has
+# ACCT-ADDR-ZIP 'ZEROAPR' in the EBCDIC sample and 'A000000000' in the ASCII sample. CBACT01C DISPLAYs the whole
+# ACCOUNT-RECORD, so exactly one SYSOUT line differs; OUTFILE/ARRYFILE/VBRCFILE carry no ZIP field.
+# JOB|FILE|line-prefix|baseline-text|java-text
+READACCT|sysout|00000000049|A000000000|ZEROAPR   

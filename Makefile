@@ -4,12 +4,14 @@ export JAVA_HOME
 COMPOSE := docker compose -f modernization/docker-compose.yml
 CARDDEMO_HTTP_PORT ?= 8080
 
-.PHONY: help baseline baseline-fast baseline-check verify up down health
+.PHONY: help baseline baseline-fast baseline-check batch-equivalence verify up down health
 
 help:
 	@echo "baseline        compile all batch COBOL with GnuCOBOL and run the 26 baseline jobs (WAITSTEP waits 36 s)"
 	@echo "baseline-fast   same, skipping the WAITSTEP sleep (outputs identical)"
 	@echo "baseline-check  baseline-fast + assert 'jobs=26 compile failures=0' + no drift vs docs/validation/baseline (CI gate)"
+	@echo "batch-equivalence  run READACCT/READCARD/READXREF/READCUST via the batch CLI (file + table input) and"
+	@echo "                   compare with docs/validation/baseline (needs the packaged jar + CARDDEMO_DB_*; CI gate)"
 	@echo "verify          mvn -B verify on JDK 21 (unit + Testcontainers ITs; needs Docker)"
 	@echo "up / down       docker compose: PostgreSQL 16 + carddemo-app (needs CARDDEMO_DB_PASSWORD or modernization/.env)"
 	@echo "health          curl /actuator/health on CARDDEMO_HTTP_PORT (default 8080)"
@@ -22,6 +24,10 @@ baseline-fast:
 
 baseline-check:
 	scripts/baseline/ci_check.sh
+
+batch-equivalence:
+	scripts/batch/run_print_jobs.sh file build/batch-equivalence/file
+	scripts/batch/run_print_jobs.sh table build/batch-equivalence/table
 
 verify:
 	cd modernization && mvn -B verify

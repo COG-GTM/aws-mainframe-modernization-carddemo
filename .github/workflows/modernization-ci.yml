@@ -11,6 +11,7 @@ on:
       - "app/cbl/**"
       - "app/data/**"
       - "scripts/baseline/**"
+      - "scripts/batch/**"
       - "docs/validation/baseline/**"
       - "docs/modernization/dependency-map.json"
       - "Makefile"
@@ -23,6 +24,7 @@ on:
       - "app/cbl/**"
       - "app/data/**"
       - "scripts/baseline/**"
+      - "scripts/batch/**"
       - "docs/validation/baseline/**"
       - "docs/modernization/dependency-map.json"
       - "Makefile"
@@ -138,5 +140,51 @@ jobs:
       - name: make baseline-check
         run: make baseline-check
 
-  # equivalence (phase 6): needs [build, baseline]; runs the Java batch jobs under the `golden` profile and
-  # compares their outputs with docs/validation/baseline/ produced by `make baseline-check`.
+  # Java batch jobs vs the GnuCOBOL baseline (UNT51-11): the print jobs run through the CLI of the packaged jar
+  # (`java -jar carddemo-app.jar --job=<name>`, golden profile) against PostgreSQL 16, once reading the
+  # app/data/ASCII unloads the baseline ran on and once reading the tables filled by initial-load; their SYSOUT,
+  # datasets and exit codes must equal docs/validation/baseline/<JOB>/ (scripts/batch/compare_print_jobs.py).
+  # The `baseline` job guarantees those committed outputs are what GnuCOBOL produces today.
+  batch-equivalence:
+    name: batch print jobs vs GnuCOBOL baseline
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_DB: carddemo
+          POSTGRES_USER: carddemo
+          POSTGRES_PASSWORD: ci-only-not-a-secret
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U carddemo -d carddemo" --health-interval 5s --health-timeout 3s
+          --health-retries 20
+    env:
+      CARDDEMO_DB_URL: jdbc:postgresql://localhost:5432/carddemo
+      CARDDEMO_DB_USER: carddemo
+      CARDDEMO_DB_PASSWORD: ci-only-not-a-secret
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+          cache: maven
+      - name: Install psql
+        run: command -v psql || (sudo apt-get update -q && sudo apt-get install -y -q postgresql-client)
+      - name: mvn package (skip tests; the build job runs them)
+        run: mvn -B -ntp -f modernization/pom.xml -DskipTests package
+      - name: make batch-equivalence
+        run: make batch-equivalence
+      - name: Summary
+        if: always()
+        run: cat build/batch-equivalence/*/REPORT.md >> "$GITHUB_STEP_SUMMARY" 2>/dev/null || true
+      - name: Upload outputs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: batch-equivalence
+          path: build/batch-equivalence/
+          if-no-files-found: warn
