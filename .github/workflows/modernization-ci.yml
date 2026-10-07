@@ -275,10 +275,10 @@ jobs:
           distribution: temurin
           java-version: "21"
           cache: maven
-      - name: Install GnuCOBOL (as the baseline job) and jq
+      - name: Install GnuCOBOL (as the baseline job), jq and psql (nightly-cycle batch_run queries)
         run: |
           sudo apt-get update -q
-          sudo apt-get install -y -q gnucobol jq
+          sudo apt-get install -y -q gnucobol jq postgresql-client
           cobc --version | head -1
       - name: mvn package (skip tests; the build job runs them)
         run: mvn -B -ntp -f modernization/pom.xml -DskipTests package

@@ -13,7 +13,9 @@ cd "$(dirname "$0")/../.."
 OUT="$(realpath -m "${GOLDEN_OUT:-build/golden-set}")"
 export GOLDEN_OUT="$OUT"
 export GOLDEN_DOC_DIR="${GOLDEN_DOC_DIR:-build/golden-set-doc}"
-COMMITTED="${GOLDEN_COMMITTED_DIR:-$(ls -d docs/validation/golden-set/????-??-?? 2>/dev/null | sort | tail -1)}"
+# Newest *tracked* dated directory: an untracked one left by a local `make golden-set` is not the reference.
+COMMITTED="${GOLDEN_COMMITTED_DIR:-$(git ls-files 'docs/validation/golden-set/*/reconciliation.md' \
+    | sed -nE 's|^(docs/validation/golden-set/[0-9]{4}-[0-9]{2}-[0-9]{2})/reconciliation.md$|\1|p' | sort | tail -1)}"
 [ -n "$COMMITTED" ] && [ -d "$COMMITTED" ] || { echo "::error::no committed docs/validation/golden-set/<date>/" >&2; exit 2; }
 rm -rf "$GOLDEN_DOC_DIR"
 
