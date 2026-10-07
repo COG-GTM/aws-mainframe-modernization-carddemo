@@ -37,6 +37,14 @@ public interface TransactionRepository extends JpaRepository<Transaction, String
             + " order by t.procTs, t.tranId")
     List<Transaction> findAfterProcTs(@Param("procTs") String procTs, @Param("tranId") String tranId, Limit limit);
 
+    /**
+     * TRANREPT {@code STEP10} extract ({@code INCLUDE COND=(TRAN-PROC-DT,GE,start,AND,TRAN-PROC-DT,LE,end)} with
+     * TRAN-PROC-DT = TRAN-PROC-TS(1:10)), in byte order, sorted by card number then TRAN-ID (the KSDS input order).
+     */
+    @Query(value = "select * from transaction where substr(proc_ts, 1, 10) collate \"C\" between :start and :end"
+            + " order by card_num collate \"C\", tran_id collate \"C\"", nativeQuery = true)
+    List<Transaction> findByProcDateWindow(@Param("start") String start, @Param("end") String end);
+
     default KeysetPage<Transaction> browseFrom(String startTranId) {
         return KeysetPage.forward(l -> findByTranIdGreaterThanEqualOrderByTranIdAsc(startTranId, l),
                 COTRN00C_SCREEN_ROWS);
