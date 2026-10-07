@@ -124,9 +124,47 @@ Deliberately **not** constrained (sample data or programs contradict a tighter r
 
 `STARTBR` (GTEQ) includes the start key, continuation cursors exclude the boundary row, never `OFFSET`.
 
+Key columns that browses order on (`usr_id`, `card_num`, `tran_id`, `proc_ts`, type/group codes) are
+`COLLATE "C"` (Flyway `V3__key_collation_c.sql`): VSAM orders keys by byte value, and the database default collation
+(`en_US.UTF-8` under glibc) would order `'a b'`/`'ab'` and upper/lower case differently. The byte order is that of the
+ASCII key, as in the GnuCOBOL baseline's indexed files (the golden-set reference), not IBM037 order (where lowercase <
+uppercase < digits). The shipped keys sort the same both ways.
+
 `version BIGINT NOT NULL DEFAULT 0` exists on exactly the tables the online programs `REWRITE`/`DELETE`:
 `user_security`, `customer`, `account`, `card`. Insert-only (`transaction`) and batch-only tables have none; batch
 steps that change a versioned row increment it (ADR-0010).
+
+## Java data model (s3.2)
+
+Each table has a JPA entity in its owning domain package, a Java `record` holding one fixed-width record, and a
+Spring Data repository with only the access paths the COBOL programs use. `XxxRecord.MAPPER`
+(`common.data.CopybookRecordMapper`) converts between the codec's `FixedWidthRecord` and the record; each record
+component names its copybook leaf with `@CobolField`, and the mapper refuses to build unless every non-FILLER leaf is
+bound once with the Java type of its column. `EntityMappingTest` checks the bindings and entity `@Column`s against
+`copybook-column-map.csv` and round-trips every sample record byte for byte; `VsamDatasetLoaderIT` round-trips every
+sample through PostgreSQL.
+
+| Table | Package | Entity / record | Repository access paths |
+| --- | --- | --- | --- |
+| `user_security` | `user` | `UserSecurity` / `UserSecurityRecord` | by id; COUSR00C browse, 10 rows |
+| `customer` | `customer` | `Customer` / `CustomerRecord` | by id; sequential |
+| `account` | `account` | `Account` / `AccountRecord` | by id; sequential |
+| `card` | `card` | `Card` / `CardRecord` | by id; CARDAIX first by `acct_id`; COCRDLIC browse, 7 rows, optional account filter on `(acct_id, card_num)`; sequential |
+| `card_xref` | `card` | `CardXref` / `CardXrefRecord` | by card; CXACAIX first/all by `acct_id`; sequential |
+| `transaction` | `transaction` | `Transaction` / `TransactionRecord` | by id; COTRN00C browse, 10 rows; highest id; AIX `(proc_ts, tran_id)` keyset |
+| `daily_transaction` | `transaction` | `DailyTransaction` / `DailyTransactionRecord` | file order (`record_seq`); by `tran_id` |
+| `transaction_type` | `transaction` | `TransactionType` / `TransactionTypeRecord` | by code; key order |
+| `transaction_category` | `transaction` | `TransactionCategory` / `TransactionCategoryRecord` | by `(type, cat)`; key order |
+| `disclosure_group` | `transaction` | `DisclosureGroup` / `DisclosureGroupRecord` | by key with CBACT04C `DEFAULT` fallback; key order |
+| `tran_cat_balance` | `transaction` | `TranCatBalance` / `TranCatBalanceRecord` | by key; rewrite; key order |
+| `batch_output_file` | `batch` | `BatchOutputFile` (no copybook, no mapper) | relative generation `(0)`, `(-1)`, … |
+
+Rules: text dates stay the source of truth, and `*_dt` is a read-only `@Generated` `LocalDate`. `@Version` is only on the
+four versioned tables. Level-88 columns are `UserType`, `AccountStatus`, `CardStatus` and `PrimaryCardHolder`, stored as
+their COBOL code by `CodedEnumConverter`; undefined codes throw `InvalidRequestException`. Mutable entities
+(`update(record)` = `REWRITE`) are the versioned four and `TranCatBalance`, and the rest are `@Immutable`. Browses
+return `KeysetPage` (rows plus the one-record look-ahead the programs use to enable PF7/PF8). `batch.load.VsamDatasetLoader`
+loads a dataset image (EBCDIC fixed or ASCII line sequential) through the mappers.
 
 ## GDG replacement (ADR-0012)
 
