@@ -1,6 +1,7 @@
 package com.carddemo.batch.parity;
 
 import com.carddemo.batch.support.Cbact01cRun;
+import com.carddemo.batch.support.Cbtrn01cRun;
 import com.carddemo.batch.support.Golden;
 import com.carddemo.batch.support.Repo;
 import org.junit.jupiter.api.Assumptions;
@@ -14,17 +15,25 @@ import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-/** Runs {@code python3 test-harness/reconcile.py cbact01c --golden-dir <java output>} when python3 exists. */
+/** Runs {@code python3 test-harness/reconcile.py <job> --golden-dir <java output>} when python3 exists. */
 final class PythonHarness {
 
     private PythonHarness() {
     }
 
     static void assertPasses(Cbact01cRun run, int expectedChecks) {
-        Path dir = run.writeJsonForHarness();
+        assertPasses("cbact01c", run.writeJsonForHarness(), expectedChecks);
+    }
+
+    static void assertPasses(Cbtrn01cRun run, int expectedChecks) {
+        assertPasses("cbtrn01c", run.writeJsonForHarness(), expectedChecks);
+    }
+
+    /** {@code python3 test-harness/reconcile.py <job> --golden-dir <dir> --write} must report every check PASS. */
+    static void assertPasses(String job, Path dir, int expectedChecks) {
         Process p;
         try {
-            p = new ProcessBuilder("python3", Repo.RECONCILE_PY.toString(), "cbact01c", "--golden-dir", dir.toString(), "--write")
+            p = new ProcessBuilder("python3", Repo.RECONCILE_PY.toString(), job, "--golden-dir", dir.toString(), "--write")
                     .redirectErrorStream(true).start();
         } catch (IOException e) {
             Assumptions.abort("python3 not available: " + e.getMessage());

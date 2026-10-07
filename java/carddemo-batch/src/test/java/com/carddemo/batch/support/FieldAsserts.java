@@ -10,6 +10,7 @@ import java.util.Map;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
@@ -80,8 +81,11 @@ public final class FieldAsserts {
                         checks.addAll(record(file, key, expOcc.get(i), actOcc.get(i), numericScale, field + "(" + (i + 1) + ")."));
                     }
                 }
-            } else if (exp instanceof Integer) {
+            } else if (exp instanceof Integer || exp instanceof Boolean) {
                 checks.add(() -> assertEquals(exp, act, file + " record " + key + " field " + field));
+            } else if (exp == null) {
+                checks.add(() -> assertNull(act, file + " record " + key + " field " + field
+                        + " expected JSON null but was " + act));
             } else if (numericScale.containsKey(field)) {
                 checks.add(decimalField(file, key, field, (String) exp, act, numericScale.get(field)));
             } else {
