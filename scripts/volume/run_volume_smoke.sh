@@ -124,6 +124,18 @@ ok=1
 [ "$intcalc_rc" = 0 ] || { echo "::error::intcalc exit $intcalc_rc"; ok=0; }
 [ "$daily" = "$RECORDS" ] || { echo "::error::daily_transaction $daily"; ok=0; }
 [ "${rejects:-}" = "$(exp rejected)" ] || { echo "::error::DALYREJS ${rejects:-none}, expected $(exp rejected)"; ok=0; }
+rejfile=$(psql_q "select file_path from batch_output_file where gdg_base = 'DALYREJS' order by output_file_id desc limit 1")
+python3 - "$rejfile" "$expected" <<'PY' || ok=0
+import collections, json, sys
+data = open(sys.argv[1], "rb").read() if sys.argv[1] else b""
+recs = data.splitlines() if b"\n" in data else [data[i:i + 430] for i in range(0, len(data), 430)]
+got = collections.Counter(str(int(r[350:354])) for r in recs if r.strip())
+want = {k: v for k, v in json.load(open(sys.argv[2]))["rejected_by_reason"].items() if v}
+if dict(got) != want:
+    print(f"::error::DALYREJS reasons {dict(got)}, expected {want}")
+    sys.exit(1)
+print(f"DALYREJS reasons {dict(sorted(got.items()))} as expected")
+PY
 [ "$tran" = "$(exp posted)" ] || { echo "::error::transaction rows $tran, expected $(exp posted)"; ok=0; }
 [ "$ok" = 1 ] && echo "VOLUME SMOKE OK ($OUT/metrics.md)" && exit 0
 exit 1

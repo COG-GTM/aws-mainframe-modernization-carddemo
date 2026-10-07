@@ -202,6 +202,7 @@ Without Docker for the app (Postgres still needed):
 
 ```bash
 export CARDDEMO_DB_PASSWORD=...   # CARDDEMO_DB_URL defaults to jdbc:postgresql://localhost:5432/carddemo
+export CARDDEMO_JWT_SECRET="$(openssl rand -base64 48)"   # required, >= 32 bytes
 JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64 mvn -B -pl carddemo-app spring-boot:run -Dspring-boot.run.profiles=local
 ```
 
