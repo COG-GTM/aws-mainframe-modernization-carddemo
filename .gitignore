@@ -13,3 +13,4 @@ build/baseline-work/
 # jqwik property-test failure database
 .jqwik-database
 build/batch-equivalence/
+__pycache__/
