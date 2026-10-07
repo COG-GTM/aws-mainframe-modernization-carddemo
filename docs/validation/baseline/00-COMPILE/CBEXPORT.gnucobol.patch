@@ -1,0 +1,22 @@
+--- a/app/cbl/CBEXPORT.cbl
++++ b/build/baseline-work/gen/CBEXPORT.cbl
+@@ -65,7 +65,7 @@
+            SELECT EXPORT-OUTPUT ASSIGN TO EXPFILE
+                ORGANIZATION IS INDEXED
+                ACCESS MODE IS SEQUENTIAL
+-               RECORD KEY IS EXPORT-SEQUENCE-NUM
++               RECORD KEY IS EXPORT-OUTPUT-SEQ-NUM
+                FILE STATUS IS WS-EXPORT-STATUS.
+ 
+        DATA DIVISION.
+@@ -90,6 +90,10 @@
+            RECORDING MODE IS F
+            RECORD CONTAINS 500 CHARACTERS.
+        01  EXPORT-OUTPUT-RECORD                        PIC X(500).
++       01  EXPORT-OUTPUT-KEY-VIEW.
++           05  FILLER                                  PIC X(27).
++           05  EXPORT-OUTPUT-SEQ-NUM                   PIC 9(9) COMP.
++           05  FILLER                                  PIC X(469).
+ 
+        WORKING-STORAGE SECTION.
+ 

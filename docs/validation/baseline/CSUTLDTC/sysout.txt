@@ -1,0 +1,39 @@
+--- EXEC PGM=CSUTLDTC
+RUNDTC: CSUTLDTC baseline cases
+CASE 01 IN=[2022-07-06] MASK=[YYYY-MM-DD] RC=0000
+        RESULT=[0000Mesg Code: 0000 Date is valid   TstDate: \x00
+2022-07- Mask used:YYYY-MM-DD    ]
+CASE 02 IN=[2024-02-29] MASK=[YYYY-MM-DD] RC=0000
+        RESULT=[0000Mesg Code: 0000 Date is valid   TstDate: \x00
+2024-02- Mask used:YYYY-MM-DD    ]
+CASE 03 IN=[2023-02-29] MASK=[YYYY-MM-DD] RC=0003
+        RESULT=[0003Mesg Code: 2508 Datevalue error TstDate: \x00
+2023-02- Mask used:YYYY-MM-DD    ]
+CASE 04 IN=[2022-13-01] MASK=[YYYY-MM-DD] RC=0003
+        RESULT=[0003Mesg Code: 2517 Invalid month   TstDate: \x00
+2022-13- Mask used:YYYY-MM-DD    ]
+CASE 05 IN=[2022-00-10] MASK=[YYYY-MM-DD] RC=0003
+        RESULT=[0003Mesg Code: 2517 Invalid month   TstDate: \x00
+2022-00- Mask used:YYYY-MM-DD    ]
+CASE 06 IN=[2022-04-31] MASK=[YYYY-MM-DD] RC=0003
+        RESULT=[0003Mesg Code: 2508 Datevalue error TstDate: \x00
+2022-04- Mask used:YYYY-MM-DD    ]
+CASE 07 IN=[20AB-01-01] MASK=[YYYY-MM-DD] RC=0003
+        RESULT=[0003Mesg Code: 2520 Nonnumeric data TstDate: \x00
+20AB-01- Mask used:YYYY-MM-DD    ]
+CASE 08 IN=[          ] MASK=[YYYY-MM-DD] RC=0003
+        RESULT=[0003Mesg Code: 2507 Insufficient    TstDate: \x00
+         Mask used:YYYY-MM-DD    ]
+CASE 09 IN=[1600-01-01] MASK=[YYYY-MM-DD] RC=0003
+        RESULT=[0003Mesg Code: 2508 Datevalue error TstDate: \x00
+1600-01- Mask used:YYYY-MM-DD    ]
+CASE 10 IN=[20220706  ] MASK=[YYYYMMDD  ] RC=0000
+        RESULT=[0000Mesg Code: 0000 Date is valid   TstDate: \x00
+20220706 Mask used:YYYYMMDD      ]
+CASE 11 IN=[07/06/2022] MASK=[MM/DD/YYYY] RC=0000
+        RESULT=[0000Mesg Code: 0000 Date is valid   TstDate: \x00
+07/06/20 Mask used:MM/DD/YYYY    ]
+CASE 12 IN=[2022-07-06] MASK=[          ] RC=0003
+        RESULT=[0003Mesg Code: 2507 Insufficient    TstDate: \x00
+2022-07- Mask used:              ]
+rc=0

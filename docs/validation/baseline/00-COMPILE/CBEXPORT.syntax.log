@@ -1,0 +1,3 @@
+$ cobc -fsyntax-only -std=ibm -I /home/ubuntu/repos/aws-mainframe-modernization-carddemo/app/cpy app/cbl/CBEXPORT.cbl
+app/cbl/CBEXPORT.cbl:68: error: 'EXPORT-SEQUENCE-NUM' is not defined
+rc=1

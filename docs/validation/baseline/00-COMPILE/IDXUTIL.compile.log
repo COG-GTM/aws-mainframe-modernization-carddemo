@@ -1,0 +1,24 @@
+$ cobc -std=ibm -fsign=EBCDIC -I app/cpy -x -o build/baseline-work/bin/IDXACCTD build/baseline-work/gen/IDXACCTD.cbl
+rc=0
+$ cobc -std=ibm -fsign=EBCDIC -I app/cpy -x -o build/baseline-work/bin/IDXCARDD build/baseline-work/gen/IDXCARDD.cbl
+rc=0
+$ cobc -std=ibm -fsign=EBCDIC -I app/cpy -x -o build/baseline-work/bin/IDXCUSTD build/baseline-work/gen/IDXCUSTD.cbl
+rc=0
+$ cobc -std=ibm -fsign=EBCDIC -I app/cpy -x -o build/baseline-work/bin/IDXCARDX build/baseline-work/gen/IDXCARDX.cbl
+rc=0
+$ cobc -std=ibm -fsign=EBCDIC -I app/cpy -x -o build/baseline-work/bin/IDXTRANS build/baseline-work/gen/IDXTRANS.cbl
+rc=0
+$ cobc -std=ibm -fsign=EBCDIC -I app/cpy -x -o build/baseline-work/bin/IDXTRANT build/baseline-work/gen/IDXTRANT.cbl
+rc=0
+$ cobc -std=ibm -fsign=EBCDIC -I app/cpy -x -o build/baseline-work/bin/IDXTRANC build/baseline-work/gen/IDXTRANC.cbl
+rc=0
+$ cobc -std=ibm -fsign=EBCDIC -I app/cpy -x -o build/baseline-work/bin/IDXDISCG build/baseline-work/gen/IDXDISCG.cbl
+rc=0
+$ cobc -std=ibm -fsign=EBCDIC -I app/cpy -x -o build/baseline-work/bin/IDXTCATB build/baseline-work/gen/IDXTCATB.cbl
+rc=0
+$ cobc -std=ibm -fsign=EBCDIC -I app/cpy -x -o build/baseline-work/bin/IDXUSRSE build/baseline-work/gen/IDXUSRSE.cbl
+rc=0
+$ cobc -std=ibm -fsign=EBCDIC -I app/cpy -x -o build/baseline-work/bin/IDXTRXFL build/baseline-work/gen/IDXTRXFL.cbl
+rc=0
+$ cobc -std=ibm -fsign=EBCDIC -I app/cpy -x -o build/baseline-work/bin/IDXEXPOR build/baseline-work/gen/IDXEXPOR.cbl
+rc=0

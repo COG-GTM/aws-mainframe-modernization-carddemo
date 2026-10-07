@@ -1,0 +1,2 @@
+$ cobc -std=ibm -fsign=EBCDIC -I app/cpy -m -o build/baseline-work/bin/CBSTM03B.so app/cbl/CBSTM03B.CBL
+rc=0
