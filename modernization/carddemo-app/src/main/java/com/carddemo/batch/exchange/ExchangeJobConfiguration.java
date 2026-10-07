@@ -118,9 +118,9 @@ public class ExchangeJobConfiguration {
     }
 
     /**
-     * CBIMPORT {@code 0000-MAIN-PROCESSING}: {@code 2000-PROCESS-EXPORT-FILE} with {@code 2200-PROCESS-RECORD-BY-TYPE}
-     * per record, unknown types to {@code IMPORT.ERRORS}, then {@code 3000-VALIDATE-IMPORT} / {@code 4000-FINALIZE}
-     * (counts).
+     * CBIMPORT {@code 0000-MAIN-PROCESSING}: {@code 1000-INITIALIZE} (input generation, import timestamp from the
+     * clock), {@code 2000-PROCESS-EXPORT-FILE} with {@code 2200-PROCESS-RECORD-BY-TYPE} per record, unknown types to
+     * {@code IMPORT.ERRORS}, then {@code 3000-VALIDATE-IMPORT} / {@code 4000-FINALIZE} (counts).
      */
     @Bean
     Job cbimportJob(JobRepository jobRepository, PlatformTransactionManager transactionManager,

@@ -94,8 +94,8 @@ failed member had already changed:
 | Failed member | Restore before rerunning | Then run, in order |
 | --- | --- | --- |
 | READ* | nothing (read-only) | the failed print job and the ones after it |
-| `POSTTRAN` | `transaction`, `account`, `tran_cat_balance` to their state before the cycle (database backup, or `--job=repro` of `--job=unload` dumps taken before the window) | `posttran`, `intcalc`, `tranbkp`, `combtran`, `tranrept`, `creastmt`, `prtcatbl` |
-| `INTCALC` | `account`, `tran_cat_balance` to their state after POSTTRAN | `intcalc` … `prtcatbl` |
+| `POSTTRAN` | `transaction`, `account`, `tran_cat_balance` (each daily record commits on its own) to their state before the cycle (database backup, or `--job=repro` of `--job=unload` dumps taken before the window) | `posttran`, `intcalc`, `tranbkp`, `combtran`, `tranrept`, `creastmt`, `prtcatbl` |
+| `INTCALC` | table mode (the cycle): nothing — STEP15 runs in one transaction that is rolled back on failure; file mode (`--ACCTFILE=<path>` etc.): the account and TCATBALF files as POSTTRAN left them (rewrites already done are not undone) | `intcalc` … `prtcatbl` |
 | `TRANBKP` | if `transaction` was already emptied: reload it from the newest `TRANSACT.BKUP` generation (`--job=repro --DATASET=TRANSACT --INFILE=<file>`) | `tranbkp` … `prtcatbl` |
 | `COMBTRAN` | nothing: on RC 12 (duplicate key) nothing was loaded; fix the inputs | `combtran` … `prtcatbl` |
 | `TRANREPT`, `CREASTMT`, `PRTCATBL` | nothing (outputs are new generations; a failed one is rolled back) | the failed stream and the ones after it |

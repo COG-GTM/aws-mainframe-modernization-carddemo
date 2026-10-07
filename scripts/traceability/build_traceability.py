@@ -385,16 +385,18 @@ class JavaIndex:
         for mem in self.members:
             own = self.named(mem["javadoc"])
             cls_doc = self.named(self.type_doc.get(mem["file"], ""))
+            mem["own"] = own
             mem["programs"] = (own | cls_doc) or {p for p in programs if self.in_paths(mem["file"], p)}
 
     def tag_programs(self, mem: dict, name: str) -> set[str]:
         """Programs a {@code NAME} tag in this member applies to: "PGM {@code NAME}" names one program
-        explicitly; an unqualified tag applies to the member's program context."""
+        explicitly; an unqualified tag applies to the programs the member's own Javadoc names, else to its
+        class/package program context."""
         tag, jd, out = "{@code " + name + "}", mem["javadoc"], set()
         start = jd.find(tag)
         while start >= 0:
             q = re.search(r"(?<![A-Z0-9-])([A-Z][A-Z0-9]{3,7})(?:'s)?\s+$", jd[:start])
-            out |= {q.group(1)} if q and q.group(1) in self.programs else mem["programs"]
+            out |= {q.group(1)} if q and q.group(1) in self.programs else (mem["own"] or mem["programs"])
             start = jd.find(tag, start + 1)
         return out
 
@@ -488,8 +490,26 @@ def load_inventory() -> dict:
     return json.loads(read_text(DOCS / "inventory.json"))["modules"]["core"]
 
 
+def check_inventory_current(inv: dict) -> None:
+    """The matrix enumerates programs/JCL/copybooks from inventory.json: refuse a stale inventory."""
+    on_disk = {
+        "programs": (APP / "cbl", (".cbl",)),
+        "jcl_jobs": (APP / "jcl", (".jcl",)),
+        "copybooks": (APP / "cpy", (".cpy",)),
+        "bms_copybooks": (APP / "cpy-bms", (".cpy",)),
+    }
+    for key, (folder, exts) in on_disk.items():
+        files = {f.stem.upper() for f in folder.iterdir() if f.suffix.lower() in exts}
+        listed = {Path(n).stem.upper() for n in inv[key]}
+        if files != listed:
+            raise Failure(f"inventory.json {key} out of date vs {folder.relative_to(ROOT)}: "
+                          f"missing {sorted(files - listed)}, extra {sorted(listed - files)} "
+                          "(regenerate with docs/modernization/build_inventory.py)")
+
+
 def build() -> OrderedDict:
     inv = load_inventory()
+    check_inventory_current(inv)
     programs = sorted(inv["programs"])
     jx = JavaIndex(programs)
     problems: list[str] = []
@@ -549,7 +569,7 @@ def build() -> OrderedDict:
             resolved[name] = entry
             para_rows.append(entry)
         # resolve "@PARA" (folded into another paragraph) destinations
-        for entry in resolved.values():
+        for entry in [r for r in para_rows if r["program"] == pgm]:
             dest = entry["destination"]
             if dest and dest.startswith("@"):
                 owner = resolved.get(dest[1:])

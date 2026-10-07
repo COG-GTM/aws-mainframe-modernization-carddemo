@@ -17,9 +17,9 @@
   "paragraphs": {
     "total": 576,
     "mapped": 234,
-    "retired-cics": 168,
+    "retired-cics": 169,
     "retired-jcl": 66,
-    "folded": 108,
+    "folded": 107,
     "GAP": 0
   },
   "gaps": [],
@@ -1571,7 +1571,7 @@
       "line": 174,
       "status": "mapped",
       "methods": [
-        "batch.exchange.ExchangeJobConfiguration#cbexportJob"
+        "batch.exchange.ExchangeJobConfiguration#cbimportJob"
       ],
       "category": null,
       "destination": null,
@@ -1747,8 +1747,7 @@
       "line": 296,
       "status": "mapped",
       "methods": [
-        "batch.creastmt.Cbstm03a#run",
-        "batch.creastmt.Cbstm03b#call"
+        "batch.creastmt.Cbstm03a#run"
       ],
       "category": null,
       "destination": null,
@@ -3885,9 +3884,9 @@
       "line": 408,
       "status": "not-mapped",
       "methods": [],
-      "category": "folded",
-      "destination": "@0000-MAIN",
-      "note": "PERFORM ... THRU exit point of 0000-MAIN"
+      "category": "retired-cics",
+      "destination": "",
+      "note": "exit point of 0000-MAIN (retired-cics)"
     },
     {
       "program": "COACTVWC",
@@ -5120,7 +5119,6 @@
       "line": 685,
       "status": "mapped",
       "methods": [
-        "card.online.CardKeys#listFilters",
         "card.online.CardKeys#searchKeys"
       ],
       "category": null,
@@ -5134,7 +5132,7 @@
       "status": "not-mapped",
       "methods": [],
       "category": "folded",
-      "destination": "card.online.CardKeys#listFilters, card.online.CardKeys#searchKeys",
+      "destination": "card.online.CardKeys#searchKeys",
       "note": "PERFORM ... THRU exit point of 2220-EDIT-CARD"
     },
     {

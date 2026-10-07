@@ -327,7 +327,10 @@ public final class Cbstm03a {
         stmt(ST_LINE5);
     }
 
-    /** {@code 2000-CUSTFILE-GET} / {@code 3000-ACCTFILE-GET}: keyed read through CBSTM03B; anything but 00 abends. */
+    /**
+     * CBSTM03A {@code 2000-CUSTFILE-GET} / CBSTM03A {@code 3000-ACCTFILE-GET}: keyed read through CBSTM03B; anything
+     * but 00 abends.
+     */
     private FixedWidthRecord keyed(String dd, String key) {
         Response response = files.call(dd, Operation.READ_KEY, key, key.length());
         if (!response.is("00")) {

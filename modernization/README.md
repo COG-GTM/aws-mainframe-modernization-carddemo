@@ -166,6 +166,8 @@ Flyway migrates the schema on start, the UI waits for a healthy app.
 ```bash
 cd modernization
 cp .env.example .env          # set CARDDEMO_DB_PASSWORD; no password default is shipped
+# If the image build fails with "status code: 429" from repo.maven.apache.org, add to .env:
+#   MAVEN_MIRROR_URL=https://maven-central.storage-download.googleapis.com/maven2/
 docker compose up -d --build --wait
 curl http://localhost:8080/actuator/health      # {"status":"UP","components":{"db":{"status":"UP",...
 # On start-up (local profile) the app runs initial-load of app/data/EBCDIC before it reports healthy.

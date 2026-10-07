@@ -13,7 +13,7 @@ Scope (`d-scope`): the core app under `app/`. The extension apps (`app/app-autho
 | jcl | 38/38 |
 | transactions | 17/17 |
 | scheduler | 45/45 |
-| paragraphs | 576 (234 mapped to methods; not mapped: 168 retired-cics, 66 retired-jcl, 108 folded, 0 GAP) |
+| paragraphs | 576 (234 mapped to methods; not mapped: 169 retired-cics, 66 retired-jcl, 107 folded, 0 GAP) |
 | GAP entries | 0 |
 
 Reason categories for paragraphs without a method of their own: `retired-cics` (BMS SEND/RECEIVE, COMMAREA, RETURN/XCTL plumbing — the REST controllers and `NavigationContext` replace them), `retired-jcl` (OPEN/CLOSE of a DD — replaced by DD job parameters, repositories and datasets), `folded` (merged into the named method), `GAP` (unmapped; fails the check).
@@ -199,7 +199,7 @@ Not mapped:
 | Paragraph | Line | Method(s) |
 | --- | --- | --- |
 | `0000-MAIN-PROCESSING` | 165 | `batch.exchange.ExchangeJobConfiguration#cbimportJob` |
-| `1000-INITIALIZE` | 174 | `batch.exchange.ExchangeJobConfiguration#cbexportJob` |
+| `1000-INITIALIZE` | 174 | `batch.exchange.ExchangeJobConfiguration#cbimportJob` |
 | `2000-PROCESS-EXPORT-FILE` | 248 | `batch.exchange.ExchangeJobConfiguration#cbimportJob` |
 | `2200-PROCESS-RECORD-BY-TYPE` | 270 | `batch.exchange.ExchangeJobConfiguration#cbimportJob` |
 | `2300-PROCESS-CUSTOMER-RECORD` | 288 | `batch.exchange.ExportRecordCodec#importRecord` |
@@ -224,7 +224,7 @@ Not mapped:
 
 | Paragraph | Line | Method(s) |
 | --- | --- | --- |
-| `0000-START` | 296 | `batch.creastmt.Cbstm03a#run`<br>`batch.creastmt.Cbstm03b#call` |
+| `0000-START` | 296 | `batch.creastmt.Cbstm03a#run` |
 | `1000-MAINLINE` | 316 | `batch.creastmt.Cbstm03a#run` |
 | `1000-XREFFILE-GET-NEXT` | 345 | `batch.creastmt.Cbstm03a#run` |
 | `2000-CUSTFILE-GET` | 368 | `batch.creastmt.Cbstm03a#keyed` |
@@ -491,7 +491,7 @@ Not mapped:
 | --- | --- | --- | --- |
 | `0000-MAIN` | 262 | `retired-cics` | BMS SEND/RECEIVE, COMMAREA set-up, RETURN/XCTL plumbing or EIBCALEN/EIBAID dispatch: replaced by the REST controller and NavigationContext (ADR-0007/0008) |
 | `COMMON-RETURN` | 394 | `retired-cics` | BMS SEND/RECEIVE, COMMAREA set-up, RETURN/XCTL plumbing or EIBCALEN/EIBAID dispatch: replaced by the REST controller and NavigationContext (ADR-0007/0008) |
-| `0000-MAIN-EXIT` | 408 | `folded` | `@0000-MAIN` — PERFORM ... THRU exit point of 0000-MAIN |
+| `0000-MAIN-EXIT` | 408 | `retired-cics` | exit point of 0000-MAIN (retired-cics) |
 | `0000-MAIN-EXIT` | 411 | `retired-cics` | exit point of 0000-MAIN (retired-cics) |
 | `1000-SEND-MAP` | 416 | `retired-cics` | BMS SEND/RECEIVE, COMMAREA set-up, RETURN/XCTL plumbing or EIBCALEN/EIBAID dispatch: replaced by the REST controller and NavigationContext (ADR-0007/0008) |
 | `1000-SEND-MAP-EXIT` | 427 | `retired-cics` | exit point of 1000-SEND-MAP (retired-cics) |
@@ -618,7 +618,7 @@ Not mapped:
 | --- | --- | --- |
 | `2200-EDIT-MAP-INPUTS` | 608 | `card.online.CardKeys#searchKeys` |
 | `2210-EDIT-ACCOUNT` | 647 | `card.online.CardKeys#accountKey`<br>`card.online.CardKeys#searchKeys` |
-| `2220-EDIT-CARD` | 685 | `card.online.CardKeys#listFilters`<br>`card.online.CardKeys#searchKeys` |
+| `2220-EDIT-CARD` | 685 | `card.online.CardKeys#searchKeys` |
 | `9000-READ-DATA` | 726 | `card.online.CardLookup` |
 | `9100-GETCARD-BYACCTCARD` | 736 | `card.online.CardLookup` |
 | `9150-GETCARD-BYACCT` | 779 | `card.online.CardKeys#accountKey`<br>`card.online.CardLookup`<br>`card.online.CardLookup#byAccount` |
@@ -646,7 +646,7 @@ Not mapped:
 | `2100-RECEIVE-MAP-EXIT` | 605 | `retired-cics` | exit point of 2100-RECEIVE-MAP (retired-cics) |
 | `2200-EDIT-MAP-INPUTS-EXIT` | 643 | `folded` | `card.online.CardKeys#searchKeys` — PERFORM ... THRU exit point of 2200-EDIT-MAP-INPUTS |
 | `2210-EDIT-ACCOUNT-EXIT` | 681 | `folded` | `card.online.CardKeys#accountKey`, `card.online.CardKeys#searchKeys` — PERFORM ... THRU exit point of 2210-EDIT-ACCOUNT |
-| `2220-EDIT-CARD-EXIT` | 722 | `folded` | `card.online.CardKeys#listFilters`, `card.online.CardKeys#searchKeys` — PERFORM ... THRU exit point of 2220-EDIT-CARD |
+| `2220-EDIT-CARD-EXIT` | 722 | `folded` | `card.online.CardKeys#searchKeys` — PERFORM ... THRU exit point of 2220-EDIT-CARD |
 | `9000-READ-DATA-EXIT` | 732 | `folded` | `card.online.CardLookup` — PERFORM ... THRU exit point of 9000-READ-DATA |
 | `9100-GETCARD-BYACCTCARD-EXIT` | 775 | `folded` | `card.online.CardLookup` — PERFORM ... THRU exit point of 9100-GETCARD-BYACCTCARD |
 | `9150-GETCARD-BYACCT-EXIT` | 810 | `folded` | `card.online.CardKeys#accountKey`, `card.online.CardLookup`, `card.online.CardLookup#byAccount` — PERFORM ... THRU exit point of 9150-GETCARD-BYACCT |
