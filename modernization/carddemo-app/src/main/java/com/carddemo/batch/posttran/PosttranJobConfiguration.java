@@ -6,6 +6,7 @@ import com.carddemo.account.AccountRepository;
 import com.carddemo.batch.BatchOutputFile;
 import com.carddemo.batch.BatchOutputProperties;
 import com.carddemo.batch.DatedOutputFiles;
+import com.carddemo.batch.harness.BatchCommandLine;
 import com.carddemo.batch.harness.BatchJobLauncher;
 import com.carddemo.batch.harness.DdParameters;
 import com.carddemo.batch.harness.FixedFileSink;
@@ -147,7 +148,9 @@ public class PosttranJobConfiguration {
         TransactionTemplate perRecord = new TransactionTemplate(transactionManager);
         perRecord.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRES_NEW);
         Cbtrn02c.UnitOfWork unit = work -> perRecord.executeWithoutResult(status -> work.run());
-        return job(CBTRN02C_JOB, STEP15, jobRepository, transactionManager, output,
+        // Earlier records commit on their own, so re-running a failed instance would post them twice;
+        // as on the mainframe, recovery is restore ACCTDATA/TCATBALF, then a new run.
+        return job(CBTRN02C_JOB, STEP15, jobRepository, transactionManager, output, false,
                 (step, contribution, parameters, sysout, encoding) -> {
                     boolean generation = DdParameters.isTable(parameters, Cbtrn02c.DALYREJS);
                     BufferedSink buffered = new BufferedSink(Cbtrn02c.DALYREJS);
@@ -163,7 +166,8 @@ public class PosttranJobConfiguration {
                             sysout, clock, unit).run();
                     String rejectsPath;
                     if (generation) {
-                        BatchOutputFile file = datedOutputFiles.write(DALYREJS_GDG, step.getJobExecutionId(),
+                        BatchOutputFile file = datedOutputFiles.write(DALYREJS_GDG,
+                                parameters.getLocalDate(BatchCommandLine.RUN_DATE), step.getJobExecutionId(),
                                 buffered.records());
                         rejectsPath = file.getFilePath();
                     } else {
@@ -270,7 +274,17 @@ public class PosttranJobConfiguration {
     private static Job job(String name, String stepName, JobRepository jobRepository,
                            PlatformTransactionManager transactionManager, BatchOutputProperties output,
                            ProgramStep program) {
-        return new JobBuilder(name, jobRepository)
+        return job(name, stepName, jobRepository, transactionManager, output, true, program);
+    }
+
+    private static Job job(String name, String stepName, JobRepository jobRepository,
+                           PlatformTransactionManager transactionManager, BatchOutputProperties output,
+                           boolean restartable, ProgramStep program) {
+        JobBuilder builder = new JobBuilder(name, jobRepository);
+        if (!restartable) {
+            builder.preventRestart();
+        }
+        return builder
                 .start(new StepBuilder(stepName, jobRepository).tasklet((contribution, chunk) -> {
                     StepExecution step = chunk.getStepContext().getStepExecution();
                     JobParameters parameters = step.getJobParameters();

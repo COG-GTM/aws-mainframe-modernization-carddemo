@@ -1,6 +1,7 @@
 package com.carddemo.batch.posttran;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.carddemo.account.AccountRecord;
 import com.carddemo.account.AccountStatus;
@@ -10,6 +11,8 @@ import com.carddemo.batch.harness.Sysout;
 import com.carddemo.card.CardXrefRecord;
 import com.carddemo.common.codec.FixedWidthRecord;
 import com.carddemo.common.codec.RecordEncoding;
+import com.carddemo.common.file.FileStatus;
+import com.carddemo.common.file.FileStatusException;
 import com.carddemo.common.file.RecordFiles;
 import com.carddemo.transaction.DailyTransactionRecord;
 import com.carddemo.transaction.TranCatBalanceId;
@@ -232,5 +235,44 @@ class Cbtrn02cTest {
                 BigDecimal.ZERO, "", "");
         assertThat(Cbtrn02c.validate(tran("T1", CARD, "0.01"), a).valid()).isTrue();
         assertThat(Cbtrn02c.validate(tran("T1", CARD, "1.02"), a).reason()).isEqualTo(Cbtrn02c.OVERLIMIT);
+    }
+
+    @Test
+    void abendKeepsFilePostingsBeforeTheFailingRecord() throws IOException {
+        Path acctPath = dir.resolve("ACCTFILE");
+        RecordFiles.writeLines("ACCTFILE", acctPath,
+                List.of(AccountRecord.MAPPER.toRecord(acct(), RecordEncoding.ASCII)), false);
+        accounts = KeyedDataset.file("ACCTFILE", acctPath, KeyedDataset.Mode.I_O, AccountRecord.MAPPER,
+                AccountRecord::acctId, k -> String.format("%011d", k), RecordEncoding.ASCII);
+        Path tranPath = dir.resolve("TRANFILE");
+        transactions = KeyedDataset.file("TRANFILE", tranPath, KeyedDataset.Mode.OUTPUT, TransactionRecord.MAPPER,
+                TransactionRecord::tranId, k -> k, RecordEncoding.ASCII);
+
+        assertThatThrownBy(() -> run(tran("T1", CARD, "1.00"), tran("T1", CARD, "2.00")))
+                .isInstanceOf(RuntimeException.class);
+
+        List<FixedWidthRecord> after = RecordFiles.readLines("ACCTFILE", acctPath, AccountRecord.MAPPER.layout(),
+                RecordEncoding.ASCII);
+        // T1 posted (+1.00); the duplicate's account rewrite precedes its failing TRANFILE write, as in COBOL
+        assertThat(AccountRecord.MAPPER.fromRecord(after.get(0)).currBal()).isEqualByComparingTo("43.00");
+        assertThat(RecordFiles.readLines("TRANFILE", tranPath, TransactionRecord.MAPPER.layout(),
+                RecordEncoding.ASCII)).hasSize(1);
+        assertThat(rejects.records()).isEmpty();
+    }
+
+    @Test
+    void openOutputEmptiesTheDatasetAndFailsWhenItCannotBeWritten() throws IOException {
+        Path existing = dir.resolve("TRANFILE");
+        Files.writeString(existing, "stale");
+        KeyedDataset.file("TRANFILE", existing, KeyedDataset.Mode.OUTPUT, TransactionRecord.MAPPER,
+                TransactionRecord::tranId, k -> k, RecordEncoding.ASCII).open();
+        assertThat(existing).isEmptyFile();
+
+        Path directory = Files.createDirectory(dir.resolve("NOTAFILE"));
+        KeyedDataset<String, TransactionRecord> unwritable = KeyedDataset.file("TRANFILE", directory,
+                KeyedDataset.Mode.OUTPUT, TransactionRecord.MAPPER, TransactionRecord::tranId, k -> k,
+                RecordEncoding.ASCII);
+        assertThatThrownBy(unwritable::open).isInstanceOfSatisfying(FileStatusException.class,
+                e -> assertThat(e.status()).isEqualTo(FileStatus.PERMANENT_ERROR));
     }
 }

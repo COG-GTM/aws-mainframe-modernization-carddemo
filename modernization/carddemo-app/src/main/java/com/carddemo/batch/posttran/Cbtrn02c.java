@@ -109,6 +109,20 @@ public final class Cbtrn02c {
         this.unitOfWork = unitOfWork;
     }
 
+    /**
+     * VSAM writes are durable when issued, so after an abend the master files hold every posting up to the
+     * failing record (DALYREJS is not flushed: {@code DISP=(NEW,CATLG,DELETE)} deletes it on abend).
+     */
+    private static void flushOnAbend(RuntimeException abend, KeyedDataset<?, ?>... datasets) {
+        for (KeyedDataset<?, ?> dataset : datasets) {
+            try {
+                dataset.close();
+            } catch (RuntimeException e) {
+                abend.addSuppressed(e);
+            }
+        }
+    }
+
     public Result run() {
         sysout.display("START OF EXECUTION OF PROGRAM " + PROGRAM);
         io(dalytran::open, "ERROR OPENING DALYTRAN");
@@ -119,31 +133,36 @@ public final class Cbtrn02c {
         io(tcatbalf::open, "ERROR OPENING TRANSACTION BALANCE FILE");
         long processed = 0;
         long rejected = 0;
-        while (true) {
-            Optional<FixedWidthRecord> next;
-            try {
-                next = dalytran.readNext();
-            } catch (FileStatusException e) {
-                throw sysout.ioAbend("ERROR READING DALYTRAN FILE", e);
-            }
-            if (next.isEmpty()) {
-                break;
-            }
-            processed++;
-            FixedWidthRecord image = next.get();
-            DailyTransactionRecord tran = DailyTransactionRecord.MAPPER.fromRecord(image);
-            Validation[] outcome = new Validation[1];
-            unitOfWork.run(() -> {
-                Checked checked = validate(tran);
-                if (checked.validation().valid()) {
-                    post(tran, checked.xref(), checked.account());
+        try {
+            while (true) {
+                Optional<FixedWidthRecord> next;
+                try {
+                    next = dalytran.readNext();
+                } catch (FileStatusException e) {
+                    throw sysout.ioAbend("ERROR READING DALYTRAN FILE", e);
                 }
-                outcome[0] = checked.validation();
-            });
-            if (!outcome[0].valid()) {
-                rejected++;
-                writeReject(image, outcome[0]);
+                if (next.isEmpty()) {
+                    break;
+                }
+                processed++;
+                FixedWidthRecord image = next.get();
+                DailyTransactionRecord tran = DailyTransactionRecord.MAPPER.fromRecord(image);
+                Validation[] outcome = new Validation[1];
+                unitOfWork.run(() -> {
+                    Checked checked = validate(tran);
+                    if (checked.validation().valid()) {
+                        post(tran, checked.xref(), checked.account());
+                    }
+                    outcome[0] = checked.validation();
+                });
+                if (!outcome[0].valid()) {
+                    rejected++;
+                    writeReject(image, outcome[0]);
+                }
             }
+        } catch (RuntimeException abend) {
+            flushOnAbend(abend, tranfile, acctfile, tcatbalf);
+            throw abend;
         }
         io(dalytran::close, "ERROR CLOSING DALYTRAN FILE");
         io(tranfile::close, "ERROR CLOSING TRANSACTION FILE");

@@ -33,7 +33,7 @@ against the source. Java: `com.carddemo.batch.posttran.Cbtrn02c`, job `cbtrn02c`
 | R-8 | Accepted record | `TRAN-RECORD` ← every DALYTRAN field (same id, type, category, source, description, amount, merchant, card, original timestamp); `TRAN-PROC-TS` ← `YYYY-MM-DD-HH.MM.SS.hh0000` from `CURRENT-DATE` (hundredths, then `0000`; Java: injected `Clock`, `golden` = 2022-07-06T00:00, ADR-0014). |
 | R-9 | 2700: `READ TCATBALF` by (`XREF-ACCT-ID`, type, category); status `00`/`23` accepted, other → abend | Not found: `TCATBAL record not found for key : <17-char key>.. Creating.`; new record with balance = amount (`WRITE`). Found: balance + amount (`REWRITE`). Signed, no netting. |
 | R-10 | 2800: account from R-5 | `ACCT-CURR-BAL` + amount; amount `>= 0` → `ACCT-CURR-CYC-CREDIT` + amount; amount `< 0` → `ACCT-CURR-CYC-DEBIT` + amount (the debit bucket accumulates **negative** values); `REWRITE`. INVALID KEY sets reason 109 but nothing tests it (dead code). |
-| R-11 | 2900: `WRITE TRANFILE` | Status not `00` (e.g. `22` duplicate `TRAN-ID`) → `ERROR WRITING TO TRANSACTION FILE` + abend. COBOL leaves the TCATBALF/ACCTFILE updates of that record applied; Java rolls back the whole record (ticket s4.2: one posting = one database transaction), earlier records stay committed. |
+| R-11 | 2900: `WRITE TRANFILE` | Status not `00` (e.g. `22` duplicate `TRAN-ID`) → `ERROR WRITING TO TRANSACTION FILE` + abend. COBOL leaves the TCATBALF/ACCTFILE updates of that record applied; Java table mode rolls back the whole record (ticket s4.2: one posting = one database transaction), earlier records stay committed. File mode has no transaction: on any abend the KSDS files are written with every update made so far (VSAM writes are durable when issued), so they match COBOL. |
 
 ## Rejects (2500-WRITE-REJECT-REC, l.446–465)
 
@@ -41,6 +41,7 @@ against the source. Java: `com.carddemo.batch.posttran.Cbtrn02c`, job `cbtrn02c`
 |---|---|---|
 | R-12 | Rejected record | `DALYREJS` record = the original 350-byte DALYTRAN image + 80-byte trailer (`9(04)` reason + `X(76)` description); a write error → `ERROR WRITING TO REJECTS FILE` + abend. |
 | R-13 | `DISP=(NEW,CATLG,DELETE)` | The generation is catalogued only when the step ends normally. Java: `DatedOutputFiles` writes `DALYREJS/DALYREJS.<business-date>.<job-execution-id>` + a `batch_output_file` row (ADR-0012) after the program ends; an abend catalogues nothing. `--DALYREJS=<path>` writes a plain file instead. |
+| R-14 | Rerun after an abend | COBOL POSTTRAN cannot be restarted: earlier postings are already in ACCTFILE/TCATBALF and TRANFILE is opened OUTPUT again, so a plain rerun posts them twice. Recovery is restore ACCTDATA/TCATBALF, then rerun. Java: `cbtrn02c` is `preventRestart()`, so relaunching a failed instance (same `--run.id`) is refused; after restoring the data, run a new instance. |
 
 ## FILLER and record areas
 

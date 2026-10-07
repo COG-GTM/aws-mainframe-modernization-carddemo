@@ -72,6 +72,14 @@ class DatedOutputFilesTest {
     }
 
     @Test
+    void generationIsNamedAndCataloguedByTheGivenBusinessDate() {
+        BatchOutputFile written = outputs.write("DALYREJS", java.time.LocalDate.parse("2022-01-31"), 3, List.of());
+
+        assertThat(written.getBusinessDate()).isEqualTo(java.time.LocalDate.parse("2022-01-31"));
+        assertThat(Path.of(written.getFilePath()).getFileName()).hasToString("DALYREJS.2022-01-31.3");
+    }
+
+    @Test
     void rollbackKeepsExpiredGenerationAndRemovesNewFile() {
         BatchOutputFile written = outputs.write("CUSTDATA.IMPORT", 2, List.of());
 

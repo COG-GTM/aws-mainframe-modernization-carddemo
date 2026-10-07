@@ -6,6 +6,8 @@ import com.carddemo.common.data.CopybookRecordMapper;
 import com.carddemo.common.file.FileStatus;
 import com.carddemo.common.file.FileStatusException;
 import com.carddemo.common.file.RecordFiles;
+import java.io.IOException;
+import java.nio.file.AccessDeniedException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -124,11 +126,26 @@ public interface KeyedDataset<K, D extends Record> {
                             records.put(key.apply(mapper.fromRecord(r)), r);
                         }
                     }
-                } else if (path.getParent() != null && !Files.isDirectory(path.toAbsolutePath().getParent())) {
-                    throw new FileStatusException(ddname, "OPEN", FileStatus.FILE_NOT_FOUND);
+                } else {
+                    createEmpty();
                 }
             }
             open = true;
+        }
+
+        /** {@code OPEN OUTPUT} creates (or empties) the dataset, so an unwritable destination fails at OPEN. */
+        private void createEmpty() {
+            Path target = path.toAbsolutePath();
+            if (target.getParent() != null && !Files.isDirectory(target.getParent())) {
+                throw new FileStatusException(ddname, "OPEN", FileStatus.FILE_NOT_FOUND);
+            }
+            try {
+                Files.write(target, new byte[0]);
+            } catch (AccessDeniedException e) {
+                throw new FileStatusException(ddname, "OPEN", FileStatus.OPEN_MODE_NOT_ALLOWED, e);
+            } catch (IOException e) {
+                throw new FileStatusException(ddname, "OPEN", FileStatus.PERMANENT_ERROR, e);
+            }
         }
 
         @Override
