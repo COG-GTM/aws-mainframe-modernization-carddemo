@@ -33,15 +33,18 @@ class BatchCommandLineRunner implements ApplicationRunner, Ordered {
     private final List<CommandLineJobParameters> adapters;
     private final Clock clock;
     private final Environment environment;
+    private final List<JobStream> streams;
 
     BatchCommandLineRunner(BatchJobLauncher launcher, BatchExitCodes exitCodes, BatchRunLog runLog,
-                           List<CommandLineJobParameters> adapters, Clock clock, Environment environment) {
+                           List<CommandLineJobParameters> adapters, Clock clock, Environment environment,
+                           List<JobStream> streams) {
         this.launcher = launcher;
         this.exitCodes = exitCodes;
         this.runLog = runLog;
         this.adapters = adapters;
         this.clock = clock;
         this.environment = environment;
+        this.streams = streams;
     }
 
     @Override
@@ -73,8 +76,38 @@ class BatchCommandLineRunner implements ApplicationRunner, Ordered {
         if (request.isEmpty()) {
             return;
         }
+        Optional<JobStream> stream = launcher.job(request.get().jobName()).isPresent() ? Optional.empty()
+                : streams.stream().filter(s -> s.name().equalsIgnoreCase(request.get().jobName())).findFirst();
+        if (stream.isPresent()) {
+            exitCodes.add(run(stream.get(), request.get()));
+            return;
+        }
         JobOutcome outcome = run(request.get());
         exitCodes.add(outcome.returnCode());
+    }
+
+    ReturnCode run(JobStream stream, BatchCommandLine.Request request) {
+        JobParameters parameters;
+        try {
+            parameters = parameters(request);
+        } catch (IllegalArgumentException e) {
+            log.error("{}: {} (RC=0016)", stream.name(), e.getMessage());
+            runLog.recordLaunchFailure(stream.name(), null, e.getMessage());
+            return ReturnCode.TERMINAL;
+        }
+        log.info("batch CLI: launching job stream {} with {}", stream.name(), BatchRunLog.describe(parameters));
+        JobChain.Result result = stream.chain(launcher, parameters).run();
+        for (JobChain.StepResult step : result.steps()) {
+            if (step.bypassed()) {
+                log.info("{} {} {}: bypassed (COND={})", stream.name(), step.step().stepName(), step.step().jobName(),
+                        step.step().cond());
+            } else {
+                log.info("{} {} {}: {}{}", stream.name(), step.step().stepName(), step.step().jobName(),
+                        step.outcome().returnCode().label(), step.outcome().abended() ? " ABEND" : "");
+            }
+        }
+        log.info("{} ended {}{}", stream.name(), result.maxReturnCode().label(), result.abended() ? " ABEND" : "");
+        return result.maxReturnCode();
     }
 
     JobOutcome run(BatchCommandLine.Request request) {

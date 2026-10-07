@@ -1,0 +1,8 @@
+# Known differences when POSTTRAN runs on PostgreSQL loaded by `initial-load` from app/data/EBCDIC instead of the
+# app/data/ASCII samples the GnuCOBOL baseline ran on (same root cause as
+# modernization/carddemo-app/src/test/resources/codec/ebcdic-vs-ascii-expected-diffs.txt): ACCTDATA record 49 has
+# ACCT-ADDR-ZIP 'A000000000' in the ASCII sample and 'ZEROAPR' in the EBCDIC sample. POSTTRAN rewrites the account
+# record without touching the ZIP, so the after-image keeps the input value. The DISCGRP record 34 rate difference
+# does not reach POSTTRAN (DISCGRP is not one of its DDs).
+# DATASET|record-number|FIELD|baseline-text|java-text
+ACCTDATA|49|ACCT-ADDR-ZIP|A000000000|ZEROAPR
