@@ -87,10 +87,10 @@ export function Screen({ page, header, message, info, pfKeys, children, busy, ti
         </div>
         <div className="hdr-right">
           <div>
-            <span className="hdr-label">Date:</span> {legacyDate(now)}
+            <span className="hdr-label">Date:</span> {header?.currentDate || legacyDate(now)}
           </div>
           <div>
-            <span className="hdr-label">Time:</span> {legacyTime(now)}
+            <span className="hdr-label">Time:</span> {header?.currentTime || legacyTime(now)}
           </div>
         </div>
       </header>

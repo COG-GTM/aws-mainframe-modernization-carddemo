@@ -24,8 +24,13 @@ export function UserListPage() {
     setBusy(true);
     try {
       const result = await api.users(q);
-      setList(result);
-      setSelections(result.rows.map(() => ''));
+      if ((q.after || q.before) && result.rows.length === 0 && list?.rows.length) {
+        // Past the first/last page: keep the rows on screen and show the program's message.
+        setList({ ...list, hasNextPage: q.after ? false : list.hasNextPage, hasPreviousPage: q.before ? false : list.hasPreviousPage });
+      } else {
+        setList(result);
+        setSelections(result.rows.map(() => ''));
+      }
       msg.say(result.message);
     } catch (err) {
       msg.fail(err);
@@ -98,18 +103,17 @@ export function UserListPage() {
             return (
               <tr key={i} data-testid={`user-row-${i + 1}`}>
                 <td>
-                  {row && (
-                    <input
-                      id={`rows[${i}].selection`}
-                      data-bms={`SEL00${n}`}
-                      aria-label={`Select ${row.userId}`}
-                      className="sel"
-                      maxLength={1}
-                      value={selections[i] ?? ''}
-                      aria-invalid={msg.isInvalid(`rows[${i}].selection`) || undefined}
-                      onChange={(e) => setSelections((s) => s.map((v, j) => (j === i ? e.target.value.toUpperCase() : v)))}
-                    />
-                  )}
+                  <input
+                    disabled={!row}
+                    id={`rows[${i}].selection`}
+                    data-bms={`SEL00${n}`}
+                    aria-label={row ? `Select ${row.userId}` : `Select row ${i + 1}`}
+                    className="sel"
+                    maxLength={1}
+                    value={selections[i] ?? ''}
+                    aria-invalid={msg.isInvalid(`rows[${i}].selection`) || undefined}
+                    onChange={(e) => setSelections((s) => s.map((v, j) => (j === i ? e.target.value.toUpperCase() : v)))}
+                  />
                 </td>
                 <td data-bms={`USRID${n}`} className="mono">{row?.userId ?? ''}</td>
                 <td data-bms={`FNAME${n}`}>{row?.firstName ?? ''}</td>

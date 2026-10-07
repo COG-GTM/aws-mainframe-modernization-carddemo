@@ -79,18 +79,29 @@ export function ReportPage() {
     }
   };
 
-  const download = async () => {
+  const save = (blob: Blob, name: string) => {
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = name;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+  };
+
+  /** Text version: the report lines the API already decoded in the execution status. */
+  const downloadText = () => {
+    const lines = execution?.report?.lines;
+    if (executionId === null || !lines) return;
+    save(new Blob([`${lines.join('\n')}\n`], { type: 'text/plain;charset=utf-8' }), `TRANREPT-${executionId}.txt`);
+  };
+
+  /** Catalogued TRANREPT bytes unchanged (ADR-0021: EBCDIC by default, same as the batch CLI). */
+  const downloadRaw = async () => {
     if (executionId === null) return;
     try {
-      const blob = await api.reportFile(executionId);
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `TRANREPT-${executionId}.txt`;
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-      URL.revokeObjectURL(url);
+      save(await api.reportFile(executionId), `TRANREPT-${executionId}.${(execution?.report?.encoding ?? 'raw').toLowerCase().replace(/[^a-z0-9-]/g, '')}`);
     } catch (err) {
       msg.fail(err);
     }
@@ -149,8 +160,13 @@ export function ReportPage() {
           {execution?.message && <div>{execution.message}</div>}
           {execution?.status === 'COMPLETED' && (
             <>
-              <button type="button" className="action" onClick={() => void download()}>
-                Download TRANREPT
+              {execution.report?.lines?.length ? (
+                <button type="button" className="action" data-testid="download-text" onClick={downloadText}>
+                  Download TRANREPT (text)
+                </button>
+              ) : null}
+              <button type="button" className="action" data-testid="download-raw" onClick={() => void downloadRaw()}>
+                Download as catalogued (raw bytes)
               </button>
               {execution.report?.lines?.length ? (
                 <pre className="report-preview" data-testid="report-preview">

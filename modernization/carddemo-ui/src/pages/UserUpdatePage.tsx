@@ -70,6 +70,14 @@ export function UserUpdatePage() {
     }
   };
 
+  const changeUserId = (value: string) => {
+    setUserId(value);
+    if (screen?.user && value.trim() !== screen.user.userId) {
+      setScreen(null);
+      setForm(EMPTY);
+    }
+  };
+
   const f = (id: keyof Form, bms: string, label: string, len: number, opts: { upper?: boolean; dark?: boolean; hint?: string } = {}) => (
     <Field id={id} bms={bms} label={label} value={form[id]} onChange={(v) => setForm((c) => ({ ...c, [id]: v }))} maxLength={len} invalid={msg.isInvalid(id)} {...opts} />
   );
@@ -98,7 +106,7 @@ export function UserUpdatePage() {
       ]}
     >
       <div className="form-grid narrow">
-        <Field id="userId" bms="USRIDIN" label="Enter User ID" value={userId} onChange={setUserId} maxLength={8} upper autoFocus invalid={msg.isInvalid('userId')} />
+        <Field id="userId" bms="USRIDIN" label="Enter User ID" value={userId} onChange={changeUserId} maxLength={8} upper autoFocus invalid={msg.isInvalid('userId')} />
       </div>
       <div className="form-grid">
         {f('firstName', 'FNAME', 'First Name', 20)}

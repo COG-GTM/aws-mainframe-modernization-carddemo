@@ -26,7 +26,7 @@ API paths are relative to `/api/v1`; `n` = repeated row/option fields (`SEL0001.
 | COTRN01 | CT01 / COTRN01C | `/transactions/view` | View Transaction | TRNIDIN TRNID CARDNUM TTYPCD TCATCD TRNSRC TDESC TRNAMT TORIGDT TPROCDT MID MNAME MCITY MZIP | GET /transactions/{tranId} | ENTER Fetch, F3 Back, F4 Clear, F5 Browse Tran. |
 | COTRN02 | CT02 / COTRN02C | `/transactions/add` | Add Transaction | ACTIDIN CARDNIN TTYPCD TCATCD TRNSRC TDESC TRNAMT TORIGDT TPROCDT MID MNAME MCITY MZIP CONFIRM | POST /transactions | ENTER Continue, F3 Back, F4 Clear, F5 Copy Last Tran. |
 | COBIL00 | CB00 / COBIL00C | `/bill-payment` | Bill Payment | ACTIDIN CURBAL CONFIRM | POST /accounts/{id}/bill-payment | ENTER Continue, F3 Back, F4 Clear |
-| CORPT00 | CR00 / CORPT00C | `/reports` | Transaction Reports | MONTHLY YEARLY CUSTOM SDTMM SDTDD SDTYYYY EDTMM EDTDD EDTYYYY CONFIRM | POST /reports/transactions<br>GET /reports/transactions/{executionId}<br>GET /reports/transactions/{executionId}/report | ENTER Continue, F3 Back |
+| CORPT00 | CR00 / CORPT00C | `/reports` | Transaction Reports | MONTHLY YEARLY CUSTOM SDTMM SDTDD SDTYYYY EDTMM EDTDD EDTYYYY CONFIRM | POST /reports/transactions<br>GET /reports/transactions/{executionId}<br>GET /reports/transactions/{executionId}/report | ENTER Continue, F3 Back; completed reports offer **Download TRANREPT (text)** (the `report.lines` the API decoded) and **Download as catalogued** (raw bytes, EBCDIC by default per ADR-0021) |
 | COUSR00 | CU00 / COUSR00C | `/admin/users` (ADMIN) | List Users | PAGENUM USRIDIN SELn USRIDn FNAMEn LNAMEn UTYPEn | GET /users<br>POST /users/selection | ENTER Continue, F3 Back, F7 Backward, F8 Forward |
 | COUSR01 | CU01 / COUSR01C | `/admin/users/add` (ADMIN) | Add User | FNAME LNAME USERID PASSWD USRTYPE | POST /users | ENTER Add User, F3 Back, F4 Clear, F12 Exit |
 | COUSR02 | CU02 / COUSR02C | `/admin/users/update` (ADMIN) | Update User | USRIDIN FNAME LNAME PASSWD USRTYPE | GET /users/{id}<br>PUT /users/{id} | ENTER Fetch, F3 Save&Exit, F4 Clear, F5 Save, F12 Cancel |
@@ -45,4 +45,6 @@ lists; an option whose program is not installed (e.g. COPAUS0C, COTRTLIC) gets t
 - 409 `CHANGED` (concurrent account/card/user update) and the report `FAILED`/503 queue-full paths are covered by the
   API ITs and by message-area unit tests, not by an end-to-end browser run.
 - Token expiry after 1 h is tested through a mocked 401 (`focus.test.tsx`), not by waiting out a real token.
+- Report QUEUED/RUNNING states: covered by unit tests; on the compose stack the sample-data report completes too fast
+  to see them in a recording. Report totals are the legacy CBTRN03C results (reproduced on purpose, see `docs/modernization/rules/CBTRN03C.md`).
 - Accessibility (screen reader, contrast) and responsive layouts beyond desktop widths were not audited.

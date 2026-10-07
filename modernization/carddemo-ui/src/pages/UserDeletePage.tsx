@@ -40,6 +40,11 @@ export function UserDeletePage() {
     if (handed?.userId) void call('', handed.userId);
   });
 
+  const changeUserId = (value: string) => {
+    setUserId(value);
+    if (screen?.user && value.trim() !== screen.user.userId) setScreen(null);
+  };
+
   const u = screen?.user;
   return (
     <Screen
@@ -63,7 +68,7 @@ export function UserDeletePage() {
       ]}
     >
       <div className="form-grid narrow">
-        <Field id="userId" bms="USRIDIN" label="Enter User ID" value={userId} onChange={setUserId} maxLength={8} upper autoFocus invalid={msg.isInvalid('userId')} />
+        <Field id="userId" bms="USRIDIN" label="Enter User ID" value={userId} onChange={changeUserId} maxLength={8} upper autoFocus invalid={msg.isInvalid('userId')} />
       </div>
       <div className="form-grid">
         <Field id="firstName" bms="FNAME" label="First Name" value={u?.firstName ?? ''} maxLength={20} readOnly />

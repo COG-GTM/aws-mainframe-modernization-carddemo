@@ -29,9 +29,14 @@ export function CardListPage() {
     setBusy(true);
     try {
       const result = await api.cards({ accountId: accountId.trim(), cardNumber: cardNumber.trim(), ...cursor });
-      setList(result);
-      setSelections(result.rows.map(() => ''));
-      setPageNo(nextPage);
+      if ((cursor.after || cursor.before) && result.rows.length === 0 && list?.rows.length) {
+        // Past the first/last page: keep the rows on screen and show the program's message.
+        setList({ ...list, hasNextPage: cursor.after ? false : list.hasNextPage, hasPreviousPage: cursor.before ? false : list.hasPreviousPage });
+      } else {
+        setList(result);
+        setSelections(result.rows.map(() => ''));
+        setPageNo(nextPage);
+      }
       msg.say(result.message);
     } catch (err) {
       msg.fail(err);
@@ -113,18 +118,17 @@ export function CardListPage() {
             return (
               <tr key={i} data-testid={`card-row-${n}`}>
                 <td>
-                  {row && (
-                    <input
-                      id={`rows[${i}].action`}
-                      data-bms={`CRDSEL${n}`}
-                      aria-label={`Select row ${n}`}
-                      className="sel"
-                      maxLength={1}
-                      value={selections[i] ?? ''}
-                      aria-invalid={msg.isInvalid(`rows[${i}].action`) || undefined}
-                      onChange={(e) => setSelections((s) => s.map((v, j) => (j === i ? e.target.value.toUpperCase() : v)))}
-                    />
-                  )}
+                  <input
+                    disabled={!row}
+                    id={`rows[${i}].action`}
+                    data-bms={`CRDSEL${n}`}
+                    aria-label={`Select row ${n}`}
+                    className="sel"
+                    maxLength={1}
+                    value={selections[i] ?? ''}
+                    aria-invalid={msg.isInvalid(`rows[${i}].action`) || undefined}
+                    onChange={(e) => setSelections((s) => s.map((v, j) => (j === i ? e.target.value.toUpperCase() : v)))}
+                  />
                 </td>
                 <td data-bms={`ACCTNO${n}`}>{row?.accountId ?? ''}</td>
                 <td data-bms={`CRDNUM${n}`} className="mono">

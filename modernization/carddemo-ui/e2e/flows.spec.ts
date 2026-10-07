@@ -1,3 +1,4 @@
+import { readFileSync } from 'node:fs';
 import { expect, test, type Page } from '@playwright/test';
 
 // Sample data: USRSEC plaintext passwords (scripts/online/*.sh), account 00000000010 with its card.
@@ -59,7 +60,7 @@ test('USER0001: every main-menu transaction, then sign-off', async ({ page }) =>
   await pf(page, 'ENTER');
   await expect(page.getByTestId('card-row-1')).toContainText(ACCOUNT);
   await expect(page.getByTestId('card-row-1')).toContainText('*');
-  await page.getByLabel('Select row 1').fill('S');
+  await page.getByLabel('Select row 1', { exact: true }).fill('S');
   await pf(page, 'ENTER');
   await expect(program(page)).toHaveText('COCRDSLC');
   await expect(page.locator('#embossedName')).not.toHaveValue('');
@@ -67,7 +68,7 @@ test('USER0001: every main-menu transaction, then sign-off', async ({ page }) =>
   await expect(program(page)).toHaveText('COCRDLIC');
 
   // COCRDLI -> U -> COCRDUP: ENTER validates, F5 saves
-  await page.getByLabel('Select row 1').fill('U');
+  await page.getByLabel('Select row 1', { exact: true }).fill('U');
   await pf(page, 'ENTER');
   await expect(program(page)).toHaveText('COCRDUPC');
   await expect(page.locator('#embossedName')).not.toHaveValue('');
@@ -111,7 +112,7 @@ test('USER0001: every main-menu transaction, then sign-off', async ({ page }) =>
   await page.getByLabel('Search Tran ID').fill(tranId);
   await pf(page, 'ENTER');
   await expect(page.getByTestId('tran-row-1')).toContainText(tranId);
-  await page.getByLabel('Select row 1').fill('S');
+  await page.getByLabel('Select row 1', { exact: true }).fill('S');
   await pf(page, 'ENTER');
   await expect(program(page)).toHaveText('COTRN01C');
   await expect(page.locator('#transaction\\.tranId')).toHaveValue(tranId);
@@ -144,9 +145,14 @@ test('USER0001: every main-menu transaction, then sign-off', async ({ page }) =>
   await pf(page, 'ENTER');
   await expect(message(page)).toContainText('Custom report submitted for printing');
   await expect(page.getByTestId('report-status')).toHaveText('COMPLETED', { timeout: 60_000 });
-  const download = page.waitForEvent('download');
-  await page.getByRole('button', { name: 'Download TRANREPT' }).click();
-  expect((await download).suggestedFilename()).toMatch(/^TRANREPT-\d+\.txt$/);
+  const firstLine = (await page.getByTestId('report-preview').textContent())?.split('\n')[0] ?? '';
+  const text = page.waitForEvent('download');
+  await page.getByTestId('download-text').click();
+  expect((await text).suggestedFilename()).toMatch(/^TRANREPT-\d+\.txt$/);
+  expect(readFileSync((await (await text).path())!, 'utf8').split('\n')[0]).toBe(firstLine);
+  const raw = page.waitForEvent('download');
+  await page.getByTestId('download-raw').click();
+  expect((await raw).suggestedFilename()).toMatch(/^TRANREPT-\d+\./);
   await pf(page, 'F3');
 
   // USER is denied the admin pages

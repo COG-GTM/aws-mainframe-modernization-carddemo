@@ -18,7 +18,10 @@ reusable, its mocked API client was not.
 2. **The API is the rule engine.** The browser enforces only what the map enforces (lengths, numeric-only, upper
    case); every edit, message and navigation decision comes from the API. Pages route by `NavigationContext.toProgram`
    (never by menu option number) and F3 follows the API's exit context or `fromProgram`, falling back to the menu of
-   the role. An `ApiError` (`code`/`field`/`message`) is shown in the message area and focuses `field`.
+   the role. An `ApiError` (`code`/`field`/`message`) is shown in the message area and focuses `field`;
+   without a `field` the cursor goes to the first enterable field, as the COBOL programs do. Lists keep
+   the BMS row count (empty selection fields are disabled, like the protected attribute), and the header shows the
+   date/time of the API `ScreenHeader`.
 3. **Auth storage.** The JWT, user id/type/role and the current `NavigationContext` (COMMAREA replacement) live in
    React state mirrored to `sessionStorage` (per tab, cleared when the tab closes; never `localStorage` or cookies).
    Every call sends `Authorization: Bearer`; a 401 `SIGNON_REQUIRED` clears the session and returns to sign-on.
