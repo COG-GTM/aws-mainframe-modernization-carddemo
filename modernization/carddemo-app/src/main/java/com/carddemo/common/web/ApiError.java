@@ -18,5 +18,8 @@ public record ApiError(
         @Schema(description = "HTTP status", example = "401") int status,
         @Schema(description = "HTTP reason phrase", example = "Unauthorized") String title,
         @Schema(description = "Same text as message", example = "User not found. Try again ...") String detail,
-        @Schema(description = "Request path", example = "/api/v1/auth/login") String instance) {
+        @Schema(description = "Request path", example = "/api/v1/auth/login") String instance,
+        @Schema(description = "Map edit errors only: every request field that failed its edit, in COBOL edit "
+                + "order (the fields the program highlights); field/message are the first of them", nullable = true,
+                example = "[\"ficoScore\", \"zip\", \"state\"]") java.util.List<String> invalidFields) {
 }

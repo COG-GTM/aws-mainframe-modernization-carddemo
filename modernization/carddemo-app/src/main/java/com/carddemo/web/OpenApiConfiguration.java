@@ -1,5 +1,8 @@
 package com.carddemo.web;
 
+import com.carddemo.account.online.AccountLookup;
+import com.carddemo.account.online.AccountUpdateEdits;
+import com.carddemo.account.online.AccountUpdateService;
 import com.carddemo.user.menu.MenuService;
 import com.carddemo.user.signon.SignOnService;
 import com.carddemo.web.security.ProblemResponses;
@@ -55,6 +58,43 @@ public class OpenApiConfiguration {
             "POST /api/v1/menu/{menu}/selection 403", List.of(
                     new ErrorExample("adminOnly", ProblemResponses.NOTAUTH, "option", MenuService.MSG_ADMIN_ONLY)));
 
+    private static final String ACCOUNT = "/api/v1/accounts/{id}";
+    private static final long MISSING_ACCOUNT = 99_999_999_999L;
+    private static final String CHANGED = "Record changed by some one else. Please review";
+
+    private static final Map<String, List<ErrorExample>> ACCOUNT_EXAMPLES = Map.of(
+            "GET " + ACCOUNT + " 400", List.of(
+                    new ErrorExample("noInput", "INVREQ", AccountLookup.ACCOUNT_ID_FIELD, AccountLookup.MSG_NO_INPUT),
+                    new ErrorExample("notANonZeroNumber", "INVREQ", AccountLookup.ACCOUNT_ID_FIELD,
+                            AccountLookup.MSG_VIEW_ACCOUNT_INVALID)),
+            "GET " + ACCOUNT + " 404", notFoundExamples(),
+            "PUT " + ACCOUNT + " 400", List.of(
+                    new ErrorExample("accountIdInvalid", "INVREQ", AccountLookup.ACCOUNT_ID_FIELD,
+                            AccountLookup.MSG_UPDATE_ACCOUNT_INVALID),
+                    new ErrorExample("statusNotYesNo", "INVREQ", "activeStatus", "Account Status must be Y or N."),
+                    new ErrorExample("openMonth", "INVREQ", "openDate.month",
+                            "Open Date: Month must be a number between 1 and 12."),
+                    new ErrorExample("creditLimitNotNumeric", "INVREQ", "creditLimit", "Credit Limit is not valid"),
+                    new ErrorExample("ssnFirstThree", "INVREQ", "ssn.part1",
+                            "SSN: First 3 chars: should not be 000, 666, or between 900 and 999"),
+                    new ErrorExample("ficoRange", "INVREQ", "ficoScore", "FICO Score: should be between 300 and 850"),
+                    new ErrorExample("firstNameAlpha", "INVREQ", "firstName", "First Name can have alphabets only."),
+                    new ErrorExample("stateCode", "INVREQ", "state", "State: is not a valid state code"),
+                    new ErrorExample("zipForState", "INVREQ", "zip", AccountUpdateEdits.MSG_INVALID_ZIP_FOR_STATE),
+                    new ErrorExample("phoneAreaCode", "INVREQ", "phone1.areaCode",
+                            "Phone Number 1: Not valid North America general purpose area code")),
+            "PUT " + ACCOUNT + " 404", notFoundExamples(),
+            "PUT " + ACCOUNT + " 409", List.of(new ErrorExample("changedByAnotherUser", "CHANGED", null, CHANGED)),
+            "PUT " + ACCOUNT + " 500", List.of(
+                    new ErrorExample("rewriteFailed", "ABEND", null, AccountUpdateService.MSG_UPDATE_FAILED)));
+
+    private static List<ErrorExample> notFoundExamples() {
+        return List.of(
+                new ErrorExample("notInCrossReference", "NOTFND", null, AccountLookup.xrefNotFound(MISSING_ACCOUNT)),
+                new ErrorExample("notInAccountMaster", "NOTFND", null, AccountLookup.accountNotFound(MISSING_ACCOUNT)),
+                new ErrorExample("notInCustomerMaster", "NOTFND", null, AccountLookup.customerNotFound(999_999_999)));
+    }
+
     private static final ErrorExample SIGNON_REQUIRED = new ErrorExample("signOnRequired",
             ProblemResponses.SIGNON_REQUIRED, null, ProblemResponses.MSG_SIGNON_REQUIRED);
 
@@ -98,7 +138,8 @@ public class OpenApiConfiguration {
             if (problem == null || (problem.getExamples() != null && !problem.getExamples().isEmpty())) {
                 return;
             }
-            List<ErrorExample> examples = EXAMPLES.get(method + " " + path + " " + status);
+            String key = method + " " + path + " " + status;
+            List<ErrorExample> examples = EXAMPLES.getOrDefault(key, ACCOUNT_EXAMPLES.get(key));
             if (examples == null && "401".equals(status) && secured) {
                 examples = List.of(SIGNON_REQUIRED);
             }
