@@ -168,6 +168,7 @@ class CobolText:
         self.comment_lines = 0
         self.blank_lines = 0
         self.code: list[tuple[int, str]] = []
+        self.code_lines = 0
         for no, line in enumerate(raw, 1):
             line = line.rstrip("\r")
             if not line.strip():
@@ -183,6 +184,7 @@ class CobolText:
             if not body.strip():
                 self.blank_lines += 1
                 continue
+            self.code_lines += 1
             if ind == "-" and self.code:
                 cont = body.lstrip()
                 if cont[:1] in "'\"":
@@ -191,7 +193,6 @@ class CobolText:
                 self.code[-1] = (prev_no, prev.rstrip() + cont)
                 continue
             self.code.append((no, body))
-        self.code_lines = len(self.code)
         parts, masked, self.offsets, pos = [], [], [], 0
         for _, body in self.code:
             self.offsets.append(pos)
@@ -843,12 +844,14 @@ CATLG_RE = re.compile(r"^.(NONVSAM|CLUSTER|DATA|INDEX|GDG BASE|AIX|PATH|ALIAS|PA
 def analyze_catalog(path: Path) -> dict:
     entries = []
     lines = read_text(path).split("\n")
-    for idx, line in enumerate(lines):
-        m = CATLG_RE.match(line.rstrip("\r"))
+    starts = [i for i, l in enumerate(lines) if CATLG_RE.match(l.rstrip("\r"))]
+    for n, idx in enumerate(starts):
+        m = CATLG_RE.match(lines[idx].rstrip("\r"))
         if m:
             ent = OrderedDict(type=m.group(1), name=m.group(2))
-            # pull a few attributes from the following block
-            block = "\n".join(lines[idx: idx + 40])
+            # attributes belong to this entry only: stop at the next entry header
+            end = starts[n + 1] if n + 1 < len(starts) else len(lines)
+            block = "\n".join(lines[idx:end])
             for key, rx in (("maxlrecl", r"MAXLRECL-+(\d+)"), ("keylen", r"KEYLEN-+(\d+)"), ("rkp", r"RKP-+(\d+)"),
                             ("rec_total", r"REC-TOTAL-+(\d+)"), ("association", r"ASSOCIATIONS\s*\n\s*(?:AIX|CLUSTER|DATA|INDEX|PATH)-+(\S+)")):
                 mm = re.search(rx, block)
@@ -1155,15 +1158,28 @@ def build() -> OrderedDict:
             for st in job["steps"]:
                 if st["program"] in all_programs:
                     all_programs[st["program"]][1]["jcl_jobs"].append(f"{jname}/{st['step']}")
-                    # attach datasets to program file entries by DD name
-                    prog = all_programs[st["program"]][1]
-                    for f in prog["files"]:
-                        for dd in st["dds"]:
-                            if dd["dd"] == f["dd_name"] and dd["dsn"]:
-                                f.setdefault("datasets", [])
-                                ds = dd["dsn"] + (f"({dd['gdg_generation']})" if dd["gdg_generation"] is not None else "")
-                                if ds not in f["datasets"]:
-                                    f["datasets"].append(ds)
+                    # attach datasets to program file entries by DD name, for the
+                    # executed program and every subprogram it statically CALLs
+                    # (a called subprogram opens its files under the caller's step DDs)
+                    seen, todo = set(), [st["program"]]
+                    while todo:
+                        pid2 = todo.pop()
+                        if pid2 in seen or pid2 not in all_programs:
+                            continue
+                        seen.add(pid2)
+                        prog = all_programs[pid2][1]
+                        if pid2 != st["program"]:
+                            via = f"{jname}/{st['step']} (via {st['program']})"
+                            if via not in prog["jcl_jobs"]:
+                                prog["jcl_jobs"].append(via)
+                        for f in prog["files"]:
+                            for dd in st["dds"]:
+                                if dd["dd"] == f["dd_name"] and dd["dsn"]:
+                                    f.setdefault("datasets", [])
+                                    ds = dd["dsn"] + (f"({dd['gdg_generation']})" if dd["gdg_generation"] is not None else "")
+                                    if ds not in f["datasets"]:
+                                        f["datasets"].append(ds)
+                        todo.extend(prog["calls"])
     # CSD transaction -> program and CICS file -> dataset
     csd_tx = OrderedDict()
     csd_files = OrderedDict()

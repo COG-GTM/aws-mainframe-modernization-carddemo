@@ -1860,7 +1860,7 @@
         "utility": 2
       },
       "cobol_loc_total": 20650,
-      "cobol_loc_code": 15822,
+      "cobol_loc_code": 15833,
       "copybooks": 30,
       "bms_copybooks": 17,
       "bms_maps": 17,
@@ -2952,7 +2952,7 @@
           "dynamic_map_refs": [],
           "loc": {
             "total": 924,
-            "code": 773,
+            "code": 784,
             "comment": 50,
             "blank": 90
           },
@@ -3119,6 +3119,9 @@
               ],
               "records": [
                 "FD-TRNXFILE-REC"
+              ],
+              "datasets": [
+                "AWS.M2.CARDDEMO.TRXFL.VSAM.KSDS"
               ]
             },
             {
@@ -3136,6 +3139,9 @@
               ],
               "records": [
                 "FD-XREFFILE-REC"
+              ],
+              "datasets": [
+                "AWS.M2.CARDDEMO.CARDXREF.VSAM.KSDS"
               ]
             },
             {
@@ -3153,6 +3159,9 @@
               ],
               "records": [
                 "FD-CUSTFILE-REC"
+              ],
+              "datasets": [
+                "AWS.M2.CARDDEMO.CUSTDATA.VSAM.KSDS"
               ]
             },
             {
@@ -3170,6 +3179,9 @@
               ],
               "records": [
                 "FD-ACCTFILE-REC"
+              ],
+              "datasets": [
+                "AWS.M2.CARDDEMO.ACCTDATA.VSAM.KSDS"
               ]
             }
           ],
@@ -3217,7 +3229,9 @@
           },
           "constructs_via_copybooks": {},
           "path": "app/cbl/CBSTM03B.CBL",
-          "jcl_jobs": [],
+          "jcl_jobs": [
+            "CREASTMT/STEP040 (via CBSTM03A)"
+          ],
           "called_by": [
             "CBSTM03A"
           ],
@@ -15696,15 +15710,11 @@
           "entries": [
             {
               "type": "NONVSAM",
-              "name": "AWS.M2.CARDDEMO.ACCTDATA.PS",
-              "association": "AWS.M2.CARDDEMO.ACCTDATA.VSAM.KSDS.DATA"
+              "name": "AWS.M2.CARDDEMO.ACCTDATA.PS"
             },
             {
               "type": "CLUSTER",
               "name": "AWS.M2.CARDDEMO.ACCTDATA.VSAM.KSDS",
-              "maxlrecl": 300,
-              "keylen": 11,
-              "rkp": 0,
               "association": "AWS.M2.CARDDEMO.ACCTDATA.VSAM.KSDS.DATA"
             },
             {
@@ -15731,13 +15741,11 @@
             },
             {
               "type": "NONVSAM",
-              "name": "AWS.M2.CARDDEMO.BMS",
-              "association": "AWS.M2.CARDDEMO.CARDDATA.VSAM.AIX"
+              "name": "AWS.M2.CARDDEMO.BMS"
             },
             {
               "type": "NONVSAM",
-              "name": "AWS.M2.CARDDEMO.CARDDATA.PS",
-              "association": "AWS.M2.CARDDEMO.CARDDATA.VSAM.AIX"
+              "name": "AWS.M2.CARDDEMO.CARDDATA.PS"
             },
             {
               "type": "PATH",
@@ -15747,9 +15755,6 @@
             {
               "type": "CLUSTER",
               "name": "AWS.M2.CARDDEMO.CARDDATA.VSAM.KSDS",
-              "maxlrecl": 150,
-              "keylen": 16,
-              "rkp": 0,
               "association": "AWS.M2.CARDDEMO.CARDDATA.VSAM.KSDS.DATA"
             },
             {
@@ -15773,10 +15778,6 @@
             {
               "type": "AIX",
               "name": "AWS.M2.CARDDEMO.CARDDATA.VSAM.AIX",
-              "maxlrecl": 150,
-              "keylen": 11,
-              "rkp": 5,
-              "rec_total": 50,
               "association": "AWS.M2.CARDDEMO.CARDDATA.VSAM.AIX.DATA"
             },
             {
@@ -15799,8 +15800,7 @@
             },
             {
               "type": "NONVSAM",
-              "name": "AWS.M2.CARDDEMO.CARDXREF.PS",
-              "association": "AWS.M2.CARDDEMO.CARDXREF.VSAM.AIX"
+              "name": "AWS.M2.CARDDEMO.CARDXREF.PS"
             },
             {
               "type": "PATH",
@@ -15810,9 +15810,6 @@
             {
               "type": "CLUSTER",
               "name": "AWS.M2.CARDDEMO.CARDXREF.VSAM.KSDS",
-              "maxlrecl": 50,
-              "keylen": 16,
-              "rkp": 0,
               "association": "AWS.M2.CARDDEMO.CARDXREF.VSAM.KSDS.DATA"
             },
             {
@@ -15836,10 +15833,6 @@
             {
               "type": "AIX",
               "name": "AWS.M2.CARDDEMO.CARDXREF.VSAM.AIX",
-              "maxlrecl": 50,
-              "keylen": 11,
-              "rkp": 5,
-              "rec_total": 50,
               "association": "AWS.M2.CARDDEMO.CARDXREF.VSAM.AIX.DATA"
             },
             {
@@ -15874,15 +15867,11 @@
             },
             {
               "type": "NONVSAM",
-              "name": "AWS.M2.CARDDEMO.CUSTDATA.PS",
-              "association": "AWS.M2.CARDDEMO.CUSTDATA.VSAM.KSDS.DATA"
+              "name": "AWS.M2.CARDDEMO.CUSTDATA.PS"
             },
             {
               "type": "CLUSTER",
               "name": "AWS.M2.CARDDEMO.CUSTDATA.VSAM.KSDS",
-              "maxlrecl": 500,
-              "keylen": 9,
-              "rkp": 0,
               "association": "AWS.M2.CARDDEMO.CUSTDATA.VSAM.KSDS.DATA"
             },
             {
@@ -15950,9 +15939,6 @@
             {
               "type": "CLUSTER",
               "name": "AWS.M2.CARDDEMO.DISCGRP.VSAM.KSDS",
-              "maxlrecl": 50,
-              "keylen": 16,
-              "rkp": 0,
               "association": "AWS.M2.CARDDEMO.DISCGRP.VSAM.KSDS.DATA"
             },
             {
@@ -16072,9 +16058,6 @@
             {
               "type": "CLUSTER",
               "name": "AWS.M2.CARDDEMO.TCATBALF.VSAM.KSDS",
-              "maxlrecl": 50,
-              "keylen": 17,
-              "rkp": 0,
               "association": "AWS.M2.CARDDEMO.TCATBALF.VSAM.KSDS.DATA"
             },
             {
@@ -16102,9 +16085,6 @@
             {
               "type": "CLUSTER",
               "name": "AWS.M2.CARDDEMO.TRANCATG.VSAM.KSDS",
-              "maxlrecl": 60,
-              "keylen": 6,
-              "rkp": 0,
               "association": "AWS.M2.CARDDEMO.TRANCATG.VSAM.KSDS.DATA"
             },
             {
@@ -16603,8 +16583,7 @@
             },
             {
               "type": "NONVSAM",
-              "name": "AWS.M2.CARDDEMO.TRANSACT.DALY.G0025V00",
-              "association": "AWS.M2.CARDDEMO.TRANSACT.VSAM.AIX"
+              "name": "AWS.M2.CARDDEMO.TRANSACT.DALY.G0025V00"
             },
             {
               "type": "PATH",
@@ -16614,9 +16593,6 @@
             {
               "type": "CLUSTER",
               "name": "AWS.M2.CARDDEMO.TRANSACT.VSAM.KSDS",
-              "maxlrecl": 350,
-              "keylen": 16,
-              "rkp": 0,
               "association": "AWS.M2.CARDDEMO.TRANSACT.VSAM.KSDS.DATA"
             },
             {
@@ -16640,10 +16616,6 @@
             {
               "type": "AIX",
               "name": "AWS.M2.CARDDEMO.TRANSACT.VSAM.AIX",
-              "maxlrecl": 350,
-              "keylen": 26,
-              "rkp": 5,
-              "rec_total": 39,
               "association": "AWS.M2.CARDDEMO.TRANSACT.VSAM.AIX.DATA"
             },
             {
@@ -16671,9 +16643,6 @@
             {
               "type": "CLUSTER",
               "name": "AWS.M2.CARDDEMO.TRANTYPE.VSAM.KSDS",
-              "maxlrecl": 60,
-              "keylen": 2,
-              "rkp": 0,
               "association": "AWS.M2.CARDDEMO.TRANTYPE.VSAM.KSDS.DATA"
             },
             {
@@ -16701,9 +16670,6 @@
             {
               "type": "CLUSTER",
               "name": "AWS.M2.CARDDEMO.USRSEC.VSAM.KSDS",
-              "maxlrecl": 80,
-              "keylen": 8,
-              "rkp": 0,
               "association": "AWS.M2.CARDDEMO.USRSEC.VSAM.KSDS.DAT"
             },
             {
