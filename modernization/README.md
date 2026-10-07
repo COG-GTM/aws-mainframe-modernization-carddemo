@@ -107,7 +107,7 @@ and pushes to `main` that touch `modernization/**`, `app/cpy|cbl|data/**`, `scri
 | --- | --- |
 | `build` | Temurin 21, `mvn -B verify -Dcarddemo.test.profiles=test,ci` (unit tests, ArchUnit, JaCoCo codec gate, Testcontainers Postgres ITs); uploads `jacoco-report` and `test-reports` artifacts |
 | `compose` | `docker compose up -d --build --wait`, asserts `/actuator/health` is `UP` |
-| `baseline` | installs `gnucobol` (3.1.2), `make baseline-check`: compiles and runs the 26 batch jobs with `--fast`, asserts `jobs=26 compile failures=0`, and fails if any output differs from `docs/validation/baseline/` |
+| `baseline` | installs `gnucobol` (3.1.2), `make baseline-check`: compiles and runs the 26 batch jobs with `--fast`, asserts `jobs=26 compile failures=0`, and fails if any job output, report or gnucobol patch differs from `docs/validation/baseline/` (toolchain-specific `00-COMPILE/*.log`, `cobc-*.txt` are reported, not gated) |
 | `equivalence` | phase 6: will run the Java jobs under `golden` and compare with the `baseline` outputs |
 
 Locally: `make verify`, `make baseline-check` (needs `cobc` 3.1.2: `sudo apt-get install gnucobol`).
