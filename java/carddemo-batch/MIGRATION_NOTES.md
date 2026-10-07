@@ -7,7 +7,7 @@ Parity is proven against `golden-files/CBACT01C/` (sample data, 50 accounts) and
 field by field (JSON), byte for byte (`raw/`), DISPLAY text, and the 29 reconciliation checks of
 `test-harness/RECONCILIATION_CHECKS.md` (re-implemented in Java *and* re-run through `test-harness/reconcile.py`).
 
-Build and test: `JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64 mvn -B verify` (116 `@Test` methods: 77 for CBACT01C and the codecs, 39 for CBTRN01C below).
+Build and test: `JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64 mvn -B verify` (118 `@Test` methods: 77 for CBACT01C and the codecs, 41 for CBTRN01C below).
 Run (from the repository root, paths are relative to the working directory):
 `java -jar java/carddemo-batch/target/carddemo-batch-0.1.0-SNAPSHOT.jar [ACCTFILE OUTFILE ARRYFILE VBRCFILE]`
 (defaults: `app/data/ASCII/acctdata.txt` → `OUTFILE`, `ARRYFILE`, `VBRCFILE` in the current directory).

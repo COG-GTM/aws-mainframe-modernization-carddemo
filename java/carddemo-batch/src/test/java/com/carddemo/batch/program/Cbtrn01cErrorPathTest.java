@@ -15,6 +15,7 @@ import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Locale;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -92,6 +93,38 @@ class Cbtrn01cErrorPathTest {
         assertEquals(0, prog.run());
         assertEquals("00", prog.tranfileStatus());
         assertEquals(300, prog.outcomes().size());
+    }
+
+    @Test
+    void accountKeyIsFormattedWithAsciiDigitsWhateverTheDefaultLocale(@TempDir Path tmp) throws IOException {
+        Locale saved = Locale.getDefault();
+        Locale.setDefault(Locale.forLanguageTag("ar-EG"));
+        try {
+            ByteArrayOutputStream buf = new ByteArrayOutputStream();
+            Cbtrn01c prog = program(Repo.SAMPLE_DAILYTRAN, Repo.SAMPLE_CUSTDATA, Repo.SAMPLE_CARDXREF, Repo.SAMPLE_CARDDATA,
+                    Repo.SAMPLE_ACCTDATA, empty(tmp), buf);
+            assertEquals(0, prog.run());
+            assertTrue(prog.outcomes().stream().allMatch(o -> o.outcome() == TransactionOutcome.Outcome.VERIFIED),
+                    "FD-ACCT-ID must be the 11 ASCII digits of XREF-ACCT-ID, not localized digits");
+            assertFalse(text(buf).contains("NOT FOUND"));
+        } finally {
+            Locale.setDefault(saved);
+        }
+    }
+
+    @Test
+    void runCanBeRepeatedOnTheSameInstanceLikeAFreshJobStep(@TempDir Path tmp) throws IOException {
+        ByteArrayOutputStream buf = new ByteArrayOutputStream();
+        Cbtrn01c prog = program(Repo.SAMPLE_DAILYTRAN, Repo.SAMPLE_CUSTDATA, Repo.SAMPLE_CARDXREF, Repo.SAMPLE_CARDDATA,
+                Repo.SAMPLE_ACCTDATA, empty(tmp), buf);
+        assertEquals(0, prog.run());
+        var first = prog.outcomes();
+        String firstDisplay = text(buf);
+        buf.reset();
+        assertEquals(0, prog.run());
+        assertEquals(first, prog.outcomes(), "second run re-verifies all 300 transactions");
+        assertEquals(300, first.size());
+        assertEquals(firstDisplay, text(buf), "second run produces the same DISPLAY stream");
     }
 
     @Test

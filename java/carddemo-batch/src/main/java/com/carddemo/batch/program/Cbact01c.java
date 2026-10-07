@@ -18,6 +18,7 @@ import java.math.BigDecimal;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
+import java.util.Locale;
 import java.util.Optional;
 
 /**
@@ -465,7 +466,7 @@ public final class Cbact01c {
         if (!isNumeric(ioStatus) || ioStatus.charAt(0) == '9') {
             // IO-STATUS-0401 <- IO-STAT1; IO-STATUS-0403 <- binary value of the IO-STAT2 byte
             int twoBytesBinary = ioStatus.charAt(1) & 0xFF;
-            ioStatus04 = ioStatus.charAt(0) + String.format("%03d", twoBytesBinary % 1000);
+            ioStatus04 = ioStatus.charAt(0) + String.format(Locale.ROOT, "%03d", twoBytesBinary % 1000);
         } else {
             ioStatus04 = "00" + ioStatus;
         }

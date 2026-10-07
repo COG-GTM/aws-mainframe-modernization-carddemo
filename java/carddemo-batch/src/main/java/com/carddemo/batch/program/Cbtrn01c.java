@@ -9,14 +9,15 @@ import com.carddemo.batch.record.CardRecord;
 import com.carddemo.batch.record.CardXrefRecord;
 import com.carddemo.batch.record.CustomerRecord;
 import com.carddemo.batch.record.DalytranRecord;
+import com.carddemo.batch.record.FixedWidthRecord;
 import com.carddemo.batch.record.TranRecord;
 
 import java.io.PrintStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 
 /**
@@ -123,8 +124,12 @@ public final class Cbtrn01c {
     }
 
     // ----- MAIN-PARA --------------------------------------------------------------------------
-    /** PROCEDURE DIVISION. Returns the COBOL RETURN-CODE (0); abends surface as {@link AbendException}. */
+    /**
+     * PROCEDURE DIVISION. Returns the COBOL RETURN-CODE (0); abends surface as {@link AbendException}. Each call
+     * is a fresh job step: WORKING-STORAGE is re-initialised and the outcome rows of a previous run are discarded.
+     */
     public int run() {
+        initializeWorkingStorage();
         display.println("START OF EXECUTION OF PROGRAM CBTRN01C");
         dalytranOpen();            // 0000-DALYTRAN-OPEN
         custfileOpen();            // 0100-CUSTFILE-OPEN
@@ -239,7 +244,7 @@ public final class Cbtrn01c {
     // ----- 3000-READ-ACCOUNT ------------------------------------------------------------------
     /** {@code READ ACCOUNT-FILE ... KEY IS FD-ACCT-ID}; same INVALID KEY mapping as {@link #lookupXref()}. */
     void readAccount() {
-        String fdAcctId = String.format("%011d", accountRecord.acctId());
+        String fdAcctId = String.format(Locale.ROOT, "%011d", accountRecord.acctId());
         Optional<byte[]> rec;
         try {
             rec = accountFile.read(fdAcctId);
@@ -516,7 +521,7 @@ public final class Cbtrn01c {
         if (!isNumeric(ioStatus) || ioStatus.charAt(0) == '9') {
             // IO-STATUS-0401 <- IO-STAT1; IO-STATUS-0403 <- binary value of the IO-STAT2 byte
             int twoBytesBinary = ioStatus.charAt(1) & 0xFF;
-            ioStatus04 = ioStatus.charAt(0) + String.format("%03d", twoBytesBinary % 1000);
+            ioStatus04 = ioStatus.charAt(0) + String.format(Locale.ROOT, "%03d", twoBytesBinary % 1000);
         } else {
             ioStatus04 = "00" + ioStatus;
         }
@@ -534,7 +539,19 @@ public final class Cbtrn01c {
 
     /** One row per DALYTRAN record, in file order (the post-EOF duplicate lookup is not included). */
     public List<TransactionOutcome> outcomes() {
-        return Collections.unmodifiableList(outcomes);
+        return List.copyOf(outcomes);
+    }
+
+    private void initializeWorkingStorage() {
+        for (FixedWidthRecord r : List.of(dalytranRecord, customerRecord, cardXrefRecord, cardRecord, accountRecord, tranRecord)) {
+            r.initialize();
+        }
+        dalytranStatus = custfileStatus = xreffileStatus = cardfileStatus = acctfileStatus = tranfileStatus = ioStatus = "00";
+        applResult = 0;
+        endOfDailyTransFile = false;
+        wsXrefReadStatus = 0;
+        wsAcctReadStatus = 0;
+        outcomes.clear();
     }
 
     /** The current FILE STATUS of DALYTRAN (for tests). */
