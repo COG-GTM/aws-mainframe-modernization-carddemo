@@ -1,0 +1,140 @@
+{
+  "job": "CBTRN01C",
+  "summary": {
+    "checks": 11,
+    "passed": 11,
+    "failed": 0,
+    "failed_ids": [],
+    "status": "PASS"
+  },
+  "checks": [
+    {
+      "id": "CBTRN01C-COUNT-01",
+      "group": "counts",
+      "description": "daily transactions in = outcome rows out",
+      "expected": 300,
+      "actual": 300,
+      "status": "PASS"
+    },
+    {
+      "id": "CBTRN01C-COUNT-02",
+      "group": "counts",
+      "description": "verified + card-missing + account-missing = total",
+      "expected": 300,
+      "actual": 300,
+      "status": "PASS",
+      "detail": {
+        "verified": 300,
+        "card_missing": 0,
+        "account_missing": 0,
+        "unknown_outcomes": []
+      }
+    },
+    {
+      "id": "CBTRN01C-COUNT-03",
+      "group": "counts",
+      "description": "outcome rows are in file order with matching DALYTRAN-ID",
+      "expected": true,
+      "actual": true,
+      "status": "PASS"
+    },
+    {
+      "id": "CBTRN01C-COUNT-04",
+      "group": "counts",
+      "description": "XREF lookups in display = transactions + 1 (legacy quirk: the last record is looked up again after end-of-file because only the DISPLAY is guarded by the EOF flag)",
+      "expected": 301,
+      "actual": 301,
+      "status": "PASS"
+    },
+    {
+      "id": "CBTRN01C-TOTAL-01",
+      "group": "totals",
+      "description": "sum DALYTRAN-AMT overall (input) = sum of per-outcome-class totals",
+      "expected": "104801.54",
+      "actual": "104801.54",
+      "status": "PASS",
+      "detail": {
+        "VERIFIED": "104801.54",
+        "CARD_NOT_FOUND": "0.00",
+        "ACCOUNT_NOT_FOUND": "0.00"
+      }
+    },
+    {
+      "id": "CBTRN01C-TOTAL-02",
+      "group": "totals",
+      "description": "sum DALYTRAN-AMT per class (recorded for the port to match)",
+      "expected": {
+        "VERIFIED": "104801.54",
+        "CARD_NOT_FOUND": "0.00",
+        "ACCOUNT_NOT_FOUND": "0.00"
+      },
+      "actual": {
+        "VERIFIED": "104801.54",
+        "CARD_NOT_FOUND": "0.00",
+        "ACCOUNT_NOT_FOUND": "0.00"
+      },
+      "status": "PASS"
+    },
+    {
+      "id": "CBTRN01C-TOTAL-03",
+      "group": "totals",
+      "description": "debit / credit split of DALYTRAN-AMT (positive vs negative amounts)",
+      "expected": {
+        "positive": "129200.83",
+        "negative": "-24399.29",
+        "zero_count": 0
+      },
+      "actual": {
+        "positive": "129200.83",
+        "negative": "-24399.29",
+        "zero_count": 0
+      },
+      "status": "PASS"
+    },
+    {
+      "id": "CBTRN01C-XREF-01",
+      "group": "xref",
+      "description": "every VERIFIED card exists in cardxref and its XREF-ACCT-ID exists in acctdata",
+      "expected": 0,
+      "actual": 0,
+      "status": "PASS",
+      "detail": {
+        "tran_ids": []
+      }
+    },
+    {
+      "id": "CBTRN01C-XREF-02",
+      "group": "xref",
+      "description": "every CARD_NOT_FOUND card does not exist in cardxref",
+      "expected": 0,
+      "actual": 0,
+      "status": "PASS",
+      "detail": {
+        "tran_ids": []
+      }
+    },
+    {
+      "id": "CBTRN01C-XREF-03",
+      "group": "xref",
+      "description": "every ACCOUNT_NOT_FOUND card exists in cardxref but its account is not in acctdata",
+      "expected": 0,
+      "actual": 0,
+      "status": "PASS",
+      "detail": {
+        "tran_ids": []
+      }
+    },
+    {
+      "id": "CBTRN01C-XREF-04",
+      "group": "xref",
+      "description": "sample data coverage: distinct cards used by the transactions",
+      "expected": 50,
+      "actual": 50,
+      "status": "PASS",
+      "detail": {
+        "distinct_cards_in_xref": 50,
+        "distinct_accounts": 50
+      }
+    }
+  ]
+}

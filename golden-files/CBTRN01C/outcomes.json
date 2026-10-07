@@ -1,0 +1,2402 @@
+[
+  {
+    "tran_id": "0000000000683580",
+    "card_num": "4859452612877065",
+    "xref_found": true,
+    "acct_id": "7",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000001774260",
+    "card_num": "0927987108636232",
+    "xref_found": true,
+    "acct_id": "20",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000006292564",
+    "card_num": "6009619150674526",
+    "xref_found": true,
+    "acct_id": "5",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000009101861",
+    "card_num": "8040580410348680",
+    "xref_found": true,
+    "acct_id": "26",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000010142252",
+    "card_num": "5656830544981216",
+    "xref_found": true,
+    "acct_id": "46",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000010229018",
+    "card_num": "7379335634661142",
+    "xref_found": true,
+    "acct_id": "45",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000016259484",
+    "card_num": "4011500891777367",
+    "xref_found": true,
+    "acct_id": "13",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000017874199",
+    "card_num": "8040580410348680",
+    "xref_found": true,
+    "acct_id": "26",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000019065428",
+    "card_num": "6503535181795992",
+    "xref_found": true,
+    "acct_id": "48",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000021711604",
+    "card_num": "9501733721429893",
+    "xref_found": true,
+    "acct_id": "9",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000025430891",
+    "card_num": "3260763612337560",
+    "xref_found": true,
+    "acct_id": "10",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000028097268",
+    "card_num": "7094142751055551",
+    "xref_found": true,
+    "acct_id": "32",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000030755266",
+    "card_num": "3766281984155154",
+    "xref_found": true,
+    "acct_id": "41",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000032979555",
+    "card_num": "6509230362553816",
+    "xref_found": true,
+    "acct_id": "30",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000033688127",
+    "card_num": "3766281984155154",
+    "xref_found": true,
+    "acct_id": "41",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000040455859",
+    "card_num": "1142167692878931",
+    "xref_found": true,
+    "acct_id": "37",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000043636099",
+    "card_num": "2940139362300449",
+    "xref_found": true,
+    "acct_id": "22",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000051205286",
+    "card_num": "7094142751055551",
+    "xref_found": true,
+    "acct_id": "32",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000054288996",
+    "card_num": "4534784102713951",
+    "xref_found": true,
+    "acct_id": "36",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000054727064",
+    "card_num": "1014086565224350",
+    "xref_found": true,
+    "acct_id": "44",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000058866561",
+    "card_num": "0500024453765740",
+    "xref_found": true,
+    "acct_id": "50",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000060921254",
+    "card_num": "5787351228879339",
+    "xref_found": true,
+    "acct_id": "47",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000061394789",
+    "card_num": "2745303720002090",
+    "xref_found": true,
+    "acct_id": "39",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000070754800",
+    "card_num": "0923877193247330",
+    "xref_found": true,
+    "acct_id": "2",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000072220498",
+    "card_num": "6349250331648509",
+    "xref_found": true,
+    "acct_id": "15",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000084515950",
+    "card_num": "8931369351894783",
+    "xref_found": true,
+    "acct_id": "8",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000085824369",
+    "card_num": "3999169246375885",
+    "xref_found": true,
+    "acct_id": "3",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000095706092",
+    "card_num": "8931369351894783",
+    "xref_found": true,
+    "acct_id": "8",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000099965527",
+    "card_num": "0927987108636232",
+    "xref_found": true,
+    "acct_id": "20",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000100915314",
+    "card_num": "9805583408996588",
+    "xref_found": true,
+    "acct_id": "40",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000107748365",
+    "card_num": "7094142751055551",
+    "xref_found": true,
+    "acct_id": "32",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000108402349",
+    "card_num": "9349107475869214",
+    "xref_found": true,
+    "acct_id": "17",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000109340521",
+    "card_num": "7379335634661142",
+    "xref_found": true,
+    "acct_id": "45",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000109506921",
+    "card_num": "6832676047698087",
+    "xref_found": true,
+    "acct_id": "33",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000111054243",
+    "card_num": "6723000463207764",
+    "xref_found": true,
+    "acct_id": "28",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000115716061",
+    "card_num": "2940139362300449",
+    "xref_found": true,
+    "acct_id": "22",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000130111733",
+    "card_num": "0683586198171516",
+    "xref_found": true,
+    "acct_id": "27",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000132831571",
+    "card_num": "1014086565224350",
+    "xref_found": true,
+    "acct_id": "44",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000137879630",
+    "card_num": "5671184478505844",
+    "xref_found": true,
+    "acct_id": "18",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000139910093",
+    "card_num": "7251508149188883",
+    "xref_found": true,
+    "acct_id": "29",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000142315472",
+    "card_num": "2871968252812490",
+    "xref_found": true,
+    "acct_id": "6",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000143386237",
+    "card_num": "8262593602473076",
+    "xref_found": true,
+    "acct_id": "49",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000148803688",
+    "card_num": "6509230362553816",
+    "xref_found": true,
+    "acct_id": "30",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000152467982",
+    "card_num": "2745303720002090",
+    "xref_found": true,
+    "acct_id": "39",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000160469204",
+    "card_num": "8040580410348680",
+    "xref_found": true,
+    "acct_id": "26",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000166444519",
+    "card_num": "9056297931664011",
+    "xref_found": true,
+    "acct_id": "25",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000169879332",
+    "card_num": "6723000463207764",
+    "xref_found": true,
+    "acct_id": "28",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000173069364",
+    "card_num": "8517866958206008",
+    "xref_found": true,
+    "acct_id": "14",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000174748684",
+    "card_num": "6727055190616014",
+    "xref_found": true,
+    "acct_id": "16",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000183226769",
+    "card_num": "8040580410348680",
+    "xref_found": true,
+    "acct_id": "26",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000184933166",
+    "card_num": "7251508149188883",
+    "xref_found": true,
+    "acct_id": "29",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000187573156",
+    "card_num": "0683586198171516",
+    "xref_found": true,
+    "acct_id": "27",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000189414937",
+    "card_num": "6349250331648509",
+    "xref_found": true,
+    "acct_id": "15",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000191360674",
+    "card_num": "2745303720002090",
+    "xref_found": true,
+    "acct_id": "39",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000192039153",
+    "card_num": "7058267261837752",
+    "xref_found": true,
+    "acct_id": "43",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000194189303",
+    "card_num": "6727055190616014",
+    "xref_found": true,
+    "acct_id": "16",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000196728331",
+    "card_num": "7427684863423209",
+    "xref_found": true,
+    "acct_id": "11",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000198494663",
+    "card_num": "2745303720002090",
+    "xref_found": true,
+    "acct_id": "39",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000201032783",
+    "card_num": "4011500891777367",
+    "xref_found": true,
+    "acct_id": "13",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000202217428",
+    "card_num": "4385271476627819",
+    "xref_found": true,
+    "acct_id": "34",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000202886897",
+    "card_num": "2871968252812490",
+    "xref_found": true,
+    "acct_id": "6",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000203305494",
+    "card_num": "5787351228879339",
+    "xref_found": true,
+    "acct_id": "47",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000204143988",
+    "card_num": "3766281984155154",
+    "xref_found": true,
+    "acct_id": "41",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000211219588",
+    "card_num": "6723000463207764",
+    "xref_found": true,
+    "acct_id": "28",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000218186931",
+    "card_num": "8931369351894783",
+    "xref_found": true,
+    "acct_id": "8",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000220001505",
+    "card_num": "6509230362553816",
+    "xref_found": true,
+    "acct_id": "30",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000220745261",
+    "card_num": "7026637615032277",
+    "xref_found": true,
+    "acct_id": "31",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000223138231",
+    "card_num": "9501733721429893",
+    "xref_found": true,
+    "acct_id": "9",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000224060323",
+    "card_num": "9349107475869214",
+    "xref_found": true,
+    "acct_id": "17",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000226849749",
+    "card_num": "6009619150674526",
+    "xref_found": true,
+    "acct_id": "5",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000232640164",
+    "card_num": "7427684863423209",
+    "xref_found": true,
+    "acct_id": "11",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000238329981",
+    "card_num": "6509230362553816",
+    "xref_found": true,
+    "acct_id": "30",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000241121967",
+    "card_num": "6832676047698087",
+    "xref_found": true,
+    "acct_id": "33",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000246307558",
+    "card_num": "7443870988897530",
+    "xref_found": true,
+    "acct_id": "38",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000246312084",
+    "card_num": "2940139362300449",
+    "xref_found": true,
+    "acct_id": "22",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000246549911",
+    "card_num": "5787351228879339",
+    "xref_found": true,
+    "acct_id": "47",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000248557079",
+    "card_num": "5975117516616077",
+    "xref_found": true,
+    "acct_id": "42",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000250062442",
+    "card_num": "6009619150674526",
+    "xref_found": true,
+    "acct_id": "5",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000252891459",
+    "card_num": "6723000463207764",
+    "xref_found": true,
+    "acct_id": "28",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000253579636",
+    "card_num": "7443870988897530",
+    "xref_found": true,
+    "acct_id": "38",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000253685514",
+    "card_num": "4534784102713951",
+    "xref_found": true,
+    "acct_id": "36",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000263663553",
+    "card_num": "6503535181795992",
+    "xref_found": true,
+    "acct_id": "48",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000263926805",
+    "card_num": "0982496213629795",
+    "xref_found": true,
+    "acct_id": "12",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000265935610",
+    "card_num": "7443870988897530",
+    "xref_found": true,
+    "acct_id": "38",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000272698228",
+    "card_num": "3260763612337560",
+    "xref_found": true,
+    "acct_id": "10",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000273137276",
+    "card_num": "6503535181795992",
+    "xref_found": true,
+    "acct_id": "48",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000274427056",
+    "card_num": "0923877193247330",
+    "xref_found": true,
+    "acct_id": "2",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000274596018",
+    "card_num": "5407099850479866",
+    "xref_found": true,
+    "acct_id": "21",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000277916619",
+    "card_num": "7094142751055551",
+    "xref_found": true,
+    "acct_id": "32",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000283702177",
+    "card_num": "5975117516616077",
+    "xref_found": true,
+    "acct_id": "42",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000292939458",
+    "card_num": "8262593602473076",
+    "xref_found": true,
+    "acct_id": "49",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000298764221",
+    "card_num": "7443870988897530",
+    "xref_found": true,
+    "acct_id": "38",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000298806396",
+    "card_num": "7058267261837752",
+    "xref_found": true,
+    "acct_id": "43",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000307523903",
+    "card_num": "5787351228879339",
+    "xref_found": true,
+    "acct_id": "47",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000312054308",
+    "card_num": "7379335634661142",
+    "xref_found": true,
+    "acct_id": "45",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000312439873",
+    "card_num": "7443870988897530",
+    "xref_found": true,
+    "acct_id": "38",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000312675172",
+    "card_num": "8931369351894783",
+    "xref_found": true,
+    "acct_id": "8",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000313527007",
+    "card_num": "8112545834239735",
+    "xref_found": true,
+    "acct_id": "23",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000325686503",
+    "card_num": "0923877193247330",
+    "xref_found": true,
+    "acct_id": "2",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000328781772",
+    "card_num": "9056297931664011",
+    "xref_found": true,
+    "acct_id": "25",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000329446511",
+    "card_num": "8040580410348680",
+    "xref_found": true,
+    "acct_id": "26",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000329724245",
+    "card_num": "0500024453765740",
+    "xref_found": true,
+    "acct_id": "50",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000338128146",
+    "card_num": "7094142751055551",
+    "xref_found": true,
+    "acct_id": "32",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000341155503",
+    "card_num": "8517866958206008",
+    "xref_found": true,
+    "acct_id": "14",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000341634875",
+    "card_num": "2760836797107565",
+    "xref_found": true,
+    "acct_id": "24",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000357518499",
+    "card_num": "7251508149188883",
+    "xref_found": true,
+    "acct_id": "29",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000358543876",
+    "card_num": "5975117516616077",
+    "xref_found": true,
+    "acct_id": "42",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000361866674",
+    "card_num": "7427684863423209",
+    "xref_found": true,
+    "acct_id": "11",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000366513257",
+    "card_num": "0927987108636232",
+    "xref_found": true,
+    "acct_id": "20",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000373973344",
+    "card_num": "5671184478505844",
+    "xref_found": true,
+    "acct_id": "18",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000375247552",
+    "card_num": "3999169246375885",
+    "xref_found": true,
+    "acct_id": "3",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000378710702",
+    "card_num": "7379335634661142",
+    "xref_found": true,
+    "acct_id": "45",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000379084859",
+    "card_num": "6723000463207764",
+    "xref_found": true,
+    "acct_id": "28",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000380632461",
+    "card_num": "4859452612877065",
+    "xref_found": true,
+    "acct_id": "7",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000382018782",
+    "card_num": "5656830544981216",
+    "xref_found": true,
+    "acct_id": "46",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000382291356",
+    "card_num": "5671184478505844",
+    "xref_found": true,
+    "acct_id": "18",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000392772234",
+    "card_num": "4385271476627819",
+    "xref_found": true,
+    "acct_id": "34",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000397282953",
+    "card_num": "2871968252812490",
+    "xref_found": true,
+    "acct_id": "6",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000399296572",
+    "card_num": "6009619150674526",
+    "xref_found": true,
+    "acct_id": "5",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000400022505",
+    "card_num": "1014086565224350",
+    "xref_found": true,
+    "acct_id": "44",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000400762013",
+    "card_num": "2760836797107565",
+    "xref_found": true,
+    "acct_id": "24",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000402032668",
+    "card_num": "3766281984155154",
+    "xref_found": true,
+    "acct_id": "41",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000407178785",
+    "card_num": "3940246016141489",
+    "xref_found": true,
+    "acct_id": "19",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000407637739",
+    "card_num": "5975117516616077",
+    "xref_found": true,
+    "acct_id": "42",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000412515011",
+    "card_num": "5975117516616077",
+    "xref_found": true,
+    "acct_id": "42",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000415671623",
+    "card_num": "1561409106491600",
+    "xref_found": true,
+    "acct_id": "35",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000416848414",
+    "card_num": "6832676047698087",
+    "xref_found": true,
+    "acct_id": "33",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000420768809",
+    "card_num": "7058267261837752",
+    "xref_found": true,
+    "acct_id": "43",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000424689871",
+    "card_num": "5787351228879339",
+    "xref_found": true,
+    "acct_id": "47",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000429557611",
+    "card_num": "0982496213629795",
+    "xref_found": true,
+    "acct_id": "12",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000432231260",
+    "card_num": "8262593602473076",
+    "xref_found": true,
+    "acct_id": "49",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000433607101",
+    "card_num": "9501733721429893",
+    "xref_found": true,
+    "acct_id": "9",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000434343718",
+    "card_num": "6832676047698087",
+    "xref_found": true,
+    "acct_id": "33",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000435144487",
+    "card_num": "8112545834239735",
+    "xref_found": true,
+    "acct_id": "23",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000445507761",
+    "card_num": "3940246016141489",
+    "xref_found": true,
+    "acct_id": "19",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000446945803",
+    "card_num": "3940246016141489",
+    "xref_found": true,
+    "acct_id": "19",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000450622695",
+    "card_num": "2988091353094312",
+    "xref_found": true,
+    "acct_id": "4",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000458331136",
+    "card_num": "2988091353094312",
+    "xref_found": true,
+    "acct_id": "4",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000462765346",
+    "card_num": "0982496213629795",
+    "xref_found": true,
+    "acct_id": "12",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000474475283",
+    "card_num": "5407099850479866",
+    "xref_found": true,
+    "acct_id": "21",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000475609951",
+    "card_num": "5656830544981216",
+    "xref_found": true,
+    "acct_id": "46",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000475746885",
+    "card_num": "0500024453765740",
+    "xref_found": true,
+    "acct_id": "50",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000482016448",
+    "card_num": "2760836797107565",
+    "xref_found": true,
+    "acct_id": "24",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000482116790",
+    "card_num": "4385271476627819",
+    "xref_found": true,
+    "acct_id": "34",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000486159054",
+    "card_num": "0683586198171516",
+    "xref_found": true,
+    "acct_id": "27",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000490043047",
+    "card_num": "5407099850479866",
+    "xref_found": true,
+    "acct_id": "21",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000496711357",
+    "card_num": "2760836797107565",
+    "xref_found": true,
+    "acct_id": "24",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000497995808",
+    "card_num": "9501733721429893",
+    "xref_found": true,
+    "acct_id": "9",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000498548061",
+    "card_num": "6727055190616014",
+    "xref_found": true,
+    "acct_id": "16",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000498615524",
+    "card_num": "9056297931664011",
+    "xref_found": true,
+    "acct_id": "25",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000498857207",
+    "card_num": "3260763612337560",
+    "xref_found": true,
+    "acct_id": "10",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000499424514",
+    "card_num": "4534784102713951",
+    "xref_found": true,
+    "acct_id": "36",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000500479019",
+    "card_num": "1014086565224350",
+    "xref_found": true,
+    "acct_id": "44",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000500885895",
+    "card_num": "4859452612877065",
+    "xref_found": true,
+    "acct_id": "7",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000502617711",
+    "card_num": "4859452612877065",
+    "xref_found": true,
+    "acct_id": "7",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000503557384",
+    "card_num": "9680294154603697",
+    "xref_found": true,
+    "acct_id": "1",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000504099546",
+    "card_num": "0923877193247330",
+    "xref_found": true,
+    "acct_id": "2",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000508429766",
+    "card_num": "7094142751055551",
+    "xref_found": true,
+    "acct_id": "32",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000519771423",
+    "card_num": "6723000463207764",
+    "xref_found": true,
+    "acct_id": "28",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000519935575",
+    "card_num": "0923877193247330",
+    "xref_found": true,
+    "acct_id": "2",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000522130011",
+    "card_num": "7251508149188883",
+    "xref_found": true,
+    "acct_id": "29",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000523110055",
+    "card_num": "7379335634661142",
+    "xref_found": true,
+    "acct_id": "45",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000528007115",
+    "card_num": "5671184478505844",
+    "xref_found": true,
+    "acct_id": "18",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000532120892",
+    "card_num": "9680294154603697",
+    "xref_found": true,
+    "acct_id": "1",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000539225404",
+    "card_num": "8040580410348680",
+    "xref_found": true,
+    "acct_id": "26",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000540034453",
+    "card_num": "6832676047698087",
+    "xref_found": true,
+    "acct_id": "33",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000540260014",
+    "card_num": "3999169246375885",
+    "xref_found": true,
+    "acct_id": "3",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000544248006",
+    "card_num": "1561409106491600",
+    "xref_found": true,
+    "acct_id": "35",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000547488622",
+    "card_num": "4011500891777367",
+    "xref_found": true,
+    "acct_id": "13",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000549364593",
+    "card_num": "8517866958206008",
+    "xref_found": true,
+    "acct_id": "14",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000550089732",
+    "card_num": "3260763612337560",
+    "xref_found": true,
+    "acct_id": "10",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000550860982",
+    "card_num": "6349250331648509",
+    "xref_found": true,
+    "acct_id": "15",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000554096178",
+    "card_num": "6503535181795992",
+    "xref_found": true,
+    "acct_id": "48",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000555363230",
+    "card_num": "9680294154603697",
+    "xref_found": true,
+    "acct_id": "1",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000561673599",
+    "card_num": "5656830544981216",
+    "xref_found": true,
+    "acct_id": "46",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000564257675",
+    "card_num": "6503535181795992",
+    "xref_found": true,
+    "acct_id": "48",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000569807281",
+    "card_num": "9349107475869214",
+    "xref_found": true,
+    "acct_id": "17",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000570013846",
+    "card_num": "9349107475869214",
+    "xref_found": true,
+    "acct_id": "17",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000570880433",
+    "card_num": "6009619150674526",
+    "xref_found": true,
+    "acct_id": "5",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000573732499",
+    "card_num": "9805583408996588",
+    "xref_found": true,
+    "acct_id": "40",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000575834812",
+    "card_num": "7379335634661142",
+    "xref_found": true,
+    "acct_id": "45",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000576344938",
+    "card_num": "2745303720002090",
+    "xref_found": true,
+    "acct_id": "39",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000577165878",
+    "card_num": "7427684863423209",
+    "xref_found": true,
+    "acct_id": "11",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000577826814",
+    "card_num": "0500024453765740",
+    "xref_found": true,
+    "acct_id": "50",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000585883106",
+    "card_num": "6009619150674526",
+    "xref_found": true,
+    "acct_id": "5",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000588642606",
+    "card_num": "7058267261837752",
+    "xref_found": true,
+    "acct_id": "43",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000598262041",
+    "card_num": "1561409106491600",
+    "xref_found": true,
+    "acct_id": "35",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000600564499",
+    "card_num": "2988091353094312",
+    "xref_found": true,
+    "acct_id": "4",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000601274842",
+    "card_num": "7251508149188883",
+    "xref_found": true,
+    "acct_id": "29",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000601496057",
+    "card_num": "6509230362553816",
+    "xref_found": true,
+    "acct_id": "30",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000603071214",
+    "card_num": "7251508149188883",
+    "xref_found": true,
+    "acct_id": "29",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000605048564",
+    "card_num": "8931369351894783",
+    "xref_found": true,
+    "acct_id": "8",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000606140907",
+    "card_num": "2940139362300449",
+    "xref_found": true,
+    "acct_id": "22",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000606716618",
+    "card_num": "0982496213629795",
+    "xref_found": true,
+    "acct_id": "12",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000606830191",
+    "card_num": "3940246016141489",
+    "xref_found": true,
+    "acct_id": "19",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000614267358",
+    "card_num": "1142167692878931",
+    "xref_found": true,
+    "acct_id": "37",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000618712102",
+    "card_num": "8112545834239735",
+    "xref_found": true,
+    "acct_id": "23",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000621178666",
+    "card_num": "1561409106491600",
+    "xref_found": true,
+    "acct_id": "35",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000624335286",
+    "card_num": "9680294154603697",
+    "xref_found": true,
+    "acct_id": "1",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000627601011",
+    "card_num": "7443870988897530",
+    "xref_found": true,
+    "acct_id": "38",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000628524597",
+    "card_num": "1014086565224350",
+    "xref_found": true,
+    "acct_id": "44",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000634329004",
+    "card_num": "5407099850479866",
+    "xref_found": true,
+    "acct_id": "21",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000635121182",
+    "card_num": "6832676047698087",
+    "xref_found": true,
+    "acct_id": "33",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000641694180",
+    "card_num": "3999169246375885",
+    "xref_found": true,
+    "acct_id": "3",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000643758597",
+    "card_num": "7058267261837752",
+    "xref_found": true,
+    "acct_id": "43",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000647754915",
+    "card_num": "2871968252812490",
+    "xref_found": true,
+    "acct_id": "6",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000652713581",
+    "card_num": "6727055190616014",
+    "xref_found": true,
+    "acct_id": "16",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000667157384",
+    "card_num": "5671184478505844",
+    "xref_found": true,
+    "acct_id": "18",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000669905307",
+    "card_num": "6727055190616014",
+    "xref_found": true,
+    "acct_id": "16",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000672061881",
+    "card_num": "5656830544981216",
+    "xref_found": true,
+    "acct_id": "46",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000672573296",
+    "card_num": "8517866958206008",
+    "xref_found": true,
+    "acct_id": "14",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000673250360",
+    "card_num": "7427684863423209",
+    "xref_found": true,
+    "acct_id": "11",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000676149118",
+    "card_num": "4385271476627819",
+    "xref_found": true,
+    "acct_id": "34",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000685488982",
+    "card_num": "0500024453765740",
+    "xref_found": true,
+    "acct_id": "50",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000686167627",
+    "card_num": "9805583408996588",
+    "xref_found": true,
+    "acct_id": "40",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000689276136",
+    "card_num": "9056297931664011",
+    "xref_found": true,
+    "acct_id": "25",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000700096853",
+    "card_num": "3940246016141489",
+    "xref_found": true,
+    "acct_id": "19",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000703553020",
+    "card_num": "2760836797107565",
+    "xref_found": true,
+    "acct_id": "24",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000717135758",
+    "card_num": "0982496213629795",
+    "xref_found": true,
+    "acct_id": "12",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000727152111",
+    "card_num": "6349250331648509",
+    "xref_found": true,
+    "acct_id": "15",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000731515153",
+    "card_num": "9805583408996588",
+    "xref_found": true,
+    "acct_id": "40",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000734452614",
+    "card_num": "4534784102713951",
+    "xref_found": true,
+    "acct_id": "36",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000735823935",
+    "card_num": "5407099850479866",
+    "xref_found": true,
+    "acct_id": "21",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000741999667",
+    "card_num": "9349107475869214",
+    "xref_found": true,
+    "acct_id": "17",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000742447110",
+    "card_num": "8517866958206008",
+    "xref_found": true,
+    "acct_id": "14",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000747646163",
+    "card_num": "1561409106491600",
+    "xref_found": true,
+    "acct_id": "35",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000749066680",
+    "card_num": "6509230362553816",
+    "xref_found": true,
+    "acct_id": "30",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000749493129",
+    "card_num": "7058267261837752",
+    "xref_found": true,
+    "acct_id": "43",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000751145919",
+    "card_num": "9501733721429893",
+    "xref_found": true,
+    "acct_id": "9",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000751696292",
+    "card_num": "7427684863423209",
+    "xref_found": true,
+    "acct_id": "11",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000755736377",
+    "card_num": "9680294154603697",
+    "xref_found": true,
+    "acct_id": "1",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000760577632",
+    "card_num": "8931369351894783",
+    "xref_found": true,
+    "acct_id": "8",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000762269241",
+    "card_num": "3940246016141489",
+    "xref_found": true,
+    "acct_id": "19",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000767081090",
+    "card_num": "1142167692878931",
+    "xref_found": true,
+    "acct_id": "37",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000767308626",
+    "card_num": "1142167692878931",
+    "xref_found": true,
+    "acct_id": "37",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000767314476",
+    "card_num": "0927987108636232",
+    "xref_found": true,
+    "acct_id": "20",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000768119840",
+    "card_num": "8112545834239735",
+    "xref_found": true,
+    "acct_id": "23",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000770707563",
+    "card_num": "9056297931664011",
+    "xref_found": true,
+    "acct_id": "25",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000772421231",
+    "card_num": "4385271476627819",
+    "xref_found": true,
+    "acct_id": "34",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000776200014",
+    "card_num": "9680294154603697",
+    "xref_found": true,
+    "acct_id": "1",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000778829157",
+    "card_num": "8262593602473076",
+    "xref_found": true,
+    "acct_id": "49",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000781205695",
+    "card_num": "5787351228879339",
+    "xref_found": true,
+    "acct_id": "47",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000781512834",
+    "card_num": "4859452612877065",
+    "xref_found": true,
+    "acct_id": "7",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000784621975",
+    "card_num": "3999169246375885",
+    "xref_found": true,
+    "acct_id": "3",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000793409700",
+    "card_num": "7026637615032277",
+    "xref_found": true,
+    "acct_id": "31",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000796832699",
+    "card_num": "6349250331648509",
+    "xref_found": true,
+    "acct_id": "15",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000802663079",
+    "card_num": "0683586198171516",
+    "xref_found": true,
+    "acct_id": "27",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000803014982",
+    "card_num": "2871968252812490",
+    "xref_found": true,
+    "acct_id": "6",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000806255008",
+    "card_num": "4534784102713951",
+    "xref_found": true,
+    "acct_id": "36",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000812607213",
+    "card_num": "2760836797107565",
+    "xref_found": true,
+    "acct_id": "24",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000821287727",
+    "card_num": "4859452612877065",
+    "xref_found": true,
+    "acct_id": "7",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000822135100",
+    "card_num": "5671184478505844",
+    "xref_found": true,
+    "acct_id": "18",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000823157599",
+    "card_num": "9349107475869214",
+    "xref_found": true,
+    "acct_id": "17",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000824152956",
+    "card_num": "0923877193247330",
+    "xref_found": true,
+    "acct_id": "2",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000828072981",
+    "card_num": "7026637615032277",
+    "xref_found": true,
+    "acct_id": "31",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000835855923",
+    "card_num": "5407099850479866",
+    "xref_found": true,
+    "acct_id": "21",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000838587312",
+    "card_num": "0500024453765740",
+    "xref_found": true,
+    "acct_id": "50",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000838796166",
+    "card_num": "4385271476627819",
+    "xref_found": true,
+    "acct_id": "34",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000840146978",
+    "card_num": "4011500891777367",
+    "xref_found": true,
+    "acct_id": "13",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000841555701",
+    "card_num": "2988091353094312",
+    "xref_found": true,
+    "acct_id": "4",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000845039454",
+    "card_num": "9056297931664011",
+    "xref_found": true,
+    "acct_id": "25",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000855260493",
+    "card_num": "6727055190616014",
+    "xref_found": true,
+    "acct_id": "16",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000858238426",
+    "card_num": "3260763612337560",
+    "xref_found": true,
+    "acct_id": "10",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000858501945",
+    "card_num": "8262593602473076",
+    "xref_found": true,
+    "acct_id": "49",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000865987685",
+    "card_num": "2988091353094312",
+    "xref_found": true,
+    "acct_id": "4",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000869383367",
+    "card_num": "2940139362300449",
+    "xref_found": true,
+    "acct_id": "22",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000873232405",
+    "card_num": "4534784102713951",
+    "xref_found": true,
+    "acct_id": "36",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000874953803",
+    "card_num": "1014086565224350",
+    "xref_found": true,
+    "acct_id": "44",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000882360848",
+    "card_num": "0982496213629795",
+    "xref_found": true,
+    "acct_id": "12",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000884070277",
+    "card_num": "9805583408996588",
+    "xref_found": true,
+    "acct_id": "40",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000885437581",
+    "card_num": "7026637615032277",
+    "xref_found": true,
+    "acct_id": "31",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000887771179",
+    "card_num": "7026637615032277",
+    "xref_found": true,
+    "acct_id": "31",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000889986293",
+    "card_num": "1561409106491600",
+    "xref_found": true,
+    "acct_id": "35",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000898285002",
+    "card_num": "2871968252812490",
+    "xref_found": true,
+    "acct_id": "6",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000899241176",
+    "card_num": "2988091353094312",
+    "xref_found": true,
+    "acct_id": "4",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000900382063",
+    "card_num": "0927987108636232",
+    "xref_found": true,
+    "acct_id": "20",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000903281896",
+    "card_num": "0683586198171516",
+    "xref_found": true,
+    "acct_id": "27",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000909001545",
+    "card_num": "5656830544981216",
+    "xref_found": true,
+    "acct_id": "46",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000909315074",
+    "card_num": "4011500891777367",
+    "xref_found": true,
+    "acct_id": "13",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000910081354",
+    "card_num": "7026637615032277",
+    "xref_found": true,
+    "acct_id": "31",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000925687557",
+    "card_num": "0683586198171516",
+    "xref_found": true,
+    "acct_id": "27",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000926624843",
+    "card_num": "4011500891777367",
+    "xref_found": true,
+    "acct_id": "13",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000929059536",
+    "card_num": "8517866958206008",
+    "xref_found": true,
+    "acct_id": "14",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000934798061",
+    "card_num": "9501733721429893",
+    "xref_found": true,
+    "acct_id": "9",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000934945079",
+    "card_num": "6503535181795992",
+    "xref_found": true,
+    "acct_id": "48",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000942960329",
+    "card_num": "2940139362300449",
+    "xref_found": true,
+    "acct_id": "22",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000943918566",
+    "card_num": "8112545834239735",
+    "xref_found": true,
+    "acct_id": "23",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000946277676",
+    "card_num": "3766281984155154",
+    "xref_found": true,
+    "acct_id": "41",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000956474921",
+    "card_num": "2745303720002090",
+    "xref_found": true,
+    "acct_id": "39",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000957695517",
+    "card_num": "0927987108636232",
+    "xref_found": true,
+    "acct_id": "20",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000957864065",
+    "card_num": "3766281984155154",
+    "xref_found": true,
+    "acct_id": "41",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000961186055",
+    "card_num": "1142167692878931",
+    "xref_found": true,
+    "acct_id": "37",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000961714986",
+    "card_num": "3999169246375885",
+    "xref_found": true,
+    "acct_id": "3",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000971342087",
+    "card_num": "8112545834239735",
+    "xref_found": true,
+    "acct_id": "23",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000973907278",
+    "card_num": "6349250331648509",
+    "xref_found": true,
+    "acct_id": "15",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000974167587",
+    "card_num": "5975117516616077",
+    "xref_found": true,
+    "acct_id": "42",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000976770816",
+    "card_num": "8262593602473076",
+    "xref_found": true,
+    "acct_id": "49",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000982241353",
+    "card_num": "9805583408996588",
+    "xref_found": true,
+    "acct_id": "40",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000992103545",
+    "card_num": "1142167692878931",
+    "xref_found": true,
+    "acct_id": "37",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  },
+  {
+    "tran_id": "0000000996722787",
+    "card_num": "3260763612337560",
+    "xref_found": true,
+    "acct_id": "10",
+    "acct_found": true,
+    "outcome": "VERIFIED"
+  }
+]

@@ -1,0 +1,47 @@
+[
+  {
+    "DALYTRAN-ID": "0000000000683580",
+    "DALYTRAN-TYPE-CD": "01",
+    "DALYTRAN-CAT-CD": "1",
+    "DALYTRAN-SOURCE": "POS TERM  ",
+    "DALYTRAN-DESC": "Purchase at Abshire-Lowe                                                                            ",
+    "DALYTRAN-AMT": "504.77",
+    "DALYTRAN-MERCHANT-ID": "800000000",
+    "DALYTRAN-MERCHANT-NAME": "Abshire-Lowe                                      ",
+    "DALYTRAN-MERCHANT-CITY": "North Enoshaven                                   ",
+    "DALYTRAN-MERCHANT-ZIP": "72112     ",
+    "DALYTRAN-CARD-NUM": "4859452612877065",
+    "DALYTRAN-ORIG-TS": "2022-06-10 19:27:53.000000",
+    "DALYTRAN-PROC-TS": "                          "
+  },
+  {
+    "DALYTRAN-ID": "0000000001774260",
+    "DALYTRAN-TYPE-CD": "03",
+    "DALYTRAN-CAT-CD": "1",
+    "DALYTRAN-SOURCE": "OPERATOR  ",
+    "DALYTRAN-DESC": "Return item at Nitzsche, Nicolas and Lowe                                                           ",
+    "DALYTRAN-AMT": "-919.00",
+    "DALYTRAN-MERCHANT-ID": "800000000",
+    "DALYTRAN-MERCHANT-NAME": "Nitzsche, Nicolas and Lowe                        ",
+    "DALYTRAN-MERCHANT-CITY": "Fidelshire                                        ",
+    "DALYTRAN-MERCHANT-ZIP": "53378     ",
+    "DALYTRAN-CARD-NUM": "9999999999999999",
+    "DALYTRAN-ORIG-TS": "2022-06-10 19:27:53.000000",
+    "DALYTRAN-PROC-TS": "                          "
+  },
+  {
+    "DALYTRAN-ID": "0000000006292564",
+    "DALYTRAN-TYPE-CD": "01",
+    "DALYTRAN-CAT-CD": "1",
+    "DALYTRAN-SOURCE": "POS TERM  ",
+    "DALYTRAN-DESC": "Purchase at Ernser, Roob and Gleason                                                                ",
+    "DALYTRAN-AMT": "67.88",
+    "DALYTRAN-MERCHANT-ID": "800000000",
+    "DALYTRAN-MERCHANT-NAME": "Ernser, Roob and Gleason                          ",
+    "DALYTRAN-MERCHANT-CITY": "North Makenziemouth                               ",
+    "DALYTRAN-MERCHANT-ZIP": "78487-7965",
+    "DALYTRAN-CARD-NUM": "8888888888888888",
+    "DALYTRAN-ORIG-TS": "2022-06-10 19:27:53.000000",
+    "DALYTRAN-PROC-TS": "                          "
+  }
+]
