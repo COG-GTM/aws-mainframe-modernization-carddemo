@@ -63,7 +63,8 @@ class CardDemoApplicationIT {
     void flywayOwnsTheSpringBatchSchema() {
         assertThat(flyway.info().current().getVersion().getVersion()).isEqualTo("2");
         List<String> tables = jdbc.queryForList(
-                "select table_name from information_schema.tables where table_name like 'batch\\_job%' or table_name like 'batch\\_step%' order by 1",
+                "select table_name from information_schema.tables"
+                        + " where table_name like 'batch\\_job%' or table_name like 'batch\\_step%' order by 1",
                 String.class);
         assertThat(tables).containsExactly("batch_job_execution", "batch_job_execution_context",
                 "batch_job_execution_params", "batch_job_instance", "batch_step_execution",
