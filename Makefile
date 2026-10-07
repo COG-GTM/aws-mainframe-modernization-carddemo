@@ -30,6 +30,8 @@ batch-equivalence:
 	scripts/batch/run_print_jobs.sh table build/batch-equivalence/table
 	scripts/batch/run_posttran.sh file build/batch-equivalence/posttran-file
 	scripts/batch/run_posttran.sh table build/batch-equivalence/posttran-table
+	scripts/batch/run_intcalc.sh file build/batch-equivalence/intcalc-file
+	scripts/batch/run_intcalc.sh table build/batch-equivalence/intcalc-table
 
 verify:
 	cd modernization && mvn -B verify

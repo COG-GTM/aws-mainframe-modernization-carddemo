@@ -1,6 +1,5 @@
-package com.carddemo.batch.posttran;
+package com.carddemo.batch.harness;
 
-import com.carddemo.batch.harness.RecordSink;
 import com.carddemo.common.codec.FixedWidthRecord;
 import com.carddemo.common.file.FileStatus;
 import com.carddemo.common.file.FileStatusException;
@@ -8,13 +7,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 /** An output dataset kept in memory until the step ends, then catalogued as a dated generation (ADR-0012). */
-final class BufferedSink implements RecordSink {
+public final class BufferedSink implements RecordSink {
 
     private final String ddname;
     private final List<FixedWidthRecord> records = new ArrayList<>();
     private boolean open;
 
-    BufferedSink(String ddname) {
+    public BufferedSink(String ddname) {
         this.ddname = ddname;
     }
 
@@ -55,7 +54,7 @@ final class BufferedSink implements RecordSink {
         open = false;
     }
 
-    List<FixedWidthRecord> records() {
+    public List<FixedWidthRecord> records() {
         return List.copyOf(records);
     }
 }

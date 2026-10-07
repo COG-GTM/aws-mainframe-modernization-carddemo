@@ -5,6 +5,8 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.carddemo.account.AccountRecord;
 import com.carddemo.account.AccountStatus;
+import com.carddemo.batch.harness.BufferedSink;
+import com.carddemo.batch.harness.KeyedDataset;
 import com.carddemo.batch.harness.KsdsInput;
 import com.carddemo.batch.harness.ReturnCode;
 import com.carddemo.batch.harness.Sysout;

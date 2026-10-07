@@ -1,6 +1,7 @@
 package com.carddemo.batch.posttran;
 
 import com.carddemo.account.AccountRecord;
+import com.carddemo.batch.harness.KeyedDataset;
 import com.carddemo.batch.harness.KsdsInput;
 import com.carddemo.batch.harness.Sysout;
 import com.carddemo.batch.print.ProgramCounts;

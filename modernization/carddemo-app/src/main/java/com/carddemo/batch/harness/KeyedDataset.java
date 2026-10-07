@@ -1,4 +1,4 @@
-package com.carddemo.batch.posttran;
+package com.carddemo.batch.harness;
 
 import com.carddemo.common.codec.FixedWidthRecord;
 import com.carddemo.common.codec.RecordEncoding;

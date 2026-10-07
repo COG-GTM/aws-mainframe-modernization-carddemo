@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.carddemo.account.AccountRecord;
 import com.carddemo.batch.harness.FixedFileSink;
+import com.carddemo.batch.harness.KeyedDataset;
 import com.carddemo.batch.harness.KsdsInput;
 import com.carddemo.batch.harness.ReturnCode;
 import com.carddemo.batch.harness.Sysout;
