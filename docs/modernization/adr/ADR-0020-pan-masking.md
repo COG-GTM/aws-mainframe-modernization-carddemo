@@ -49,3 +49,6 @@ filter (rules doc COCRDLIC R-2, R-19): every signed-on user can list every card.
 - Clients must use `cardRef` (or keep the number they typed) for follow-up requests.
 - Follow-up when a user → account relation exists: replace the "account named in the request" with an authorisation
   check in `CardController`.
+- UNT51-20 (transactions, bill payment): COTRN00C/01C/02C and COBIL00C check no account ownership, so their
+  endpoints do not scope by account either; the transaction list (COTRN0A) has no card number column, and the
+  detail (COTRN1A) shows the full number as the map does.

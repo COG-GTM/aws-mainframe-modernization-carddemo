@@ -374,4 +374,35 @@ class OnlineApiIT {
         assertThat(doc.at("/components/schemas/CardListRow/properties/cardRef").isMissingNode()).isFalse();
         assertThat(doc.at("/components/schemas/CardUpdateRequest/properties/version").isMissingNode()).isFalse();
     }
+
+    @Test
+    void openApiDocumentsTheTransactionEndpoints() throws Exception {
+        JsonNode doc = json.readTree(http.getForEntity("/v3/api-docs", String.class).getBody());
+        String problem = "/content/application~1problem+json/examples/";
+        JsonNode list = doc.at("/paths/~1api~1v1~1transactions/get");
+        assertThat(list.at("/security").isMissingNode()).isFalse();
+        assertThat(list.at("/responses/400" + problem + "startIdNotNumeric/value/message").asText())
+                .isEqualTo("Tran ID must be Numeric ...");
+        assertThat(list.at("/responses/401" + problem + "signOnRequired/value/code").isMissingNode()).isFalse();
+        JsonNode add = doc.at("/paths/~1api~1v1~1transactions/post/responses");
+        assertThat(add.at("/400" + problem + "amountFormat/value/field").asText()).isEqualTo("amount");
+        assertThat(add.at("/409" + problem + "duplicateTranId/value/code").asText()).isEqualTo("DUPREC");
+        assertThat(add.at("/201").isMissingNode()).isFalse();
+        JsonNode added = add.at("/201/content").elements().next().at("/examples/added/value");
+        assertThat(added.at("/state").asText()).isEqualTo("ADDED");
+        assertThat(added.at("/form/accountId").asText()).isEmpty();
+        assertThat(added.at("/transaction/tranId").asText()).hasSize(16);
+        JsonNode validated = add.at("/200/content").elements().next().at("/examples/validated/value");
+        assertThat(validated.at("/state").asText()).isEqualTo("VALIDATED");
+        assertThat(validated.at("/transaction").isNull()).isTrue();
+        JsonNode view = doc.at("/paths/~1api~1v1~1transactions~1{tranId}/get/responses");
+        assertThat(view.at("/404" + problem + "tranIdNotFound/value/code").asText()).isEqualTo("NOTFND");
+        JsonNode pay = doc.at("/paths/~1api~1v1~1accounts~1{id}~1bill-payment/post/responses");
+        assertThat(pay.at("/400" + problem + "nothingToPay/value/message").asText())
+                .isEqualTo("You have nothing to pay...");
+        assertThat(pay.at("/409" + problem + "concurrentPayment/value/code").asText()).isEqualTo("CHANGED");
+        assertThat(doc.at("/components/schemas/TransactionListRow/properties/amount").isMissingNode()).isFalse();
+        assertThat(doc.at("/components/schemas/TransactionAddRequest/properties/confirm").isMissingNode()).isFalse();
+        assertThat(doc.at("/components/schemas/BillPaymentResponse/properties/state").isMissingNode()).isFalse();
+    }
 }

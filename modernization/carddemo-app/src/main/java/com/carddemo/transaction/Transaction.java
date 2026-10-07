@@ -3,9 +3,13 @@ package com.carddemo.transaction;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
+import jakarta.persistence.PostLoad;
+import jakarta.persistence.PostPersist;
 import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
 import java.math.BigDecimal;
 import org.hibernate.annotations.Immutable;
+import org.springframework.data.domain.Persistable;
 
 /**
  * JPA entity for table {@code transaction}. Posted transaction record (TRANSACT KSDS, key TRAN-ID; AIX on TRAN-
@@ -15,7 +19,7 @@ import org.hibernate.annotations.Immutable;
 @Entity
 @Immutable
 @Table(name = "transaction")
-public class Transaction {
+public class Transaction implements Persistable<String> {
 
     /** TRAN-ID PIC X(16). */
     @Id
@@ -70,7 +74,37 @@ public class Transaction {
     @Column(name = "proc_ts")
     private String procTs;
 
+    /** Set for a record built for {@code WRITE}: saved with an INSERT, so an existing key is a duplicate. */
+    @Transient
+    private boolean newRecord;
+
     protected Transaction() {
+    }
+
+    /**
+     * A record to {@code WRITE} (COTRN02C, COBIL00C): {@code save} persists it with an INSERT instead of merging it
+     * over an existing row, so a key that already exists fails with a duplicate-key error (DUPREC).
+     */
+    public static Transaction newRecord(TransactionRecord record) {
+        Transaction entity = from(record);
+        entity.newRecord = true;
+        return entity;
+    }
+
+    @Override
+    public String getId() {
+        return tranId;
+    }
+
+    @Override
+    public boolean isNew() {
+        return newRecord;
+    }
+
+    @PostPersist
+    @PostLoad
+    void stored() {
+        newRecord = false;
     }
 
     public static Transaction from(TransactionRecord record) {

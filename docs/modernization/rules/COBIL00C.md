@@ -49,3 +49,19 @@ Arithmetic: payment amount = current balance; new balance = 0.00. No partial pay
 |---|---|---|
 | R-21 | Return | Blank target → `COSGN00C`; from-fields `CB00`/`COBIL00C`, context 0; `XCTL ... COMMAREA`. |
 | R-22 | Send | Standard header (`CB00`, `COBIL00C`); `SEND MAP('COBIL0A') MAPSET('COBIL00') ERASE CURSOR`. Multiple sends per task are possible; the last one wins. |
+
+## Java port notes (UNT51-20, `POST /api/v1/accounts/{id}/bill-payment`)
+
+- `confirm` blank = ENTER (200 `SHOW`: balance and account `version`), `N` = clear (200 `CLEARED`), `Y` = pay
+  (200 `PAID`), other 400. `Y` requires the `version` shown (400 without it).
+- One `@Transactional` unit: `AccountRepository.lockVersion` (`SELECT ... FOR UPDATE` = `READ UPDATE`) → version
+  re-check (stale → 409 `CHANGED`; this is what a second concurrent payment gets once the first commits) → re-read →
+  balance check (R-10) → CXACAIX → id under the COTRN02C advisory lock (see COTRN02C notes) → `WRITE` transaction →
+  `ACCT-CURR-BAL - amount` (= 0) → `REWRITE`. Any failure rolls both rows back.
+- Deliberate deviations: R-17 — COBOL has no rollback once the transaction is written; the port never leaves a
+  payment without the balance update (`TransactionApiIT` forces the account update to fail and checks the row is
+  gone). R-18 — COBOL continues after a CXACAIX error with whatever card number is in storage; the port stops with
+  404 `Account ID NOT found...` and writes nothing.
+- Timestamps are the server clock as `YYYY-MM-DD HH:MM:SS.000000` (R-13), so TRANREPT reports the payment on the
+  day it was made.
+- Role: COBIL00C pays any account for any signed-on user; the port keeps that (no ownership check, ADR-0020 §4).

@@ -63,3 +63,15 @@ The paging algorithm is the same as COUSR00C (R-18..R-26 there); only the differ
 |---|---|---|
 | R-22 | Return | Blank target → `COSGN00C`; from-fields `CT00`/`COTRN00C`, context 0; `XCTL ... COMMAREA`. |
 | R-23 | Send | Standard header (`CT00`, `COTRN00C`); `SEND MAP('COTRN0A') MAPSET('COTRN00') CURSOR` with `ERASE` unless `SEND-ERASE-NO`. |
+
+## Java port notes (UNT51-20, `GET /api/v1/transactions`, `POST /api/v1/transactions/selection`)
+
+- ENTER = `startTranId` (R-9..R-12), PF8 = `after=<last id shown>&page=<n>`, PF7 = `before=<first id shown>&page=<n>`
+  (keyset paging on `transaction.tran_id`, ADR-0011; `COLLATE "C"` keeps the VSAM byte order). `after` and `before`
+  together, or `limit` other than 10, are 400 INVREQ; a non-numeric cursor is 400 like a non-numeric start id.
+- Rows carry id, `MM/DD/YY` date (from `TRAN-ORIG-TS`), description truncated to 26 and the amount edited
+  `+99999999.99`. COTRN0A shows no card number, so list rows have none (ADR-0020 has nothing to mask here).
+- R-6..R-8: the selection endpoint takes the ten `SEL000n` fields; the first non-blank decides; `S`/`s` returns the
+  `NavigationContext` for COTRN01C plus `next` (the detail URL), anything else is 400 on `rows[i].selection`.
+- R-18: an empty TRANSACT is a 200 with the top-of-page message and no rows; other browse errors abend (500 `ABEND`).
+- Role: COTRN00C lists every transaction for any signed-on user; the port keeps that (no ownership filter, ADR-0020 §4).
