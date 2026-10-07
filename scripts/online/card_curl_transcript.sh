@@ -14,7 +14,8 @@ step() {
   local shown=()
   for a in "$@"; do
     case $a in
-      "Authorization: Bearer "*) shown+=("Authorization: Bearer \$TOKEN") ;;
+      "Authorization: Bearer "*) shown+=("'Authorization: Bearer \$TOKEN'") ;;
+      *[[:space:]\"{}?]*) shown+=("'$a'") ;;
       *) shown+=("$a") ;;
     esac
   done
