@@ -45,6 +45,14 @@ public interface TransactionRepository extends JpaRepository<Transaction, String
             + " order by card_num collate \"C\", tran_id collate \"C\"", nativeQuery = true)
     List<Transaction> findByProcDateWindow(@Param("start") String start, @Param("end") String end);
 
+    /**
+     * CREASTMT STEP010 ({@code SORT FIELDS=(263,16,CH,A,1,16,CH,A)}): every transaction by card number, then
+     * transaction id, in byte order.
+     */
+    @Query(value = "select * from transaction order by card_num collate \"C\", tran_id collate \"C\"",
+            nativeQuery = true)
+    List<Transaction> findAllForStatements();
+
     default KeysetPage<Transaction> browseFrom(String startTranId) {
         return KeysetPage.forward(l -> findByTranIdGreaterThanEqualOrderByTranIdAsc(startTranId, l),
                 COTRN00C_SCREEN_ROWS);

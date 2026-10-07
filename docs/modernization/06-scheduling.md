@@ -13,14 +13,15 @@ Legacy schedule: `app/scheduler/CardDemo.ca7` (see `02-dependency-map.md` §4d, 
 | TRANBKP | `tranbkp` | `STEP05R` `reproc`, `STEP05` `idcams-delete`, `STEP10` `idcams-define` | TRANSACT → dated `TRANSACT.BKUP`, then the table is emptied (DELETE/DEFINE CLUSTER = reset of the `transaction` table) |
 | COMBTRAN | `combtran` | `STEP05R` `combtran-sort`, `STEP10` `idcams-repro` | `TRANSACT.BKUP(0)` + `SYSTRAN(0)` sorted on TRAN-ID → dated `TRANSACT.COMBINED`, loaded into `transaction` (duplicate key → RC 12, nothing loaded) |
 | TRANREPT | `tranrept` | `STEP05` `reproc`, `STEP10` `tranrept-sort`, `STEP15` `cbtrn03c` (JCL `STEP05R` ×2, `STEP10R`) | dated backup, DATEPARM window extract of that backup → `TRANSACT.DALY`, report → `TRANREPT`; rules `rules/CBTRN03C.md` |
+| CREASTMT | `creastmt` | `STEP010` `creastmt-sort`, `STEP020` `trxfl-repro`, `STEP040` `cbstm03a` | `DELDEF01` (DELETE/DEFINE TRXFL) and `STEP030` (IEFBR14 delete of the statements) are not needed: TRXFL.SEQ, TRXFL, STATEMNT.PS and STATEMNT.HTML are new dated generations. TRANSACT sorted by card + TRAN-ID with OUTREC → `TRXFL.SEQ`, loaded (key check) → `TRXFL`, statements → `STATEMNT.PS` (80) / `STATEMNT.HTML` (100); rules `rules/CBSTM03A.md`, `rules/CBSTM03B.md` |
 | PRTCATBL | `prtcatbl` | `STEP05R` `reproc`, `STEP10R` `prtcatbl-sort` | `DELDEF` (IEFBR14 delete of `TCATBALF.REPT`) is not needed: every output is a new dated generation. TCATBALF → dated `TCATBALF.BKUP`; DFSORT `SORT` + `OUTREC` → dated `TCATBALF.REPT` (41-byte records as in the baseline, although the JCL says LRECL 40) |
 
-The baseline order is `POSTTRAN → INTCALC → TRANBKP → COMBTRAN → TRANREPT → PRTCATBL`
+The baseline order is `POSTTRAN → INTCALC → TRANBKP → COMBTRAN → TRANREPT → CREASTMT → PRTCATBL`
 (`docs/validation/baseline/00-ORDER.md`); the CA-7 schedule and the s4.6 flow job decide the production order.
 
 
 Generations: a step that reads what an earlier step of the same stream wrote (COMBTRAN `STEP10`, TRANREPT `STEP10`
-and `STEP15`, PRTCATBL `STEP10R`) is bound to that step's file (`SequentialDatasets.bind`), not to a `(0)` lookup,
+and `STEP15`, CREASTMT `STEP020` and `STEP040`, PRTCATBL `STEP10R`) is bound to that step's file (`SequentialDatasets.bind`), not to a `(0)` lookup,
 which ranks generations by business date and could return another run's output after a backdated run. Inputs
 produced by a different stream (COMBTRAN's `TRANSACT.BKUP(0)` from TRANBKP and `SYSTRAN(0)` from INTCALC) stay
 `(0)` lookups, as in the JCL.
