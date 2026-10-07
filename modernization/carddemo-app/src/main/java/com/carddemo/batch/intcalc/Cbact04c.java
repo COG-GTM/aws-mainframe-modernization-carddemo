@@ -88,13 +88,6 @@ public final class Cbact04c {
 
     public Result run() {
         sysout.display("START OF EXECUTION OF PROGRAM " + PROGRAM);
-        io(tcatbalf::open, "ERROR OPENING TRANSACTION CATEGORY BALANCE");
-        open(xreffile::open, "ERROR OPENING CROSS REF FILE");
-        // 0200-DISCGRP-OPEN displays the DALYREJS message of the program it was copied from.
-        io(discgrp::open, "ERROR OPENING DALY REJECTS FILE");
-        io(acctfile::open, "ERROR OPENING ACCOUNT MASTER FILE");
-        io(transact::open, "ERROR OPENING TRANSACTION FILE");
-
         long read = 0;
         long written = 0;
         long updated = 0;
@@ -104,6 +97,12 @@ public final class Cbact04c {
         CardXrefRecord xref = null;
         BigDecimal totalInterest = BigDecimal.ZERO;
         try {
+            io(tcatbalf::open, "ERROR OPENING TRANSACTION CATEGORY BALANCE");
+            open(xreffile::open, "ERROR OPENING CROSS REF FILE");
+            // 0200-DISCGRP-OPEN displays the DALYREJS message of the program it was copied from.
+            io(discgrp::open, "ERROR OPENING DALY REJECTS FILE");
+            io(acctfile::open, "ERROR OPENING ACCOUNT MASTER FILE");
+            io(transact::open, "ERROR OPENING TRANSACTION FILE");
             while (true) {
                 Optional<FixedWidthRecord> next;
                 try {
@@ -255,7 +254,8 @@ public final class Cbact04c {
      * abend; SYSTRAN is {@code DISP=(NEW,CATLG,DELETE)} and is only closed (the caller does not catalogue it).
      */
     private void flushOnAbend(RuntimeException abend) {
-        for (Runnable close : new Runnable[] {acctfile::close, transact::close}) {
+        for (Runnable close : new Runnable[] {tcatbalf::close, xreffile::close, discgrp::close, acctfile::close,
+                transact::close}) {
             try {
                 close.run();
             } catch (FileStatusException e) {

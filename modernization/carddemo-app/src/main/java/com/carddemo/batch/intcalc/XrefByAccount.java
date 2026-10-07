@@ -15,7 +15,8 @@ import java.util.Optional;
 
 /**
  * CARDXREF opened {@code INPUT} and read by its alternate key XREF-ACCT-ID (CXACAIX, {@code XREFFIL1} in the JCL) from
- * a KSDS unload file: the first record of each account in primary-key (file) order, the one the AIX returns first and
+ * a KSDS unload file: per account the record with the lowest card number (primary-key order, whatever the order of
+ * the file), the one the AIX returns first and
  * the one {@code CardXrefRepository.findFirstByAcctIdOrderByCardNumAsc} returns in table mode.
  */
 public final class XrefByAccount implements KeyedDataset<Long, CardXrefRecord> {
@@ -49,7 +50,7 @@ public final class XrefByAccount implements KeyedDataset<Long, CardXrefRecord> {
         for (FixedWidthRecord r : all) {
             if (!CardXrefRecord.MAPPER.isLowValues(r)) {
                 CardXrefRecord xref = CardXrefRecord.MAPPER.fromRecord(r);
-                byAccount.putIfAbsent(xref.acctId(), xref);
+                byAccount.merge(xref.acctId(), xref, (a, b) -> a.cardNum().compareTo(b.cardNum()) <= 0 ? a : b);
             }
         }
         open = true;

@@ -31,6 +31,8 @@ import com.carddemo.transaction.TranCatBalance;
 import com.carddemo.transaction.TranCatBalanceId;
 import com.carddemo.transaction.TranCatBalanceRecord;
 import com.carddemo.transaction.TranCatBalanceRepository;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Clock;
 import java.time.LocalDate;
@@ -55,7 +57,8 @@ import org.springframework.transaction.PlatformTransactionManager;
  * pinned to {@code 2022071800} by the {@code golden} profile, else the run date as {@code yyyyMMdd00}). Every KSDS DD
  * is a table unless {@code --<DD>=<path>} names an unload file (ACCTFILE is updated in place, FILLER kept). TRANSACT
  * defaults to the dated generation {@code AWS.M2.CARDDEMO.SYSTRAN(+1)} (GDG base {@code SYSTRAN}, ADR-0012),
- * catalogued only when the step ends without an abend ({@code DISP=(NEW,CATLG,DELETE)}). In table mode the step is
+ * catalogued only when the step ends without an abend ({@code DISP=(NEW,CATLG,DELETE)}); an explicit
+ * {@code --TRANSACT=<path>} file is deleted on an abend. In table mode the step is
  * one database transaction: an abend rolls back every account rewrite, so nothing is applied twice by a new run.
  * Restarts are refused as for CBTRN02C (a file-mode ACCTFILE keeps the rewrites made before an abend).
  */
@@ -115,6 +118,11 @@ public class IntcalcJobConfiguration {
                                 xref(parameters, encoding, xrefs), discgrp(parameters, encoding, groups),
                                 account(parameters, encoding, accounts), systran, parm, encoding, sysout,
                                 clock).run();
+                    } catch (RuntimeException abend) {
+                        if (!generation) {
+                            deleteOnAbend(DdParameters.path(parameters, Cbact04c.TRANSACT), abend);
+                        }
+                        throw abend;
                     }
                     String systranPath;
                     if (generation) {
@@ -219,5 +227,14 @@ public class IntcalcJobConfiguration {
                     return true;
                 }).orElse(false), () -> {
                 }, AccountRecord::acctId);
+    }
+
+    /** {@code DISP=(NEW,CATLG,DELETE)}: an explicit TRANSACT file is deleted when the step abends. */
+    private static void deleteOnAbend(Path path, RuntimeException abend) {
+        try {
+            Files.deleteIfExists(path);
+        } catch (IOException e) {
+            abend.addSuppressed(e);
+        }
     }
 }

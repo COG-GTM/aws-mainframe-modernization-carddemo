@@ -58,7 +58,8 @@ ones cut to 10, as `PARM-DATE X(10)`.
 - Table mode: tables hold no FILLER (ADR-0011), so the DISPLAYed TCATBALF images end in spaces instead of the sample's
   22 zeros; `compare_intcalc.py` reports these as FILLER-only differences.
 - Table mode is one database transaction for the step: an abend rolls back every account rewrite and no SYSTRAN
-  generation is catalogued (`DISP=(NEW,CATLG,DELETE)`). File mode keeps the rewrites issued before the abend (VSAM).
+  generation is catalogued (`DISP=(NEW,CATLG,DELETE)`; an explicit `--TRANSACT=<path>` file is deleted). File mode
+  keeps the ACCTFILE rewrites issued before the abend (VSAM).
   Restarts are refused (`preventRestart`); rerun as a new instance after restoring the inputs.
 - `batch_run`: read count = TCATBALF records, write count = SYSTRAN records (baseline: 100 / 50, RC 0).
 

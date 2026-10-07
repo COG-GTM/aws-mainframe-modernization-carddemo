@@ -106,8 +106,11 @@ class IntcalcJobIT {
     }
 
     private JobChain.Result intcalc(Path sysout) {
-        JobParameters parameters = parameters().addString("encoding", "ASCII")
-                .addString("STEP15.SYSOUT", sysout.toString()).toJobParameters();
+        return intcalc(parameters().addString("STEP15.SYSOUT", sysout.toString()));
+    }
+
+    private JobChain.Result intcalc(JobParametersBuilder builder) {
+        JobParameters parameters = builder.addString("encoding", "ASCII").toJobParameters();
         JobStream stream = streams.stream().filter(s -> s.name().equals(IntcalcJobConfiguration.INTCALC))
                 .findFirst().orElseThrow();
         return stream.chain(launcher, parameters).run();
@@ -192,5 +195,12 @@ class IntcalcJobIT {
         assertThat(accounts.findAllByOrderByAcctIdAsc().stream().map(Account::toRecord).toList())
                 .containsExactlyElementsOf(before);
         assertThat(before.get(0).currBal()).isNotEqualByComparingTo(BigDecimal.ZERO);
+
+        // DISP=(NEW,CATLG,DELETE) for an explicit TRANSACT file too: the abended step leaves no partial file.
+        Path transact = dir.resolve("SYSTRAN");
+        JobChain.Result explicit = intcalc(parameters().addString("STEP15.SYSOUT", dir.resolve("abend2.txt").toString())
+                .addString("STEP15.TRANSACT", transact.toString()));
+        assertThat(explicit.maxReturnCode()).isEqualTo(ReturnCode.TERMINAL);
+        assertThat(transact).doesNotExist();
     }
 }
