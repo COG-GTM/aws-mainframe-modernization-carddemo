@@ -132,6 +132,10 @@ Semantics (`NightlyCycleJobConfiguration`):
   `COMPLETED`/`ABEND`/`BYPASSED`, RC, and the read/write/skip/filter counts summed over the member's child jobs),
   and the child jobs' own job/step rows as if run from the CLI, tagged `cycle.member=<MEMBER>` (identifying) and
   `cycle.execution-id=<cycle job execution id>` in `parameters`.
+- **One cycle at a time.** `CycleLock` takes a PostgreSQL advisory lock on a dedicated connection when the job
+  starts and releases it when it ends; a second cycle (manual CLI during the cron run, or another instance's cron)
+  fails before any member runs (RC 12, `batch_run` row, no member rows).
+- **After-images.** A requested `--AFTER-IMAGES` snapshot that cannot be written raises the member RC to at least 8.
 - **No restart.** `preventRestart()`: posting jobs refuse restarts (PR #63); a failed night is repaired by re-running
   the failing stream (and its successors) individually with `--job=<stream>`.
 - **Parameters.** All cycle parameters reach every member; `--<MEMBER>.<name>=` only reaches that member as

@@ -22,6 +22,7 @@ runnable by hand, instead of an external scheduler.
 - **RC** of a member = MAXCC of its stream; cycle RC = highest member RC = CLI exit code. `batch_run` holds the cycle
   row, a row per member (RC + summed counts) and the child rows tagged `cycle.member` / `cycle.execution-id`.
 - **No restart** of the cycle (`preventRestart`); repair by re-running individual streams.
+- **Mutual exclusion**: a PostgreSQL advisory lock held for the whole cycle (cron and CLI alike).
 - **Cron**: `NightlyCycleTrigger` (`@Scheduled`, `carddemo.batch.scheduler.nightly-cycle.cron`, default
   `0 0 22 * * *`) registered only in the web application when `carddemo.batch.scheduler.enabled` is true; false in
   the `test` and `golden` profiles. A fire is skipped while a cycle is running; `run-date` comes from the clock.
@@ -34,5 +35,7 @@ runnable by hand, instead of an external scheduler.
 ## Consequences
 Daily, weekly and monthly cadences collapse into one nightly cycle, as in the baseline run; a calendar split is a
 cron or flow change. No external scheduler is needed to run the full cycle in phase 6, and one command
-reproduces it. Multi-instance deployments must enable the cron on one instance only (the running-execution check
-covers a single job repository but is not a distributed lock).
+reproduces it. Only one cycle runs at a time across all JVMs sharing the database: the job holds a PostgreSQL
+advisory lock (`CycleLock`) from start to end, so a manual `--job=nightly-cycle` started during the cron cycle (or
+a second instance's cron) fails before any member runs (RC ≥ 8, `batch_run` row, no member steps). A requested
+after-image that cannot be written raises the member RC to at least 8.

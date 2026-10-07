@@ -14,16 +14,23 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
+import javax.sql.DataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.JobExecution;
+import org.springframework.batch.core.JobExecutionListener;
 import org.springframework.batch.core.JobParameters;
 import org.springframework.batch.core.JobParametersBuilder;
 import org.springframework.batch.core.Step;
@@ -52,7 +59,10 @@ import org.springframework.context.annotation.Configuration;
  * reaches that member, as {@code <name>} (e.g. {@code --POSTTRAN.STEP15.SYSOUT=...}, {@code --READACCT.SYSOUT=...}).
  * {@code --AFTER-IMAGES=<dir>} unloads the KSDS datasets a member updated to {@code <dir>/<MEMBER>/<DATASET>.ksds}
  * after it ran (the table, or the file named by {@code --AFTER-IMAGES.<DATASET>=<path>}), like the baseline runner's
- * after-image unloads.
+ * after-image unloads; a requested after-image that cannot be written raises the member RC to at least 8.
+ *
+ * <p>Only one cycle runs at a time across every JVM sharing the database (cron, CLI): {@link CycleLock} holds a
+ * PostgreSQL advisory lock from job start to job end; a cycle that cannot take it fails before any member runs.
  */
 @Configuration(proxyBeanMethods = false)
 public class NightlyCycleJobConfiguration {
@@ -72,7 +82,7 @@ public class NightlyCycleJobConfiguration {
 
     @Bean
     Job nightlyCycleJob(JobRepository jobRepository, ObjectProvider<BatchJobLauncher> launcher,
-                        ObjectProvider<JobStream> streams) {
+                        ObjectProvider<JobStream> streams, DataSource dataSource) {
         SimpleJobBuilder job = null;
         for (Member member : NightlyCycle.MEMBERS) {
             MemberStep step = new MemberStep(member, launcher, streams);
@@ -80,7 +90,7 @@ public class NightlyCycleJobConfiguration {
             job = job == null ? new JobBuilder(NightlyCycle.NAME, jobRepository).preventRestart().start(step)
                     : job.next(step);
         }
-        return job.build();
+        return job.listener(new CycleLock(dataSource)).build();
     }
 
     /** The parameters a member's job or stream receives (see the class comment). */
@@ -167,6 +177,9 @@ public class NightlyCycleJobConfiguration {
                 abended = outcome.abended();
             }
             count(stepExecution, outcomes);
+            if (!afterImages(cycle, jobs) && rc.code() < ReturnCode.ERROR.code()) {
+                rc = ReturnCode.ERROR;
+            }
             ReturnCode.set(stepExecution, rc);
             context.putInt(RC_KEY + member.name(), rc.code());
             context.put(ABEND_KEY + member.name(), abended);
@@ -174,7 +187,6 @@ public class NightlyCycleJobConfiguration {
                     rc.label()));
             log.info("{} {} {}: {}{}", NightlyCycle.NAME, member.name(), member.implementation(), rc.label(),
                     abended ? " ABEND" : "");
-            afterImages(cycle, jobs);
         }
 
         private Optional<String> bypassReason(ExecutionContext context) {
@@ -218,12 +230,14 @@ public class NightlyCycleJobConfiguration {
             target.setFilterCount(filter);
         }
 
-        private void afterImages(JobExecution cycle, BatchJobLauncher jobs) {
+        /** Writes the requested after-images; false when one could not be written. */
+        private boolean afterImages(JobExecution cycle, BatchJobLauncher jobs) {
             JobParameters all = cycle.getJobParameters();
             String dir = all.getString(AFTER_IMAGES);
             if (dir == null || member.afterImages().isEmpty()) {
-                return;
+                return true;
             }
+            boolean written = true;
             Path target = Path.of(dir).resolve(member.name());
             for (String dataset : member.afterImages()) {
                 Path out = target.resolve(dataset + ".ksds");
@@ -237,6 +251,7 @@ public class NightlyCycleJobConfiguration {
                 } catch (IOException e) {
                     log.error("{} {}: after-image of {} not written: {}", NightlyCycle.NAME, member.name(), dataset,
                             e.toString());
+                    written = false;
                     continue;
                 }
                 JobParametersBuilder unload = new JobParametersBuilder()
@@ -249,14 +264,76 @@ public class NightlyCycleJobConfiguration {
                 if (outcome.returnCode() != ReturnCode.OK) {
                     log.error("{} {}: after-image unload of {} ended {}", NightlyCycle.NAME, member.name(), dataset,
                             outcome.returnCode().label());
+                    written = false;
                 }
             }
+            return written;
         }
 
         private static void copy(JobParameters from, JobParametersBuilder to, String... names) {
             for (String name : names) {
                 if (from.getParameters().containsKey(name)) {
                     to.addJobParameter(name, from.getParameters().get(name));
+                }
+            }
+        }
+    }
+
+    /**
+     * Cycle-wide mutual exclusion: a session-level PostgreSQL advisory lock taken on a dedicated connection in
+     * {@code beforeJob} and released in {@code afterJob}. If another cycle holds it the job fails before any member
+     * runs. Other databases (none in use) are not locked.
+     */
+    static final class CycleLock implements JobExecutionListener {
+
+        /** Advisory lock key ("NCYC"). */
+        static final long KEY = 0x4E435943L;
+
+        private final DataSource dataSource;
+        private final Map<Long, Connection> held = new ConcurrentHashMap<>();
+
+        CycleLock(DataSource dataSource) {
+            this.dataSource = dataSource;
+        }
+
+        @Override
+        public void beforeJob(JobExecution execution) {
+            try {
+                Connection connection = dataSource.getConnection();
+                if (!"PostgreSQL".equals(connection.getMetaData().getDatabaseProductName())) {
+                    connection.close();
+                    return;
+                }
+                if (!advisory(connection, "select pg_try_advisory_lock(?)")) {
+                    connection.close();
+                    throw new IllegalStateException(NightlyCycle.NAME + " not started: another "
+                            + NightlyCycle.NAME + " execution holds the cycle lock");
+                }
+                held.put(execution.getId(), connection);
+            } catch (SQLException e) {
+                throw new IllegalStateException(NightlyCycle.NAME + " cycle lock not acquired", e);
+            }
+        }
+
+        @Override
+        public void afterJob(JobExecution execution) {
+            Connection connection = held.remove(execution.getId());
+            if (connection == null) {
+                return;
+            }
+            try (connection) {
+                advisory(connection, "select pg_advisory_unlock(?)");
+            } catch (SQLException e) {
+                log.error("{}: cycle lock release failed (released when the connection closes): {}",
+                        NightlyCycle.NAME, e.toString());
+            }
+        }
+
+        private static boolean advisory(Connection connection, String sql) throws SQLException {
+            try (PreparedStatement statement = connection.prepareStatement(sql)) {
+                statement.setLong(1, KEY);
+                try (ResultSet result = statement.executeQuery()) {
+                    return result.next() && result.getBoolean(1);
                 }
             }
         }

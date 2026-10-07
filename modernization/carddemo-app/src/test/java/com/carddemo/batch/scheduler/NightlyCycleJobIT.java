@@ -8,7 +8,11 @@ import com.carddemo.batch.harness.ReturnCode;
 import com.carddemo.batch.load.InitialLoadJobConfiguration;
 import com.carddemo.batch.load.LoadMode;
 import com.carddemo.common.codec.TestData;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.sql.Connection;
+import java.sql.Statement;
+import javax.sql.DataSource;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
@@ -46,6 +50,8 @@ class NightlyCycleJobIT {
     BatchJobLauncher launcher;
     @Autowired
     JdbcTemplate jdbc;
+    @Autowired
+    DataSource dataSource;
 
     @TempDir
     Path dir;
@@ -111,5 +117,30 @@ class NightlyCycleJobIT {
                 "BYPASSED", "BYPASSED", "BYPASSED");
         assertThat(((Number) members.get(4).get("return_code")).intValue()).isEqualTo(16);
         assertThat(jdbc.queryForObject("select count(*) from transaction", Long.class)).isZero();
+    }
+
+    @Test
+    void aSecondCycleIsRefusedWhileTheCycleLockIsHeld() throws Exception {
+        try (Connection other = dataSource.getConnection(); Statement statement = other.createStatement()) {
+            statement.execute("select pg_advisory_lock(" + NightlyCycleJobConfiguration.CycleLock.KEY + ")");
+            JobOutcome refused = launcher.run(NightlyCycle.NAME, cycle().toJobParameters());
+            assertThat(refused.returnCode().code()).isGreaterThanOrEqualTo(ReturnCode.ERROR.code());
+            assertThat(memberRows(refused.execution().getId())).isEmpty();
+            statement.execute("select pg_advisory_unlock(" + NightlyCycleJobConfiguration.CycleLock.KEY + ")");
+        }
+        JobOutcome next = launcher.run(NightlyCycle.NAME, cycle().toJobParameters());
+        assertThat(next.returnCode()).isEqualTo(ReturnCode.WARNING);
+    }
+
+    @Test
+    void anAfterImageThatCannotBeWrittenRaisesTheMemberRc() throws Exception {
+        Path notADirectory = Files.writeString(dir.resolve("after-images"), "x");
+        JobOutcome outcome = launcher.run(NightlyCycle.NAME, cycle()
+                .addString(NightlyCycleJobConfiguration.AFTER_IMAGES, notADirectory.toString()).toJobParameters());
+
+        assertThat(outcome.returnCode()).isEqualTo(ReturnCode.ERROR);
+        List<Map<String, Object>> members = memberRows(outcome.execution().getId());
+        assertThat(((Number) members.get(4).get("return_code")).intValue()).isEqualTo(8);
+        assertThat(members.get(5).get("exit_code")).isEqualTo("BYPASSED");
     }
 }
