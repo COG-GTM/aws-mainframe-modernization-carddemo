@@ -22,7 +22,7 @@ Source: `app/cbl/COADM01C.cbl`; option table `COADM02Y`. No file access. Reached
 | R-8 | Not numeric, `> CDEMO-ADMIN-OPT-COUNT` (6) or `= 0` | `WS-ERR-FLG='Y'`; `Please enter a valid option number...`; re-send. |
 | R-9 | Valid option whose program does **not** start with `DUMMY` | `CDEMO-FROM-TRANID='CA00'`, `CDEMO-FROM-PROGRAM='COADM01C'`, `CDEMO-PGM-CONTEXT=0`; `XCTL PROGRAM(CDEMO-ADMIN-OPT-PGMNAME(WS-OPTION)) COMMAREA(...)`. |
 | R-10 | Valid option whose program starts with `DUMMY`, or the XCTL in R-9 returns (it does not under CICS unless PGMIDERR) | `ERRMSGC=DFHGREEN`; message `This option is not installed ...`; re-send. Note there is **no** user-type check in the admin menu (contrast COMEN01C R-9). |
-| R-11 | `PGMIDERR-ERR-PARA` (dead code: never performed, no HANDLE CONDITION) | Would set the same `This option is not installed ...` message and RETURN with TRANSID `CA00`. Document only; do not port as behaviour. |
+| R-11 | `PGMIDERR-ERR-PARA`, entered through `HANDLE CONDITION PGMIDERR(PGMIDERR-ERR-PARA)` at the top of `MAIN-PARA` (corrected in UNT51-17: the handler is active, the paragraph is not dead code) | An XCTL in R-9 to a program that is not installed (`COTRTLIC`, `COTRTUPC` in the core estate) sets `ERRMSGC=DFHGREEN`, message `This option is not installed ...`, re-sends the menu and RETURNs with TRANSID `CA00`; no abend. |
 
 Option table (`COADM02Y`, `CDEMO-ADMIN-OPT-COUNT = 6`):
 
@@ -40,4 +40,4 @@ Option table (`COADM02Y`, `CDEMO-ADMIN-OPT-COUNT = 6`):
 | # | Given | Then |
 |---|---|---|
 | R-12 | Every send | Standard header (`TRNNAME='CA00'`, `PGMNAME='COADM01C'`), `ERRMSG ← WS-MESSAGE`, `SEND MAP('COADM1A') MAPSET('COADM01') ERASE`. |
-| R-13 | Option lines | `OPTN00iO = '<NN>. <name>'` for i = 1..6; fields 7–10 blank. |
+| R-13 | Option lines | `OPTN00iO = '<NN>. <name>'` for i = 1..6; fields 7–12 blank (the map has 12 option fields). |

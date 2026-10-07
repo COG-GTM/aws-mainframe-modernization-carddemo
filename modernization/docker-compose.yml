@@ -37,6 +37,9 @@ services:
       CARDDEMO_DB_URL: jdbc:postgresql://postgres:5432/${CARDDEMO_DB_NAME:-carddemo}
       CARDDEMO_DB_USER: ${CARDDEMO_DB_USER:-carddemo}
       CARDDEMO_DB_PASSWORD: ${CARDDEMO_DB_PASSWORD:?set CARDDEMO_DB_PASSWORD (copy modernization/.env.example to .env)}
+      # JWT signing key (ADR-0017), passed through only when set in the shell/.env; the local profile has a
+      # development-only fallback, every other profile refuses to start without it
+      CARDDEMO_JWT_SECRET:
       # local profile: the initial-load job loads app/data/EBCDIC (baked into the image) before the app turns healthy
       CARDDEMO_INITIAL_LOAD: ${CARDDEMO_INITIAL_LOAD:-true}
       CARDDEMO_INITIAL_LOAD_MODE: ${CARDDEMO_INITIAL_LOAD_MODE:-replace}

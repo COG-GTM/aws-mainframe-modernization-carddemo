@@ -14,6 +14,9 @@ logging:
     root: WARN
     com.carddemo: INFO
 carddemo:
+  security:
+    jwt:
+      secret: ${CARDDEMO_JWT_SECRET:test-only-jwt-secret-for-automated-tests-0123456789}
   batch:
     scheduler:
       enabled: false   # no cron fire in automated tests / CI

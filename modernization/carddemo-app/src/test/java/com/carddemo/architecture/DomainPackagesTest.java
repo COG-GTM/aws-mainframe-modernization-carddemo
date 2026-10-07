@@ -10,7 +10,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 class DomainPackagesTest {
 
     static Stream<String> packages() {
-        return Stream.concat(Stream.of(ModularMonolithRules.COMMON),
+        return Stream.concat(Stream.of(ModularMonolithRules.COMMON, ModularMonolithRules.WEB),
                 ModularMonolithRules.ALLOWED_DOMAIN_DEPENDENCIES.keySet().stream()).sorted();
     }
 

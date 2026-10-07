@@ -1,6 +1,6 @@
 # ADR-0007: COMMAREA → authenticated session context
 
-- Status: Accepted (UNT51-5, 2026-10-07)
+- Status: Accepted (UNT51-5, 2026-10-07); "server-side session" superseded by [ADR-0017](ADR-0017-stateless-jwt-session.md) (stateless JWT)
 - Applies to: `modernization/carddemo-app`
 
 ## Context
@@ -9,7 +9,7 @@ from/to program and transaction ids, the program-enter flag, and the selected cu
 extensions follow it (e.g. paging keys in `COCRDLIC`, the old/new record images in `COACTUPC`).
 
 ## Decision
-- Sign-on (`COSGN00C`) authenticates against `USRSEC` and issues a server-side session (Spring Security). The
+- Sign-on (`COSGN00C`) authenticates against `USRSEC` and issues a stateless bearer JWT (Spring Security; ADR-0017 — originally "a server-side session"). The
   principal holds `CDEMO-USER-ID` and `CDEMO-USER-TYPE` (enum, ADR-0006); admin-only programs (`COADM01C`,
   `COUSR0*C`) require role `ADMIN`.
 - Selected entity ids (`CDEMO-ACCT-ID`, `CDEMO-CARD-NUM`, `CDEMO-CUST-ID`) travel in the URL/path or request body,
