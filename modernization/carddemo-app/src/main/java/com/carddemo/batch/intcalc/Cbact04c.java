@@ -128,7 +128,7 @@ public final class Cbact04c {
                 }
                 BigDecimal rate = interestRate(account.groupId(), balance.tranTypeCd(), balance.tranCatCd());
                 if (rate.signum() != 0) {
-                    BigDecimal interest = monthlyInterest(balance.balance(), rate);
+                    BigDecimal interest = monthlyInterest(balance.balance(), rate).add(new BigDecimal("0.01")); // SCRATCH: golden-set failure demo, never merge
                     totalInterest = CobolNumeric.truncate(totalInterest.add(interest), 11, 2, true);
                     suffix = (suffix + 1) % SUFFIX_MODULUS;
                     writeTransaction(transaction(tranId(parmDate, suffix), account.acctId(), interest,
