@@ -137,7 +137,7 @@ monolith they become three `Job` beans in the `batch` module reading from JPA/JD
 | Numeric/encoding codec | `modernization/posttran-cycle/carddemo-recordio/src/main/java/com/carddemo/recordio/codec/{CobolNumeric,FixedWidthRecord,RecordEncoding,RecordFormatException}.java` | add COMP-3 (take `PackedDecimal` from #49, see 3.11) |
 | Declarative layouts | `…/recordio/layout/{RecordLayout,Account,AccountLayout,CardXref,CardXrefLayout,DisclosureGroup,DisclosureGroupLayout,Transaction,TransactionLayout,TransactionCategory,TransactionCategoryLayout,TransactionCategoryBalance,TransactionCategoryBalanceLayout,TransactionType,TransactionTypeLayout}.java` | keep as the fixed-width *file* view used by the golden harness and ETL; the persistent model is PostgreSQL |
 | File/keyed stores | `…/recordio/store/{FixedWidthFile,KeyedRecordStore,DuplicateKeyException,RecordNotFoundException}.java` | use only in tests/golden replay; production reads PostgreSQL |
-| Round-trip test | `…/carddemo-recordio/src/test/java/com/carddemo/recordio/ShippedDatasetRoundTripTest.java` | keep verbatim as a codec regression test |
+| Round-trip test | `…/carddemo-recordio/src/test/java/com/carddemo/recordio/layout/ShippedDatasetRoundTripTest.java` | keep verbatim as a codec regression test |
 | Module behaviour docs | `docs/modernization/02-module-CBACT04C.md`, `02-module-CBTRN02C.md`, `02-module-CBTRN03C.md`, `03-data-model.sql`, `open-questions.md` | **rename** before copying — the branch's `docs/modernization/01-inventory.md` collides with the UNT51-1 file of the same name |
 
 ### 3.2 `1790617863-batch` @ `e9658ca` — AWS Batch track, the most complete Spring Batch implementation
@@ -160,7 +160,8 @@ cron, keep the local `ObjectStore`).
 
 *Harvest:* `aws/batch/src/main/java/com/carddemo/batch/{core,record,storage}/**`, the eight job packages as
 the reference implementation for the monolith's `batch` module, `aws/batch/src/test/java/com/carddemo/batch/it/**`
-(IT pattern), `aws/batch/golden/{generate-golden.sh,gen-idxutil.sh,RUNINTC.cbl}` (GnuCOBOL compile scripts),
+(IT pattern) together with the fixtures they load, `aws/batch/src/test/resources/db/schema.sql` and
+`aws/batch/src/test/resources/golden/{intcalc,posttran}/**`, `aws/batch/golden/{generate-golden.sh,gen-idxutil.sh,RUNINTC.cbl}` (GnuCOBOL compile scripts),
 `aws/batch/README.md` job↔JCL table.
 
 ### 3.3 `1790617863-online-services` @ `5db95c6` — single Spring Boot online service
@@ -178,15 +179,17 @@ in #44's Python parity suite).
 so re-fold into the `d-decomp` domain modules (`account`, `card`, `transaction`, `user`, `security`,
 `reporting`). Drop SQS.
 
-*Harvest:* `aws/services/src/main/java/com/carddemo/services/**` as reference, `aws/services/openapi.yaml`
+*Harvest:* `aws/services/src/main/java/com/carddemo/**` (packages `auth`, `security`, `menu`, `account`, `card`,
+`transaction`, `billpay`, `report`, `trantype`, `user`, `messaging`, `seed`, `common` — directly under `com/carddemo`, there is no
+`services` package) as reference, `aws/services/openapi.yaml`
 (REST contract per BMS map), `aws/services/src/test/**` (67 cases are a ready acceptance-test list),
 `aws/services/README.md` program→endpoint table.
 
 ### 3.4 `1790618699-frontend-react` @ `5c0cc16` — React 18 + Vite UI
 
 *What it is.* `aws/frontend/src/screens/*.tsx`: `SignonScreen`, `MenuScreen`, `AccountViewScreen`,
-`AccountUpdateScreen`, `CardListScreen`, `CardViewScreen`, `CardUpdateScreen`, `TransactionListScreen`,
-`TransactionViewScreen`, `TransactionAddScreen`, `BillPayScreen`, `ReportScreen`, `UserListScreen`,
+`AccountUpdateScreen`, `CardListScreen`, `CardDetailScreen`, `CardUpdateScreen`, `TransactionListScreen`,
+`TransactionDetailScreen`, `TransactionAddScreen`, `BillPaymentScreen`, `ReportsScreen`, `UserListScreen`,
 `UserAddScreen`, `UserUpdateScreen`, `UserDeleteScreen`; typed API client, MSW mocks, vitest.
 
 *Quality.* Builds and 44 tests pass; screens mirror the BMS field set (PF-key semantics mapped to buttons).
@@ -207,8 +210,10 @@ needs the whole AWS-shaped stack, so port the *cases*, not the runner.
 
 ### 3.6 `1789609454-golden-set-harness` @ `c068d6f` — golden set for CBTRN02C
 
-*What it is.* `tests/golden/{generate.py,layouts.py,run_reference.sh,GSIDXUTL.cbl,compare.py,mutate.py,selftest.sh}`
-and `docs/validation/golden-set/{README.md,reconciliation-named.md,reconciliation-volume.md}`.
+*What it is.* `tests/golden/{generate.py,layouts.py,run_reference.sh,compare.py,mutate.py,selftest.sh,docs_numbers.py,check_prediction.py}`,
+`tests/golden/cobol/GSIDXUTL.cbl`, `tests/golden/env/{posttran,posttran-variant}.env`, `tests/golden/sets/selftest-result.json`
+and `docs/validation/golden-set/{README.md,findings.md,government-decisions.md,layouts.md,what-this-does-not-prove.md}`
+(the named/volume reconciliation results are tabulated in `README.md`).
 `run_reference.sh` compiles the **unmodified** `app/cbl/CBTRN02C.cbl` with
 `cobc -x -std=ibm -fsign=EBCDIC -I app/cpy` (plus a tiny indexed-file loader), runs it over generated
 datasets and captures `TRANSACT`/`DALYREJS`/`ACCTFILE`/`TCATBALF` outputs, control totals and RC.
@@ -221,8 +226,8 @@ This is the only branch whose oracle is actual COBOL execution rather than a Jav
 — it is the model for `d-verify`.
 
 *Change needed.* Generalise `run_reference.sh`/`generate.py` from CBTRN02C to a program table (CBTRN01C,
-CBACT04C, CBTRN03C, CBSTM03A/B …) in UNT51-4; keep the reconciliation output format
-(`reconciliation-*.md`) as the CI artefact.
+CBACT04C, CBTRN03C, CBSTM03A/B …) in UNT51-4; keep `compare.py`'s reconciliation report (per-field
+counts, control totals, RC, exit code; summarised in `docs/validation/golden-set/README.md`) as the CI artefact.
 
 ### 3.7 `cobol-safety-net` @ `1c845c7` and `cbtrn01c-java17` @ `02406cb` — second golden/parity stack
 
@@ -289,9 +294,11 @@ superseded by later branches with the same coverage and more tests. #12: adds a 
 (CBTRN04C) to the legacy estate — a scope change, excluded by `d-scope`. #42: AWS deployment, not needed
 for a monolith that runs locally/CI first. #45: superseded by the UNT51 inventory on this stack.
 
-### 3.11 One codec, not six
+### 3.11 One codec, not seven
 
-Six independent Java COBOL codecs exist (#3, #5, #7, #8, #9, #40, #49). Recommendation for the data-type
+Seven independent Java COBOL codecs exist — #3 `interestcalc/copybook/{CobolNumeric,ZonedDecimal}`, #5
+`carddemo-mainframe-io` (which absorbed #4's `PackedDecimalCodec`/`ZonedDecimalCodec`), #7 `CobolDecimal`, #8
+`carddemo-recordio`, #9 `java-poc` zoned/packed, #40 `aws/batch/record`, #49 `carddemo-batch/codec`. Recommendation for the data-type
 step: base the monolith's codec on **#8 `carddemo-recordio`** (clean API, EBCDIC+ASCII, round-trip tests on
 shipped data) and add from **#49** `PackedDecimal` (COMP-3 with PIC-width truncation) and
 `VariableRecordWriter`, and from **#40** `Edited` (edited pictures for report lines). Validate the merged
