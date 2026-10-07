@@ -14,13 +14,17 @@ replicated HTTP sessions add infrastructure for no functional gain.
   = env `CARDDEMO_JWT_SECRET` (at least 32 bytes). Claims: `iss=carddemo`, `sub` = user id, `role` = `ADMIN`/`USER`
   (the `UserType` enum, ADR-0006), `usrType` = level-88 code, `iat`, `exp` (`CARDDEMO_JWT_TTL`, default 1 hour).
 - **No default secret** except the `local` and `test` profiles (same pattern as `CARDDEMO_DB_PASSWORD`); in any
-  other profile the web application refuses to start without a key. The security configuration is only active in a
+  other profile the web application refuses to start without a key. The built-in development key is public, so
+  the app logs a warning when it is used; compose publishes on `127.0.0.1` by default. The security configuration is only active in a
   servlet web application, so batch CLI runs need no key.
 - **Stateless**: `SessionCreationPolicy.STATELESS`, no cookies, CSRF off (no ambient credentials), no form/basic
   login. Sign-off (PF3) is client-side (discard the token); there is no server-side revocation list.
-- **Authorization**: anonymous = `/api/v1/auth/**`, `GET /actuator/health/**` + `/actuator/info` (compose gate),
-  OpenAPI/Swagger UI. Admin programs (`/api/v1/menu/admin/**`, later `COUSR0*C`) need role `ADMIN`; everything else
-  needs a valid token. User id and type always come from the verified token, never from the request.
+- **Authorization**: anonymous = `/api/v1/auth/**`, `/actuator/health/**` + `/actuator/info` (compose gate),
+  OpenAPI/Swagger UI, served by a separate filter chain without bearer authentication (a stale `Authorization`
+  header never blocks sign-on). Admin programs need role `ADMIN` by URL, independent of the menu:
+  `/api/v1/menu/admin/**`, `/api/v1/admin/**`, `/api/v1/users/**` (`SecurityConfiguration.ADMIN_PATHS`; later admin
+  endpoints such as COUSR0*C and transaction-type maintenance go under these prefixes). Everything else needs a valid
+  token. User id and type always come from the verified token, never from the request.
 - **Failures** use the ADR-0019 body: no/invalid/expired token → 401 `SIGNON_REQUIRED` with `toProgram=COSGN00C`
   (a program entered without COMMAREA returns to sign-on); wrong role → 403 `NOTAUTH` with the COMEN01C text
   `No access - Admin Only option...`.

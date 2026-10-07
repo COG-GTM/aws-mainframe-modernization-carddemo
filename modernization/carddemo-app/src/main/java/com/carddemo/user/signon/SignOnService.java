@@ -11,7 +11,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 /**
  * {@code COSGN00C} {@code PROCESS-ENTER-KEY} + {@code READ-USER-SEC-FILE}: validates the two input fields, reads
@@ -47,7 +46,6 @@ public class SignOnService {
     }
 
     /** {@code PROCESS-ENTER-KEY}: R-5 (user id first), R-6, R-7 upper-case, R-8 no read after an edit error. */
-    @Transactional(readOnly = true)
     public SignOnResult signOn(String userIdInput, String passwordInput) {
         if (isSpacesOrLowValues(userIdInput)) {
             return new SignOnResult.Rejected(SignOnFailure.USER_ID_BLANK, USER_ID_FIELD, MSG_USER_ID_BLANK);

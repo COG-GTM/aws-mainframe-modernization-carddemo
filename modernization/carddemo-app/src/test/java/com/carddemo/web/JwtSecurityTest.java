@@ -79,6 +79,32 @@ class JwtSecurityTest extends OnlineWebTest {
     }
 
     @Test
+    void aStaleTokenDoesNotBlockSignOn() throws Exception {
+        givenUser("USER0001", "PASSWORD", com.carddemo.user.UserType.USER);
+        mvc.perform(login("USER0001", "PASSWORD").header(HttpHeaders.AUTHORIZATION,
+                token(jwtSigningKey, "carddemo", Instant.now().minusSeconds(600), "USER")))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.userId").value("USER0001"));
+    }
+
+    @Test
+    void healthIgnoresAGarbageToken() throws Exception {
+        mvc.perform(get("/actuator/health").header(HttpHeaders.AUTHORIZATION, "Bearer not-a-jwt"))
+                .andExpect(result -> org.assertj.core.api.Assertions.assertThat(result.getResponse().getStatus())
+                        .isNotEqualTo(401));
+    }
+
+    @Test
+    void reservedAdminPrefixesNeedTheAdminRole() throws Exception {
+        for (String path : new String[] {"/api/v1/admin/anything", "/api/v1/users", "/api/v1/users/USER0001"}) {
+            mvc.perform(get(path).header(HttpHeaders.AUTHORIZATION, bearer("USER0001",
+                    com.carddemo.user.UserType.USER)))
+                    .andExpect(status().isForbidden())
+                    .andExpect(jsonPath("$.code").value("NOTAUTH"));
+        }
+    }
+
+    @Test
     void noSessionCookieIsIssued() throws Exception {
         givenUser("USER0001", "PASSWORD", com.carddemo.user.UserType.USER);
         mvc.perform(login("USER0001", "PASSWORD"))
