@@ -5,6 +5,8 @@
     "passed": 11,
     "failed": 0,
     "failed_ids": [],
+    "skipped": 0,
+    "skipped_ids": [],
     "status": "PASS"
   },
   "checks": [
@@ -33,10 +35,13 @@
     {
       "id": "CBTRN01C-COUNT-03",
       "group": "counts",
-      "description": "outcome rows are in file order with matching DALYTRAN-ID",
-      "expected": true,
-      "actual": true,
-      "status": "PASS"
+      "description": "outcome rows are in file order: row i has the DALYTRAN-ID and DALYTRAN-CARD-NUM of input record i",
+      "expected": 0,
+      "actual": 0,
+      "status": "PASS",
+      "detail": {
+        "mismatches": []
+      }
     },
     {
       "id": "CBTRN01C-COUNT-04",

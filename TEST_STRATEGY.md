@@ -59,6 +59,7 @@ test-harness/cobol/load_ksds.sh             # ASCII sample data -> GnuCOBOL inde
 test-harness/cobol/run_cbact01c.sh          # -> cobol/work/CBACT01C/{OUTFILE,ARRYFILE,VBRCFILE,display.txt}
 test-harness/cobol/run_cbtrn01c.sh          # -> cobol/work/CBTRN01C/display.txt
 test-harness/cobol/run_synthetic_rejections.sh   # 3-record CBTRN01C fixture covering both reject paths
+test-harness/cobol/run_synthetic_mixed_debit.sh  # 5-account CBACT01C fixture with non-zero ACCT-CURR-CYC-DEBIT
 python3 test-harness/generate_goldens.py CBACT01C
 python3 test-harness/generate_goldens.py CBTRN01C
 python3 test-harness/generate_goldens.py CBTRN01C \
@@ -66,6 +67,10 @@ python3 test-harness/generate_goldens.py CBTRN01C \
     --out  golden-files/CBTRN01C/synthetic-rejections \
     --dailytran test-harness/cobol/work/synthetic-rejections/fixtures/dailytran.txt \
     --cardxref  test-harness/cobol/work/synthetic-rejections/fixtures/cardxref.txt
+python3 test-harness/generate_goldens.py CBACT01C \
+    --work test-harness/cobol/work/synthetic-mixed-debit/CBACT01C \
+    --out  golden-files/CBACT01C/synthetic-mixed-debit \
+    --acctdata test-harness/cobol/work/synthetic-mixed-debit/fixtures/acctdata.txt
 ```
 
 `generate_goldens.py` decodes the real output files with the layouts parsed
@@ -114,7 +119,8 @@ the committed files byte for byte (`git status` stays clean).
 | `CBACT01C/vbrcfile.json` | 100 (50 REC1 + 50 REC2, alternating) | REC1: `_type`, `_length` + 2; REC2: `_type`, `_length` + 5 |
 | `CBACT01C/display.txt` | 50 account blocks | stdout of the run |
 | `CBACT01C/raw/{OUTFILE,ARRYFILE,VBRCFILE}` | 5350 / 5500 / 2950 bytes | binary output files as written by the program |
-| `CBACT01C/reconciliation.json` | 28 checks, all PASS | |
+| `CBACT01C/reconciliation.json` | 29 checks, all PASS | |
+| `CBACT01C/synthetic-mixed-debit/*` | 5 accounts with `ACCT-CURR-CYC-DEBIT` 10.00 / 0 / 120.50 / −75.25 / 0 | same shapes; 29 checks, all PASS (pins the §7 carry-over) |
 | `CBTRN01C/input-dailytran.json` | 300 | 12 (`CVTRA06Y`) |
 | `CBTRN01C/input-cardxref.json`, `input-acctdata.json` | 50 / 50 | lookup tables used by the checks |
 | `CBTRN01C/outcomes.json` | 300 | 6: `tran_id`, `card_num`, `xref_found`, `acct_id`, `acct_found`, `outcome` |
@@ -215,8 +221,9 @@ with their PIC width and overpunch sign exactly as the program prints them.
 
 ## 5. Reconciliation checks
 
-See `test-harness/RECONCILIATION_CHECKS.md` for the full list (28 checks for
-CBACT01C, 11 for CBTRN01C). Summary of results on the committed goldens:
+See `test-harness/RECONCILIATION_CHECKS.md` for the full list (29 checks for
+CBACT01C, 11 for CBTRN01C; a check whose evidence is absent – e.g. no
+`display.txt` – is emitted as `SKIP`, never silently dropped). Summary of results on the committed goldens:
 
 * CBACT01C: 50 accounts in = 50 OUTFILE = 50 ARRYFILE = 100/2 VBRCFILE.
   Σ `ACCT-CURR-BAL` 12269.00, Σ `ACCT-CREDIT-LIMIT` 233711.00,
@@ -280,13 +287,23 @@ recs = decode_file("port-out/OUTFILE", layout(prog, "OUT-ACCT-REC"))
 These were observed in the real runs and are pinned by the goldens/checks.
 Reproduce them, or get an explicit sign-off to diverge and update the goldens.
 
-* **CBACT01C `2525.00` substitution.** `OUT-ACCT-CURR-CYC-DEBIT` is only
-  assigned when the input debit is zero; the program never moves a non-zero
-  input debit into the output (it is `INITIALIZE`d to 0 each record). The
-  check `CBACT01C-TOTAL-CYC-DEBIT` encodes the stated intent ("otherwise the
-  input value"); with the sample data both readings coincide because all
-  inputs are zero. Decide which semantics the port keeps before feeding
-  non-zero data.
+* **CBACT01C `2525.00` substitution is stateful.** `OUT-ACCT-CURR-CYC-DEBIT`
+  is only assigned by `IF ACCT-CURR-CYC-DEBIT EQUAL TO ZERO MOVE 2525.00 ...`;
+  the program never moves a non-zero input debit into the output and never
+  re-initialises `OUT-ACCT-REC` between records. So for a non-zero input the
+  output keeps the *previous record's* value, and before the first zero input
+  it holds never-assigned WORKING-STORAGE: undefined on z/OS (default
+  `NOWSCLEAR`), `LOW-VALUES` under GnuCOBOL, which is not a valid packed
+  decimal (the golden records it as `INVALID-COMP-3:00000000000000`).
+  `golden-files/CBACT01C/synthetic-mixed-debit` pins this: inputs 10.00 / 0 /
+  120.50 / −75.25 / 0 produce undefined / 2525.00 / 2525.00 / 2525.00 /
+  2525.00. `CBACT01C-TOTAL-CYC-DEBIT` and `CBACT01C-FIELD-CYC-DEBIT` model
+  exactly that (undefined rows excluded; the check detail also shows the
+  "business intent" total a port that copies non-zero inputs would produce).
+  With the shipped data all inputs are zero, so both readings coincide.
+  Decide which semantics the port keeps before feeding non-zero data; if the
+  bug is fixed deliberately, change the expected rows in `reconcile.py` and
+  regenerate the fixture's `reconciliation.json`.
 * **Reissue date padding.** `COBDATFT` writes 8 bytes into a 20-byte field;
   the two bytes that end up in `OUT-ACCT-REISSUE-DATE(9:10)` are whatever was
   in `CODATECN-0UT-DATE(9:2)` – spaces, since WORKING-STORAGE is

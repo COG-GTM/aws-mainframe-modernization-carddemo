@@ -44,7 +44,9 @@ def golden_cbact01c(work: str, out: str, acctdata: str) -> Dict:
     os.makedirs(os.path.join(out, "raw"), exist_ok=True)
     acct_in = decode_file(acctdata, load_layout(os.path.join(CPY, "CVACT01Y.cpy")), "line")
     prog = parse_file(os.path.join(CBL, "CBACT01C.cbl"))
-    outfile = decode_file(os.path.join(work, "OUTFILE"), layout(prog, "OUT-ACCT-REC"))
+    # lenient: OUT-ACCT-CURR-CYC-DEBIT is never assigned for a non-zero input,
+    # so the first such record carries un-initialised storage (see TEST_STRATEGY.md 7)
+    outfile = decode_file(os.path.join(work, "OUTFILE"), layout(prog, "OUT-ACCT-REC"), lenient=True)
     arryfile = decode_file(os.path.join(work, "ARRYFILE"), layout(prog, "ARR-ARRAY-REC"))
     vbrcfile = decode_file(os.path.join(work, "VBRCFILE"), None, "vb",
                            layouts_by_length={12: layout(prog, "VBRC-REC1"), 39: layout(prog, "VBRC-REC2")})

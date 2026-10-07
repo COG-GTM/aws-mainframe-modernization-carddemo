@@ -20,7 +20,7 @@ import json
 import os
 import sys
 from collections import Counter
-from decimal import Decimal
+from decimal import Decimal, InvalidOperation
 from typing import Dict, Iterable, List, Optional
 
 TWO = Decimal("0.01")
@@ -44,15 +44,25 @@ def dsum(values: Iterable[str]) -> Decimal:
     return sum((Decimal(v) for v in values), Decimal(0))
 
 
+def _dec_or_none(v) -> Optional[Decimal]:
+    try:
+        return Decimal(v)
+    except (InvalidOperation, TypeError, ValueError):
+        return None
+
+
 class Report:
     def __init__(self, job: str):
         self.job = job
         self.checks: List[Dict] = []
 
-    def check(self, cid: str, group: str, description: str, expected, actual, detail=None):
+    def check(self, cid: str, group: str, description: str, expected, actual, detail=None, skip_reason=None):
         ok = expected == actual
         entry = {"id": cid, "group": group, "description": description,
                  "expected": expected, "actual": actual, "status": "PASS" if ok else "FAIL"}
+        if skip_reason is not None:
+            entry["status"] = "SKIP"
+            entry["skip_reason"] = skip_reason
         if detail is not None:
             entry["detail"] = detail
         self.checks.append(entry)
@@ -60,9 +70,11 @@ class Report:
 
     def result(self) -> Dict:
         failed = [c["id"] for c in self.checks if c["status"] == "FAIL"]
+        skipped = [c["id"] for c in self.checks if c["status"] == "SKIP"]
         return {"job": self.job,
-                "summary": {"checks": len(self.checks), "passed": len(self.checks) - len(failed),
+                "summary": {"checks": len(self.checks), "passed": len(self.checks) - len(failed) - len(skipped),
                             "failed": len(failed), "failed_ids": failed,
+                            "skipped": len(skipped), "skipped_ids": skipped,
                             "status": "PASS" if not failed else "FAIL"},
                 "checks": self.checks}
 
@@ -97,15 +109,41 @@ def reconcile_cbact01c(acct_in: List[Dict], outfile: List[Dict], arryfile: List[
     for fld in ("ACCT-CURR-BAL", "ACCT-CREDIT-LIMIT", "ACCT-CASH-CREDIT-LIMIT", "ACCT-CURR-CYC-CREDIT"):
         r.check("CBACT01C-TOTAL-" + fld, "totals", "sum %s in = sum OUT-%s" % (fld, fld),
                 money(dsum(x[fld] for x in acct_in)), money(dsum(x["OUT-" + fld] for x in outfile)))
-    expected_debit = dsum(CYC_DEBIT_SUBSTITUTE if Decimal(x["ACCT-CURR-CYC-DEBIT"]) == 0
-                          else Decimal(x["ACCT-CURR-CYC-DEBIT"]) for x in acct_in)
+    # Legacy parity: OUT-ACCT-REC is never INITIALIZEd per record and the
+    # program only MOVEs 2525.00 when the input debit is zero, so a non-zero
+    # input leaves OUT-ACCT-CURR-CYC-DEBIT holding the previous record's
+    # value.  Before the first zero-debit input that is the never-assigned
+    # WORKING-STORAGE initial value: undefined on z/OS (NOWSCLEAR), LOW-VALUES
+    # under GnuCOBOL (decoded as "INVALID-COMP-3:<hex>").  Those rows are
+    # reported but excluded from the total.
+    expected_rows: List[Optional[Decimal]] = []
+    carry: Optional[Decimal] = None
+    for x in acct_in:
+        if Decimal(x["ACCT-CURR-CYC-DEBIT"]) == 0:
+            carry = CYC_DEBIT_SUBSTITUTE
+        expected_rows.append(carry)
     zero_in = sum(1 for x in acct_in if Decimal(x["ACCT-CURR-CYC-DEBIT"]) == 0)
+    actual_rows = [_dec_or_none(x["OUT-ACCT-CURR-CYC-DEBIT"]) for x in outfile]
+    undefined = [{"acct_id": x["OUT-ACCT-ID"], "actual": x["OUT-ACCT-CURR-CYC-DEBIT"]}
+                 for x, e in zip(outfile, expected_rows) if e is None]
+    mismatched = [{"acct_id": x["OUT-ACCT-ID"], "expected": money(e), "actual": x["OUT-ACCT-CURR-CYC-DEBIT"]}
+                  for x, e, a in zip(outfile, expected_rows, actual_rows) if e is not None and e != a]
+    defined_actual = [a for e, a in zip(expected_rows, actual_rows) if e is not None and a is not None]
+    intent_total = dsum(CYC_DEBIT_SUBSTITUTE if Decimal(x["ACCT-CURR-CYC-DEBIT"]) == 0
+                        else Decimal(x["ACCT-CURR-CYC-DEBIT"]) for x in acct_in)
     r.check("CBACT01C-TOTAL-CYC-DEBIT", "totals",
-            "sum OUT-ACCT-CURR-CYC-DEBIT = sum(2525.00 where input ACCT-CURR-CYC-DEBIT = 0, else input value)",
-            money(expected_debit), money(dsum(x["OUT-ACCT-CURR-CYC-DEBIT"] for x in outfile)),
+            "sum OUT-ACCT-CURR-CYC-DEBIT = legacy simulation (2525.00 where input ACCT-CURR-CYC-DEBIT = 0, "
+            "otherwise the previous record's output value is retained; rows before the first zero input are "
+            "undefined and excluded)",
+            money(sum((e for e in expected_rows if e is not None), Decimal(0))), money(sum(defined_actual, Decimal(0))),
             {"inputs_with_zero_cyc_debit": zero_in, "inputs_with_nonzero_cyc_debit": n - zero_in,
-             "note": "the program only MOVEs when the input is zero; a non-zero input leaves the "
-                     "output field unassigned (never exercised by the sample data)"})
+             "undefined_rows": undefined,
+             "business_intent_total_if_nonzero_inputs_were_copied": money(intent_total),
+             "note": "the program only MOVEs when the input is zero and never re-initialises OUT-ACCT-REC; "
+                     "see TEST_STRATEGY.md section 7"})
+    r.check("CBACT01C-FIELD-CYC-DEBIT", "derived",
+            "OUT-ACCT-CURR-CYC-DEBIT per record = legacy simulation (2525.00 on zero input, else carried value)",
+            0, len(mismatched), {"mismatches": mismatched[:20], "undefined_rows": len(undefined)})
     # ARRYFILE constants and copies
     for (occ, fld), const in sorted(ARR_CONSTANTS.items()):
         r.check("CBACT01C-TOTAL-ARR-%s-%d" % (fld, occ), "totals",
@@ -188,13 +226,18 @@ def reconcile_cbtrn01c(tran_in: List[Dict], outcomes: List[Dict], xref: List[Dic
             len(outcomes), verified + card_missing + acct_missing,
             {"verified": verified, "card_missing": card_missing, "account_missing": acct_missing,
              "unknown_outcomes": sorted(k for k in classes if k not in (OUTCOME_VERIFIED, OUTCOME_CARD_MISSING, OUTCOME_ACCT_MISSING))})
-    r.check("CBTRN01C-COUNT-03", "counts", "outcome rows are in file order with matching DALYTRAN-ID",
-            [t["DALYTRAN-ID"] for t in tran_in] == [o["tran_id"] for o in outcomes], True)
-    if display_lookups is not None:
-        r.check("CBTRN01C-COUNT-04", "counts",
-                "XREF lookups in display = transactions + 1 (legacy quirk: the last record is looked up "
-                "again after end-of-file because only the DISPLAY is guarded by the EOF flag)",
-                n + 1, display_lookups)
+    out_of_order = [{"position": i + 1, "input": {"tran_id": t["DALYTRAN-ID"], "card_num": t["DALYTRAN-CARD-NUM"]},
+                     "outcome": {"tran_id": o.get("tran_id"), "card_num": o.get("card_num")}}
+                    for i, (t, o) in enumerate(zip(tran_in, outcomes))
+                    if (t["DALYTRAN-ID"], t["DALYTRAN-CARD-NUM"]) != (o.get("tran_id"), o.get("card_num"))]
+    r.check("CBTRN01C-COUNT-03", "counts",
+            "outcome rows are in file order: row i has the DALYTRAN-ID and DALYTRAN-CARD-NUM of input record i",
+            0, len(out_of_order), {"mismatches": out_of_order[:20]})
+    r.check("CBTRN01C-COUNT-04", "counts",
+            "XREF lookups in display = transactions + 1 (legacy quirk: the last record is looked up "
+            "again after end-of-file because only the DISPLAY is guarded by the EOF flag)",
+            n + 1, display_lookups,
+            skip_reason=None if display_lookups is not None else "display.txt not present in the golden directory")
 
     # -- field totals ----------------------------------------------------
     amt_by_row = [Decimal(t["DALYTRAN-AMT"]) for t in tran_in]

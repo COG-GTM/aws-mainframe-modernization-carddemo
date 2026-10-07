@@ -14,16 +14,16 @@
       "id": "CBACT01C-COUNT-01",
       "group": "counts",
       "description": "input accounts = OUTFILE records",
-      "expected": 50,
-      "actual": 50,
+      "expected": 5,
+      "actual": 5,
       "status": "PASS"
     },
     {
       "id": "CBACT01C-COUNT-02",
       "group": "counts",
       "description": "input accounts = ARRYFILE records",
-      "expected": 50,
-      "actual": 50,
+      "expected": 5,
+      "actual": 5,
       "status": "PASS"
     },
     {
@@ -31,11 +31,11 @@
       "group": "counts",
       "description": "input accounts = VBRCFILE records / 2 (and the count is even)",
       "expected": {
-        "accounts": 50,
+        "accounts": 5,
         "even": true
       },
       "actual": {
-        "accounts": 50,
+        "accounts": 5,
         "even": true
       },
       "status": "PASS"
@@ -45,13 +45,13 @@
       "group": "counts",
       "description": "VBRCFILE: one 12-byte VBRC-REC1 and one 39-byte VBRC-REC2 per account, alternating",
       "expected": {
-        "rec1": 50,
-        "rec2": 50,
+        "rec1": 5,
+        "rec2": 5,
         "alternating": true
       },
       "actual": {
-        "rec1": 50,
-        "rec2": 50,
+        "rec1": 5,
+        "rec2": 5,
         "alternating": true
       },
       "status": "PASS"
@@ -60,24 +60,24 @@
       "id": "CBACT01C-TOTAL-ACCT-CURR-BAL",
       "group": "totals",
       "description": "sum ACCT-CURR-BAL in = sum OUT-ACCT-CURR-BAL",
-      "expected": "12269.00",
-      "actual": "12269.00",
+      "expected": "884.00",
+      "actual": "884.00",
       "status": "PASS"
     },
     {
       "id": "CBACT01C-TOTAL-ACCT-CREDIT-LIMIT",
       "group": "totals",
       "description": "sum ACCT-CREDIT-LIMIT in = sum OUT-ACCT-CREDIT-LIMIT",
-      "expected": "233711.00",
-      "actual": "233711.00",
+      "expected": "20381.00",
+      "actual": "20381.00",
       "status": "PASS"
     },
     {
       "id": "CBACT01C-TOTAL-ACCT-CASH-CREDIT-LIMIT",
       "group": "totals",
       "description": "sum ACCT-CASH-CREDIT-LIMIT in = sum OUT-ACCT-CASH-CREDIT-LIMIT",
-      "expected": "122148.00",
-      "actual": "122148.00",
+      "expected": "12225.00",
+      "actual": "12225.00",
       "status": "PASS"
     },
     {
@@ -92,14 +92,19 @@
       "id": "CBACT01C-TOTAL-CYC-DEBIT",
       "group": "totals",
       "description": "sum OUT-ACCT-CURR-CYC-DEBIT = legacy simulation (2525.00 where input ACCT-CURR-CYC-DEBIT = 0, otherwise the previous record's output value is retained; rows before the first zero input are undefined and excluded)",
-      "expected": "126250.00",
-      "actual": "126250.00",
+      "expected": "10100.00",
+      "actual": "10100.00",
       "status": "PASS",
       "detail": {
-        "inputs_with_zero_cyc_debit": 50,
-        "inputs_with_nonzero_cyc_debit": 0,
-        "undefined_rows": [],
-        "business_intent_total_if_nonzero_inputs_were_copied": "126250.00",
+        "inputs_with_zero_cyc_debit": 2,
+        "inputs_with_nonzero_cyc_debit": 3,
+        "undefined_rows": [
+          {
+            "acct_id": "1",
+            "actual": "INVALID-COMP-3:00000000000000"
+          }
+        ],
+        "business_intent_total_if_nonzero_inputs_were_copied": "5105.25",
         "note": "the program only MOVEs when the input is zero and never re-initialises OUT-ACCT-REC; see TEST_STRATEGY.md section 7"
       }
     },
@@ -112,55 +117,55 @@
       "status": "PASS",
       "detail": {
         "mismatches": [],
-        "undefined_rows": 0
+        "undefined_rows": 1
       }
     },
     {
       "id": "CBACT01C-TOTAL-ARR-ARR-ACCT-CURR-CYC-DEBIT-1",
       "group": "totals",
       "description": "sum ARR-ACCT-CURR-CYC-DEBIT(1) = records x 1005.00",
-      "expected": "50250.00",
-      "actual": "50250.00",
+      "expected": "5025.00",
+      "actual": "5025.00",
       "status": "PASS"
     },
     {
       "id": "CBACT01C-TOTAL-ARR-ARR-ACCT-CURR-CYC-DEBIT-2",
       "group": "totals",
       "description": "sum ARR-ACCT-CURR-CYC-DEBIT(2) = records x 1525.00",
-      "expected": "76250.00",
-      "actual": "76250.00",
+      "expected": "7625.00",
+      "actual": "7625.00",
       "status": "PASS"
     },
     {
       "id": "CBACT01C-TOTAL-ARR-ARR-ACCT-CURR-BAL-3",
       "group": "totals",
       "description": "sum ARR-ACCT-CURR-BAL(3) = records x -1025.00",
-      "expected": "-51250.00",
-      "actual": "-51250.00",
+      "expected": "-5125.00",
+      "actual": "-5125.00",
       "status": "PASS"
     },
     {
       "id": "CBACT01C-TOTAL-ARR-ARR-ACCT-CURR-CYC-DEBIT-3",
       "group": "totals",
       "description": "sum ARR-ACCT-CURR-CYC-DEBIT(3) = records x -2500.00",
-      "expected": "-125000.00",
-      "actual": "-125000.00",
+      "expected": "-12500.00",
+      "actual": "-12500.00",
       "status": "PASS"
     },
     {
       "id": "CBACT01C-TOTAL-ARR-ACCT-CURR-BAL-1",
       "group": "totals",
       "description": "sum ARR-ACCT-CURR-BAL(1) = sum input ACCT-CURR-BAL",
-      "expected": "12269.00",
-      "actual": "12269.00",
+      "expected": "884.00",
+      "actual": "884.00",
       "status": "PASS"
     },
     {
       "id": "CBACT01C-TOTAL-ARR-ACCT-CURR-BAL-2",
       "group": "totals",
       "description": "sum ARR-ACCT-CURR-BAL(2) = sum input ACCT-CURR-BAL",
-      "expected": "12269.00",
-      "actual": "12269.00",
+      "expected": "884.00",
+      "actual": "884.00",
       "status": "PASS"
     },
     {
@@ -195,16 +200,16 @@
       "id": "CBACT01C-TOTAL-VB2-CURR-BAL",
       "group": "totals",
       "description": "sum VB2-ACCT-CURR-BAL = sum input ACCT-CURR-BAL",
-      "expected": "12269.00",
-      "actual": "12269.00",
+      "expected": "884.00",
+      "actual": "884.00",
       "status": "PASS"
     },
     {
       "id": "CBACT01C-TOTAL-VB2-CREDIT-LIMIT",
       "group": "totals",
       "description": "sum VB2-ACCT-CREDIT-LIMIT = sum input ACCT-CREDIT-LIMIT",
-      "expected": "233711.00",
-      "actual": "233711.00",
+      "expected": "20381.00",
+      "actual": "20381.00",
       "status": "PASS"
     },
     {

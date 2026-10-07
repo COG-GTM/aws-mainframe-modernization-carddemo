@@ -137,9 +137,9 @@ def encode_comp3(value: str, digits: int, scale: int, signed: bool) -> bytes:
         raise RecordError("value %s has more than %d decimals" % (value, scale))
     length = digits // 2 + 1
     ndig = length * 2 - 1
-    s = str(int(q)).rjust(ndig, "0")
-    if len(s) > ndig:
+    if len(str(int(q))) > digits:
         raise RecordError("value %s does not fit in %d digits" % (value, digits))
+    s = str(int(q)).rjust(ndig, "0")
     nibbles = [int(c) for c in s] + [0x0D if negative else (0x0C if signed else 0x0F)]
     return bytes((nibbles[i] << 4) | nibbles[i + 1] for i in range(0, len(nibbles), 2))
 
@@ -150,8 +150,15 @@ def decode_binary(raw: bytes, scale: int, signed: bool) -> str:
 
 
 def encode_binary(value: str, length: int, scale: int, signed: bool) -> bytes:
-    v = int(Decimal(value).scaleb(scale))
-    return v.to_bytes(length, "big", signed=signed)
+    q = Decimal(value).scaleb(scale)
+    if q != q.to_integral_value():
+        raise RecordError("value %s has more than %d decimals" % (value, scale))
+    if q < 0 and not signed:
+        raise RecordError("negative value %s in unsigned field" % value)
+    try:
+        return int(q).to_bytes(length, "big", signed=signed)
+    except OverflowError:
+        raise RecordError("value %s does not fit in %d bytes" % (value, length))
 
 
 def decode_alnum(raw: bytes, ebcdic: bool) -> str:
@@ -168,14 +175,23 @@ def encode_alnum(value: str, length: int, ebcdic: bool) -> bytes:
 # ----------------------------------------------------------------------
 # record decode / encode
 # ----------------------------------------------------------------------
+INVALID_PREFIX = "INVALID-COMP-3:"
+
+
 def decode_record(raw: bytes, rec: Field, ebcdic: bool = False,
-                  include_filler: bool = False) -> Dict:
+                  include_filler: bool = False, lenient: bool = False) -> Dict:
+    """``lenient=True`` turns a COMP-3 field whose bytes are not a valid
+    packed decimal (e.g. never-assigned WORKING-STORAGE that a program wrote
+    out) into the marker string ``INVALID-COMP-3:<hex>`` instead of raising,
+    so the golden still records exactly what the program produced.
+    ``encode_record`` turns the marker back into the original bytes."""
     if len(raw) < rec.length:
         raise RecordError("record is %d bytes, layout %s needs %d" % (len(raw), rec.name, rec.length))
-    return _decode_group(raw, rec, 0, ebcdic, include_filler)
+    return _decode_group(raw, rec, 0, ebcdic, include_filler, lenient)
 
 
-def _decode_group(raw: bytes, grp: Field, base: int, ebcdic: bool, include_filler: bool) -> Dict:
+def _decode_group(raw: bytes, grp: Field, base: int, ebcdic: bool, include_filler: bool,
+                  lenient: bool = False) -> Dict:
     out: Dict = {}
     for c in grp.children:
         if c.redefines:
@@ -187,20 +203,25 @@ def _decode_group(raw: bytes, grp: Field, base: int, ebcdic: bool, include_fille
         for idx in range(c.occurs):
             off = base + (c.offset - grp.offset) + idx * c.length
             if c.is_group:
-                vals.append(_decode_group(raw, c, off, ebcdic, include_filler))
+                vals.append(_decode_group(raw, c, off, ebcdic, include_filler, lenient))
             else:
-                vals.append(_decode_scalar(raw[off:off + c.length], c, ebcdic))
+                vals.append(_decode_scalar(raw[off:off + c.length], c, ebcdic, lenient))
         out[name] = vals if c.occurs > 1 else vals[0]
     return out
 
 
-def _decode_scalar(b: bytes, f: Field, ebcdic: bool) -> str:
+def _decode_scalar(b: bytes, f: Field, ebcdic: bool, lenient: bool = False) -> str:
     if f.type == "alnum":
         return decode_alnum(b, ebcdic)
     if f.usage == "DISPLAY":
         return decode_zoned(b, f.scale, f.sign, ebcdic)
     if f.usage == "COMP-3":
-        return decode_comp3(b, f.scale)
+        try:
+            return decode_comp3(b, f.scale)
+        except RecordError:
+            if not lenient:
+                raise
+            return INVALID_PREFIX + b.hex()
     if f.usage == "COMP":
         return decode_binary(b, f.scale, f.sign)
     raise RecordError("cannot decode usage %s" % f.usage)
@@ -236,6 +257,11 @@ def _encode_scalar(v: str, f: Field, ebcdic: bool) -> bytes:
     if f.usage == "DISPLAY":
         return encode_zoned(v, f.digits, f.scale, f.sign, ebcdic)
     if f.usage == "COMP-3":
+        if isinstance(v, str) and v.startswith(INVALID_PREFIX):
+            raw = bytes.fromhex(v[len(INVALID_PREFIX):])
+            if len(raw) != f.length:
+                raise RecordError("%s has %d bytes, field needs %d" % (v, len(raw), f.length))
+            return raw
         return encode_comp3(v, f.digits, f.scale, f.sign)
     if f.usage == "COMP":
         return encode_binary(v, f.length, f.scale, f.sign)
@@ -273,7 +299,8 @@ def split_records(data: bytes, record_length: int, fmt: str = "fixed") -> List[b
 
 
 def decode_file(path: str, rec: Field, fmt: str = "fixed", ebcdic: bool = False,
-                include_filler: bool = False, layouts_by_length: Optional[Dict[int, Field]] = None) -> List[Dict]:
+                include_filler: bool = False, layouts_by_length: Optional[Dict[int, Field]] = None,
+                lenient: bool = False) -> List[Dict]:
     with open(path, "rb") as fh:
         data = fh.read()
     out = []
@@ -283,7 +310,7 @@ def decode_file(path: str, rec: Field, fmt: str = "fixed", ebcdic: bool = False,
             lay = layouts_by_length.get(len(raw))
             if lay is None:
                 raise RecordError("no layout for record length %d" % len(raw))
-        d = decode_record(raw, lay, ebcdic, include_filler)
+        d = decode_record(raw, lay, ebcdic, include_filler, lenient)
         if layouts_by_length is not None:
             d = {"_record": lay.name, "_length": len(raw), **d}
         out.append(d)

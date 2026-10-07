@@ -11,12 +11,13 @@ HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 BIN="${BIN:-$HERE/bin}"
 WORK="${WORK:-$HERE/work}"
 OUT="${OUT:-$WORK/CBACT01C}"
+KSDS="${KSDS:-$WORK/ksds}"
 mkdir -p "$OUT"
 rm -f "$OUT/OUTFILE" "$OUT/ARRYFILE" "$OUT/VBRCFILE"
 set +e
 env COB_LIBRARY_PATH="$BIN" \
     COB_VARSEQ_FORMAT=1 \
-    DD_ACCTFILE="$WORK/ksds/ACCTFILE" \
+    DD_ACCTFILE="$KSDS/ACCTFILE" \
     DD_OUTFILE="$OUT/OUTFILE" \
     DD_ARRYFILE="$OUT/ARRYFILE" \
     DD_VBRCFILE="$OUT/VBRCFILE" \

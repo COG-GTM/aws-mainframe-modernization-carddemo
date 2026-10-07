@@ -31,7 +31,9 @@ from typing import Any, Dict, List, Optional
 def flatten(obj: Any, prefix: str = "") -> Dict[str, Any]:
     """{"A": {"B": 1}, "C": [{"D": 2}]} -> {"A.B": 1, "C[1].D": 2}"""
     out: Dict[str, Any] = {}
-    if isinstance(obj, dict):
+    if isinstance(obj, (dict, list)) and not obj and prefix:
+        out[prefix] = obj          # keep empty structures visible ({} != [] != missing)
+    elif isinstance(obj, dict):
         for k, v in obj.items():
             out.update(flatten(v, "%s.%s" % (prefix, k) if prefix else k))
     elif isinstance(obj, list):

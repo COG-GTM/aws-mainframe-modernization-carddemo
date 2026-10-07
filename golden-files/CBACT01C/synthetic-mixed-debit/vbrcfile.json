@@ -1,0 +1,72 @@
+[
+  {
+    "_record": "VBRC-REC1",
+    "_length": 12,
+    "VB1-ACCT-ID": "1",
+    "VB1-ACCT-ACTIVE-STATUS": "Y"
+  },
+  {
+    "_record": "VBRC-REC2",
+    "_length": 39,
+    "VB2-ACCT-ID": "1",
+    "VB2-ACCT-CURR-BAL": "194.00",
+    "VB2-ACCT-CREDIT-LIMIT": "2020.00",
+    "VB2-ACCT-REISSUE-YYYY": "2025"
+  },
+  {
+    "_record": "VBRC-REC1",
+    "_length": 12,
+    "VB1-ACCT-ID": "2",
+    "VB1-ACCT-ACTIVE-STATUS": "Y"
+  },
+  {
+    "_record": "VBRC-REC2",
+    "_length": 39,
+    "VB2-ACCT-ID": "2",
+    "VB2-ACCT-CURR-BAL": "158.00",
+    "VB2-ACCT-CREDIT-LIMIT": "6130.00",
+    "VB2-ACCT-REISSUE-YYYY": "2024"
+  },
+  {
+    "_record": "VBRC-REC1",
+    "_length": 12,
+    "VB1-ACCT-ID": "3",
+    "VB1-ACCT-ACTIVE-STATUS": "Y"
+  },
+  {
+    "_record": "VBRC-REC2",
+    "_length": 39,
+    "VB2-ACCT-ID": "3",
+    "VB2-ACCT-CURR-BAL": "147.00",
+    "VB2-ACCT-CREDIT-LIMIT": "4909.00",
+    "VB2-ACCT-REISSUE-YYYY": "2024"
+  },
+  {
+    "_record": "VBRC-REC1",
+    "_length": 12,
+    "VB1-ACCT-ID": "4",
+    "VB1-ACCT-ACTIVE-STATUS": "Y"
+  },
+  {
+    "_record": "VBRC-REC2",
+    "_length": 39,
+    "VB2-ACCT-ID": "4",
+    "VB2-ACCT-CURR-BAL": "40.00",
+    "VB2-ACCT-CREDIT-LIMIT": "3503.00",
+    "VB2-ACCT-REISSUE-YYYY": "2023"
+  },
+  {
+    "_record": "VBRC-REC1",
+    "_length": 12,
+    "VB1-ACCT-ID": "5",
+    "VB1-ACCT-ACTIVE-STATUS": "Y"
+  },
+  {
+    "_record": "VBRC-REC2",
+    "_length": 39,
+    "VB2-ACCT-ID": "5",
+    "VB2-ACCT-CURR-BAL": "345.00",
+    "VB2-ACCT-CREDIT-LIMIT": "3819.00",
+    "VB2-ACCT-REISSUE-YYYY": "2025"
+  }
+]
