@@ -88,9 +88,10 @@ public class BatchRunLog {
         return value instanceof LocalDate d ? d : LocalDate.parse(value.toString());
     }
 
-    private static String describe(JobParameters parameters) {
+    /** {@code name=value,...}; values of credential-like names are masked. */
+    static String describe(JobParameters parameters) {
         return clip(parameters.getParameters().entrySet().stream()
-                .map(e -> e.getKey() + "=" + e.getValue().getValue())
+                .map(e -> e.getKey() + "=" + (BatchCommandLine.isSensitive(e.getKey()) ? "****" : e.getValue().getValue()))
                 .collect(Collectors.joining(",")));
     }
 

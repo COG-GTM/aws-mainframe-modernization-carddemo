@@ -18,6 +18,10 @@ the command line with the same inputs/outputs as the GnuCOBOL baseline, and job 
   other non-Spring option becomes a string parameter; an identifying `run.id` (epoch millis unless `--run.id=` is
   given, for restarts) makes each invocation a new job instance. `CommandLineJobParameters` adapts the raw
   parameters for a job (e.g. `initial-load` adds `source-dir`/`mode`/`source-sha256`).
+  Malformed requests (bare `--job`, bad `--run-date`/`--run.id`, credential-like names such as `--*password*`,
+  `--*token*`) end RC 16 with an `ABANDONED` `batch_run` row; credentials come from the environment, never from job
+  parameters (they would land in the job repository, `batch_run` and the log). `spring.batch.job.enabled=true`
+  (Boot's own runner) cannot be combined with the CLI → RC 16.
 - **DD statements → parameters named after the DD.** `--ACCTFILE=<path>` reads/writes that file;
   `--ACCTFILE=table` (the default for KSDS inputs) reads the PostgreSQL table (ADR-0011) in key order through a
   keyset browse. Output DDs default to `<carddemo.batch.output-dir>/<DSN>`; `--SYSOUT=<path>` receives the DISPLAY

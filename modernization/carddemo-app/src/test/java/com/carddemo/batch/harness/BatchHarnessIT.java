@@ -1,5 +1,6 @@
 package com.carddemo.batch.harness;
 
+import org.springframework.mock.env.MockEnvironment;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.carddemo.batch.print.PrintProgramsBaselineTest;
@@ -149,6 +150,19 @@ class BatchHarnessIT {
         assertThat(unknown.jobExecutionId()).isNull();
         assertThat(cli("--job=readcard", "--run-date=2022-02-30")).isEqualTo(16);
         assertThat(cli("--job=initial-load", "--mode=MERGE")).isEqualTo(16);
+        assertThat(cli("--job=readcard", "--run.id=abc")).isEqualTo(16);
+        BatchRun badRunId = lastJobRow("readcard");
+        assertThat(badRunId.status()).isEqualTo("ABANDONED");
+        assertThat(badRunId.message()).contains("run.id");
+        assertThat(cli("--job=readcard", "--token=abc")).isEqualTo(16);
+        assertThat(lastJobRow("readcard").message()).contains("credentials").doesNotContain("abc");
+
+        BatchExitCodes bootRunner = new BatchExitCodes();
+        new BatchCommandLineRunner(launcher, bootRunner, runLog, adapters, clock,
+                new MockEnvironment().withProperty("spring.batch.job.enabled", "true"))
+                .run(new DefaultApplicationArguments("--job=readcust"));
+        assertThat(bootRunner.getExitCode()).isEqualTo(16);
+        assertThat(lastJobRow("readcust").message()).contains("spring.batch.job.enabled");
 
         assertThat(cli("--job=rc-test", "--rc=4")).isEqualTo(4);
         BatchRun warning = lastJobRow("rc-test");

@@ -45,5 +45,17 @@ class BatchCommandLineTest {
         assertThatThrownBy(() -> parse("--job=a", "--job=b")).hasMessageContaining("given 2 times");
         assertThatThrownBy(() -> parse("--job=a", "--run-date=2022-13-01")).hasMessageContaining("YYYY-MM-DD");
         assertThatThrownBy(() -> parse("--job=a", "stray")).hasMessageContaining("unexpected arguments");
+        assertThat(BatchCommandLine.isBatchLaunch("--job")).isTrue();
+        assertThat(BatchCommandLine.isBatchLaunch("--spring.batch.job.name")).isTrue();
+        assertThat(BatchCommandLine.isBatchLaunch("--jobs=a", "--server.port=0")).isFalse();
+        assertThatThrownBy(() -> parse("--job")).hasMessageContaining("--job needs a job name");
+    }
+
+    @Test
+    void credentialsAreNeverJobParameters() {
+        assertThatThrownBy(() -> parse("--job=a", "--db-password=s3cret"))
+                .hasMessageContaining("credentials are not job parameters").hasMessageNotContaining("s3cret");
+        assertThatThrownBy(() -> parse("--job=a", "--API_KEY=x")).hasMessageContaining("--API_KEY");
+        assertThat(BatchCommandLine.isSensitive("OUTFILE")).isFalse();
     }
 }

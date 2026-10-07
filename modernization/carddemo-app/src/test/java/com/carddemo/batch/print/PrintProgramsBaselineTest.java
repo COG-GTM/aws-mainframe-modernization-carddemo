@@ -1,5 +1,9 @@
 package com.carddemo.batch.print;
 
+import com.carddemo.batch.harness.RecordSink;
+import com.carddemo.common.codec.FixedWidthRecord;
+import com.carddemo.common.file.FileStatus;
+import com.carddemo.common.file.FileStatusException;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
@@ -100,6 +104,36 @@ public class PrintProgramsBaselineTest {
         assertThat(Arrays.copyOf(vb, 4)).containsExactly(0, 16, 0, 0);
         assertThat(new String(vb, 4, 12, RecordEncoding.EBCDIC.charset())).isEqualTo("00000000001Y");
         assertThat(Files.size(dir.resolve("OUTFILE"))).isEqualTo(50L * 107);
+    }
+
+    @Test
+    void aFailingCloseOfABufferedOutputIsAnAbend() throws IOException {
+        FixedFileSink out = new FixedFileSink(Cbact01c.OUTFILE, dir.resolve("OUTFILE"));
+        RecordSink failsOnClose = new RecordSink() {
+            public String ddname() { return out.ddname(); }
+            public void open() { out.open(); }
+            public void write(FixedWidthRecord record) { out.write(record); }
+            public long count() { return out.count(); }
+            public boolean isOpen() { return out.isOpen(); }
+            public void close() {
+                out.close();
+                throw new FileStatusException(Cbact01c.OUTFILE, "CLOSE", FileStatus.PERMANENT_ERROR, null);
+            }
+        };
+        Path vbrc = dir.resolve("new/sub/VBRCFILE");
+        try (Sysout sysout = Sysout.open(dir.resolve("sysout.txt"))) {
+            Cbact01c program = new Cbact01c(
+                    KsdsInput.file(Cbact01c.ACCTFILE, TestData.resolve("app/data/ASCII/acctdata.txt"),
+                            AccountRecord.MAPPER.layout(), RecordEncoding.ASCII),
+                    failsOnClose,
+                    new FixedFileSink(Cbact01c.ARRYFILE, dir.resolve("ARRYFILE")),
+                    new VariableFileSink(Cbact01c.VBRCFILE, vbrc, RecordPrefix.GNUCOBOL_VARSEQ_0,
+                            Cbact01c.VBRC_MIN, Cbact01c.VBRC_MAX),
+                    sysout, RecordEncoding.ASCII);
+            assertThatThrownBy(program::run).isInstanceOf(AbendException.class)
+                    .hasMessageContaining("ERROR CLOSING OUTFILE");
+        }
+        assertThat(Files.size(vbrc)).isPositive();
     }
 
     @Test

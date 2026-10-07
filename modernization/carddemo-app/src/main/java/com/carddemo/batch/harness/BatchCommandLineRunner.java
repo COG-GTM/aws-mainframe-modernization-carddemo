@@ -1,5 +1,6 @@
 package com.carddemo.batch.harness;
 
+import org.springframework.batch.core.Job;
 import java.time.Clock;
 import java.time.LocalDate;
 import java.util.List;
@@ -51,6 +52,13 @@ class BatchCommandLineRunner implements ApplicationRunner, Ordered {
     @Override
     public void run(ApplicationArguments args) {
         if (environment.getProperty("spring.batch.job.enabled", Boolean.class, false)) {
+            if (BatchCommandLine.isBatchLaunch(args.getSourceArgs())) {
+                String message = "spring.batch.job.enabled=true cannot be combined with the batch CLI: Boot's job"
+                        + " runner does not apply --run-date, DD parameters or the RC convention";
+                log.error("batch CLI: {} (RC=0016)", message);
+                runLog.recordLaunchFailure(BatchCommandLine.requestedJob(args), null, message);
+                exitCodes.add(ReturnCode.TERMINAL);
+            }
             return;
         }
         Optional<BatchCommandLine.Request> request;
@@ -58,8 +66,7 @@ class BatchCommandLineRunner implements ApplicationRunner, Ordered {
             request = BatchCommandLine.parse(args);
         } catch (IllegalArgumentException e) {
             log.error("batch CLI: {} (RC=0016)", e.getMessage());
-            runLog.recordLaunchFailure(args.containsOption(BatchCommandLine.JOB)
-                    ? String.valueOf(args.getOptionValues(BatchCommandLine.JOB)) : null, null, e.getMessage());
+            runLog.recordLaunchFailure(BatchCommandLine.requestedJob(args), null, e.getMessage());
             exitCodes.add(ReturnCode.TERMINAL);
             return;
         }
@@ -71,19 +78,10 @@ class BatchCommandLineRunner implements ApplicationRunner, Ordered {
     }
 
     JobOutcome run(BatchCommandLine.Request request) {
-        JobParametersBuilder builder = new JobParametersBuilder()
-                .addLocalDate(BatchCommandLine.RUN_DATE,
-                        request.runDate() != null ? request.runDate() : LocalDate.now(clock));
-        request.parameters().forEach((name, value) -> {
-            if (!name.equals(BatchCommandLine.RUN_ID)) {
-                builder.addString(name, value);
-            }
-        });
-        String runId = request.parameters().get(BatchCommandLine.RUN_ID);
-        builder.addLong(BatchCommandLine.RUN_ID, runId != null ? parseRunId(runId) : System.currentTimeMillis());
-        JobParameters parameters = builder.toJobParameters();
-        String jobName = launcher.job(request.jobName()).map(j -> j.getName()).orElse(request.jobName());
+        String jobName = launcher.job(request.jobName()).map(Job::getName).orElse(request.jobName());
+        JobParameters parameters = null;
         try {
+            parameters = parameters(request);
             for (CommandLineJobParameters adapter : adapters) {
                 if (adapter.jobName().equals(jobName)) {
                     parameters = adapter.adapt(parameters);
@@ -94,8 +92,22 @@ class BatchCommandLineRunner implements ApplicationRunner, Ordered {
             runLog.recordLaunchFailure(jobName, parameters, e.getMessage());
             return JobOutcome.notLaunched(jobName, e.getMessage());
         }
-        log.info("batch CLI: launching {} with {}", jobName, parameters);
+        log.info("batch CLI: launching {} with {}", jobName, BatchRunLog.describe(parameters));
         return launcher.run(jobName, parameters);
+    }
+
+    private JobParameters parameters(BatchCommandLine.Request request) {
+        JobParametersBuilder builder = new JobParametersBuilder()
+                .addLocalDate(BatchCommandLine.RUN_DATE,
+                        request.runDate() != null ? request.runDate() : LocalDate.now(clock));
+        request.parameters().forEach((name, value) -> {
+            if (!name.equals(BatchCommandLine.RUN_ID)) {
+                builder.addString(name, value);
+            }
+        });
+        String runId = request.parameters().get(BatchCommandLine.RUN_ID);
+        builder.addLong(BatchCommandLine.RUN_ID, runId != null ? parseRunId(runId) : System.currentTimeMillis());
+        return builder.toJobParameters();
     }
 
     private static long parseRunId(String runId) {

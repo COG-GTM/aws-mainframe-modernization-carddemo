@@ -1,5 +1,6 @@
 package com.carddemo.batch.print;
 
+import com.carddemo.common.AbendException;
 import com.carddemo.account.AccountRecord;
 import com.carddemo.batch.harness.KsdsInput;
 import com.carddemo.batch.harness.RecordSink;
@@ -78,6 +79,7 @@ public final class Cbact01c {
     public ProgramCounts run() {
         sysout.display("START OF EXECUTION OF PROGRAM " + PROGRAM);
         long read = 0;
+        boolean ended = false;
         try {
             open(acctFile::open, "ERROR OPENING ACCTFILE", null);
             open(outFile::open, "ERROR OPENING OUTFILE", outFile);
@@ -93,11 +95,15 @@ public final class Cbact01c {
             } catch (FileStatusException e) {
                 throw sysout.ioAbend("ERROR CLOSING ACCOUNT FILE", e);
             }
+            ended = true;
         } finally {
-            closeQuietly(outFile);
-            closeQuietly(arryFile);
-            closeQuietly(vbrcFile);
+            if (!ended) {
+                closeQuietly(outFile);
+                closeQuietly(arryFile);
+                closeQuietly(vbrcFile);
+            }
         }
+        closeOutputs(outFile, arryFile, vbrcFile);
         sysout.display("END OF EXECUTION OF PROGRAM " + PROGRAM);
         return new ProgramCounts(read, written);
     }
@@ -232,6 +238,23 @@ public final class Cbact01c {
 
     private static void moveText(FixedWidthRecord from, String fromName, FixedWidthRecord to, String toName) {
         to.moveString(to.field(toName), from.getString(fromName));
+    }
+
+    /** Implicit CLOSE at GOBACK: buffered records are flushed here, so a failure is an abend, not RC 0. */
+    private static void closeOutputs(RecordSink... sinks) {
+        AbendException failure = null;
+        for (RecordSink sink : sinks) {
+            try {
+                sink.close();
+            } catch (RuntimeException e) {
+                if (failure == null) {
+                    failure = AbendException.carddemo("ERROR CLOSING " + sink.ddname(), e);
+                }
+            }
+        }
+        if (failure != null) {
+            throw failure;
+        }
     }
 
     private static void closeQuietly(RecordSink sink) {
