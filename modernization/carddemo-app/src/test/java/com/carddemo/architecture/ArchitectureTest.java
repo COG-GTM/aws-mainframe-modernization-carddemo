@@ -15,6 +15,9 @@ class ArchitectureTest {
     static final ArchRule commonDependsOnNoDomain = ModularMonolithRules.commonDependsOnNoDomain(ROOT);
 
     @ArchTest
+    static final ArchRule noDomainDependsOnWeb = ModularMonolithRules.noDomainDependsOnWeb(ROOT);
+
+    @ArchTest
     static final ArchRule domainsFollowDependencyMatrix = ModularMonolithRules.domainsFollowDependencyMatrix(ROOT);
 
     @ArchTest

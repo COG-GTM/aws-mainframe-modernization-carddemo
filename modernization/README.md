@@ -100,6 +100,8 @@ copybooks from `app/cpy`. Variables (shell or `.env`):
 | Variable | Default | Purpose |
 | --- | --- | --- |
 | `CARDDEMO_DB_PASSWORD` | none (required) | Postgres password for both containers |
+| `CARDDEMO_JWT_SECRET` | none outside `local`/`test` | HS256 key (≥ 32 bytes) of the online API tokens (ADR-0017); `local` has a development-only fallback |
+| `CARDDEMO_JWT_TTL` | `PT1H` | lifetime of a sign-on token |
 | `CARDDEMO_HTTP_PORT` | `8080` | host port of the app; set it when 8080/8084 are taken |
 | `CARDDEMO_DB_PORT` | `5432` | host port of Postgres |
 | `CARDDEMO_BIND_ADDRESS` | `127.0.0.1` | host interface both ports are published on (`local` shows health details) |

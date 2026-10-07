@@ -1,6 +1,6 @@
 # ADR-0007: COMMAREA → authenticated session context
 
-- Status: Accepted (UNT51-5, 2026-10-07)
+- Status: Accepted (UNT51-5, 2026-10-07); "server-side session" superseded by [ADR-0017](ADR-0017-stateless-jwt-session.md) (stateless JWT)
 - Applies to: `modernization/carddemo-app`
 
 ## Context

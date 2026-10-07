@@ -14,6 +14,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Stream;
 
 /**
  * Module boundaries of the CardDemo modular monolith (ADR-0001), parameterised by root package so the same rules
@@ -22,6 +23,9 @@ import java.util.Set;
 public final class ModularMonolithRules {
 
     public static final String COMMON = "common";
+
+    /** The web/API layer: controllers, security, DTOs. It may use every domain; nothing below may use it. */
+    public static final String WEB = "web";
 
     /** Domain package to the other domain packages it may use (besides {@code common}). */
     public static final Map<String, Set<String>> ALLOWED_DOMAIN_DEPENDENCIES = allowedDependencies();
@@ -47,6 +51,16 @@ public final class ModularMonolithRules {
         return noClasses().that().resideInAPackage(root + "." + COMMON + "..")
                 .should().dependOnClassesThat().resideInAnyPackage(domains)
                 .because("common is the shared kernel (ADR-0001)")
+                .allowEmptyShould(true);
+    }
+
+    public static ArchRule noDomainDependsOnWeb(String root) {
+        String[] below = Stream.concat(Stream.of(COMMON), ALLOWED_DOMAIN_DEPENDENCIES.keySet().stream())
+                .map(d -> root + "." + d + "..")
+                .toArray(String[]::new);
+        return noClasses().that().resideInAnyPackage(below)
+                .should().dependOnClassesThat().resideInAPackage(root + "." + WEB + "..")
+                .because("the web layer depends on the domains, never the reverse (ADR-0001, ADR-0017)")
                 .allowEmptyShould(true);
     }
 
@@ -102,6 +116,7 @@ public final class ModularMonolithRules {
     public static List<ArchRule> all(String root) {
         return List.of(
                 commonDependsOnNoDomain(root),
+                noDomainDependsOnWeb(root),
                 domainsFollowDependencyMatrix(root),
                 internalPackagesArePrivate(root),
                 packagesAreFreeOfCycles(root),

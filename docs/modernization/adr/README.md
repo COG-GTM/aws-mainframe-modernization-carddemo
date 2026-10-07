@@ -20,5 +20,8 @@ Rules every Java ticket applies. Code lives in `modernization/` (see its README)
 | [ADR-0014](ADR-0014-baseline-clock-pin.md) | Reproduce the baseline clock pin and JCL date parameters in Java |
 | [ADR-0015](ADR-0015-batch-harness-return-codes.md) | Batch CLI `--job=`, DD statements as job parameters (file path or `table`), JCL RCs 0/4/8/12/16 in `batch_run` and as the process exit code, `COND=` chaining |
 | [ADR-0016](ADR-0016-nightly-cycle-flow-job.md) | Control-M/CA-7 schedule → one `nightly-cycle` Spring Batch flow job (members in baseline order, scheduler conditions as `COND=(4,LT,pred)`, MAXCC), in-app cron off under `test`/`golden` |
+| [ADR-0017](ADR-0017-stateless-jwt-session.md) | Sign-on issues a stateless HS256 JWT (`sub` = user id, `role` = `ADMIN`/`USER`) from `CARDDEMO_JWT_SECRET`; online API under `com.carddemo.web`, which domains never depend on |
+| [ADR-0018](ADR-0018-plaintext-password-compatibility.md) | USRSEC passwords stay plain text and are compared like COBOL (upper-cased `PIC X(08)`) until a hashing migration; follow-up recorded |
+| [ADR-0019](ADR-0019-uniform-online-error-body.md) | Online API errors: RFC 7807 body with `code` / `field` / `message` (exact COBOL text); `NavigationContext` replaces COMMAREA navigation fields |
 
 New ADRs: next free number, same headings (Status/Applies to, Context, Decision). Supersede, do not edit, an accepted ADR.

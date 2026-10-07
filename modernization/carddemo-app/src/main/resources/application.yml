@@ -45,6 +45,14 @@ springdoc:
 carddemo:
   clock:
     zone: UTC
+  security:
+    jwt:                         # stateless HS256 session token of the online API (ADR-0017)
+      secret: ${CARDDEMO_JWT_SECRET:}   # no default; set it in the environment (>= 32 bytes)
+      issuer: carddemo
+      ttl: ${CARDDEMO_JWT_TTL:PT1H}
+  online:                        # EXEC CICS ASSIGN APPLID/SYSID in the screen headers
+    applid: ${CARDDEMO_APPLID:CARDDEMO}
+    sysid: ${CARDDEMO_SYSID:CDMO}
   initial-load:
     on-startup: false            # true in the local profile (docker compose)
     source-dir: ${CARDDEMO_INITIAL_LOAD_SOURCE_DIR:app/data/EBCDIC}

@@ -31,6 +31,13 @@ class ModularMonolithRulesSelfTest {
     }
 
     @Test
+    void noDomainMayDependOnTheWebLayer() {
+        assertThat(violations(ModularMonolithRules.noDomainDependsOnWeb(ROOT)))
+                .contains("archfixture.card.CardCallsWeb")
+                .doesNotContain("<archfixture.web.LoginEndpoint.accounts>");
+    }
+
+    @Test
     void domainMayOnlyUseItsAllowedDomains() {
         String report = violations(ModularMonolithRules.domainsFollowDependencyMatrix(ROOT));
         assertThat(report)
@@ -72,7 +79,8 @@ class ModularMonolithRulesSelfTest {
     @Test
     void legalDependenciesPassEveryRuleWhenViolatorsAreExcluded() {
         JavaClasses legal = new ClassFileImporter().importClasses(
-                archfixture.account.AccountService.class, archfixture.card.CardApi.class);
+                archfixture.account.AccountService.class, archfixture.card.CardApi.class,
+                archfixture.web.LoginEndpoint.class);
         for (ArchRule rule : ModularMonolithRules.all(ROOT)) {
             assertThat(rule.evaluate(legal).hasViolation()).as(rule.getDescription()).isFalse();
         }
