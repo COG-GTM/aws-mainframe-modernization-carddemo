@@ -15,7 +15,7 @@ HTTP 200
 {
   "token": "<redacted>",
   "tokenType": "Bearer",
-  "expiresAt": "2026-10-07T13:12:06.802221557Z",
+  "expiresAt": "2026-10-07T13:17:56.000652612Z",
   "userId": "ADMIN001",
   "role": "ADMIN",
   "userType": "A",
@@ -43,7 +43,7 @@ HTTP 200
     "tranId": "CCLI",
     "programName": "COCRDLIC",
     "currentDate": "10/07/26",
-    "currentTime": "12:12:06",
+    "currentTime": "12:17:56",
     "applId": "CARDDEMO",
     "sysId": "CDMO"
   },
@@ -129,7 +129,7 @@ HTTP 200
     "tranId": "CCLI",
     "programName": "COCRDLIC",
     "currentDate": "10/07/26",
-    "currentTime": "12:12:07",
+    "currentTime": "12:17:56",
     "applId": "CARDDEMO",
     "sysId": "CDMO"
   },
@@ -215,7 +215,7 @@ HTTP 200
     "tranId": "CCLI",
     "programName": "COCRDLIC",
     "currentDate": "10/07/26",
-    "currentTime": "12:12:07",
+    "currentTime": "12:17:56",
     "applId": "CARDDEMO",
     "sysId": "CDMO"
   },
@@ -301,7 +301,7 @@ HTTP 200
     "tranId": "CCLI",
     "programName": "COCRDLIC",
     "currentDate": "10/07/26",
-    "currentTime": "12:12:07",
+    "currentTime": "12:17:56",
     "applId": "CARDDEMO",
     "sysId": "CDMO"
   },
@@ -345,7 +345,7 @@ HTTP 200
     "tranId": "CCLI",
     "programName": "COCRDLIC",
     "currentDate": "10/07/26",
-    "currentTime": "12:12:07",
+    "currentTime": "12:17:56",
     "applId": "CARDDEMO",
     "sysId": "CDMO"
   },
@@ -395,7 +395,7 @@ HTTP 200
 {
   "token": "<redacted>",
   "tokenType": "Bearer",
-  "expiresAt": "2026-10-07T13:12:07.193469923Z",
+  "expiresAt": "2026-10-07T13:17:56.382976999Z",
   "userId": "USER0001",
   "role": "USER",
   "userType": "U",
@@ -438,7 +438,7 @@ HTTP 200
     "tranId": "CCLI",
     "programName": "COCRDLIC",
     "currentDate": "10/07/26",
-    "currentTime": "12:12:07",
+    "currentTime": "12:17:56",
     "applId": "CARDDEMO",
     "sysId": "CDMO"
   },
@@ -488,7 +488,7 @@ HTTP 404
 }
 
 ### USER: select row 1 with S (XCTL to COCRDSLC)
-$ curl -X POST http://localhost:8091/api/v1/cards/selection -H 'Authorization: Bearer $TOKEN' -H 'Content-Type: application/json' -d '{"rows":[{"cardRef":"QrGfualZ6ijKc2jbp1ruYvpGAn2x9w3OtNCpqLKscahSQcJG5im81z_uwfw","action":"S"}]}'
+$ curl -X POST http://localhost:8091/api/v1/cards/selection -H 'Authorization: Bearer $TOKEN' -H 'Content-Type: application/json' -d '{"accountId":"00000000050","rows":[{"cardRef":"QrGfualZ6ijKc2jbp1ruYvpGAn2x9w3OtNCpqLKscahSQcJG5im81z_uwfw","action":"S"}]}'
 HTTP 200
 {
   "header": {
@@ -497,7 +497,7 @@ HTTP 200
     "tranId": "CCLI",
     "programName": "COCRDLIC",
     "currentDate": "10/07/26",
-    "currentTime": "12:12:07",
+    "currentTime": "12:17:56",
     "applId": "CARDDEMO",
     "sysId": "CDMO"
   },
@@ -526,7 +526,7 @@ HTTP 200
     "tranId": "CCDL",
     "programName": "COCRDSLC",
     "currentDate": "10/07/26",
-    "currentTime": "12:12:07",
+    "currentTime": "12:17:56",
     "applId": "CARDDEMO",
     "sysId": "CDMO"
   },
@@ -571,7 +571,7 @@ HTTP 200
     "tranId": "CCDL",
     "programName": "COCRDSLC",
     "currentDate": "10/07/26",
-    "currentTime": "12:12:07",
+    "currentTime": "12:17:56",
     "applId": "CARDDEMO",
     "sysId": "CDMO"
   },
@@ -616,7 +616,7 @@ HTTP 200
     "tranId": "CCDL",
     "programName": "COCRDSLC",
     "currentDate": "10/07/26",
-    "currentTime": "12:12:07",
+    "currentTime": "12:17:56",
     "applId": "CARDDEMO",
     "sysId": "CDMO"
   },
@@ -698,7 +698,7 @@ HTTP 200
     "tranId": "CCUP",
     "programName": "COCRDUPC",
     "currentDate": "10/07/26",
-    "currentTime": "12:12:07",
+    "currentTime": "12:17:56",
     "applId": "CARDDEMO",
     "sysId": "CDMO"
   },
@@ -713,7 +713,7 @@ HTTP 200
       "tranId": "CCUP",
       "programName": "COCRDUPC",
       "currentDate": "10/07/26",
-      "currentTime": "12:12:07",
+      "currentTime": "12:17:56",
       "applId": "CARDDEMO",
       "sysId": "CDMO"
     },
@@ -759,7 +759,7 @@ HTTP 200
     "tranId": "CCUP",
     "programName": "COCRDUPC",
     "currentDate": "10/07/26",
-    "currentTime": "12:12:07",
+    "currentTime": "12:17:56",
     "applId": "CARDDEMO",
     "sysId": "CDMO"
   },
@@ -774,7 +774,7 @@ HTTP 200
       "tranId": "CCUP",
       "programName": "COCRDUPC",
       "currentDate": "10/07/26",
-      "currentTime": "12:12:07",
+      "currentTime": "12:17:56",
       "applId": "CARDDEMO",
       "sysId": "CDMO"
     },
@@ -820,7 +820,7 @@ HTTP 200
     "tranId": "CCUP",
     "programName": "COCRDUPC",
     "currentDate": "10/07/26",
-    "currentTime": "12:12:07",
+    "currentTime": "12:17:56",
     "applId": "CARDDEMO",
     "sysId": "CDMO"
   },
@@ -835,7 +835,7 @@ HTTP 200
       "tranId": "CCUP",
       "programName": "COCRDUPC",
       "currentDate": "10/07/26",
-      "currentTime": "12:12:07",
+      "currentTime": "12:17:56",
       "applId": "CARDDEMO",
       "sysId": "CDMO"
     },
@@ -896,7 +896,7 @@ HTTP 200
     "tranId": "CCDL",
     "programName": "COCRDSLC",
     "currentDate": "10/07/26",
-    "currentTime": "12:12:07",
+    "currentTime": "12:17:57",
     "applId": "CARDDEMO",
     "sysId": "CDMO"
   },

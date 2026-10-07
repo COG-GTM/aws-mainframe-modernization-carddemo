@@ -70,7 +70,7 @@ REF=$(jq -r '.rows[0].cardRef' "$BODY")
 step "USER: card of another account (card of account 50 with account 27 in context) -> 404" \
   "$API/cards/0500024453765740?accountId=27" -H "$UA"
 step "USER: select row 1 with S (XCTL to COCRDSLC)" -X POST "$API/cards/selection" -H "$UA" \
-  -H 'Content-Type: application/json' -d "{\"rows\":[{\"cardRef\":\"$REF\",\"action\":\"S\"}]}"
+  -H 'Content-Type: application/json' -d "{\"accountId\":\"00000000050\",\"rows\":[{\"cardRef\":\"$REF\",\"action\":\"S\"}]}"
 step "USER: card detail by reference (COCRDSLC, full card number)" \
   "$API/cards/$REF?accountId=00000000050&fromProgram=COCRDLIC" -H "$UA"
 step "USER: account path (CARDAIX) for account 27" "$API/cards/by-account/27" -H "$UA"

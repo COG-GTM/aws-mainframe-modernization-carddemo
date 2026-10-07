@@ -81,7 +81,10 @@ First error message wins (`IF WS-RETURN-MSG-OFF`); every failing field is colour
   (R-14..R-18) → `confirm=false` = ENTER (state `N`, nothing written) or `confirm=true` = PF5 (`lockVersion`
   `SELECT ... FOR UPDATE` = `READ UPDATE`, version re-check, `REWRITE`).
 - R-30: `CARD-ACCT-ID` keeps the stored account (COBOL moves the typed search key, which is protected once details
-  are fetched). Name as typed, day of the expiry date kept, CVV unchanged.
+  are fetched). Name as typed, day of the expiry date kept, CVV unchanged. Deliberate
+  deviation: the kept day is clamped to the last day of the new month (31 → 28/29 for February, 30 for April);
+  COBOL would REWRITE an impossible date such as `2024-02-31`, which the generated `expiration_date_dt` DATE column
+  cannot represent (it would become NULL and drop the card from date queries).
 - R-25 stays for an ADMIN (typed account not cross-checked); a USER can only update a card of the account given,
   else NOTFND (ADR-0020).
 - A one-digit month is accepted by the edit (COBOL `NUMVAL`-style 1..12) and stored as `MM`.

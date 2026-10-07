@@ -12,6 +12,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.carddemo.card.Card;
+import com.carddemo.card.CardRecord;
+import com.carddemo.card.CardStatus;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.util.Optional;
@@ -314,6 +316,29 @@ class CardUpdateRulesTest extends CardWebTest {
                 .andExpect(status().isOk());
         assertThat(store.get(pan(1)).getAcctId()).isEqualTo(1L);
         assertThat(store.get(pan(1)).getCardNum()).isEqualTo(pan(1));
+    }
+
+    @Test
+    void expiryDayIsClampedToTheNewMonth() throws Exception {
+        expiringOn(1, "2025-01-31");
+        expiringOn(2, "2025-03-31");
+        expiringOn(3, "2025-05-31");
+        update(admin(), pan(1), form(1).put("expiryMonth", "2").put("expiryYear", "2027").put("confirm", true))
+                .andExpect(status().isOk());
+        update(admin(), pan(2), form(2).put("expiryMonth", "02").put("expiryYear", "2028").put("confirm", true))
+                .andExpect(status().isOk());
+        update(admin(), pan(3), form(3).put("expiryMonth", "4").put("expiryYear", "2030").put("confirm", true))
+                .andExpect(status().isOk());
+        assertThat(store.get(pan(1)).getExpirationDate()).isEqualTo("2027-02-28");
+        assertThat(store.get(pan(2)).getExpirationDate()).isEqualTo("2028-02-29");
+        assertThat(store.get(pan(3)).getExpirationDate()).isEqualTo("2030-04-30");
+    }
+
+    private void expiringOn(int i, String date) {
+        Card card = Card.from(new CardRecord(pan(i), account(i), 100 + i, "Holder Name", date,
+                CardStatus.fromCode("Y")));
+        ReflectionTestUtils.setField(card, "version", 0L);
+        store.put(card.getCardNum(), card);
     }
 
     @Test

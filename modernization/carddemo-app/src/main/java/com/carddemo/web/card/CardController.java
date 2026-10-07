@@ -135,13 +135,14 @@ public class CardController {
     @Operation(summary = "Select a row of the page shown (COCRDLIC ENTER)",
             description = "2250-EDIT-ARRAY on the CRDSEL codes: one S routes to the detail (COCRDSLC), one U to "
                     + "the update (COCRDUPC); more than one S/U or any other code is rejected. No selection stays "
-                    + "on the list.")
+                    + "on the list. A USER must send accountId; a card of another account is NOTFND (ADR-0020).")
     @ApiResponse(responseCode = "200", description = "XCTL target, or no selection",
             content = @Content(schema = @Schema(implementation = CardSelectionResponse.class)))
     @ApiResponse(responseCode = "400", description = "INVREQ: more than one selection or invalid code (R-17)",
             content = @Content(mediaType = "application/problem+json",
                     schema = @Schema(implementation = ApiError.class)))
-    public CardSelectionResponse select(@Valid @RequestBody CardSelectionRequest request) {
+    public CardSelectionResponse select(@Valid @RequestBody CardSelectionRequest request,
+            @AuthenticationPrincipal Jwt jwt) {
         CardSelection selection = CardSelection.of(request.rows().stream()
                 .map(CardSelectionRequest.Row::action).toList());
         if (selection.none()) {
@@ -151,7 +152,12 @@ public class CardController {
         String ref = request.rows().get(selection.row()).cardRef();
         String cardNum = refs.decode(ref).orElseThrow(() ->
                 new InvalidRequestException("rows[" + selection.row() + "].cardRef", MSG_BAD_CURSOR));
-        Card card = lookup.byCardNumber(new CardKeys(null, cardNum), false);
+        boolean user = !isAdmin(jwt);
+        if (user && (request.accountId() == null || request.accountId().isBlank())) {
+            throw new NotAuthorizedException(CardKeys.ACCOUNT_FIELD, MSG_ACCOUNT_REQUIRED_FOR_USER);
+        }
+        Card card = lookup.byCardNumber(user ? CardKeys.searchKeys(request.accountId(), cardNum)
+                : new CardKeys(null, cardNum), user);
         boolean view = CardSelection.VIEW.equals(selection.action());
         NavigationContext target = NavigationContext.transfer(LIST_TRAN, LIST_PROGRAM,
                 view ? VIEW_TRAN : UPDATE_TRAN, view ? VIEW_PROGRAM : UPDATE_PROGRAM)

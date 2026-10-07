@@ -138,6 +138,18 @@ class CardListRulesTest extends CardWebTest {
     }
 
     @Test
+    void selectionByUserIsScopedToTheAccountInContext() throws Exception {
+        List<String> refs = refsOf(page(admin()));
+        List<String> first = List.of("S", "", "", "", "", "", "");
+        select(user(), refs, first).andExpect(status().isForbidden())
+                .andExpect(jsonPath("$.code").value("NOTAUTH"));
+        select(user(), "2", refs, first).andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.code").value("NOTFND"));
+        select(user(), "1", refs, first).andExpect(status().isOk())
+                .andExpect(jsonPath("$.navigation.acctId").value(1));
+    }
+
+    @Test
     void R13_noSelectionStaysOnTheList() throws Exception {
         List<String> refs = refsOf(page(admin()));
         select(admin(), refs, Collections.nCopies(7, "")).andExpect(status().isOk())

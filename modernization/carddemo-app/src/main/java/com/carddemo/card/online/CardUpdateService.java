@@ -9,6 +9,7 @@ import com.carddemo.common.FieldEditException;
 import com.carddemo.common.PanMask;
 import com.carddemo.common.Versions;
 import com.carddemo.common.online.ScreenInput;
+import java.time.YearMonth;
 import java.util.List;
 import java.util.function.Supplier;
 import org.slf4j.Logger;
@@ -94,9 +95,23 @@ public class CardUpdateService {
      * id into {@code CARD-UPDATE-ACCT-ID}; here the account of the card is kept (the key fields are protected once
      * details are fetched, R-33).
      */
+    /**
+     * The day that was read, clamped to the last day of the new month (e.g. 31 → 28/29 in February): COBOL would write
+     * an impossible date such as {@code 2024-02-31}, which the schema's generated DATE column cannot represent
+     * (deliberate deviation, COCRDUPC.md Java port notes).
+     */
+    static String expiryDay(String day, String year, String month) {
+        if (day.isEmpty() || !day.chars().allMatch(Character::isDigit)) {
+            return day;
+        }
+        int last = YearMonth.of(Integer.parseInt(year), Integer.parseInt(month)).lengthOfMonth();
+        return String.format("%02d", Math.min(Integer.parseInt(day), last));
+    }
+
     private static CardRecord rewrite(Card card, CardChanges typed) {
-        String expiry = typed.expiryYear().strip() + "-" + CardUpdateEdits.month(typed.expiryMonth()) + "-"
-                + CardChanges.expiryDay(card);
+        String year = typed.expiryYear().strip();
+        String month = CardUpdateEdits.month(typed.expiryMonth());
+        String expiry = year + "-" + month + "-" + expiryDay(CardChanges.expiryDay(card), year, month);
         return new CardRecord(card.getCardNum(), card.getAcctId(), card.getCvvCd(),
                 ScreenInput.rightTrim(typed.embossedName()), expiry, CardStatus.fromCode(typed.activeStatus().strip()));
     }

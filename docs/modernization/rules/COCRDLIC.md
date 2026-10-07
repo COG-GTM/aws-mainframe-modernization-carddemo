@@ -77,5 +77,6 @@ the 7 row keys), returned as `WS-COMMAREA X(2000)`. Valid AIDs: ENTER, PF3, PF7,
   `NO MORE PAGES TO DISPLAY` (the client is told `nextPage = null` beforehand).
 - **Selection (R-11, R-12, R-17).** `POST /api/v1/cards/selection` takes the `CRDSEL` codes of the rows shown and
   returns the `XCTL` target (`COCRDSLC` for `S`, `COCRDUPC` for `U`) with `acctId` and the card's `cardRef` instead of
-  `CDEMO-CARD-NUM` (ADR-0020).
+  `CDEMO-CARD-NUM` (ADR-0020). A USER sends the list's `accountId` with the selection (403 `NOTAUTH` without it) and
+  a card of another account is 404 `NOTFND`, as on the detail/update endpoints.
 - **Masking.** List rows show `************nnnn` instead of `CRDNUMn` (ADR-0020).

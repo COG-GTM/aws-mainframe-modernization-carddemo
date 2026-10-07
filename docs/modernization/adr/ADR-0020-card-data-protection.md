@@ -38,6 +38,8 @@ filter (rules doc COCRDLIC R-2, R-19): every signed-on user can list every card.
    - `GET`/`PUT /api/v1/cards/{cardNumber}`: for a USER the card must belong to the account given, else 404 NOTFND
      (`Did not find cards for this search condition`), so other accounts' cards are indistinguishable from missing
      ones. An ADMIN keeps the COBOL behaviour (typed account not cross-checked, COCRDSLC R-16 / COCRDUPC R-25).
+   - `POST /api/v1/cards/selection`: a USER sends the list's `accountId` (403 `NOTAUTH` without it); a selected card
+     of another account is 404 NOTFND, so a reference obtained elsewhere does not reveal its account.
    Ownership of an account by a user cannot be enforced until USRSEC (or a successor) links users to accounts; this
    ADR scopes, it does not authorise per account.
 

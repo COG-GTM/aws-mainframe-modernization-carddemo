@@ -133,6 +133,11 @@ abstract class CardWebTest extends OnlineWebTest {
     }
 
     protected ResultActions select(String token, List<String> refs, List<String> actions) throws Exception {
+        return select(token, null, refs, actions);
+    }
+
+    protected ResultActions select(String token, String accountId, List<String> refs, List<String> actions)
+            throws Exception {
         List<Map<String, String>> rows = new ArrayList<>();
         for (int i = 0; i < refs.size(); i++) {
             Map<String, String> row = new LinkedHashMap<>();
@@ -141,7 +146,8 @@ abstract class CardWebTest extends OnlineWebTest {
             rows.add(row);
         }
         return mvc.perform(post(CARDS + "/selection").header(HttpHeaders.AUTHORIZATION, token)
-                .contentType(MediaType.APPLICATION_JSON).content(json.writeValueAsString(Map.of("rows", rows))));
+                .contentType(MediaType.APPLICATION_JSON).content(json.writeValueAsString(accountId == null ? Map.of("rows", rows)
+                        : Map.of("accountId", accountId, "rows", rows))));
     }
 
     protected ResultActions view(String token, String cardNumber, String accountId, String... params)
