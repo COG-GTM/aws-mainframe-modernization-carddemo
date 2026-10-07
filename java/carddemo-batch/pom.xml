@@ -8,7 +8,7 @@
   <artifactId>carddemo-batch</artifactId>
   <version>0.1.0-SNAPSHOT</version>
   <packaging>jar</packaging>
-  <name>CardDemo batch (Java 17 port of CBACT01C)</name>
+  <name>CardDemo batch (Java 17 port of CBACT01C and CBTRN01C)</name>
   <description>Java 17 translation of the CardDemo batch COBOL programs with field-level parity tests against golden-files/</description>
 
   <properties>

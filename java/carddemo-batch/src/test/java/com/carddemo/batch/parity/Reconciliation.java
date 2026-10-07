@@ -1,14 +1,17 @@
 package com.carddemo.batch.parity;
 
 import com.carddemo.batch.support.Cbact01cRun;
+import com.carddemo.batch.support.Cbtrn01cRun;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.TreeMap;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -16,8 +19,9 @@ import java.util.stream.Collectors;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
- * Java re-implementation of the 29 CBACT01C checks in test-harness/RECONCILIATION_CHECKS.md (mirrors
- * {@code reconcile_cbact01c} in reconcile.py check for check, same ids, same expected/actual values).
+ * Java re-implementation of the 29 CBACT01C and 11 CBTRN01C checks in test-harness/RECONCILIATION_CHECKS.md
+ * (mirrors {@code reconcile_cbact01c} / {@code reconcile_cbtrn01c} in reconcile.py check for check, same
+ * ids, same expected/actual values).
  */
 final class Reconciliation {
 
@@ -276,5 +280,124 @@ final class Reconciliation {
         m.put("ARR-ACCT-CURR-BAL@3", new BigDecimal("-1025.00"));
         m.put("ARR-ACCT-CURR-CYC-DEBIT@3", new BigDecimal("-2500.00"));
         return m;
+    }
+
+    // ----- CBTRN01C ---------------------------------------------------------------------------
+
+    static final String VERIFIED = "VERIFIED";
+    static final String CARD_NOT_FOUND = "CARD_NOT_FOUND";
+    static final String ACCOUNT_NOT_FOUND = "ACCOUNT_NOT_FOUND";
+
+    static Result cbtrn01c(Cbtrn01cRun run) {
+        return cbtrn01c(run.inputJson(), run.outcomesJson(), run.xrefJson(), run.acctJson(), run.displayLookups());
+    }
+
+    /** Mirrors {@code reconcile_cbtrn01c(tran_in, outcomes, xref, acct, display_lookups)}. */
+    static Result cbtrn01c(List<Map<String, Object>> tranIn, List<Map<String, Object>> outcomes,
+                           List<Map<String, Object>> xref, List<Map<String, Object>> acct, int displayLookups) {
+        Result r = new Result();
+        int n = tranIn.size();
+        Map<String, Long> classes = outcomes.stream()
+                .collect(Collectors.groupingBy(o -> (String) o.get("outcome"), TreeMap::new, Collectors.counting()));
+        int verified = classes.getOrDefault(VERIFIED, 0L).intValue();
+        int cardMissing = classes.getOrDefault(CARD_NOT_FOUND, 0L).intValue();
+        int acctMissing = classes.getOrDefault(ACCOUNT_NOT_FOUND, 0L).intValue();
+
+        // -- record counts
+        r.check("CBTRN01C-COUNT-01", "counts", "daily transactions in = outcome rows out", n, outcomes.size());
+        r.check("CBTRN01C-COUNT-02", "counts", "verified + card-missing + account-missing = total",
+                outcomes.size(), verified + cardMissing + acctMissing);
+        int outOfOrder = 0;
+        for (int i = 0; i < Math.min(n, outcomes.size()); i++) {
+            Map<String, Object> t = tranIn.get(i);
+            Map<String, Object> o = outcomes.get(i);
+            if (!Objects.equals(t.get("DALYTRAN-ID"), o.get("tran_id"))
+                    || !Objects.equals(t.get("DALYTRAN-CARD-NUM"), o.get("card_num"))) {
+                outOfOrder++;
+            }
+        }
+        r.check("CBTRN01C-COUNT-03", "counts",
+                "outcome rows are in file order: row i has the DALYTRAN-ID and DALYTRAN-CARD-NUM of input record i",
+                0, outOfOrder);
+        r.check("CBTRN01C-COUNT-04", "counts",
+                "XREF lookups in display = transactions + 1 (legacy quirk: the last record is looked up again after "
+                        + "end-of-file because only the DISPLAY is guarded by the EOF flag)",
+                n + 1, displayLookups);
+
+        // -- field totals
+        List<BigDecimal> amtByRow = new ArrayList<>();
+        for (Map<String, Object> t : tranIn) {
+            amtByRow.add(dec(t.get("DALYTRAN-AMT")));
+        }
+        BigDecimal total = amtByRow.stream().reduce(BigDecimal.ZERO, BigDecimal::add);
+        Map<String, BigDecimal> perClass = new LinkedHashMap<>();
+        perClass.put(VERIFIED, BigDecimal.ZERO);
+        perClass.put(CARD_NOT_FOUND, BigDecimal.ZERO);
+        perClass.put(ACCOUNT_NOT_FOUND, BigDecimal.ZERO);
+        for (int i = 0; i < Math.min(amtByRow.size(), outcomes.size()); i++) {
+            perClass.merge((String) outcomes.get(i).get("outcome"), amtByRow.get(i), BigDecimal::add);
+        }
+        Map<String, String> perClassMoney = new LinkedHashMap<>();
+        perClass.forEach((k, v) -> perClassMoney.put(k, money(v)));
+        r.check("CBTRN01C-TOTAL-01", "totals", "sum DALYTRAN-AMT overall (input) = sum of per-outcome-class totals",
+                money(total), money(perClass.values().stream().reduce(BigDecimal.ZERO, BigDecimal::add)));
+        r.check("CBTRN01C-TOTAL-02", "totals", "sum DALYTRAN-AMT per class (recorded for the port to match)",
+                perClassMoney, perClassMoney);
+        Map<String, Object> split = new LinkedHashMap<>();
+        split.put("positive", money(amtByRow.stream().filter(a -> a.signum() > 0).reduce(BigDecimal.ZERO, BigDecimal::add)));
+        split.put("negative", money(amtByRow.stream().filter(a -> a.signum() < 0).reduce(BigDecimal.ZERO, BigDecimal::add)));
+        split.put("zero_count", (int) amtByRow.stream().filter(a -> a.signum() == 0).count());
+        r.check("CBTRN01C-TOTAL-03", "totals", "debit / credit split of DALYTRAN-AMT (positive vs negative amounts)",
+                split, split);
+
+        // -- cross-reference integrity
+        Map<String, Map<String, Object>> xrefByCard = new LinkedHashMap<>();
+        for (Map<String, Object> x : xref) {
+            xrefByCard.put((String) x.get("XREF-CARD-NUM"), x);
+        }
+        Set<Object> acctIds = new HashSet<>();
+        for (Map<String, Object> a : acct) {
+            acctIds.add(a.get("ACCT-ID"));
+        }
+        int badVerified = 0;
+        int badCardMissing = 0;
+        int badAcctMissing = 0;
+        for (Map<String, Object> o : outcomes) {
+            String card = (String) o.get("card_num");
+            Map<String, Object> x = xrefByCard.get(card);
+            boolean xrefFound = Boolean.TRUE.equals(o.get("xref_found"));
+            boolean acctFound = Boolean.TRUE.equals(o.get("acct_found"));
+            Object acctId = o.get("acct_id");
+            switch ((String) o.get("outcome")) {
+                case VERIFIED:
+                    if (x == null || !xrefFound || !Objects.equals(x.get("XREF-ACCT-ID"), acctId) || !acctFound
+                            || !acctIds.contains(acctId)) {
+                        badVerified++;
+                    }
+                    break;
+                case CARD_NOT_FOUND:
+                    if (x != null || xrefFound || acctFound || acctId != null) {
+                        badCardMissing++;
+                    }
+                    break;
+                case ACCOUNT_NOT_FOUND:
+                    if (x == null || !xrefFound || acctFound || !Objects.equals(x.get("XREF-ACCT-ID"), acctId)
+                            || acctIds.contains(acctId)) {
+                        badAcctMissing++;
+                    }
+                    break;
+                default:
+                    break;
+            }
+        }
+        r.check("CBTRN01C-XREF-01", "xref", "every VERIFIED card exists in cardxref and its XREF-ACCT-ID exists in acctdata",
+                0, badVerified);
+        r.check("CBTRN01C-XREF-02", "xref", "every CARD_NOT_FOUND card does not exist in cardxref", 0, badCardMissing);
+        r.check("CBTRN01C-XREF-03", "xref",
+                "every ACCOUNT_NOT_FOUND card exists in cardxref but its account is not in acctdata", 0, badAcctMissing);
+        r.check("CBTRN01C-XREF-04", "xref", "sample data coverage: distinct cards used by the transactions",
+                (int) tranIn.stream().map(t -> t.get("DALYTRAN-CARD-NUM")).distinct().count(),
+                (int) outcomes.stream().map(o -> o.get("card_num")).distinct().count());
+        return r;
     }
 }
