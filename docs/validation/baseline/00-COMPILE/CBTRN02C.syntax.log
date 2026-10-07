@@ -1,0 +1,2 @@
+$ cobc -fsyntax-only -std=ibm -I /home/ubuntu/repos/aws-mainframe-modernization-carddemo/app/cpy app/cbl/CBTRN02C.cbl
+rc=0

@@ -1,0 +1,2 @@
+$ cobc -std=ibm -fsign=EBCDIC -I app/cpy -x -o build/baseline-work/bin/CBIMPORT build/baseline-work/gen/CBIMPORT.cbl scripts/baseline/stubs/CEE3ABD.cbl
+rc=0

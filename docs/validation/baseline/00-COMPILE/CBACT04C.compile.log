@@ -1,0 +1,2 @@
+$ cobc -std=ibm -fsign=EBCDIC -I app/cpy -x -o build/baseline-work/bin/CBACT04C scripts/baseline/drivers/RUNCB04.cbl app/cbl/CBACT04C.cbl scripts/baseline/stubs/CEE3ABD.cbl
+rc=0

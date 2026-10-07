@@ -6,3 +6,6 @@ batch-app/markers/*
 /.idea/
 .DS_Store
 **/.DS_Store
+
+# GnuCOBOL baseline runner scratch area (scripts/baseline/run_baseline.sh)
+build/baseline-work/

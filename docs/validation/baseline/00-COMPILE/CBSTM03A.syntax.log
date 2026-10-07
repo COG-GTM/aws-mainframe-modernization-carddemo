@@ -1,0 +1,42 @@
+$ cobc -fsyntax-only -std=ibm -I /home/ubuntu/repos/aws-mainframe-modernization-carddemo/app/cpy app/cbl/CBSTM03A.CBL
+/home/ubuntu/repos/aws-mainframe-modernization-carddemo/app/cpy/CUSTREC.cpy:6: error: unbalanced parentheses
+/home/ubuntu/repos/aws-mainframe-modernization-carddemo/app/cpy/CUSTREC.cpy:6: error: invalid PICTURE character '2'
+/home/ubuntu/repos/aws-mainframe-modernization-carddemo/app/cpy/CUSTREC.cpy:7: error: syntax error, unexpected Literal
+/home/ubuntu/repos/aws-mainframe-modernization-carddemo/app/cpy/CUSTREC.cpy:7: error: unbalanced parentheses
+/home/ubuntu/repos/aws-mainframe-modernization-carddemo/app/cpy/CUSTREC.cpy:7: error: invalid PICTURE character '2'
+/home/ubuntu/repos/aws-mainframe-modernization-carddemo/app/cpy/CUSTREC.cpy:8: error: unbalanced parentheses
+/home/ubuntu/repos/aws-mainframe-modernization-carddemo/app/cpy/CUSTREC.cpy:8: error: invalid PICTURE character '2'
+/home/ubuntu/repos/aws-mainframe-modernization-carddemo/app/cpy/CUSTREC.cpy:9: error: unbalanced parentheses
+/home/ubuntu/repos/aws-mainframe-modernization-carddemo/app/cpy/CUSTREC.cpy:9: error: invalid PICTURE character '5'
+/home/ubuntu/repos/aws-mainframe-modernization-carddemo/app/cpy/CUSTREC.cpy:10: error: unbalanced parentheses
+/home/ubuntu/repos/aws-mainframe-modernization-carddemo/app/cpy/CUSTREC.cpy:10: error: invalid PICTURE character '5'
+/home/ubuntu/repos/aws-mainframe-modernization-carddemo/app/cpy/CUSTREC.cpy:11: error: unbalanced parentheses
+/home/ubuntu/repos/aws-mainframe-modernization-carddemo/app/cpy/CUSTREC.cpy:11: error: invalid PICTURE character '5'
+/home/ubuntu/repos/aws-mainframe-modernization-carddemo/app/cpy/CUSTREC.cpy:12: error: unbalanced parentheses
+/home/ubuntu/repos/aws-mainframe-modernization-carddemo/app/cpy/CUSTREC.cpy:13: error: unbalanced parentheses
+/home/ubuntu/repos/aws-mainframe-modernization-carddemo/app/cpy/CUSTREC.cpy:14: error: unbalanced parentheses
+/home/ubuntu/repos/aws-mainframe-modernization-carddemo/app/cpy/CUSTREC.cpy:14: error: 1 cannot follow A or X
+/home/ubuntu/repos/aws-mainframe-modernization-carddemo/app/cpy/CUSTREC.cpy:15: error: unbalanced parentheses
+/home/ubuntu/repos/aws-mainframe-modernization-carddemo/app/cpy/CUSTREC.cpy:15: error: 1 cannot follow A or X
+/home/ubuntu/repos/aws-mainframe-modernization-carddemo/app/cpy/CUSTREC.cpy:16: error: unbalanced parentheses
+/home/ubuntu/repos/aws-mainframe-modernization-carddemo/app/cpy/CUSTREC.cpy:16: error: 1 cannot follow A or X
+/home/ubuntu/repos/aws-mainframe-modernization-carddemo/app/cpy/CUSTREC.cpy:17: error: unbalanced parentheses
+/home/ubuntu/repos/aws-mainframe-modernization-carddemo/app/cpy/CUSTREC.cpy:18: error: unbalanced parentheses
+/home/ubuntu/repos/aws-mainframe-modernization-carddemo/app/cpy/CUSTREC.cpy:18: error: invalid PICTURE character '2'
+/home/ubuntu/repos/aws-mainframe-modernization-carddemo/app/cpy/CUSTREC.cpy:19: error: unbalanced parentheses
+/home/ubuntu/repos/aws-mainframe-modernization-carddemo/app/cpy/CUSTREC.cpy:19: error: 1 cannot follow A or X
+/home/ubuntu/repos/aws-mainframe-modernization-carddemo/app/cpy/CUSTREC.cpy:20: error: unbalanced parentheses
+/home/ubuntu/repos/aws-mainframe-modernization-carddemo/app/cpy/CUSTREC.cpy:20: error: 1 cannot follow A or X
+/home/ubuntu/repos/aws-mainframe-modernization-carddemo/app/cpy/CUSTREC.cpy:21: error: unbalanced parentheses
+/home/ubuntu/repos/aws-mainframe-modernization-carddemo/app/cpy/CUSTREC.cpy:22: error: unbalanced parentheses
+app/cbl/CBSTM03A.CBL: in paragraph '5000-CREATE-STATEMENT':
+app/cbl/CBSTM03A.CBL:464: error: 'CUST-MIDDLE-NAME' is not defined
+app/cbl/CBSTM03A.CBL:466: error: 'CUST-LAST-NAME' is not defined
+app/cbl/CBSTM03A.CBL:470: error: 'CUST-ADDR-LINE-1' is not defined
+app/cbl/CBSTM03A.CBL:471: error: 'CUST-ADDR-LINE-2' is not defined
+app/cbl/CBSTM03A.CBL:472: error: 'CUST-ADDR-LINE-3' is not defined
+app/cbl/CBSTM03A.CBL:474: error: 'CUST-ADDR-STATE-CD' is not defined
+app/cbl/CBSTM03A.CBL:476: error: 'CUST-ADDR-COUNTRY-CD' is not defined
+app/cbl/CBSTM03A.CBL:478: error: 'CUST-ADDR-ZIP' is not defined
+app/cbl/CBSTM03A.CBL:485: error: 'CUST-FICO-CREDIT-SCORE' is not defined
+rc=1

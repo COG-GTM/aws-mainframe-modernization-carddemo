@@ -1,0 +1,28 @@
+--- IDCAMS-EMU DEFINE CLUSTER AWS.M2.CARDDEMO.EXPORT.DATA KEYS(4 27) RECSZ(500) ; REPRO INFILE(EMPTY.dat)
+IDCAMS-EMU EXPORT: REPRO LOADED 000000000 RECORDS, REJECTED 000000000
+rc=0
+--- STEP20 EXEC PGM=CBEXPORT
+CBEXPORT: Starting Customer Data Export
+CBEXPORT: Export Date: 2022-07-06
+CBEXPORT: Export Time: 00:00:00
+CBEXPORT: Processing customer records
+CBEXPORT: Customers exported: 000000050
+CBEXPORT: Processing account records
+CBEXPORT: Accounts exported: 000000050
+CBEXPORT: Processing cross-reference records
+CBEXPORT: Cross-references exported: 000000050
+CBEXPORT: Processing transaction records
+CBEXPORT: Transactions exported: 000000312
+CBEXPORT: Processing card records
+CBEXPORT: Cards exported: 000000050
+CBEXPORT: Export completed
+CBEXPORT: Customers Exported: 000000050
+CBEXPORT: Accounts Exported: 000000050
+CBEXPORT: XRefs Exported: 000000050
+CBEXPORT: Transactions Exported: 000000312
+CBEXPORT: Cards Exported: 000000050
+CBEXPORT: Total Records Exported: 000000512
+rc=0
+--- IDCAMS-EMU REPRO INFILE(AWS.M2.CARDDEMO.EXPORT.DATA) OUTFILE(_after_CBEXPORT_EXPORT.dat)
+IDCAMS-EMU EXPORT: REPRO UNLOADED 000000512 RECORDS
+rc=0
