@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.BiFunction;
 import java.util.function.Function;
+import java.util.function.Supplier;
 import org.springframework.data.domain.Limit;
 
 /**
@@ -41,5 +42,13 @@ public interface KsdsInput {
     static <E, K> KsdsInput table(String ddname, K lowValues, BiFunction<K, Limit, List<E>> after,
                                   Function<E, K> key, Function<E, FixedWidthRecord> toRecord, int pageSize) {
         return new TableKsdsInput<>(ddname, lowValues, after, key, toRecord, pageSize);
+    }
+
+    /**
+     * A sequential dataset whose records {@code loader} reads at {@code OPEN} (e.g. a dated generation, which is always
+     * fixed-length); a {@code FileStatusException} thrown by the loader is the {@code OPEN} status.
+     */
+    static KsdsInput records(String ddname, Supplier<List<FixedWidthRecord>> loader) {
+        return new LoadedKsdsInput(ddname, loader);
     }
 }

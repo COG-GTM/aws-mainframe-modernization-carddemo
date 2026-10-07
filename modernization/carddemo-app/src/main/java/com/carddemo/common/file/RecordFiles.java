@@ -117,7 +117,7 @@ public final class RecordFiles {
         return records;
     }
 
-    private static byte[] read(String ddname, Path path) {
+    public static byte[] read(String ddname, Path path) {
         try {
             return Files.readAllBytes(path);
         } catch (NoSuchFileException e) {

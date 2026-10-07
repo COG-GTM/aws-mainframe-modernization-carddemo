@@ -10,7 +10,8 @@ help:
 	@echo "baseline        compile all batch COBOL with GnuCOBOL and run the 26 baseline jobs (WAITSTEP waits 36 s)"
 	@echo "baseline-fast   same, skipping the WAITSTEP sleep (outputs identical)"
 	@echo "baseline-check  baseline-fast + assert 'jobs=26 compile failures=0' + no drift vs docs/validation/baseline (CI gate)"
-	@echo "batch-equivalence  run READACCT/READCARD/READXREF/READCUST and POSTTRAN via the batch CLI (file + table DDs) and"
+	@echo "batch-equivalence  run READACCT/READCARD/READXREF/READCUST, POSTTRAN, INTCALC and TRANBKP/COMBTRAN/TRANREPT/PRTCATBL"
+	@echo "                   via the batch CLI (file + table DDs) and"
 	@echo "                   compare with docs/validation/baseline (needs the packaged jar + CARDDEMO_DB_*; CI gate)"
 	@echo "verify          mvn -B verify on JDK 21 (unit + Testcontainers ITs; needs Docker)"
 	@echo "up / down       docker compose: PostgreSQL 16 + carddemo-app (needs CARDDEMO_DB_PASSWORD or modernization/.env)"
@@ -32,6 +33,8 @@ batch-equivalence:
 	scripts/batch/run_posttran.sh table build/batch-equivalence/posttran-table
 	scripts/batch/run_intcalc.sh file build/batch-equivalence/intcalc-file
 	scripts/batch/run_intcalc.sh table build/batch-equivalence/intcalc-table
+	scripts/batch/run_tranrept.sh file build/batch-equivalence/tranrept-file
+	scripts/batch/run_tranrept.sh table build/batch-equivalence/tranrept-table
 
 verify:
 	cd modernization && mvn -B verify
