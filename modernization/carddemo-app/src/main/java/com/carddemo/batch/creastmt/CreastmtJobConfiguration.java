@@ -117,8 +117,10 @@ public class CreastmtJobConfiguration {
                     String sortin = HousekeepingJobConfiguration.SORTIN;
                     List<FixedWidthRecord> sorted;
                     if (DdParameters.isTable(parameters, sortin)) {
-                        sorted = transactions.findAllForStatements().stream()
-                                .map(t -> TransactionRecord.MAPPER.toRecord(t.toRecord(), encoding)).toList();
+                        // the query's COLLATE "C" order is ASCII byte order; re-sort the encoded records so EBCDIC
+                        // runs get EBCDIC CH order, as DFSORT would
+                        sorted = sort(transactions.findAllForStatements().stream()
+                                .map(t -> TransactionRecord.MAPPER.toRecord(t.toRecord(), encoding)).toList());
                     } else {
                         sorted = sort(datasets.ksds(Dataset.TRANSACT, parameters, sortin, encoding));
                     }
