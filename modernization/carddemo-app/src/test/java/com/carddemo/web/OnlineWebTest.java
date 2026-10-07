@@ -5,6 +5,9 @@ import static org.mockito.BDDMockito.given;
 import com.carddemo.account.AccountRepository;
 import com.carddemo.account.online.AccountLookup;
 import com.carddemo.account.online.AccountUpdateService;
+import com.carddemo.batch.report.TransactionReportEdits;
+import com.carddemo.batch.report.TransactionReportLauncher;
+import com.carddemo.batch.report.TransactionReportService;
 import com.carddemo.card.CardRepository;
 import com.carddemo.card.CardXrefRepository;
 import com.carddemo.card.online.CardBrowse;
@@ -13,6 +16,7 @@ import com.carddemo.card.online.CardUpdateService;
 import com.carddemo.common.online.CsdInstalledPrograms;
 import com.carddemo.common.time.ClockConfiguration;
 import com.carddemo.common.time.ClockProperties;
+import com.carddemo.customer.CustomerRepository;
 import com.carddemo.transaction.TransactionCategoryRepository;
 import com.carddemo.transaction.TransactionRepository;
 import com.carddemo.transaction.TransactionTypeRepository;
@@ -26,7 +30,11 @@ import com.carddemo.user.UserSecurity;
 import com.carddemo.user.UserSecurityRecord;
 import com.carddemo.user.UserSecurityRepository;
 import com.carddemo.user.UserType;
-import com.carddemo.customer.CustomerRepository;
+import com.carddemo.user.admin.UserAddService;
+import com.carddemo.user.admin.UserDeleteService;
+import com.carddemo.user.admin.UserListBrowse;
+import com.carddemo.user.admin.UserLookup;
+import com.carddemo.user.admin.UserUpdateService;
 import com.carddemo.user.menu.MenuCatalog;
 import com.carddemo.user.menu.MenuService;
 import com.carddemo.user.signon.SignOnService;
@@ -34,12 +42,14 @@ import com.carddemo.web.account.AccountController;
 import com.carddemo.web.card.CardController;
 import com.carddemo.web.card.CardReferences;
 import com.carddemo.web.menu.MenuController;
+import com.carddemo.web.report.TransactionReportController;
 import com.carddemo.web.security.JwtProperties;
 import com.carddemo.web.security.SecurityConfiguration;
 import com.carddemo.web.security.TokenService;
 import com.carddemo.web.signon.SignOnController;
 import com.carddemo.web.transaction.BillPaymentController;
 import com.carddemo.web.transaction.TransactionController;
+import com.carddemo.web.user.UserAdminController;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -62,12 +72,15 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
  * mocked. The business clock is pinned so screen headers are deterministic.
  */
 @WebMvcTest(controllers = {SignOnController.class, MenuController.class, AccountController.class,
-        CardController.class, TransactionController.class, BillPaymentController.class})
+        CardController.class, TransactionController.class, BillPaymentController.class, UserAdminController.class,
+        TransactionReportController.class})
 @Import({SecurityConfiguration.class, TokenService.class, SignOnService.class, MenuService.class, MenuCatalog.class,
         CsdInstalledPrograms.class, ScreenHeaders.class, ClockConfiguration.class, AccountLookup.class,
         AccountUpdateService.class, CardBrowse.class, CardLookup.class, CardUpdateService.class, CardReferences.class,
         TransactionBrowse.class, TransactionLookup.class, TransactionAddEdits.class, TransactionIds.class,
-        TransactionAddService.class, BillPaymentService.class})
+        TransactionAddService.class, BillPaymentService.class, UserListBrowse.class, UserLookup.class,
+        UserAddService.class, UserUpdateService.class, UserDeleteService.class, TransactionReportEdits.class,
+        TransactionReportService.class})
 @EnableConfigurationProperties({JwtProperties.class, OnlineProperties.class, ClockProperties.class})
 @ActiveProfiles("test")
 @TestPropertySource(properties = {"carddemo.clock.fixed=2022-07-06T13:45:10", "carddemo.online.applid=CARDDEMO",
@@ -109,6 +122,9 @@ public abstract class OnlineWebTest {
 
     @MockBean
     protected TransactionCategoryRepository categories;
+
+    @MockBean
+    protected TransactionReportLauncher reportLauncher;
 
     protected void givenUser(String userId, String password, UserType type) {
         given(users.findById(userId)).willReturn(Optional.of(

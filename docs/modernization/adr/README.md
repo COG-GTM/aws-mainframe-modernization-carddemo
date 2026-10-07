@@ -24,5 +24,6 @@ Rules every Java ticket applies. Code lives in `modernization/` (see its README)
 | [ADR-0018](ADR-0018-plaintext-password-compatibility.md) | USRSEC passwords stay plain text and are compared like COBOL (upper-cased `PIC X(08)`) until a hashing migration; follow-up recorded |
 | [ADR-0019](ADR-0019-uniform-online-error-body.md) | Online API errors: RFC 7807 body with `code` / `field` / `message` (exact COBOL text); `NavigationContext` replaces COMMAREA navigation fields |
 | [ADR-0020](ADR-0020-pan-masking.md) | Card numbers masked (last four) in card lists and logs, full PAN only on the single-card screens; opaque AES-GCM `cardRef`; a USER only sees cards of the account in context |
+| [ADR-0021](ADR-0021-async-report-requests.md) | CORPT00C's internal-reader submit → the same `tranrept` stream on a bounded in-process queue; `report_request` (V5) execution id, status poll and exact report download; start ≤ end enforced |
 
 New ADRs: next free number, same headings (Status/Applies to, Context, Decision). Supersede, do not edit, an accepted ADR.

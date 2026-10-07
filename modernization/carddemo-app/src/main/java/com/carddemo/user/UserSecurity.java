@@ -3,8 +3,12 @@ package com.carddemo.user;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
+import jakarta.persistence.PostLoad;
+import jakarta.persistence.PostPersist;
 import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
 import jakarta.persistence.Version;
+import org.springframework.data.domain.Persistable;
 
 /**
  * JPA entity for table {@code user_security}. Signon security record (USRSEC KSDS, key SEC-USR-ID); read by
@@ -13,7 +17,7 @@ import jakarta.persistence.Version;
  */
 @Entity
 @Table(name = "user_security")
-public class UserSecurity {
+public class UserSecurity implements Persistable<String> {
 
     /** SEC-USR-ID PIC X(08). */
     @Id
@@ -42,6 +46,33 @@ public class UserSecurity {
     private long version;
 
     protected UserSecurity() {
+    }
+
+    /** True for a record built by {@link #newRecord}: {@code save} then INSERTs (DUPREC on a duplicate key). */
+    @Transient
+    private boolean newRecord;
+
+    /** A record for {@code EXEC CICS WRITE} (COUSR01C): persisted with INSERT, never merged over an existing user. */
+    public static UserSecurity newRecord(UserSecurityRecord record) {
+        UserSecurity entity = from(record);
+        entity.newRecord = true;
+        return entity;
+    }
+
+    @Override
+    public String getId() {
+        return usrId;
+    }
+
+    @Override
+    public boolean isNew() {
+        return newRecord;
+    }
+
+    @PostPersist
+    @PostLoad
+    void stored() {
+        newRecord = false;
     }
 
     public static UserSecurity from(UserSecurityRecord record) {

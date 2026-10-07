@@ -52,3 +52,16 @@ baseline `TRANREPT`, frozen at `2022-01-01`..`2022-07-06`).
 |---|---|---|
 | R-20 | Return | Blank target → `COSGN00C`; from-fields `CR00`/`CORPT00C`, context 0; `XCTL ... COMMAREA`. |
 | R-21 | Send | Standard header (`CR00`, `CORPT00C`); `SEND MAP('CORPT0A') MAPSET('CORPT00') CURSOR` (+`ERASE` unless `SEND-ERASE-NO`, which is never set in this program); then `RETURN TRANSID('CR00') COMMAREA`. |
+
+## Java port notes (UNT51-21, `POST /api/v1/reports/transactions`, ADR-0021)
+
+- `reportType` Monthly / Yearly / Custom (or M / Y / C) replaces the three selector fields; `startDate` / `endDate`
+  {month, day, year} are the six Custom fields, edited in R-8..R-11 order (`TransactionReportEdits`, `NumvalC`,
+  `Csutldtc`), echoed normalised. `confirm` blank = 200 `VALIDATED` (R-15), `N` = 200 `CANCELLED`, `Y`/`y` = 202
+  `SUBMITTED` with `executionId` and `Location` (R-14), other 400 (R-17).
+- R-18: instead of JCL on the `JOBS` TDQ, the `tranrept` stream is queued with `PARM-START-DATE` /
+  `PARM-END-DATE` = the range. R-19: a full queue is 503 `NOSPACE` `Unable to Write TDQ (JOBS)...`.
+- `GET /api/v1/reports/transactions/{executionId}` polls QUEUED / RUNNING / COMPLETED / FAILED with the `batch_run`
+  rows and, once completed, the report lines; `.../report` downloads the exact TRANREPT generation.
+- Deliberate addition: start date after end date is 400 `Start Date can NOT be after End Date...` (not checked by
+  the COBOL). Visibility: own executions, ADMIN sees all (404 otherwise). Role: any signed-on user (COMEN01C option).

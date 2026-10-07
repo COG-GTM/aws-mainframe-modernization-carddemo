@@ -20,4 +20,7 @@ public interface BatchOutputFileRepository extends JpaRepository<BatchOutputFile
                 Limit.of(1 - relative));
         return newest.size() > -relative ? Optional.of(newest.get(-relative)) : Optional.empty();
     }
+
+    /** The generation of {@code gdgBase} written by one job execution (e.g. the TRANREPT of an online request). */
+    Optional<BatchOutputFile> findFirstByGdgBaseAndJobExecutionId(String gdgBase, long jobExecutionId);
 }

@@ -56,3 +56,11 @@ Fields: `USRIDIN` (8), display-only `FNAME`, `LNAME`, `USRTYPE` (no password sho
 | R-21 | Send | Standard header (`CU03`, `COUSR03C`); `SEND MAP('COUSR3A') MAPSET('COUSR03') ERASE CURSOR`. |
 
 Note: no self-delete guard (an admin may delete the signed-on user) and no "last admin" guard.
+
+## Java port notes (UNT51-21, `DELETE /api/v1/users/{id}`)
+
+- `confirm` blank = ENTER (200 `VALIDATED`: names and type, no password, `version`), `N` = PF4 clear (200
+  `CANCELLED`), `Y` = PF5 delete (requires `version`), other 400 `INVREQ`.
+- PF5: `lockVersion` (`READ UPDATE`) → version re-check (409 `CHANGED`) → `DELETE`; a missing user is 404 and nothing
+  is deleted (R-13: the COBOL issues the DELETE even after a failed read; deliberate deviation).
+- No self-delete or last-admin protection, as in the COBOL. Role: ADMIN only.

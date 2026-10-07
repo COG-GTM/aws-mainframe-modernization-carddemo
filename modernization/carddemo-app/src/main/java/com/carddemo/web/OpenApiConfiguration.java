@@ -3,6 +3,9 @@ package com.carddemo.web;
 import com.carddemo.account.online.AccountLookup;
 import com.carddemo.account.online.AccountUpdateEdits;
 import com.carddemo.account.online.AccountUpdateService;
+import com.carddemo.batch.report.TransactionReportEdits;
+import com.carddemo.batch.report.TransactionReportLauncher;
+import com.carddemo.batch.report.TransactionReportService;
 import com.carddemo.card.online.CardKeys;
 import com.carddemo.card.online.CardLookup;
 import com.carddemo.card.online.CardSelection;
@@ -14,11 +17,15 @@ import com.carddemo.transaction.online.TransactionAddService;
 import com.carddemo.transaction.online.TransactionBrowse;
 import com.carddemo.transaction.online.TransactionIds;
 import com.carddemo.transaction.online.TransactionLookup;
+import com.carddemo.user.admin.UserAdminMessages;
+import com.carddemo.user.admin.UserListBrowse;
 import com.carddemo.user.menu.MenuService;
 import com.carddemo.user.signon.SignOnService;
 import com.carddemo.web.card.CardController;
+import com.carddemo.web.report.TransactionReportController;
 import com.carddemo.web.security.ProblemResponses;
 import com.carddemo.web.transaction.TransactionController;
+import com.carddemo.web.user.UserAdminController;
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.Operation;
@@ -225,6 +232,97 @@ public class OpenApiConfiguration {
                     new ErrorExample("writeFailed", "ABEND", null, BillPaymentService.MSG_ADD_FAILED),
                     new ErrorExample("updateFailed", "ABEND", null, BillPaymentService.MSG_UPDATE_FAILED))));
 
+    private static final String USERS = "/api/v1/users";
+    private static final String USER = USERS + "/{id}";
+    private static final ErrorExample ADMIN_ONLY =
+            new ErrorExample("adminOnly", ProblemResponses.NOTAUTH, null, MenuService.MSG_ADMIN_ONLY);
+    private static final ErrorExample USER_NOT_FOUND =
+            new ErrorExample("userNotFound", "NOTFND", null, UserAdminMessages.MSG_NOT_FOUND);
+
+    private static final Map<String, List<ErrorExample>> USER_EXAMPLES = Map.ofEntries(
+            Map.entry("GET " + USERS + " 400", List.of(
+                    new ErrorExample("bothCursors", "INVREQ", "before", UserAdminController.MSG_ONE_CURSOR),
+                    new ErrorExample("badLimit", "INVREQ", "limit", UserAdminController.MSG_PAGE_SIZE),
+                    new ErrorExample("badCursor", "INVREQ", "after", UserListBrowse.MSG_BAD_CURSOR))),
+            Map.entry("GET " + USERS + " 403", List.of(ADMIN_ONLY)),
+            Map.entry("GET " + USERS + " 500", List.of(
+                    new ErrorExample("browseFailed", "ABEND", null, UserAdminMessages.MSG_LOOKUP_FAILED))),
+            Map.entry("POST " + USERS + "/selection 400", List.of(
+                    new ErrorExample("invalidSelection", "INVREQ", "rows[0].selection",
+                            UserListBrowse.MSG_INVALID_SELECTION))),
+            Map.entry("POST " + USERS + "/selection 403", List.of(ADMIN_ONLY)),
+            Map.entry("POST " + USERS + " 400", List.of(
+                    new ErrorExample("firstNameEmpty", "INVREQ", UserAdminMessages.FIRST_NAME_FIELD,
+                            UserAdminMessages.MSG_FIRST_NAME_EMPTY),
+                    new ErrorExample("userIdEmpty", "INVREQ", UserAdminMessages.USER_ID_FIELD,
+                            UserAdminMessages.MSG_USER_ID_EMPTY),
+                    new ErrorExample("userTypeInvalid", "INVREQ", UserAdminMessages.USER_TYPE_FIELD,
+                            UserAdminMessages.MSG_USER_TYPE_INVALID))),
+            Map.entry("POST " + USERS + " 403", List.of(ADMIN_ONLY)),
+            Map.entry("POST " + USERS + " 409", List.of(
+                    new ErrorExample("duplicateUser", "DUPREC", UserAdminMessages.USER_ID_FIELD,
+                            UserAdminMessages.MSG_DUPLICATE))),
+            Map.entry("POST " + USERS + " 500", List.of(
+                    new ErrorExample("writeFailed", "ABEND", null, UserAdminMessages.MSG_ADD_FAILED))),
+            Map.entry("GET " + USER + " 400", List.of(
+                    new ErrorExample("userIdEmpty", "INVREQ", UserAdminMessages.USER_ID_FIELD,
+                            UserAdminMessages.MSG_USER_ID_EMPTY))),
+            Map.entry("GET " + USER + " 403", List.of(ADMIN_ONLY)),
+            Map.entry("GET " + USER + " 404", List.of(USER_NOT_FOUND)),
+            Map.entry("GET " + USER + " 500", List.of(
+                    new ErrorExample("lookupFailed", "ABEND", null, UserAdminMessages.MSG_LOOKUP_FAILED))),
+            Map.entry("PUT " + USER + " 400", List.of(
+                    new ErrorExample("lastNameEmpty", "INVREQ", UserAdminMessages.LAST_NAME_FIELD,
+                            UserAdminMessages.MSG_LAST_NAME_EMPTY),
+                    new ErrorExample("passwordEmpty", "INVREQ", UserAdminMessages.PASSWORD_FIELD,
+                            UserAdminMessages.MSG_PASSWORD_EMPTY),
+                    new ErrorExample("versionMissing", "INVREQ", UserAdminMessages.VERSION_FIELD,
+                            UserAdminMessages.MSG_VERSION_REQUIRED))),
+            Map.entry("PUT " + USER + " 403", List.of(ADMIN_ONLY)),
+            Map.entry("PUT " + USER + " 404", List.of(USER_NOT_FOUND)),
+            Map.entry("PUT " + USER + " 409", List.of(new ErrorExample("changedByAnotherUser", "CHANGED", null,
+                    CHANGED))),
+            Map.entry("PUT " + USER + " 500", List.of(
+                    new ErrorExample("rewriteFailed", "ABEND", null, UserAdminMessages.MSG_UPDATE_FAILED))),
+            Map.entry("DELETE " + USER + " 400", List.of(
+                    new ErrorExample("invalidConfirm", "INVREQ", UserAdminMessages.CONFIRM_FIELD,
+                            UserAdminMessages.invalidConfirm("X")),
+                    new ErrorExample("versionMissing", "INVREQ", UserAdminMessages.VERSION_FIELD,
+                            UserAdminMessages.MSG_VERSION_REQUIRED))),
+            Map.entry("DELETE " + USER + " 403", List.of(ADMIN_ONLY)),
+            Map.entry("DELETE " + USER + " 404", List.of(USER_NOT_FOUND)),
+            Map.entry("DELETE " + USER + " 409", List.of(new ErrorExample("changedByAnotherUser", "CHANGED", null,
+                    CHANGED))),
+            Map.entry("DELETE " + USER + " 500", List.of(
+                    new ErrorExample("deleteFailed", "ABEND", null, UserAdminMessages.MSG_UPDATE_FAILED))));
+
+    private static final String REPORTS = TransactionReportController.PATH;
+
+    private static final Map<String, List<ErrorExample>> REPORT_EXAMPLES = Map.ofEntries(
+            Map.entry("POST " + REPORTS + " 400", List.of(
+                    new ErrorExample("noReportType", "INVREQ", TransactionReportEdits.REPORT_TYPE_FIELD,
+                            TransactionReportEdits.MSG_SELECT_REPORT),
+                    new ErrorExample("startMonthEmpty", "INVREQ", "startDate.month",
+                            TransactionReportEdits.MSG_START_MONTH_EMPTY),
+                    new ErrorExample("endDayInvalid", "INVREQ", "endDate.day",
+                            TransactionReportEdits.MSG_END_DAY_INVALID),
+                    new ErrorExample("startDateInvalid", "INVREQ", "startDate",
+                            TransactionReportEdits.MSG_START_DATE_INVALID),
+                    new ErrorExample("reversedRange", "INVREQ", "startDate",
+                            TransactionReportEdits.MSG_START_AFTER_END),
+                    new ErrorExample("invalidConfirm", "INVREQ", TransactionReportService.CONFIRM_FIELD,
+                            TransactionReportService.invalidConfirm("X")))),
+            Map.entry("POST " + REPORTS + " 503", List.of(
+                    new ErrorExample("queueFull", "NOSPACE", null, TransactionReportLauncher.MSG_QUEUE_FULL))),
+            Map.entry("GET " + REPORTS + "/{executionId} 404", List.of(
+                    new ErrorExample("executionNotFound", "NOTFND", null,
+                            TransactionReportController.MSG_EXECUTION_NOT_FOUND))),
+            Map.entry("GET " + REPORTS + "/{executionId}/report 404", List.of(
+                    new ErrorExample("notCompleted", "NOTFND", null,
+                            TransactionReportController.MSG_REPORT_NOT_AVAILABLE + "RUNNING..."),
+                    new ErrorExample("notRetained", "NOTFND", null,
+                            TransactionReportController.MSG_REPORT_NOT_RETAINED))));
+
     private static final ErrorExample SIGNON_REQUIRED = new ErrorExample("signOnRequired",
             ProblemResponses.SIGNON_REQUIRED, null, ProblemResponses.MSG_SIGNON_REQUIRED);
 
@@ -269,8 +367,11 @@ public class OpenApiConfiguration {
                 return;
             }
             String key = method + " " + path + " " + status;
-            List<ErrorExample> examples = EXAMPLES.getOrDefault(key, ACCOUNT_EXAMPLES.getOrDefault(key,
-                    CARD_EXAMPLES.getOrDefault(key, TRANSACTION_EXAMPLES.get(key))));
+            List<ErrorExample> examples = null;
+            for (Map<String, List<ErrorExample>> catalog : List.of(EXAMPLES, ACCOUNT_EXAMPLES, CARD_EXAMPLES,
+                    TRANSACTION_EXAMPLES, USER_EXAMPLES, REPORT_EXAMPLES)) {
+                examples = examples == null ? catalog.get(key) : examples;
+            }
             if (examples == null && "401".equals(status) && secured) {
                 examples = List.of(SIGNON_REQUIRED);
             }

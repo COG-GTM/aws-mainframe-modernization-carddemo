@@ -86,13 +86,13 @@ class CoreSchemaIT {
 
     @Test
     void flywayAppliesTheCoreSchemaOnTopOfTheBatchRepository() {
-        assertThat(flyway.info().current().getVersion().getVersion()).isEqualTo("4");
+        assertThat(flyway.info().current().getVersion().getVersion()).isEqualTo("5");
         List<String> tables = jdbc.queryForList("select table_name from information_schema.tables"
                 + " where table_schema = 'public' and table_name not like 'batch_job%'"
                 + " and table_name not like 'batch_step%' and table_name <> 'flyway_schema_history' order by 1",
                 String.class);
         assertThat(tables).containsExactly("account", "batch_output_file", "batch_run", "card", "card_xref", "customer",
-                "daily_transaction", "disclosure_group", "tran_cat_balance", "transaction", "transaction_category",
+                "daily_transaction", "disclosure_group", "report_request", "tran_cat_balance", "transaction", "transaction_category",
                 "transaction_type", "user_security");
     }
 

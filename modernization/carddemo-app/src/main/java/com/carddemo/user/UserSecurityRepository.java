@@ -2,8 +2,11 @@ package com.carddemo.user;
 
 import com.carddemo.common.data.KeysetPage;
 import java.util.List;
+import java.util.Optional;
 import org.springframework.data.domain.Limit;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 /**
  * USRSEC access paths: {@code READ} by SEC-USR-ID (COSGN00C, COUSR02C, COUSR03C), {@code WRITE}/{@code REWRITE}/
@@ -36,4 +39,11 @@ public interface UserSecurityRepository extends JpaRepository<UserSecurity, Stri
     default KeysetPage<UserSecurity> previousPage(String firstUsrIdShown) {
         return KeysetPage.backward(l -> findByUsrIdLessThanOrderByUsrIdDesc(firstUsrIdShown, l), COUSR00C_SCREEN_ROWS);
     }
+
+    /**
+     * {@code READ ... UPDATE} (COUSR02C/COUSR03C): row lock + current version, re-checked against the version the
+     * client was shown before the REWRITE/DELETE (ADR-0010).
+     */
+    @Query(value = "select version from user_security where usr_id = :usrId for update", nativeQuery = true)
+    Optional<Long> lockVersion(@Param("usrId") String usrId);
 }

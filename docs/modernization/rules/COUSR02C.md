@@ -58,3 +58,13 @@ Fields: `USRIDIN` (8, key), `FNAME`, `LNAME`, `PASSWD`, `USRTYPE`.
 |---|---|---|
 | R-23 | Return | Blank target → `COSGN00C`; from-fields = `CU02`/`COUSR02C`, context 0; `XCTL ... COMMAREA`. |
 | R-24 | Send | Standard header (`CU02`, `COUSR02C`); `SEND MAP('COUSR2A') MAPSET('COUSR02') ERASE CURSOR`. |
+
+## Java port notes (UNT51-21, `GET`/`PUT /api/v1/users/{id}`)
+
+- `GET` = ENTER (R-9/R-10/R-17: fields incl. password and `version`). `PUT` = PF5: R-11..R-15 edits, then one
+  `@Transactional` unit: `UserSecurityRepository.lockVersion` (`SELECT ... FOR UPDATE` = `READ UPDATE`) → version
+  re-check (stale → 409 `CHANGED`) → R-16 change detection after right-trim / upper-casing the type (`Please modify
+  to update ...`, nothing written) → `REWRITE`. `version` is required on `PUT`.
+- `fromProgram=COUSR00C` makes `exit` return to the list (R-5), else the admin menu (R-8).
+- Not ported: PF3's implicit save (R-5 performs UPDATE-USER-INFO before leaving); a client saves with `PUT` first.
+- Role: ADMIN only.
