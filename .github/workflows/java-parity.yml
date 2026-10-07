@@ -1,0 +1,45 @@
+name: java-parity
+
+on:
+  pull_request:
+    paths:
+      - 'java/**'
+      - 'golden-files/**'
+      - '.github/workflows/java-parity.yml'
+  push:
+    branches:
+      - devin/cbact01c-java17
+      - devin/cbtrn01c-java17
+    paths:
+      - 'java/**'
+      - 'golden-files/**'
+
+jobs:
+  verify:
+    name: mvn verify (Java 17 parity tests against golden-files)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: maven
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      - name: Maven verify
+        working-directory: java/carddemo-batch
+        run: mvn -B verify
+
+      - name: Surefire reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: surefire-reports
+          path: |
+            java/carddemo-batch/target/surefire-reports/
+            java/carddemo-batch/target/parity/
