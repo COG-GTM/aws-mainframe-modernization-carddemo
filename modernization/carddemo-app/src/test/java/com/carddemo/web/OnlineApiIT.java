@@ -366,7 +366,11 @@ class OnlineApiIT {
         assertThat(card.at("/put/responses/400/content/application~1problem+json/examples/nameNotAlphabetic/value"
                 + "/field").asText()).isEqualTo("embossedName");
         assertThat(doc.at("/paths/~1api~1v1~1cards~1by-account~1{accountId}/get").isMissingNode()).isFalse();
-        assertThat(doc.at("/paths/~1api~1v1~1cards~1selection/post").isMissingNode()).isFalse();
+        JsonNode selection = doc.at("/paths/~1api~1v1~1cards~1selection/post/responses");
+        assertThat(selection.at("/403/content/application~1problem+json/examples/userWithoutAccount/value/code")
+                .asText()).isEqualTo("NOTAUTH");
+        assertThat(selection.at("/404/content/application~1problem+json/examples/cardOfAnotherAccount/value/code")
+                .asText()).isEqualTo("NOTFND");
         assertThat(doc.at("/components/schemas/CardListRow/properties/cardRef").isMissingNode()).isFalse();
         assertThat(doc.at("/components/schemas/CardUpdateRequest/properties/version").isMissingNode()).isFalse();
     }

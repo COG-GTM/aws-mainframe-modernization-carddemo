@@ -141,6 +141,12 @@ public class CardController {
     @ApiResponse(responseCode = "400", description = "INVREQ: more than one selection or invalid code (R-17)",
             content = @Content(mediaType = "application/problem+json",
                     schema = @Schema(implementation = ApiError.class)))
+    @ApiResponse(responseCode = "403", description = "NOTAUTH: a USER without the account in context (ADR-0020)",
+            content = @Content(mediaType = "application/problem+json",
+                    schema = @Schema(implementation = ApiError.class)))
+    @ApiResponse(responseCode = "404", description = "NOTFND: a USER selected a card of another account (ADR-0020)",
+            content = @Content(mediaType = "application/problem+json",
+                    schema = @Schema(implementation = ApiError.class)))
     public CardSelectionResponse select(@Valid @RequestBody CardSelectionRequest request,
             @AuthenticationPrincipal Jwt jwt) {
         CardSelection selection = CardSelection.of(request.rows().stream()

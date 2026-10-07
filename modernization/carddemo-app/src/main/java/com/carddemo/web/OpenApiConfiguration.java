@@ -110,6 +110,11 @@ public class OpenApiConfiguration {
             Map.entry("POST " + CARDS + "/selection 400", List.of(
                     new ErrorExample("moreThanOne", "INVREQ", "rows[0].action", CardSelection.MSG_ONLY_ONE),
                     new ErrorExample("invalidAction", "INVREQ", "rows[0].action", CardSelection.MSG_INVALID_ACTION))),
+            Map.entry("POST " + CARDS + "/selection 403", List.of(
+                    new ErrorExample("userWithoutAccount", "NOTAUTH", CardKeys.ACCOUNT_FIELD,
+                            CardController.MSG_ACCOUNT_REQUIRED_FOR_USER))),
+            Map.entry("POST " + CARDS + "/selection 404", List.of(
+                    new ErrorExample("cardOfAnotherAccount", "NOTFND", null, CardLookup.MSG_NOT_FOUND))),
             Map.entry("GET " + CARD + " 400", cardKeyExamples()),
             Map.entry("GET " + CARD + " 404", List.of(
                     new ErrorExample("cardNotFound", "NOTFND", null, CardLookup.MSG_NOT_FOUND))),
