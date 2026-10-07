@@ -9,7 +9,7 @@ The field → column decisions live in one machine-readable file,
 | --- | --- |
 | `CopybookColumnMapTest` | the 11 layouts parse to their record lengths; **every leaf field** returned by `RecordLayout.leaves()` appears once, in storage order; only FILLER is unstored |
 | `DataModelDocTest` | §5 of this document equals what the codec + CSV generate (regenerate: `mvn test -Dtest=DataModelDocTest -Dcarddemo.docs.write=true`) |
-| `CoreSchemaIT` (Testcontainers `postgres:16-alpine`) | Flyway reaches V2; each mapped column has the type the rules below derive from the PIC, is `NOT NULL` and carries the copybook name as comment; PKs, AIX indexes, XREF FKs, `version` columns; **every sample record (EBCDIC and ASCII) loads with zero rejects** |
+| `CoreSchemaIT` (Testcontainers `postgres:16-alpine`) | Flyway reaches V2; each mapped column has the type the rules below derive from the PIC, is `NOT NULL` and carries the copybook name as comment; PKs, AIX indexes, XREF FKs (deferred, refresh in one transaction), `version` columns; **every sample record (EBCDIC and ASCII) loads with zero rejects** |
 
 Binding ADRs: ADR-0003 (PIC X → string), ADR-0004 (NUMERIC, no float), ADR-0006 (level-88), ADR-0010 (`version`),
 ADR-0011 (KSDS/AIX → table/index, keyset browse), ADR-0012 (GDG → dated storage).
@@ -24,7 +24,7 @@ ADR-0011 (KSDS/AIX → table/index, keyset browse), ADR-0012 (GDG → dated stor
 | CARDDATA / CARDDAT | `CVACT02Y` | 150 | KSDS `KEYS(16 0)`, AIX `CARDAIX KEYS(11 16)` | `card` | `card_num` | `card_acct_id_ix (acct_id, card_num)` | yes (COCRDUPC) |
 | CARDXREF / CCXREF | `CVACT03Y` | 50 | KSDS `KEYS(16 0)`, AIX `CXACAIX KEYS(11 25)` | `card_xref` | `card_num` | `card_xref_acct_id_ix (acct_id, card_num)`, `card_xref_cust_id_ix` | no (read-only online) |
 | TRANSACT | `CVTRA05Y` | 350 | KSDS `KEYS(16 0)`, AIX `KEYS(26 304) NONUNIQUEKEY` | `transaction` | `tran_id` | `transaction_proc_ts_ix (proc_ts, tran_id)` | no (insert-only: COTRN02C, COBIL00C) |
-| DALYTRAN | `CVTRA06Y` | 350 | sequential (POSTTRAN input) | `daily_transaction` | `tran_id` | — | no |
+| DALYTRAN | `CVTRA06Y` | 350 | sequential (POSTTRAN input) | `daily_transaction` | `record_seq` (file position) | `daily_transaction_tran_id_ix` (non-unique) | no |
 | TCATBALF | `CVTRA01Y` | 50 | KSDS `KEYS(17 0)` | `tran_cat_balance` | `(acct_id, tran_type_cd, tran_cat_cd)` | — | no (batch only) |
 | DISCGRP | `CVTRA02Y` | 50 | KSDS `KEYS(16 0)` | `disclosure_group` | `(acct_group_id, tran_type_cd, tran_cat_cd)` | — | no |
 | TRANTYPE | `CVTRA03Y` | 60 | KSDS `KEYS(2 0)` | `transaction_type` | `tran_type_cd` | — | no |
@@ -38,17 +38,23 @@ keys in primary-key order).
 **DALYTRAN.** ADR-0011 keeps sequential files as files: the POSTTRAN step still reads the dated daily-transaction
 file. `daily_transaction` is a staging table with the same layout so the phase-3 load and API/reconciliation queries
 can see the current input; it has no FKs because unknown cards/accounts are POSTTRAN *rejects* (DALYREJS), not load
-errors. `DALYTRAN.PS.INIT` (one zero-filled record) is the empty-file seed and is not loaded.
+errors. A sequential file has no unique key and may repeat a `DALYTRAN-ID`, so the key is `record_seq`, the 1-based
+record position (also preserves file order); `tran_id` has a non-unique index. `DALYTRAN.PS.INIT` (one zero-filled record) is the empty-file seed and is not loaded.
 
 ### Foreign keys
 
 | FK | Why |
 | --- | --- |
 | `card_xref.card_num → card`, `card_xref.cust_id → customer`, `card_xref.acct_id → account` | the XREF file is the junction of card, customer and account |
-| `tran_cat_balance.acct_id → account` | every TCATBALF key starts with an account id that CBACT04C reads from ACCTDAT |
 | `transaction_category.tran_type_cd → transaction_type` | a category exists only under its type |
 
-Deliberately **no** FK: `account.group_id → disclosure_group` (CBACT04C falls back to group `DEFAULT` when a group
+All FKs are `DEFERRABLE INITIALLY DEFERRED`. The VSAM files are refreshed independently (one IDCAMS/REPRO job per
+dataset), so a refresh of `card`, `customer`, `account` or `transaction_type` is one transaction (`DELETE` + reload)
+and the references are checked at commit; a refresh that drops a referenced key fails and rolls back, leaving the
+dependent rows intact (asserted in `CoreSchemaIT`). Never `TRUNCATE … CASCADE` a referenced table.
+
+Deliberately **no** FK: `tran_cat_balance.acct_id → account` (TCATBALF and ACCTDATA are refreshed by separate
+jobs; CBACT04C reads TCATBALF sequentially and looks the account up); `account.group_id → disclosure_group` (CBACT04C falls back to group `DEFAULT` when a group
 has no row, and DISCGRP's key is group+type+category); `transaction.card_num`/type/category (COTRN02C and CBTRN02C
 write them without reading TRANCATG); anything on `daily_transaction` (see above); `card.acct_id → account`
 (COCRDUPC/COCRDLIC never validate it against ACCTDAT; kept loose so the phase-3 load order is free — revisit in s3.x
@@ -78,7 +84,7 @@ become integers; the leading zeros are presentation (`%011d`) and are restored b
 
 No program treats any of these fields *only* as a date, so per the step rule the text column is the source of truth
 and the `*_dt` columns are `GENERATED ALWAYS AS (cobol_iso_date(text)) STORED`. `cobol_iso_date` returns `NULL`
-for anything that is not a valid `YYYY-MM-DD` calendar date (so the load never rejects a record); all 50 sample
+for anything that is not a valid `YYYY-MM-DD` calendar date (including year `0000`, which PostgreSQL would read as 1 BC) (so the load never rejects a record); all 50 sample
 accounts, cards and customers convert (asserted).
 
 ## 3. Level-88 values → CHECK constraints (ADR-0006)

@@ -26,7 +26,9 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
+import org.springframework.transaction.support.TransactionTemplate;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
@@ -138,7 +140,7 @@ class CoreSchemaIT {
         expected.put("card", List.of("card_num"));
         expected.put("card_xref", List.of("card_num"));
         expected.put("transaction", List.of("tran_id"));
-        expected.put("daily_transaction", List.of("tran_id"));
+        expected.put("daily_transaction", List.of("record_seq"));
         expected.put("tran_cat_balance", List.of("acct_id", "tran_type_cd", "tran_cat_cd"));
         expected.put("disclosure_group", List.of("acct_group_id", "tran_type_cd", "tran_cat_cd"));
         expected.put("transaction_type", List.of("tran_type_cd"));
@@ -151,6 +153,7 @@ class CoreSchemaIT {
         assertThat(indexColumns("card_acct_id_ix")).as("CARDAIX").containsExactly("acct_id", "card_num");
         assertThat(indexColumns("card_xref_acct_id_ix")).as("CXACAIX").containsExactly("acct_id", "card_num");
         assertThat(indexColumns("transaction_proc_ts_ix")).as("TRANSACT AIX").containsExactly("proc_ts", "tran_id");
+        assertThat(indexColumns("daily_transaction_tran_id_ix")).containsExactly("tran_id");
     }
 
     @Test
@@ -209,6 +212,32 @@ class CoreSchemaIT {
     }
 
     @Test
+    void dailyFileMayRepeatATransactionId() {
+        List<FixedWidthRecord> daily = read("DALYTRAN", "CVTRA06Y", RecordEncoding.EBCDIC);
+        List<FixedWidthRecord> repeated = List.of(daily.get(0), daily.get(0));
+        assertThat(insertInto("daily_transaction", "CVTRA06Y", repeated)).isEqualTo(2);
+        assertThat(jdbc.queryForList("select record_seq from daily_transaction order by 1", Integer.class))
+                .containsExactly(1, 2);
+    }
+
+    @Test
+    void aReferencedDatasetCanBeRefreshedInOneTransaction() {
+        for (Map.Entry<String, String> sample : SAMPLES.entrySet()) {
+            insert(sample.getValue(), read(sample.getKey(), sample.getValue(), RecordEncoding.EBCDIC));
+        }
+        TransactionTemplate tx = new TransactionTemplate(new DataSourceTransactionManager(jdbc.getDataSource()));
+        tx.executeWithoutResult(status -> {
+            jdbc.update("delete from account");
+            insert("CVACT01Y", read("ACCTDATA", "CVACT01Y", RecordEncoding.EBCDIC));
+        });
+        assertThat(jdbc.queryForObject("select count(*) from account", Integer.class)).isEqualTo(50);
+        assertThatThrownBy(() -> tx.executeWithoutResult(status -> jdbc.update("delete from account")))
+                .as("XREF still references the accounts at commit").rootCause()
+                .hasMessageContaining("card_xref_account_fk");
+        assertThat(jdbc.queryForObject("select count(*) from card_xref", Integer.class)).isEqualTo(50);
+    }
+
+    @Test
     void levelEightyEightChecksRejectUndefinedCodes() {
         assertThatThrownBy(() -> jdbc.update(
                 "insert into user_security values ('X', 'F', 'L', 'P', 'X')"))
@@ -227,6 +256,8 @@ class CoreSchemaIT {
         assertThat(jdbc.queryForObject("select cobol_iso_date('2022-02-30')", String.class)).isNull();
         assertThat(jdbc.queryForObject("select cobol_iso_date('          ')", String.class)).isNull();
         assertThat(jdbc.queryForObject("select cobol_iso_date('20220706')", String.class)).isNull();
+        assertThat(jdbc.queryForObject("select cobol_iso_date('0000-01-01')", String.class)).as("no year 0 / BC")
+                .isNull();
     }
 
     private static List<FixedWidthRecord> read(String dataset, String copybook, RecordEncoding encoding) {
@@ -249,17 +280,23 @@ class CoreSchemaIT {
         RecordLayout layout = Copybook.layout(copybook);
         List<Entry> stored = CopybookColumnMap.forCopybook(copybook).stream().filter(Entry::stored).toList();
         List<Field> fields = stored.stream().map(e -> leaf(layout, e.field())).toList();
-        String sql = "insert into " + table + " (" + stored.stream().map(Entry::column)
-                .collect(Collectors.joining(", ")) + ") values (" + stored.stream().map(e -> "?")
-                .collect(Collectors.joining(", ")) + ")";
+        boolean sequenced = table.equals("daily_transaction");
+        String sql = "insert into " + table + " (" + (sequenced ? "record_seq, " : "") + stored.stream()
+                .map(Entry::column).collect(Collectors.joining(", ")) + ") values (" + (sequenced ? "?, " : "")
+                + stored.stream().map(e -> "?").collect(Collectors.joining(", ")) + ")";
         List<Object[]> batch = new ArrayList<>();
         for (FixedWidthRecord r : records) {
-            Object[] row = new Object[fields.size()];
-            for (int i = 0; i < row.length; i++) {
+            Object[] row = new Object[fields.size() + (sequenced ? 1 : 0)];
+            int base = 0;
+            if (sequenced) {
+                row[0] = batch.size() + 1;
+                base = 1;
+            }
+            for (int i = 0; i < fields.size(); i++) {
                 Object v = r.get(fields.get(i));
-                row[i] = v instanceof String s ? s.stripTrailing() : v;
+                row[base + i] = v instanceof String s ? s.stripTrailing() : v;
                 if (v instanceof BigDecimal d && d.scale() <= 0) {
-                    row[i] = d.longValueExact();
+                    row[base + i] = d.longValueExact();
                 }
             }
             batch.add(row);

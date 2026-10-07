@@ -11,7 +11,7 @@
 CREATE FUNCTION cobol_iso_date(txt VARCHAR) RETURNS DATE
     LANGUAGE plpgsql IMMUTABLE STRICT PARALLEL SAFE AS $$
 BEGIN
-    IF txt !~ '^[0-9]{4}-[0-9]{2}-[0-9]{2}$' THEN
+    IF txt !~ '^[0-9]{4}-[0-9]{2}-[0-9]{2}$' OR substr(txt, 1, 4) = '0000' THEN
         RETURN NULL;
     END IF;
     RETURN make_date(substr(txt, 1, 4)::INTEGER, substr(txt, 6, 2)::INTEGER, substr(txt, 9, 2)::INTEGER);
@@ -106,7 +106,9 @@ CREATE TABLE card (
 );
 CREATE INDEX card_acct_id_ix ON card (acct_id, card_num);
 
--- CARDXREF / CCXREF (CVACT03Y, 50 bytes, KSDS KEYS(16 0); AIX CXACAIX KEYS(11 25)): card <-> customer <-> account
+-- CARDXREF / CCXREF (CVACT03Y, 50 bytes, KSDS KEYS(16 0); AIX CXACAIX KEYS(11 25)): card <-> customer <-> account.
+-- FKs are DEFERRABLE INITIALLY DEFERRED so a dataset refresh (delete + reload of card/customer/account) runs in one
+-- transaction and the references are checked at commit.
 CREATE TABLE card_xref (
     card_num VARCHAR(16) NOT NULL,
     cust_id  INTEGER     NOT NULL,
@@ -114,9 +116,12 @@ CREATE TABLE card_xref (
     CONSTRAINT card_xref_pk PRIMARY KEY (card_num),
     CONSTRAINT card_xref_cust_id_ck CHECK (cust_id BETWEEN 0 AND 999999999),
     CONSTRAINT card_xref_acct_id_ck CHECK (acct_id BETWEEN 0 AND 99999999999),
-    CONSTRAINT card_xref_card_fk FOREIGN KEY (card_num) REFERENCES card (card_num),
-    CONSTRAINT card_xref_customer_fk FOREIGN KEY (cust_id) REFERENCES customer (cust_id),
+    CONSTRAINT card_xref_card_fk FOREIGN KEY (card_num) REFERENCES card (card_num)
+        DEFERRABLE INITIALLY DEFERRED,
+    CONSTRAINT card_xref_customer_fk FOREIGN KEY (cust_id) REFERENCES customer (cust_id)
+        DEFERRABLE INITIALLY DEFERRED,
     CONSTRAINT card_xref_account_fk FOREIGN KEY (acct_id) REFERENCES account (acct_id)
+        DEFERRABLE INITIALLY DEFERRED
 );
 CREATE INDEX card_xref_acct_id_ix ON card_xref (acct_id, card_num);
 CREATE INDEX card_xref_cust_id_ix ON card_xref (cust_id);
@@ -136,6 +141,7 @@ CREATE TABLE transaction_category (
     CONSTRAINT transaction_category_pk PRIMARY KEY (tran_type_cd, tran_cat_cd),
     CONSTRAINT transaction_category_tran_cat_cd_ck CHECK (tran_cat_cd BETWEEN 0 AND 9999),
     CONSTRAINT transaction_category_type_fk FOREIGN KEY (tran_type_cd) REFERENCES transaction_type (tran_type_cd)
+        DEFERRABLE INITIALLY DEFERRED
 );
 
 -- DISCGRP (CVTRA02Y, 50 bytes, KSDS KEYS(16 0) = group + type + category). No FK from account.group_id:
@@ -149,7 +155,8 @@ CREATE TABLE disclosure_group (
     CONSTRAINT disclosure_group_tran_cat_cd_ck CHECK (tran_cat_cd BETWEEN 0 AND 9999)
 );
 
--- TCATBALF (CVTRA01Y, 50 bytes, KSDS KEYS(17 0) = account + type + category)
+-- TCATBALF (CVTRA01Y, 50 bytes, KSDS KEYS(17 0) = account + type + category). No FK to account: TCATBALF and
+-- ACCTDATA are refreshed by separate jobs, and CBACT04C reads TCATBALF sequentially without requiring the account.
 CREATE TABLE tran_cat_balance (
     acct_id      BIGINT        NOT NULL,
     tran_type_cd VARCHAR(2)    NOT NULL,
@@ -157,8 +164,7 @@ CREATE TABLE tran_cat_balance (
     balance      NUMERIC(11,2) NOT NULL,
     CONSTRAINT tran_cat_balance_pk PRIMARY KEY (acct_id, tran_type_cd, tran_cat_cd),
     CONSTRAINT tran_cat_balance_acct_id_ck CHECK (acct_id BETWEEN 0 AND 99999999999),
-    CONSTRAINT tran_cat_balance_tran_cat_cd_ck CHECK (tran_cat_cd BETWEEN 0 AND 9999),
-    CONSTRAINT tran_cat_balance_account_fk FOREIGN KEY (acct_id) REFERENCES account (acct_id)
+    CONSTRAINT tran_cat_balance_tran_cat_cd_ck CHECK (tran_cat_cd BETWEEN 0 AND 9999)
 );
 
 -- TRANSACT (CVTRA05Y, 350 bytes, KSDS KEYS(16 0); AIX KEYS(26 304) NONUNIQUEKEY on TRAN-PROC-TS).
@@ -186,7 +192,9 @@ CREATE INDEX transaction_proc_ts_ix ON transaction (proc_ts, tran_id);
 
 -- DALYTRAN (CVTRA06Y, 350 bytes, sequential input of POSTTRAN). Staging copy of the current daily file
 -- (ADR-0011: the batch job still reads the file); no FKs, invalid rows are POSTTRAN rejects, not load errors.
+-- A sequential file has no unique key, so rows are keyed by their 1-based position in the file (record_seq).
 CREATE TABLE daily_transaction (
+    record_seq    INTEGER       NOT NULL,
     tran_id       VARCHAR(16)   NOT NULL,
     tran_type_cd  VARCHAR(2)    NOT NULL,
     tran_cat_cd   INTEGER       NOT NULL,
@@ -200,10 +208,12 @@ CREATE TABLE daily_transaction (
     card_num      VARCHAR(16)   NOT NULL,
     orig_ts       VARCHAR(26)   NOT NULL,
     proc_ts       VARCHAR(26)   NOT NULL,
-    CONSTRAINT daily_transaction_pk PRIMARY KEY (tran_id),
+    CONSTRAINT daily_transaction_pk PRIMARY KEY (record_seq),
+    CONSTRAINT daily_transaction_record_seq_ck CHECK (record_seq > 0),
     CONSTRAINT daily_transaction_tran_cat_cd_ck CHECK (tran_cat_cd BETWEEN 0 AND 9999),
     CONSTRAINT daily_transaction_merchant_id_ck CHECK (merchant_id BETWEEN 0 AND 999999999)
 );
+CREATE INDEX daily_transaction_tran_id_ix ON daily_transaction (tran_id);
 
 -- GDG replacement (ADR-0012): every (+1) generation is a dated file under carddemo.batch.output-dir,
 -- catalogued here so (0) / (-1) resolve by query and a restart re-reads the generation it recorded.
@@ -331,6 +341,7 @@ COMMENT ON COLUMN customer.dob_dt IS 'cobol_iso_date(CUST-DOB-YYYY-MM-DD)';
 COMMENT ON COLUMN account.open_date_dt IS 'cobol_iso_date(ACCT-OPEN-DATE)';
 COMMENT ON COLUMN account.expiration_date_dt IS 'cobol_iso_date(ACCT-EXPIRAION-DATE)';
 COMMENT ON COLUMN account.reissue_date_dt IS 'cobol_iso_date(ACCT-REISSUE-DATE)';
+COMMENT ON COLUMN daily_transaction.record_seq IS '1-based record position in the DALYTRAN file';
 COMMENT ON COLUMN card.expiration_date_dt IS 'cobol_iso_date(CARD-EXPIRAION-DATE)';
 COMMENT ON COLUMN user_security.version IS 'optimistic lock (ADR-0010): COUSR02C/COUSR03C';
 COMMENT ON COLUMN customer.version IS 'optimistic lock (ADR-0010): COACTUPC';
