@@ -5,7 +5,11 @@ import static org.mockito.BDDMockito.given;
 import com.carddemo.account.AccountRepository;
 import com.carddemo.account.online.AccountLookup;
 import com.carddemo.account.online.AccountUpdateService;
+import com.carddemo.card.CardRepository;
 import com.carddemo.card.CardXrefRepository;
+import com.carddemo.card.online.CardBrowse;
+import com.carddemo.card.online.CardLookup;
+import com.carddemo.card.online.CardUpdateService;
 import com.carddemo.common.online.CsdInstalledPrograms;
 import com.carddemo.common.time.ClockConfiguration;
 import com.carddemo.common.time.ClockProperties;
@@ -18,6 +22,8 @@ import com.carddemo.user.menu.MenuCatalog;
 import com.carddemo.user.menu.MenuService;
 import com.carddemo.user.signon.SignOnService;
 import com.carddemo.web.account.AccountController;
+import com.carddemo.web.card.CardController;
+import com.carddemo.web.card.CardReferences;
 import com.carddemo.web.menu.MenuController;
 import com.carddemo.web.security.JwtProperties;
 import com.carddemo.web.security.SecurityConfiguration;
@@ -44,10 +50,11 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
  * MockMvc slice of the online API with the real security chain, sign-on/menu services and the USRSEC repository
  * mocked. The business clock is pinned so screen headers are deterministic.
  */
-@WebMvcTest(controllers = {SignOnController.class, MenuController.class, AccountController.class})
+@WebMvcTest(controllers = {SignOnController.class, MenuController.class, AccountController.class,
+        CardController.class})
 @Import({SecurityConfiguration.class, TokenService.class, SignOnService.class, MenuService.class, MenuCatalog.class,
         CsdInstalledPrograms.class, ScreenHeaders.class, ClockConfiguration.class, AccountLookup.class,
-        AccountUpdateService.class})
+        AccountUpdateService.class, CardBrowse.class, CardLookup.class, CardUpdateService.class, CardReferences.class})
 @EnableConfigurationProperties({JwtProperties.class, OnlineProperties.class, ClockProperties.class})
 @ActiveProfiles("test")
 @TestPropertySource(properties = {"carddemo.clock.fixed=2022-07-06T13:45:10", "carddemo.online.applid=CARDDEMO",
@@ -77,6 +84,9 @@ public abstract class OnlineWebTest {
 
     @MockBean
     protected CardXrefRepository xrefs;
+
+    @MockBean
+    protected CardRepository cards;
 
     protected void givenUser(String userId, String password, UserType type) {
         given(users.findById(userId)).willReturn(Optional.of(

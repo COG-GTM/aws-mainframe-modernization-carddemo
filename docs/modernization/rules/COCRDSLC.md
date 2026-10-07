@@ -55,3 +55,12 @@ message set wins (`IF WS-RETURN-MSG-OFF` guards), so account errors are reported
 | # | Given | Then |
 |---|---|---|
 | R-22 | Any abend | `ABEND-MSG` defaults to `UNEXPECTED ABEND OCCURRED.`; `ABEND-CULPRIT='COCRDSLC'`; `SEND` of `ABEND-DATA` with NOHANDLE; `HANDLE ABEND CANCEL`; `ABEND ABCODE('9999')`. |
+
+## Java port notes (UNT51-19, `GET /api/v1/cards/{cardNumber}`, `GET /api/v1/cards/by-account/{accountId}`)
+
+- `9100-GETCARD-BYACCTCARD` = `GET /api/v1/cards/{cardNumber}?accountId=`; `9150-GETCARD-BYACCT` (the CARDAIX
+  account path, not reached from `9000-READ-DATA` in the COBOL) = `GET /api/v1/cards/by-account/{accountId}`: the
+  account's lowest card number, NOTFND `Did not find this account in cards database`.
+- R-16 stays for an ADMIN (typed account not cross-checked). A USER only sees a card of the account given, else
+  NOTFND (ADR-0020).
+- The full card number is returned, as `CARDSIDO` shows it (ADR-0020).

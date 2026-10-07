@@ -40,7 +40,7 @@ the 7 row keys), returned as `WS-COMMAREA X(2000)`. Valid AIDs: ENTER, PF3, PF7,
 | # | Given | Then |
 |---|---|---|
 | R-18 | Start | Rows cleared; `STARTBR DATASET('CARDDAT ') RIDFLD(WS-CARD-RID-CARDNUM) GTEQ`; `CA-NEXT-PAGE-EXISTS` assumed. Loop `READNEXT` until exit. |
-| R-19 | Record read (NORMAL/DUPREC) | `9500-FILTER-RECORDS`: when `FLG-ACCTFILTER-ISVALID`, keep only `CARD-ACCT-ID = CC-ACCT-ID`; else when `FLG-CARDFILTER-ISVALID`, keep only `CARD-NUM = CC-CARD-NUM-N`; else keep all (account filter takes precedence over card filter). Kept record → row `n`: card num, acct id, active status; row 1 also sets `WS-CA-FIRST-CARDKEY` and bumps `SCREEN-NUM` from 0 to 1. |
+| R-19 | Record read (NORMAL/DUPREC) | `9500-FILTER-RECORDS`: when `FLG-ACCTFILTER-ISVALID`, keep only `CARD-ACCT-ID = CC-ACCT-ID`; then, when `FLG-CARDFILTER-ISVALID`, also keep only `CARD-NUM = CC-CARD-NUM-N`; no valid filter keeps all. Both filters apply when both are valid (corrected from source in UNT51-19: the two `IF`s are sequential, the earlier text said the account filter takes precedence). Kept record → row `n`: card num, acct id, active status; row 1 also sets `WS-CA-FIRST-CARDKEY` and bumps `SCREEN-NUM` from 0 to 1. |
 | R-20 | 7 rows filled | `WS-CA-LAST-CARDKEY ← row 7 key`; one look-ahead `READNEXT`: NORMAL/DUPREC → `CA-NEXT-PAGE-EXISTS` and `WS-CA-LAST-CARDKEY ← look-ahead key` (that record becomes row 1 of the next page); ENDFILE → `CA-NEXT-PAGE-NOT-EXISTS`, message (if none) `NO MORE RECORDS TO SHOW`; other → file error message. Look-ahead is not filtered. |
 | R-21 | `ENDFILE` before 7 rows | `CA-NEXT-PAGE-NOT-EXISTS`; last key ← last record read; message (if none) `NO MORE RECORDS TO SHOW`; if `SCREEN-NUM = 1` and no rows → `WS-NO-RECORDS-FOUND` (`NO RECORDS FOUND FOR THIS SEARCH CONDITION.` — set as the info message, but suppressed in `1400-SETUP-MESSAGE`). |
 | R-22 | Other RESP | Loop exits; `WS-ERROR-MSG ← WS-FILE-ERROR-MESSAGE`. Always `ENDBR`. |
@@ -60,3 +60,22 @@ the 7 row keys), returned as `WS-COMMAREA X(2000)`. Valid AIDs: ENTER, PF3, PF7,
 | R-26 | `1300-SETUP-SCREEN-ATTRS` | Filter fields re-displayed from `CC-ACCT-ID`/`CC-CARD-NUM` (valid or NOT-OK) or `CDEMO-*`; NOT-OK → red with cursor; `INPUT-OK` → cursor on `ACCTSID`. |
 | R-27 | `1400-SETUP-MESSAGE` | Filter errors keep their message; PF7 on first page → `NO PREVIOUS PAGES TO DISPLAY`; PF8 with no next page: `CA-LAST-PAGE-SHOWN` → `NO MORE PAGES TO DISPLAY`, else info `TYPE S FOR DETAIL, U TO UPDATE ANY RECORD` and `CA-LAST-PAGE-SHOWN`; `CA-NEXT-PAGE-EXISTS` → same info text. `ERRMSGO ← WS-ERROR-MSG`; info shown neutral unless blank or `NO RECORDS FOUND…`. |
 | R-28 | `1500-SEND-SCREEN` | `SEND MAP('CCRDLIA') MAPSET('COCRDLI') CURSOR ERASE FREEKB`. |
+
+## Java port notes (UNT51-19, `GET /api/v1/cards`, `POST /api/v1/cards/selection`)
+
+- **User restriction.** The header comment promises "all cards if no context passed and admin user; only the ones
+  associated with ACCT in COMMAREA if user is not admin", but no paragraph tests `CDEMO-USRTYP-*` (every `XCTL` even
+  forces `CDEMO-USRTYP-USER`) and `CDEMO-ACCT-ID` is never used as a filter (R-2): in the COBOL every user sees every
+  card. The port implements the documented intent (ADR-0020): an ADMIN without an account sees all cards; a USER must
+  name the account in context (`accountId`, 403 `NOTAUTH` otherwise) and only sees its cards.
+- **Look-ahead (R-20).** The ADR-0011 keyset page filters its look-ahead record, so `hasNextPage` is false when no
+  further card matches the filter; COBOL's unfiltered look-ahead would offer a PF8 that leads to an empty page.
+- **PF7 short of seven earlier rows (R-23).** COBOL leaves the upper rows empty and shows the `ENDFILE` file-error
+  message; the port returns the earlier rows (top-aligned) without an error. With a full first page (the normal case,
+  and every unfiltered page of the sample data) both show the same seven rows.
+- **PF8 with no next page (R-9).** Stateless: `after` = the last card of the last page answers an empty page with
+  `NO MORE PAGES TO DISPLAY` (the client is told `nextPage = null` beforehand).
+- **Selection (R-11, R-12, R-17).** `POST /api/v1/cards/selection` takes the `CRDSEL` codes of the rows shown and
+  returns the `XCTL` target (`COCRDSLC` for `S`, `COCRDUPC` for `U`) with `acctId` and the card's `cardRef` instead of
+  `CDEMO-CARD-NUM` (ADR-0020).
+- **Masking.** List rows show `************nnnn` instead of `CRDNUMn` (ADR-0020).

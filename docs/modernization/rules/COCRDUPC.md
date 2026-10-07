@@ -73,3 +73,15 @@ First error message wins (`IF WS-RETURN-MSG-OFF`); every failing field is colour
 |---|---|---|
 | R-32 | Info text by state | enter / not fetched → `Please enter Account and Card Number`; `S` → `Details of selected card shown above`; `E` → `Update card details presented above.`; `N` → `Changes validated.Press F5 to save`; `C` → `Changes committed to database`; `L`/`F` → `Changes unsuccessful. Please try again`. `INFOMSGO ← WS-INFO-MSG`, `ERRMSGO ← WS-RETURN-MSG`. |
 | R-33 | Attributes (`3300`) | Search keys protected once details are fetched; editable fields protected except in states `S`/`E`; `EXPDAY` always protected; PF5 only honoured in state `N`. `SEND MAP('CCRDUPA') MAPSET('COCRDUP') CURSOR ERASE FREEKB`. |
+
+## Java port notes (UNT51-19, `PUT /api/v1/cards/{cardNumber}`)
+
+- One request runs the dialogue: keys (R-10..R-12) → read (R-25..R-27) → version check (ADR-0010; replaces the
+  R-29 field-by-field comparison of `CCUP-OLD-*`, 409 `CHANGED`) → change detection (R-13) → edits 1230..1260
+  (R-14..R-18) → `confirm=false` = ENTER (state `N`, nothing written) or `confirm=true` = PF5 (`lockVersion`
+  `SELECT ... FOR UPDATE` = `READ UPDATE`, version re-check, `REWRITE`).
+- R-30: `CARD-ACCT-ID` keeps the stored account (COBOL moves the typed search key, which is protected once details
+  are fetched). Name as typed, day of the expiry date kept, CVV unchanged.
+- R-25 stays for an ADMIN (typed account not cross-checked); a USER can only update a card of the account given,
+  else NOTFND (ADR-0020).
+- A one-digit month is accepted by the edit (COBOL `NUMVAL`-style 1..12) and stored as `MM`.

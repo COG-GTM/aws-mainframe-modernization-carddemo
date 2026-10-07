@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.Optional;
 import org.springframework.data.domain.Limit;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 /**
  * CARDDATA access paths: {@code READ} by CARD-NUM (COCRDSLC, COCRDUPC, CBTRN01C), {@code REWRITE} (COCRDUPC), the
@@ -19,6 +21,13 @@ public interface CardRepository extends JpaRepository<Card, String> {
     int COCRDLIC_SCREEN_ROWS = 7;
 
     List<Card> findAllByOrderByCardNumAsc();
+
+    /**
+     * COCRDUPC {@code READ FILE('CARDDAT') UPDATE}: locks the row until the transaction ends and returns the version
+     * the {@code REWRITE} must still match (ADR-0010).
+     */
+    @Query(value = "select version from card where card_num = :cardNum for update", nativeQuery = true)
+    Optional<Long> lockVersion(@Param("cardNum") String cardNum);
 
     /**
      * CARDAIX {@code READ} by CARD-ACCT-ID: the first card of the account. The non-unique AIX is built by BLDINDEX
