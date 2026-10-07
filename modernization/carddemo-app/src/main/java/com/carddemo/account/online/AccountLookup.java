@@ -7,6 +7,7 @@ import com.carddemo.card.CardXrefRepository;
 import com.carddemo.common.AbendException;
 import com.carddemo.common.InvalidRequestException;
 import com.carddemo.common.RecordNotFoundException;
+import com.carddemo.common.online.CicsFileErrors;
 import com.carddemo.common.online.ScreenInput;
 import com.carddemo.customer.Customer;
 import com.carddemo.customer.CustomerRepository;
@@ -101,8 +102,7 @@ public class AccountLookup {
      * {@code DFHRESP(IOERR)} with {@code RESP2} 0.
      */
     public static String fileError(String operation, String dataset) {
-        return returnMessage("File Error: " + Fields.fit(operation, 8) + " on " + Fields.fit(dataset, 9)
-                + " returned RESP " + errorResp(RESP_IOERR) + ",RESP2 " + errorResp(0));
+        return CicsFileErrors.message(operation, dataset);
     }
 
     /** {@code 9200-GETCARDXREF-BYACCT} {@code NOTFND}. */

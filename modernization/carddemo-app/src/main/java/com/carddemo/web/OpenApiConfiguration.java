@@ -3,8 +3,14 @@ package com.carddemo.web;
 import com.carddemo.account.online.AccountLookup;
 import com.carddemo.account.online.AccountUpdateEdits;
 import com.carddemo.account.online.AccountUpdateService;
+import com.carddemo.card.online.CardKeys;
+import com.carddemo.card.online.CardLookup;
+import com.carddemo.card.online.CardSelection;
+import com.carddemo.card.online.CardUpdateEdits;
+import com.carddemo.card.online.CardUpdateService;
 import com.carddemo.user.menu.MenuService;
 import com.carddemo.user.signon.SignOnService;
+import com.carddemo.web.card.CardController;
 import com.carddemo.web.security.ProblemResponses;
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
@@ -88,6 +94,66 @@ public class OpenApiConfiguration {
             "PUT " + ACCOUNT + " 500", List.of(
                     new ErrorExample("rewriteFailed", "ABEND", null, AccountUpdateService.MSG_UPDATE_FAILED)));
 
+    private static final String CARDS = "/api/v1/cards";
+    private static final String CARD = CARDS + "/{cardNumber}";
+    private static final String CARD_BY_ACCOUNT = CARDS + "/by-account/{accountId}";
+
+    private static final Map<String, List<ErrorExample>> CARD_EXAMPLES = Map.ofEntries(
+            Map.entry("GET " + CARDS + " 400", List.of(
+                    new ErrorExample("accountFilterNotNumeric", "INVREQ", CardKeys.ACCOUNT_FIELD,
+                            CardKeys.MSG_ACCOUNT_INVALID),
+                    new ErrorExample("cardFilterNotNumeric", "INVREQ", CardKeys.CARD_FIELD, CardKeys.MSG_CARD_INVALID),
+                    new ErrorExample("badCursor", "INVREQ", "after", CardController.MSG_BAD_CURSOR))),
+            Map.entry("GET " + CARDS + " 403", List.of(
+                    new ErrorExample("userWithoutAccount", "NOTAUTH", CardKeys.ACCOUNT_FIELD,
+                            CardController.MSG_ACCOUNT_REQUIRED_FOR_USER))),
+            Map.entry("POST " + CARDS + "/selection 400", List.of(
+                    new ErrorExample("moreThanOne", "INVREQ", "rows[0].action", CardSelection.MSG_ONLY_ONE),
+                    new ErrorExample("invalidAction", "INVREQ", "rows[0].action", CardSelection.MSG_INVALID_ACTION))),
+            Map.entry("POST " + CARDS + "/selection 403", List.of(
+                    new ErrorExample("userWithoutAccount", "NOTAUTH", CardKeys.ACCOUNT_FIELD,
+                            CardController.MSG_ACCOUNT_REQUIRED_FOR_USER))),
+            Map.entry("POST " + CARDS + "/selection 404", List.of(
+                    new ErrorExample("cardOfAnotherAccount", "NOTFND", null, CardLookup.MSG_NOT_FOUND))),
+            Map.entry("GET " + CARD + " 400", cardKeyExamples()),
+            Map.entry("GET " + CARD + " 404", List.of(
+                    new ErrorExample("cardNotFound", "NOTFND", null, CardLookup.MSG_NOT_FOUND))),
+            Map.entry("GET " + CARD_BY_ACCOUNT + " 400", List.of(
+                    new ErrorExample("accountNotProvided", "INVREQ", CardKeys.ACCOUNT_FIELD,
+                            CardKeys.MSG_ACCOUNT_NOT_PROVIDED),
+                    new ErrorExample("accountNotNumeric", "INVREQ", CardKeys.ACCOUNT_FIELD,
+                            CardKeys.MSG_ACCOUNT_INVALID))),
+            Map.entry("GET " + CARD_BY_ACCOUNT + " 404", List.of(
+                    new ErrorExample("accountHasNoCard", "NOTFND", null, CardLookup.MSG_ACCOUNT_NOT_FOUND))),
+            Map.entry("PUT " + CARD + " 400", List.of(
+                    new ErrorExample("nameNotProvided", "INVREQ", CardUpdateEdits.NAME_FIELD,
+                            CardUpdateEdits.MSG_NAME_NOT_PROVIDED),
+                    new ErrorExample("nameNotAlphabetic", "INVREQ", CardUpdateEdits.NAME_FIELD,
+                            CardUpdateEdits.MSG_NAME_NOT_ALPHA),
+                    new ErrorExample("statusNotYesNo", "INVREQ", CardUpdateEdits.STATUS_FIELD,
+                            CardUpdateEdits.MSG_STATUS_NOT_YES_NO),
+                    new ErrorExample("monthOutOfRange", "INVREQ", CardUpdateEdits.MONTH_FIELD,
+                            CardUpdateEdits.MSG_MONTH_INVALID),
+                    new ErrorExample("yearOutOfRange", "INVREQ", CardUpdateEdits.YEAR_FIELD,
+                            CardUpdateEdits.MSG_YEAR_INVALID),
+                    new ErrorExample("accountNotProvided", "INVREQ", CardKeys.ACCOUNT_FIELD,
+                            CardKeys.MSG_ACCOUNT_NOT_PROVIDED))),
+            Map.entry("PUT " + CARD + " 404", List.of(
+                    new ErrorExample("cardNotFound", "NOTFND", null, CardLookup.MSG_NOT_FOUND))),
+            Map.entry("PUT " + CARD + " 409", List.of(new ErrorExample("changedByAnotherUser", "CHANGED", null, CHANGED))),
+            Map.entry("PUT " + CARD + " 500", List.of(
+                    new ErrorExample("lockFailed", "ABEND", null, CardUpdateService.MSG_LOCK_FAILED),
+                    new ErrorExample("rewriteFailed", "ABEND", null, CardUpdateService.MSG_UPDATE_FAILED))));
+
+    private static List<ErrorExample> cardKeyExamples() {
+        return List.of(
+                new ErrorExample("noInput", "INVREQ", CardKeys.ACCOUNT_FIELD, CardKeys.MSG_NO_INPUT),
+                new ErrorExample("accountNotProvided", "INVREQ", CardKeys.ACCOUNT_FIELD,
+                        CardKeys.MSG_ACCOUNT_NOT_PROVIDED),
+                new ErrorExample("accountNotNumeric", "INVREQ", CardKeys.ACCOUNT_FIELD, CardKeys.MSG_ACCOUNT_INVALID),
+                new ErrorExample("cardNotNumeric", "INVREQ", CardKeys.CARD_FIELD, CardKeys.MSG_CARD_INVALID));
+    }
+
     private static List<ErrorExample> notFoundExamples() {
         return List.of(
                 new ErrorExample("notInCrossReference", "NOTFND", null, AccountLookup.xrefNotFound(MISSING_ACCOUNT)),
@@ -139,7 +205,8 @@ public class OpenApiConfiguration {
                 return;
             }
             String key = method + " " + path + " " + status;
-            List<ErrorExample> examples = EXAMPLES.getOrDefault(key, ACCOUNT_EXAMPLES.get(key));
+            List<ErrorExample> examples = EXAMPLES.getOrDefault(key,
+                    ACCOUNT_EXAMPLES.getOrDefault(key, CARD_EXAMPLES.get(key)));
             if (examples == null && "401".equals(status) && secured) {
                 examples = List.of(SIGNON_REQUIRED);
             }

@@ -4,6 +4,7 @@ import com.carddemo.common.AbendException;
 import com.carddemo.common.DuplicateRecordException;
 import com.carddemo.common.FieldEditException;
 import com.carddemo.common.InvalidRequestException;
+import com.carddemo.common.NotAuthorizedException;
 import com.carddemo.common.RecordNotFoundException;
 import com.carddemo.common.online.CommonMessages;
 import org.slf4j.Logger;
@@ -45,6 +46,11 @@ public class CicsResponseExceptionHandler extends ResponseEntityExceptionHandler
     @ExceptionHandler(DuplicateRecordException.class)
     ProblemDetail duplicate(DuplicateRecordException e) {
         return problem(HttpStatus.CONFLICT, null, e.getMessage(), e.condition().name());
+    }
+
+    @ExceptionHandler(NotAuthorizedException.class)
+    ProblemDetail notAuthorized(NotAuthorizedException e) {
+        return problem(HttpStatus.FORBIDDEN, e.field(), e.getMessage(), "NOTAUTH");
     }
 
     @ExceptionHandler(InvalidRequestException.class)
