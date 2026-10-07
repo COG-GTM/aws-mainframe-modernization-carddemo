@@ -111,6 +111,14 @@
     },
     {
       "source": "COACTUPC",
+      "target": "CSUTLDTC",
+      "kind": "CALL",
+      "count": 1,
+      "target_type": "program",
+      "resolution": "via copybook CSUTLDPY"
+    },
+    {
+      "source": "COACTUPC",
       "target": "COMEN01C",
       "kind": "XCTL",
       "count": 1,
@@ -540,6 +548,14 @@
       "count": 2,
       "target_type": "program",
       "resolution": "via `CDEMO-TO-PROGRAM`"
+    },
+    {
+      "source": "CSUTLDTC",
+      "target": "CEEDAYS",
+      "kind": "CALL",
+      "count": 1,
+      "target_type": "runtime",
+      "resolution": "static"
     }
   ],
   "dynamic_transfer_notes": {
@@ -5455,13 +5471,7 @@
       "COMBTRAN": [
         "AWS.M2.CARDDEMO.TRANSACT.VSAM.KSDS"
       ],
-      "TRANBKP": [
-        "AWS.M2.CARDDEMO.TRANSACT.VSAM.KSDS"
-      ],
       "TRANFILE": [
-        "AWS.M2.CARDDEMO.TRANSACT.VSAM.KSDS"
-      ],
-      "TRANIDX": [
         "AWS.M2.CARDDEMO.TRANSACT.VSAM.KSDS"
       ],
       "CARDFILE": [
@@ -5475,11 +5485,6 @@
     },
     "CLOSEFIL": {},
     "COMBTRAN": {
-      "DEFGDGB": [
-        "AWS.M2.CARDDEMO.TRANSACT.BKUP",
-        "AWS.M2.CARDDEMO.SYSTRAN",
-        "AWS.M2.CARDDEMO.TRANSACT.COMBINED"
-      ],
       "TRANBKP": [
         "AWS.M2.CARDDEMO.TRANSACT.BKUP"
       ],
@@ -5498,13 +5503,7 @@
         "AWS.M2.CARDDEMO.TRANSACT.VSAM.KSDS",
         "AWS.M2.CARDDEMO.ACCTDATA.VSAM.KSDS"
       ],
-      "TRANBKP": [
-        "AWS.M2.CARDDEMO.TRANSACT.VSAM.KSDS"
-      ],
       "TRANFILE": [
-        "AWS.M2.CARDDEMO.TRANSACT.VSAM.KSDS"
-      ],
-      "TRANIDX": [
         "AWS.M2.CARDDEMO.TRANSACT.VSAM.KSDS"
       ],
       "XREFFILE": [
@@ -5531,15 +5530,13 @@
     "FTPJCL": {},
     "INTCALC": {
       "POSTTRAN": [
-        "AWS.M2.CARDDEMO.TCATBALF.VSAM.KSDS",
-        "AWS.M2.CARDDEMO.ACCTDATA.VSAM.KSDS"
+        "AWS.M2.CARDDEMO.TCATBALF.VSAM.KSDS"
       ],
       "TCATBALF": [
         "AWS.M2.CARDDEMO.TCATBALF.VSAM.KSDS"
       ],
       "XREFFILE": [
-        "AWS.M2.CARDDEMO.CARDXREF.VSAM.KSDS",
-        "AWS.M2.CARDDEMO.CARDXREF.VSAM.AIX.PATH"
+        "AWS.M2.CARDDEMO.CARDXREF.VSAM.KSDS"
       ],
       "ACCTFILE": [
         "AWS.M2.CARDDEMO.ACCTDATA.VSAM.KSDS"
@@ -5562,9 +5559,6 @@
       "ACCTFILE": [
         "AWS.M2.CARDDEMO.ACCTDATA.VSAM.KSDS"
       ],
-      "INTCALC": [
-        "AWS.M2.CARDDEMO.ACCTDATA.VSAM.KSDS"
-      ],
       "TCATBALF": [
         "AWS.M2.CARDDEMO.TCATBALF.VSAM.KSDS"
       ]
@@ -5575,9 +5569,6 @@
       ],
       "TCATBALF": [
         "AWS.M2.CARDDEMO.TCATBALF.VSAM.KSDS"
-      ],
-      "DEFGDGB": [
-        "AWS.M2.CARDDEMO.TCATBALF.BKUP"
       ]
     },
     "READACCT": {
@@ -5617,9 +5608,6 @@
       ],
       "TRANFILE": [
         "AWS.M2.CARDDEMO.TRANSACT.VSAM.KSDS"
-      ],
-      "TRANIDX": [
-        "AWS.M2.CARDDEMO.TRANSACT.VSAM.KSDS"
       ]
     },
     "TRANCATG": {},
@@ -5632,9 +5620,173 @@
       "POSTTRAN": [
         "AWS.M2.CARDDEMO.TRANSACT.VSAM.KSDS"
       ],
+      "TRANFILE": [
+        "AWS.M2.CARDDEMO.TRANSACT.VSAM.KSDS"
+      ],
       "TRANBKP": [
-        "AWS.M2.CARDDEMO.TRANSACT.VSAM.KSDS",
         "AWS.M2.CARDDEMO.TRANSACT.BKUP"
+      ],
+      "XREFFILE": [
+        "AWS.M2.CARDDEMO.CARDXREF.VSAM.KSDS"
+      ],
+      "TRANTYPE": [
+        "AWS.M2.CARDDEMO.TRANTYPE.VSAM.KSDS"
+      ],
+      "TRANCATG": [
+        "AWS.M2.CARDDEMO.TRANCATG.VSAM.KSDS"
+      ]
+    },
+    "TRANTYPE": {},
+    "TXT2PDF1": {
+      "CREASTMT": [
+        "AWS.M2.CARDDEMO.STATEMNT.PS"
+      ]
+    },
+    "WAITSTEP": {},
+    "XREFFILE": {}
+  },
+  "job_definers": {
+    "ACCTFILE": {},
+    "CARDFILE": {},
+    "CBADMCDJ": {},
+    "CBEXPORT": {
+      "CUSTFILE": [
+        "AWS.M2.CARDDEMO.CUSTDATA.VSAM.KSDS"
+      ],
+      "ACCTFILE": [
+        "AWS.M2.CARDDEMO.ACCTDATA.VSAM.KSDS"
+      ],
+      "XREFFILE": [
+        "AWS.M2.CARDDEMO.CARDXREF.VSAM.KSDS"
+      ],
+      "TRANBKP": [
+        "AWS.M2.CARDDEMO.TRANSACT.VSAM.KSDS"
+      ],
+      "TRANFILE": [
+        "AWS.M2.CARDDEMO.TRANSACT.VSAM.KSDS"
+      ],
+      "TRANIDX": [
+        "AWS.M2.CARDDEMO.TRANSACT.VSAM.KSDS"
+      ],
+      "CARDFILE": [
+        "AWS.M2.CARDDEMO.CARDDATA.VSAM.KSDS"
+      ]
+    },
+    "CBIMPORT": {
+      "CBEXPORT": [
+        "AWS.M2.CARDDEMO.EXPORT.DATA"
+      ]
+    },
+    "CLOSEFIL": {},
+    "COMBTRAN": {
+      "DEFGDGB": [
+        "AWS.M2.CARDDEMO.TRANSACT.BKUP",
+        "AWS.M2.CARDDEMO.SYSTRAN",
+        "AWS.M2.CARDDEMO.TRANSACT.COMBINED"
+      ]
+    },
+    "CREASTMT": {
+      "TRANBKP": [
+        "AWS.M2.CARDDEMO.TRANSACT.VSAM.KSDS"
+      ],
+      "TRANFILE": [
+        "AWS.M2.CARDDEMO.TRANSACT.VSAM.KSDS"
+      ],
+      "TRANIDX": [
+        "AWS.M2.CARDDEMO.TRANSACT.VSAM.KSDS"
+      ],
+      "XREFFILE": [
+        "AWS.M2.CARDDEMO.CARDXREF.VSAM.KSDS"
+      ],
+      "ACCTFILE": [
+        "AWS.M2.CARDDEMO.ACCTDATA.VSAM.KSDS"
+      ],
+      "CUSTFILE": [
+        "AWS.M2.CARDDEMO.CUSTDATA.VSAM.KSDS"
+      ]
+    },
+    "CUSTFILE": {},
+    "DALYREJS": {},
+    "DEFCUST": {},
+    "DEFGDGB": {},
+    "DEFGDGD": {},
+    "DISCGRP": {},
+    "DUSRSECJ": {},
+    "ESDSRRDS": {},
+    "FTPJCL": {},
+    "INTCALC": {
+      "TCATBALF": [
+        "AWS.M2.CARDDEMO.TCATBALF.VSAM.KSDS"
+      ],
+      "XREFFILE": [
+        "AWS.M2.CARDDEMO.CARDXREF.VSAM.KSDS",
+        "AWS.M2.CARDDEMO.CARDXREF.VSAM.AIX.PATH"
+      ],
+      "ACCTFILE": [
+        "AWS.M2.CARDDEMO.ACCTDATA.VSAM.KSDS"
+      ],
+      "DISCGRP": [
+        "AWS.M2.CARDDEMO.DISCGRP.VSAM.KSDS"
+      ]
+    },
+    "INTRDRJ1": {},
+    "INTRDRJ2": {},
+    "OPENFIL": {},
+    "POSTTRAN": {
+      "XREFFILE": [
+        "AWS.M2.CARDDEMO.CARDXREF.VSAM.KSDS"
+      ],
+      "ACCTFILE": [
+        "AWS.M2.CARDDEMO.ACCTDATA.VSAM.KSDS"
+      ],
+      "TCATBALF": [
+        "AWS.M2.CARDDEMO.TCATBALF.VSAM.KSDS"
+      ]
+    },
+    "PRTCATBL": {
+      "TCATBALF": [
+        "AWS.M2.CARDDEMO.TCATBALF.VSAM.KSDS"
+      ],
+      "DEFGDGB": [
+        "AWS.M2.CARDDEMO.TCATBALF.BKUP"
+      ]
+    },
+    "READACCT": {
+      "ACCTFILE": [
+        "AWS.M2.CARDDEMO.ACCTDATA.VSAM.KSDS"
+      ]
+    },
+    "READCARD": {
+      "CARDFILE": [
+        "AWS.M2.CARDDEMO.CARDDATA.VSAM.KSDS"
+      ]
+    },
+    "READCUST": {
+      "CUSTFILE": [
+        "AWS.M2.CARDDEMO.CUSTDATA.VSAM.KSDS"
+      ]
+    },
+    "READXREF": {
+      "XREFFILE": [
+        "AWS.M2.CARDDEMO.CARDXREF.VSAM.KSDS"
+      ]
+    },
+    "REPTFILE": {},
+    "TCATBALF": {},
+    "TRANBKP": {
+      "TRANFILE": [
+        "AWS.M2.CARDDEMO.TRANSACT.VSAM.KSDS"
+      ],
+      "TRANIDX": [
+        "AWS.M2.CARDDEMO.TRANSACT.VSAM.KSDS"
+      ]
+    },
+    "TRANCATG": {},
+    "TRANFILE": {},
+    "TRANIDX": {},
+    "TRANREPT": {
+      "TRANBKP": [
+        "AWS.M2.CARDDEMO.TRANSACT.VSAM.KSDS"
       ],
       "TRANFILE": [
         "AWS.M2.CARDDEMO.TRANSACT.VSAM.KSDS"
@@ -5657,14 +5809,17 @@
       ]
     },
     "TRANTYPE": {},
-    "TXT2PDF1": {
-      "CREASTMT": [
-        "AWS.M2.CARDDEMO.STATEMNT.PS"
-      ]
-    },
+    "TXT2PDF1": {},
     "WAITSTEP": {},
     "XREFFILE": {}
   },
+  "job_cycles": [
+    [
+      "COMBTRAN",
+      "TRANBKP",
+      "TRANREPT"
+    ]
+  ],
   "scheduler_edges": [
     {
       "source": "CLOSEFIL",
@@ -6298,13 +6453,13 @@
       "program": "COACTUPC",
       "type": "online",
       "rating": "High",
-      "score": 11,
+      "score": 12,
       "points": {
         "loc": 3,
         "files": 2,
         "control_flow": 3,
         "arithmetic": 2,
-        "coupling": 1
+        "coupling": 2
       },
       "metrics": {
         "loc_code": 3368,
@@ -6317,7 +6472,7 @@
         "compute": 5,
         "arithmetic_verbs": 5,
         "fan_in": 1,
-        "fan_out": 1,
+        "fan_out": 2,
         "cics_commands": 17
       }
     },
@@ -6784,13 +6939,13 @@
       "program": "CSUTLDTC",
       "type": "utility",
       "rating": "Low",
-      "score": 1,
+      "score": 2,
       "points": {
         "loc": 0,
         "files": 0,
         "control_flow": 0,
         "arithmetic": 0,
-        "coupling": 1
+        "coupling": 2
       },
       "metrics": {
         "loc_code": 114,
@@ -6802,7 +6957,7 @@
         "rounded": 0,
         "compute": 0,
         "arithmetic_verbs": 0,
-        "fan_in": 2,
+        "fan_in": 3,
         "fan_out": 0,
         "cics_commands": 0
       }
@@ -6880,14 +7035,13 @@
             "CLOSEFIL",
             "TRANBKP",
             "PRTCATBL",
-            "COMBTRAN",
             "FTPJCL",
             "INTRDRJ1",
             "INTRDRJ2",
             "TXT2PDF1"
           ],
           "kind": "jobs",
-          "note": "CICS file open/close, GDG backups, SORT merges and transfer jobs: become batch job steps/ops scripts with no COBOL to translate."
+          "note": "CICS file open/close, GDG backups, prints and transfer jobs: become batch job steps/ops scripts with no COBOL to translate (COMBTRAN is also COBOL-free but reads INTCALC's SYSTRAN(+1), so it sits in B3)."
         }
       ]
     },
@@ -6929,13 +7083,14 @@
         {
           "step": "B3",
           "items": [
-            "INTCALC"
+            "INTCALC",
+            "COMBTRAN"
           ],
           "kind": "jobs",
           "programs": [
             "CBACT04C"
           ],
-          "note": "Interest calculation over TCATBALF/DISCGRP, writes SYSTRAN(+1) and updates ACCTFILE; depends on POSTTRAN output."
+          "note": "Interest calculation over TCATBALF/DISCGRP, writes SYSTRAN(+1) and updates ACCTFILE; depends on POSTTRAN output. COMBTRAN (SORT merge of TRANSACT.BKUP(0) + SYSTRAN(0) -> TRANSACT.COMBINED(+1) -> REPRO into TRANSACT) must follow INTCALC, as in the Control-M MONTHLY-InterestCalculation folder."
         },
         {
           "step": "B4",
@@ -7061,7 +7216,7 @@
   "counts": {
     "programs": 31,
     "online": 17,
-    "program_edges": 67,
+    "program_edges": 69,
     "file_edges": 72,
     "copybooks": 47,
     "jcl_jobs": 38,

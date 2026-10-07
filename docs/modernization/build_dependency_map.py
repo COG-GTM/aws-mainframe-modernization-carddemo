@@ -116,13 +116,27 @@ def resolve_dynamic_target(src: CobolText, var: str, prog_cbs: list[str], cpy_in
     return targets, notes
 
 
+CALL_RE = r"CALL\s+('[^']*'|\"[^\"]*\"|[A-Z0-9-]+)"
+
+
 def scan_program(prog: dict, cpy_index: dict[str, Path], all_programs: set[str]) -> dict:
     src = CobolText(ROOT / prog["path"])
     text = src.text
     # CALL counts per target
     call_counts = Counter()
-    for m in re.finditer(r"CALL\s+('[^']*'|[A-Z0-9-]+)", text):
+    for m in re.finditer(CALL_RE, text):
         call_counts[resolve_literal(src, m.group(1))] += 1
+    # CALLs that reach the program through copybooks carrying PROCEDURE DIVISION code (e.g. CSUTLDPY -> CSUTLDTC)
+    copybook_calls = Counter()
+    for cb in prog["copybooks"]:
+        cp = cpy_index.get(cb.upper())
+        if cp is None:
+            continue
+        ctext = CobolText(cp)
+        if not re.search(r"(?<![A-Z0-9-])(?:PERFORM|MOVE|IF|CALL|EXEC)(?![A-Z0-9-])", ctext.masked):
+            continue
+        for m in re.finditer(CALL_RE, ctext.text):
+            copybook_calls[(resolve_literal(ctext, m.group(1)), cb.upper())] += 1
     # XCTL / LINK / START with resolution of run-time operands
     transfers = []  # (kind, target, how)
     for m in re.finditer(r"EXEC\s+CICS\s+(XCTL|LINK)\s+(.*?)END-EXEC", text, re.S):
@@ -148,6 +162,7 @@ def scan_program(prog: dict, cpy_index: dict[str, Path], all_programs: set[str])
         submits = sorted(set(re.findall(r"EXEC\s+(?:PGM|PROC)=([A-Z0-9]+)", raw)))
     return OrderedDict(
         call_counts=OrderedDict(sorted(call_counts.items())),
+        copybook_calls=[OrderedDict(target=t, copybook=c, count=k) for (t, c), k in sorted(copybook_calls.items())],
         transfers=transfers,
         start_transids=starts,
         submits_jobs=submits,
@@ -215,6 +230,12 @@ def build() -> OrderedDict:
             else:
                 tt = "external"
             edges.append(OrderedDict(source=n, target=tgt, kind=kind, count=cnt, target_type=tt, resolution="static"))
+        for cc in s["copybook_calls"]:
+            if is_dynamic(cc["target"]):
+                continue
+            tt = "runtime" if cc["target"] in RUNTIME_ROUTINES else ("program" if cc["target"] in programs else "external")
+            edges.append(OrderedDict(source=n, target=cc["target"], kind="CALL", count=cc["count"], target_type=tt,
+                                     resolution=f"via copybook {cc['copybook']}"))
         for kind, tgt, how in s["transfers"]:
             if tgt is None or tgt == n:  # self references feed RETURN TRANSID, not a real transfer
                 continue
@@ -319,31 +340,63 @@ def build() -> OrderedDict:
                                    programs=[s["program"] for s in steps if s["program"] in programs], steps=steps)
 
     # dataset lineage between jobs -> JCL dependency order
-    writers, readers = defaultdict(set), defaultdict(set)
+    # Orientation rules: a job that only *defines* a dataset (IDCAMS DEFINE in-stream) is a definer, not a producer;
+    # a reader depends on every writer and updater of the dataset; an updater (I-O) depends on writers only - two
+    # updaters of the same dataset carry no mutual ordering (that order comes from the scheduler, section 4d).
+    writers, updaters, definers = defaultdict(set), defaultdict(set), defaultdict(set)
     for name, ch in chains.items():
         if name.endswith("(PROC)"):
             continue
         for st in ch["steps"]:
             for dd in st["dds"]:
-                if dd["direction"] in ("write", "update"):
+                if dd["direction"] == "write":
                     writers[dd["dataset"]].add(name)
-                if dd["direction"] in ("read", "update"):
-                    readers[dd["dataset"]].add(name)
+                elif dd["direction"] == "update":
+                    updaters[dd["dataset"]].add(name)
             for ds in st["instream_datasets"]:
                 if "REPRO" not in st["utility_commands"]:
-                    writers[ds].add(name)  # DEFINE CLUSTER / DEFINE GDG etc.
-    job_deps = OrderedDict()
+                    definers[ds].add(name)  # DEFINE CLUSTER / DEFINE GDG etc.
+    job_deps, job_defs = OrderedDict(), OrderedDict()
     for name in chains:
         if name.endswith("(PROC)"):
             continue
-        deps = OrderedDict()
+        deps, defs = OrderedDict(), OrderedDict()
         for st in chains[name]["steps"]:
             for dd in st["dds"]:
-                if dd["direction"] in ("read", "update"):
-                    for w in sorted(writers[dd["dataset"]]):
-                        if w != name:
-                            deps.setdefault(w, []).append(dd["dataset"])
-        job_deps[name] = deps
+                ds = dd["dataset"]
+                if dd["direction"] not in ("read", "update"):
+                    continue
+                producers = writers[ds] | (updaters[ds] if dd["direction"] == "read" else set())
+                for w in sorted(producers - {name}):
+                    deps.setdefault(w, []).append(ds)
+                for d in sorted(definers[ds] - {name}):
+                    defs.setdefault(d, []).append(ds)
+        job_deps[name], job_defs[name] = deps, defs
+    # cycles left in the lineage graph (GDG roll-over: A writes X(+1), B reads X(0) and writes Y(+1) that A reads)
+    def sccs(graph):
+        index, low, stack, on, out, counter = {}, {}, [], set(), [], [0]
+
+        def visit(v):
+            index[v] = low[v] = counter[0]; counter[0] += 1
+            stack.append(v); on.add(v)
+            for w_ in graph.get(v, ()):
+                if w_ not in index:
+                    visit(w_); low[v] = min(low[v], low[w_])
+                elif w_ in on:
+                    low[v] = min(low[v], index[w_])
+            if low[v] == index[v]:
+                comp = []
+                while True:
+                    w_ = stack.pop(); on.discard(w_); comp.append(w_)
+                    if w_ == v:
+                        break
+                if len(comp) > 1:
+                    out.append(sorted(comp))
+        for v in list(graph):
+            if v not in index:
+                visit(v)
+        return sorted(out)
+    job_cycles = sccs({j: list(d) for j, d in job_deps.items()})
     # scheduler edges (CA-7 triggers + Control-M conditions) for comparison
     sched_edges = []
     for sname, s in core["scheduler"].items():
@@ -414,12 +467,9 @@ def build() -> OrderedDict:
         cbact01c_asm=OrderedDict(claim="CBACT01C calls COBDATFT/MVSWAIT"),
         cee3abd_sites=OrderedDict(claim="CEE3ABD used in 11 places"),
     )
-    direct = sorted(e["source"] for e in edges if e["target"] == "CSUTLDTC")
-    # calls reaching CSUTLDTC through a copybook with procedure code (CSUTLDPY)
-    via_cpy = []
-    for cbn, cb in copybooks.items():
-        if "CSUTLDTC" in CobolText(ROOT / cb["path"]).text and cb["has_procedure_code"]:
-            via_cpy.extend((u, cbn) for u in cb["used_by"] if u not in direct)
+    direct = sorted(e["source"] for e in edges if e["target"] == "CSUTLDTC" and e["resolution"] == "static")
+    via_cpy = sorted((e["source"], e["resolution"].split()[-1]) for e in edges
+                     if e["target"] == "CSUTLDTC" and e["resolution"].startswith("via copybook"))
     n_callers = len(direct) + len(via_cpy)
     hubs["csutldtc_callers"].update(
         verdict="confirmed" if n_callers == 4 else "corrected",
@@ -470,8 +520,8 @@ def build() -> OrderedDict:
                                     note="IDCAMS DEFINE CLUSTER/AIX/GDG and CSD upload: become Flyway DDL + table/sequence definitions."),
                         OrderedDict(step="A4", items=["ACCTFILE", "CARDFILE", "CUSTFILE", "XREFFILE", "TRANFILE", "TRANTYPE", "TRANCATG", "DISCGRP", "TCATBALF", "DUSRSECJ"], kind="jobs",
                                     note="File loads (REPRO PS -> VSAM): become seed-data loaders for the golden set; needed before any batch or online program can be verified."),
-                        OrderedDict(step="A5", items=["OPENFIL", "CLOSEFIL", "TRANBKP", "PRTCATBL", "COMBTRAN", "FTPJCL", "INTRDRJ1", "INTRDRJ2", "TXT2PDF1"], kind="jobs",
-                                    note="CICS file open/close, GDG backups, SORT merges and transfer jobs: become batch job steps/ops scripts with no COBOL to translate."),
+                        OrderedDict(step="A5", items=["OPENFIL", "CLOSEFIL", "TRANBKP", "PRTCATBL", "FTPJCL", "INTRDRJ1", "INTRDRJ2", "TXT2PDF1"], kind="jobs",
+                                    note="CICS file open/close, GDG backups, prints and transfer jobs: become batch job steps/ops scripts with no COBOL to translate (COMBTRAN is also COBOL-free but reads INTCALC's SYSTRAN(+1), so it sits in B3)."),
                     ]),
         OrderedDict(phase="B", title="Batch jobs in JCL/dataset dependency order",
                     rationale="Order follows the dataset lineage in section 4: each job only reads datasets written by jobs earlier in the list (POSTTRAN updates ACCTFILE/TCATBALF that INTCALC reads; INTCALC writes SYSTRAN(+1) that COMBTRAN merges back; TRANREPT and CREASTMT read the posted TRANSACT file).",
@@ -481,8 +531,9 @@ def build() -> OrderedDict:
                                     note="Read-only file dump programs: lowest risk, exercise the VSAM -> JPA repositories and the COBDATFT date formatter."),
                         OrderedDict(step="B2", items=["POSTTRAN"], kind="jobs", programs=["CBTRN02C", "CBTRN01C"],
                                     note="Daily transaction posting (validation + account/category balance update, rejects to DALYREJS(+1)). CBTRN01C is the earlier validation-only variant with no JCL; port alongside as the validation module."),
-                        OrderedDict(step="B3", items=["INTCALC"], kind="jobs", programs=["CBACT04C"],
-                                    note="Interest calculation over TCATBALF/DISCGRP, writes SYSTRAN(+1) and updates ACCTFILE; depends on POSTTRAN output."),
+                        OrderedDict(step="B3", items=["INTCALC", "COMBTRAN"], kind="jobs", programs=["CBACT04C"],
+                                    note="Interest calculation over TCATBALF/DISCGRP, writes SYSTRAN(+1) and updates ACCTFILE; depends on POSTTRAN output. "
+                                         "COMBTRAN (SORT merge of TRANSACT.BKUP(0) + SYSTRAN(0) -> TRANSACT.COMBINED(+1) -> REPRO into TRANSACT) must follow INTCALC, as in the Control-M MONTHLY-InterestCalculation folder."),
                         OrderedDict(step="B4", items=["TRANREPT", "CREASTMT"], kind="jobs", programs=["CBTRN03C", "CBSTM03A", "CBSTM03B"],
                                     note="Reporting: TRANREPT (REPROC backup -> SORT -> CBTRN03C report GDG) and CREASTMT (SORT -> REPRO -> CBSTM03A/B statements). CBSTM03A/B carry the GO TO/ALTER logic and are the hardest batch port."),
                         OrderedDict(step="B5", items=["CBEXPORT", "CBIMPORT"], kind="jobs", programs=["CBEXPORT", "CBIMPORT"],
@@ -512,7 +563,8 @@ def build() -> OrderedDict:
     return OrderedDict(
         generated_by=rel(Path(__file__)), inputs=[rel(INVENTORY)], scope="core module (app/) only; extension apps appear only as out-of-scope XCTL targets",
         program_edges=edges, dynamic_transfer_notes=dyn_notes, file_edges=file_edges, copybook_usage=cpy_rows,
-        jcl_chains=chains, job_dependencies=job_deps, scheduler_edges=sched_edges, hubs=hubs, ratings=ratings,
+        jcl_chains=chains, job_dependencies=job_deps, job_definers=job_defs, job_cycles=job_cycles,
+        scheduler_edges=sched_edges, hubs=hubs, ratings=ratings,
         rating_criteria=OrderedDict(
             points="each criterion scores 0-3; total 0-15; Low <= 4, Medium 5-8, High >= 9; a program containing ALTER is raised one level (ALTER has no Java equivalent and forces a control-flow rewrite)",
             loc="code lines (comments/blank excluded): >=200 ->1, >=500 ->2, >=1000 ->3",
@@ -768,12 +820,24 @@ def render_markdown(dm: OrderedDict, inv: dict, diagrams: OrderedDict) -> str:
                              d["dd"], d["dataset"], (d["gdg_generation"] or ("GDG" if d["gdg"] else "")), f"{d['direction']} {d['disp'] or ''}".strip()])
     w(md_table(["Job", "Step", "Program", "Class", "DD", "Dataset", "GDG gen", "Direction / DISP"], rows))
     w("\n### 4c. Job dependencies derived from dataset lineage\n")
-    w("Job B depends on job A when B reads (or updates) a dataset that A writes or defines. This is the order used for phase B of the migration order.\n")
+    w("Job B depends on job A when B reads a dataset that A writes or updates, or B updates a dataset that A writes. "
+      "Jobs that only DEFINE a dataset (IDCAMS) are listed separately as definers, and two updaters of the same VSAM file "
+      "(POSTTRAN and INTCALC on ACCTFILE) are not ordered by lineage - their order comes from the scheduler (4d) and the "
+      "business flow (post, then accrue). This is the order used for phase B of the migration order.\n")
     rows = []
     for job, deps in dm["job_dependencies"].items():
-        if deps:
-            rows.append([job, "; ".join(f"{a} ({', '.join(sorted(set(ds)))})" for a, ds in deps.items())])
-    w(md_table(["Job", "Depends on (through dataset)"], rows))
+        defs = dm["job_definers"].get(job, {})
+        if deps or defs:
+            rows.append([job, "; ".join(f"{a} ({', '.join(sorted(set(ds)))})" for a, ds in deps.items()),
+                         "; ".join(f"{a} ({', '.join(sorted(set(ds)))})" for a, ds in defs.items())])
+    w(md_table(["Job", "Depends on (through dataset)", "Dataset defined by"], rows))
+    if dm["job_cycles"]:
+        w("\nCycles remaining in the lineage graph (GDG roll-over across runs: each job reads generation 0 of what the other "
+          "wrote as +1 in an earlier run). They are not ordering constraints inside one run; the scheduler order in 4d applies:\n")
+        for c in dm["job_cycles"]:
+            w(f"- {' <-> '.join(c)}")
+    else:
+        w("\nThe lineage graph is acyclic.")
     w("\n### 4d. Scheduler edges (CA-7 triggers / Control-M conditions) for comparison\n")
     rows = [[e["source"], e["target"], e["scheduler"], e.get("schid") or e.get("folder", "")] for e in dm["scheduler_edges"]]
     w(md_table(["Job", "Triggers", "Scheduler", "SCHID / folder"], rows))
@@ -901,6 +965,8 @@ def main() -> int:
     if args.render:
         for m in render_svgs(diagrams):
             print(m)
+            if not m.startswith("rendered"):
+                status = 1
     return status
 
 
