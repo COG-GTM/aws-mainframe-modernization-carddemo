@@ -3,6 +3,7 @@ package com.carddemo.web;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -18,6 +19,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.ValueSource;
+import org.springframework.dao.CannotAcquireLockException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -328,6 +330,18 @@ class AccountUpdateRulesTest extends AccountWebTest {
     }
 
     @Test
+    void R27_lineNumberAloneIsNotABlankPhone() throws Exception {
+        // 1100-RECEIVE-MAP stores blank parts as LOW-VALUES, so the optional test's "A = SPACES OR C = LOW-VALUES"
+        // clause reduces to C blank: a phone with only the line number goes through the part edits
+        ObjectNode form = set(form(), "firstName", "Emmanuel");
+        set(form, "phone2.areaCode", "");
+        set(form, "phone2.prefix", "");
+        update("1", form).andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.field").value("phone2.areaCode"))
+                .andExpect(jsonPath("$.message").value("Phone Number 2: Area code must be supplied."));
+    }
+
+    @Test
     void R27_phoneIsOptionalAsAWhole() throws Exception {
         ObjectNode form = form();
         set(form, "phone2.areaCode", "");
@@ -444,6 +458,44 @@ class AccountUpdateRulesTest extends AccountWebTest {
     void R37_staleCustomerVersionIsAConflict() throws Exception {
         ObjectNode form = set(form(), "firstName", "Emmanuel").put("customerVersion", 5);
         update("1", form).andExpect(status().isConflict());
+        verify(customers, never()).saveAndFlush(any());
+    }
+
+    @Test
+    void R37_accountLockFailureAbends() throws Exception {
+        given(accounts.lockVersion(1L)).willReturn(Optional.empty());
+        update("1", set(form(), "firstName", "Emmanuel").put("confirm", true))
+                .andExpect(status().isInternalServerError())
+                .andExpect(jsonPath("$.code").value("ABEND"))
+                .andExpect(jsonPath("$.message").value("USER ABEND U0999: Could not lock account record for update"));
+        verify(customers, never()).lockVersion(anyInt());
+        verify(accounts, never()).saveAndFlush(any());
+    }
+
+    @Test
+    void R37_customerLockFailureAbends() throws Exception {
+        given(customers.lockVersion(1)).willThrow(new CannotAcquireLockException("lock timeout"));
+        update("1", set(form(), "firstName", "Emmanuel").put("confirm", true))
+                .andExpect(status().isInternalServerError())
+                .andExpect(jsonPath("$.message").value("USER ABEND U0999: Could not lock customer record for update"));
+        verify(accounts, never()).saveAndFlush(any());
+    }
+
+    @Test
+    void R38_concurrentChangeToTheUnchangedCustomerIsAConflict() throws Exception {
+        given(customers.lockVersion(1)).willReturn(Optional.of(customer.getVersion() + 1));
+        update("1", set(form(), "creditLimit", "21000.00").put("confirm", true))
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.message").value("Record changed by some one else. Please review"));
+        verify(accounts, never()).saveAndFlush(any());
+    }
+
+    @Test
+    void R38_concurrentChangeToTheUnchangedAccountIsAConflict() throws Exception {
+        given(accounts.lockVersion(1L)).willReturn(Optional.of(account.getVersion() + 1));
+        update("1", set(form(), "firstName", "Emmanuel").put("confirm", true))
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.code").value("CHANGED"));
         verify(customers, never()).saveAndFlush(any());
     }
 

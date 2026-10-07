@@ -12,6 +12,8 @@ import com.carddemo.customer.CustomerRepository;
 import java.time.Clock;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
+import java.util.function.Supplier;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.stereotype.Service;
@@ -27,6 +29,8 @@ import org.springframework.transaction.annotation.Transactional;
 public class AccountUpdateService {
 
     public static final String MSG_UPDATE_FAILED = "Update of record failed";
+    public static final String MSG_LOCK_ACCOUNT_FAILED = "Could not lock account record for update";
+    public static final String MSG_LOCK_CUSTOMER_FAILED = "Could not lock customer record for update";
 
     private final AccountLookup lookup;
     private final AccountRepository accounts;
@@ -86,6 +90,10 @@ public class AccountUpdateService {
         if (!confirm) {
             return new Outcome(State.VALIDATED, "", details);
         }
+        long lockedAccountVersion = lock(() -> accounts.lockVersion(acctId), MSG_LOCK_ACCOUNT_FAILED);
+        long lockedCustomerVersion = lock(() -> customers.lockVersion(customer.getCustId()), MSG_LOCK_CUSTOMER_FAILED);
+        Versions.requireCurrent(Account.class, acctId, accountVersion, lockedAccountVersion);
+        Versions.requireCurrent(Customer.class, customer.getCustId(), customerVersion, lockedCustomerVersion);
         account.update(accountRecord(account, typed));
         customer.update(customerRecord(customer, typed));
         try {
@@ -97,6 +105,18 @@ public class AccountUpdateService {
             throw new AbendException(AbendException.CARDDEMO_ABEND_CODE, MSG_UPDATE_FAILED, e);
         }
         return new Outcome(State.COMMITTED, "", details);
+    }
+
+    /**
+     * {@code 9600-WRITE-PROCESSING} {@code READ … UPDATE}: both rows stay locked until commit, so a concurrent change to
+     * the record this request leaves unchanged (which JPA would not version-check at flush) is still detected.
+     */
+    private static long lock(Supplier<Optional<Long>> read, String failure) {
+        try {
+            return read.get().orElseThrow(() -> new AbendException(AbendException.CARDDEMO_ABEND_CODE, failure));
+        } catch (DataAccessException e) {
+            throw new AbendException(AbendException.CARDDEMO_ABEND_CODE, failure, e);
+        }
     }
 
     /** {@code ACCT-UPDATE-RECORD}; {@code ACCT-ADDR-ZIP} is not on the map and keeps its stored value. */

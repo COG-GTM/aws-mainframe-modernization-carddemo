@@ -9,7 +9,7 @@ HTTP 200
 {
   "token": "<redacted>",
   "tokenType": "Bearer",
-  "expiresAt": "2026-10-07T12:22:22.722918370Z",
+  "expiresAt": "2026-10-07T12:32:37.849396890Z",
   "userId": "USER0001",
   "role": "USER",
   "userType": "U",
@@ -37,7 +37,7 @@ HTTP 200
     "tranId": "CAVW",
     "programName": "COACTVWC",
     "currentDate": "10/07/26",
-    "currentTime": "11:22:22",
+    "currentTime": "11:32:37",
     "applId": "CARDDEMO",
     "sysId": "CDMO"
   },
@@ -195,7 +195,7 @@ HTTP 200
     "tranId": "CAUP",
     "programName": "COACTUPC",
     "currentDate": "10/07/26",
-    "currentTime": "11:22:23",
+    "currentTime": "11:32:38",
     "applId": "CARDDEMO",
     "sysId": "CDMO"
   },
@@ -210,7 +210,7 @@ HTTP 200
       "tranId": "CAUP",
       "programName": "COACTUPC",
       "currentDate": "10/07/26",
-      "currentTime": "11:22:23",
+      "currentTime": "11:32:38",
       "applId": "CARDDEMO",
       "sysId": "CDMO"
     },
@@ -333,7 +333,7 @@ HTTP 200
     "tranId": "CAUP",
     "programName": "COACTUPC",
     "currentDate": "10/07/26",
-    "currentTime": "11:22:23",
+    "currentTime": "11:32:38",
     "applId": "CARDDEMO",
     "sysId": "CDMO"
   },
@@ -348,7 +348,7 @@ HTTP 200
       "tranId": "CAUP",
       "programName": "COACTUPC",
       "currentDate": "10/07/26",
-      "currentTime": "11:22:23",
+      "currentTime": "11:32:38",
       "applId": "CARDDEMO",
       "sysId": "CDMO"
     },
@@ -497,7 +497,7 @@ HTTP 200
     "tranId": "CAUP",
     "programName": "COACTUPC",
     "currentDate": "10/07/26",
-    "currentTime": "11:22:23",
+    "currentTime": "11:32:38",
     "applId": "CARDDEMO",
     "sysId": "CDMO"
   },
@@ -512,7 +512,7 @@ HTTP 200
       "tranId": "CAUP",
       "programName": "COACTUPC",
       "currentDate": "10/07/26",
-      "currentTime": "11:22:23",
+      "currentTime": "11:32:38",
       "applId": "CARDDEMO",
       "sysId": "CDMO"
     },

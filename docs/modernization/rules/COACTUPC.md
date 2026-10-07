@@ -109,8 +109,15 @@ Tests: `com.carddemo.web.AccountUpdateRulesTest` (one test per R-id; R-10..R-30 
 - Protected map fields (group id, government id, address line 2) are carried through to the rewrite as typed; country is
   not on the request (protected) but is still edited from the stored value (R-26).
 - R-37/R-38: no `READ … UPDATE` lock across requests (ADR-0010): the supplied versions are compared with the current
-  rows, and the JPA `@Version` check guards the flush; either mismatch → 409 `CHANGED`
-  `Record changed by some one else. Please review`, nothing written.
+  rows. On `confirm=true` both rows are then locked for the rest of the transaction (`AccountRepository.lockVersion` /
+  `CustomerRepository.lockVersion`, `SELECT version … FOR UPDATE`, the `READ … UPDATE` of `9600`) and their committed
+  versions compared again, so a concurrent change to the record the request leaves unchanged (which the JPA `@Version`
+  check at flush does not cover) is still caught; any mismatch → 409 `CHANGED`
+  `Record changed by some one else. Please review`, nothing written. Row missing or lock not obtained → 500 `ABEND`
+  `Could not lock account record for update` / `Could not lock customer record for update`.
+- R-27: the optional-phone test compares part A twice (`A = SPACES OR C = LOW-VALUES`); because `1100-RECEIVE-MAP`
+  stores blank parts as LOW-VALUES, that clause is "C blank", so the phone is optional only when all three parts are
+  blank (a line number alone goes through the part edits, as in the COBOL).
 - R-40: a failed rewrite → 500 `ABEND` `Update of record failed`; the transaction rolls back both rows (the
   `SYNCPOINT ROLLBACK`). State `L`/`F` (`Changes unsuccessful. Please try again`) is therefore never returned with 200.
 - R-36: malformed JSON / missing versions → 400 `INVREQ`.

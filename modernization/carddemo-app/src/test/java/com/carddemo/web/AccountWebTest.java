@@ -45,6 +45,8 @@ abstract class AccountWebTest extends OnlineWebTest {
         given(customers.findById(1)).willAnswer(i -> Optional.of(customer));
         given(accounts.saveAndFlush(any())).willAnswer(i -> i.getArgument(0));
         given(customers.saveAndFlush(any())).willAnswer(i -> i.getArgument(0));
+        given(accounts.lockVersion(1L)).willAnswer(i -> Optional.of(account.getVersion()));
+        given(customers.lockVersion(1)).willAnswer(i -> Optional.of(customer.getVersion()));
     }
 
     static AccountRecord accountRecord() {
