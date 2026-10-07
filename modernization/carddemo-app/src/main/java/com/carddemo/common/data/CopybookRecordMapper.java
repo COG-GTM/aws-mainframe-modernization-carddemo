@@ -138,6 +138,14 @@ public final class CopybookRecordMapper<D extends Record> {
         return records.stream().map(this::fromRecord).toList();
     }
 
+    /**
+     * True when every bound (non-FILLER) item holds LOW-VALUES: a record with no data, such as the
+     * {@code DALYTRAN.PS.INIT} record IDCAMS REPRO writes only so an empty KSDS can be opened for input.
+     */
+    public boolean isLowValues(FixedWidthRecord record) {
+        return bindings.stream().allMatch(b -> record.isLowValues(b.field()));
+    }
+
     public FixedWidthRecord toRecord(D data, RecordEncoding encoding) {
         FixedWidthRecord record = FixedWidthRecord.spaces(layout, encoding);
         writeInto(data, record);

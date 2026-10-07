@@ -7,3 +7,6 @@ management:
 logging:
   level:
     com.carddemo: DEBUG
+carddemo:
+  initial-load:
+    on-startup: ${CARDDEMO_INITIAL_LOAD:true}   # load app/data/EBCDIC once per distinct set of files

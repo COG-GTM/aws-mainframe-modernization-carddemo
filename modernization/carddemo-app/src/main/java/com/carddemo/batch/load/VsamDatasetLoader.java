@@ -39,6 +39,7 @@ import com.carddemo.user.UserSecurityRecord;
 import com.carddemo.user.UserSecurityRepository;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.PersistenceUnitUtil;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
@@ -86,6 +87,8 @@ public class VsamDatasetLoader {
         }
     }
 
+    private static final int FLUSH_INTERVAL = 500;
+
     private final UserSecurityRepository users;
     private final CustomerRepository customers;
     private final AccountRepository accounts;
@@ -119,6 +122,7 @@ public class VsamDatasetLoader {
         this.balances = balances;
     }
 
+    /** Replaces the table with the dataset image; any reject fails the load. Returns the record count. */
     @Transactional
     public int load(Dataset dataset, Path file, RecordEncoding encoding) {
         return load(dataset, dataset.read(file, encoding));
@@ -126,43 +130,106 @@ public class VsamDatasetLoader {
 
     /**
      * Replaces the table's contents with the dataset image (IDCAMS DELETE/DEFINE + REPRO): existing rows are deleted,
-     * then one row is inserted per record; DALYTRAN rows are numbered 1..n in file order. The deferred card_xref and
-     * transaction_category FKs are checked at commit, so parents can be reloaded in the same transaction.
-     * Returns the record count.
+     * then every record is inserted. A record that cannot be mapped fails the load. Returns the record count.
      */
     @Transactional
     public int load(Dataset dataset, List<FixedWidthRecord> records) {
-        repository(dataset).deleteAllInBatch();
-        entityManager.flush();
-        entityManager.clear();
-        switch (dataset) {
-            case USRSEC -> users.saveAll(map(records, UserSecurityRecord.MAPPER).stream().map(UserSecurity::from)
-                    .toList());
-            case CUSTDATA -> customers.saveAll(map(records, CustomerRecord.MAPPER).stream().map(Customer::from)
-                    .toList());
-            case ACCTDATA -> accounts.saveAll(map(records, AccountRecord.MAPPER).stream().map(Account::from).toList());
-            case CARDDATA -> cards.saveAll(map(records, CardRecord.MAPPER).stream().map(Card::from).toList());
-            case CARDXREF -> xrefs.saveAll(map(records, CardXrefRecord.MAPPER).stream().map(CardXref::from).toList());
-            case TRANSACT -> transactions.saveAll(map(records, TransactionRecord.MAPPER).stream()
-                    .map(Transaction::from).toList());
-            case DALYTRAN -> {
-                List<DailyTransactionRecord> daily = map(records, DailyTransactionRecord.MAPPER);
-                List<DailyTransaction> rows = new ArrayList<>(daily.size());
-                for (int i = 0; i < daily.size(); i++) {
-                    rows.add(DailyTransaction.from(i + 1, daily.get(i)));
-                }
-                dailyTransactions.saveAll(rows);
-            }
-            case TRANTYPE -> types.saveAll(map(records, TransactionTypeRecord.MAPPER).stream()
-                    .map(TransactionType::from).toList());
-            case TRANCATG -> categories.saveAll(map(records, TransactionCategoryRecord.MAPPER).stream()
-                    .map(TransactionCategory::from).toList());
-            case DISCGRP -> disclosureGroups.saveAll(map(records, DisclosureGroupRecord.MAPPER).stream()
-                    .map(DisclosureGroup::from).toList());
-            case TCATBALF -> balances.saveAll(map(records, TranCatBalanceRecord.MAPPER).stream()
-                    .map(TranCatBalance::from).toList());
+        LoadResult result = load(dataset, records, LoadMode.REPLACE);
+        if (!result.rejects().isEmpty()) {
+            LoadResult.Reject first = result.rejects().get(0);
+            throw new IllegalArgumentException(dataset + " record " + first.recordNumber() + ": " + first.reason());
         }
         return records.size();
+    }
+
+    @Transactional
+    public LoadResult load(Dataset dataset, Path file, RecordEncoding encoding, LoadMode mode) {
+        return load(dataset, dataset.read(file, encoding), mode);
+    }
+
+    /**
+     * Loads the dataset image in {@code mode}. Records whose data items are all LOW-VALUES are counted as
+     * {@link LoadResult#empty()} and not stored; records the mapper refuses are returned as rejects and not stored.
+     * Inserts go through {@link EntityManager#persist} in JDBC batches ({@code hibernate.jdbc.batch_size}).
+     */
+    @Transactional
+    public LoadResult load(Dataset dataset, List<FixedWidthRecord> records, LoadMode mode) {
+        List<Object> entities = new ArrayList<>(records.size());
+        List<LoadResult.Reject> rejects = new ArrayList<>();
+        int empty = 0;
+        for (int i = 0; i < records.size(); i++) {
+            FixedWidthRecord record = records.get(i);
+            if (dataset.mapper().isLowValues(record)) {
+                empty++;
+                continue;
+            }
+            try {
+                entities.add(toEntity(dataset, i + 1, record));
+            } catch (RuntimeException e) {
+                rejects.add(new LoadResult.Reject(i + 1, String.valueOf(e.getMessage())));
+            }
+        }
+        if (mode == LoadMode.REPLACE) {
+            repository(dataset).deleteAllInBatch();
+        } else {
+            removeExisting(entities);
+        }
+        entityManager.flush();
+        entityManager.clear();
+        for (int i = 0; i < entities.size(); i++) {
+            entityManager.persist(entities.get(i));
+            if ((i + 1) % FLUSH_INTERVAL == 0) {
+                entityManager.flush();
+                entityManager.clear();
+            }
+        }
+        entityManager.flush();
+        entityManager.clear();
+        return new LoadResult(dataset, records.size(), entities.size(), empty, rejects);
+    }
+
+    /**
+     * Empties the datasets' tables in the given order (children first) in one transaction, so the deferred foreign
+     * keys are checked only once every listed table is empty.
+     */
+    @Transactional
+    public void clear(List<Dataset> childrenFirst) {
+        for (Dataset dataset : childrenFirst) {
+            repository(dataset).deleteAllInBatch();
+        }
+        entityManager.clear();
+    }
+
+    /** Rows currently in the dataset's table. */
+    @Transactional(readOnly = true)
+    public long count(Dataset dataset) {
+        return repository(dataset).count();
+    }
+
+    private void removeExisting(List<Object> entities) {
+        PersistenceUnitUtil ids = entityManager.getEntityManagerFactory().getPersistenceUnitUtil();
+        for (Object entity : entities) {
+            Object existing = entityManager.find(entity.getClass(), ids.getIdentifier(entity));
+            if (existing != null) {
+                entityManager.remove(existing);
+            }
+        }
+    }
+
+    private static Object toEntity(Dataset dataset, int recordNumber, FixedWidthRecord record) {
+        return switch (dataset) {
+            case USRSEC -> UserSecurity.from(UserSecurityRecord.MAPPER.fromRecord(record));
+            case CUSTDATA -> Customer.from(CustomerRecord.MAPPER.fromRecord(record));
+            case ACCTDATA -> Account.from(AccountRecord.MAPPER.fromRecord(record));
+            case CARDDATA -> Card.from(CardRecord.MAPPER.fromRecord(record));
+            case CARDXREF -> CardXref.from(CardXrefRecord.MAPPER.fromRecord(record));
+            case TRANSACT -> Transaction.from(TransactionRecord.MAPPER.fromRecord(record));
+            case DALYTRAN -> DailyTransaction.from(recordNumber, DailyTransactionRecord.MAPPER.fromRecord(record));
+            case TRANTYPE -> TransactionType.from(TransactionTypeRecord.MAPPER.fromRecord(record));
+            case TRANCATG -> TransactionCategory.from(TransactionCategoryRecord.MAPPER.fromRecord(record));
+            case DISCGRP -> DisclosureGroup.from(DisclosureGroupRecord.MAPPER.fromRecord(record));
+            case TCATBALF -> TranCatBalance.from(TranCatBalanceRecord.MAPPER.fromRecord(record));
+        };
     }
 
     private JpaRepository<?, ?> repository(Dataset dataset) {
@@ -179,9 +246,5 @@ public class VsamDatasetLoader {
             case DISCGRP -> disclosureGroups;
             case TCATBALF -> balances;
         };
-    }
-
-    private static <D extends Record> List<D> map(List<FixedWidthRecord> records, CopybookRecordMapper<D> mapper) {
-        return mapper.fromRecords(records);
     }
 }
