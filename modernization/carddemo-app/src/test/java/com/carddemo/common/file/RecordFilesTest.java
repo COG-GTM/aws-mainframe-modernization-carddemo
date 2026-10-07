@@ -72,7 +72,8 @@ class RecordFilesTest {
 
     @Test
     void variableFilesWithEachPrefix() {
-        for (RecordPrefix prefix : List.of(RecordPrefix.GNUCOBOL_VARSEQ, RecordPrefix.ZOS_RDW)) {
+        for (RecordPrefix prefix : List.of(RecordPrefix.GNUCOBOL_VARSEQ, RecordPrefix.GNUCOBOL_VARSEQ_0,
+                RecordPrefix.ZOS_RDW)) {
             Path file = dir.resolve(prefix + ".dat");
             VariableRecordWriter w = new VariableRecordWriter("OUT", file, prefix, 1, 10);
             w.open();

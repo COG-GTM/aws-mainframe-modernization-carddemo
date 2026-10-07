@@ -23,6 +23,8 @@ class VariableRecordWriterTest {
         assertThat(write(RecordPrefix.NONE)).containsExactly('H', 'E', 'L', 'H', 'E', 'L', 'L', 'O');
         assertThat(write(RecordPrefix.GNUCOBOL_VARSEQ))
                 .containsExactly(0, 0, 0, 3, 'H', 'E', 'L', 0, 0, 0, 5, 'H', 'E', 'L', 'L', 'O');
+        assertThat(write(RecordPrefix.GNUCOBOL_VARSEQ_0))
+                .containsExactly(0, 3, 0, 0, 'H', 'E', 'L', 0, 5, 0, 0, 'H', 'E', 'L', 'L', 'O');
         assertThat(write(RecordPrefix.ZOS_RDW))
                 .containsExactly(0, 7, 0, 0, 'H', 'E', 'L', 0, 9, 0, 0, 'H', 'E', 'L', 'L', 'O');
     }
