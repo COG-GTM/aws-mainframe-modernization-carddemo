@@ -1,0 +1,7 @@
+# Field-level differences between app/data/EBCDIC (decoded IBM-037) and app/data/ASCII.
+# These are the two datasets the GnuCOBOL baseline reports as "EBCDIC cp037 conversion DIFFERS from ASCII
+# sample" (docs/validation/baseline/README.md, 00-DATA); the ASCII sample is what the baseline ran on.
+# dataset|record (1-based)|field|EBCDIC value|ASCII value
+ACCDATA|49|ACCT-ADDR-ZIP|ZEROAPR|A000000000
+ACCTDATA|49|ACCT-ADDR-ZIP|ZEROAPR|A000000000
+DISCGRP|34|DIS-INT-RATE|15.00|0.00
