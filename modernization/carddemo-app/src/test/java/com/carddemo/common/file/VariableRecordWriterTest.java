@@ -9,6 +9,7 @@ import java.nio.file.Path;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 class VariableRecordWriterTest {
 
@@ -57,6 +58,36 @@ class VariableRecordWriterTest {
                 .isInstanceOf(IllegalArgumentException.class);
         assertThatThrownBy(() -> new VariableRecordWriter("X", dir, RecordPrefix.NONE, -1, 2))
                 .isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @Test
+    void rdwCannotFrameMoreThan65531Bytes() {
+        new VariableRecordWriter("X", dir.resolve("r"), RecordPrefix.ZOS_RDW, 1, VariableRecordWriter.MAX_RDW_PAYLOAD);
+        new VariableRecordWriter("X", dir.resolve("v"), RecordPrefix.GNUCOBOL_VARSEQ, 1, 70_000);
+        assertThatThrownBy(() -> new VariableRecordWriter("X", dir.resolve("r"), RecordPrefix.ZOS_RDW, 1,
+                VariableRecordWriter.MAX_RDW_PAYLOAD + 1)).isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @Test
+    void readOnlyTargetIsOpenModeNotAllowed() throws IOException {
+        Path file = Files.createFile(dir.resolve("ro"));
+        assumeTrue(file.toFile().setWritable(false) && !Files.isWritable(file), "running as root");
+        assertStatus(() -> new VariableRecordWriter("X", file, RecordPrefix.NONE, 1, 2).open(),
+                FileStatus.OPEN_MODE_NOT_ALLOWED);
+    }
+
+    @Test
+    void deviceErrorsArePermanentErrors() {
+        Path full = Path.of("/dev/full");
+        assumeTrue(Files.isWritable(full), "/dev/full not available");
+        VariableRecordWriter direct = new VariableRecordWriter("X", full, RecordPrefix.NONE, 1, 20_000);
+        direct.open();
+        assertStatus(() -> direct.write(new byte[20_000], 20_000), FileStatus.PERMANENT_ERROR);
+        VariableRecordWriter buffered = new VariableRecordWriter("X", full, RecordPrefix.NONE, 1, 3);
+        buffered.open();
+        buffered.write(AREA, 3);
+        assertStatus(buffered::close, FileStatus.PERMANENT_ERROR);
+        assertThat(buffered.isOpen()).isFalse();
     }
 
     private static void assertStatus(Runnable op, FileStatus status) {

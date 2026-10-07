@@ -205,6 +205,27 @@ class CopybookTest {
     }
 
     @Test
+    void repeatedGroupNamesAreQualifiedUntilUnique() {
+        RecordLayout r = Copybook.parse("DUP", String.join("\n",
+                "       01  R.",
+                "           05  LEFT-G.",
+                "               10  ITEM-G.",
+                "                   15  ID  PIC X.",
+                "           05  RIGHT-G.",
+                "               10  ITEM-G.",
+                "                   15  ID  PIC X.",
+                "           05  OTHER   PIC X.")).single();
+        assertThat(r.leaves()).extracting(RecordLayout.Leaf::key)
+                .containsExactly("ID OF ITEM-G OF LEFT-G", "ID OF ITEM-G OF RIGHT-G", "OTHER");
+        FixedWidthRecord rec = FixedWidthRecord.fromLine(r, "ABC", RecordEncoding.ASCII);
+        Map<String, Object> values = r.decode(rec);
+        assertThat(values).containsEntry("ID OF ITEM-G OF LEFT-G", "A").containsEntry("ID OF ITEM-G OF RIGHT-G", "B");
+        FixedWidthRecord copy = FixedWidthRecord.spaces(r, RecordEncoding.ASCII);
+        r.encode(values, copy);
+        assertThat(copy.text()).isEqualTo("ABC");
+    }
+
+    @Test
     void fragmentCopybookBecomesOneRecordNamedAfterIt() {
         RecordLayout wy = Copybook.layout("CSUTLDWY");
         assertThat(wy.name()).isEqualTo("CSUTLDWY");

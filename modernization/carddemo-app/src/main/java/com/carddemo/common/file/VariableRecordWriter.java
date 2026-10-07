@@ -17,6 +17,9 @@ public final class VariableRecordWriter {
 
     private final String ddname;
     private final Path path;
+    /** The two-byte RDW length includes its own four bytes. */
+    public static final int MAX_RDW_PAYLOAD = 0xFFFF - 4;
+
     private final RecordPrefix prefix;
     private final int minLength;
     private final int maxLength;
@@ -25,6 +28,9 @@ public final class VariableRecordWriter {
     public VariableRecordWriter(String ddname, Path path, RecordPrefix prefix, int minLength, int maxLength) {
         if (minLength < 0 || maxLength < minLength) {
             throw new IllegalArgumentException("record length range " + minLength + ".." + maxLength);
+        }
+        if (prefix == RecordPrefix.ZOS_RDW && maxLength > MAX_RDW_PAYLOAD) {
+            throw new IllegalArgumentException("an RDW holds at most " + MAX_RDW_PAYLOAD + " payload bytes");
         }
         this.ddname = ddname;
         this.path = path;

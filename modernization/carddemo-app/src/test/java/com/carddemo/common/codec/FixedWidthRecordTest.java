@@ -84,6 +84,10 @@ class FixedWidthRecordTest {
         assertThat(r.isLowValues(id)).isTrue();
         assertThat(r.get(id)).isNull();
         r.setLong(id, 12);
+        Field count = r.field("T-COUNT");
+        r.setLong(count, 0);
+        assertThat(r.isLowValues(count)).isTrue();
+        assertThat(r.get(count)).isEqualTo(BigDecimal.ZERO);
         assertThat(r.isNumeric(id)).isTrue();
         r.setString("T-NAME", "12345");
         assertThat(r.isNumeric(r.field("T-NAME"))).isTrue();

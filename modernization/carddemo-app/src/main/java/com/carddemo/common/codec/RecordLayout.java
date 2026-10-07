@@ -75,11 +75,7 @@ public final class RecordLayout {
         List<Field> unsubscripted = new ArrayList<>();
         List<int[]> subscripts = new ArrayList<>();
         visit(root, new int[0], active, unsubscripted, subscripts);
-        Map<String, Set<Field>> byName = new HashMap<>();
-        for (Field f : unsubscripted) {
-            byName.computeIfAbsent(f.name().toUpperCase(Locale.ROOT),
-                    k -> Collections.newSetFromMap(new IdentityHashMap<>())).add(f);
-        }
+        Map<Field, Integer> depth = qualificationDepths(unsubscripted);
         List<Leaf> leaves = new ArrayList<>(unsubscripted.size());
         for (int i = 0; i < unsubscripted.size(); i++) {
             Field f = unsubscripted.get(i);
@@ -88,12 +84,39 @@ public final class RecordLayout {
             if (subs.length > 0) {
                 key += "(" + String.join(",", Arrays.stream(subs).mapToObj(Integer::toString).toList()) + ")";
             }
-            if (byName.get(f.name().toUpperCase(Locale.ROOT)).size() > 1 && !f.ancestors().isEmpty()) {
-                key += " OF " + f.ancestors().get(0);
-            }
-            leaves.add(new Leaf(key, f.subscript(subs)));
+            leaves.add(new Leaf(key + qualifier(f, depth.get(f)), f.subscript(subs)));
         }
         return leaves;
+    }
+
+    /** Qualifies each repeated name with just enough enclosing group names (OF ...) to make it unique. */
+    private static Map<Field, Integer> qualificationDepths(List<Field> fields) {
+        Map<Field, Integer> depth = new IdentityHashMap<>();
+        fields.forEach(f -> depth.put(f, 0));
+        boolean changed = true;
+        while (changed) {
+            changed = false;
+            Map<String, Set<Field>> byKey = new HashMap<>();
+            for (Field f : depth.keySet()) {
+                byKey.computeIfAbsent((f.name() + qualifier(f, depth.get(f))).toUpperCase(Locale.ROOT),
+                        k -> Collections.newSetFromMap(new IdentityHashMap<>())).add(f);
+            }
+            for (Set<Field> clash : byKey.values()) {
+                if (clash.size() > 1) {
+                    for (Field f : clash) {
+                        if (depth.get(f) < f.ancestors().size()) {
+                            depth.merge(f, 1, Integer::sum);
+                            changed = true;
+                        }
+                    }
+                }
+            }
+        }
+        return depth;
+    }
+
+    private static String qualifier(Field f, int depth) {
+        return f.ancestors().subList(0, depth).stream().map(a -> " OF " + a).reduce("", String::concat);
     }
 
     /** Decodes every non-FILLER elementary item: String, BigDecimal, or null for a numeric item of LOW-VALUES. */

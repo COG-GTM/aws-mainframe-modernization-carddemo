@@ -102,7 +102,7 @@ public final class RecordFiles {
                       | ((data[pos + 2] & 0xFF) << 8) | (data[pos + 3] & 0xFF)
                     : (((data[pos] & 0xFF) << 8) | (data[pos + 1] & 0xFF)) - 4;
             pos += 4;
-            if (length < 0 || pos + length > data.length) {
+            if (length < 0 || length > data.length - pos) {
                 throw new FileStatusException(ddname, "READ", FileStatus.RECORD_LENGTH_MISMATCH);
             }
             byte[] record = new byte[length];

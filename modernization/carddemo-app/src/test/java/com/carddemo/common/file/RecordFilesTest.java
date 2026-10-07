@@ -92,6 +92,10 @@ class RecordFilesTest {
         Files.write(file, new byte[] {0, 0, 0, 9, 'A'});
         assertThatThrownBy(() -> RecordFiles.readVariable("IN", file, RecordPrefix.GNUCOBOL_VARSEQ))
                 .isInstanceOf(FileStatusException.class);
+        Files.write(file, new byte[] {0x7F, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, 'A'});
+        assertThatThrownBy(() -> RecordFiles.readVariable("IN", file, RecordPrefix.GNUCOBOL_VARSEQ))
+                .isInstanceOfSatisfying(FileStatusException.class,
+                        e -> assertThat(e.status()).isEqualTo(FileStatus.RECORD_LENGTH_MISMATCH));
         Files.write(file, new byte[] {0, 0});
         assertThatThrownBy(() -> RecordFiles.readVariable("IN", file, RecordPrefix.ZOS_RDW))
                 .isInstanceOf(FileStatusException.class);

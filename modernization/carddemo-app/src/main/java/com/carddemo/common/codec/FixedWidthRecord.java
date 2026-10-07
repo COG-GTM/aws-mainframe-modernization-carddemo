@@ -126,12 +126,15 @@ public final class FixedWidthRecord {
         return getLong(field(name));
     }
 
-    /** String for alphanumeric, edited and group items; BigDecimal (or null for LOW-VALUES) for numeric ones. */
+    /**
+     * String for alphanumeric, edited and group items; BigDecimal for numeric ones, or null for a DISPLAY or
+     * COMP-3 item holding LOW-VALUES (all-zero bytes are a valid binary zero, so COMP items never read as null).
+     */
     public Object get(Field f) {
         if (!f.isNumeric()) {
             return getString(f);
         }
-        return isLowValues(f) ? null : getDecimal(f);
+        return f.usage() != Usage.BINARY && isLowValues(f) ? null : getDecimal(f);
     }
 
     public Object get(String name) {
