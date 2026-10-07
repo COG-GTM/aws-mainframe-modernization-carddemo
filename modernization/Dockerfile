@@ -23,6 +23,11 @@ FROM eclipse-temurin:21-jre
 RUN groupadd --system carddemo && useradd --system --gid carddemo --home-dir /app carddemo
 WORKDIR /app
 COPY --from=build /tmp/app.jar /app/carddemo-app.jar
+# Sample VSAM images for the initial-load job (local profile); read-only, owned by root.
+COPY app/data/EBCDIC /app/data/EBCDIC
+RUN mkdir -p /app/batch-output && chown carddemo:carddemo /app/batch-output
+ENV CARDDEMO_INITIAL_LOAD_SOURCE_DIR=/app/data/EBCDIC \
+    CARDDEMO_BATCH_OUTPUT_DIR=/app/batch-output
 USER carddemo
 EXPOSE 8080
 ENV JAVA_TOOL_OPTIONS="-XX:MaxRAMPercentage=75"

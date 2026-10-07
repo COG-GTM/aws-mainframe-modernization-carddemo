@@ -9,6 +9,11 @@ spring:
     open-in-view: false
     hibernate:
       ddl-auto: validate
+    properties:
+      hibernate:
+        jdbc:
+          batch_size: 500        # VsamDatasetLoader / initial-load bulk inserts
+        order_inserts: true
   flyway:
     enabled: true
     locations: classpath:db/migration
@@ -40,3 +45,11 @@ springdoc:
 carddemo:
   clock:
     zone: UTC
+  initial-load:
+    on-startup: false            # true in the local profile (docker compose)
+    source-dir: ${CARDDEMO_INITIAL_LOAD_SOURCE_DIR:app/data/EBCDIC}
+    mode: ${CARDDEMO_INITIAL_LOAD_MODE:replace}   # replace (truncate-and-load) | upsert
+    max-rejects: 0
+  batch:
+    output-dir: ${CARDDEMO_BATCH_OUTPUT_DIR:batch-output}   # dated outputs, ADR-0012
+    retain: 5

@@ -107,6 +107,16 @@ jobs:
           body="$(curl -fsS "http://localhost:${CARDDEMO_HTTP_PORT}/actuator/health")"
           echo "$body"
           echo "$body" | grep -q '"status":"UP"'
+      - name: initial-load populated PostgreSQL (local profile)
+        run: |
+          q() { docker compose exec -T postgres psql -U carddemo -d carddemo -tAc "$1"; }
+          status="$(q "select e.status from batch_job_execution e join batch_job_instance i using (job_instance_id) where i.job_name = 'initial-load' order by e.job_execution_id desc limit 1")"
+          echo "initial-load: $status"; test "$status" = "COMPLETED"
+          expected="user_security=10 customer=50 account=50 card=50 card_xref=50 transaction_type=7 transaction_category=18 disclosure_group=51 tran_cat_balance=50 transaction=0 daily_transaction=300"
+          for pair in $expected; do
+            table="${pair%%=*}"; want="${pair#*=}"; got="$(q "select count(*) from \"$table\"")"
+            echo "$table: $got (expected $want)"; test "$got" = "$want"
+          done
       - name: Logs
         if: always()
         run: docker compose logs --no-color
