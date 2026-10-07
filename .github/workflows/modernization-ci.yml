@@ -210,7 +210,7 @@ jobs:
       - name: Install GnuCOBOL
         run: |
           echo 'Acquire::Retries "5"; Acquire::http::Timeout "30"; Acquire::https::Timeout "30";' | sudo tee /etc/apt/apt.conf.d/99ci-timeouts >/dev/null
-          sudo apt-get update -q
+          for i in 1 2 3; do timeout 120 sudo apt-get update -q && break; echo "apt-get update attempt $i stalled"; done
           sudo apt-get install -y -q gnucobol
           cobc --version | head -1
       - name: make baseline-check
@@ -253,7 +253,7 @@ jobs:
       - name: Install psql
         run: |
           echo 'Acquire::Retries "5"; Acquire::http::Timeout "30"; Acquire::https::Timeout "30";' | sudo tee /etc/apt/apt.conf.d/99ci-timeouts >/dev/null
-          command -v psql || (sudo apt-get update -q && sudo apt-get install -y -q postgresql-client)
+          command -v psql || { { for i in 1 2 3; do timeout 120 sudo apt-get update -q && break; echo "apt-get update attempt $i stalled"; done; } && sudo apt-get install -y -q postgresql-client; }
       - name: mvn package (skip tests; the build job runs them)
         run: mvn -B -ntp -f modernization/pom.xml -DskipTests package
       - name: make batch-equivalence
@@ -299,7 +299,7 @@ jobs:
       - name: Install GnuCOBOL (as the baseline job), jq and psql (nightly-cycle batch_run queries)
         run: |
           echo 'Acquire::Retries "5"; Acquire::http::Timeout "30"; Acquire::https::Timeout "30";' | sudo tee /etc/apt/apt.conf.d/99ci-timeouts >/dev/null
-          sudo apt-get update -q
+          for i in 1 2 3; do timeout 120 sudo apt-get update -q && break; echo "apt-get update attempt $i stalled"; done
           sudo apt-get install -y -q gnucobol jq postgresql-client
           cobc --version | head -1
       - name: mvn package (skip tests; the build job runs them)
