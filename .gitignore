@@ -16,3 +16,5 @@ build/batch-equivalence/
 build/golden-set/
 build/golden-set-doc/
 __pycache__/
+build/volume-smoke/
+build/dependency-scan/

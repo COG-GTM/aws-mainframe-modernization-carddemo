@@ -43,6 +43,8 @@ services:
       # local profile: the initial-load job loads app/data/EBCDIC (baked into the image) before the app turns healthy
       CARDDEMO_INITIAL_LOAD: ${CARDDEMO_INITIAL_LOAD:-true}
       CARDDEMO_INITIAL_LOAD_MODE: ${CARDDEMO_INITIAL_LOAD_MODE:-replace}
+      # OpenAPI + Swagger UI; set false outside development
+      CARDDEMO_API_DOCS_ENABLED: ${CARDDEMO_API_DOCS_ENABLED:-true}
     volumes:
       # cbexport/cbimport generations; cataloged in batch_output_file, so they must outlive the container
       - carddemo-batch-output:/app/batch-output

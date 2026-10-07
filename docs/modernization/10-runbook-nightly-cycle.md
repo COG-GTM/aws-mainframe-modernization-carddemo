@@ -129,12 +129,14 @@ The legacy schedule closed the CICS files (`CLOSEFIL`) before batch; the Java ap
 writes during the cycle are protected per row (optimistic `version`, `SELECT ... FOR UPDATE`), but:
 
 - **Transaction ids (closed in s6.4).** Online transaction adds and bill payments take
-  `pg_advisory_xact_lock(TRAN_ID_LOCK)` and use `max(tran_id)+1`. POSTTRAN's TRANFILE writes (the OPEN OUTPUT clear
-  and every posting, held until that record's unit of work commits) and every load of `transaction` through
-  `VsamDatasetLoader` (COMBTRAN's IDCAMS REPRO, `repro`, `initial-load`) now take the same lock, so an online add can
-  no longer read a stale maximum while a batch row is in flight (`TransactionIdLockIT`). Cost: one extra round trip
-  per posted record (`docs/validation/hardening/volume-smoke.md`). What the lock cannot change is the legacy data
-  flow below.
+  `pg_advisory_xact_lock(TRAN_ID_LOCK)` and use `max(tran_id)+1` (bill payment takes it before its account row lock).
+  POSTTRAN's CBTRN02C step holds the same key as a **session** lock for the whole step in table mode (the OPEN OUTPUT
+  clear and every posting; `TransactionIdStepLock`), and every load of `transaction` through `VsamDatasetLoader`
+  (COMBTRAN's IDCAMS REPRO, `repro`, `initial-load`) holds it for its database transaction. A per-record lock was
+  measured first and rejected: DALYTRAN ids ascend, so an online `max+1` taken between two postings can equal the
+  next posted id. Effect: **online adds and bill payments wait while CBTRN02C runs** (≈ 1 s on the sample data,
+  ≈ 100 s for 100,000 records, `docs/validation/hardening/volume-smoke.md`), the equivalent of the closed CICS file;
+  `TransactionIdLockIT` proves the wait and distinct ids. What the lock cannot change is the legacy data flow below.
 - **The batch window: `TRANBKP` → `COMBTRAN` empties `transaction`.** TRANBKP's REPRO copies `transaction` to the
   `TRANSACT.BKUP` generation and its IDCAMS DELETE/DEFINE leaves the table **empty**; COMBTRAN sorts the backup with
   `SYSTRAN` and reloads the table (`idcams-repro`). In between, transaction lists, views and the TRANREPT report see

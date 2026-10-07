@@ -163,6 +163,10 @@ class TransactionIdLockIT {
             }
             assertThat(run.get(120, TimeUnit.SECONDS).maxReturnCode()).isEqualTo(ReturnCode.WARNING);
             assertThat(new HashSet<>(onlineIds)).hasSize(ONLINE_ADDS);
+            // the step holds the id lock until it ends, so no online add can take an id the posting writes later
+            String lastPosted = jdbc.queryForObject(
+                    "select max(tran_id) from transaction where description not like 'Online add%'", String.class);
+            assertThat(onlineIds).allSatisfy(id -> assertThat(id).isGreaterThan(lastPosted));
             assertThat(transactions.count()).isEqualTo(POSTED + ONLINE_ADDS);
             assertThat(jdbc.queryForObject("select count(*) from transaction where description like 'Online add%'",
                     Integer.class)).isEqualTo(ONLINE_ADDS);

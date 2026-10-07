@@ -15,6 +15,8 @@
     <description>Single Spring Boot application: online (one REST resource per CICS program) and batch (one Spring Batch job per JCL job), domain packages enforced by ArchUnit</description>
 
     <properties>
+        <!-- s6.4: package-level LINE floor for the domain packages, unit + IT merged (coverage.md) -->
+        <carddemo.domain.coverage.minimum>0.80</carddemo.domain.coverage.minimum>
         <!-- Spring profiles for Surefire/Failsafe; CI runs with -Dcarddemo.test.profiles=test,ci -->
         <carddemo.test.profiles>test</carddemo.test.profiles>
     </properties>
@@ -165,6 +167,74 @@
                         <goals>
                             <goal>report</goal>
                         </goals>
+                    </execution>
+                    <execution>
+                        <id>prepare-agent-integration</id>
+                        <goals>
+                            <goal>prepare-agent-integration</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>merge-unit-and-it</id>
+                        <phase>post-integration-test</phase>
+                        <goals>
+                            <goal>merge</goal>
+                        </goals>
+                        <configuration>
+                            <fileSets>
+                                <fileSet>
+                                    <directory>${project.build.directory}</directory>
+                                    <includes>
+                                        <include>jacoco.exec</include>
+                                        <include>jacoco-it.exec</include>
+                                    </includes>
+                                </fileSet>
+                            </fileSets>
+                            <destFile>${project.build.directory}/jacoco-merged.exec</destFile>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>report-merged</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>report</goal>
+                        </goals>
+                        <configuration>
+                            <dataFile>${project.build.directory}/jacoco-merged.exec</dataFile>
+                            <outputDirectory>${project.reporting.outputDirectory}/jacoco-merged</outputDirectory>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <!-- s6.4 acceptance: every domain package keeps at least 80% line coverage (unit + ITs);
+                             docs/validation/hardening/coverage.md -->
+                        <id>check-domain-coverage</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                        <configuration>
+                            <dataFile>${project.build.directory}/jacoco-merged.exec</dataFile>
+                            <includes>
+                                <include>com/carddemo/account/**</include>
+                                <include>com/carddemo/card/**</include>
+                                <include>com/carddemo/transaction/**</include>
+                                <include>com/carddemo/user/**</include>
+                                <include>com/carddemo/customer/**</include>
+                                <include>com/carddemo/batch/**</include>
+                            </includes>
+                            <rules>
+                                <rule>
+                                    <element>PACKAGE</element>
+                                    <limits>
+                                        <limit>
+                                            <counter>LINE</counter>
+                                            <value>COVEREDRATIO</value>
+                                            <minimum>${carddemo.domain.coverage.minimum}</minimum>
+                                        </limit>
+                                    </limits>
+                                </rule>
+                            </rules>
+                        </configuration>
                     </execution>
                     <execution>
                         <!-- s2.2 acceptance: the COBOL codec classes keep at least 90% line coverage -->

@@ -24,6 +24,7 @@ below, `modernization/docker-compose.yml` and `modernization/.env.example`.
 | `carddemo.security.jwt.secret` | none | `CARDDEMO_JWT_SECRET` | `web.security.JwtProperties` | HS256 key of the session token, ≥ 32 bytes (ADR-0017); no default in any profile, compose refuses to start without it (s6.4) |
 | `carddemo.security.jwt.issuer` | `carddemo` | — | `JwtProperties` | `iss` claim written and required |
 | `carddemo.security.jwt.ttl` | `PT1H` | `CARDDEMO_JWT_TTL` | `JwtProperties` | token lifetime (ISO-8601 duration) |
+| `springdoc.api-docs.enabled`, `springdoc.swagger-ui.enabled` | `true` | `CARDDEMO_API_DOCS_ENABLED` | springdoc | `false` turns off `/v3/api-docs` and Swagger UI (recommended in production; s6.4 review finding RF-08) |
 | `carddemo.online.applid` | `CARDDEMO` | `CARDDEMO_APPLID` | `web.OnlineProperties` | `EXEC CICS ASSIGN APPLID` in every screen header |
 | `carddemo.online.sysid` | `CDMO` | `CARDDEMO_SYSID` | `OnlineProperties` | `EXEC CICS ASSIGN SYSID` |
 | `carddemo.initial-load.on-startup` | `false` (`local`: `true`) | `CARDDEMO_INITIAL_LOAD` (`local` only) | `batch.load.InitialLoadProperties` | run `initial-load` when the app starts; a completed run for the same source files (SHA-256) is not repeated |
@@ -57,6 +58,7 @@ Spring's own settings that matter: `spring.datasource.url|username|password` ←
 | `CARDDEMO_DB_PORT` | compose | `5432` | host port of Postgres |
 | `CARDDEMO_JWT_SECRET` | app, compose (required) | none | ≥ 32 bytes, e.g. `openssl rand -base64 48`; also keys the opaque `cardRef` (ADR-0020), so rotating it invalidates tokens and card references |
 | `CARDDEMO_JWT_TTL` | app | `PT1H` | |
+| `CARDDEMO_API_DOCS_ENABLED` | app, compose | `true` | `false` hides OpenAPI and Swagger UI |
 | `CARDDEMO_APPLID` / `CARDDEMO_SYSID` | app | `CARDDEMO` / `CDMO` | screen header region ids |
 | `CARDDEMO_INITIAL_LOAD` | app (`local`), compose | `true` | |
 | `CARDDEMO_INITIAL_LOAD_MODE` | app, compose | `replace` | |

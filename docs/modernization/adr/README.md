@@ -26,5 +26,6 @@ Rules every Java ticket applies. Code lives in `modernization/` (see its README)
 | [ADR-0020](ADR-0020-pan-masking.md) | Card numbers masked (last four) in card lists and logs, full PAN only on the single-card screens; opaque AES-GCM `cardRef`; a USER only sees cards of the account in context |
 | [ADR-0021](ADR-0021-async-report-requests.md) | CORPT00C's internal-reader submit → the same `tranrept` stream on a bounded in-process queue; `report_request` (V5) execution id, status poll and exact report download; start ≤ end enforced |
 | [ADR-0022](ADR-0022-react-ui.md) | React + Vite SPA, one route per BMS map, routed by `NavigationContext.toProgram`; JWT + navigation in `sessionStorage`; masked PAN / opaque `cardRef`; nginx serves it and proxies `/api/`, `/v3/`, `/swagger-ui*` to the app |
+| [ADR-0023](ADR-0023-bcrypt-password-hash.md) | BCrypt `password_hash` (V6) next to the unchanged `SEC-USR-PWD`, set on the first successful sign-on and on user add/update; admin routes re-check the current user type on every request |
 
 New ADRs: next free number, same headings (Status/Applies to, Context, Decision). Supersede, do not edit, an accepted ADR.

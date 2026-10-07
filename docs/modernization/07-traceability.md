@@ -46,7 +46,7 @@ Classes are those whose class Javadoc names the program (ADR-0002); controllers 
 | `COCRDUPC` | online | CCUP | ported | `web.card.CardController` | `card.Card`<br>`card.CardRepository`<br>`card.CardStatus`<br>`card.online.CardKeys`<br>`card.online.CardLookup`<br>`card.online.CardSelection`<br>`card.online.CardUpdateEdits`<br>`card.online.CardUpdateService`<br>`web.card.CardDetailScreen`<br>`web.card.CardSelectionResponse` | [COCRDUPC.md](rules/COCRDUPC.md) | `/cards/update` |
 | `COMEN01C` | online | CM00 | ported | `web.account.AccountController`<br>`web.card.CardController`<br>`web.menu.MenuController`<br>`web.report.TransactionReportController`<br>`web.signon.SignOnController`<br>`web.transaction.TransactionController` | `user.menu.MenuDefinition`<br>`user.menu.MenuService`<br>`web.ScreenHeader`<br>`web.menu.MenuController`<br>`web.menu.MenuScreen`<br>`web.security.ProblemResponses`<br>`web.signon.LoginResponse` | [COMEN01C.md](rules/COMEN01C.md) | `/menu` |
 | `CORPT00C` | online | CR00 | ported | `web.report.TransactionReportController` | `batch.report.ReportExecution`<br>`batch.report.ReportName`<br>`batch.report.ReportQueueFullException`<br>`batch.report.ReportWindow`<br>`batch.report.TransactionReportEdits`<br>`batch.report.TransactionReportLauncher`<br>`batch.report.TransactionReportService`<br>`web.report.TransactionReportController` | [CORPT00C.md](rules/CORPT00C.md) | `/reports` |
-| `COSGN00C` | online | CC00 | ported | `web.menu.MenuController`<br>`web.signon.SignOnController` | `user.UserSecurity`<br>`user.UserSecurityRepository`<br>`user.signon.SignOnFailure`<br>`user.signon.SignOnService`<br>`web.ScreenHeader`<br>`web.security.ProblemResponses`<br>`web.signon.LoginRequest`<br>`web.signon.LoginResponse`<br>`web.signon.SignOffResponse`<br>`web.signon.SignOnController`<br>`web.signon.SignOnScreen` | [COSGN00C.md](rules/COSGN00C.md) | `/signon` |
+| `COSGN00C` | online | CC00 | ported | `web.menu.MenuController`<br>`web.signon.SignOnController` | `user.UserPasswords`<br>`user.UserSecurity`<br>`user.UserSecurityRepository`<br>`user.signon.SignOnFailure`<br>`user.signon.SignOnService`<br>`web.ScreenHeader`<br>`web.security.ProblemResponses`<br>`web.signon.LoginRequest`<br>`web.signon.LoginResponse`<br>`web.signon.SignOffResponse`<br>`web.signon.SignOnController`<br>`web.signon.SignOnScreen` | [COSGN00C.md](rules/COSGN00C.md) | `/signon` |
 | `COTRN00C` | online | CT00 | ported | `web.transaction.TransactionController` | `transaction.Transaction`<br>`transaction.TransactionRepository`<br>`transaction.online.TransactionBrowse` | [COTRN00C.md](rules/COTRN00C.md) | `/transactions` |
 | `COTRN01C` | online | CT01 | ported | `web.transaction.TransactionController` | `transaction.Transaction`<br>`transaction.TransactionRepository`<br>`transaction.online.TransactionLookup`<br>`web.transaction.TransactionFields`<br>`web.transaction.TransactionSelectionResponse` | [COTRN01C.md](rules/COTRN01C.md) | `/transactions/view` |
 | `COTRN02C` | online | CT02 | ported | `web.transaction.TransactionController` | `card.CardXref`<br>`card.CardXrefRepository`<br>`transaction.Transaction`<br>`transaction.TransactionRepository`<br>`transaction.online.TransactionAddEdits`<br>`transaction.online.TransactionAddService`<br>`transaction.online.TransactionIds`<br>`web.transaction.TransactionAddResponse` | [COTRN02C.md](rules/COTRN02C.md) | `/transactions/add` |
@@ -232,7 +232,7 @@ Not mapped:
 | `4000-TRNXFILE-GET` | 416 | `batch.creastmt.Cbstm03a#writeTransactions` |
 | `5000-CREATE-STATEMENT` | 458 | `batch.creastmt.Cbstm03a#createStatement` |
 | `5100-WRITE-HTML-HEADER` | 506 | `batch.creastmt.Cbstm03a#createStatement` |
-| `5200-WRITE-HTML-NMADBS` | 558 | `batch.creastmt.Cbstm03a#createStatement` |
+| `5200-WRITE-HTML-NMADBS` | 558 | `batch.creastmt.Cbstm03a#createStatement`<br>`batch.creastmt.Cbstm03a#dataLine` |
 | `6000-WRITE-TRANS` | 675 | `batch.creastmt.Cbstm03a#writeTransaction` |
 | `8100-TRNXFILE-OPEN` | 730 | `batch.creastmt.Cbstm03a#loadTransactions` |
 | `8500-READTRNX-READ` | 818 | `batch.creastmt.Cbstm03a#loadTransactions` |
@@ -244,7 +244,7 @@ Not mapped:
 | --- | --- | --- | --- |
 | `9999-GOBACK` | 341 | `folded` | `batch.creastmt.Cbstm03a#run` — end of the main line (GOBACK = return of run()) |
 | `5100-EXIT` | 554 | `folded` | `batch.creastmt.Cbstm03a#createStatement` — PERFORM ... THRU exit point of 5100-WRITE-HTML-HEADER |
-| `5200-EXIT` | 671 | `folded` | `batch.creastmt.Cbstm03a#createStatement` — PERFORM ... THRU exit point of 5200-WRITE-HTML-NMADBS |
+| `5200-EXIT` | 671 | `folded` | `batch.creastmt.Cbstm03a#createStatement`, `batch.creastmt.Cbstm03a#dataLine` — PERFORM ... THRU exit point of 5200-WRITE-HTML-NMADBS |
 | `8100-FILE-OPEN` | 726 | `retired-jcl` | OPEN/CLOSE of a DD: replaced by DD job parameters (file path or table), repositories and KeyedDataset/sinks (ADR-0015) |
 | `8200-XREFFILE-OPEN` | 765 | `retired-jcl` | OPEN/CLOSE of a DD: replaced by DD job parameters (file path or table), repositories and KeyedDataset/sinks (ADR-0015) |
 | `8300-CUSTFILE-OPEN` | 783 | `retired-jcl` | OPEN/CLOSE of a DD: replaced by DD job parameters (file path or table), repositories and KeyedDataset/sinks (ADR-0015) |
@@ -1157,12 +1157,15 @@ All job definitions of `app/scheduler/CardDemo.controlm` (15) and `app/scheduler
 | [ADR-0020](adr/ADR-0020-pan-masking.md) | ADR-0020: Card numbers masked in lists and logs, opaque card references, USER card scope |
 | [ADR-0021](adr/ADR-0021-async-report-requests.md) | ADR-0021: Online report requests run the batch `tranrept` stream asynchronously |
 | [ADR-0022](adr/ADR-0022-react-ui.md) | ADR-0022: React + Vite SPA per BMS map, served by nginx in front of the API |
+| [ADR-0023](adr/ADR-0023-bcrypt-password-hash.md) | ADR-0023: BCrypt `password_hash` next to `SEC-USR-PWD`, upgraded on first successful sign-on |
 
 Deviations and additions recorded in `rules/*.md` and the ADRs (every paragraph that says deviation, deliberate, addition or not in the COBOL):
 
 | Documented in | Deviation / addition |
 | --- | --- |
 | [CBSTM03A.md:33](rules/CBSTM03A.md) | R-4 — **Table limits** — `WS-TRNX-TABLE`: `WS-CARD-TBL OCCURS 51` × (`WS-CARD-NUM X(16)` + `WS-TRAN-TBL OCCURS 10` × (`X(16)` + `X(318)`)) = 51 × 3356 bytes; `WS-TRN-TBL-CNTR`: 51 × `S9(4) COMP`. Subscripts are not checked. A card with **more than 10 transa... |
+| [CBSTM03A.md:45](rules/CBSTM03A.md) | ## Deviations |
+| [CBTRN02C.md:46](rules/CBTRN02C.md) | ## Deviations |
 | [COACTUPC.md:124](rules/COACTUPC.md) | Deviation (R-39, `ACCT-ADDR-ZIP`): the program's `ACCT-UPDATE-RECORD` (WORKING-STORAGE of `COACTUPC.cbl`) is not `CVACT01Y`: it has no `ACCT-ADDR-ZIP`, so `ACCT-UPDATE-GROUP-ID` is written at offset 102 (where the file record has `ACCT-ADDR-ZIP`) and the `F... |
 | [COBIL00C.md:61](rules/COBIL00C.md) | Deliberate deviations: R-17 — COBOL has no rollback once the transaction is written; the port never leaves a payment without the balance update (`TransactionApiIT` forces the account update to fail and checks the row is gone). R-18 — COBOL continues after a... |
 | [COCRDUPC.md:83](rules/COCRDUPC.md) | R-30: `CARD-ACCT-ID` keeps the stored account (COBOL moves the typed search key, which is protected once details are fetched). Name as typed, day of the expiry date kept, CVV unchanged. Deliberate deviation: the kept day is clamped to the last day of the ne... |

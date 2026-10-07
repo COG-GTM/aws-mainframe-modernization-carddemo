@@ -46,6 +46,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.function.BiFunction;
 import java.util.function.Function;
+import javax.sql.DataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.Job;
@@ -146,7 +147,7 @@ public class PosttranJobConfiguration {
                     BatchOutputProperties output, DatedOutputFiles datedOutputFiles, Clock clock,
                     DailyTransactionRepository dailyTransactions, CardXrefRepository xrefs,
                     AccountRepository accounts, TranCatBalanceRepository balances,
-                    TransactionRepository transactions) {
+                    TransactionRepository transactions, DataSource dataSource) {
         TransactionTemplate perRecord = new TransactionTemplate(transactionManager);
         perRecord.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRES_NEW);
         Cbtrn02c.UnitOfWork unit = work -> perRecord.executeWithoutResult(status -> work.run());
@@ -158,14 +159,18 @@ public class PosttranJobConfiguration {
                     BufferedSink buffered = new BufferedSink(Cbtrn02c.DALYREJS);
                     RecordSink rejects = generation ? buffered
                             : new FixedFileSink(Cbtrn02c.DALYREJS, DdParameters.path(parameters, Cbtrn02c.DALYREJS));
-                    Cbtrn02c.Result result = new Cbtrn02c(
-                            dalytran(parameters, encoding, dailyTransactions),
-                            transactions(parameters, encoding, transactions, unit),
-                            xref(parameters, encoding, xrefs),
-                            rejects,
-                            account(parameters, encoding, accounts, KeyedDataset.Mode.I_O),
-                            balances(parameters, encoding, balances),
-                            sysout, clock, unit).run();
+                    Cbtrn02c.Result result;
+                    try (TransactionIdStepLock idLock = DdParameters.isTable(parameters, Cbtrn02c.TRANFILE)
+                            ? TransactionIdStepLock.acquire(dataSource) : null) {
+                        result = new Cbtrn02c(
+                                dalytran(parameters, encoding, dailyTransactions),
+                                transactions(parameters, encoding, transactions, unit),
+                                xref(parameters, encoding, xrefs),
+                                rejects,
+                                account(parameters, encoding, accounts, KeyedDataset.Mode.I_O),
+                                balances(parameters, encoding, balances),
+                                sysout, clock, unit).run();
+                    }
                     String rejectsPath;
                     if (generation) {
                         BatchOutputFile file = datedOutputFiles.write(DALYREJS_GDG,
@@ -258,15 +263,8 @@ public class PosttranJobConfiguration {
         }
         return KeyedDataset.table(dd, KeyedDataset.Mode.OUTPUT,
                 k -> transactions.findById(k).map(Transaction::toRecord), transactions::existsById,
-                r -> {
-                    // s6.4: same id lock as online TransactionIds, held until this record's unit of work commits
-                    transactions.lockIdAssignment(TransactionRepository.TRAN_ID_LOCK);
-                    transactions.save(Transaction.from(r));
-                }, r -> false,
-                () -> unit.run(() -> {
-                    transactions.lockIdAssignment(TransactionRepository.TRAN_ID_LOCK);
-                    transactions.deleteAllInBatch();
-                }), TransactionRecord::tranId);
+                r -> transactions.save(Transaction.from(r)), r -> false,
+                () -> unit.run(transactions::deleteAllInBatch), TransactionRecord::tranId);
     }
 
     private static <E, K, D extends Record> KsdsInput input(JobParameters parameters, String ddname,

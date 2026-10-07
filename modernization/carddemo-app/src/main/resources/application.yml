@@ -43,8 +43,10 @@ management:
 springdoc:
   api-docs:
     path: /v3/api-docs
+    enabled: ${CARDDEMO_API_DOCS_ENABLED:true}
   swagger-ui:
     path: /swagger-ui.html
+    enabled: ${CARDDEMO_API_DOCS_ENABLED:true}
 
 carddemo:
   clock:

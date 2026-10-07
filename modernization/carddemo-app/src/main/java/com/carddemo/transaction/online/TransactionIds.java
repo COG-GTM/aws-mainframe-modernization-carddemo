@@ -37,6 +37,19 @@ public class TransactionIds {
     }
 
     /**
+     * Takes the id lock up front (held until the caller's transaction ends), for callers that lock other rows before
+     * {@link #next()}: the id lock always comes first, as in the POSTTRAN step (no lock-order inversion).
+     */
+    @Transactional(propagation = Propagation.MANDATORY)
+    public void lock() {
+        try {
+            transactions.lockIdAssignment(TransactionRepository.TRAN_ID_LOCK);
+        } catch (DataAccessException e) {
+            throw AbendException.carddemo(MSG_LOOKUP_FAILED, e);
+        }
+    }
+
+    /**
      * The next id, holding the id lock until the caller's transaction ends; replaces {@code STARTBR-TRANSACT-FILE}
      * (HIGH-VALUES), {@code READPREV-TRANSACT-FILE} and {@code ENDBR-TRANSACT-FILE}.
      */
