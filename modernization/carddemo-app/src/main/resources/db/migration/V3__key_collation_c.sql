@@ -1,6 +1,9 @@
 -- s3.2: VSAM keys collate by byte value. Keyset browses (ADR-0011) order on these columns, so they must not depend on
 -- the database's locale (en_US.UTF-8 under glibc sorts 'a b' after 'ab' and ignores case on the first pass).
--- COLLATE "C" gives the EBCDIC/ASCII-independent binary order of the ASCII key values used by CardDemo.
+-- COLLATE "C" orders by the bytes of the ASCII key: the order of the GnuCOBOL baseline's indexed files (loaded from
+-- app/data/ASCII, see scripts/baseline/README.md), which the golden set compares against. This is not IBM037 order
+-- (lowercase < uppercase < digits); the shipped keys (numeric card/account/tran ids, ADMINnnn/USERnnnn) sort the same
+-- in both.
 ALTER TABLE user_security ALTER COLUMN usr_id TYPE VARCHAR(8) COLLATE "C";
 ALTER TABLE card ALTER COLUMN card_num TYPE VARCHAR(16) COLLATE "C";
 ALTER TABLE card_xref ALTER COLUMN card_num TYPE VARCHAR(16) COLLATE "C";

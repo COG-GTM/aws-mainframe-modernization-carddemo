@@ -37,9 +37,12 @@ import com.carddemo.transaction.TransactionTypeRepository;
 import com.carddemo.user.UserSecurity;
 import com.carddemo.user.UserSecurityRecord;
 import com.carddemo.user.UserSecurityRepository;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -95,6 +98,9 @@ public class VsamDatasetLoader {
     private final DisclosureGroupRepository disclosureGroups;
     private final TranCatBalanceRepository balances;
 
+    @PersistenceContext
+    private EntityManager entityManager;
+
     public VsamDatasetLoader(UserSecurityRepository users, CustomerRepository customers, AccountRepository accounts,
                              CardRepository cards, CardXrefRepository xrefs, TransactionRepository transactions,
                              DailyTransactionRepository dailyTransactions, TransactionTypeRepository types,
@@ -118,9 +124,17 @@ public class VsamDatasetLoader {
         return load(dataset, dataset.read(file, encoding));
     }
 
-    /** Inserts one row per record; DALYTRAN rows are numbered 1..n in file order. Returns the record count. */
+    /**
+     * Replaces the table's contents with the dataset image (IDCAMS DELETE/DEFINE + REPRO): existing rows are deleted,
+     * then one row is inserted per record; DALYTRAN rows are numbered 1..n in file order. The deferred card_xref and
+     * transaction_category FKs are checked at commit, so parents can be reloaded in the same transaction.
+     * Returns the record count.
+     */
     @Transactional
     public int load(Dataset dataset, List<FixedWidthRecord> records) {
+        repository(dataset).deleteAllInBatch();
+        entityManager.flush();
+        entityManager.clear();
         switch (dataset) {
             case USRSEC -> users.saveAll(map(records, UserSecurityRecord.MAPPER).stream().map(UserSecurity::from)
                     .toList());
@@ -149,6 +163,22 @@ public class VsamDatasetLoader {
                     .map(TranCatBalance::from).toList());
         }
         return records.size();
+    }
+
+    private JpaRepository<?, ?> repository(Dataset dataset) {
+        return switch (dataset) {
+            case USRSEC -> users;
+            case CUSTDATA -> customers;
+            case ACCTDATA -> accounts;
+            case CARDDATA -> cards;
+            case CARDXREF -> xrefs;
+            case TRANSACT -> transactions;
+            case DALYTRAN -> dailyTransactions;
+            case TRANTYPE -> types;
+            case TRANCATG -> categories;
+            case DISCGRP -> disclosureGroups;
+            case TCATBALF -> balances;
+        };
     }
 
     private static <D extends Record> List<D> map(List<FixedWidthRecord> records, CopybookRecordMapper<D> mapper) {

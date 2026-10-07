@@ -115,7 +115,7 @@ public final class CopybookRecordMapper<D extends Record> {
         for (int i = 0; i < args.length; i++) {
             Binding b = bindings.get(i);
             args[i] = switch (b.kind()) {
-                case TEXT -> record.getTrimmed(b.field());
+                case TEXT -> stripPadding(record.getString(b.field()));
                 case CODE -> codeOf(b, record.getString(b.field()));
                 case INT -> Math.toIntExact(record.getLong(b.field()));
                 case LONG -> record.getLong(b.field());
@@ -191,5 +191,14 @@ public final class CopybookRecordMapper<D extends Record> {
         } catch (ReflectiveOperationException e) {
             throw new IllegalStateException(e);
         }
+    }
+
+    /** ADR-0003: only the trailing space padding is dropped; other trailing whitespace is data. */
+    private static String stripPadding(String value) {
+        int end = value.length();
+        while (end > 0 && value.charAt(end - 1) == ' ') {
+            end--;
+        }
+        return value.substring(0, end);
     }
 }

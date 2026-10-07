@@ -3,6 +3,7 @@ package com.carddemo.batch.load;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.carddemo.batch.load.VsamDatasetLoader.Dataset;
+import com.carddemo.card.CardRecord;
 import com.carddemo.common.codec.FixedWidthRecord;
 import com.carddemo.common.codec.RecordEncoding;
 import com.carddemo.common.codec.RecordLayout;
@@ -12,6 +13,7 @@ import com.carddemo.support.Samples;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -51,6 +53,24 @@ class VsamDatasetLoaderIT extends PostgresRepositoryTest {
         List<String> fromDb = rows.stream().map(row -> image(mapper, row, encoding)).sorted().toList();
         List<String> fromFile = original.stream().map(r -> withoutFiller(mapper, r)).sorted().toList();
         assertThat(fromDb).containsExactlyElementsOf(fromFile);
+    }
+
+    @Test
+    void reloadReplacesTheTableContents() {
+        List<FixedWidthRecord> cards = Samples.read(Dataset.CARDDATA, RecordEncoding.EBCDIC);
+        loader.load(Dataset.CARDDATA, cards);
+        flushAndClear();
+        String dropped = CardRecord.MAPPER.fromRecord(cards.get(cards.size() - 1)).cardNum();
+
+        assertThat(loader.load(Dataset.CARDDATA, cards.subList(0, cards.size() - 1))).isEqualTo(cards.size() - 1);
+        flushAndClear();
+        assertThat(jdbc.queryForObject("select count(*) from card", Integer.class)).isEqualTo(cards.size() - 1);
+        assertThat(jdbc.queryForObject("select count(*) from card where card_num = ?", Integer.class, dropped))
+                .isZero();
+
+        loader.load(Dataset.CARDDATA, List.of());
+        flushAndClear();
+        assertThat(jdbc.queryForObject("select count(*) from card", Integer.class)).isZero();
     }
 
     @SuppressWarnings("unchecked")

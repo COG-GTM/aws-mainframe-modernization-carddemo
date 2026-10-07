@@ -126,7 +126,9 @@ Deliberately **not** constrained (sample data or programs contradict a tighter r
 
 Key columns that browses order on (`usr_id`, `card_num`, `tran_id`, `proc_ts`, type/group codes) are
 `COLLATE "C"` (Flyway `V3__key_collation_c.sql`): VSAM orders keys by byte value, and the database default collation
-(`en_US.UTF-8` under glibc) would order `'a b'`/`'ab'` and upper/lower case differently.
+(`en_US.UTF-8` under glibc) would order `'a b'`/`'ab'` and upper/lower case differently. The byte order is that of the
+ASCII key, as in the GnuCOBOL baseline's indexed files (the golden-set reference), not IBM037 order (where lowercase <
+uppercase < digits). The shipped keys sort the same both ways.
 
 `version BIGINT NOT NULL DEFAULT 0` exists on exactly the tables the online programs `REWRITE`/`DELETE`:
 `user_security`, `customer`, `account`, `card`. Insert-only (`transaction`) and batch-only tables have none; batch

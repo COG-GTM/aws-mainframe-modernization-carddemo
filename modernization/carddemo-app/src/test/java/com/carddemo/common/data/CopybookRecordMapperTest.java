@@ -49,6 +49,19 @@ class CopybookRecordMapperTest {
     }
 
     @Test
+    void onlyTrailingSpacePaddingIsDropped() {
+        CopybookRecordMapper<TranType> mapper = CopybookRecordMapper.of(TranType.class, "CVTRA03Y");
+        for (RecordEncoding encoding : new RecordEncoding[] {RecordEncoding.ASCII, RecordEncoding.EBCDIC}) {
+            FixedWidthRecord original = FixedWidthRecord.spaces(mapper.layout(), encoding);
+            original.setString(original.field("TRAN-TYPE"), "0\t");
+            original.setString(original.field("TRAN-TYPE-DESC"), "PAYMENT\t");
+            TranType value = mapper.fromRecord(original);
+            assertThat(value).isEqualTo(new TranType("0\t", "PAYMENT\t"));
+            assertThat(mapper.toRecord(value, encoding).bytes()).isEqualTo(original.bytes());
+        }
+    }
+
+    @Test
     void writeIntoLeavesFillerBytesUntouched() {
         CopybookRecordMapper<TranType> mapper = CopybookRecordMapper.of(TranType.class, "CVTRA03Y");
         FixedWidthRecord record = FixedWidthRecord.fromLine(mapper.layout(), "99" + "x".repeat(50) + "FILLER!!",
