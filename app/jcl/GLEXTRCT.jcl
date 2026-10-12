@@ -47,10 +47,12 @@
 //STEPLIB  DD DISP=SHR,
 //            DSN=AWS.M2.CARDDEMO.LOADLIB
 //SYSOUT   DD SYSOUT=*
-//* Scheduler substitutes the run date on the control card.
-//GLPARM   DD *
-2026-10-12 CARDDEMO
-/*
+//* GLPARM is a cataloged per-run control dataset.
+//* The scheduler writes FB 80 (CVGLCTL) before each cycle with
+//* that cycle's run date. This job contains no date literal.
+//* A missing dataset fails allocation; STEP30 does not run.
+//* A blank or invalid date is RC 12 (E02).
+//GLPARM   DD DISP=SHR,DSN=AWS.M2.CARDDEMO.GLSUMM.PARM
 //TRANFILE DD DISP=(OLD,DELETE,DELETE),DSN=&&TRANFILE
 //XREFFILE DD DISP=(OLD,DELETE,DELETE),DSN=&&XREFFILE
 //TCATBALF DD DISP=(OLD,DELETE,DELETE),DSN=&&TCATBALF

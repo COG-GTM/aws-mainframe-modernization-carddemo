@@ -22,7 +22,7 @@ accounting system. Each run produces two artifacts:
 TRANSACT (KSDS, CVTRA05Y) --REPRO--> TRANFILE (FB 350) --+
 CARDXREF (KSDS, CVACT03Y) --REPRO--> XREFFILE (FB  50) --+--> CBGLX01C --> GLSUMOUT (FB 150) --[RC<=4]--> outbound copy
 TCATBALF (KSDS, CVTRA01Y) --REPRO--> TCATBALF (FB  50) --+         |
-GLPARM control card (FB 80, instream) -------------------+         +--> GLRECRPT (FB 132) reconciliation report
+GLPARM AWS.M2.CARDDEMO.GLSUMM.PARM (FB 80) --------------+         +--> GLRECRPT (FB 132) reconciliation report
 ```
 
 * TRANSACT has a card number but no account number, so each transaction's account
@@ -76,9 +76,15 @@ the prior-cycle backup. That extension is **not implemented** here.
 | Source amounts | `TRAN-AMT` and `TRAN-CAT-BAL` are zoned decimal with trailing overpunch (`S9(09)V99` DISPLAY) in the CardDemo files. They are not COMP-3. The program reads them natively. GnuCOBOL tests compile with `-fsign=EBCDIC` so ASCII fixtures use the same overpunch convention as `app/data/ASCII/*.txt`. |
 | Record format | RECFM=FB, LRECL=150. No record delimiters: under GnuCOBOL the file is a flat byte stream of 150-byte records. |
 | Collating order | Details are in ascending `(ACCT-ID, TYPE-CD, CAT-CD)` order under the platform's native collating sequence. CardDemo type codes are numeric (`01`-`07`), so EBCDIC and ASCII give the same order. A type code with letters would sort differently on the two platforms (in EBCDIC, letters sort before digits). |
-| Dates | Calendar logic is plain COBOL (numeric checks, month range, days-in-month, Gregorian leap rule: divisible by 4, not by 100 unless also by 400). The program uses no LE callable services (no CEEDAYS) and no `FUNCTION CURRENT-DATE`. The run date comes from the control card, so outputs are reproducible. |
+| Dates | Calendar logic is plain COBOL (numeric checks, month range, days-in-month, Gregorian leap rule: divisible by 4, not by 100 unless also by 400). The program uses no LE callable services (no CEEDAYS) and no `FUNCTION CURRENT-DATE`. The run date comes from the scheduler-written per-run control dataset, so outputs are reproducible. |
 
 ## 4. Control card (GLPARM, FB 80) - `CVGLCTL`
+
+GLPARM is the cataloged dataset `AWS.M2.CARDDEMO.GLSUMM.PARM` (FB 80).
+Before each cycle, the scheduler writes it with that cycle's run date, following
+the same pattern as `TRANREPT`'s `DATEPARM`. GLEXTRCT contains no date literal.
+If the dataset is missing, allocation fails and STEP30 does not run. A missing,
+blank, or invalid control card is RC 12 (`E02`).
 
 | Pos | Len | Field | Picture | Rule |
 |---|---|---|---|---|
@@ -147,7 +153,7 @@ counted in TRAN-COUNT and adds 0 to debits.
 ### 5.4 What a receiving system should validate
 
 1. Every record is 150 bytes and byte 1 is `H`, `D` or `T`. There is exactly one `H`, it comes first, there is exactly one `T`, it comes last, and every record in between is a `D`.
-2. The header has `GLSUMM01`, layout `0100`, an expected source id, and a valid `CCYYMMDD` run date that has not been processed before (duplicate-file check).
+2. The header has `GLSUMM01`, layout `0100`, an expected source id, and a valid `CCYYMMDD` run date. Reject a file whose run date matches an already-received file (duplicate or stale run).
 3. Detail sequence numbers run 1..n with no gaps, and keys are strictly ascending.
 4. Numeric fields are all digits. Signed fields start with `+`/`-` and the rest are digits. DEBIT and CREDIT are `+`.
 5. Each detail satisfies NET = DEBIT - CREDIT.
@@ -214,6 +220,13 @@ Sections, in order:
 7. **Result**: `BALANCED`, `BALANCED WITH WARNINGS`, `OUT OF BALANCE`, or `RUN ABORTED - <reason>`, followed by the return code.
 
 ## 8. JCL release gate
+
+`GLEXTRCT` reads GLPARM from the cataloged per-run dataset
+`AWS.M2.CARDDEMO.GLSUMM.PARM` (FB 80, `CVGLCTL`). The scheduler writes it before
+each cycle with that cycle's run date, following the `TRANREPT` `DATEPARM`
+pattern. The job contains no date literal. A missing dataset fails allocation,
+so STEP30 does not run; a missing, blank, or invalid control card is RC 12
+(`E02`). The receiver rejects duplicate or stale run dates as described in 5.4.
 
 `GLEXTRCT` writes `AWS.M2.CARDDEMO.GLSUMM.EXTRACT`. STEP30 and STEP40 both carry
 `COND=(4,LT)`: STEP30 is bypassed if any unload fails; STEP40 copies to OUTBOUND
