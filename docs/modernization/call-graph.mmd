@@ -1,0 +1,42 @@
+flowchart LR
+  classDef job fill:#dbeafe,stroke:#1d4ed8
+  classDef pgm fill:#fef3c7,stroke:#b45309
+  classDef vsam fill:#dcfce7,stroke:#15803d
+  classDef seq fill:#f3f4f6,stroke:#374151
+  classDef le fill:#fee2e2,stroke:#b91c1c,stroke-dasharray:4 2
+
+  subgraph POSTTRAN["POSTTRAN.jcl (CA-7 daily, SCHID=030)"]
+    S15["STEP15 PGM=CBTRN02C"]:::job --> CBTRN02C:::pgm
+  end
+  subgraph INTCALC["INTCALC.jcl (Control-M monthly)"]
+    I15["STEP15 PGM=CBACT04C PARM='2022071800'"]:::job --> CBACT04C:::pgm
+  end
+  subgraph TRANREPT["TRANREPT.jcl (no scheduler entry found)"]
+    R05a["STEP05R PROC=REPROC (IDCAMS REPRO)"]:::job
+    R05b["STEP05R PGM=SORT (DFSORT)"]:::job
+    R10["STEP10R PGM=CBTRN03C"]:::job --> CBTRN03C:::pgm
+  end
+
+  DALYTRAN[("DALYTRAN.PS seq 350")]:::seq --> CBTRN02C
+  CARDXREF[("CARDXREF KSDS 50 / AIX acct-id")]:::vsam --> CBTRN02C
+  ACCTDATA[("ACCTDATA KSDS 300")]:::vsam <--> CBTRN02C
+  TCATBALF[("TCATBALF KSDS 50")]:::vsam <--> CBTRN02C
+  CBTRN02C --> TRANSACT[("TRANSACT KSDS 350")]:::vsam
+  CBTRN02C --> DALYREJS[("DALYREJS(+1) seq 430")]:::seq
+
+  TCATBALF --> CBACT04C
+  CARDXREF --> CBACT04C
+  DISCGRP[("DISCGRP KSDS 50")]:::vsam --> CBACT04C
+  ACCTDATA <--> CBACT04C
+  CBACT04C --> SYSTRAN[("SYSTRAN(+1) seq 350")]:::seq
+
+  TRANSACT --> R05a --> BKUP[("TRANSACT.BKUP(+1) seq 350")]:::seq --> R05b --> DALY[("TRANSACT.DALY(+1) seq 350, sorted by card")]:::seq --> CBTRN03C
+  CARDXREF --> CBTRN03C
+  TRANTYPE[("TRANTYPE KSDS 60")]:::vsam --> CBTRN03C
+  TRANCATG[("TRANCATG KSDS 60")]:::vsam --> CBTRN03C
+  DATEPARM[("DATEPARM seq 80")]:::seq --> CBTRN03C
+  CBTRN03C --> TRANREPTF[("TRANREPT(+1) seq 133")]:::seq
+
+  CBTRN02C -. abend 999 .-> CEE3ABD["CEE3ABD (LE service, not app code)"]:::le
+  CBACT04C -. abend 999 .-> CEE3ABD
+  CBTRN03C -. abend 999 .-> CEE3ABD
