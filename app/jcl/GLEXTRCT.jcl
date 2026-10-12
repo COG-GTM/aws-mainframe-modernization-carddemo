@@ -52,6 +52,8 @@
 //* that cycle's run date. This job contains no date literal.
 //* A missing dataset fails allocation; STEP30 does not run.
 //* A blank or invalid date is RC 12 (E02).
+//* Prerequisite: the installation catalogs GLSUMM.PARM and the
+//* scheduler rewrites it each cycle (interface spec section 8).
 //GLPARM   DD DISP=SHR,DSN=AWS.M2.CARDDEMO.GLSUMM.PARM
 //TRANFILE DD DISP=(OLD,DELETE,DELETE),DSN=&&TRANFILE
 //XREFFILE DD DISP=(OLD,DELETE,DELETE),DSN=&&XREFFILE

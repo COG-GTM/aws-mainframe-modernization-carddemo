@@ -228,6 +228,26 @@ pattern. The job contains no date literal. A missing dataset fails allocation,
 so STEP30 does not run; a missing, blank, or invalid control card is RC 12
 (`E02`). The receiver rejects duplicate or stale run dates as described in 5.4.
 
+**Deployment prerequisite.** No job in this repository creates or refreshes
+`AWS.M2.CARDDEMO.GLSUMM.PARM`; the same is true of the existing
+`AWS.M2.CARDDEMO.DATEPARM`, which appears only in `app/catlg/LISTCAT.txt`. The
+installation must catalog the dataset once and have its scheduler rewrite it
+before each GLEXTRCT submission. If that has not happened, GLEXTRCT fails at
+allocation and no outbound file is produced, which is the intended fail-closed
+behavior. Example of a scheduler step that writes the card (not shipped as a job):
+
+```
+//WRITEPRM EXEC PGM=IEBGENER
+//SYSPRINT DD SYSOUT=*
+//SYSIN    DD DUMMY
+//SYSUT1   DD *
+2026-10-12 CARDDEMO
+/*
+//SYSUT2   DD DISP=OLD,DSN=AWS.M2.CARDDEMO.GLSUMM.PARM
+```
+
+The scheduler supplies the date on the `SYSUT1` card for each cycle.
+
 `GLEXTRCT` writes `AWS.M2.CARDDEMO.GLSUMM.EXTRACT`. STEP30 and STEP40 both carry
 `COND=(4,LT)`: STEP30 is bypassed if any unload fails; STEP40 copies to OUTBOUND
 only when every prior step, including CBGLX01C, ended RC <= 4.
