@@ -1,0 +1,57 @@
+# Authorization policy for the secured posting cycle, expressed as data.
+# Deny by default: anything not granted here is denied by the policy decision point.
+permissions:
+  - run-posting
+  - view-rejects
+  - submit-cutover
+  - approve-cutover
+  - read-audit
+
+roles:
+  posting-job:
+    - run-posting
+  reject-reviewer:
+    - view-rejects
+  cutover-submitter:
+    - submit-cutover
+    - view-rejects
+  cutover-approver:
+    - approve-cutover
+    - view-rejects
+    - read-audit
+  read-only-auditor:
+    - read-audit
+    - view-rejects
+
+subjects:
+  # Human users, keyed by the CSUSR01Y SEC-USR-TYPE byte of the user security file.
+  userTypes:
+    A:
+      - cutover-submitter
+      - cutover-approver
+    U:
+      - reject-reviewer
+  # Additional grants for individual users, keyed by SEC-USR-ID.
+  users:
+    USER0005:
+      - read-only-auditor
+  # Workload (service account) identities, keyed by workload id.
+  workloads:
+    svc-posttran-post:
+      - posting-job
+    svc-posttran-report:
+      - reject-reviewer
+
+# Attribute-based constraints evaluated after the role grant matches.
+constraints:
+  run-posting:
+    subjectKind: WORKLOAD
+  submit-cutover:
+    subjectKind: HUMAN
+  approve-cutover:
+    subjectKind: HUMAN
+    # Separation of duties: the approver must differ from the submitter recorded
+    # on the resource attribute named below.
+    separationOfDuties: submittedBy
+  view-rejects: {}
+  read-audit: {}

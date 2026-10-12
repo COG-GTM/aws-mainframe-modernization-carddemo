@@ -1,0 +1,28 @@
+spring:
+  application:
+    name: zero-trust-controls
+  batch:
+    job:
+      name: dailyTransactionPostingJob
+    jdbc:
+      initialize-schema: always
+  datasource:
+    url: jdbc:h2:mem:zerotrust;DB_CLOSE_DELAY=-1
+    driver-class-name: org.h2.Driver
+
+carddemo:
+  posting:
+    encoding: EBCDIC
+    daily-transactions: ${CARDDEMO_DATA:../../app/data/EBCDIC}/AWS.M2.CARDDEMO.DALYTRAN.PS
+    card-xref: ${CARDDEMO_DATA:../../app/data/EBCDIC}/AWS.M2.CARDDEMO.CARDXREF.PS
+    account-master: ${CARDDEMO_WORK:./work}/AWS.M2.CARDDEMO.ACCTDATA.VSAM.KSDS
+    category-balances: ${CARDDEMO_WORK:./work}/AWS.M2.CARDDEMO.TCATBALF.VSAM.KSDS
+    transaction-master: ${CARDDEMO_WORK:./work}/AWS.M2.CARDDEMO.TRANSACT.VSAM.KSDS
+    rejects: ${CARDDEMO_WORK:./work}/AWS.M2.CARDDEMO.DALYREJS
+  zerotrust:
+    policy: classpath:zero-trust-policy.yaml
+    audit-log: ${CARDDEMO_AUDIT:./work/zero-trust-audit.jsonl}
+    workload-id: svc-posttran-post
+    token-ttl: PT5M
+    issuer: urn:carddemo:local-issuer
+    audience: urn:carddemo:posting

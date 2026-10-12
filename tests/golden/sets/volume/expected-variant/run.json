@@ -1,0 +1,29 @@
+{
+  "gnucobol_version": "cobc (GnuCOBOL) 3.1.2.0",
+  "cobc_command_CBTRN02C": "cobc -x -std=ibm -fsign=EBCDIC -I app/cpy -o tests/golden/.work/build/CBTRN02C app/cbl/CBTRN02C.cbl",
+  "cobc_command_GSIDXUTL": "cobc -x -std=ibm -fsign=EBCDIC -o tests/golden/.work/build/GSIDXUTL tests/golden/cobol/GSIDXUTL.cbl",
+  "env_file": "tests/golden/env/posttran-variant.env",
+  "return_code": 4,
+  "outputs": {
+    "TRANSACT": {
+      "bytes": 366450,
+      "sha256": "960a56800312ed391c1055cf94e4a534affa2596dbe486cd8d9cb573cd34b718"
+    },
+    "DALYREJS": {
+      "bytes": 65790,
+      "sha256": "22b771e49b46151570bb7461f862cbba681eb3400866080297c84199fbd3f1b0"
+    },
+    "ACCTFILE": {
+      "bytes": 50100,
+      "sha256": "9dc41cf6909b4286c64dedd8f99e7d11f2d4d9015338c0d6cd4279e9c09661ac"
+    },
+    "TCATBALF": {
+      "bytes": 28900,
+      "sha256": "23e28a8003a05255b659ec0aeff52426d3a415d9a03203c42a61169490a39dd9"
+    },
+    "SYSOUT": {
+      "bytes": 10999,
+      "sha256": "c85973094e1fc49b4949a2b161d6a039314816f3dbf28540f2d3f14f2c5bb722"
+    }
+  }
+}
