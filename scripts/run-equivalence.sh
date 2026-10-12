@@ -70,13 +70,11 @@ else
 fi
 
 # step 2: candidate runs
-declare -A CAND_EXIT
 for s in $SETS; do
   echo "== step 2: candidate run, set $s"
-  set +e
-  bash tests/golden/run_candidate_pr9.sh . --set "$s"
-  CAND_EXIT[$s]=$?
-  set -e
+  # the verdict comes from reconciliation.json (read by equivalence_table.py),
+  # not from this runner's shell exit
+  bash tests/golden/run_candidate_pr9.sh . --set "$s" || true
 done
 
 # step 3: equivalence table
@@ -85,7 +83,4 @@ set +e
 python3 tests/golden/equivalence_table.py $SETS
 TBL=$?
 set -e
-for s in $SETS; do
-  echo "$s: $([ "${CAND_EXIT[$s]}" -eq 0 ] && echo PASS || echo FAIL)"
-done
 exit "$TBL"

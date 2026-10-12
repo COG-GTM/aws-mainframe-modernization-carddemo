@@ -53,7 +53,7 @@ volume: PASS
 OVERALL: PASS
 ```
 
-The candidate commit shown is the last code commit; later commits on this branch only touch docs.
+The candidate commit shown is the commit this run was made from; no file under `modernization/` changed after it (later commits touch only docs and the runner script).
 
 Machine-readable copies: `tests/golden/.work/equivalence-summary.{md,json}`; per-set detail:
 `tests/golden/sets/<set>/candidate-pr9/reconciliation.{md,json}`.
