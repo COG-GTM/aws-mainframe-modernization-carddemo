@@ -44,7 +44,7 @@ Enforcement points:
   before any step runs. Denial marks the JobExecution FAILED, audits `AUTHZ_DECISION DENY`,
   and no master or output dataset is touched. On completion it audits `JOB_COMPLETED` with
   the posttran control totals (transactionCount, rejectCount), the posted count and
-  posted-amount sum accumulated by the secured processor, and stores the audit head hash in
+  posted-amount sum accumulated per run by `SecuredOutcomeWriter` in the job ExecutionContext, and stores the audit head hash in
   the job ExecutionContext as `auditHeadHash`.
 - **Item level** (`SecuredPostingProcessor` → `SecuredOutcomeWriter`): on every transaction
   the token is verified and `run-posting` is authorized; the verified caller travels with
