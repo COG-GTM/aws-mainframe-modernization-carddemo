@@ -20,6 +20,7 @@ The script prints these headings and performs the steps in order:
 7. `== Cases` — compare each case's rc, stdout, VALDRPT, DALYRJ04, and DALYVALD byte-for-byte with expected outputs.
 8. `== Docs/source synchronisation check` — check docs/source consistency.
 9. `== Summary`
+
 Actual tail from the successful run:
 
 ```text
