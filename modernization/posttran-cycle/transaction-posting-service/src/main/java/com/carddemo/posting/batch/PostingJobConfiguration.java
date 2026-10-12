@@ -125,7 +125,17 @@ public class PostingJobConfiguration {
     @Bean
     public ExitCodeMapper postingExitCodeMapper() {
         SimpleJvmExitCodeMapper mapper = new SimpleJvmExitCodeMapper();
-        mapper.setMapping(Map.of(COMPLETED_WITH_REJECTS, 4));
+        mapper.setMapping(Map.of(ExitStatus.COMPLETED.getExitCode(), 0, COMPLETED_WITH_REJECTS, 4));
         return mapper;
+    }
+
+    /**
+     * Turns the job's {@link ExitStatus} into the process exit code. Spring Boot's built-in
+     * {@code JobExecutionExitCodeGenerator} only sees {@link org.springframework.batch.core.BatchStatus},
+     * so it cannot distinguish {@code COMPLETED_WITH_REJECTS} (RETURN-CODE 4) from {@code COMPLETED} (0).
+     */
+    @Bean
+    public PostingExitCodeGenerator postingExitCodeGenerator(ExitCodeMapper postingExitCodeMapper) {
+        return new PostingExitCodeGenerator(postingExitCodeMapper);
     }
 }

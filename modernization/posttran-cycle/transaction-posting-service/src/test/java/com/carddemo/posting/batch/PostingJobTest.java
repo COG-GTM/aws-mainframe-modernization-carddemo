@@ -28,7 +28,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 /**
  * Runs POSTTRAN STEP15 end to end on the shipped EBCDIC datasets (app/data/EBCDIC). The expected
  * counts below are what this Java implementation produces; they have NOT been confirmed against a
- * mainframe run of CBTRN02C (see docs/modernization/equivalence-evidence.md).
+ * mainframe run of CBTRN02C (see docs/modernization/05-equivalence-evidence.md).
  */
 @SpringBatchTest
 @SpringBootTest(classes = PostingApplication.class, properties = {
