@@ -7,7 +7,7 @@ Three different levels of evidence exist in this pass. They are not interchangea
 | Level | Meaning | Available here? |
 |---|---|---|
 | **A. Source syntax** | The three COBOL programs compile under GnuCOBOL 3.1.2 `-fsyntax-only -std=ibm`. | Yes — all three: 0 errors. Proves the source is what we read, nothing about runtime. |
-| **B. Java behaviour vs documented COBOL behaviour** | JUnit tests assert that the Java produces the outputs that `02-module-*.md` says the COBOL produces, for the cases below. The oracle is our *reading* of the COBOL, not a COBOL execution. | Yes — 81 tests, all passing. |
+| **B. Java behaviour vs documented COBOL behaviour** | JUnit tests assert that the Java produces the outputs that `02-module-*.md` says the COBOL produces, for the cases below. The oracle is our *reading* of the COBOL, not a COBOL execution. | Yes — 84 tests, all passing. |
 | **B+. Java output vs GnuCOBOL run of the same COBOL source** | Byte comparison of `TRANSACT`, `DALYREJS`, `ACCTFILE`, `TCATBALF`, `RETURN-CODE` and control totals after running both implementations on the same input. The oracle is a GnuCOBOL 3.1.2 execution of unmodified `CBTRN02C.cbl`, not a mainframe. | **Yes** — both golden sets pass, see `06-golden-set-results.md`. |
 | **C. Java output vs actual mainframe output** | Byte comparison of `TRANSACT`, `DALYREJS`, `SYSTRAN`, `TRANREPT`, `ACCTDATA`, `TCATBALF` after running both implementations on the same input. | **No.** There is no mainframe, CICS, VSAM or Enterprise COBOL runtime in this environment and the repository ships no output datasets. |
 
@@ -16,7 +16,7 @@ Every claim below is level B unless marked otherwise. **Level C equivalence is n
 ## 5.2 Test matrix (level B)
 
 Run: `export JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64 && cd modernization/posttran-cycle && mvn test`
-Result at time of writing: `Tests run: 81, Failures: 0, Errors: 0, Skipped: 0` across 15 classes.
+Result at time of writing (JDK 21, `mvn test` in `modernization/posttran-cycle`): 84 tests across 16 classes, 0 failures, 0 errors, 0 skipped. Maven reports one `Tests run:` line per module: recordio `Tests run: 31`, posting `Tests run: 23`, interest `Tests run: 15`, report `Tests run: 15`.
 
 ### Record layouts and encoding (`carddemo-recordio`)
 
