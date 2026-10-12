@@ -16,26 +16,26 @@ public final class SecuredPostingProcessor implements ItemProcessor<DailyTransac
     private final ItemProcessor<DailyTransaction, PostingOutcome> delegate;
     private final WorkloadTokenSource tokenSource;
     private final SecuredTransactionPostingService secured;
-    private final PostedTotals postedTotals;
+    private final PostingAuditBuffer buffer;
 
     public SecuredPostingProcessor(ItemProcessor<DailyTransaction, PostingOutcome> delegate,
                                    WorkloadTokenSource tokenSource,
                                    SecuredTransactionPostingService secured,
-                                   PostedTotals postedTotals) {
+                                   PostingAuditBuffer buffer) {
         this.delegate = delegate;
         this.tokenSource = tokenSource;
         this.secured = secured;
-        this.postedTotals = postedTotals;
+        this.buffer = buffer;
     }
 
     @Override
     public PostingOutcome process(DailyTransaction item) throws Exception {
-        String recordKey = item.transaction().id();
+        // Denials are audited and thrown here; outcomes are not audited until the chunk
+        // has actually been written (see SecuredOutcomeWriter).
         SecuredTransactionPostingService.VerifiedCaller caller =
-                secured.authorize(tokenSource.token(), recordKey);
+                secured.authorize(tokenSource.token(), item.transaction().id());
         PostingOutcome outcome = delegate.process(item);
-        secured.auditOutcome(caller, outcome, recordKey);
-        postedTotals.record(outcome);
+        buffer.put(outcome, caller);
         return outcome;
     }
 }

@@ -31,38 +31,50 @@ public final class CutoverApprovals {
 
     public Decision submit(Subject subject, String runId, String controlTotals) {
         Decision decision = pdp.decide(AccessRequest.of(subject, "submit-cutover"));
-        audit.append(subject.id(), subject.kind(), AuditAction.CUTOVER_SUBMITTED,
-                decision.allowed() ? "ALLOW" : "DENY", runId,
-                detail(decision) + " totals=" + controlTotals);
+        String detail = detail(decision) + " totals=" + controlTotals;
         if (decision.allowed()) {
-            submissions.put(runId, new Submission(subject.id(), controlTotals, null));
+            // Atomic: a run that already has a submission (pending or approved) cannot be
+            // resubmitted — the original submitter is preserved.
+            if (submissions.putIfAbsent(runId,
+                    new Submission(subject.id(), controlTotals, null)) != null) {
+                decision = Decision.deny("ALREADY_SUBMITTED");
+                detail = "authz=DENY already submitted";
+            }
         }
+        audit.append(subject.id(), subject.kind(), AuditAction.CUTOVER_SUBMITTED,
+                decision.allowed() ? "ALLOW" : "DENY", runId, detail);
         return decision;
     }
 
     public Decision approve(Subject approver, String runId) {
-        Submission submission = submissions.get(runId);
-        if (submission == null) {
-            // No submission exists for this run: the policy cannot grant anything, so the
-            // attempt is denied and audited as NO_MATCHING_ROLE (see class javadoc).
-            audit.append(approver.id(), approver.kind(), AuditAction.CUTOVER_APPROVED,
-                    "DENY", runId, "authz=NO_MATCHING_ROLE no submission for run");
-            return Decision.deny("NO_MATCHING_ROLE");
-        }
-        if (submission.approvedBy() != null) {
-            audit.append(approver.id(), approver.kind(), AuditAction.CUTOVER_APPROVED,
-                    "DENY", runId, "already approved by " + submission.approvedBy());
-            return Decision.deny("NO_MATCHING_ROLE");
-        }
-        Decision decision = pdp.decide(new AccessRequest(approver, "approve-cutover",
-                Map.of("submittedBy", submission.submittedBy())));
+        // The submission lookup, the policy decision, and recording the approval are one
+        // atomic compute, so a racing submit or second approve cannot slip between them.
+        var outcome = new java.util.concurrent.atomic.AtomicReference<Decision>();
+        var auditDetail = new java.util.concurrent.atomic.AtomicReference<String>();
+        submissions.compute(runId, (id, existing) -> {
+            if (existing == null) {
+                // No submission exists for this run: the policy cannot grant anything, so
+                // the attempt is denied and audited as NO_MATCHING_ROLE (see javadoc).
+                outcome.set(Decision.deny("NO_MATCHING_ROLE"));
+                auditDetail.set("authz=NO_MATCHING_ROLE no submission for run");
+                return null;
+            }
+            if (existing.approvedBy() != null) {
+                outcome.set(Decision.deny("NO_MATCHING_ROLE"));
+                auditDetail.set("already approved by " + existing.approvedBy());
+                return existing;
+            }
+            Decision decision = pdp.decide(new AccessRequest(approver, "approve-cutover",
+                    Map.of("submittedBy", existing.submittedBy())));
+            outcome.set(decision);
+            auditDetail.set(detail(decision) + " submittedBy=" + existing.submittedBy());
+            return decision.allowed()
+                    ? new Submission(existing.submittedBy(), existing.controlTotals(), approver.id())
+                    : existing;
+        });
+        Decision decision = outcome.get();
         audit.append(approver.id(), approver.kind(), AuditAction.CUTOVER_APPROVED,
-                decision.allowed() ? "ALLOW" : "DENY", runId,
-                detail(decision) + " submittedBy=" + submission.submittedBy());
-        if (decision.allowed()) {
-            submissions.put(runId, new Submission(submission.submittedBy(),
-                    submission.controlTotals(), approver.id()));
-        }
+                decision.allowed() ? "ALLOW" : "DENY", runId, auditDetail.get());
         return decision;
     }
 

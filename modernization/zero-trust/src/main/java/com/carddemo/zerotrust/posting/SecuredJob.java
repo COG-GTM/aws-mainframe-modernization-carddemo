@@ -34,19 +34,17 @@ public final class SecuredJob implements Job {
     private final AccessTokenVerifier verifier;
     private final PolicyDecisionPoint pdp;
     private final HashChainedAuditLog audit;
-    private final PostedTotals postedTotals;
     private final DataMasker masker;
     private final JobRepository jobRepository;
 
     public SecuredJob(Job delegate, WorkloadTokenSource tokenSource, AccessTokenVerifier verifier,
                       PolicyDecisionPoint pdp, HashChainedAuditLog audit,
-                      PostedTotals postedTotals, DataMasker masker, JobRepository jobRepository) {
+                      DataMasker masker, JobRepository jobRepository) {
         this.delegate = delegate;
         this.tokenSource = tokenSource;
         this.verifier = verifier;
         this.pdp = pdp;
         this.audit = audit;
-        this.postedTotals = postedTotals;
         this.masker = masker;
         this.jobRepository = jobRepository;
     }
@@ -68,24 +66,35 @@ public final class SecuredJob implements Job {
                     "authz=" + decision.reason() + " jti=" + workload.jti());
             return;
         }
-        postedTotals.reset();
         audit.append(workload.id(), SubjectKind.WORKLOAD, AuditAction.JOB_STARTED, "ALLOW",
                 recordKey, "authz=ALLOW role=" + decision.grantingRole().orElse("")
                         + " jti=" + workload.jti());
         delegate.execute(execution);
-        var ctx = execution.getExecutionContext();
-        audit.append(workload.id(), SubjectKind.WORKLOAD, AuditAction.JOB_COMPLETED,
-                execution.getExitStatus().getExitCode(), recordKey,
-                masker.scrub("transactionCount=" + ctx.getLong("transactionCount", 0L)
-                        + " rejectCount=" + ctx.getLong("rejectCount", 0L)
-                        + " posted=" + postedTotals.postedCount()
-                        + " postedAmount=" + postedTotals.postedAmount().toPlainString()
-                        + " status=" + execution.getStatus()
-                        + " exitCode=" + execution.getExitStatus().getExitCode()));
-        ctx.putString("auditHeadHash", audit.head().hash());
-        // The delegate already persisted the execution context before we added the
-        // anchor, so push the update to the repository explicitly.
-        jobRepository.updateExecutionContext(execution);
+        try {
+            var ctx = execution.getExecutionContext();
+            audit.append(workload.id(), SubjectKind.WORKLOAD, AuditAction.JOB_COMPLETED,
+                    execution.getExitStatus().getExitCode(), recordKey,
+                    masker.scrub("transactionCount=" + ctx.getLong("transactionCount", 0L)
+                            + " rejectCount=" + ctx.getLong("rejectCount", 0L)
+                            + " posted=" + ctx.getLong(SecuredOutcomeWriter.POSTED_COUNT_KEY, 0L)
+                            + " postedAmount=" + ctx.getString(SecuredOutcomeWriter.POSTED_AMOUNT_KEY, "0.00")
+                            + " status=" + execution.getStatus()
+                            + " exitCode=" + execution.getExitStatus().getExitCode()));
+            ctx.putString("auditHeadHash", audit.head().hash());
+            // The delegate already persisted the execution context before we added the
+            // anchor, so push the update to the repository explicitly.
+            jobRepository.updateExecutionContext(execution);
+        } catch (RuntimeException e) {
+            // Finalization failed after the delegate committed its terminal status. Persist
+            // FAILED so the repository does not record an unanchored success; the datasets
+            // may already be flushed, so a re-run needs operator reconciliation (README).
+            execution.addFailureException(e);
+            execution.setStatus(BatchStatus.FAILED);
+            execution.setExitStatus(new ExitStatus("FAILED",
+                    "audit finalization failed: " + e.getMessage()));
+            execution.setEndTime(LocalDateTime.now());
+            jobRepository.update(execution);
+        }
     }
 
     private void denyJob(JobExecution execution, String actor, String recordKey, String detail) {

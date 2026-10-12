@@ -176,7 +176,7 @@ class SecuredTransactionPostingServiceTest {
         var source = new com.carddemo.zerotrust.identity.WorkloadTokenSource(
                 post, issuer, AUDIENCE, clock);
         SecuredPostingProcessor processor = new SecuredPostingProcessor(
-                item -> delegate().process(item), source, secured, new PostedTotals());
+                item -> delegate().process(item), source, secured, new PostingAuditBuffer());
         PostingOutcome out = processor.process(
                 PostingTestFixtures.item("t-7", PostingTestFixtures.CARD_OK, "10.00"));
         assertThat(out).isInstanceOf(PostingOutcome.Posted.class);

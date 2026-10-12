@@ -77,4 +77,38 @@ class CutoverApprovalsTest {
             assertThat(d.allowed()).isFalse();
         }
     }
+
+    @Test
+    void resubmissionAfterApprovalIsDeniedAndApprovalPreserved() throws Exception {
+        Path log = dir.resolve("audit4.jsonl");
+        try (HashChainedAuditLog audit = new HashChainedAuditLog(log, Clock.systemUTC())) {
+            PolicyDecisionPoint pdp = new PolicyDecisionPoint(
+                    PolicyLoader.load(getClass().getResourceAsStream("/zero-trust-policy.yaml")));
+            CutoverApprovals ca = new CutoverApprovals(pdp, audit);
+            ca.submit(ADMIN001, "run-9", "t=1");
+            ca.approve(ADMIN002, "run-9");
+            Decision resubmit = ca.submit(ADMIN002, "run-9", "t=1");
+            assertThat(resubmit.allowed()).isFalse();
+            assertThat(resubmit.reason()).isEqualTo("ALREADY_SUBMITTED");
+            // the approval is preserved: the run stays approved
+            assertThat(ca.approve(ADMIN002, "run-9").allowed()).isFalse();
+        }
+    }
+
+    @Test
+    void resubmissionOfPendingRunKeepsOriginalSubmitter() throws Exception {
+        Path log = dir.resolve("audit5.jsonl");
+        try (HashChainedAuditLog audit = new HashChainedAuditLog(log, Clock.systemUTC())) {
+            PolicyDecisionPoint pdp = new PolicyDecisionPoint(
+                    PolicyLoader.load(getClass().getResourceAsStream("/zero-trust-policy.yaml")));
+            CutoverApprovals ca = new CutoverApprovals(pdp, audit);
+            ca.submit(ADMIN001, "run-10", "t=1");
+            Decision resubmit = ca.submit(ADMIN002, "run-10", "t=1");
+            assertThat(resubmit.allowed()).isFalse();
+            assertThat(resubmit.reason()).isEqualTo("ALREADY_SUBMITTED");
+            // original submitter preserved: ADMIN001 still cannot approve (SoD)
+            assertThat(ca.approve(ADMIN001, "run-10").reason()).isEqualTo("SEPARATION_OF_DUTIES");
+            assertThat(ca.approve(ADMIN002, "run-10").allowed()).isTrue();
+        }
+    }
 }

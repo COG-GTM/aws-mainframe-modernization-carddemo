@@ -9,7 +9,9 @@ import com.carddemo.zerotrust.masking.DataMasker;
 import com.carddemo.zerotrust.policy.Policy;
 import com.carddemo.zerotrust.policy.PolicyDecisionPoint;
 import com.carddemo.zerotrust.policy.PolicyLoader;
+import org.springframework.batch.core.configuration.annotation.JobScope;
 import org.springframework.batch.item.ItemProcessor;
+import org.springframework.batch.item.ItemWriter;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.config.BeanPostProcessor;
@@ -91,8 +93,9 @@ public class ZeroTrustConfiguration {
     }
 
     @Bean
-    PostedTotals postedTotals() {
-        return new PostedTotals();
+    @JobScope
+    PostingAuditBuffer postingAuditBuffer() {
+        return new PostingAuditBuffer();
     }
 
     @Bean
@@ -125,7 +128,7 @@ public class ZeroTrustConfiguration {
             ObjectProvider<AccessTokenVerifier> verifier,
             ObjectProvider<PolicyDecisionPoint> pdp,
             ObjectProvider<HashChainedAuditLog> auditLog,
-            ObjectProvider<PostedTotals> postedTotals,
+            ObjectProvider<PostingAuditBuffer> postingAuditBuffer,
             ObjectProvider<DataMasker> masker,
             ObjectProvider<SecuredTransactionPostingService> secured,
             ObjectProvider<org.springframework.batch.core.repository.JobRepository> jobRepository) {
@@ -139,13 +142,21 @@ public class ZeroTrustConfiguration {
                     return new SecuredPostingProcessor(
                             (ItemProcessor<com.carddemo.posting.domain.DailyTransaction,
                                     com.carddemo.posting.domain.PostingOutcome>) processor,
-                            tokenSource.getObject(), secured.getObject(), postedTotals.getObject());
+                            tokenSource.getObject(), secured.getObject(),
+                            postingAuditBuffer.getObject());
+                }
+                if ("scopedTarget.postingOutcomeWriter".equals(beanName)
+                        && bean instanceof ItemWriter<?> writer) {
+                    return new SecuredOutcomeWriter(
+                            (ItemWriter<com.carddemo.posting.domain.PostingOutcome>) writer,
+                            postingAuditBuffer.getObject(), secured.getObject(),
+                            auditLog.getObject(), masker.getObject());
                 }
                 if ("dailyTransactionPostingJob".equals(beanName)
                         && bean instanceof org.springframework.batch.core.Job job) {
                     return new SecuredJob(job, tokenSource.getObject(), verifier.getObject(),
-                            pdp.getObject(), auditLog.getObject(), postedTotals.getObject(),
-                            masker.getObject(), jobRepository.getObject());
+                            pdp.getObject(), auditLog.getObject(), masker.getObject(),
+                            jobRepository.getObject());
                 }
                 return bean;
             }

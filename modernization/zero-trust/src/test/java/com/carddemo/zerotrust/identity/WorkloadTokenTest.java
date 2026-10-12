@@ -177,6 +177,23 @@ class WorkloadTokenTest {
     }
 
     @Test
+    void replayCacheEvictsExpiredAssertions() {
+        WorkloadCredentials c2 = WorkloadCredentials.generate("svc-replay");
+        issuer.registerWorkload(c2.workloadId(), c2.publicKey());
+        String assertion = c2.createClientAssertion(ISSUER_ID, clock);
+        issuer.issue(assertion, AUDIENCE);
+        assertThatThrownBy(() -> issuer.issue(assertion, AUDIENCE))
+                .isInstanceOf(TokenRejectedException.class);
+        int seen = issuer.seenAssertionCount();
+        assertThat(seen).isGreaterThan(0);
+        // Past assertion lifetime (60s) plus the 30s eviction skew; a fresh exchange
+        // triggers the purge and the stale jti is gone.
+        clock.advance(Duration.ofSeconds(100));
+        issuer.issue(c2.createClientAssertion(ISSUER_ID, clock), AUDIENCE);
+        assertThat(issuer.seenAssertionCount()).isLessThanOrEqualTo(seen);
+    }
+
+    @Test
     void ttlAboveMaximumIsRefused() {
         assertThatThrownBy(() -> new LocalTokenIssuer(ISSUER_ID, Duration.ofMinutes(16), clock))
                 .isInstanceOf(IllegalArgumentException.class);

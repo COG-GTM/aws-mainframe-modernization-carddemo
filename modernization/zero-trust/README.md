@@ -46,11 +46,16 @@ Enforcement points:
   the posttran control totals (transactionCount, rejectCount), the posted count and
   posted-amount sum accumulated by the secured processor, and stores the audit head hash in
   the job ExecutionContext as `auditHeadHash`.
-- **Item level** (`SecuredPostingProcessor` → `SecuredTransactionPostingService`): on every
-  transaction the token is verified, `run-posting` is authorized, the posttran logic runs,
-  and the outcome is audited. The per-item ALLOW is folded into the
-  `TRANSACTION_POSTED` / `TRANSACTION_REJECTED` entry (`authz=ALLOW role=… jti=…`) instead
-  of a separate decision entry, so the chain gains one entry per transaction.
+- **Item level** (`SecuredPostingProcessor` → `SecuredOutcomeWriter`): on every transaction
+  the token is verified and `run-posting` is authorized; the verified caller travels with
+  the outcome in a job-scoped buffer, and the `TRANSACTION_POSTED` / `TRANSACTION_REJECTED`
+  entry is written by the decorated writer **only after the chunk has been written
+  successfully**. A failed chunk yields `TRANSACTION_WRITE_FAILED` / `NOT_WRITTEN` entries
+  instead — the chain never claims an outcome that did not reach the datasets. The per-item
+  ALLOW is folded into the outcome entry (`authz=ALLOW role=… jti=…`) instead of a separate
+  decision entry, so the chain gains one entry per transaction. Per-run totals live in the
+  job ExecutionContext (`zt.postedCount`, `zt.postedAmount`), so concurrent executions
+  cannot mix counters.
 - **Human paths**: `view-rejects` (masked reject view over DALYREJS), `submit-cutover` /
   `approve-cutover` with separation of duties, and `read-audit`. Denials are audited too.
 
@@ -113,6 +118,12 @@ anchor; SIEM ingestion and alerting; encryption at rest; continuous monitoring /
 `approve-cutover` additionally requires the approver to differ from the submitter
 (separation of duties). This table mirrors `PolicyDecisionPointTest`.
 
+`PolicyDecisionPoint` trusts the `Subject` it is given: it is an authorization point, not
+an authentication boundary. Human `Subject`s must be built only from an authenticated
+principal issued by the platform ICAM/OIDC provider (inherited, listed above); callers must
+not construct a `Subject` from unauthenticated input. `CutoverApprovals` and audit reads are
+authorization points, not authentication boundaries.
+
 ## Limitations
 
 - The local issuer is for tests and local runs only; production issuance is the platform
@@ -123,3 +134,8 @@ anchor; SIEM ingestion and alerting; encryption at rest; continuous monitoring /
   transaction ids in free text. That is the safe direction and is intentional.
 - The per-item ALLOW is folded into the posting audit entry rather than a separate
   AUTHZ_DECISION record, to avoid doubling the chain.
+- If audit finalization fails after the delegate job has committed its terminal status, the
+  execution is persisted FAILED, but the posttran output datasets may already be flushed —
+  a re-run needs operator reconciliation, and no safe automatic retry is claimed.
+- `PolicyDecisionPoint` trusts the `Subject` it is given (see the note above): human
+  authentication is inherited from the platform ICAM/OIDC provider and is not performed here.

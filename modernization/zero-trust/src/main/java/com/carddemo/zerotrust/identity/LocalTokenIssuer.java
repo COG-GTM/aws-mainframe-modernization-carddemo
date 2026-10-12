@@ -19,7 +19,6 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.Date;
 import java.util.Map;
-import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -46,7 +45,9 @@ public final class LocalTokenIssuer {
     private final Clock clock;
     private final ECKey signingKey;
     private final Map<String, ECPublicKey> workloads = new ConcurrentHashMap<>();
-    private final Set<String> seenAssertionIds = ConcurrentHashMap.newKeySet();
+    // jti -> assertion expiry; entries older than exp + 30s skew are dropped on each
+    // exchange, so the replay cache stays bounded by live assertions, not total issuance.
+    private final Map<String, Instant> seenAssertionIds = new ConcurrentHashMap<>();
 
     public LocalTokenIssuer(String issuerId, Duration tokenTtl, Clock clock) {
         if (tokenTtl.compareTo(MAX_TOKEN_TTL) > 0) {
@@ -83,6 +84,11 @@ public final class LocalTokenIssuer {
     /** Public half of the issuer key, as a JWKS document. */
     public JWKSet publicJwkSet() {
         return new JWKSet(signingKey.toPublicJWK());
+    }
+
+    /** Size of the assertion replay cache. Package-private, for tests. */
+    int seenAssertionCount() {
+        return seenAssertionIds.size();
     }
 
     /** Mints a signed ES256 JWT with arbitrary claims. Package-private, for tests. */
@@ -144,7 +150,9 @@ public final class LocalTokenIssuer {
             throw new TokenRejectedException("client assertion expired");
         }
         String jti = claims.getJWTID();
-        if (jti == null || !seenAssertionIds.add(jti)) {
+        Instant evictionFloor = now.minusSeconds(30);
+        seenAssertionIds.entrySet().removeIf(e -> e.getValue().isBefore(evictionFloor));
+        if (jti == null || seenAssertionIds.putIfAbsent(jti, exp.toInstant()) != null) {
             throw new TokenRejectedException("client assertion jti missing or replayed");
         }
 

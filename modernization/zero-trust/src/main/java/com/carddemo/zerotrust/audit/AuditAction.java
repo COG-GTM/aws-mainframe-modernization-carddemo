@@ -7,6 +7,7 @@ public final class AuditAction {
     public static final String JOB_STARTED = "JOB_STARTED";
     public static final String TRANSACTION_POSTED = "TRANSACTION_POSTED";
     public static final String TRANSACTION_REJECTED = "TRANSACTION_REJECTED";
+    public static final String TRANSACTION_WRITE_FAILED = "TRANSACTION_WRITE_FAILED";
     public static final String JOB_COMPLETED = "JOB_COMPLETED";
     public static final String CUTOVER_SUBMITTED = "CUTOVER_SUBMITTED";
     public static final String CUTOVER_APPROVED = "CUTOVER_APPROVED";
