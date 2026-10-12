@@ -40,7 +40,7 @@ Downstream jobs (`INTCALC`, `TRANBKP`/`COMBTRAN`, reporting) and whatever builds
 4. `tests/golden/compare.py <cobol-outputs> <java-outputs>` reconciles them byte-for-byte, record-by-record and by control totals: records in, accepted, rejected, rejects by reason code, accepted and rejected amounts, closing balance per account and per category, return code.
 5. Any difference blocks the next phase. It is triaged as a Java defect, a COBOL behaviour nobody had written down (record it in `open-questions.md`), or an input/environment difference.
 
-Phase 0 has already found one difference in this slice. The Java process returned 0 where `CBTRN02C` returns 4 when it writes rejects. It was fixed before any shadow run (`06-golden-set-results.md` §4). The comparison exists to catch exactly this kind of difference.
+Phase 0 has already found one difference in this slice. The Java process returned 0 where `CBTRN02C` returns 4 when it writes rejects. It was fixed before any shadow run (`06-golden-set-results.md` §6.4). The comparison exists to catch exactly this kind of difference.
 
 ## 4. Cutover, one job at a time
 
