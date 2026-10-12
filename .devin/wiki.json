@@ -1,0 +1,76 @@
+{
+  "repo_notes": [
+    {
+      "content": "Treat this repository as a representative COBOL/CICS/VSAM financial feeder estate being planned for modernization. Readers are a program office and engineers retiring a mainframe system that ingests financial transactions, validates them, posts them to account and ledger balances, accrues interest, produces reports and statements, and hands files to a downstream accounting system and a payment-processing interface. Organize every page around that flow: ingest -> validate -> post -> ledger/control totals -> report/outbound. Source of truth is app/cbl (COBOL), app/cpy (copybooks/record layouts), app/jcl (batch jobs), app/bms + app/cpy-bms (screens), app/csd (CICS resource definitions), app/scheduler (job scheduling) and scripts/run_full_batch.sh (the daily batch job order). Cite program, JCL and copybook names with file paths and line numbers for every behavioural claim. Do not claim byte-for-byte equivalence with any target platform, productivity figures, or any certification or authorization status. Where the code is silent (feeder file formats beyond the daily transaction file, control-total reconciliation with external systems, retention, operator procedures), say so explicitly instead of inferring."
+    },
+    {
+      "content": "Precision notes the pages must respect: (1) Core money fields in the master and transaction layouts are zoned decimal DISPLAY, not COMP-3: ACCT-CURR-BAL and limits PIC S9(10)V99 in app/cpy/CVACT01Y.cpy, TRAN-AMT PIC S9(09)V99 in CVTRA05Y.cpy, DALYTRAN-AMT in CVTRA06Y.cpy, TRAN-CAT-BAL in CVTRA01Y.cpy, DIS-INT-RATE PIC S9(04)V99 in CVTRA02Y.cpy. Packed decimal (COMP-3) money fields appear in the export record app/cpy/CVEXPORT.cpy (EXP-ACCT-CURR-BAL, EXP-ACCT-CASH-CREDIT-LIMIT, EXP-TRAN-AMT) and in program working storage. (2) CBTRN02C validation reason codes: 100 invalid card (xref miss), 101 account not found, 102 over limit, 103 transaction after account expiry; 103 is evaluated after 102 and overwrites it; 109 is set on account REWRITE failure after posting has started and does not route the record to the reject file. (3) CBACT04C computes monthly interest as (TRAN-CAT-BAL * DIS-INT-RATE) / 1200 with no ROUNDED clause; 1400-COMPUTE-FEES is an empty stub. (4) scripts/run_full_batch.sh runs POSTTRAN, INTCALC, TRANBKP, COMBTRAN and TRANIDX; TRANREPT and CREASTMT are separate jobs (CREASTMT is scheduled in the CA-7 definition under app/scheduler)."
+    }
+  ],
+  "pages": [
+    {
+      "title": "Estate Overview",
+      "purpose": "Inventory of the estate by artifact type (COBOL batch vs online programs, copybooks, BMS maps, JCL jobs and procs, CSD, scheduler definitions, data samples, optional DB2/IMS/MQ modules) and how the pieces fit together. Frame it as a financial feeder: what comes in, what is posted, what goes out.",
+      "page_notes": [
+        {"content": "Include a mermaid diagram of ingest -> validate -> post -> ledger balances -> report/outbound naming the JCL job and program at each stage."}
+      ]
+    },
+    {
+      "title": "Daily Batch Chain and Data Lineage",
+      "purpose": "Document the batch job order from scripts/run_full_batch.sh and the scheduler definitions: file close, master refreshes, POSTTRAN (CBTRN02C), INTCALC (CBACT04C), TRANBKP, COMBTRAN, TRANIDX, file open, then TRANREPT (CBTRN03C) and CREASTMT (CBSTM03A/CBSTM03B) for statements. For each job list input and output datasets (DD names), generation data groups such as DALYREJS(+1), SYSTRAN(+1), TRANREPT(+1), and which job consumes each output.",
+      "parent": "Estate Overview",
+      "page_notes": [
+        {"content": "Show dataset-level lineage: DALYTRAN.PS -> CBTRN02C -> TRANSACT KSDS / ACCTDATA / TCATBALF / DALYREJS; TCATBALF -> CBACT04C -> SYSTRAN + ACCTDATA; TRANSACT.BKUP + SYSTRAN -> COMBTRAN -> TRANSACT KSDS; TRANSACT -> TRANREPT; TRANSACT -> CREASTMT -> STATEMNT.PS/HTML."}
+      ]
+    },
+    {
+      "title": "Transaction Posting and Reject Rules",
+      "purpose": "Explain CBTRN01C (daily file validation/read-through) and CBTRN02C (posting): the read loop, cross-reference and account lookups, every validation reason code with its exact condition, reject record layout (original 350-byte record plus 80-byte validation trailer), TCATBAL create-or-update, account balance and cycle credit/debit update, transaction master write, and the return code set when rejects exist.",
+      "parent": "Daily Batch Chain and Data Lineage",
+      "page_notes": [
+        {"content": "Call out ordering edge cases a re-implementation must preserve or deliberately change: reason 103 overwriting 102, reason 109 not producing a reject record, and the account rewrite happening before the transaction write."}
+      ]
+    },
+    {
+      "title": "Interest and Fee Accrual",
+      "purpose": "Explain INTCALC/CBACT04C: iteration over transaction category balances, account lookup through the cross-reference alternate index, disclosure group interest rate lookup with DEFAULT fallback, the interest formula and its truncation behaviour, the system-generated interest transaction written to SYSTRAN, the account rewrite that zeroes cycle credit/debit, and the unimplemented fee paragraph.",
+      "parent": "Daily Batch Chain and Data Lineage"
+    },
+    {
+      "title": "Record Layouts and Money Fields",
+      "purpose": "Field-level reference for the copybooks that carry money and keys: CVTRA06Y (daily transaction), CVTRA05Y (posted transaction), CVACT01Y (account), CVACT03Y (card cross-reference), CVTRA01Y (category balance), CVTRA02Y (disclosure group), CVTRA03Y/CVTRA04Y (type/category lookups), CVTRA07Y (report lines), CSUSR01Y (user security), CVEXPORT (export record). Give record lengths, keys, PIC clauses and USAGE, and distinguish zoned DISPLAY money fields from COMP-3 packed fields.",
+      "parent": "Estate Overview",
+      "page_notes": [
+        {"content": "List every COMP-3 field with file and line. Note REDEFINES and OCCURS used in these layouts, and the implied decimal scale a target type must preserve."}
+      ]
+    },
+    {
+      "title": "Control Totals and Reconciliation Points",
+      "purpose": "Identify every place the code produces counts or totals that an operator or a downstream system could reconcile against: CBTRN02C processed/rejected counts and return code 4, CBTRN03C page, account and grand totals, statement totals in CBSTM03A, record counts in CBEXPORT/CBIMPORT. State plainly where no trailer record, hash total or cross-job balancing exists in the code.",
+      "parent": "Daily Batch Chain and Data Lineage"
+    },
+    {
+      "title": "Outbound Interface and Report Files",
+      "purpose": "Document every file that leaves the batch window: TRANREPT report (CBTRN03C, CVTRA07Y layout, DATEPARM date filter), statements in text and HTML (CREASTMT), the 500-byte export file (CBEXPORT, CVEXPORT) and its import counterpart (CBIMPORT), reject files (DALYREJS), and the FTP and text-to-PDF jobs (FTPJCL, TXT2PDF1). Describe format, record length, encoding assumptions and what a downstream accounting system or payment-processing interface would need to consume them.",
+      "parent": "Estate Overview",
+      "page_notes": [
+        {"content": "FTPJCL carries host, user and password in-stream; describe the pattern and its risk without reproducing the values."}
+      ]
+    },
+    {
+      "title": "Online CICS Transactions",
+      "purpose": "Map CICS transaction IDs to programs and BMS maps (sign-on, main and admin menus, account view/update, card list/view/update, transaction list/view/add, bill payment, reports, user administration), the pseudo-conversational COMMAREA pattern (COCOM01Y), XCTL navigation, and which VSAM files each program reads or updates.",
+      "parent": "Estate Overview"
+    },
+    {
+      "title": "User and Admin Security Model",
+      "purpose": "Explain authentication and authorization as implemented: COSGN00C sign-on against the USRSEC file (CSUSR01Y layout), user type A/U carried in the COMMAREA (COCOM01Y), admin vs user menu routing (COADM01C, COMEN01C option gating), and user administration programs COUSR00C (list), COUSR01C (add), COUSR02C (update), COUSR03C (delete). Relate each to access-enforcement, role-based access and audit expectations a Zero Trust architecture would impose, describing gaps factually (plaintext 8-byte passwords, no lockout, no audit trail of admin changes) without asserting compliance status.",
+      "parent": "Online CICS Transactions"
+    },
+    {
+      "title": "Migration Slicing and Open Questions",
+      "purpose": "Summarize candidate first migration slices ranked by risk, coupling and testability, the evidence each slice can be tested against (sample data in app/data, deterministic batch outputs), and the questions the code cannot answer and must go to the system owner (feeder formats, external reconciliation, downstream interface specs, scheduling SLAs, retention).",
+      "parent": "Estate Overview"
+    }
+  ]
+}
