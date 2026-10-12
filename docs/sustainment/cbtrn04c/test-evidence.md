@@ -32,7 +32,7 @@ bash tests/cbtrn04c/run_tests.sh                          # exit 0 == every case
    under `cases/<case>/expected/`. `DALYRJ04` must be a whole number of 430-byte
    records and `DALYVALD` of 350-byte records;
 6. `tools/check_docs_sync.py`, which fails the run if `change-request.md`,
-   `government-decisions.md` or this file disagree with the source, the fixtures
+   `government-decisions.md` or this file differ from the source, the fixtures
    or the sample report (reason codes, case names, citations, all numbers).
 
 `UPDATE_EXPECTED=1 bash tests/cbtrn04c/run_tests.sh` rewrites the expected files
