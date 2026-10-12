@@ -15,6 +15,7 @@ import java.nio.file.Path;
 import java.time.Clock;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /** Separation of duties on the cutover submit → approve flow. */
 class CutoverApprovalsTest {
@@ -109,6 +110,46 @@ class CutoverApprovalsTest {
             // original submitter preserved: ADMIN001 still cannot approve (SoD)
             assertThat(ca.approve(ADMIN001, "run-10").reason()).isEqualTo("SEPARATION_OF_DUTIES");
             assertThat(ca.approve(ADMIN002, "run-10").allowed()).isTrue();
+        }
+    }
+
+    @Test
+    void failedSubmitAuditLeavesNoSubmission() throws Exception {
+        Path log = dir.resolve("audit6.jsonl");
+        HashChainedAuditLog audit = new HashChainedAuditLog(log, Clock.systemUTC());
+        PolicyDecisionPoint pdp = new PolicyDecisionPoint(
+                PolicyLoader.load(getClass().getResourceAsStream("/zero-trust-policy.yaml")));
+        CutoverApprovals ca = new CutoverApprovals(pdp, audit);
+        // Break the log: the append throws, and state must not change.
+        audit.close();
+        assertThatThrownBy(() -> ca.submit(ADMIN001, "run-11", "t=1"))
+                .isInstanceOf(RuntimeException.class);
+        // With a working log, the run still has no submission: approve is denied.
+        try (HashChainedAuditLog audit2 = new HashChainedAuditLog(log, Clock.systemUTC())) {
+            CutoverApprovals ca2 = new CutoverApprovals(pdp, audit2);
+            Decision d = ca2.approve(ADMIN002, "run-11");
+            assertThat(d.allowed()).isFalse();
+            assertThat(d.reason()).isEqualTo("NO_MATCHING_ROLE");
+        }
+    }
+
+    @Test
+    void failedApproveAuditLeavesSubmissionUnapproved() throws Exception {
+        Path log = dir.resolve("audit7.jsonl");
+        HashChainedAuditLog audit = new HashChainedAuditLog(log, Clock.systemUTC());
+        PolicyDecisionPoint pdp = new PolicyDecisionPoint(
+                PolicyLoader.load(getClass().getResourceAsStream("/zero-trust-policy.yaml")));
+        CutoverApprovals ca = new CutoverApprovals(pdp, audit);
+        ca.submit(ADMIN001, "run-12", "t=1");
+        audit.close();
+        assertThatThrownBy(() -> ca.approve(ADMIN002, "run-12"))
+                .isInstanceOf(RuntimeException.class);
+        // Still unapproved: the same approver can retry and succeed on a working log.
+        assertThat(ca.approvedBy("run-12")).isNull();
+        try (HashChainedAuditLog audit2 = new HashChainedAuditLog(log, Clock.systemUTC())) {
+            ca.swapAuditLog(audit2);
+            assertThat(ca.approve(ADMIN002, "run-12").allowed()).isTrue();
+            assertThat(ca.approvedBy("run-12")).isEqualTo("ADMIN002");
         }
     }
 }
