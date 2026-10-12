@@ -14,16 +14,25 @@
 # GS_MVN_ARGS: extra Maven arguments passed to the candidate build, e.g.
 #   GS_MVN_ARGS="-s /path/to/settings.xml"   # repository mirror
 #
+# The full console output is also written to
+# tests/golden/.work/run-equivalence.log.
+#
 # Exit 0 only if every selected set passes (compare.py exit 0 and every gated
 # row PASS).
 set -euo pipefail
 cd "$(dirname "${BASH_SOURCE[0]}")/.."
 
+LOG_TMP="$(mktemp)"
+exec > >(tee "$LOG_TMP") 2>&1
+trap 'rc=$?; mkdir -p tests/golden/.work && cp "$LOG_TMP" tests/golden/.work/run-equivalence.log; rm -f "$LOG_TMP"; exit $rc' EXIT
+
 SET_FILTER=""
 SKIP_REFERENCE=0
 while [ $# -gt 0 ]; do
   case "$1" in
-    --set) SET_FILTER="$2"; shift 2 ;;
+    --set)
+      case "$2" in named|volume) ;; *) echo "--set must be named or volume" >&2; echo "usage: $0 [--set named|volume] [--skip-reference]" >&2; exit 64 ;; esac
+      SET_FILTER="$2"; shift 2 ;;
     --skip-reference) SKIP_REFERENCE=1; shift ;;
     *) echo "usage: $0 [--set named|volume] [--skip-reference]" >&2; exit 64 ;;
   esac
@@ -77,6 +86,6 @@ python3 tests/golden/equivalence_table.py $SETS
 TBL=$?
 set -e
 for s in $SETS; do
-  echo "compare.py exit for $s: ${CAND_EXIT[$s]}"
+  echo "$s: $([ "${CAND_EXIT[$s]}" -eq 0 ] && echo PASS || echo FAIL)"
 done
 exit "$TBL"

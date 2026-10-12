@@ -9,6 +9,7 @@ tests/golden/sets/<set>/candidate-pr9/{reconciliation,run}.json (the Java candid
 run + compare.py verdict). Stdlib only. Exit 0 if every set's compare.py exit
 was 0 and every gated row passes; exit 1 otherwise.
 """
+import hashlib
 import json
 import sys
 from decimal import Decimal
@@ -17,6 +18,7 @@ from pathlib import Path
 HERE = Path(__file__).resolve().parent
 SETS_DIR = HERE / "sets"
 WORK = HERE / ".work"
+CBTRN02C_SHA = None
 
 
 def dec(value):
@@ -34,6 +36,11 @@ def load_set(name):
     recon = json.loads((cand_dir / "reconciliation.json").read_text())
     cand_run = json.loads((cand_dir / "run.json").read_text())
     return ref_run, cand_run, recon
+
+
+def cbtrn02c_sha256():
+    src = HERE.parent.parent / "app" / "cbl" / "CBTRN02C.cbl"
+    return hashlib.sha256(src.read_bytes()).hexdigest()
 
 
 def rows_for(name, ref_run, cand_run, recon):
@@ -81,7 +88,8 @@ def rows_for(name, ref_run, cand_run, recon):
                        ("records_in", "accepted", "rejected", "rejected_by_reason",
                         "sum_accepted_amount", "sum_rejected_amount",
                         "closing_account_balances", "closing_category_balances"))
-    identity = ct_e["records_in"] == ct_e["accepted"] + ct_e["rejected"]
+    identity = (ct_e["records_in"] == ct_e["accepted"] + ct_e["rejected"]
+                and ct_c["records_in"] == ct_c["accepted"] + ct_c["rejected"])
     rows.append({
         "set": name, "dataset": "CONTROL",
         "rec_exp": f"in={ct_e['records_in']} acc={ct_e['accepted']} rej={ct_e['rejected']}",
@@ -125,6 +133,8 @@ def render(rows, set_meta):
         out.append(
             f"{name}: reference {rr['gnucobol_version']}, "
             f"{rr['cobc_command_CBTRN02C']}")
+        out.append(
+            f"{name}: CBTRN02C.cbl sha256 {CBTRN02C_SHA}")
     return "\n".join(out)
 
 
@@ -135,6 +145,9 @@ def main():
     if not names:
         print("no candidate runs found; run run_candidate_pr9.sh first", file=sys.stderr)
         return 1
+
+    global CBTRN02C_SHA
+    CBTRN02C_SHA = cbtrn02c_sha256()
 
     rows = []
     set_meta = {}
@@ -150,8 +163,12 @@ def main():
         all_pass = False
 
     table = render(rows, set_meta)
+    verdicts = []
+    for name, (_, _, exit_code) in set_meta.items():
+        set_pass = exit_code == 0 and all(r["result"] != "FAIL" for r in rows if r["set"] == name)
+        verdicts.append(f"{name}: {'PASS' if set_pass else 'FAIL'}")
     overall = "PASS" if all_pass else "FAIL"
-    table += f"\n\nOVERALL: {overall}"
+    table += "\n\n" + "\n".join(verdicts) + f"\n\nOVERALL: {overall}"
     print(table)
 
     WORK.mkdir(exist_ok=True)
@@ -164,10 +181,12 @@ def main():
         md.append(f"- `{name}`: compare.py exit `{exit_code}`; candidate `{cr['candidate_commit']}`, "
                   f"jar sha256 `{cr['jar_sha256']}`, faketime `{cr['faketime']}`, {cr['java']}")
         md.append(f"  - reference: {rr['gnucobol_version']}, `{rr['cobc_command_CBTRN02C']}`")
-    md += ["", f"**OVERALL: {overall}**", ""]
+        md.append(f"  - `CBTRN02C.cbl` sha256 `{CBTRN02C_SHA}`")
+    md += ["", *[f"**{v.split(':')[0]}: {v.split(': ')[1]}**" for v in verdicts], "",
+           f"**OVERALL: {overall}**", ""]
     (WORK / "equivalence-summary.md").write_text("\n".join(md))
     (WORK / "equivalence-summary.json").write_text(json.dumps(
-        {"overall": overall, "rows": rows,
+        {"overall": overall, "cbtrn02c_sha256": CBTRN02C_SHA, "rows": rows,
          "sets": {n: {"candidate_commit": m[0]["candidate_commit"], "jar_sha256": m[0]["jar_sha256"],
                       "faketime": m[0]["faketime"], "java": m[0]["java"], "compare_exit": m[2],
                       "gnucobol": m[1]["gnucobol_version"], "cobc_command": m[1]["cobc_command_CBTRN02C"]}

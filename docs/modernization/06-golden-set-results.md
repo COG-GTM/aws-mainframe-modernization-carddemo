@@ -20,7 +20,7 @@
 $ bash scripts/run-equivalence.sh
 ```
 
-Output (verbatim, paths trimmed):
+Output of `python3 tests/golden/equivalence_table.py` (the table step), verbatim:
 
 ```
 Set    | Dataset     | Records exp              | Records cand             | Amount exp | Amount cand | Byte-identical | Result
@@ -40,8 +40,20 @@ volume | RETURN-CODE | 4                        | 4                        |    
 volume | CONTROL     | in=1200 acc=1047 rej=153 | in=1200 acc=1047 rej=153 |            |             | yes            | PASS
 volume | SYSOUT      |                          |                          |            |             | n/a            | INFO
 
+named: compare.py exit=0 (PASS); candidate commit=58d6ee86386d185d4529ffe60ae3138882a76e34, jar_sha256=376ec28a6e7784e9e51e85577d787477f9e6283c56829d67b40941c623ec8bcf, faketime="@2026-03-15 12:00:00 x0", openjdk version "21.0.12.1" 2026-08-18
+named: reference cobc (GnuCOBOL) 3.1.2.0, cobc -x -std=ibm -fsign=EBCDIC -I app/cpy -o tests/golden/.work/build/CBTRN02C app/cbl/CBTRN02C.cbl
+named: CBTRN02C.cbl sha256 708f3cadc555acab63f11e2f3238f5372ac7180e6b01197bf960d96bf0d2e83f
+volume: compare.py exit=0 (PASS); candidate commit=58d6ee86386d185d4529ffe60ae3138882a76e34, jar_sha256=cf25c7b428d7768ebd507df5e31c918072072b71aa91bad25646139b5e021cda, faketime="@2026-03-15 12:00:00 x0", openjdk version "21.0.12.1" 2026-08-18
+volume: reference cobc (GnuCOBOL) 3.1.2.0, cobc -x -std=ibm -fsign=EBCDIC -I app/cpy -o tests/golden/.work/build/CBTRN02C app/cbl/CBTRN02C.cbl
+volume: CBTRN02C.cbl sha256 708f3cadc555acab63f11e2f3238f5372ac7180e6b01197bf960d96bf0d2e83f
+
+named: PASS
+volume: PASS
+
 OVERALL: PASS
 ```
+
+The candidate commit shown is the last code commit; later commits on this branch only touch docs.
 
 Machine-readable copies: `tests/golden/.work/equivalence-summary.{md,json}`; per-set detail:
 `tests/golden/sets/<set>/candidate-pr9/reconciliation.{md,json}`.
@@ -64,7 +76,10 @@ by construction, account/customer/merchant IDs are `9000`-prefixed, merchant nam
   (`vol_clean_accept`, `vol_negative_amount`, `vol_card_not_in_xref`, `vol_account_not_on_file`,
   `vol_overlimit_attempt`, `vol_expired_account`, `vol_zero_amount`), against 167 accounts,
   191 xref rows, 411 category-balance rows. Result: 1,047 posted, 153 rejected
-  (0100×49, 0101×33, 0102×52, 0103×19).
+  (0100×49, 0101×33, 0102×52, 0103×19). Every volume account opens at `ACCT-CURR-BAL` 0.00
+(opening sum over `sets/volume/input/ACCTFILE` = 0.00), which is why the volume ACCTFILE closing
+amount (231747.52) equals the volume TRANSACT amount: posted transaction amounts are the only
+credits and debits applied.
 
 ## 6.4 What the first run found
 
@@ -79,8 +94,9 @@ the job `ExitStatus` entirely, so a completed job always exited 0. Fixed by
 `PostingExitCodeGenerator`, an `Ordered.HIGHEST_PRECEDENCE` `ExitCodeGenerator` fed by the same
 mapper, plus `PostingProcessExitCodeTest` covering exit 4 / 0 / non-zero on failure.
 
-This matters because RETURN-CODE 4 is the scheduler contract: downstream jobs and operators key
-on "posted with rejects" vs "posted clean".
+This matters because the return code is the only signal the scheduler gets from the step: 4 is
+how the existing job tells operators "posted with rejects" apart from "posted clean". A
+replacement that exits 0 loses that signal silently, even though every record is right.
 
 ## 6.5 How the harness proves it can fail
 

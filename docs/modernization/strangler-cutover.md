@@ -19,7 +19,7 @@ The cutover is safe only because the step's contract does not move. The contract
 | `ACCTFILE` | update, keyed | 300 bytes, `CVACT01Y` | copybook |
 | `TCATBALF` | update, keyed | 50 bytes, `CVTRA01Y` | copybook |
 | `TRANFILE` (TRANSACT) | output, keyed | 350 bytes, `CVTRA05Y` | copybook |
-| `DALYREJS` | output, new GDG generation | 430 bytes = input record + 4-byte reason + 76-byte text | `CBTRN02C` 128-139 |
+| `DALYREJS` | output, new GDG generation | 430 bytes = input record + 4-byte reason + 76-byte text | `CBTRN02C` 176-182, 446-448 |
 | return code | to the scheduler | 0 = clean, 4 = rejects written | `CBTRN02C` 229-231 |
 
 Downstream jobs (`INTCALC`, `TRANBKP`/`COMBTRAN`, reporting) and whatever builds the outbound interface file read only these datasets. If the bytes and the return code stay the same, they cannot tell which implementation ran. That is the property `scripts/run-equivalence.sh` checks on the golden sets (`06-golden-set-results.md`). The service reads and writes the same fixed-width layouts (`carddemo-recordio`) for exactly this reason. A move to a relational store (`03-data-model.md`) is a later, separate step that comes after the cutover.
@@ -44,7 +44,7 @@ Phase 0 has already found one difference in this slice. The Java process returne
 
 ## 4. Cutover, one job at a time
 
-- The scheduler entry for `POSTTRAN` changes from `EXEC PGM=CBTRN02C` to a call of the service (`java -jar transaction-posting-service.jar` with the same dataset locations as properties). The return-code mapping stays 0/4. A failure is non-zero, so the scheduler's existing condition codes on `INTCALC` keep working.
+- The scheduler entry for `POSTTRAN` changes from `EXEC PGM=CBTRN02C` to a call of the service (`java -jar transaction-posting-service.jar` with the same dataset locations as properties). The return-code mapping stays 0/4. A failure is non-zero, so any condition-code tests the scheduler applies to later steps see the same values they see today.
 - Other jobs move later, each with its own shadow phase: `INTCALC` (`interest-calculation-service`), then the report (`transaction-report-service`). Two jobs never cut over in the same cycle, so any difference can be traced to one change.
 - During the hold period the COBOL step can stay in shadow, running after the Java step against the snapshot. That swaps the dual-run roles and keeps the comparison going.
 
