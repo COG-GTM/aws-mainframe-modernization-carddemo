@@ -85,6 +85,18 @@ public final class LocalTokenIssuer {
         return new JWKSet(signingKey.toPublicJWK());
     }
 
+    /** Mints a signed ES256 JWT with arbitrary claims. Package-private, for tests. */
+    String mint(JWTClaimsSet claims) {
+        SignedJWT jwt = new SignedJWT(new JWSHeader.Builder(JWSAlgorithm.ES256)
+                .keyID(signingKey.getKeyID()).build(), claims);
+        try {
+            jwt.sign(new ECDSASigner(signingKey.toECPrivateKey()));
+        } catch (JOSEException e) {
+            throw new IllegalStateException("cannot sign token", e);
+        }
+        return jwt.serialize();
+    }
+
     /**
      * OIDC client-credentials style exchange: verify the private_key_jwt client
      * assertion, then mint an access token for {@code audience}.

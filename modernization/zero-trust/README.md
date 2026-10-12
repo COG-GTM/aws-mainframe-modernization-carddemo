@@ -73,7 +73,7 @@ assessment; the authorizing official decides."
 
 | Control | Status | Where |
 |---|---|---|
-| AC-2 Account management | implements | USRSEC-derived subjects, workload registry in `LocalTokenIssuer` |
+| AC-2 Account management | supports | USRSEC-derived subjects, workload registry in `LocalTokenIssuer` |
 | AC-3 Access enforcement | implements | `PolicyDecisionPoint`, job/item enforcement points |
 | AC-5 Separation of duties | implements | `approve-cutover` constraint vs `submittedBy` resource attribute |
 | AC-6 Least privilege | implements | role-permission grants, deny by default, WORKLOAD-only `run-posting` |

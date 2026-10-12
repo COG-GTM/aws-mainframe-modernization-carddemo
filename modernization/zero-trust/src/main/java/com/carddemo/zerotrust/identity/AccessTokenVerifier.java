@@ -68,6 +68,9 @@ public final class AccessTokenVerifier {
         if (exp == null || claims.getSubject() == null || claims.getJWTID() == null) {
             throw new TokenRejectedException("token missing required claims (sub/jti/exp)");
         }
+        if (!"workload".equals(claims.getClaim("kind"))) {
+            throw new TokenRejectedException("not a workload token");
+        }
         if (now.isAfter(exp.toInstant().plus(MAX_SKEW))) {
             throw new TokenRejectedException("token expired");
         }

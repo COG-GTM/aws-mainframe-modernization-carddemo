@@ -5,7 +5,9 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.springframework.batch.core.BatchStatus;
 import org.springframework.batch.core.JobExecution;
+import org.springframework.batch.core.JobParameters;
 import org.springframework.batch.core.JobParametersBuilder;
+import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.test.JobLauncherTestUtils;
 import org.springframework.batch.test.context.SpringBatchTest;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,6 +46,12 @@ class SecuredPostingJobDeniedTest {
     @Autowired
     JobLauncherTestUtils jobLauncherTestUtils;
 
+    @Autowired
+    JobRepository jobRepository;
+
+    @Autowired
+    org.springframework.batch.core.Job job;
+
     @BeforeAll
     static void stageMasters() throws Exception {
         Files.createDirectories(WORK);
@@ -73,9 +81,38 @@ class SecuredPostingJobDeniedTest {
 
         List<AuditEntry> entries = Files.readAllLines(AUDIT).stream()
                 .map(AuditEntry::fromJson).toList();
-        assertThat(entries).hasSize(1);
-        assertThat(entries.get(0).action()).isEqualTo("AUTHZ_DECISION");
-        assertThat(entries.get(0).outcome()).isEqualTo("DENY");
-        assertThat(entries.get(0).actor()).isEqualTo("svc-posttran-report");
+        // Other tests in this class also launch the job, each appending a DENY entry;
+        // the newest entry is the one for this execution.
+        assertThat(entries).isNotEmpty();
+        assertThat(entries).allSatisfy(e -> {
+            assertThat(e.action()).isEqualTo("AUTHZ_DECISION");
+            assertThat(e.outcome()).isEqualTo("DENY");
+            assertThat(e.actor()).isEqualTo("svc-posttran-report");
+        });
+    }
+
+    @Test
+    void deniedExecutionIsPersistedAsFailed() throws Exception {
+        JobParameters params = new JobParametersBuilder()
+                .addLong("run", System.nanoTime()).toJobParameters();
+        jobLauncherTestUtils.launchJob(params);
+        JobExecution persisted = jobRepository.getLastJobExecution(job.getName(), params);
+        assertThat(persisted).isNotNull();
+        assertThat(persisted.getStatus()).isEqualTo(BatchStatus.FAILED);
+        assertThat(persisted.getEndTime()).isNotNull();
+    }
+
+    @Test
+    void relaunchAfterDenialDoesNotCollide() throws Exception {
+        // The persisted FAILED state (not lingering STARTING) lets a new launch proceed
+        // to its own denial instead of failing with JobExecutionAlreadyRunning.
+        JobExecution first = jobLauncherTestUtils.launchJob(new JobParametersBuilder()
+                .addLong("run", System.nanoTime()).toJobParameters());
+        JobExecution second = jobLauncherTestUtils.launchJob(new JobParametersBuilder()
+                .addLong("run", System.nanoTime() + 1).toJobParameters());
+        assertThat(second.getStatus()).isEqualTo(BatchStatus.FAILED);
+        assertThat(second.getExitStatus().getExitDescription())
+                .contains("zero trust enforcement");
+        assertThat(first.getStatus()).isEqualTo(BatchStatus.FAILED);
     }
 }

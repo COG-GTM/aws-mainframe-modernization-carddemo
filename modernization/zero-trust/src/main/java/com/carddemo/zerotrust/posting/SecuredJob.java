@@ -17,6 +17,9 @@ import org.springframework.batch.core.Job;
 import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.JobParametersIncrementer;
 import org.springframework.batch.core.JobParametersValidator;
+import org.springframework.batch.core.repository.JobRepository;
+
+import java.time.LocalDateTime;
 
 /**
  * Delegating {@link Job} that brackets the real posting job with enforcement: the
@@ -33,10 +36,11 @@ public final class SecuredJob implements Job {
     private final HashChainedAuditLog audit;
     private final PostedTotals postedTotals;
     private final DataMasker masker;
+    private final JobRepository jobRepository;
 
     public SecuredJob(Job delegate, WorkloadTokenSource tokenSource, AccessTokenVerifier verifier,
                       PolicyDecisionPoint pdp, HashChainedAuditLog audit,
-                      PostedTotals postedTotals, DataMasker masker) {
+                      PostedTotals postedTotals, DataMasker masker, JobRepository jobRepository) {
         this.delegate = delegate;
         this.tokenSource = tokenSource;
         this.verifier = verifier;
@@ -44,6 +48,7 @@ public final class SecuredJob implements Job {
         this.audit = audit;
         this.postedTotals = postedTotals;
         this.masker = masker;
+        this.jobRepository = jobRepository;
     }
 
     @Override
@@ -78,13 +83,24 @@ public final class SecuredJob implements Job {
                         + " status=" + execution.getStatus()
                         + " exitCode=" + execution.getExitStatus().getExitCode()));
         ctx.putString("auditHeadHash", audit.head().hash());
+        // The delegate already persisted the execution context before we added the
+        // anchor, so push the update to the repository explicitly.
+        jobRepository.updateExecutionContext(execution);
     }
 
     private void denyJob(JobExecution execution, String actor, String recordKey, String detail) {
         audit.append(actor, SubjectKind.WORKLOAD, AuditAction.AUTHZ_DECISION, "DENY",
                 recordKey, detail);
+        // The delegate's AbstractJob repository bookkeeping never runs, so the FAILED
+        // state and timestamps must be persisted here — otherwise the repository keeps
+        // the execution as STARTING and a later launch hits JobExecutionAlreadyRunning.
+        if (execution.getStartTime() == null) {
+            execution.setStartTime(LocalDateTime.now());
+        }
+        execution.setEndTime(LocalDateTime.now());
         execution.setStatus(BatchStatus.FAILED);
         execution.setExitStatus(new ExitStatus("FAILED", "zero trust enforcement: " + detail));
+        jobRepository.update(execution);
     }
 
     @Override

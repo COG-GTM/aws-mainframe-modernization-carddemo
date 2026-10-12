@@ -127,7 +127,8 @@ public class ZeroTrustConfiguration {
             ObjectProvider<HashChainedAuditLog> auditLog,
             ObjectProvider<PostedTotals> postedTotals,
             ObjectProvider<DataMasker> masker,
-            ObjectProvider<SecuredTransactionPostingService> secured) {
+            ObjectProvider<SecuredTransactionPostingService> secured,
+            ObjectProvider<org.springframework.batch.core.repository.JobRepository> jobRepository) {
         return new BeanPostProcessor() {
             @Override
             @SuppressWarnings("unchecked")
@@ -144,7 +145,7 @@ public class ZeroTrustConfiguration {
                         && bean instanceof org.springframework.batch.core.Job job) {
                     return new SecuredJob(job, tokenSource.getObject(), verifier.getObject(),
                             pdp.getObject(), auditLog.getObject(), postedTotals.getObject(),
-                            masker.getObject());
+                            masker.getObject(), jobRepository.getObject());
                 }
                 return bean;
             }

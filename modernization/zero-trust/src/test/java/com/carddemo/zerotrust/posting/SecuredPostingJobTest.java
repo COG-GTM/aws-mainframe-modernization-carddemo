@@ -13,6 +13,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.batch.core.BatchStatus;
 import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.JobParametersBuilder;
+import org.springframework.batch.core.explore.JobExplorer;
 import org.springframework.batch.test.JobLauncherTestUtils;
 import org.springframework.batch.test.context.SpringBatchTest;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -55,6 +56,9 @@ class SecuredPostingJobTest {
 
     @Autowired
     JobLauncherTestUtils jobLauncherTestUtils;
+
+    @Autowired
+    JobExplorer jobExplorer;
 
     @BeforeAll
     static void stageMasters() throws Exception {
@@ -107,6 +111,11 @@ class SecuredPostingJobTest {
         VerificationResult result = AuditChainVerifier.verify(AUDIT);
         assertThat(result.valid()).as(result.problem()).isTrue();
         assertThat(ctx.getString("auditHeadHash"))
+                .isEqualTo(entries.get(entries.size() - 1).hash());
+
+        // The persisted execution context carries the anchor too (updateExecutionContext).
+        JobExecution persisted = jobExplorer.getJobExecution(exec.getId());
+        assertThat(persisted.getExecutionContext().getString("auditHeadHash"))
                 .isEqualTo(entries.get(entries.size() - 1).hash());
 
         // No full card number from the shipped CARDXREF appears anywhere in the audit log.

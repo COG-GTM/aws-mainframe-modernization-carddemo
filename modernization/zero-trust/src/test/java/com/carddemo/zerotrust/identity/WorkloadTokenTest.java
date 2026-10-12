@@ -158,6 +158,25 @@ class WorkloadTokenTest {
     }
 
     @Test
+    void nonWorkloadKindIsRejected() {
+        // Correctly signed by the issuer, but kind != workload.
+        String humanToken = issuer.mint(claims("ADMIN001", T0, T0.plusSeconds(300))
+                .claim("kind", "human").build());
+        assertThatThrownBy(() -> verifier.verify(humanToken))
+                .isInstanceOf(TokenRejectedException.class)
+                .hasMessageContaining("not a workload token");
+        String noKind = issuer.mint(new JWTClaimsSet.Builder()
+                .issuer(ISSUER_ID).subject("svc-posttran-post").audience(AUDIENCE)
+                .issueTime(Date.from(T0))
+                .notBeforeTime(Date.from(T0))
+                .expirationTime(Date.from(T0.plusSeconds(300)))
+                .jwtID(UUID.randomUUID().toString()).build());
+        assertThatThrownBy(() -> verifier.verify(noKind))
+                .isInstanceOf(TokenRejectedException.class)
+                .hasMessageContaining("not a workload token");
+    }
+
+    @Test
     void ttlAboveMaximumIsRefused() {
         assertThatThrownBy(() -> new LocalTokenIssuer(ISSUER_ID, Duration.ofMinutes(16), clock))
                 .isInstanceOf(IllegalArgumentException.class);
