@@ -19,8 +19,9 @@ compares return codes, `GLSUMOUT` bytes, and `GLRECRPT` bytes.
   model-derived interface bytes and return code. An absent interface is
   represented by `GLSUMOUT.absent`.
 - `expected/<case>/GLRECRPT.rpt` is a reviewed snapshot of the program's
-  fixed-width report. The runner checks its result code and control totals
-  against the independent model before comparing report bytes.
+  fixed-width report. The runner checks its result code, control totals,
+  exception codes, and exception cap against the independent model before
+  comparing report bytes.
 - `build/` and `work/` are generated locally and are ignored by Git.
 
 Regenerate interface expectations only from the Python model:
@@ -81,6 +82,7 @@ not verified or claimed.
 | `20_missing_input_file` | Missing transaction input; interface absent | 12 |
 | `21_carddemo_sample_data` | 300 fixed records with derived category balances | 0 |
 | `22_zero_amount` | Accepted zero-amount transaction | 0 |
+| `23_exception_cap` | Caps 60 missing-card exceptions at 50 and reports 10 omitted | 4 |
 
 The sample-data case assumes all 300 transactions post successfully. Its
 category balances start at zero and add the per-key activity sums; this does

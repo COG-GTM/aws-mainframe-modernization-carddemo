@@ -215,10 +215,9 @@ Sections, in order:
 
 ## 8. JCL release gate
 
-`GLEXTRCT` writes `AWS.M2.CARDDEMO.GLSUMM.EXTRACT`. A later IEBGENER step, with
-`COND=(4,LT,STEP30)`, copies it to `AWS.M2.CARDDEMO.GLSUMM.OUTBOUND`, the dataset a
-transfer job would pick up. That step runs only when CBGLX01C ends with RC 0 or 4,
-so an out-of-balance or aborted run never reaches the outbound dataset.
+`GLEXTRCT` writes `AWS.M2.CARDDEMO.GLSUMM.EXTRACT`. STEP30 and STEP40 both carry
+`COND=(4,LT)`: STEP30 is bypassed if any unload fails; STEP40 copies to OUTBOUND
+only when every prior step, including CBGLX01C, ended RC <= 4.
 
 ## 9. Verification status
 
@@ -255,6 +254,7 @@ so an out-of-balance or aborted run never reaches the outbound dataset.
 | `20_missing_input_file` | Missing transaction input; interface absent | 12 |
 | `21_carddemo_sample_data` | 300 fixed records with derived category balances | 0 |
 | `22_zero_amount` | Accepted zero-amount transaction | 0 |
+| `23_exception_cap` | Reports 50 of 60 missing-card exceptions and the omitted count | 4 |
 
 The sample-data case assumes every input transaction posts successfully. Its
 category balances start at zero and add the per-key activity sums; it does not

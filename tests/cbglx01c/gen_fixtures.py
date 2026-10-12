@@ -358,6 +358,25 @@ def all_cases() -> list[Case]:
     c.tcatbal = build_tcat(c.transactions, c.xref)
     cases.append(c)
 
+    missing_card_transactions = [
+        _txn(number, 100, card="9999999999999999")
+        for number in range(1, 61)
+    ]
+    valid_transactions = [
+        _txn(61, 1000, card=xref[0][0]),
+        _txn(62, -250, card=xref[1][0], tran_type="02",
+             category="0002"),
+        _txn(63, 400, card=xref[2][0], tran_type="03",
+             category="0003"),
+    ]
+    c = Case(
+        "23_exception_cap",
+        transactions=missing_card_transactions + valid_transactions,
+        xref=xref,
+    )
+    c.tcatbal = build_tcat(valid_transactions, xref)
+    cases.append(c)
+
     return cases
 
 
@@ -708,7 +727,7 @@ def oracle(case: Case) -> dict[str, Any]:
             for transaction in transactions
         )
         if debits > MAX_KEY_CENTS or credits > MAX_KEY_CENTS:
-            exceptions.append("E06 AMOUNT OR HASH CAPACITY EXCEEDED")
+            exceptions.append("E06 KEY TOTAL EXCEEDS S9(13)V99")
             rc = 12
             aborted = True
             break
@@ -740,7 +759,7 @@ def oracle(case: Case) -> dict[str, Any]:
         build_credits += credits
         hash_total += int(account)
         if hash_total > 999_999_999_999_999_999:
-            exceptions.append("E06 AMOUNT OR HASH CAPACITY EXCEEDED")
+            exceptions.append("E06 HASH TOTAL EXCEEDS 9(18)")
             rc = 12
             aborted = True
             break

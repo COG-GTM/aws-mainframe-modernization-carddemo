@@ -1,6 +1,11 @@
 //GLEXTRCT JOB 'LEDGER SUMMARY',CLASS=A,MSGCLASS=0,
 //  NOTIFY=&SYSUID
-//* Extract and reconcile posted ledger activity.
+//* Purpose: reconcile posted activity with category balances.
+//* Inputs: TRANSACT, CARDXREF, TCATBALF unloads, and GLPARM.
+//* Outputs: GLSUMM.EXTRACT, GLRECRPT, and GLSUMM.OUTBOUND.
+//* RC 0 = balanced; 4 = warnings; 8 = out of balance; 12 = aborted.
+//* STEP40 is the release gate for GLSUMM.OUTBOUND.
+//* Run after POSTTRAN and before INTCALC.
 //STEP05   EXEC PGM=IDCAMS
 //SYSPRINT DD SYSOUT=*
 //SYSIN    DD *
@@ -38,7 +43,7 @@
 //SYSIN    DD *
   REPRO INFILE(BALIN) OUTFILE(BALOUT)
 /*
-//STEP30   EXEC PGM=CBGLX01C
+//STEP30   EXEC PGM=CBGLX01C,COND=(4,LT)
 //STEPLIB  DD DISP=SHR,
 //            DSN=AWS.M2.CARDDEMO.LOADLIB
 //SYSOUT   DD SYSOUT=*
@@ -57,7 +62,7 @@
 //            DCB=(RECFM=FB,LRECL=150,BLKSIZE=0),
 //            SPACE=(CYL,(1,1),RLSE)
 //GLRECRPT DD SYSOUT=*
-//STEP40   EXEC PGM=IEBGENER,COND=(4,LT,STEP30)
+//STEP40   EXEC PGM=IEBGENER,COND=(4,LT)
 //SYSPRINT DD SYSOUT=*
 //SYSIN    DD DUMMY
 //SYSUT1   DD DISP=SHR,DSN=AWS.M2.CARDDEMO.GLSUMM.EXTRACT

@@ -125,6 +125,15 @@ def check_report(
         report[offset : offset + 132].rstrip(b" ")
         for offset in range(0, len(report), 132)
     ]
+    expected_title = (
+        b"CBGLX01C  LEDGER-SUMMARY INTERFACE GLSUMM01 - "
+        b"RECONCILIATION REPORT"
+    )
+    if not lines or lines[0] != expected_title:
+        errors.append(f"report title is incorrect: {lines[0] if lines else b''!r}")
+    if len(lines) < 2 or not lines[1].startswith(b"RUN DATE "):
+        errors.append("report run-date/source line is missing")
+
     result_lines = [
         line for line in lines if line.startswith(b"RESULT:")
     ]
@@ -145,6 +154,121 @@ def check_report(
             errors.append(f"RESULT line has wrong outcome: {result_line!r}")
         if expected_rc == 0 and b"WITH WARNINGS" in result_line:
             errors.append(f"clean result is labeled with warnings: {result_line!r}")
+
+    input_labels = (
+        b"TRANSACT RECORDS READ",
+        b"ACCEPTED",
+        b"REJECTED",
+        b"ACCEPTED WITH WARNINGS",
+        b"XREF ENTRIES LOADED",
+        b"TCATBALF RECORDS READ",
+    )
+    for label in input_labels:
+        rows = [
+            line for line in lines if line[:40].rstrip() == label
+        ]
+        if len(rows) != 1 or len(_integer_values(rows[0])) != 1:
+            errors.append(f"expected one aligned input count for {label.decode()}")
+        elif not rows[0][63:64].isdigit():
+            errors.append(f"input count {label.decode()} is not right-aligned")
+
+    exception_sections = [
+        index for index, line in enumerate(lines)
+        if line == b"EXCEPTIONS"
+    ]
+    control_sections = [
+        index for index, line in enumerate(lines)
+        if line == b"CONTROL TOTALS"
+    ]
+    if len(exception_sections) != 1:
+        errors.append(
+            f"expected one EXCEPTIONS section, found {len(exception_sections)}"
+        )
+    elif len(control_sections) == 1:
+        exception_start = exception_sections[0]
+        exception_end = control_sections[0]
+        headers = [
+            line for line in lines[exception_start + 1 : exception_end]
+            if line.startswith(b"CODE")
+        ]
+        expected_exception_header = (
+            b"CODE", b"KEY", b"DESCRIPTION"
+        )
+        if len(headers) != 1 or (
+            headers[0][0:4] != expected_exception_header[0]
+            or headers[0][6:9] != expected_exception_header[1]
+            or headers[0][38:49] != expected_exception_header[2]
+        ):
+            errors.append("exception table header is not aligned")
+        exception_lines = [
+            line for line in lines[exception_start + 1 : exception_end]
+            if line[:3] in {
+                b"E01", b"E02", b"E03", b"E04", b"E05", b"E06",
+                b"R01", b"R02", b"R03", b"R04", b"W01", b"W02",
+                b"W03", b"B01", b"B02", b"B03", b"B04", b"B05",
+                b"B06",
+            }
+        ]
+        expected_exceptions = oracle.get("exceptions", [])
+        expected_codes = [
+            exception.split(maxsplit=1)[0].encode("ascii")
+            for exception in expected_exceptions
+        ]
+        actual_codes = [line[:3] for line in exception_lines]
+        if actual_codes != expected_codes[:50]:
+            errors.append(
+                f"exception codes {actual_codes} do not match oracle "
+                f"{expected_codes[:50]}"
+            )
+        cap_lines = [
+            line for line in lines[exception_start + 1 : exception_end]
+            if b"MORE EXCEPTIONS NOT LISTED" in line
+        ]
+        expected_more = max(0, len(expected_exceptions) - 50)
+        if expected_more:
+            if len(cap_lines) != 1:
+                errors.append(
+                    f"expected one exception-cap line for {expected_more} "
+                    f"omitted rows, found {len(cap_lines)}"
+                )
+            else:
+                cap_match = re.search(
+                    rb"([0-9,]+)\s+MORE EXCEPTIONS NOT LISTED",
+                    cap_lines[0],
+                )
+                cap_count = (
+                    int(cap_match.group(1).replace(b",", b""))
+                    if cap_match is not None
+                    else None
+                )
+                if cap_count != expected_more:
+                    errors.append(
+                        f"exception-cap line reports {cap_count}, "
+                        f"expected {expected_more}"
+                    )
+        elif cap_lines:
+            errors.append("exception-cap line is present without omitted rows")
+
+    control_headers = []
+    if len(control_sections) == 1:
+        control_start = control_sections[0]
+        next_sections = [
+            index for index in range(control_start + 1, len(lines))
+            if lines[index] == b"LEDGER TIE-OUT"
+        ]
+        control_end = next_sections[0] if next_sections else len(lines)
+        control_headers = [
+            line for line in lines[control_start + 1 : control_end]
+            if line.startswith(b"ITEM")
+        ]
+    if len(control_headers) != 1 or (
+        control_headers[0][0:4] != b"ITEM"
+        or control_headers[0][26:32] != b"SOURCE"
+        or control_headers[0][52:63] != b"FILE DETAIL"
+        or control_headers[0][78:90] != b"FILE TRAILER"
+        or control_headers[0][108:114] != b"STATUS"
+    ):
+        errors.append("control-total header must fit one aligned row")
 
     totals = interface_totals(interface)
     source = {
@@ -198,6 +322,13 @@ def check_report(
                 f"do not match oracle/interface {expected_values}"
             )
         if len(expected_values) == 3:
+            if any(
+                not rows[0][end - 1 : end].isdigit()
+                for end in (52, 78, 104)
+            ):
+                errors.append(
+                    f"{label.decode()} values do not share aligned columns"
+                )
             should_match = len(set(expected_values)) == 1
             status = rows[0].split()[-1]
             expected_status = b"OK" if should_match else b"DIFF"
@@ -206,6 +337,30 @@ def check_report(
                     f"{label.decode()} status {status!r}, expected "
                     f"{expected_status.decode()}"
                 )
+
+    tie_out_labels = (
+        b"KEYS TIED",
+        b"KEYS DIFFERING",
+        b"KEYS MISSING FROM TCATBALF",
+        b"BALANCE-ONLY KEYS (NON-ZERO)",
+    )
+    for label in tie_out_labels:
+        rows = [line for line in lines if line.startswith(label)]
+        if len(rows) != 1 or len(_integer_values(rows[0])) != 1:
+            errors.append(f"expected one tie-out count for {label.decode()}")
+        elif not rows[0][63:64].isdigit():
+            errors.append(f"tie-out count {label.decode()} is not right-aligned")
+
+    feeder_headers = [
+        line for line in lines if line[26:34] == b"EXPECTED"
+    ]
+    if feeder_headers:
+        if len(feeder_headers) != 1 or (
+            feeder_headers[0][26:34] != b"EXPECTED"
+            or feeder_headers[0][52:58] != b"ACTUAL"
+            or feeder_headers[0][108:114] != b"STATUS"
+        ):
+            errors.append("feeder control-total header is not aligned")
     return errors
 
 
