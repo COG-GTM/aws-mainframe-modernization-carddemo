@@ -183,7 +183,7 @@ Run-level conditions:
 | B03 | TCATBALF key with a non-zero balance and no accepted activity | 8 |
 | B04 | Control-card expected count != accepted count | 8 |
 | B05 | Control-card expected net != accepted net | 8 |
-| B06 | Re-read of the closed GLSUMOUT does not match the source totals or with its own trailer (structure, counts, sums, hash) | 8 |
+| B06 | Re-read of the closed GLSUMOUT does not match the source totals or its own trailer (structure, counts, sums, hash) | 8 |
 | E01 | File open/read/write error (report shows DD name and file status) | 12 |
 | E02 | Control card missing or invalid | 12 |
 | E04 | TCATBALF out of key sequence, duplicate key, or non-numeric balance | 12 |
