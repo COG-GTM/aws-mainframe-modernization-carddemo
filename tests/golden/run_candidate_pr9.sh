@@ -5,8 +5,9 @@
 #
 #   bash tests/golden/run_candidate_pr9.sh <candidate-checkout-dir> [--set named|volume] [--out DIR]
 #
-# <candidate-checkout-dir> is a SEPARATE clone of the repository at the
-# candidate commit (this branch does not contain or depend on it).  The script
+# <candidate-checkout-dir> is a checkout of the repository at the candidate
+# commit (a separate worktree, or this repository itself as `.` when the
+# candidate change is merged into this branch).  The script
 # never edits the candidate: it builds it with Maven as-is, points it at copies
 # of the golden inputs through its own configuration properties, freezes the
 # JVM wall clock with faketime(1) so TRAN-PROC-TS is comparable with the frozen
