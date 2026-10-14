@@ -169,9 +169,14 @@ edit paragraph), `CoactupcRestTest` (HTTP + H2), runtime `CoactupcRuntimeAdditio
   to send every unprotected field back (all are FSET by 3300).
 * **DFHCOMMAREA shorter than 160 + 873 bytes** (e.g. XCTL from COMEN01C with 160 bytes): bytes beyond EIBCALEN are
   undefined storage in CICS; modelled as LOW-VALUES (ACUP-DETAILS-NOT-FETCHED).
-* **Locking / recovery**: READ UPDATE locks are per task in the Java region (no cross-task enqueue wait or deadlock
-  timeout); SYNCPOINT ROLLBACK backs out only changes made through `CicsContext.rewrite/write`; there is no
-  recoverable-file / log-stream semantics or 2-phase commit with the H2 transaction.
+* **Locking / recovery**: `CicsContext.readForUpdate` takes a region-wide record lock (`RecordLockTable`) held until
+  SYNCPOINT / task end, so a second task's READ UPDATE of the same record waits; after 5 s it gets RECORDBUSY
+  (COACTUPC then reports "Could not lock ... for update") instead of CICS's DTIMOUT / AKCS. Backout (SYNCPOINT
+  ROLLBACK, ABEND or any unexpected exception) restores before-images of changes made through
+  `CicsContext.rewrite/write`; each store write is still its own JDBC transaction (no log stream / 2-phase commit),
+  so a JVM crash between writes is not recovered.
+* **Security**: like the COBOL, COACTUPC performs no authorization check (CICS transaction/resource security is
+  external to the program). The REST adapter has no authentication; it must not be exposed without one.
 * **EBCDIC collation**: comparisons use Java char order (ASCII); none of COACTUPC's comparisons are order-dependent.
 * PF-key validity, abend codes and XCTL navigation are verified; COMEN01C / COCRDLIC etc. are not migrated here and
   are only returned as `nextProgram`.

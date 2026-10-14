@@ -122,8 +122,14 @@ public final class CicsContext {
         return track(fileControl.read(dataset, key, intoLength));
     }
 
-    /** EXEC CICS READ DATASET(name) UPDATE RIDFLD(key): holds the record for REWRITE until SYNCPOINT / task end. */
+    /**
+     * EXEC CICS READ DATASET(name) UPDATE RIDFLD(key): locks the record against other tasks' READ UPDATE until
+     * SYNCPOINT / task end (RECORDBUSY when the lock wait times out), then holds it for REWRITE.
+     */
     public FileResult readForUpdate(String dataset, String key) {
+        if (!fileControl.recordLocks().acquire(dataset, key, this)) {
+            return track(FileResult.of(CicsResp.RECORDBUSY));
+        }
         return track(fileControl.readForUpdate(dataset, key));
     }
 
@@ -157,6 +163,12 @@ public final class CicsContext {
     public void syncpoint() {
         unitOfWork.clear();
         fileControl.ksdsFiles().forEach(KsdsFile::unlock);
+        fileControl.recordLocks().releaseAll(this);
+    }
+
+    /** Task end: releases this task's record locks (CICS implicit syncpoint / backout already applied). */
+    public void releaseRecordLocks() {
+        fileControl.recordLocks().releaseAll(this);
     }
 
     /**

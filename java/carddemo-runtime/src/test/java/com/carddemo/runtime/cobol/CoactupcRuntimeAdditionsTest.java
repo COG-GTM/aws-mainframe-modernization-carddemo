@@ -194,4 +194,71 @@ class CoactupcRuntimeAdditionsTest {
         assertThat(r.outcome().type()).isEqualTo(CicsOutcome.Type.ABEND);
         assertThat(rec(f, "001")).isEqualTo("001AAAAAAA");
     }
+
+    private static CicsProgram program(java.util.function.Consumer<CicsContext> body) {
+        return new CicsProgram() {
+            @Override
+            public String programName() {
+                return "TESTPGM";
+            }
+
+            @Override
+            public java.util.Optional<String> transactionId() {
+                return java.util.Optional.of("TEST");
+            }
+
+            @Override
+            public void execute(CicsContext ctx) {
+                body.accept(ctx);
+            }
+        };
+    }
+
+    @Test
+    void unexpectedExceptionBacksOutAndPropagates() {
+        KsdsFile f = KsdsFile.inMemory("TESTF", 10, 0, 3);
+        f.load(List.of("001AAAAAAA"));
+        FileControl fct = new FileControl().register(f);
+        CicsProgram p = program(ctx -> {
+            ctx.readForUpdate("TESTF", "001");
+            ctx.rewrite("TESTF", "001XXXXXXX");
+            throw new IllegalStateException("database down");
+        });
+        assertThatThrownBy(() -> CicsDispatcher.run(p, CicsContext.builder().transid("TEST").fileControl(fct).build()))
+                .isInstanceOf(IllegalStateException.class).hasMessage("database down");
+        assertThat(rec(f, "001")).isEqualTo("001AAAAAAA");
+        assertThat(fct.recordLocks().size()).isZero();
+    }
+
+    @Test
+    void readUpdateLocksTheRecordAgainstOtherTasksUntilSyncpoint() throws Exception {
+        KsdsFile f = KsdsFile.inMemory("TESTF", 10, 0, 3);
+        f.load(List.of("001AAAAAAA", "002BBBBBBB"));
+        FileControl fct = new FileControl().register(f);
+        fct.recordLocks().timeoutMillis(100);
+        CicsContext a = CicsContext.builder().transid("TEST").fileControl(fct).build();
+        CicsContext b = CicsContext.builder().transid("TEST").fileControl(fct).build();
+        assertThat(a.readForUpdate("TESTF", "001").isNormal()).isTrue();
+        java.util.concurrent.ExecutorService other = java.util.concurrent.Executors.newSingleThreadExecutor();
+        try {
+            assertThat(other.submit(() -> b.readForUpdate("TESTF", "001").resp()).get()).isEqualTo(CicsResp.RECORDBUSY);
+            assertThat(other.submit(() -> b.readForUpdate("TESTF", "002").resp()).get()).isEqualTo(CicsResp.NORMAL);
+            a.rewrite("TESTF", "001XXXXXXX");
+            // still locked after REWRITE: the lock lasts until SYNCPOINT, so a ROLLBACK cannot undo another task's write
+            assertThat(other.submit(() -> b.readForUpdate("TESTF", "001").resp()).get()).isEqualTo(CicsResp.RECORDBUSY);
+            a.syncpoint();
+            FileResult r = other.submit(() -> b.readForUpdate("TESTF", "001")).get();
+            assertThat(r.resp()).isEqualTo(CicsResp.NORMAL);
+            assertThat(PicX.fromBytes(r.data())).isEqualTo("001XXXXXXX");
+            // a waiter is released as soon as the holder ends its unit of work
+            fct.recordLocks().timeoutMillis(5000);
+            java.util.concurrent.Future<CicsResp> waiting = java.util.concurrent.Executors.newSingleThreadExecutor()
+                    .submit(() -> a.readForUpdate("TESTF", "001").resp());
+            Thread.sleep(50);
+            b.releaseRecordLocks();
+            assertThat(waiting.get()).isEqualTo(CicsResp.NORMAL);
+        } finally {
+            other.shutdownNow();
+        }
+    }
 }

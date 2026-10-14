@@ -13,6 +13,7 @@ public final class FileControl {
 
     private final Map<String, KsdsFile> ksds = new ConcurrentHashMap<>();
     private final Map<String, AlternateIndexPath> paths = new ConcurrentHashMap<>();
+    private final RecordLockTable recordLocks = new RecordLockTable();
 
     public FileControl register(KsdsFile file) {
         ksds.put(file.name(), file);
@@ -36,6 +37,11 @@ public final class FileControl {
     /** READ DATASET(path) RIDFLD(alternate key): FILENOTFOUND when no such path is defined. */
     public FileResult readPath(String dataset, String altKey) {
         return path(dataset).map(p -> p.read(altKey)).orElse(FileResult.of(CicsResp.FILENOTFOUND, 1));
+    }
+
+    /** Region-wide READ UPDATE record locks (used by {@code CicsContext.readForUpdate}). */
+    public RecordLockTable recordLocks() {
+        return recordLocks;
     }
 
     /** All registered KSDS base clusters. */
