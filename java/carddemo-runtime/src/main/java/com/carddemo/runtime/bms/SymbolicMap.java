@@ -105,6 +105,11 @@ public final class SymbolicMap {
         slot(name).flag = attributeByte & 0xFF;
     }
 
+    /** {@code nameC} (extended colour attribute byte, 0 = none / DFHDFCOL). */
+    public int color(String name) {
+        return slot(name).color;
+    }
+
     public void setColor(String name, int colorByte) {
         slot(name).color = colorByte & 0xFF;
     }

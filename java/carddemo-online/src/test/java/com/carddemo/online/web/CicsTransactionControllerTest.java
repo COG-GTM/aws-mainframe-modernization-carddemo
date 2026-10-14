@@ -55,6 +55,27 @@ class CicsTransactionControllerTest {
     }
 
     @Test
+    void accountViewConversation() throws Exception {
+        // COACTVWC over HTTP with ACCTDAT / CUSTDAT / CCXREF + CXACAIX seeded into H2 from app/data/ASCII
+        HttpResponse<String> first = post("/api/cics/CAVW", "{}");
+        assertThat(first.body()).contains("\"outcome\":\"RETURN_TRANSID\"", "\"nextTransid\":\"CAVW\"",
+                "\"cursorField\":\"ACCTSID\"", "Enter or update id of account to display");
+        String ca = first.body().replaceAll("(?s).*\"commarea\":\"([^\"]+)\".*", "$1");
+        assertThat(Base64.getDecoder().decode(ca)).hasSize(2000);
+
+        HttpResponse<String> view = post("/api/cics/CAVW", "{\"commarea\":\"" + ca
+                + "\",\"fields\":{\"ACCTSID\":\"00000000001\"}}");
+        assertThat(view.body()).contains("Immanuel", "020-97-3888", "+        194.00", "\"CDEMO-CUST-ID\":1");
+
+        HttpResponse<String> notFound = post("/api/cics/CAVW", "{\"commarea\":\"" + ca
+                + "\",\"fields\":{\"ACCTSID\":\"99999999999\"}}");
+        assertThat(notFound.body()).contains("Account:99999999999 not found in Cross ref file.");
+
+        HttpResponse<String> pf3 = post("/api/cics/CAVW", "{\"aid\":\"PF3\",\"commarea\":\"" + ca + "\"}");
+        assertThat(pf3.body()).contains("\"outcome\":\"XCTL\"", "\"nextProgram\":\"COMEN01C\"");
+    }
+
+    @Test
     void errors() throws Exception {
         assertThat(post("/api/cics/ZZZZ", "{}").statusCode()).isEqualTo(404);
         assertThat(post("/api/cics/programs/COADM01C", "{}").statusCode()).isEqualTo(404);
@@ -63,6 +84,7 @@ class CicsTransactionControllerTest {
                 .statusCode()).isEqualTo(400);
         assertThat(post("/api/cics/programs/COSGN00C", "{}").body()).contains("\"program\":\"COSGN00C\"");
         HttpRequest get = HttpRequest.newBuilder(URI.create("http://localhost:" + port + "/api/cics/transactions")).build();
-        assertThat(http.send(get, HttpResponse.BodyHandlers.ofString()).body()).isEqualTo("{\"CC00\":\"COSGN00C\"}");
+        assertThat(http.send(get, HttpResponse.BodyHandlers.ofString()).body())
+                .contains("\"CC00\":\"COSGN00C\"", "\"CAVW\":\"COACTVWC\"");
     }
 }

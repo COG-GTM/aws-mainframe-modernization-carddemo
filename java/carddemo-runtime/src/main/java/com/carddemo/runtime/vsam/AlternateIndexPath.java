@@ -50,6 +50,22 @@ public final class AlternateIndexPath {
         return FileResult.record(resp, matches.getFirst().getValue(), altKey);
     }
 
+    /**
+     * READ INTO(..) LENGTH(intoLength) RIDFLD(altKey) KEYLENGTH(len): INVREQ when the key length differs from
+     * the alternate key, LENGERR (data truncated) when the record is longer than {@code intoLength}.
+     */
+    public FileResult read(String altKey, int intoLength) {
+        if (altKey.length() != altKeyLength) {
+            Optional<FileResult> unusable = base.checkUsable();
+            return unusable.orElse(FileResult.of(CicsResp.INVREQ, 25));
+        }
+        FileResult r = read(altKey);
+        if (r.data() != null && r.data().length > intoLength) {
+            return new FileResult(CicsResp.LENGERR, 11, java.util.Arrays.copyOf(r.data(), intoLength), r.key(), -1);
+        }
+        return r;
+    }
+
     public FileResult startbr(String altKey) {
         Optional<FileResult> unusable = base.checkUsable();
         if (unusable.isPresent()) {

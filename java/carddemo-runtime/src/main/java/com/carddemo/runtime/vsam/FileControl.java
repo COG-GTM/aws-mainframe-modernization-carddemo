@@ -12,6 +12,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public final class FileControl {
 
     private final Map<String, KsdsFile> ksds = new ConcurrentHashMap<>();
+    private final Map<String, AlternateIndexPath> paths = new ConcurrentHashMap<>();
 
     public FileControl register(KsdsFile file) {
         ksds.put(file.name(), file);
@@ -22,7 +23,22 @@ public final class FileControl {
         return Optional.ofNullable(ksds.get(dataset.trim()));
     }
 
+    /** Registers an alternate-index PATH (CSD DEFINE FILE over an AIX PATH dataset) under its file name. */
+    public FileControl register(AlternateIndexPath path) {
+        paths.put(path.name().trim(), path);
+        return this;
+    }
+
+    public Optional<AlternateIndexPath> path(String dataset) {
+        return Optional.ofNullable(paths.get(dataset.trim()));
+    }
+
+    /** READ by full key; for a registered AIX PATH the key is the alternate key. */
     public FileResult read(String dataset, String key, int intoLength) {
+        Optional<AlternateIndexPath> path = path(dataset);
+        if (path.isPresent()) {
+            return path.get().read(key, intoLength);
+        }
         return ksds(dataset).map(f -> f.read(key, intoLength)).orElse(FileResult.of(CicsResp.FILENOTFOUND, 1));
     }
 
