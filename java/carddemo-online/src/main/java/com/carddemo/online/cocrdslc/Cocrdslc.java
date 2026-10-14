@@ -22,6 +22,7 @@ import com.carddemo.runtime.cobol.RecordLayout;
 import com.carddemo.runtime.vsam.FileResult;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import org.springframework.stereotype.Component;
@@ -251,7 +252,7 @@ public class Cocrdslc implements CicsProgram {
 
         /** MOVE S9(9) COMP TO PIC X(10): 9 unsigned digits, left-justified. */
         static String binaryToAlnum(int value) {
-            return PicX.of(String.format("%09d", Math.abs((long) value) % 1_000_000_000L), 10);
+            return PicX.of(String.format(Locale.ROOT, "%09d", Math.abs((long) value) % 1_000_000_000L), 10);
         }
 
         void setColor(String field, int color) {
@@ -330,7 +331,7 @@ public class Cocrdslc implements CicsProgram {
         /** MOVE 9(n) DISPLAY TO 9(n) DISPLAY (CC-xxx-N): digits normalised as by PACK/UNPK. */
         static String moveDisplayNumeric(String raw, int digits) {
             Long v = displayValue(raw);
-            return v == null ? PicX.of(raw, digits) : String.format("%0" + digits + "d", v);
+            return v == null ? PicX.of(raw, digits) : String.format(Locale.ROOT, "%0" + digits + "d", v);
         }
 
         /** EVALUATE WHEN CCARD-AID-PFK03 (lines 305-334): XCTL to the calling program or the main menu. */
