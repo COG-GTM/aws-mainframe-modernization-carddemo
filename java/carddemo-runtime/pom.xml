@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>com.carddemo</groupId>
+        <artifactId>carddemo-parent</artifactId>
+        <version>0.1.0-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>carddemo-runtime</artifactId>
+    <name>CardDemo runtime (CICS/BMS/VSAM/JCL/COBOL emulation)</name>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.platform</groupId>
+            <artifactId>junit-platform-launcher</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.assertj</groupId>
+            <artifactId>assertj-core</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+            </resource>
+            <!-- BMS mapsets are read straight from the original sources (single source of truth). -->
+            <resource>
+                <directory>${carddemo.app.dir}/bms</directory>
+                <targetPath>carddemo/bms</targetPath>
+                <includes>
+                    <include>*.bms</include>
+                </includes>
+            </resource>
+            <!-- Seed data, read from the original EBCDIC datasets. -->
+            <resource>
+                <directory>${carddemo.app.dir}/data/EBCDIC</directory>
+                <targetPath>carddemo/data/EBCDIC</targetPath>
+                <includes>
+                    <include>AWS.M2.CARDDEMO.USRSEC.PS</include>
+                </includes>
+            </resource>
+        </resources>
+    </build>
+</project>
