@@ -61,11 +61,15 @@ public final class RecordLayout {
 
     /**
      * Field-name to value view of a record (for diagnostics and JSON): alphanumerics as strings, numerics as
-     * BigDecimal, LOW-VALUES items as null, invalid numerics as their raw text.
+     * BigDecimal, LOW-VALUES items as null, invalid numerics as their raw text. Items beyond the end of a
+     * shorter record (e.g. an XCTL commarea that carries only the common part) are omitted.
      */
     public Map<String, Object> describe(CobolRecord record) {
         Map<String, Object> out = new LinkedHashMap<>();
         for (CobolField f : elementaryFields) {
+            if (f.offset() + f.length() > record.length()) {
+                continue;
+            }
             out.put(f.name(), f.describe(record));
         }
         return out;
@@ -106,6 +110,29 @@ public final class RecordLayout {
         public Builder filler(int len) {
             advance(len);
             return this;
+        }
+
+        /**
+         * Appends every elementary item of {@code other} at the current offset (a copybook COPYed inside a
+         * larger record, e.g. CARDDEMO-COMMAREA at the start of a program's WS-COMMAREA) and returns an
+         * alphanumeric group view named after {@code other}.
+         */
+        public AlphanumericField include(RecordLayout other) {
+            int start = offset;
+            for (CobolField f : other.fields()) {
+                CobolField shifted = f instanceof NumericField n
+                        ? new NumericField(n.name(), start + n.offset(), n.usage(), n.integerDigits(), n.scale(), n.signed())
+                        : new AlphanumericField(f.name(), start + f.offset(), f.length());
+                if (byName.containsKey(shifted.name())) {
+                    throw new IllegalArgumentException("Duplicate field " + shifted.name() + " in " + name);
+                }
+                elementary.add(shifted);
+                byName.put(shifted.name(), shifted);
+            }
+            advance(other.length());
+            AlphanumericField group = new AlphanumericField(other.name(), start, other.length());
+            byName.put(group.name(), group);
+            return group;
         }
 
         /** Starts a group item; close it with {@link #endGroup()}. */
