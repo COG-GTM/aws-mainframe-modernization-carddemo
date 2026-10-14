@@ -73,6 +73,15 @@ class CicsTransactionControllerTest {
 
         HttpResponse<String> back = post("/api/cics/CCDL", "{\"aid\":\"PF3\",\"commarea\":\"" + ca + "\"}");
         assertThat(back.body()).contains("\"outcome\":\"XCTL\"", "\"nextProgram\":\"COCRDLIC\"");
+
+        c.setFromProgram("COMEN01C");
+        c.setLastMapset("COMEN01");
+        c.setPgmContext(1);
+        String menu = Base64.getEncoder().encodeToString(c.toBytes());
+        HttpResponse<String> bad = post("/api/cics/CCDL", "{\"commarea\":\"" + menu
+                + "\",\"fields\":{\"ACCTSID\":\"ABC\",\"CARDSID\":\"0500024453765740\"}}");
+        assertThat(bad.body()).contains("ACCOUNT FILTER,IF SUPPLIED MUST BE A 11 DIGIT NUMBER")
+                .containsPattern("\"name\":\"ACCTSID\"[^}]*\"color\":\"RED\"");
     }
 
     @Test

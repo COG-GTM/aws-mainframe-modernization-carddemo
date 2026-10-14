@@ -101,8 +101,11 @@ getter, and the `carddata.txt` resource in `carddemo-runtime/pom.xml`.
 - CICS/BMS behaviour is emulated, not executed: no GnuCOBOL golden files (EXEC CICS cannot run under GnuCOBOL);
   expected values are hand-traced from the COBOL lines cited above.
 - Attribute/colour bytes are the EBCDIC DFHBMSCA values; real 3270 rendering (protect, MDT, colour, DFHBMDAR moved
-  into a colour byte) is not verified. `BmsScreen` exposes the attribute byte; colours are checked via
-  `SymbolicMap#color` in unit tests only (not in the REST payload).
+  into a colour byte) is not verified. `BmsScreen` exposes the attribute byte and the effective colour (the
+  `nameC` override decoded by `SymbolicMap#render`; DFHDFCOL and DFHBMDAR keep the physical map colour).
+- The REST client plays the 3270 terminal: fields with MDT on (here ACCTSID/CARDSID sent with DFHBMPRF after a
+  card-list selection) must be posted back in `fields`, as a real terminal retransmits them. A request that omits
+  them is a terminal that sent nothing (MAPFAIL), and COCRDSLC answers `No input received` exactly as on CICS.
 - Comparisons of PIC 9 DISPLAY items holding non-digits (`CDEMO-ACCT-ID = 0`, `CC-ACCT-ID-N = ZEROS`,
   CDEMO-PGM-CONTEXT 88s) use the digit nibble of each byte; Enterprise COBOL may instead raise S0C7 depending on
   NUMPROC/compile options.

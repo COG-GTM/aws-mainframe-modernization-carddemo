@@ -322,6 +322,8 @@ class CocrdslcTest {
         assertThat(task.ccrdsla.color("CARDSID")).isEqualTo(Dfhbmsca.DFHRED);
         assertThat(s.cursorField()).isEqualTo("ACCTSID");
         assertThat(s.value("INFOMSG")).isEqualTo(info("Please enter Account and Card Number"));
+        assertThat(s.field("ACCTSID").orElseThrow().color()).isEqualTo("RED");
+        assertThat(s.field("CARDSID").orElseThrow().color()).isEqualTo("RED");
     }
 
     @ParameterizedTest
@@ -357,6 +359,10 @@ class CocrdslcTest {
         assertThat(s.value("ERRMSG")).isEqualTo(errmsg("ACCOUNT FILTER,IF SUPPLIED MUST BE A 11 DIGIT NUMBER"));
         assertThat(s.value("ACCTSID")).isEqualTo(PicX.spaces(11));
         assertThat(task.ccrdsla.color("ACCTSID")).isEqualTo(Dfhbmsca.DFHRED);
+        // the symbolic colour override is what SEND MAP shows (physical ACCTSID colour is DEFAULT)
+        assertThat(s.field("ACCTSID").orElseThrow().color()).isEqualTo("RED");
+        assertThat(s.field("CARDSID").orElseThrow().color()).isEqualTo("DEFAULT");
+        assertThat(s.field("INFOMSG").orElseThrow().color()).isEqualTo("NEUTRAL");
         assertThat(s.cursorField()).isEqualTo("ACCTSID");
     }
 

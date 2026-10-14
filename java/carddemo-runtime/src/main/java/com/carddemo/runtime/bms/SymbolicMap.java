@@ -109,6 +109,23 @@ public final class SymbolicMap {
         slot(name).color = colorByte & 0xFF;
     }
 
+    /**
+     * BMS COLOR name for a DFHBMSCA extended-colour byte moved into {@code nameC}; 0 (not set / DFHDFCOL) and
+     * non-colour bytes keep the physical map colour.
+     */
+    static String colorName(int colorByte, String physical) {
+        return switch (colorByte) {
+            case 0xF1 -> "BLUE";
+            case 0xF2 -> "RED";
+            case 0xF3 -> "PINK";
+            case 0xF4 -> "GREEN";
+            case 0xF5 -> "TURQUOISE";
+            case 0xF6 -> "YELLOW";
+            case 0xF7 -> "NEUTRAL";
+            default -> physical;
+        };
+    }
+
     /** {@code nameC} (extended colour byte set by the program; 0 = DFHDFCOL / not set). */
     public int color(String name) {
         return slot(name).color;
@@ -164,8 +181,9 @@ public final class SymbolicMap {
                 value = PicX.of(f.initial() == null ? "" : f.initial(), f.length());
             }
             int attr = s == null || mapOnly ? 0 : s.flag;
+            String color = s == null || mapOnly ? f.color() : colorName(s.color, f.color());
             out.add(new BmsScreen.Field(f.name(), f.row(), f.column(), f.length(), value, sent, f.attributes(),
-                    f.color(), attr));
+                    color, attr));
         }
         BmsFieldDefinition cursorAt = null;
         if (cursor && !mapOnly) {
