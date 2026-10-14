@@ -109,6 +109,11 @@ public final class SymbolicMap {
         slot(name).color = colorByte & 0xFF;
     }
 
+    /** {@code nameC} (extended colour byte set by the program; 0 = DFHDFCOL / not set). */
+    public int color(String name) {
+        return slot(name).color;
+    }
+
     /**
      * RECEIVE MAP: for each named field, if the terminal transmitted it, data = text left-justified and
      * space-padded (right-justified for JUSTIFY=RIGHT), truncated to the field length, L = data length;

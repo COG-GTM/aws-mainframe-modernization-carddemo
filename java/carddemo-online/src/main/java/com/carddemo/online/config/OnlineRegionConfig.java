@@ -1,5 +1,7 @@
 package com.carddemo.online.config;
 
+import com.carddemo.common.copybook.CardDataSeed;
+import com.carddemo.common.copybook.CardRecord;
 import com.carddemo.common.copybook.UserSecurityRecord;
 import com.carddemo.common.copybook.UserSecuritySeed;
 import com.carddemo.runtime.cics.SystemInfo;
@@ -43,6 +45,12 @@ public class OnlineRegionConfig {
             usrsec.load(UserSecuritySeed.records());
         }
         fct.register(usrsec);
+        KsdsFile carddat = new KsdsFile(CardDataSeed.FILE_NAME, CardRecord.LENGTH, CardRecord.KEY_OFFSET,
+                CardRecord.KEY_LENGTH, new JdbcKsdsStore(dataSource, CardDataSeed.DSNAME));
+        if (carddat.store().count() == 0) {
+            carddat.load(CardDataSeed.records());
+        }
+        fct.register(carddat);
         return fct;
     }
 }

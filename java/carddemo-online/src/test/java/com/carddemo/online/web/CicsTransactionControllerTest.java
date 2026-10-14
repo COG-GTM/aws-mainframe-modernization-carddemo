@@ -55,6 +55,27 @@ class CicsTransactionControllerTest {
     }
 
     @Test
+    void cardDetailFromCardList() throws Exception {
+        com.carddemo.common.copybook.CardDemoCommarea c = new com.carddemo.common.copybook.CardDemoCommarea();
+        c.initializeSpaces();
+        c.setFromProgram("COCRDLIC");
+        c.setFromTranid("CCLI");
+        c.setLastMapset("COCRDLI");
+        c.setPgmContext(0);
+        com.carddemo.common.copybook.CardDemoCommarea.CUST_ID.set(c, 0);
+        com.carddemo.common.copybook.CardDemoCommarea.ACCT_ID.set(c, 50);
+        com.carddemo.common.copybook.CardDemoCommarea.CARD_NUM.set(c, new java.math.BigDecimal("0500024453765740"));
+        String ca = Base64.getEncoder().encodeToString(c.toBytes());
+        HttpResponse<String> shown = post("/api/cics/CCDL", "{\"commarea\":\"" + ca + "\"}");
+        assertThat(shown.statusCode()).isEqualTo(200);
+        assertThat(shown.body()).contains("\"outcome\":\"RETURN_TRANSID\"", "\"nextTransid\":\"CCDL\"", "Aniya Von",
+                "Displaying requested details");
+
+        HttpResponse<String> back = post("/api/cics/CCDL", "{\"aid\":\"PF3\",\"commarea\":\"" + ca + "\"}");
+        assertThat(back.body()).contains("\"outcome\":\"XCTL\"", "\"nextProgram\":\"COCRDLIC\"");
+    }
+
+    @Test
     void errors() throws Exception {
         assertThat(post("/api/cics/ZZZZ", "{}").statusCode()).isEqualTo(404);
         assertThat(post("/api/cics/programs/COADM01C", "{}").statusCode()).isEqualTo(404);
@@ -63,6 +84,6 @@ class CicsTransactionControllerTest {
                 .statusCode()).isEqualTo(400);
         assertThat(post("/api/cics/programs/COSGN00C", "{}").body()).contains("\"program\":\"COSGN00C\"");
         HttpRequest get = HttpRequest.newBuilder(URI.create("http://localhost:" + port + "/api/cics/transactions")).build();
-        assertThat(http.send(get, HttpResponse.BodyHandlers.ofString()).body()).isEqualTo("{\"CC00\":\"COSGN00C\"}");
+        assertThat(http.send(get, HttpResponse.BodyHandlers.ofString()).body()).contains("\"CC00\":\"COSGN00C\"", "\"CCDL\":\"COCRDSLC\"");
     }
 }
