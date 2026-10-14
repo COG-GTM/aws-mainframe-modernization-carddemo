@@ -1,6 +1,7 @@
 package com.carddemo.runtime.cics;
 
 import com.carddemo.runtime.vsam.TaskFileState;
+import com.carddemo.runtime.vsam.UnitOfWork;
 
 /** Runs a {@link CicsProgram} task and converts its termination into a {@link CicsResponse}. */
 public final class CicsDispatcher {
@@ -15,6 +16,9 @@ public final class CicsDispatcher {
             outcome = CicsOutcome.returnToCics();
         } catch (CicsControlTransfer transfer) {
             outcome = transfer.outcome();
+            if (outcome.type() == CicsOutcome.Type.ABEND) {
+                UnitOfWork.rollback();
+            }
         } finally {
             TaskFileState.endTask();
         }

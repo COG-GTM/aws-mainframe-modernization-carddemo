@@ -20,6 +20,7 @@ public final class KsdsFile {
     private final int keyLength;
     private final KsdsStore store;
     private FileState state = FileState.ENABLED;
+    private boolean recoverable;
 
     private static final class TaskState {
         private byte[] heldForUpdate;
@@ -66,6 +67,15 @@ public final class KsdsFile {
 
     public KsdsStore store() {
         return store;
+    }
+
+    /** CSD {@code RECOVERY(BACKOUTONLY|ALL)}: updates are backed out by SYNCPOINT ROLLBACK ({@link UnitOfWork}). */
+    public void setRecoverable(boolean value) {
+        this.recoverable = value;
+    }
+
+    public boolean isRecoverable() {
+        return recoverable;
     }
 
     public void setState(FileState newState) {
@@ -124,6 +134,7 @@ public final class KsdsFile {
         FileResult r = read(key);
         if (r.isNormal()) {
             task().heldForUpdate = PicX.toBytes(key);
+            UnitOfWork.touched(this);
         }
         return r;
     }
@@ -140,6 +151,10 @@ public final class KsdsFile {
         byte[] key = keyOf(rec);
         if (!store.insert(key, rec)) {
             return FileResult.of(CicsResp.DUPREC);
+        }
+        if (recoverable) {
+            KsdsStore s = store;
+            UnitOfWork.recordUndo(this, () -> s.delete(key));
         }
         return FileResult.record(CicsResp.NORMAL, rec, PicX.fromBytes(key));
     }
@@ -162,9 +177,12 @@ public final class KsdsFile {
             return FileResult.of(CicsResp.INVREQ, 31);
         }
         task().heldForUpdate = null;
+        Optional<byte[]> before = recoverable ? store.get(key) : Optional.empty();
         if (!store.update(key, rec)) {
             return FileResult.of(CicsResp.NOTFND, 80);
         }
+        KsdsStore s = store;
+        before.ifPresent(b -> UnitOfWork.recordUndo(this, () -> s.update(key, b)));
         return FileResult.record(CicsResp.NORMAL, rec, PicX.fromBytes(key));
     }
 
@@ -183,7 +201,14 @@ public final class KsdsFile {
         if (unusable.isPresent()) {
             return unusable.get();
         }
-        return store.delete(PicX.toBytes(key)) ? FileResult.of(CicsResp.NORMAL) : FileResult.of(CicsResp.NOTFND, 80);
+        byte[] k = PicX.toBytes(key);
+        Optional<byte[]> before = recoverable ? store.get(k) : Optional.empty();
+        if (!store.delete(k)) {
+            return FileResult.of(CicsResp.NOTFND, 80);
+        }
+        KsdsStore s = store;
+        before.ifPresent(b -> UnitOfWork.recordUndo(this, () -> s.insert(k, b)));
+        return FileResult.of(CicsResp.NORMAL);
     }
 
     /** UNLOCK: releases a READ UPDATE hold. */

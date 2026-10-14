@@ -57,6 +57,15 @@
                     <include>AWS.M2.CARDDEMO.USRSEC.PS</include>
                 </includes>
             </resource>
+            <resource>
+                <directory>${carddemo.app.dir}/data/ASCII</directory>
+                <targetPath>carddemo/data/ASCII</targetPath>
+                <includes>
+                    <include>acctdata.txt</include>
+                    <include>custdata.txt</include>
+                    <include>cardxref.txt</include>
+                </includes>
+            </resource>
         </resources>
     </build>
 </project>

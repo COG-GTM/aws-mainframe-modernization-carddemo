@@ -12,10 +12,21 @@ import java.util.concurrent.ConcurrentHashMap;
 public final class FileControl {
 
     private final Map<String, KsdsFile> ksds = new ConcurrentHashMap<>();
+    private final Map<String, AlternateIndexPath> paths = new ConcurrentHashMap<>();
 
     public FileControl register(KsdsFile file) {
         ksds.put(file.name(), file);
         return this;
+    }
+
+    /** Registers an alternate-index PATH under its CICS file name (e.g. CXACAIX). */
+    public FileControl register(AlternateIndexPath path) {
+        paths.put(path.name().trim(), path);
+        return this;
+    }
+
+    public Optional<AlternateIndexPath> path(String dataset) {
+        return Optional.ofNullable(paths.get(dataset.trim()));
     }
 
     public Optional<KsdsFile> ksds(String dataset) {
@@ -23,7 +34,9 @@ public final class FileControl {
     }
 
     public FileResult read(String dataset, String key, int intoLength) {
-        return ksds(dataset).map(f -> f.read(key, intoLength)).orElse(FileResult.of(CicsResp.FILENOTFOUND, 1));
+        return ksds(dataset).map(f -> f.read(key, intoLength))
+                .or(() -> path(dataset).map(p -> p.read(key)))
+                .orElse(FileResult.of(CicsResp.FILENOTFOUND, 1));
     }
 
     public FileResult readForUpdate(String dataset, String key) {

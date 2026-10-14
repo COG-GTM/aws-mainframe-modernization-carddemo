@@ -25,7 +25,11 @@ public record BmsScreen(String map, String mapset, int rows, int columns, boolea
     public record Field(String name, int row, int column, int length, String value, boolean sent,
                         List<String> attributes, String color, int attributeByte) {
 
+        /** DRK from the map definition, or from the attribute byte the program sent (when it set one). */
         public boolean dark() {
+            if (attributeByte != 0) {
+                return Dfhbmsca.isDark(attributeByte);
+            }
             return attributes.contains("DRK");
         }
     }

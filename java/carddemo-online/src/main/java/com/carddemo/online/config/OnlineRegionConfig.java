@@ -1,5 +1,8 @@
 package com.carddemo.online.config;
 
+import com.carddemo.common.copybook.AccountRecord;
+import com.carddemo.common.copybook.CardXrefRecord;
+import com.carddemo.common.copybook.CustomerRecord;
 import com.carddemo.common.copybook.UserSecurityRecord;
 import com.carddemo.common.copybook.UserSecuritySeed;
 import com.carddemo.runtime.cics.SystemInfo;
@@ -7,6 +10,7 @@ import com.carddemo.runtime.vsam.FileControl;
 import com.carddemo.runtime.vsam.JdbcKsdsStore;
 import com.carddemo.runtime.vsam.KsdsFile;
 import java.time.Clock;
+import java.util.List;
 import javax.sql.DataSource;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -43,6 +47,20 @@ public class OnlineRegionConfig {
             usrsec.load(UserSecuritySeed.records());
         }
         fct.register(usrsec);
+        fct.register(seeded(dataSource, AccountRecord.FILE_NAME, AccountRecord.LENGTH, AccountRecord.KEY_OFFSET, AccountRecord.KEY_LENGTH, AccountRecord.DSNAME, AccountRecord.seed()));
+        fct.register(seeded(dataSource, CustomerRecord.FILE_NAME, CustomerRecord.LENGTH, CustomerRecord.KEY_OFFSET, CustomerRecord.KEY_LENGTH, CustomerRecord.DSNAME, CustomerRecord.seed()));
+        fct.register(seeded(dataSource, CardXrefRecord.FILE_NAME, CardXrefRecord.LENGTH, CardXrefRecord.KEY_OFFSET, CardXrefRecord.KEY_LENGTH, CardXrefRecord.DSNAME, CardXrefRecord.seed()));
+        fct.register(fct.ksds(CardXrefRecord.FILE_NAME).orElseThrow().path(CardXrefRecord.ACCT_PATH_NAME, CardXrefRecord.ACCT_AIX_OFFSET, CardXrefRecord.ACCT_AIX_LENGTH, false));
         return fct;
+    }
+
+    /** A KSDS backed by the DataSource, loaded from its seed records when empty (CSD RECOVERY(NONE): not recoverable). */
+    static KsdsFile seeded(DataSource dataSource, String name, int lrecl, int keyOffset, int keyLength, String dsname,
+                           List<String> seed) {
+        KsdsFile file = new KsdsFile(name, lrecl, keyOffset, keyLength, new JdbcKsdsStore(dataSource, dsname));
+        if (file.store().count() == 0) {
+            file.load(seed);
+        }
+        return file;
     }
 }

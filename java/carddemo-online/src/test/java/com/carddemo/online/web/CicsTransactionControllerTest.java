@@ -63,6 +63,6 @@ class CicsTransactionControllerTest {
                 .statusCode()).isEqualTo(400);
         assertThat(post("/api/cics/programs/COSGN00C", "{}").body()).contains("\"program\":\"COSGN00C\"");
         HttpRequest get = HttpRequest.newBuilder(URI.create("http://localhost:" + port + "/api/cics/transactions")).build();
-        assertThat(http.send(get, HttpResponse.BodyHandlers.ofString()).body()).isEqualTo("{\"CC00\":\"COSGN00C\"}");
+        assertThat(http.send(get, HttpResponse.BodyHandlers.ofString()).body()).contains("\"CC00\":\"COSGN00C\"", "\"CAUP\":\"COACTUPC\"");
     }
 }

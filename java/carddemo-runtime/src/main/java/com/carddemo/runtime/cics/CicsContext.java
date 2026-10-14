@@ -7,6 +7,7 @@ import com.carddemo.runtime.cobol.CobolRecord;
 import com.carddemo.runtime.cobol.PicX;
 import com.carddemo.runtime.vsam.FileControl;
 import com.carddemo.runtime.vsam.FileResult;
+import com.carddemo.runtime.vsam.UnitOfWork;
 import java.time.Clock;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -125,6 +126,20 @@ public final class CicsContext {
     public FileResult track(FileResult result) {
         setResp(result.resp(), result.resp2());
         return result;
+    }
+
+    // ----------------------------------------------------------------- recovery
+
+    /** EXEC CICS SYNCPOINT: commits the unit of work and releases READ UPDATE locks. */
+    public CicsResp syncpoint() {
+        UnitOfWork.commit();
+        return setResp(CicsResp.NORMAL, 0);
+    }
+
+    /** EXEC CICS SYNCPOINT ROLLBACK: backs out updates to recoverable files and releases locks. */
+    public CicsResp syncpointRollback() {
+        UnitOfWork.rollback();
+        return setResp(CicsResp.NORMAL, 0);
     }
 
     // ----------------------------------------------------------------- program control (non-returning)
