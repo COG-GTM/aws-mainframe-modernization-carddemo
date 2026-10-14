@@ -15,6 +15,9 @@ public final class CicsDispatcher {
             outcome = CicsOutcome.returnToCics();
         } catch (CicsControlTransfer transfer) {
             outcome = transfer.outcome();
+            if (outcome.type() == CicsOutcome.Type.ABEND) {
+                ctx.syncpointRollback();
+            }
         } finally {
             TaskFileState.endTask();
         }

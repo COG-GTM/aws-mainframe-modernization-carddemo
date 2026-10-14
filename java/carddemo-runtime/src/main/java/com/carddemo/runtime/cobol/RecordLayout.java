@@ -61,11 +61,15 @@ public final class RecordLayout {
 
     /**
      * Field-name to value view of a record (for diagnostics and JSON): alphanumerics as strings, numerics as
-     * BigDecimal, LOW-VALUES items as null, invalid numerics as their raw text.
+     * BigDecimal, LOW-VALUES items as null, invalid numerics as their raw text. Fields beyond the end of a
+     * shorter record (e.g. an XCTL commarea of 160 bytes described with a 2000-byte layout) are omitted.
      */
     public Map<String, Object> describe(CobolRecord record) {
         Map<String, Object> out = new LinkedHashMap<>();
         for (CobolField f : elementaryFields) {
+            if (f.offset() + f.length() > record.length()) {
+                continue;
+            }
             out.put(f.name(), f.describe(record));
         }
         return out;

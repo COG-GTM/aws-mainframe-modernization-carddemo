@@ -7,6 +7,7 @@ import com.carddemo.runtime.cobol.CobolRecord;
 import com.carddemo.runtime.cobol.PicX;
 import com.carddemo.runtime.vsam.FileControl;
 import com.carddemo.runtime.vsam.FileResult;
+import com.carddemo.runtime.vsam.KsdsFile;
 import java.time.Clock;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -119,6 +120,74 @@ public final class CicsContext {
     /** EXEC CICS READ DATASET(name) INTO(..) LENGTH(intoLength) RIDFLD(key) KEYLENGTH(len(key)). */
     public FileResult read(String dataset, String key, int intoLength) {
         return track(fileControl.read(dataset, key, intoLength));
+    }
+
+    /** EXEC CICS READ DATASET(name) UPDATE RIDFLD(key): holds the record for REWRITE until SYNCPOINT / task end. */
+    public FileResult readForUpdate(String dataset, String key) {
+        return track(fileControl.readForUpdate(dataset, key));
+    }
+
+    /** EXEC CICS READ DATASET(path) RIDFLD(alternate key) through an alternate-index PATH. */
+    public FileResult readPath(String dataset, String altKey) {
+        return track(fileControl.readPath(dataset, altKey));
+    }
+
+    /** EXEC CICS REWRITE FILE(name) FROM(record): logged so SYNCPOINT ROLLBACK / ABEND can back it out. */
+    public FileResult rewrite(String dataset, String record) {
+        java.util.Optional<KsdsFile> file = fileControl.ksds(dataset);
+        byte[] before = file.flatMap(f -> f.store().get(keyOf(f, record))).orElse(null);
+        FileResult r = track(fileControl.rewrite(dataset, record));
+        if (r.isNormal() && file.isPresent()) {
+            unitOfWork.add(new UndoEntry(file.get(), keyOf(file.get(), record), before));
+        }
+        return r;
+    }
+
+    /** EXEC CICS WRITE FILE(name) FROM(record): logged for backout. */
+    public FileResult write(String dataset, String record) {
+        java.util.Optional<KsdsFile> file = fileControl.ksds(dataset);
+        FileResult r = track(fileControl.write(dataset, record));
+        if (r.isNormal() && file.isPresent()) {
+            unitOfWork.add(new UndoEntry(file.get(), keyOf(file.get(), record), null));
+        }
+        return r;
+    }
+
+    /** EXEC CICS SYNCPOINT: commits this task's file changes and releases its READ UPDATE holds. */
+    public void syncpoint() {
+        unitOfWork.clear();
+        fileControl.ksdsFiles().forEach(KsdsFile::unlock);
+    }
+
+    /**
+     * EXEC CICS SYNCPOINT ROLLBACK: backs out the changes made through {@link #rewrite}/{@link #write} since
+     * the last syncpoint (most recent first) and releases READ UPDATE holds. Also run on ABEND.
+     */
+    public void syncpointRollback() {
+        for (int i = unitOfWork.size() - 1; i >= 0; i--) {
+            UndoEntry e = unitOfWork.get(i);
+            if (e.before() == null) {
+                e.file().store().delete(e.key());
+            } else {
+                e.file().store().update(e.key(), e.before());
+            }
+        }
+        syncpoint();
+    }
+
+    /** Uncommitted changes of this task (rewrite/write since the last syncpoint). */
+    public int uncommittedChanges() {
+        return unitOfWork.size();
+    }
+
+    private record UndoEntry(KsdsFile file, byte[] key, byte[] before) {
+    }
+
+    private final List<UndoEntry> unitOfWork = new ArrayList<>();
+
+    private static byte[] keyOf(KsdsFile f, String record) {
+        String r = PicX.of(record, Math.max(record.length(), f.keyOffset() + f.keyLength()));
+        return PicX.toBytes(r.substring(f.keyOffset(), f.keyOffset() + f.keyLength()));
     }
 
     /** Records the RESP/RESP2 of a file command executed through {@link #files()} in the EIB. */

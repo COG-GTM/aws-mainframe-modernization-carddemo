@@ -1,5 +1,9 @@
 package com.carddemo.online.config;
 
+import com.carddemo.common.copybook.AccountRecord;
+import com.carddemo.common.copybook.CardDemoAsciiSeed;
+import com.carddemo.common.copybook.CardXrefRecord;
+import com.carddemo.common.copybook.CustomerRecord;
 import com.carddemo.common.copybook.UserSecurityRecord;
 import com.carddemo.common.copybook.UserSecuritySeed;
 import com.carddemo.runtime.cics.SystemInfo;
@@ -43,6 +47,25 @@ public class OnlineRegionConfig {
             usrsec.load(UserSecuritySeed.records());
         }
         fct.register(usrsec);
+        fct.register(seeded(dataSource, AccountRecord.FILE_NAME, AccountRecord.DSNAME, AccountRecord.LENGTH,
+                AccountRecord.KEY_OFFSET, AccountRecord.KEY_LENGTH, AccountRecord.SEED_FILE));
+        fct.register(seeded(dataSource, CustomerRecord.FILE_NAME, CustomerRecord.DSNAME, CustomerRecord.LENGTH,
+                CustomerRecord.KEY_OFFSET, CustomerRecord.KEY_LENGTH, CustomerRecord.SEED_FILE));
+        KsdsFile ccxref = seeded(dataSource, CardXrefRecord.FILE_NAME, CardXrefRecord.DSNAME, CardXrefRecord.LENGTH,
+                CardXrefRecord.KEY_OFFSET, CardXrefRecord.KEY_LENGTH, CardXrefRecord.SEED_FILE);
+        fct.register(ccxref);
+        fct.register(ccxref.path(CardXrefRecord.ACCT_AIX_FILE_NAME, CardXrefRecord.ACCT_AIX_KEY_OFFSET,
+                CardXrefRecord.ACCT_AIX_KEY_LENGTH, false));
         return fct;
+    }
+
+    /** A KSDS backed by the DataSource, loaded from app/data/ASCII when its table is empty. */
+    static KsdsFile seeded(DataSource dataSource, String fileName, String dsname, int lrecl, int keyOffset,
+                           int keyLength, String seedFile) {
+        KsdsFile file = new KsdsFile(fileName, lrecl, keyOffset, keyLength, new JdbcKsdsStore(dataSource, dsname));
+        if (file.store().count() == 0) {
+            file.load(CardDemoAsciiSeed.records(seedFile, lrecl));
+        }
+        return file;
     }
 }
