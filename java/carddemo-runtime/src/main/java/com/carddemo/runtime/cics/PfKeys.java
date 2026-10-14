@@ -1,5 +1,6 @@
 package com.carddemo.runtime.cics;
 
+import java.util.Locale;
 import java.util.Objects;
 
 /** CSSTRPFY {@code YYYY-STORE-PFKEY}: maps EIBAID to the CVCRD01Y {@code CCARD-AID} value. */
@@ -24,7 +25,7 @@ public final class PfKeys {
             default -> {
                 int n = Integer.parseInt(eibaid.name().substring(2));
                 int folded = n > 12 ? n - 12 : n;
-                yield String.format("PFK%02d", folded);
+                yield String.format(Locale.ROOT, "PFK%02d", folded);
             }
         };
     }

@@ -36,4 +36,15 @@ class NumericEditedTest {
     void formats(String picture, String value, String expected) {
         assertThat(NumericEdited.format(new BigDecimal(value), picture)).isEqualTo(expected);
     }
+
+    @org.junit.jupiter.api.Test
+    void digitsAreAsciiWhateverTheDefaultLocale() {
+        java.util.Locale saved = java.util.Locale.getDefault();
+        try {
+            java.util.Locale.setDefault(java.util.Locale.forLanguageTag("ar-EG-u-nu-arab"));
+            assertThat(NumericEdited.format(new BigDecimal("194.00"), "+ZZZ,ZZZ,ZZZ.99")).isEqualTo("+        194.00");
+        } finally {
+            java.util.Locale.setDefault(saved);
+        }
+    }
 }

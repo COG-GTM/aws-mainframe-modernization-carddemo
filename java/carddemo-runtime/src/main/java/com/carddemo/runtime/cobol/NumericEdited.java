@@ -3,6 +3,7 @@ package com.carddemo.runtime.cobol;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.math.RoundingMode;
+import java.util.Locale;
 
 /**
  * MOVE of a numeric value to a numeric-edited item (e.g. {@code PIC +ZZZ,ZZZ,ZZZ.99}). Supported symbols:
@@ -56,7 +57,7 @@ public final class NumericEdited {
         if (zero && allSuppress) {
             return PicX.spaces(n);
         }
-        String digits = String.format("%0" + (intDigits + fracDigits) + "d", unscaled);
+        String digits = String.format(Locale.ROOT, "%0" + (intDigits + fracDigits) + "d", unscaled);
 
         char[] out = new char[n];
         int d = 0;

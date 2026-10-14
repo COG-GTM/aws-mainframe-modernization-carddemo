@@ -482,6 +482,13 @@ class CoactvwcTest {
         assertThat(r.outcome().abendCode()).isEqualTo("9999");
     }
 
+    @Test
+    void unknownTerminalFieldIsARequestErrorNotAnAbend() {
+        org.assertj.core.api.Assertions.assertThatThrownBy(
+                () -> run(AidKey.ENTER, reentryCommarea(), Map.of("UNKNOWN", "x")))
+                .isExactlyInstanceOf(IllegalArgumentException.class).hasMessageContaining("UNKNOWN");
+    }
+
     // ------------------------------------------------------------------ helpers / unit
 
     @Test

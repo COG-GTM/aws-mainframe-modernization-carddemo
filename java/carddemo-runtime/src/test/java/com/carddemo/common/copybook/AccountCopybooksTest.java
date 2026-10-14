@@ -68,6 +68,12 @@ class AccountCopybooksTest {
         assertThat(fct.path("CXACAIX")).isPresent();
         // base cluster still reachable by primary key
         assertThat(fct.read("CCXREF", "9680294154603697", 50).isNormal()).isTrue();
+        // browse through the registered path
+        assertThat(fct.startbr("CXACAIX", "00000000049").isNormal()).isTrue();
+        assertThat(fct.readnext("CXACAIX").dataString().substring(25, 36)).isEqualTo("00000000049");
+        assertThat(fct.readnext("CXACAIX").dataString().substring(25, 36)).isEqualTo("00000000050");
+        assertThat(fct.readnext("CXACAIX").resp()).isEqualTo(CicsResp.ENDFILE);
+        assertThat(fct.endbr("CXACAIX").isNormal()).isTrue();
         xref.write("0000000000000001" + "000000001" + "00000000001" + " ".repeat(14));
         assertThat(fct.read("CXACAIX", "00000000001", 50).resp()).isEqualTo(CicsResp.DUPKEY);
     }

@@ -24,6 +24,7 @@ import com.carddemo.runtime.cobol.RecordLayout;
 import com.carddemo.runtime.vsam.FileResult;
 import java.math.BigDecimal;
 import java.util.Arrays;
+import java.util.Locale;
 import java.util.Optional;
 import org.springframework.stereotype.Component;
 
@@ -105,6 +106,12 @@ public class Coactvwc implements CicsProgram {
             task.main();
         } catch (CicsControlTransfer transfer) {
             throw transfer;
+        } catch (IllegalArgumentException invalidRequest) {
+            if (!(invalidRequest instanceof NumberFormatException)) {
+                // not a task failure: e.g. terminal input naming a field the map does not have (REST 400)
+                throw invalidRequest;
+            }
+            task.abendRoutine();
         } catch (RuntimeException unexpected) {
             // EXEC CICS HANDLE ABEND LABEL(ABEND-ROUTINE) (lines 264-266): e.g. a data exception (S0C7)
             task.abendRoutine();
@@ -124,7 +131,7 @@ public class Coactvwc implements CicsProgram {
 
     /** MOVE binary RESP/RESP2 (S9(09) COMP) TO PIC X(10): the 9 digits unsigned, left-justified. */
     static String respText(int value) {
-        return PicX.of(String.format("%09d", Math.abs((long) value) % 1_000_000_000L), 10);
+        return PicX.of(String.format(Locale.ROOT, "%09d", Math.abs((long) value) % 1_000_000_000L), 10);
     }
 
     /** Alphanumeric class test {@code IS NUMERIC}: every character is a digit 0-9. */

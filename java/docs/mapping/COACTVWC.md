@@ -110,6 +110,9 @@
   and `VALIDN=(MUSTFILL)` on ACCTSID are terminal-side validations and are not enforced (the program's own edits are).
   What the terminal transmits (MDT) is decided by the REST client.
 * **EBCDIC collation**: AIX ordering uses ISO-8859-1 byte order; only keyed READs are used here, so no visible effect.
+* **Security**: COACTVWC itself does no authorisation (on CICS, sign-on/RACF and transaction security guard CAVW). The REST
+  adapter has no authentication and trusts the posted commarea, so `POST /api/cics/CAVW` returns customer SSN, DOB and
+  government ID for any account. Local/demo use only, as for COSGN00C; real exposure needs an auth layer in front of the adapter.
 * **XCTL targets** (COMEN01C or the caller in `CDEMO-FROM-PROGRAM`) are not migrated; only `nextProgram` + commarea are returned.
 * GnuCOBOL golden files are not used for this online program (CICS commands cannot run under GnuCOBOL); expected values are
   hand-traced from the source and the app/data/ASCII records.

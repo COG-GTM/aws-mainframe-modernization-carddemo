@@ -59,10 +59,18 @@ public final class FileControl {
     }
 
     public FileResult startbr(String dataset, String key) {
+        Optional<AlternateIndexPath> path = path(dataset);
+        if (path.isPresent()) {
+            return path.get().startbr(key);
+        }
         return ksds(dataset).map(f -> f.startbr(key)).orElse(FileResult.of(CicsResp.FILENOTFOUND, 1));
     }
 
     public FileResult readnext(String dataset) {
+        Optional<AlternateIndexPath> path = path(dataset);
+        if (path.isPresent()) {
+            return path.get().readnext();
+        }
         return ksds(dataset).map(KsdsFile::readnext).orElse(FileResult.of(CicsResp.FILENOTFOUND, 1));
     }
 
@@ -71,6 +79,10 @@ public final class FileControl {
     }
 
     public FileResult endbr(String dataset) {
+        Optional<AlternateIndexPath> path = path(dataset);
+        if (path.isPresent()) {
+            return path.get().endbr();
+        }
         return ksds(dataset).map(KsdsFile::endbr).orElse(FileResult.of(CicsResp.FILENOTFOUND, 1));
     }
 }
