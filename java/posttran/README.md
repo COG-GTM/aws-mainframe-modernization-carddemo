@@ -37,10 +37,10 @@ echo $?   # 4 when any transaction was rejected
 | `posttran.export-dir` | none | Unload TRANSACT/ACCTDATA/TCATBAL here after the run, in key order |
 | `posttran.chunk-size` | `1` | Commit interval |
 
-Exit codes: `0` all posted, `4` one or more rejects, `12` abend (the equivalent of
+Exit codes: `0` all posted, `4` one or more rejects, `8` posted but `export-dir` unload failed, `12` abend (the equivalent of
 `9999-ABEND-PROGRAM`; the job ends `FAILED`, the abend reason is on SYSOUT).
 
-PostgreSQL: `--spring.profiles.active=postgres` with `POSTTRAN_DB_URL`, `POSTTRAN_DB_USER`,
+PostgreSQL: `--spring.profiles.active=postgres` with `POSTTRAN_DB_URL` (optional), `POSTTRAN_DB_USER`,
 `POSTTRAN_DB_PASSWORD`.
 
 ## Regenerating the golden master

@@ -1,9 +1,9 @@
-# java -jar ... --spring.profiles.active=postgres
+# java -jar ... --spring.profiles.active=postgres  (POSTTRAN_DB_USER and POSTTRAN_DB_PASSWORD are required)
 spring:
   datasource:
     url: ${POSTTRAN_DB_URL:jdbc:postgresql://localhost:5432/carddemo}
-    username: ${POSTTRAN_DB_USER:carddemo}
-    password: ${POSTTRAN_DB_PASSWORD:carddemo}
+    username: ${POSTTRAN_DB_USER}
+    password: ${POSTTRAN_DB_PASSWORD}
   jpa:
     hibernate:
       ddl-auto: update

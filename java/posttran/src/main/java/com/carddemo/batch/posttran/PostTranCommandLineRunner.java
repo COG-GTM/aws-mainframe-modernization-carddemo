@@ -3,6 +3,7 @@ package com.carddemo.batch.posttran;
 import com.carddemo.batch.posttran.batch.PostTranLauncher;
 import com.carddemo.batch.posttran.batch.PostTranResult;
 import com.carddemo.batch.posttran.cobol.RecordFormat;
+import com.carddemo.batch.posttran.cobol.Sysout;
 import com.carddemo.batch.posttran.seed.VsamDatasets;
 import java.nio.file.Path;
 import org.springframework.boot.ApplicationArguments;
@@ -16,15 +17,21 @@ import org.springframework.stereotype.Component;
 @ConditionalOnProperty(name = "posttran.run-on-startup", havingValue = "true", matchIfMissing = true)
 public class PostTranCommandLineRunner implements ApplicationRunner, ExitCodeGenerator {
 
+    /** Postings committed, but unloading TRANSACT/ACCTDATA/TCATBAL to posttran.export-dir failed. */
+    public static final int EXPORT_FAILED = 8;
+
     private final PostTranProperties properties;
     private final VsamDatasets datasets;
     private final PostTranLauncher launcher;
+    private final Sysout sysout;
     private int exitCode;
 
-    public PostTranCommandLineRunner(PostTranProperties properties, VsamDatasets datasets, PostTranLauncher launcher) {
+    public PostTranCommandLineRunner(PostTranProperties properties, VsamDatasets datasets, PostTranLauncher launcher,
+            Sysout sysout) {
         this.properties = properties;
         this.datasets = datasets;
         this.launcher = launcher;
+        this.sysout = sysout;
     }
 
     @Override
@@ -38,10 +45,16 @@ public class PostTranCommandLineRunner implements ApplicationRunner, ExitCodeGen
         Path dalytran = properties.dalytran() != null ? properties.dalytran()
                 : (seed != null ? seed : VsamDatasets.Seed.ASCII).dalytran(properties.dataDir());
         PostTranResult result = launcher.run(dalytran, properties.dalyrejs(), format);
-        if (properties.exportDir() != null && !result.abended()) {
-            datasets.unloadAll(properties.exportDir(), format);
-        }
         exitCode = result.returnCode();
+        if (properties.exportDir() != null && !result.abended()) {
+            try {
+                datasets.unloadAll(properties.exportDir(), format);
+            } catch (RuntimeException e) {
+                // POSTTRAN itself completed and committed; only the follow-on unload (an IDCAMS REPRO step) failed.
+                sysout.display("EXPORT OF POSTED DATASETS FAILED: " + e.getMessage());
+                exitCode = EXPORT_FAILED;
+            }
+        }
     }
 
     @Override

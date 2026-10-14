@@ -8,14 +8,23 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
 import org.springframework.batch.infrastructure.item.ExecutionContext;
 import org.springframework.batch.infrastructure.item.ItemStream;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
-/** DALYREJS DD (RECFM=F, LRECL=430): 0300-DALYREJS-OPEN, 2500-WRITE-REJECT-REC, 9300-DALYREJS-CLOSE. */
+/**
+ * DALYREJS DD (RECFM=F, LRECL=430): 0300-DALYREJS-OPEN, 2500-WRITE-REJECT-REC, 9300-DALYREJS-CLOSE.
+ * Rejects are staged per chunk and written only when the chunk's database transaction commits, so
+ * DALYREJS never holds rejects for a chunk whose postings were rolled back.
+ */
 public class RejectFileWriter implements ItemStream {
 
     private final Path path;
     private final RecordFormat format;
+    private final List<String> pending = new ArrayList<>();
     private OutputStream out;
 
     public RejectFileWriter(Path path, RecordFormat format) {
@@ -39,6 +48,28 @@ public class RejectFileWriter implements ItemStream {
         if (record.length() != RejectRecord.LENGTH) {
             throw new Abend("ERROR WRITING TO REJECTS FILE", "44");
         }
+        if (!TransactionSynchronizationManager.isSynchronizationActive()) {
+            writeRecord(record);
+            return;
+        }
+        if (pending.isEmpty()) {
+            TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+                @Override
+                public void afterCommit() {
+                    pending.forEach(RejectFileWriter.this::writeRecord);
+                    flush();
+                }
+
+                @Override
+                public void afterCompletion(int status) {
+                    pending.clear();
+                }
+            });
+        }
+        pending.add(record);
+    }
+
+    private void writeRecord(String record) {
         try {
             out.write(record.getBytes(format.charset()));
             if (format.lineDelimited()) {
@@ -51,6 +82,10 @@ public class RejectFileWriter implements ItemStream {
 
     @Override
     public void update(ExecutionContext executionContext) {
+        flush();
+    }
+
+    private void flush() {
         try {
             if (out != null) {
                 out.flush();
