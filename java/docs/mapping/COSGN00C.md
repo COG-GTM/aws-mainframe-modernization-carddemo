@@ -65,6 +65,7 @@
 * **Uninitialised storage**: COBOL fields without VALUE are assumed LOW-VALUES; on z/OS their initial content depends on compiler/CICS options.
 * **EBCDIC collation**: keys are compared as ISO-8859-1 unsigned bytes, not EBCDIC; ordering differs for mixed letters/digits (no effect on COSGN00C, which only does keyed READs).
 * **XCTL targets** COADM01C and COMEN01C are not migrated; the result only reports `nextProgram` and the commarea.
-* **Security**: passwords are plain text as in the source; no RACF/ESM sign-on is emulated.
+* **Security**: passwords are plain text and seeded with the source's demo values (`PASSWORD`); no RACF/ESM sign-on is emulated and the REST adapter has no authentication. As in CICS, the commarea is trusted: a client can post a forged commarea to `/api/cics/programs/{program}`. Not for exposure beyond a local/demo environment.
+* **Task scope**: READ UPDATE holds and browse cursors are per task (thread) and released when the task ends (`TaskFileState`); there is no record-level locking across tasks (no ENQ), so two tasks can READ UPDATE the same record.
 * **FUNCTION CURRENT-DATE** uses the JVM clock/time zone (`Clock` bean).
 * GnuCOBOL golden files are not used for this online program (CICS commands cannot run under GnuCOBOL); expected values are hand-traced from the source.

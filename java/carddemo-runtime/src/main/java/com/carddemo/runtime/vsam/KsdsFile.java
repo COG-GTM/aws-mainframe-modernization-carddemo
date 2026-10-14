@@ -20,8 +20,11 @@ public final class KsdsFile {
     private final int keyLength;
     private final KsdsStore store;
     private FileState state = FileState.ENABLED;
-    private byte[] heldForUpdate;
-    private final Map<Integer, Browse> browses = new HashMap<>();
+
+    private static final class TaskState {
+        private byte[] heldForUpdate;
+        private final Map<Integer, Browse> browses = new HashMap<>();
+    }
 
     private static final class Browse {
         final byte[] requestedKey;
@@ -120,7 +123,7 @@ public final class KsdsFile {
     public FileResult readForUpdate(String key) {
         FileResult r = read(key);
         if (r.isNormal()) {
-            heldForUpdate = PicX.toBytes(key);
+            task().heldForUpdate = PicX.toBytes(key);
         }
         return r;
     }
@@ -152,24 +155,26 @@ public final class KsdsFile {
         }
         byte[] rec = PicX.toBytes(record);
         byte[] key = keyOf(rec);
-        if (heldForUpdate == null) {
+        if (task().heldForUpdate == null) {
             return FileResult.of(CicsResp.INVREQ, 30);
         }
-        if (!Arrays.equals(heldForUpdate, key)) {
+        if (!Arrays.equals(task().heldForUpdate, key)) {
             return FileResult.of(CicsResp.INVREQ, 31);
         }
-        heldForUpdate = null;
-        store.update(key, rec);
+        task().heldForUpdate = null;
+        if (!store.update(key, rec)) {
+            return FileResult.of(CicsResp.NOTFND, 80);
+        }
         return FileResult.record(CicsResp.NORMAL, rec, PicX.fromBytes(key));
     }
 
     /** DELETE without RIDFLD: deletes the record held by READ UPDATE. */
     public FileResult deleteHeld() {
-        if (heldForUpdate == null) {
+        if (task().heldForUpdate == null) {
             return FileResult.of(CicsResp.INVREQ, 30);
         }
-        byte[] key = heldForUpdate;
-        heldForUpdate = null;
+        byte[] key = task().heldForUpdate;
+        task().heldForUpdate = null;
         return delete(PicX.fromBytes(key));
     }
 
@@ -183,7 +188,7 @@ public final class KsdsFile {
 
     /** UNLOCK: releases a READ UPDATE hold. */
     public FileResult unlock() {
-        heldForUpdate = null;
+        task().heldForUpdate = null;
         return FileResult.of(CicsResp.NORMAL);
     }
 
@@ -200,7 +205,7 @@ public final class KsdsFile {
                 return FileResult.of(CicsResp.NOTFND, 80);
             }
         }
-        browses.put(reqid, new Browse(k));
+        task().browses.put(reqid, new Browse(k));
         return FileResult.of(CicsResp.NORMAL);
     }
 
@@ -209,7 +214,11 @@ public final class KsdsFile {
     }
 
     public FileResult readnext(int reqid) {
-        Browse b = browses.get(reqid);
+        Optional<FileResult> unusable = checkUsable();
+        if (unusable.isPresent()) {
+            return unusable.get();
+        }
+        Browse b = task().browses.get(reqid);
         if (b == null) {
             return FileResult.of(CicsResp.INVREQ, 41);
         }
@@ -233,7 +242,11 @@ public final class KsdsFile {
      * last record for a HIGH-VALUES key), else NOTFND. After a READNEXT it returns the same record again.
      */
     public FileResult readprev(int reqid) {
-        Browse b = browses.get(reqid);
+        Optional<FileResult> unusable = checkUsable();
+        if (unusable.isPresent()) {
+            return unusable.get();
+        }
+        Browse b = task().browses.get(reqid);
         if (b == null) {
             return FileResult.of(CicsResp.INVREQ, 41);
         }
@@ -260,15 +273,15 @@ public final class KsdsFile {
     }
 
     public FileResult resetbr(String key, int reqid) {
-        if (!browses.containsKey(reqid)) {
+        if (!task().browses.containsKey(reqid)) {
             return FileResult.of(CicsResp.INVREQ, 41);
         }
-        browses.remove(reqid);
+        task().browses.remove(reqid);
         return startbr(key, false, reqid);
     }
 
     public FileResult endbr(int reqid) {
-        return browses.remove(reqid) == null ? FileResult.of(CicsResp.INVREQ, 41) : FileResult.of(CicsResp.NORMAL);
+        return task().browses.remove(reqid) == null ? FileResult.of(CicsResp.INVREQ, 41) : FileResult.of(CicsResp.NORMAL);
     }
 
     public FileResult endbr() {
@@ -278,6 +291,10 @@ public final class KsdsFile {
     /** Opens an alternate-index PATH over this base cluster. */
     public AlternateIndexPath path(String pathName, int altKeyOffset, int altKeyLength, boolean unique) {
         return new AlternateIndexPath(pathName, this, altKeyOffset, altKeyLength, unique);
+    }
+
+    private TaskState task() {
+        return TaskFileState.of(this, TaskState::new);
     }
 
     Optional<FileResult> checkUsable() {

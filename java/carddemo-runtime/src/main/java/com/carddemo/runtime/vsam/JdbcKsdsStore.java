@@ -41,7 +41,14 @@ public final class JdbcKsdsStore implements KsdsStore {
         if (get(key).isPresent()) {
             return false;
         }
-        return update("INSERT INTO " + TABLE + " (DATASET, REC_KEY, REC_DATA) VALUES (?, ?, ?)", dataset, key, record) == 1;
+        try {
+            return update("INSERT INTO " + TABLE + " (DATASET, REC_KEY, REC_DATA) VALUES (?, ?, ?)", dataset, key, record) == 1;
+        } catch (IllegalStateException e) {
+            if (e.getCause() instanceof java.sql.SQLIntegrityConstraintViolationException) {
+                return false;
+            }
+            throw e;
+        }
     }
 
     @Override

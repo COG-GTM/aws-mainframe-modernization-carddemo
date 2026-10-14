@@ -19,8 +19,11 @@ public final class AlternateIndexPath {
     private final int altKeyOffset;
     private final int altKeyLength;
     private final boolean unique;
-    private List<Map.Entry<byte[], byte[]>> browse;
-    private int position = -1;
+
+    private static final class TaskState {
+        private List<Map.Entry<byte[], byte[]>> browse;
+        private int position = -1;
+    }
 
     AlternateIndexPath(String name, KsdsFile base, int altKeyOffset, int altKeyLength, boolean unique) {
         this.name = name;
@@ -52,37 +55,45 @@ public final class AlternateIndexPath {
         if (unusable.isPresent()) {
             return unusable.get();
         }
-        browse = sorted();
-        position = 0;
-        while (position < browse.size() && altKey(browse.get(position)).compareTo(altKey) < 0) {
-            position++;
+        task().browse = sorted();
+        task().position = 0;
+        while (task().position < task().browse.size() && altKey(task().browse.get(task().position)).compareTo(altKey) < 0) {
+            task().position++;
         }
-        if (position == browse.size()) {
-            browse = null;
+        if (task().position == task().browse.size()) {
+            task().browse = null;
             return FileResult.of(CicsResp.NOTFND, 80);
         }
         return FileResult.of(CicsResp.NORMAL);
     }
 
     public FileResult readnext() {
-        if (browse == null) {
+        Optional<FileResult> unusable = base.checkUsable();
+        if (unusable.isPresent()) {
+            return unusable.get();
+        }
+        if (task().browse == null) {
             return FileResult.of(CicsResp.INVREQ, 41);
         }
-        if (position >= browse.size()) {
+        if (task().position >= task().browse.size()) {
             return FileResult.of(CicsResp.ENDFILE, 90);
         }
-        Map.Entry<byte[], byte[]> e = browse.get(position++);
+        Map.Entry<byte[], byte[]> e = task().browse.get(task().position++);
         String k = altKey(e);
-        boolean more = !unique && position < browse.size() && altKey(browse.get(position)).equals(k);
+        boolean more = !unique && task().position < task().browse.size() && altKey(task().browse.get(task().position)).equals(k);
         return FileResult.record(more ? CicsResp.DUPKEY : CicsResp.NORMAL, e.getValue(), k);
     }
 
     public FileResult endbr() {
-        if (browse == null) {
+        if (task().browse == null) {
             return FileResult.of(CicsResp.INVREQ, 41);
         }
-        browse = null;
+        task().browse = null;
         return FileResult.of(CicsResp.NORMAL);
+    }
+
+    private TaskState task() {
+        return TaskFileState.of(this, TaskState::new);
     }
 
     private List<Map.Entry<byte[], byte[]>> sorted() {
