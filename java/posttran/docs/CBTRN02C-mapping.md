@@ -62,7 +62,7 @@ byte, FILLER included, so unloaded tables can be compared to the VSAM output.
 - DALYTRAN records with non-numeric data in numeric fields abend (`ERROR READING DALYTRAN FILE`,
   status 04). The COBOL would carry on with undefined arithmetic.
 - An abend returns exit code 12 and leaves the job `FAILED`; the last uncommitted chunk is rolled
-  back, and its rejects are not written (DALYREJS is written and flushed just before each commit, so a reject write failure also rolls back the chunk). On z/OS CEE3ABD gives user abend U999 and earlier VSAM updates stay applied. With the default
+  back, and its rejects are not written (DALYREJS is written and forced just before each commit and truncated back if the commit fails; a reject write failure rolls back the chunk). On z/OS CEE3ABD gives user abend U999 and earlier VSAM updates stay applied. With the default
   chunk size of 1 every posted record is already committed, matching the COBOL.
 
 ## Golden master
