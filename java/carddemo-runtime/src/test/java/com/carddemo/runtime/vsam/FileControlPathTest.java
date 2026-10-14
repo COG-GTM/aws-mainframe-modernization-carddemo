@@ -34,6 +34,17 @@ class FileControlPathTest {
     }
 
     @Test
+    void shortIntoAreaIsLengerrLikeBaseRead() {
+        FileResult r = fct.read("BYALT", "AAA", 4);
+        assertThat(r.resp()).isEqualTo(CicsResp.LENGERR);
+        assertThat(r.resp2()).isEqualTo(11);
+        assertThat(PicX.fromBytes(r.data())).isEqualTo("0001");
+        assertThat(fct.read("BYALT", "BBB", 4).resp()).isEqualTo(CicsResp.LENGERR);
+        assertThat(fct.read("BASE", "0001", 4).resp()).isEqualTo(CicsResp.LENGERR);
+        assertThat(fct.read("BYALT", "ZZZ", 4).resp()).isEqualTo(CicsResp.NOTFND);
+    }
+
+    @Test
     void baseFileStillWinsAndUnknownIsFileNotFound() {
         assertThat(fct.read("BASE", "0003", 10).resp()).isEqualTo(CicsResp.NORMAL);
         assertThat(fct.read("NOPE", "0003", 10).resp()).isEqualTo(CicsResp.FILENOTFOUND);

@@ -420,8 +420,8 @@ public class Coactvwc implements CicsProgram {
                     setReturnMsg(MSG_PROMPT_FOR_ACCT);
                 }
                 CardDemoCommarea.ACCT_ID.set(commarea, 0L);
+                return;
             }
-            // Not an ELSE: a blank id is also NOT NUMERIC, so FLG-ACCTFILTER-NOT-OK replaces BLANK.
             if (!ZonedDecimal.isNumeric(ccAcctId, false) || ccAcctId.equals("0".repeat(11))) {
                 wsInputFlag = "1";
                 wsEditAcctFlag = "0";

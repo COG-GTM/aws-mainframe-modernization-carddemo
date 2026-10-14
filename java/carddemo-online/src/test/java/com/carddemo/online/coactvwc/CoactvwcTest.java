@@ -216,25 +216,26 @@ class CoactvwcTest {
     void blankAccountIdIsRejected(String input) {
         CicsResponse r = view(input);
         assertReturnsToSelf(r);
-        // 2210 lines 652-659 set BLANK + 'Account number not provided', then the NOT NUMERIC test (line 666)
-        // also fires on LOW-VALUES and resets the flag to NOT-OK, so 2200's 'No input received' never shows.
-        assertThat(err(r)).isEqualTo(msg("Account number not provided"));
+        // 2200 lines 629-633: '*'/SPACES -> LOW-VALUES; 2210 lines 653-661 set BLANK + WS-PROMPT-FOR-ACCT and
+        // GO TO exit; 2200 lines 640-642 then SET NO-SEARCH-CRITERIA-RECEIVED, replacing the prompt.
+        assertThat(err(r)).isEqualTo(msg("No input received"));
         assertThat(CardDemoCommarea.ACCT_ID.getLong(commareaOut(r))).isZero();
-        assertThat(r.lastMap().screen().field("ACCTSID").orElseThrow().sent()).isFalse();
+        // 1300 lines 562-566: BLANK + REENTER -> '*' in ACCTSIDO
+        assertThat(r.lastMap().screen().value("ACCTSID")).isEqualTo("*          ");
     }
 
     @Test
     void notTransmittedAccountIdIsRejected() {
-        assertThat(err(view(null))).isEqualTo(msg("Account number not provided"));
+        assertThat(err(view(null))).isEqualTo(msg("No input received"));
     }
 
     @Test
-    void blankAccountIdIsRedNotStarred() {
+    void blankAccountIdIsRedStar() {
         Coactvwc.Task t = task(AidKey.ENTER, commarea(1), Map.of("ACCTSID", "*"));
-        assertThat(t.wsEditAcctFlag).isEqualTo("0");
+        // FLG-ACCTFILTER-BLANK survives 2210 (GO TO 2210-EDIT-ACCOUNT-EXIT, line 661)
+        assertThat(t.wsEditAcctFlag).isEqualTo(" ");
         assertThat(t.cactvwa.color("ACCTSID")).isEqualTo(Coactvwc.DFHRED);
-        // lines 562-566 ('*' in red for BLANK + REENTER) are unreachable: BLANK never survives 2210
-        assertThat(t.cactvwa.data("ACCTSID")).isEqualTo(PicX.lowValues(11));
+        assertThat(t.cactvwa.data("ACCTSID")).isEqualTo("*          ");
     }
 
     @ParameterizedTest

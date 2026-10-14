@@ -3,6 +3,7 @@ package com.carddemo.runtime.vsam;
 import com.carddemo.runtime.cics.CicsResp;
 import com.carddemo.runtime.cobol.PicX;
 import java.util.Comparator;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -35,6 +36,16 @@ public final class AlternateIndexPath {
 
     public String name() {
         return name;
+    }
+
+    /** READ via the PATH into a {@code intoLength}-byte area: LENGERR (data truncated) when the record is longer. */
+    public FileResult read(String altKey, int intoLength) {
+        FileResult r = read(altKey);
+        if (r.data() != null && r.data().length > intoLength
+                && (r.resp() == CicsResp.NORMAL || r.resp() == CicsResp.DUPKEY)) {
+            return new FileResult(CicsResp.LENGERR, 11, Arrays.copyOf(r.data(), intoLength), altKey, -1);
+        }
+        return r;
     }
 
     public FileResult read(String altKey) {

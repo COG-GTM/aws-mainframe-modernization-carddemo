@@ -36,7 +36,7 @@ public final class FileControl {
     public FileResult read(String dataset, String key, int intoLength) {
         Optional<KsdsFile> file = ksds(dataset);
         if (file.isEmpty()) {
-            return path(dataset).map(p -> p.read(key)).orElse(FileResult.of(CicsResp.FILENOTFOUND, 1));
+            return path(dataset).map(p -> p.read(key, intoLength)).orElse(FileResult.of(CicsResp.FILENOTFOUND, 1));
         }
         return file.get().read(key, intoLength);
     }

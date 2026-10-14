@@ -81,7 +81,7 @@ New record fields (field-for-field, COBOL name in each constant's Javadoc):
 ## Bug-for-bug behaviour preserved
 
 1. Line 283 tests `CDEMO-FROM-PROGRAM = 'COMEN01C'` before the commarea is copied, so only EIBCALEN = 0 initializes the commarea.
-2. A blank account id gets `Account number not provided`; the following `IS NOT NUMERIC` test (not an ELSE) resets the flag to NOT-OK, so 2200's `No input received` and 1300's red `*` (lines 562-566) are unreachable.
+2. A blank (or `*`) account id sets WS-PROMPT-FOR-ACCT (`Account number not provided`) in 2210, but 2200 then sets NO-SEARCH-CRITERIA-RECEIVED unconditionally, so the user sees `No input received` and a red `*` in ACCTSID (1300 lines 562-566).
 3. 88-levels SEARCHED-ACCT-ZEROES / SEARCHED-ACCT-NOT-NUMERIC are never used; the shown text is `Account Filter must  be a non-zero 11 digit number` (two spaces).
 4. 9000 tests DID-NOT-FIND-ACCT-IN-ACCTDAT (line 710), which no paragraph sets, so CUSTDAT is still read after an ACCTDAT NOTFND and FOUND-CUST makes 1200 move the never-read ACCOUNT-RECORD.
 5. WS-INFO-MSG is always `Enter or update id of account to display` (WS-INFORM-OUTPUT is never set), so INFOMSG is always DFHNEUTR.
@@ -97,6 +97,7 @@ New record fields (field-for-field, COBOL name in each constant's Javadoc):
 - MOVE of invalid zoned data (a never-read, LOW-VALUES ACCOUNT-RECORD after an ACCTDAT NOTFND) to a numeric-edited field is implementation dependent on z/OS; Java uses each byte's low nibble (LOW-VALUES -> 0, shown as `+           .00`).
 - DFHCOMMAREA bytes 161-172 beyond EIBCALEN are undefined storage on CICS; Java treats them as spaces.
 - RESP2 values and the DUPKEY response for the non-unique CXACAIX path come from the runtime's VSAM emulation; EBCDIC collation is not involved (keys are numeric).
+- No authentication/authorization on the REST adapter: as on CICS, COACTVWC itself does no security check and relies on the region (sign-on via COSGN00C, transaction security). The REST endpoint trusts the client-supplied commarea, so it must sit behind real authentication before being exposed; that is a cross-cutting concern of the online adapter (#82), not this program.
 - XCTL targets (COMEN01C or the caller in CDEMO-FROM-PROGRAM) are not implemented; navigation is returned as `nextProgram` plus the 160-byte commarea.
 - ASCII seeds are used (app/data/ASCII); their overpunch signs are decoded by `ZonedDecimal`. The EBCDIC datasets were not cross-checked byte for byte.
 - CURRENT-DATE comes from the injected `Clock`.
