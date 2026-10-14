@@ -63,6 +63,22 @@ class CicsTransactionControllerTest {
                 .statusCode()).isEqualTo(400);
         assertThat(post("/api/cics/programs/COSGN00C", "{}").body()).contains("\"program\":\"COSGN00C\"");
         HttpRequest get = HttpRequest.newBuilder(URI.create("http://localhost:" + port + "/api/cics/transactions")).build();
-        assertThat(http.send(get, HttpResponse.BodyHandlers.ofString()).body()).isEqualTo("{\"CC00\":\"COSGN00C\"}");
+        assertThat(http.send(get, HttpResponse.BodyHandlers.ofString()).body())
+                .contains("\"CC00\":\"COSGN00C\"", "\"CAVW\":\"COACTVWC\"");
+    }
+
+    @Test
+    void accountViewReadsSeededFiles() throws Exception {
+        byte[] reenter = new byte[160];
+        reenter[33] = '1';
+        String ca = Base64.getEncoder().encodeToString(reenter);
+        HttpResponse<String> view = post("/api/cics/CAVW", "{\"aid\":\"ENTER\",\"commarea\":\"" + ca
+                + "\",\"fields\":{\"ACCTSID\":\"00000000001\"}}");
+        assertThat(view.statusCode()).isEqualTo(200);
+        assertThat(view.body()).contains("\"outcome\":\"RETURN_TRANSID\"", "\"nextTransid\":\"CAVW\"",
+                "Immanuel", "+        194.00", "9680294154603697");
+        HttpResponse<String> missing = post("/api/cics/CAVW", "{\"commarea\":\"" + ca
+                + "\",\"fields\":{\"ACCTSID\":\"99999999999\"}}");
+        assertThat(missing.body()).contains("Account:99999999999 not found in Cross ref file.  Resp:000000013");
     }
 }

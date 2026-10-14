@@ -1,5 +1,9 @@
 package com.carddemo.online.config;
 
+import com.carddemo.common.copybook.AccountRecord;
+import com.carddemo.common.copybook.AsciiSeedData;
+import com.carddemo.common.copybook.CardXrefRecord;
+import com.carddemo.common.copybook.CustomerRecord;
 import com.carddemo.common.copybook.UserSecurityRecord;
 import com.carddemo.common.copybook.UserSecuritySeed;
 import com.carddemo.runtime.cics.SystemInfo;
@@ -43,6 +47,21 @@ public class OnlineRegionConfig {
             usrsec.load(UserSecuritySeed.records());
         }
         fct.register(usrsec);
+        fct.register(ksds(dataSource, "ACCTDAT", "AWS.M2.CARDDEMO.ACCTDATA.VSAM.KSDS", AccountRecord.LENGTH, AccountRecord.KEY_OFFSET, AccountRecord.KEY_LENGTH, AsciiSeedData.ACCTDATA));
+        fct.register(ksds(dataSource, "CUSTDAT", "AWS.M2.CARDDEMO.CUSTDATA.VSAM.KSDS", CustomerRecord.LENGTH, CustomerRecord.KEY_OFFSET, CustomerRecord.KEY_LENGTH, AsciiSeedData.CUSTDATA));
+        KsdsFile ccxref = ksds(dataSource, "CCXREF", "AWS.M2.CARDDEMO.CARDXREF.VSAM.KSDS", CardXrefRecord.LENGTH, CardXrefRecord.KEY_OFFSET, CardXrefRecord.KEY_LENGTH, AsciiSeedData.CARDXREF);
+        fct.register(ccxref);
+        fct.register(ccxref.path("CXACAIX", CardXrefRecord.ACCT_AIX_OFFSET, CardXrefRecord.ACCT_AIX_LENGTH, false));
         return fct;
+    }
+
+    /** A CSD DEFINE FILE backed by table {@code dsname}, seeded from app/data/ASCII when empty. */
+    private static KsdsFile ksds(DataSource dataSource, String file, String dsname, int lrecl, int keyOffset,
+                                 int keyLength, String asciiSeed) {
+        KsdsFile f = new KsdsFile(file, lrecl, keyOffset, keyLength, new JdbcKsdsStore(dataSource, dsname));
+        if (f.store().count() == 0) {
+            f.load(AsciiSeedData.records(asciiSeed, lrecl));
+        }
+        return f;
     }
 }
