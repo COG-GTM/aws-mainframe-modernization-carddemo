@@ -6,6 +6,7 @@ import com.carddemo.runtime.cobol.NumericField;
 import com.carddemo.runtime.cobol.PicX;
 import com.carddemo.runtime.cobol.RecordLayout;
 import java.util.List;
+import java.util.Locale;
 
 /**
  * COMEN02Y {@code CARDDEMO-MAIN-MENU-OPTIONS} (app/cpy/COMEN02Y.cpy): {@code CDEMO-MENU-OPT-COUNT} 9(2)
@@ -73,7 +74,7 @@ public final class MenuOptions extends CobolRecord {
         OPT_COUNT.set(t, count);
         StringBuilder data = new StringBuilder();
         for (Entry e : entries) {
-            data.append(String.format("%02d", e.num())).append(PicX.of(e.name(), 35)).append(PicX.of(e.pgmName(), 8))
+            data.append(String.format(Locale.ROOT, "%02d", e.num())).append(PicX.of(e.name(), 35)).append(PicX.of(e.pgmName(), 8))
                     .append(PicX.of(e.usrType(), 1));
         }
         String all = t.asString();

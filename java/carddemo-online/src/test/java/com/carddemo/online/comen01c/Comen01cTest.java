@@ -19,6 +19,7 @@ import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneOffset;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import org.junit.jupiter.api.Test;
@@ -100,7 +101,7 @@ class Comen01cTest {
         assertThat(s.value("CURTIME")).isEqualTo("14:07:09");
         // BUILD-MENU-OPTIONS lines 264-301: STRING num '. ' name INTO WS-MENU-OPT-TXT X(40) -> OPTNnnnO
         for (int i = 1; i <= 11; i++) {
-            String name = String.format("OPTN%03d", i);
+            String name = String.format(Locale.ROOT, "OPTN%03d", i);
             assertThat(s.value(name)).as(name).isEqualTo(OPTION_LINES.get(i - 1).substring(0, 40));
             assertThat(s.field(name).orElseThrow().sent()).isTrue();
         }
@@ -156,6 +157,21 @@ class Comen01cTest {
         assertThat(c.fromProgram()).isEqualTo("COSGN00C");
         assertThat(c.userId()).isEqualTo("USER0001");
         assertThat(c.userType()).isEqualTo("U");
+    }
+
+    @Test
+    void menuRendersUnderNonLatinDigitLocale() {
+        // option numbers and OPTNnnn field names must stay ASCII whatever the JVM default locale
+        Locale saved = Locale.getDefault();
+        try {
+            Locale.setDefault(Locale.forLanguageTag("ar-EG"));
+            BmsScreen s = run(AidKey.ENTER, signedOn("U", 0).toBytes(), null).lastMap().screen();
+            for (int i = 1; i <= 11; i++) {
+                assertThat(s.value(String.format(Locale.ROOT, "OPTN%03d", i))).isEqualTo(OPTION_LINES.get(i - 1).substring(0, 40));
+            }
+        } finally {
+            Locale.setDefault(saved);
+        }
     }
 
     @Test

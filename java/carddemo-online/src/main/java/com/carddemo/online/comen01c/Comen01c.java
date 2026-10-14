@@ -12,6 +12,7 @@ import com.carddemo.runtime.cics.CicsProgram;
 import com.carddemo.runtime.cics.CicsResp;
 import com.carddemo.runtime.cobol.PicX;
 import com.carddemo.runtime.cobol.RecordLayout;
+import java.util.Locale;
 import java.util.Optional;
 import org.springframework.stereotype.Component;
 
@@ -237,7 +238,7 @@ public class Comen01c implements CicsProgram {
                 wsMenuOptTxt = PicX.spaces(40);
                 wsMenuOptTxt = stringInto(wsMenuOptTxt, menu.num(wsIdx), ". ", menu.name(wsIdx));
                 if (wsIdx <= 12) {
-                    comen1a.setData(String.format("OPTN%03d", wsIdx), wsMenuOptTxt);
+                    comen1a.setData(String.format(Locale.ROOT, "OPTN%03d", wsIdx), wsMenuOptTxt);
                 }
             }
         }
