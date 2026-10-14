@@ -93,7 +93,7 @@ New record fields (field-for-field, COBOL name in each constant's Javadoc):
 
 - CICS/BMS runtime behaviour is emulated by carddemo-runtime (`CicsContext`, `SymbolicMap`); no real CICS region or 3270 terminal was used, and GnuCOBOL golden runs do not apply to a CICS program. Expected values are hand-traced from the COBOL.
 - Terminal-side field validation (BMS `NUM`/`MUSTFILL` on ACCTSID) is not enforced; non-numeric or short input reaches the program as typed and is rejected by 2210 as COBOL would.
-- Colours and attributes (DFHRED, DFHBMFSE, DFHNEUTR, DFHBMDAR) are kept in the symbolic map and asserted at task level; the REST screen payload does not render them.
+- Colours set by the program (DFHRED, DFHNEUTR) are rendered as the field `color` in the REST screen payload (`SymbolicMap.render` now honours the C byte; DFHDFCOL keeps the BMS COLOR). Attribute bytes (DFHBMFSE, DFHBMDAR) are exposed only as `attributeByte`; no real 3270 rendering is verified.
 - MOVE of invalid zoned data (a never-read, LOW-VALUES ACCOUNT-RECORD after an ACCTDAT NOTFND) to a numeric-edited field is implementation dependent on z/OS; Java uses each byte's low nibble (LOW-VALUES -> 0, shown as `+           .00`).
 - DFHCOMMAREA bytes 161-172 beyond EIBCALEN are undefined storage on CICS; Java treats them as spaces.
 - RESP2 values and the DUPKEY response for the non-unique CXACAIX path come from the runtime's VSAM emulation; EBCDIC collation is not involved (keys are numeric).

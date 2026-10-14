@@ -222,6 +222,7 @@ class CoactvwcTest {
         assertThat(CardDemoCommarea.ACCT_ID.getLong(commareaOut(r))).isZero();
         // 1300 lines 562-566: BLANK + REENTER -> '*' in ACCTSIDO
         assertThat(r.lastMap().screen().value("ACCTSID")).isEqualTo("*          ");
+        assertThat(r.lastMap().screen().field("ACCTSID").orElseThrow().color()).isEqualTo("RED");
     }
 
     @Test
@@ -308,6 +309,10 @@ class CoactvwcTest {
         assertThat(t.foundCustInMaster()).isTrue();
         assertThat(t.cactvwa.color("ACCTSID")).isEqualTo(Coactvwc.DFHDFCOL);
         assertThat(t.cactvwa.color("INFOMSG")).isEqualTo(Coactvwc.DFHNEUTR);
+        // DFHDFCOL keeps the BMS COLOR=GREEN of ACCTSID; DFHNEUTR is rendered as NEUTRAL
+        BmsScreen s = view("00000000001").lastMap().screen();
+        assertThat(s.field("ACCTSID").orElseThrow().color()).isEqualTo("GREEN");
+        assertThat(s.field("INFOMSG").orElseThrow().color()).isEqualTo("NEUTRAL");
     }
 
     @Test
