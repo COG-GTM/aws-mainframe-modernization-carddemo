@@ -1,16 +1,17 @@
 package com.carddemo.runtime.vsam;
 
-import java.util.IdentityHashMap;
+import java.util.WeakHashMap;
 import java.util.Map;
 import java.util.function.Supplier;
 
 /**
  * Per-task file-control state (READ UPDATE holds, browse cursors). File objects are shared by every task of a
  * region, but CICS scopes these to the task and releases them when it ends; {@link #endTask()} does that.
+ * Files are weak keys (identity: they do not override equals), so discarded files are not retained.
  */
 public final class TaskFileState {
 
-    private static final ThreadLocal<Map<Object, Object>> STATE = ThreadLocal.withInitial(IdentityHashMap::new);
+    private static final ThreadLocal<Map<Object, Object>> STATE = ThreadLocal.withInitial(WeakHashMap::new);
 
     private TaskFileState() {
     }

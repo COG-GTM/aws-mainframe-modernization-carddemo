@@ -74,6 +74,21 @@ class TaskScopeAndConcurrencyTest {
     }
 
     @Test
+    void discardedFilesAreNotRetainedByTaskState() throws Exception {
+        java.lang.ref.WeakReference<KsdsFile> ref;
+        {
+            KsdsFile f = file();
+            f.readForUpdate("AAA");
+            ref = new java.lang.ref.WeakReference<>(f);
+        }
+        for (int i = 0; i < 50 && ref.get() != null; i++) {
+            System.gc();
+            Thread.sleep(20);
+        }
+        assertThat(ref.get()).isNull();
+    }
+
+    @Test
     void concurrentDuplicateJdbcInsertsYieldOneWinnerAndNoExceptions() throws Exception {
         JdbcDataSource ds = new JdbcDataSource();
         ds.setURL("jdbc:h2:mem:race;DB_CLOSE_DELAY=-1");
