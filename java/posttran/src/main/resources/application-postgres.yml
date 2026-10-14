@@ -1,0 +1,9 @@
+# java -jar ... --spring.profiles.active=postgres
+spring:
+  datasource:
+    url: ${POSTTRAN_DB_URL:jdbc:postgresql://localhost:5432/carddemo}
+    username: ${POSTTRAN_DB_USER:carddemo}
+    password: ${POSTTRAN_DB_PASSWORD:carddemo}
+  jpa:
+    hibernate:
+      ddl-auto: update
