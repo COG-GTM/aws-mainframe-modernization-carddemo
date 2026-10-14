@@ -4,9 +4,11 @@ import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Deque;
+import java.util.IdentityHashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Describes a copybook record layout: elementary items laid out sequentially, with support for
@@ -113,25 +115,35 @@ public final class RecordLayout {
         }
 
         /**
-         * Appends every elementary item of {@code other} at the current offset (a copybook COPYed inside a
-         * larger record, e.g. CARDDEMO-COMMAREA at the start of a program's WS-COMMAREA) and returns an
-         * alphanumeric group view named after {@code other}.
+         * Appends every item of {@code other} (elementary items and named groups) at the current offset (a
+         * copybook COPYed inside a larger record, e.g. CARDDEMO-COMMAREA at the start of a program's
+         * WS-COMMAREA) and returns an alphanumeric group view named after {@code other}.
          */
         public AlphanumericField include(RecordLayout other) {
             int start = offset;
-            for (CobolField f : other.fields()) {
+            Set<CobolField> elementaryOfOther = Collections.newSetFromMap(new IdentityHashMap<>());
+            elementaryOfOther.addAll(other.elementaryFields);
+            List<CobolField> shiftedElementary = new ArrayList<>();
+            Map<String, CobolField> shiftedNamed = new LinkedHashMap<>();
+            for (CobolField f : other.byName.values()) {
                 CobolField shifted = f instanceof NumericField n
                         ? new NumericField(n.name(), start + n.offset(), n.usage(), n.integerDigits(), n.scale(), n.signed())
                         : new AlphanumericField(f.name(), start + f.offset(), f.length());
-                if (byName.containsKey(shifted.name())) {
-                    throw new IllegalArgumentException("Duplicate field " + shifted.name() + " in " + name);
+                shiftedNamed.put(shifted.name(), shifted);
+                if (elementaryOfOther.contains(f)) {
+                    shiftedElementary.add(shifted);
                 }
-                elementary.add(shifted);
-                byName.put(shifted.name(), shifted);
             }
-            advance(other.length());
             AlphanumericField group = new AlphanumericField(other.name(), start, other.length());
-            byName.put(group.name(), group);
+            shiftedNamed.putIfAbsent(group.name(), group);
+            for (String n : shiftedNamed.keySet()) {
+                if (byName.containsKey(n)) {
+                    throw new IllegalArgumentException("Duplicate field " + n + " in " + name);
+                }
+            }
+            elementary.addAll(shiftedElementary);
+            byName.putAll(shiftedNamed);
+            advance(other.length());
             return group;
         }
 

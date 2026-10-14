@@ -13,7 +13,9 @@ class RecordLayoutIncludeTest {
 
     static {
         RecordLayout.Builder b = RecordLayout.builder("INNER");
+        b.group("G");
         b.x("A", 2);
+        b.endGroup();
         INNER_N = b.packed("N", 3, 0, true);
         INNER = b.build();
     }
@@ -34,6 +36,10 @@ class RecordLayoutIncludeTest {
         assertThat(n.offset()).isEqualTo(5);
         assertThat(n.usage()).isEqualTo(NumericField.Usage.COMP_3);
         assertThat(outer.field("SUFFIX").offset()).isEqualTo(7);
+        // nested group views of the included layout are kept, shifted
+        assertThat(outer.field("G").offset()).isEqualTo(3);
+        assertThat(outer.field("G").length()).isEqualTo(2);
+        assertThat(outer.fields()).extracting(CobolField::name).containsExactly("PREFIX", "A", "N", "SUFFIX");
 
         CobolRecord r = new CobolRecord(outer.length());
         n.set(r, new BigDecimal("-12"));

@@ -714,6 +714,9 @@ class CocrdlicTest {
         assertThat(d.get("WS-ROW-CARD-NUM(7)")).isEqualTo(SEED[6][0]);
         assertThat(ThisProgCommarea.LENGTH).isEqualTo(254);
         assertThat(Cocrdlic.COMMAREA_LAYOUT.field("WS-THIS-PROGCOMMAREA").offset()).isEqualTo(160);
+        assertThat(Cocrdlic.COMMAREA_LAYOUT.field("CDEMO-ACCOUNT-INFO").offset()).isEqualTo(
+                CardDemoCommarea.LAYOUT.field("CDEMO-ACCOUNT-INFO").offset());
+        assertThat(Cocrdlic.COMMAREA_LAYOUT.field("WS-SCREEN-DATA").offset()).isEqualTo(160 + 58);
     }
 
     @Test
