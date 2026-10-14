@@ -117,7 +117,8 @@ public final class CobolNumval {
                     anyDigit = true;
                     lastWasDigit = true;
                     pos++;
-                } else if (currency && c == ',' && lastWasDigit) {
+                } else if (currency && c == ',' && lastWasDigit && pos + 1 < s.length()
+                        && s.charAt(pos + 1) >= '0' && s.charAt(pos + 1) <= '9') {
                     lastWasDigit = false;
                     pos++;
                 } else {

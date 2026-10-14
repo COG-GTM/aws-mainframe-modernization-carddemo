@@ -48,4 +48,12 @@ class CobolNumvalTest {
         assertThat(CobolNumval.isNumeric("-1")).isFalse();
         assertThat(CobolNumval.isNumeric("")).isFalse();
     }
+
+    @Test
+    void numvalCCommaMustBeFollowedByADigit() {
+        assertThat(CobolNumval.testNumvalC("1,234")).isZero();
+        assertThat(CobolNumval.testNumvalC("1,")).isNotZero();
+        assertThat(CobolNumval.testNumvalC("1,.5")).isNotZero();
+        assertThat(CobolNumval.testNumvalC("1,,2")).isNotZero();
+    }
 }

@@ -19,6 +19,9 @@ public final class CicsDispatcher {
             if (outcome.type() == CicsOutcome.Type.ABEND) {
                 UnitOfWork.rollback();
             }
+        } catch (RuntimeException | Error e) {
+            UnitOfWork.rollback();
+            throw e;
         } finally {
             TaskFileState.endTask();
         }

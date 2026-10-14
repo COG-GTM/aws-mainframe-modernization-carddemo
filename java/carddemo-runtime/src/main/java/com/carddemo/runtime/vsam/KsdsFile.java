@@ -154,7 +154,11 @@ public final class KsdsFile {
         }
         if (recoverable) {
             KsdsStore s = store;
-            UnitOfWork.recordUndo(this, () -> s.delete(key));
+            UnitOfWork.recordUndo(this, () -> {
+                if (s.get(key).filter(cur -> Arrays.equals(cur, rec)).isPresent()) {
+                    s.delete(key);
+                }
+            });
         }
         return FileResult.record(CicsResp.NORMAL, rec, PicX.fromBytes(key));
     }
@@ -182,7 +186,11 @@ public final class KsdsFile {
             return FileResult.of(CicsResp.NOTFND, 80);
         }
         KsdsStore s = store;
-        before.ifPresent(b -> UnitOfWork.recordUndo(this, () -> s.update(key, b)));
+        before.ifPresent(b -> UnitOfWork.recordUndo(this, () -> {
+            if (s.get(key).filter(cur -> Arrays.equals(cur, rec)).isPresent()) {
+                s.update(key, b);
+            }
+        }));
         return FileResult.record(CicsResp.NORMAL, rec, PicX.fromBytes(key));
     }
 
@@ -207,7 +215,11 @@ public final class KsdsFile {
             return FileResult.of(CicsResp.NOTFND, 80);
         }
         KsdsStore s = store;
-        before.ifPresent(b -> UnitOfWork.recordUndo(this, () -> s.insert(k, b)));
+        before.ifPresent(b -> UnitOfWork.recordUndo(this, () -> {
+            if (s.get(k).isEmpty()) {
+                s.insert(k, b);
+            }
+        }));
         return FileResult.of(CicsResp.NORMAL);
     }
 

@@ -100,6 +100,7 @@ Tests: `CoactupcEditTest` (95 cases, every 12xx edit paragraph + CSUTLDPY + CEED
 * **ACCT-ADDR-ZIP is overwritten**: ACCT-UPDATE-RECORD (418-433) has no ADDR-ZIP field, so ACCT-UPDATE-GROUP-ID is written at ACCT-ADDR-ZIP's offset and the original group position gets FILLER. Account 1's zip `A000000000` becomes the received group id (LOW-VALUES).
 * **Customer lock failure reports success**: the 2000 EVALUATE (2607-2614) has no WHEN for COULD-NOT-LOCK-CUST-FOR-UPDATE, so WHEN OTHER sets ACUP-CHANGES-OKAYED-AND-DONE: the info line says "Changes committed to database" while the error line says the customer could not be locked (and nothing was rewritten).
 * **Blank account id message**: 1210 sets "Account number not provided", but 1200 (1441-1442) then SETs NO-SEARCH-CRITERIA-RECEIVED, so the screen shows "No input received".
+* **ABEND message stays blank**: CSMSG02Y gives ABEND-MSG `VALUE SPACES`, but ABEND-ROUTINE (4205) only defaults it when it equals LOW-VALUES, so an unexpected abend sends a blank message.
 * PF5 before validation and unknown AIDs are treated as ENTER (0000-MAIN AID check); PF13-PF24 fold to PF1-PF12 (CSSTRPFY).
 * Customer 1 cannot be re-saved unchanged: its seed values (FICO 274, NC/12546, area code 373) fail 1275/1280/1260.
 
@@ -113,4 +114,6 @@ Tests: `CoactupcEditTest` (95 cases, every 12xx edit paragraph + CSUTLDPY + CEED
 * **Uninitialised storage**: COBOL fields without VALUE (including FILLER in ACCT-UPDATE-RECORD / CUST-UPDATE-RECORD) are assumed LOW-VALUES; on z/OS their content depends on compiler/CICS options.
 * **XCTL targets** (COMEN01C or CDEMO-FROM-PROGRAM) are not migrated; the result only reports `nextProgram` and the commarea.
 * **FUNCTION CURRENT-DATE** (date-of-birth edit, header) uses the JVM `Clock`.
+* **Security**: like the COBOL (which relies on CICS transaction security), COACTUPC does not check that the caller signed on; the REST adapter has no authentication. Not for exposure beyond a local/demo environment.
+* **Concurrency**: a rollback restores a before-image only if the record still holds this task's after-image, so it never overwrites another task's later update; true record-level locking across tasks is not emulated.
 * GnuCOBOL golden files are not used (CICS commands, CEEDAYS and BMS cannot run under GnuCOBOL); all expected values are hand-traced from the source and seed data.
