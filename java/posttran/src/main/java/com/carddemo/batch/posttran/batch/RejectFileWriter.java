@@ -17,8 +17,9 @@ import org.springframework.transaction.support.TransactionSynchronizationManager
 
 /**
  * DALYREJS DD (RECFM=F, LRECL=430): 0300-DALYREJS-OPEN, 2500-WRITE-REJECT-REC, 9300-DALYREJS-CLOSE.
- * Rejects are staged per chunk and written only when the chunk's database transaction commits, so
- * DALYREJS never holds rejects for a chunk whose postings were rolled back.
+ * Rejects are staged per chunk and written and flushed just before the chunk's database commit: a
+ * rolled-back chunk leaves no rejects behind, and a failed reject write rolls the chunk's postings
+ * back. The only window left is a database commit that fails after the flush.
  */
 public class RejectFileWriter implements ItemStream {
 
@@ -55,7 +56,7 @@ public class RejectFileWriter implements ItemStream {
         if (pending.isEmpty()) {
             TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
                 @Override
-                public void afterCommit() {
+                public void beforeCommit(boolean readOnly) {
                     pending.forEach(RejectFileWriter.this::writeRecord);
                     flush();
                 }
