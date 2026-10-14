@@ -20,6 +20,7 @@ import com.carddemo.runtime.cics.PfKeys;
 import com.carddemo.runtime.cobol.AlphanumericField;
 import com.carddemo.runtime.cobol.CobolField;
 import com.carddemo.runtime.cobol.CobolRecord;
+import com.carddemo.runtime.cobol.Ebcdic;
 import com.carddemo.runtime.cobol.Condition88;
 import com.carddemo.runtime.cobol.NumericField;
 import com.carddemo.runtime.cobol.PicX;
@@ -98,14 +99,15 @@ public class Cocrdlic implements CicsProgram {
     }
 
     /**
-     * Value of a zoned field as PACK would see it (low nibble of each byte), used for explicit {@code = 0} /
-     * {@code = ZEROS} tests and ADD/SUBTRACT on items that may hold SPACES or LOW-VALUES. Valid digits give
-     * their value; SPACES and LOW-VALUES count as 0 (same low nibble in EBCDIC and ASCII).
+     * Value of a zoned field as PACK would see it on the mainframe (low nibble of each CP037 byte), used for
+     * explicit {@code = 0} / {@code = ZEROS} tests and ADD/SUBTRACT on items that may hold SPACES or LOW-VALUES.
+     * Valid digits give their value; SPACES (X'40') and LOW-VALUES (X'00') count as 0; other characters
+     * contribute their EBCDIC low nibble (e.g. 'P' = X'D7' -> 7).
      */
     static long nibbleValue(String raw) {
         long v = 0;
-        for (int i = 0; i < raw.length(); i++) {
-            v = v * 10 + (raw.charAt(i) & 0x0F);
+        for (byte b : Ebcdic.encode(raw)) {
+            v = v * 10 + (b & 0x0F);
         }
         return v;
     }

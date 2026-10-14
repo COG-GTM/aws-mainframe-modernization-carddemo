@@ -104,11 +104,21 @@
   3270 cursor addressing are modelled only as flags/field names.
 * Default abend codes for conditions raised without RESP (AEIL, AEIP, ...) follow the IBM AEIx table; the RESP2 values
   of failed browse commands come from the runtime `KsdsFile` (e.g. INVREQ 41, ENDFILE 90, DISABLED 50).
-* Non-numeric data in numeric items is evaluated the way PACK sees it (low nibble per byte): SPACES/LOW-VALUES count as
-  zero for `= 0` / `= ZEROS` tests and ADD/SUBTRACT; data exceptions (S0C7) are not emulated. 88-levels on numeric items
+* Non-numeric data in numeric items is evaluated the way PACK sees it on the mainframe (low nibble of each CP037
+  byte): SPACES/LOW-VALUES count as zero for `= 0` / `= ZEROS` tests and ADD/SUBTRACT; data exceptions (S0C7) are not emulated. 88-levels on numeric items
   use the runtime convention (non-numeric -> false), so a LOW-VALUES CDEMO-PGM-CONTEXT is neither ENTER nor REENTER.
 * Bytes of DFHCOMMAREA beyond EIBCALEN (e.g. a 160-byte commarea from the menu) are read as SPACES; on CICS they are
   undefined storage (the program re-initialises that area in the menu/re-entry cases anyway).
 * Collation is ISO-8859-1 byte order, not EBCDIC; identical for the all-digit CARD-NUM keys.
 * No GnuCOBOL golden run: COCRDLIC is a CICS program (golden files apply to batch programs); expected values are
   hand-traced from the COBOL as cited above.
+* REST terminal emulation (shared `CicsTransactionController`, not program logic):
+  * There is no FSET/MDT retransmission. A 3270 resends ACCTSID/CARDSID because 1300 sets `DFHBMFSE`. A REST client
+    must resend those fields (those with `attributeByte` X'C1' or BMS `FSET`) with PF7/PF8/ENTER, or the filters are
+    cleared, as they would be on a terminal where the user erased them.
+  * Field protection is not enforced. A selection posted for a protected empty row reaches 2250 and, like the COBOL,
+    is accepted. A 3270 cannot send it.
+  * The commarea is held by the client (base64), so its contents are trusted the way CICS trusts its own storage.
+    There is no authentication: COCRDLIC itself has no security check and relies on CICS sign-on and transaction
+    security. Both need a session/security layer in the adapter, outside this program's scope.
+

@@ -703,5 +703,18 @@ class CocrdlicTest {
         assertThat(Cocrdlic.nibbleValue("           ")).isZero();
         assertThat(Cocrdlic.nibbleValue("\0\0\0")).isZero();
         assertThat(Cocrdlic.nibbleValue("0000000000 ")).isZero();
+        // EBCDIC low nibbles: 'P' = X'D7' (in ISO-8859-1 it would be X'50', nibble 0)
+        assertThat(Cocrdlic.nibbleValue("0000000000P")).isEqualTo(7);
+    }
+
+    @Test
+    void fullWidthNonNumericFilterWithZeroDigitsIsRejected() {
+        // CC-ACCT-ID-N = ZEROS is false for '0000000000P' on EBCDIC (X'D7'), so 2210 reaches NOT NUMERIC
+        CicsResponse r = next(first(), AidKey.ENTER, fields("ACCTSID", "0000000000P"));
+        assertThat(screen(r).value("ERRMSG"))
+                .isEqualTo(errmsg("ACCOUNT FILTER,IF SUPPLIED MUST BE A 11 DIGIT NUMBER"));
+        CicsResponse c = next(first(), AidKey.ENTER, fields("CARDSID", "000000000000000P"));
+        assertThat(screen(c).value("ERRMSG"))
+                .isEqualTo(errmsg("CARD ID FILTER,IF SUPPLIED MUST BE A 16 DIGIT NUMBER"));
     }
 }
