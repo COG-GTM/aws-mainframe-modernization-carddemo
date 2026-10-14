@@ -105,6 +105,7 @@ public final class SymbolicMap {
         slot(name).flag = attributeByte & 0xFF;
     }
 
+    /** MOVE colorByte TO nameC (a DFHBMSCA colour); SEND MAP shows it instead of the map's COLOR. */
     public void setColor(String name, int colorByte) {
         slot(name).color = colorByte & 0xFF;
     }
@@ -159,8 +160,9 @@ public final class SymbolicMap {
                 value = PicX.of(f.initial() == null ? "" : f.initial(), f.length());
             }
             int attr = s == null || mapOnly ? 0 : s.flag;
+            String colorOverride = s == null || mapOnly ? null : Dfhbmsca.colorName(s.color);
             out.add(new BmsScreen.Field(f.name(), f.row(), f.column(), f.length(), value, sent, f.attributes(),
-                    f.color(), attr));
+                    colorOverride == null ? f.color() : colorOverride, attr));
         }
         BmsFieldDefinition cursorAt = null;
         if (cursor && !mapOnly) {

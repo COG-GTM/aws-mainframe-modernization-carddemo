@@ -1,0 +1,50 @@
+P|[01][01][01][01]|V
+P|[1 ][01][01][01]|V
+P|[ 1][01][01][01]|V
+P|[  ][00][00][00]|I
+P|[00][00][00][00]|I
+P|[0 ][00][00][00]|I
+P|[11][11][11][11]|V
+P|[12][12][12][12]|I
+P|[99][99][99][99]|I
+P|[10][10][10][10]|V
+P|[A1][A1][00][00]|I
+P|[1A][1A][01][01]|V
+P|[-1][-1][01][01]|V
+P|[ 9][09][09][09]|V
+N|01|[This option Account View is not installed...                                    ]
+D|01|[This option Accountis coming soon ...                                           ]
+B|01|[01. Account View                        ]
+N|02|[This option Account Update is not installed...                                  ]
+D|02|[This option Accountis coming soon ...                                           ]
+B|02|[02. Account Update                      ]
+N|03|[This option Credit Card List is not installed...                                ]
+D|03|[This option Creditis coming soon ...                                            ]
+B|03|[03. Credit Card List                    ]
+N|04|[This option Credit Card View is not installed...                                ]
+D|04|[This option Creditis coming soon ...                                            ]
+B|04|[04. Credit Card View                    ]
+N|05|[This option Credit Card Update is not installed...                              ]
+D|05|[This option Creditis coming soon ...                                            ]
+B|05|[05. Credit Card Update                  ]
+N|06|[This option Transaction List is not installed...                                ]
+D|06|[This option Transactionis coming soon ...                                       ]
+B|06|[06. Transaction List                    ]
+N|07|[This option Transaction View is not installed...                                ]
+D|07|[This option Transactionis coming soon ...                                       ]
+B|07|[07. Transaction View                    ]
+N|08|[This option Transaction Add is not installed...                                 ]
+D|08|[This option Transactionis coming soon ...                                       ]
+B|08|[08. Transaction Add                     ]
+N|09|[This option Transaction Reports is not installed...                             ]
+D|09|[This option Transactionis coming soon ...                                       ]
+B|09|[09. Transaction Reports                 ]
+N|10|[This option Bill Payment is not installed...                                    ]
+D|10|[This option Billis coming soon ...                                              ]
+B|10|[10. Bill Payment                        ]
+N|11|[This option Pending Authorization View is not installed...                      ]
+D|11|[This option Pendingis coming soon ...                                           ]
+B|11|[11. Pending Authorization View          ]
+N|12|[This option Card Rewards is not installed...                                    ]
+D|12|[This option Cardis coming soon ...                                              ]
+B|12|[12. Card Rewards                        ]

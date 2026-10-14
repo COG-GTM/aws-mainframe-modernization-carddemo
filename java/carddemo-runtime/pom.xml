@@ -49,6 +49,14 @@
                     <include>*.bms</include>
                 </includes>
             </resource>
+            <!-- CSD extract: the PROGRAM resources EXEC CICS INQUIRE PROGRAM finds (InstalledPrograms). -->
+            <resource>
+                <directory>${carddemo.app.dir}/csd</directory>
+                <targetPath>carddemo/csd</targetPath>
+                <includes>
+                    <include>CARDDEMO.CSD</include>
+                </includes>
+            </resource>
             <!-- Seed data, read from the original EBCDIC datasets. -->
             <resource>
                 <directory>${carddemo.app.dir}/data/EBCDIC</directory>

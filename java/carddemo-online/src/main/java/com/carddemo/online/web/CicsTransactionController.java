@@ -5,6 +5,7 @@ import com.carddemo.runtime.cics.CicsContext;
 import com.carddemo.runtime.cics.CicsDispatcher;
 import com.carddemo.runtime.cics.CicsProgram;
 import com.carddemo.runtime.cics.CicsResponse;
+import com.carddemo.runtime.cics.InstalledPrograms;
 import com.carddemo.runtime.cics.SystemInfo;
 import com.carddemo.runtime.cics.TerminalOutput;
 import com.carddemo.runtime.cobol.CobolRecord;
@@ -38,9 +39,10 @@ public class CicsTransactionController {
     private final FileControl fileControl;
     private final SystemInfo systemInfo;
     private final Clock clock;
+    private final InstalledPrograms installedPrograms;
 
     public CicsTransactionController(List<CicsProgram> programs, FileControl fileControl, SystemInfo systemInfo,
-                                     Clock clock) {
+                                     Clock clock, InstalledPrograms installedPrograms) {
         for (CicsProgram p : programs) {
             byProgram.put(p.programName(), p);
             p.transactionId().ifPresent(t -> byTransid.put(t, p));
@@ -48,6 +50,7 @@ public class CicsTransactionController {
         this.fileControl = fileControl;
         this.systemInfo = systemInfo;
         this.clock = clock;
+        this.installedPrograms = installedPrograms;
     }
 
     @GetMapping("/transactions")
@@ -90,7 +93,7 @@ public class CicsTransactionController {
         }
         CicsContext ctx = CicsContext.builder().transid(transid).termid(req.termid() == null ? "T001" : req.termid())
                 .aid(aid).commarea(commarea).terminalInput(req.fields()).fileControl(fileControl)
-                .systemInfo(systemInfo).clock(clock).build();
+                .systemInfo(systemInfo).clock(clock).installedPrograms(installedPrograms).build();
         CicsResponse r;
         try {
             r = CicsDispatcher.run(program, ctx);

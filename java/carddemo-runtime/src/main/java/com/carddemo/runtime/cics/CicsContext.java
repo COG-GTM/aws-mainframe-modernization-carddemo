@@ -34,6 +34,7 @@ public final class CicsContext {
     private final FileControl fileControl;
     private final SystemInfo systemInfo;
     private final Clock clock;
+    private final InstalledPrograms installedPrograms;
     private final List<TerminalOutput> outputs = new ArrayList<>();
 
     private CicsContext(Builder b) {
@@ -43,6 +44,7 @@ public final class CicsContext {
         this.fileControl = b.fileControl == null ? new FileControl() : b.fileControl;
         this.systemInfo = b.systemInfo == null ? SystemInfo.defaults() : b.systemInfo;
         this.clock = b.clock == null ? Clock.systemDefaultZone() : b.clock;
+        this.installedPrograms = b.installedPrograms == null ? InstalledPrograms.none() : b.installedPrograms;
     }
 
     public static Builder builder() {
@@ -127,6 +129,16 @@ public final class CicsContext {
         return result;
     }
 
+    // ----------------------------------------------------------------- system programming
+
+    /**
+     * EXEC CICS INQUIRE PROGRAM(program) NOHANDLE: NORMAL when the program is installed in the region,
+     * PGMIDERR otherwise; EIBRESP is set either way.
+     */
+    public CicsResp inquireProgram(String program) {
+        return installedPrograms.contains(program) ? setResp(CicsResp.NORMAL, 0) : setResp(CicsResp.PGMIDERR, 0);
+    }
+
     // ----------------------------------------------------------------- program control (non-returning)
 
     /** EXEC CICS RETURN (no TRANSID): ends the task and the pseudo-conversation. */
@@ -166,6 +178,7 @@ public final class CicsContext {
         private FileControl fileControl;
         private SystemInfo systemInfo;
         private Clock clock;
+        private InstalledPrograms installedPrograms;
 
         public Builder transid(String value) {
             this.transid = Objects.requireNonNull(value);
@@ -206,6 +219,12 @@ public final class CicsContext {
 
         public Builder clock(Clock value) {
             this.clock = value;
+            return this;
+        }
+
+        /** Programs INQUIRE PROGRAM finds (default: none). */
+        public Builder installedPrograms(InstalledPrograms value) {
+            this.installedPrograms = value;
             return this;
         }
 
