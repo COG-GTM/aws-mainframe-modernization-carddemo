@@ -1,5 +1,7 @@
 package com.carddemo.online.config;
 
+import com.carddemo.common.copybook.CardDataSeed;
+import com.carddemo.common.copybook.CardRecord;
 import com.carddemo.common.copybook.UserSecurityRecord;
 import com.carddemo.common.copybook.UserSecuritySeed;
 import com.carddemo.runtime.cics.SystemInfo;
@@ -7,6 +9,7 @@ import com.carddemo.runtime.vsam.FileControl;
 import com.carddemo.runtime.vsam.JdbcKsdsStore;
 import com.carddemo.runtime.vsam.KsdsFile;
 import java.time.Clock;
+import java.util.List;
 import javax.sql.DataSource;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -43,6 +46,15 @@ public class OnlineRegionConfig {
             usrsec.load(UserSecuritySeed.records());
         }
         fct.register(usrsec);
+        fct.register(seeded(new KsdsFile(CardDataSeed.FILE_NAME, CardRecord.LENGTH, CardRecord.KEY_OFFSET,
+                CardRecord.KEY_LENGTH, new JdbcKsdsStore(dataSource, CardDataSeed.DSNAME)), CardDataSeed.records()));
         return fct;
+    }
+
+    private static KsdsFile seeded(KsdsFile file, List<String> records) {
+        if (file.store().count() == 0) {
+            file.load(records);
+        }
+        return file;
     }
 }

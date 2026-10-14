@@ -63,6 +63,24 @@ class CicsTransactionControllerTest {
                 .statusCode()).isEqualTo(400);
         assertThat(post("/api/cics/programs/COSGN00C", "{}").body()).contains("\"program\":\"COSGN00C\"");
         HttpRequest get = HttpRequest.newBuilder(URI.create("http://localhost:" + port + "/api/cics/transactions")).build();
-        assertThat(http.send(get, HttpResponse.BodyHandlers.ofString()).body()).isEqualTo("{\"CC00\":\"COSGN00C\"}");
+        assertThat(http.send(get, HttpResponse.BodyHandlers.ofString()).body()).contains("\"CC00\":\"COSGN00C\"");
+    }
+
+    @Test
+    void cardListConversation() throws Exception {
+        // COCRDLIC over the H2-backed CARDDAT seeded from app/data/ASCII/carddata.txt
+        HttpResponse<String> first = post("/api/cics/CCLI", "{}");
+        assertThat(first.body()).contains("\"program\":\"COCRDLIC\"", "\"outcome\":\"RETURN_TRANSID\"",
+                "\"nextTransid\":\"CCLI\"", "0500024453765740", "\"WS-CA-NEXT-PAGE-IND\":\"Y\"",
+                "TYPE S FOR DETAIL, U TO UPDATE ANY RECORD");
+        String commarea = first.body().replaceAll("(?s).*\"commarea\":\"([^\"]+)\".*", "$1");
+
+        HttpResponse<String> pf8 = post("/api/cics/CCLI", "{\"aid\":\"PF8\",\"commarea\":\"" + commarea + "\"}");
+        assertThat(pf8.body()).contains("1561409106491600", "\"WS-CA-SCREEN-NUM\":2");
+
+        HttpResponse<String> view = post("/api/cics/CCLI", "{\"commarea\":\"" + commarea
+                + "\",\"fields\":{\"CRDSEL2\":\"S\"}}");
+        assertThat(view.body()).contains("\"outcome\":\"XCTL\"", "\"nextProgram\":\"COCRDSLC\"",
+                "\"CDEMO-CARD-NUM\":683586198171516", "\"CDEMO-ACCT-ID\":27");
     }
 }

@@ -10,6 +10,7 @@ import com.carddemo.runtime.cics.TerminalOutput;
 import com.carddemo.runtime.cobol.CobolRecord;
 import com.carddemo.runtime.vsam.FileControl;
 import java.time.Clock;
+import java.util.Arrays;
 import java.util.Base64;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -99,12 +100,17 @@ public class CicsTransactionController {
         }
         byte[] out = r.outcome().commarea();
         Map<String, Object> decoded = out == null ? null
-                : program.commareaLayout().map(l -> l.describe(CobolRecord.ofBytes(out))).orElse(null);
+                : program.commareaLayout().map(l -> l.describe(commareaRecord(out, l.length()))).orElse(null);
         TerminalOutput.MapOutput map = r.lastMap();
         TerminalOutput.TextOutput text = r.lastText();
         return new CicsTransactionResponse(r.program(), r.outcome().type().name(), r.outcome().nextTransid(),
                 r.outcome().nextProgram(), out == null ? null : Base64.getEncoder().encodeToString(out), decoded,
                 map == null ? null : map.screen(), map == null ? null : map.screen().render(),
                 text == null ? null : text.text(), r.eib().eibresp(), r.eib().eibresp2(), r.outcome().abendCode());
+    }
+
+    /** The returned commarea, extended with LOW-VALUES when shorter than the layout (e.g. 160-byte XCTL). */
+    private static CobolRecord commareaRecord(byte[] commarea, int layoutLength) {
+        return CobolRecord.ofBytes(commarea.length >= layoutLength ? commarea : Arrays.copyOf(commarea, layoutLength));
     }
 }
