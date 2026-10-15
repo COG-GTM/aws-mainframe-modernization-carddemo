@@ -60,16 +60,13 @@ public class InterestCalculationService {
         String parmDate = runDate.toString();
         LocalDateTime now = LocalDateTime.now(clock).withNano(0);
         // A rerun for the same PARM-DATE would double-charge interest and reset cycle totals posted since, so each
-        // date runs once. The marker commits with the postings; a concurrent duplicate fails on the primary key.
-        Integer done = jdbc.queryForObject(
-                "select count(*) from batch_run_marker where job_name = 'INTCALC' and run_date = ?", Integer.class,
-                runDate);
-        if (done != null && done > 0) {
+        // date runs once. The claim commits with the postings; a concurrent duplicate waits on it and gets 0 rows.
+        int claimed = jdbc.update("insert into batch_run_marker (job_name, run_date, completed_at)"
+                + " values ('INTCALC', ?, ?) on conflict do nothing", runDate, now);
+        if (claimed == 0) {
             return JobResult.of("INTCALC", 8, "INTCALC already ran for " + parmDate, "runDate", parmDate,
                     "interestTransactions", 0);
         }
-        jdbc.update("insert into batch_run_marker (job_name, run_date, completed_at) values ('INTCALC', ?, ?)",
-                runDate, now);
         int recordCount = 0;
         int suffix = 0;
         int accountsUpdated = 0;
