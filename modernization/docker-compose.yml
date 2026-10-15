@@ -1,0 +1,72 @@
+# Local CardDemo modernization stack: PostgreSQL + VSAM loader + five Spring Boot services.
+#   cd modernization && mvn -B package -DskipTests && docker compose up --build
+# identity-service owns Flyway migrations; the loader then imports app/data (the legacy sample VSAM unloads).
+x-service: &service
+  restart: unless-stopped
+  environment: &env
+    CARDDEMO_DB_URL: jdbc:postgresql://postgres:5432/carddemo
+    CARDDEMO_DB_USER: carddemo
+    CARDDEMO_DB_PASSWORD: ${CARDDEMO_DB_PASSWORD:-carddemo}
+    CARDDEMO_JWT_SECRET: ${CARDDEMO_JWT_SECRET:-local-dev-only-secret-change-me-0123456789}
+    SPRING_FLYWAY_ENABLED: "false"
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: carddemo
+      POSTGRES_USER: carddemo
+      POSTGRES_PASSWORD: ${CARDDEMO_DB_PASSWORD:-carddemo}
+    ports: ["5432:5432"]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U carddemo -d carddemo"]
+      interval: 5s
+      retries: 20
+
+  identity-service:
+    <<: *service
+    build: {context: ., args: {JAR: identity-service/target/carddemo-identity-service-1.0.0-SNAPSHOT.jar}}
+    environment:
+      <<: *env
+      SPRING_FLYWAY_ENABLED: "true"
+    ports: ["8081:8081"]
+    depends_on: {postgres: {condition: service_healthy}}
+    healthcheck: &health
+      test: ["CMD-SHELL", "bash -c '</dev/tcp/localhost/$${PORT:-8081}' || exit 1"]
+      interval: 5s
+      retries: 30
+
+  vsam-loader:
+    build: {context: ., args: {JAR: data-migration/target/carddemo-data-migration-1.0.0-SNAPSHOT-exec.jar}}
+    restart: "no"
+    environment:
+      CARDDEMO_DB_PASSWORD: ${CARDDEMO_DB_PASSWORD:-carddemo}
+    command: ["--jdbc-url=jdbc:postgresql://postgres:5432/carddemo", "--user=carddemo", "--data-dir=/data",
+              "--encoding=ASCII", "--truncate",
+              "--allow-missing-transact"]
+    volumes: ["../app/data:/data:ro"]
+    depends_on: {identity-service: {condition: service_healthy}}
+
+  account-service:
+    <<: *service
+    build: {context: ., args: {JAR: account-service/target/carddemo-account-service-1.0.0-SNAPSHOT.jar}}
+    ports: ["8082:8082"]
+    depends_on: {identity-service: {condition: service_healthy}}
+
+  card-service:
+    <<: *service
+    build: {context: ., args: {JAR: card-service/target/carddemo-card-service-1.0.0-SNAPSHOT.jar}}
+    ports: ["8083:8083"]
+    depends_on: {identity-service: {condition: service_healthy}}
+
+  transaction-service:
+    <<: *service
+    build: {context: ., args: {JAR: transaction-service/target/carddemo-transaction-service-1.0.0-SNAPSHOT.jar}}
+    ports: ["8084:8084"]
+    depends_on: {identity-service: {condition: service_healthy}}
+
+  batch-service:
+    <<: *service
+    build: {context: ., args: {JAR: batch-service/target/carddemo-batch-service-1.0.0-SNAPSHOT.jar}}
+    ports: ["8085:8085"]
+    depends_on: {identity-service: {condition: service_healthy}}

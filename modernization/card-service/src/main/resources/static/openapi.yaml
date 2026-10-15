@@ -1,0 +1,182 @@
+openapi: 3.0.3
+info:
+  title: CardDemo Card Service
+  version: 1.0.0
+  description: Replaces COCRDLIC (CCLI), COCRDSLC (CCDL) and COCRDUPC (CCUP).
+servers:
+- url: http://localhost:8083
+security:
+- bearerAuth: []
+paths:
+  /api/v1/cards:
+    get:
+      summary: List cards, 7 per page
+      description: 'Legacy: COCRDLIC / CCLI (CARDDAT, CARDAIX for account filter).'
+      tags:
+      - cards
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                description: Stateless replacement for the COMMAREA browse state (first/last key, page number)
+                properties:
+                  items:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Card'
+                  pageNumber: &id003
+                    type: integer
+                  firstKey: &id001
+                    type: string
+                  lastKey: *id001
+                  hasNextPage: &id002
+                    type: boolean
+                  hasPreviousPage: *id002
+                  message: *id001
+        '400':
+          $ref: '#/components/responses/Error'
+        '404':
+          $ref: '#/components/responses/Error'
+      parameters:
+      - name: acctId
+        in: query
+        required: false
+        description: 11-digit account filter
+        schema:
+          type: string
+      - name: cardNum
+        in: query
+        required: false
+        description: 16-digit card filter
+        schema:
+          type: string
+      - name: after
+        in: query
+        required: false
+        description: lastKey of the current page (PF8 / page down)
+        schema:
+          type: string
+      - name: before
+        in: query
+        required: false
+        description: firstKey of the current page (PF7 / page up)
+        schema:
+          type: string
+      - name: page
+        in: query
+        required: false
+        description: Current page number (echoed and incremented)
+        schema:
+          type: integer
+  /api/v1/cards/{cardNum}:
+    parameters:
+    - name: cardNum
+      in: path
+      required: true
+      description: CARD-NUM, 16 digits
+      schema:
+        type: string
+        pattern: ^\d{16}$
+    get:
+      summary: View card
+      description: 'Legacy: COCRDSLC / CCDL.'
+      tags:
+      - cards
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Card'
+        '400':
+          $ref: '#/components/responses/Error'
+        '404':
+          $ref: '#/components/responses/Error'
+      parameters:
+      - name: acctId
+        in: query
+        required: false
+        description: Optional account the card must belong to
+        schema:
+          type: string
+    put:
+      summary: Update card
+      description: 'Legacy: COCRDUPC / CCUP.'
+      tags:
+      - cards
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Message'
+        '400':
+          $ref: '#/components/responses/Error'
+        '404':
+          $ref: '#/components/responses/Error'
+        '409':
+          $ref: '#/components/responses/Error'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CardUpdateRequest'
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Issued by POST /api/v1/auth/signon locally; by Amazon Cognito in AWS
+  responses:
+    Error:
+      description: Error with legacy message
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ApiError'
+  schemas:
+    ApiError:
+      type: object
+      properties:
+        status: *id003
+        code: *id001
+        message:
+          type: string
+          description: Legacy screen message text, preserved verbatim
+        timestamp:
+          type: string
+          format: date-time
+    Message:
+      type: object
+      properties:
+        message: *id001
+    Card:
+      type: object
+      properties:
+        cardNum: *id001
+        acctId: *id003
+        embossedName: *id001
+        expirationDate:
+          type: string
+          format: date
+        activeStatus: *id001
+        version: *id003
+    CardUpdateRequest:
+      type: object
+      properties:
+        embossedName: *id001
+        activeStatus:
+          type: string
+          enum:
+          - Y
+          - N
+        expiryMonth: *id003
+        expiryYear: *id003
+        version: *id003

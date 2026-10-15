@@ -1,0 +1,277 @@
+openapi: 3.0.3
+info:
+  title: CardDemo Identity Service
+  version: 1.0.0
+  description: Replaces COSGN00C (CC00), COMEN01C (CM00), COADM01C (CA00) and COUSR00C-03C (CU00-CU03); RACF/USRSEC replaced by JWT roles.
+servers:
+- url: http://localhost:8081
+security:
+- bearerAuth: []
+paths:
+  /api/v1/auth/signon:
+    post:
+      summary: Sign on
+      description: 'Legacy: COSGN00C / CC00.'
+      tags:
+      - auth
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SignOnResponse'
+        '400':
+          $ref: '#/components/responses/Error'
+        '401':
+          $ref: '#/components/responses/Error'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SignOnRequest'
+      security: []
+  /api/v1/menu:
+    get:
+      summary: Menu for the signed-on user
+      description: 'Legacy: COMEN01C (user) / COADM01C (admin).'
+      tags:
+      - auth
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MenuOption'
+  /api/v1/users:
+    get:
+      summary: List users, 10 per page
+      description: 'Legacy: COUSR00C / CU00. Requires ROLE_ADMIN (USRSEC user type A).'
+      tags:
+      - users
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                description: Stateless replacement for the COMMAREA browse state (first/last key, page number)
+                properties:
+                  items:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/User'
+                  pageNumber: &id003
+                    type: integer
+                  firstKey: &id001
+                    type: string
+                  lastKey: *id001
+                  hasNextPage: &id002
+                    type: boolean
+                  hasPreviousPage: *id002
+                  message: *id001
+        '400':
+          $ref: '#/components/responses/Error'
+        '403':
+          $ref: '#/components/responses/Error'
+      parameters:
+      - name: startKey
+        in: query
+        required: false
+        description: Key to start browsing from (the screen search field)
+        schema:
+          type: string
+      - name: after
+        in: query
+        required: false
+        description: lastKey of the current page (PF8 / page down)
+        schema:
+          type: string
+      - name: before
+        in: query
+        required: false
+        description: firstKey of the current page (PF7 / page up)
+        schema:
+          type: string
+      - name: page
+        in: query
+        required: false
+        description: Current page number (echoed and incremented)
+        schema:
+          type: integer
+    post:
+      summary: Add user
+      description: 'Legacy: COUSR01C / CU01. Requires ROLE_ADMIN (USRSEC user type A).'
+      tags:
+      - users
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Message'
+        '400':
+          $ref: '#/components/responses/Error'
+        '403':
+          $ref: '#/components/responses/Error'
+        '409':
+          $ref: '#/components/responses/Error'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserRequest'
+  /api/v1/users/{userId}:
+    parameters:
+    - name: userId
+      in: path
+      required: true
+      description: SEC-USR-ID (8 chars)
+      schema:
+        type: string
+    get:
+      summary: Get user
+      description: 'Legacy: COUSR02C / COUSR03C lookup. Requires ROLE_ADMIN (USRSEC user type A).'
+      tags:
+      - users
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '403':
+          $ref: '#/components/responses/Error'
+        '404':
+          $ref: '#/components/responses/Error'
+    put:
+      summary: Update user
+      description: 'Legacy: COUSR02C / CU02. Requires ROLE_ADMIN (USRSEC user type A).'
+      tags:
+      - users
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Message'
+        '400':
+          $ref: '#/components/responses/Error'
+        '403':
+          $ref: '#/components/responses/Error'
+        '404':
+          $ref: '#/components/responses/Error'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserRequest'
+    delete:
+      summary: Delete user
+      description: 'Legacy: COUSR03C / CU03. Requires ROLE_ADMIN (USRSEC user type A).'
+      tags:
+      - users
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Message'
+        '403':
+          $ref: '#/components/responses/Error'
+        '404':
+          $ref: '#/components/responses/Error'
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Issued by POST /api/v1/auth/signon locally; by Amazon Cognito in AWS
+  responses:
+    Error:
+      description: Error with legacy message
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ApiError'
+  schemas:
+    ApiError:
+      type: object
+      properties:
+        status: *id003
+        code: *id001
+        message:
+          type: string
+          description: Legacy screen message text, preserved verbatim
+        timestamp:
+          type: string
+          format: date-time
+    Message:
+      type: object
+      properties:
+        message: *id001
+    SignOnRequest:
+      type: object
+      properties:
+        userId: *id001
+        password: *id001
+    SignOnResponse:
+      type: object
+      properties:
+        accessToken: *id001
+        tokenType: *id001
+        expiresIn: *id003
+        userId: *id001
+        userType:
+          type: string
+          enum:
+          - A
+          - U
+        firstName: *id001
+        lastName: *id001
+        nextProgram:
+          type: string
+          description: Legacy XCTL target (COADM01C or COMEN01C)
+        menu:
+          type: array
+          items:
+            $ref: '#/components/schemas/MenuOption'
+    MenuOption:
+      type: object
+      properties:
+        option: *id003
+        name: *id001
+        legacyProgram: *id001
+        method: *id001
+        path: *id001
+    User:
+      type: object
+      properties:
+        userId: *id001
+        firstName: *id001
+        lastName: *id001
+        userType: *id001
+    UserRequest:
+      type: object
+      properties:
+        userId: *id001
+        firstName: *id001
+        lastName: *id001
+        password: *id001
+        userType:
+          type: string
+          enum:
+          - A
+          - U
