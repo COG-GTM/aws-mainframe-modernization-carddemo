@@ -29,7 +29,7 @@ class LegacyDataParityTest {
             "CVTRA02Y", List.of("CVTRA02Y#33.int_rate ascii=0 ebcdic=15"));
 
     static List<VsamToRdsLoader.Source> sources() {
-        return VsamToRdsLoader.PLAN.stream().filter(s -> s.asciiFile() != null).toList();
+        return VsamToRdsLoader.PLAN.stream().filter(s -> s.asciiFile() != null && !s.optional()).toList();
     }
 
     @ParameterizedTest(name = "{0}")

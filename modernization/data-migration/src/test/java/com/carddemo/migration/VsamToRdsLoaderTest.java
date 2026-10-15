@@ -51,4 +51,19 @@ class VsamToRdsLoaderTest {
             return rs.getString(1);
         }
     }
+
+    @Test
+    void failedTruncatingReloadKeepsPreviousData() throws Exception {
+        String url = "jdbc:h2:mem:loader-reload;MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE;DB_CLOSE_DELAY=-1";
+        Flyway.configure().dataSource(url, "sa", "").locations("classpath:db/migration").load().migrate();
+        try (Connection c = DriverManager.getConnection(url, "sa", "")) {
+            VsamToRdsLoader loader = new VsamToRdsLoader();
+            loader.load(c, LegacyDataParityTest.DATA, SourceEncoding.EBCDIC);
+            org.assertj.core.api.Assertions.assertThatThrownBy(
+                    () -> loader.load(c, Path.of("does-not-exist"), SourceEncoding.EBCDIC, true))
+                    .isInstanceOf(java.io.IOException.class);
+            assertThat(scalar(c, "select count(*) from account")).isEqualTo("50");
+            assertThat(scalar(c, "select count(*) from user_security")).isEqualTo("10");
+        }
+    }
 }

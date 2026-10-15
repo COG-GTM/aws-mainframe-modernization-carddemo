@@ -21,5 +21,10 @@
   `spring.security.oauth2.resourceserver.jwt.issuer-uri=https://cognito-idp.<region>.amazonaws.com/<pool-id>` and
   map `cognito:groups` to roles. identity-service then only keeps user administration, which calls the Cognito
   AdminCreateUser / AdminUpdateUserAttributes / AdminDeleteUser APIs.
+- **Brute force:** the local `/api/v1/auth/signon` endpoint has no lockout, and neither does COSGN00C. RACF revoke
+  thresholds go away with it. In AWS, sign-on moves to Cognito (lockout, adaptive authentication), and AWS WAF
+  rate-based rules sit in front of the ALB / API Gateway. Do not expose the local sign-on endpoint to the internet.
+- **JWT secret:** there is no default in `application.yml`, so services refuse to start without `CARDDEMO_JWT_SECRET`.
+  Only `docker-compose.yml` sets a local-only value.
 - Migrating users: legacy passwords are plain text, so they can be imported once into Cognito with
   `AdminSetUserPassword`, or all users can be forced to reset on first login (recommended).

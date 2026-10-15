@@ -153,4 +153,30 @@ class TransactionParityTest extends ParityTestSupport {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].typeCd").value("01"));
     }
+
+    @Test
+    void sixteenDigitKeysAboveLongMaxAreHandled() throws Exception {
+        mvc.perform(get("/api/v1/transactions?startKey=9999999999999999").header("Authorization", userToken()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.items", hasSize(0)));
+        postJson("/api/v1/transactions", "{\"cardNum\":\"9999999999999999\",\"confirm\":\"Y\"}")
+                .andExpect(status().is4xxClientError());
+    }
+
+    @Test
+    void reportOutputIsOnlyVisibleToRequesterOrAdmin() throws Exception {
+        String mine = postJson("/api/v1/reports/transactions", "{\"reportType\":\"yearly\",\"confirm\":\"Y\"}")
+                .andReturn().getResponse().getContentAsString();
+        String id = mine.replaceAll(".*\"id\":(\\d+).*", "$1");
+        mvc.perform(get("/api/v1/reports/transactions/" + id).header("Authorization", userToken()))
+                .andExpect(status().isOk());
+        mvc.perform(get("/api/v1/reports/transactions/" + id).header("Authorization", adminToken()))
+                .andExpect(status().isOk());
+        String admins = mvc.perform(post("/api/v1/reports/transactions").header("Authorization", adminToken())
+                        .contentType(MediaType.APPLICATION_JSON).content("{\"reportType\":\"yearly\",\"confirm\":\"Y\"}"))
+                .andReturn().getResponse().getContentAsString();
+        mvc.perform(get("/api/v1/reports/transactions/" + admins.replaceAll(".*\"id\":(\\d+).*", "$1"))
+                        .header("Authorization", userToken()))
+                .andExpect(status().isNotFound());
+    }
 }

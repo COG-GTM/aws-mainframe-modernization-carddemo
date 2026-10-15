@@ -19,8 +19,13 @@ written to S3.
 
 **Scheduling:** locally, `BatchScheduler` processes queued CR00 report requests every 30 seconds. On AWS, set
 `carddemo.batch.scheduler.enabled=false` and use EventBridge Scheduler to start a Step Functions state machine:
-`POSTTRAN, then (Choice RC <= 4), then INTCALC, then (monthly) CREASTMT`. Each state is an ECS RunTask of batch-service
-with `--spring.batch.job.name=...`, or an HTTP call to the job API.
+`POSTTRAN, then (Choice RC <= 4), then INTCALC, then (monthly) CREASTMT`. Each state calls the batch-service job API
+(`POST /api/v1/batch/jobs/{name}`, through an API Gateway / HTTP task with an admin client-credentials token) and
+branches on `returnCode`. batch-service runs as a long-lived ECS service (`spring.batch.job.enabled=false`), so no
+one-shot task mode is needed.
+
+**Rerun protection:** INTCALC refuses a second run for a date it already posted (RC=8, no balances touched),
+because the interest transaction IDs are `PARM-DATE + sequence`, as in CBACT04C.
 
 **Restartability:** the Spring Batch job repository tables are created automatically. POSTTRAN marks every daily
 record POSTED or REJECTED in the same transaction as its postings, so a rerun only picks up records still PENDING.

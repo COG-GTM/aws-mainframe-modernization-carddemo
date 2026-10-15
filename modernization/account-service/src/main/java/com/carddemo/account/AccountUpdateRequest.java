@@ -25,13 +25,13 @@ public record AccountUpdateRequest(
                 d.accountVersion(), d.customerVersion());
     }
 
-    /** Value used for COACTUPC's "no change detected" comparison (case-insensitive, scale-insensitive). */
+    /** COACTUPC "no change detected" value: codes compare case-insensitively, free text exactly as it is stored. */
     String normalised() {
         return String.join("|", s(activeStatus), n(creditLimit), n(cashCreditLimit), n(currBal), n(currCycCredit),
                 n(currCycDebit), String.valueOf(openDate), String.valueOf(expirationDate),
-                String.valueOf(reissueDate), s(groupId), s(firstName), s(middleName), s(lastName), s(addrLine1),
-                s(addrLine2), s(addrLine3), s(addrStateCd), s(addrCountryCd), s(addrZip), s(phoneNum1),
-                s(phoneNum2), s(ssn), s(govtIssuedId), String.valueOf(dob), s(eftAccountId), s(priCardHolderInd),
+                String.valueOf(reissueDate), s(groupId), t(firstName), t(middleName), t(lastName), t(addrLine1),
+                t(addrLine2), t(addrLine3), s(addrStateCd), s(addrCountryCd), t(addrZip), t(phoneNum1),
+                t(phoneNum2), s(ssn), t(govtIssuedId), String.valueOf(dob), t(eftAccountId), s(priCardHolderInd),
                 String.valueOf(ficoCreditScore));
     }
 
@@ -64,6 +64,10 @@ public record AccountUpdateRequest(
         c.setEftAccountId(eftAccountId.trim());
         c.setPriCardHolderInd(priCardHolderInd.toUpperCase(Locale.ROOT));
         c.setFicoCreditScore(ficoCreditScore);
+    }
+
+    private static String t(String v) {
+        return v == null ? "" : v.trim();
     }
 
     private static String s(String v) {

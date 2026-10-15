@@ -191,4 +191,14 @@ class BatchParityTest extends ParityTestSupport {
         assertThat(col("select amount from card_transaction where tran_id = 'T000000000000001'"))
                 .isEqualByComparingTo("45.00");
     }
+
+    @Test
+    void intcalcRefusesSecondRunForSameDate() {
+        intcalc.run(LocalDate.of(2024, 1, 31));
+        JobResult again = intcalc.run(LocalDate.of(2024, 1, 31));
+        assertThat(again.returnCode()).isEqualTo(8);
+        assertThat(col("select curr_bal from account where acct_id = 1")).isEqualByComparingTo("196.29");
+        assertThat(jdbc.queryForObject("select count(*) from card_transaction where tran_id like '2024-01-31%'",
+                Integer.class)).isEqualTo(3);
+    }
 }

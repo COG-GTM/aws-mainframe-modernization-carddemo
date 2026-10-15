@@ -16,7 +16,7 @@ spring:
 carddemo:
   security:
     # Local development only; in AWS inject from Secrets Manager (see docs/modernization/04-security.md).
-    jwt-secret: ${CARDDEMO_JWT_SECRET:local-dev-only-secret-change-me-0123456789}
+    jwt-secret: ${CARDDEMO_JWT_SECRET}
     jwt-ttl: PT1H
 management:
   endpoints:

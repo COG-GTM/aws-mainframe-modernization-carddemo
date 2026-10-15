@@ -70,6 +70,8 @@ public class ReportRequestService {
 
     @Transactional(readOnly = true)
     public ReportRequest get(long id) {
-        return requests.findById(id).orElseThrow(() -> ApiException.notFound("REPORT_NOT_FOUND", "Report not found"));
+        var me = CurrentUser.get();
+        return requests.findById(id).filter(r -> me.isAdmin() || r.getRequestedBy().equals(me.userId()))
+                .orElseThrow(() -> ApiException.notFound("REPORT_NOT_FOUND", "Report not found"));
     }
 }

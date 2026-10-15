@@ -34,7 +34,12 @@ java -jar data-migration/target/carddemo-data-migration-1.0.0-SNAPSHOT-exec.jar 
 
 - `--encoding=EBCDIC` reads the binary RECFM=FB unloads (`AWS.M2.CARDDEMO.*.PS`, the same names as in `app/data/EBCDIC`).
   `--encoding=ASCII` reads the line-delimited samples in `app/data/ASCII`.
-- Tables are loaded in foreign-key order. Each file is loaded in a single transaction, so a failure leaves nothing half loaded.
+- Checks that every required unload exists before touching the database. Then `--truncate` deletes and the
+  whole load runs in **one transaction** in foreign-key order, so a failed reload keeps the previous data.
+- TRANSACT history (`AWS.M2.CARDDEMO.TRANSACT.PS` / `transact.txt`, CVTRA05Y) loads into `card_transaction`. It is
+  optional in the plan only because CardDemo ships no TRANSACT sample. **At a real cutover the TRANSACT unload is
+  required**: check that `card_transaction` appears in the reconciliation report.
+- USRSEC passwords are upper-cased (as COSGN00C compares them) before BCrypt hashing.
 - Prints a reconciliation report per table: records read, rows loaded, and control totals (for example the sum of
   `ACCT-CURR-BAL`, the sum of `TRAN-AMT`). Compare it with the mainframe-side counts (see below).
 - Moves `tran_id_seq` past the highest numeric TRAN-ID so new online transactions continue the legacy numbering.
@@ -44,7 +49,7 @@ java -jar data-migration/target/carddemo-data-migration-1.0.0-SNAPSHOT-exec.jar 
 **T-14 days: rehearsal**
 1. Provision Aurora PostgreSQL 16 (Multi-AZ, encrypted, password in Secrets Manager). Deploy the services with
    `SPRING_FLYWAY_ENABLED=true` on identity-service only.
-2. On the mainframe, unload every KSDS with `IDCAMS REPRO` to flat PS files (the shape of `app/data/EBCDIC`) and
+2. On the mainframe, unload every KSDS (including TRANSACT) with `IDCAMS REPRO` to flat PS files (the shape of `app/data/EBCDIC`) and
    capture the record counts and control totals: `IDCAMS PRINT` counts, plus a sum-of-balance utility run over
    ACCTDAT and TRANSACT.
 3. Transfer in binary mode (Transfer Family / SFTP or AWS Mainframe Modernization file transfer) to S3, then run the

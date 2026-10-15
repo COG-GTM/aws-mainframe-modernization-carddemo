@@ -37,10 +37,10 @@ public class TransactionService {
 
     @Transactional(readOnly = true)
     public KeysetPage<TransactionView> list(String startKey, String after, String before, int page) {
-        if (startKey != null && !startKey.isBlank() && !startKey.trim().matches("\\d+")) {
+        if (startKey != null && !startKey.isBlank() && !startKey.trim().matches("\\d{1,16}")) {
             throw ApiException.badRequest("TRAN_ID_NUMERIC", "Tran ID must be Numeric ...");
         }
-        String start = startKey == null || startKey.isBlank() ? null : String.format("%016d", Long.parseLong(startKey.trim()));
+        String start = startKey == null || startKey.isBlank() ? null : leftPad16(startKey.trim());
         return KeysetBrowser.browse(PAGE_SIZE, page, start, after, before,
                 (from, n) -> transactions.findByTranIdGreaterThanEqualOrderByTranIdAsc(from, PageRequest.of(0, n))
                         .stream().map(TransactionView::of).toList(),
@@ -126,7 +126,7 @@ public class TransactionService {
             if (!r.cardNum().trim().matches("\\d{1,16}")) {
                 fail("Card Number must be Numeric...");
             }
-            String card = String.format("%016d", Long.parseLong(r.cardNum().trim()));
+            String card = leftPad16(r.cardNum().trim());
             if (!xrefs.existsById(card)) {
                 throw ApiException.notFound("CARD_NOT_FOUND", "Card Number NOT found...");
             }
@@ -157,5 +157,9 @@ public class TransactionService {
 
     static void fail(String message) {
         throw ApiException.badRequest("VALIDATION", message);
+    }
+
+    private static String leftPad16(String digits) {
+        return "0".repeat(16 - digits.length()) + digits;
     }
 }

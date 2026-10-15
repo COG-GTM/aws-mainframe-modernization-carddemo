@@ -54,6 +54,11 @@ public class InterestCalculationService {
     @Transactional
     public JobResult run(LocalDate runDate) {
         String parmDate = runDate.toString();
+        if (transactions.existsByTranIdStartingWithAndSource(parmDate, "System")) {
+            // Interest ids are PARM-DATE + sequence, so a second run for the same date would double-charge.
+            return JobResult.of("INTCALC", 8, "INTCALC already ran for " + parmDate, "runDate", parmDate,
+                    "interestTransactions", 0);
+        }
         LocalDateTime now = LocalDateTime.now(clock).withNano(0);
         int recordCount = 0;
         int suffix = 0;

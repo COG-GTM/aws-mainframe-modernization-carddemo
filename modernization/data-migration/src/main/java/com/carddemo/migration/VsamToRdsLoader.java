@@ -29,7 +29,10 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 public final class VsamToRdsLoader {
 
     /** Load order honours foreign keys (customer/account before card and card_xref). */
-    public record Source(RecordLayout layout, String asciiFile, String ebcdicFile) {
+    public record Source(RecordLayout layout, String asciiFile, String ebcdicFile, boolean optional) {
+        Source(RecordLayout layout, String asciiFile, String ebcdicFile) {
+            this(layout, asciiFile, ebcdicFile, false);
+        }
     }
 
     public static final List<Source> PLAN = List.of(
@@ -41,6 +44,8 @@ public final class VsamToRdsLoader {
             new Source(CopybookLayouts.CARD, "carddata.txt", "AWS.M2.CARDDEMO.CARDDATA.PS"),
             new Source(CopybookLayouts.CARD_XREF, "cardxref.txt", "AWS.M2.CARDDEMO.CARDXREF.PS"),
             new Source(CopybookLayouts.TRAN_CAT_BALANCE, "tcatbal.txt", "AWS.M2.CARDDEMO.TCATBALF.PS"),
+            // TRANSACT history: required at a real cutover, optional here because CardDemo ships no TRANSACT unload.
+            new Source(CopybookLayouts.TRANSACTION, "transact.txt", "AWS.M2.CARDDEMO.TRANSACT.PS", true),
             new Source(CopybookLayouts.DAILY_TRANSACTION, "dailytran.txt", "AWS.M2.CARDDEMO.DALYTRAN.PS"),
             new Source(CopybookLayouts.USER_SECURITY, null, "AWS.M2.CARDDEMO.USRSEC.PS"));
 
@@ -65,10 +70,8 @@ public final class VsamToRdsLoader {
         SourceEncoding encoding = SourceEncoding.valueOf(opts.getOrDefault("encoding", "EBCDIC").toUpperCase());
         try (Connection connection = DriverManager.getConnection(url, user, password)) {
             VsamToRdsLoader loader = new VsamToRdsLoader();
-            if (Boolean.parseBoolean(opts.getOrDefault("truncate", "false"))) {
-                loader.truncate(connection);
-            }
-            System.out.print(loader.load(connection, dataDir, encoding));
+            boolean truncate = Boolean.parseBoolean(opts.getOrDefault("truncate", "false"));
+            System.out.print(loader.load(connection, dataDir, encoding, truncate));
         }
     }
 
@@ -90,11 +93,28 @@ public final class VsamToRdsLoader {
 
     public LoadReport load(Connection connection, Path dataDir, SourceEncoding encoding)
             throws SQLException, IOException {
+        return load(connection, dataDir, encoding, false);
+    }
+
+    /** Deletes (when {@code truncate}) and reloads in one transaction, so a failed reload keeps the previous data. */
+    public LoadReport load(Connection connection, Path dataDir, SourceEncoding encoding, boolean truncate)
+            throws SQLException, IOException {
+        for (Source source : PLAN) {
+            if (!source.optional() && !available(dataDir, source, encoding)) {
+                throw new IOException("Missing unload for " + source.layout().table() + " in " + dataDir);
+            }
+        }
         boolean autoCommit = connection.getAutoCommit();
         connection.setAutoCommit(false);
         LoadReport report = new LoadReport();
         try {
+            if (truncate) {
+                truncate(connection);
+            }
             for (Source source : PLAN) {
+                if (source.optional() && !available(dataDir, source, encoding)) {
+                    continue;
+                }
                 List<byte[]> records;
                 try (InputStream in = open(dataDir, source, encoding)) {
                     records = RecordReader.read(in, source.layout().recordLength(), encoding);
@@ -118,6 +138,13 @@ public final class VsamToRdsLoader {
         }
     }
 
+    private static boolean available(Path dataDir, Source source, SourceEncoding encoding) {
+        if (encoding == SourceEncoding.ASCII) {
+            return source.asciiFile() == null || Files.exists(dataDir.resolve("ASCII").resolve(source.asciiFile()));
+        }
+        return Files.exists(dataDir.resolve("EBCDIC").resolve(source.ebcdicFile()));
+    }
+
     private InputStream open(Path dataDir, Source source, SourceEncoding encoding) throws IOException {
         if (encoding == SourceEncoding.ASCII) {
             if (source.asciiFile() == null) {
@@ -136,7 +163,7 @@ public final class VsamToRdsLoader {
     private Map<String, Object> transform(RecordLayout layout, Map<String, Object> row) {
         if (layout == CopybookLayouts.USER_SECURITY) {
             String clear = (String) row.get("password_hash");
-            row.put("password_hash", passwordEncoder.encode(clear == null ? "" : clear));
+            row.put("password_hash", passwordEncoder.encode(clear == null ? "" : clear.trim().toUpperCase(java.util.Locale.ROOT)));
         }
         if (layout == CopybookLayouts.DAILY_TRANSACTION) {
             row.put("status", "PENDING");

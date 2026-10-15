@@ -15,4 +15,6 @@ public interface CardTransactionRepository extends JpaRepository<CardTransaction
             LocalDateTime fromInclusive, LocalDateTime toExclusive);
 
     List<CardTransaction> findByCardNumOrderByTranIdAsc(String cardNum);
+
+    boolean existsByTranIdStartingWithAndSource(String tranIdPrefix, String source);
 }
