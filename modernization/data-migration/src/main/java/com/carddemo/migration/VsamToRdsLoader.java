@@ -24,7 +24,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
  * Loads VSAM unloads (EBCDIC REPRO output or the ASCII copies in app/data/ASCII) into the relational schema.
  *
  * <p>Usage: {@code java -jar carddemo-data-migration.jar --jdbc-url=jdbc:postgresql://host/carddemo --user=carddemo
- * --data-dir=app/data --encoding=EBCDIC [--truncate]}. The password is read from {@code CARDDEMO_DB_PASSWORD}.
+ * --data-dir=app/data --encoding=EBCDIC [--truncate] [--allow-missing-transact]}. The password is read from {@code CARDDEMO_DB_PASSWORD}.
  */
 public final class VsamToRdsLoader {
 
@@ -71,7 +71,8 @@ public final class VsamToRdsLoader {
         try (Connection connection = DriverManager.getConnection(url, user, password)) {
             VsamToRdsLoader loader = new VsamToRdsLoader();
             boolean truncate = Boolean.parseBoolean(opts.getOrDefault("truncate", "false"));
-            System.out.print(loader.load(connection, dataDir, encoding, truncate));
+            boolean allowMissing = Boolean.parseBoolean(opts.getOrDefault("allow-missing-transact", "false"));
+            System.out.print(loader.load(connection, dataDir, encoding, truncate, allowMissing));
         }
     }
 
@@ -99,8 +100,18 @@ public final class VsamToRdsLoader {
     /** Deletes (when {@code truncate}) and reloads in one transaction, so a failed reload keeps the previous data. */
     public LoadReport load(Connection connection, Path dataDir, SourceEncoding encoding, boolean truncate)
             throws SQLException, IOException {
+        return load(connection, dataDir, encoding, truncate, false);
+    }
+
+    /**
+     * @param allowMissingOptional sample-data mode: lets a truncating reload proceed without optional unloads
+     *     (TRANSACT). Without it, a truncating load requires every unload so history is never silently dropped.
+     */
+    public LoadReport load(Connection connection, Path dataDir, SourceEncoding encoding, boolean truncate,
+                           boolean allowMissingOptional) throws SQLException, IOException {
         for (Source source : PLAN) {
-            if (!source.optional() && !available(dataDir, source, encoding)) {
+            boolean required = !source.optional() || (truncate && !allowMissingOptional);
+            if (required && !available(dataDir, source, encoding)) {
                 throw new IOException("Missing unload for " + source.layout().table() + " in " + dataDir);
             }
         }

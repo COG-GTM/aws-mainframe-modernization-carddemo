@@ -37,8 +37,9 @@ java -jar data-migration/target/carddemo-data-migration-1.0.0-SNAPSHOT-exec.jar 
 - Checks that every required unload exists before touching the database. Then `--truncate` deletes and the
   whole load runs in **one transaction** in foreign-key order, so a failed reload keeps the previous data.
 - TRANSACT history (`AWS.M2.CARDDEMO.TRANSACT.PS` / `transact.txt`, CVTRA05Y) loads into `card_transaction`. It is
-  optional in the plan only because CardDemo ships no TRANSACT sample. **At a real cutover the TRANSACT unload is
-  required**: check that `card_transaction` appears in the reconciliation report.
+  optional only for non-truncating loads. With `--truncate` the loader refuses to run without it, unless you pass
+  `--allow-missing-transact`. That flag is for the sample data only (CardDemo ships no TRANSACT unload) and must
+  never be used at cutover.
 - USRSEC passwords are upper-cased (as COSGN00C compares them) before BCrypt hashing.
 - Prints a reconciliation report per table: records read, rows loaded, and control totals (for example the sum of
   `ACCT-CURR-BAL`, the sum of `TRAN-AMT`). Compare it with the mainframe-side counts (see below).

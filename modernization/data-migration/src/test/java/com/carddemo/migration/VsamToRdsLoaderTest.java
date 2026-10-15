@@ -66,4 +66,20 @@ class VsamToRdsLoaderTest {
             assertThat(scalar(c, "select count(*) from user_security")).isEqualTo("10");
         }
     }
+
+    @Test
+    void truncatingReloadRequiresTransactUnloadUnlessSampleMode() throws Exception {
+        String url = "jdbc:h2:mem:loader-transact;MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE;DB_CLOSE_DELAY=-1";
+        Flyway.configure().dataSource(url, "sa", "").locations("classpath:db/migration").load().migrate();
+        try (Connection c = DriverManager.getConnection(url, "sa", "")) {
+            VsamToRdsLoader loader = new VsamToRdsLoader();
+            loader.load(c, LegacyDataParityTest.DATA, SourceEncoding.EBCDIC);
+            org.assertj.core.api.Assertions.assertThatThrownBy(
+                    () -> loader.load(c, LegacyDataParityTest.DATA, SourceEncoding.EBCDIC, true))
+                    .hasMessageContaining("card_transaction");
+            assertThat(scalar(c, "select count(*) from account")).isEqualTo("50");
+            assertThat(loader.load(c, LegacyDataParityTest.DATA, SourceEncoding.EBCDIC, true, true).getCounts())
+                    .containsEntry("account", 50);
+        }
+    }
 }

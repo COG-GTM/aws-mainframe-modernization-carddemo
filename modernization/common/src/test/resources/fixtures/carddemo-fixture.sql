@@ -1,4 +1,5 @@
 -- Shared parity-test fixture. Users all have password PASSWORD (BCrypt), matching DUSRSECJ seed users.
+DELETE FROM batch_run_marker;
 DELETE FROM daily_transaction_reject;
 DELETE FROM daily_transaction;
 DELETE FROM report_request;

@@ -24,8 +24,9 @@ written to S3.
 branches on `returnCode`. batch-service runs as a long-lived ECS service (`spring.batch.job.enabled=false`), so no
 one-shot task mode is needed.
 
-**Rerun protection:** INTCALC refuses a second run for a date it already posted (RC=8, no balances touched),
-because the interest transaction IDs are `PARM-DATE + sequence`, as in CBACT04C.
+**Rerun protection:** INTCALC writes a `batch_run_marker` row (job, PARM-DATE) in the same transaction as its
+postings. It refuses a second run for that date (RC=8, no balances or cycle totals touched), including dates where
+no interest was charged.
 
 **Restartability:** the Spring Batch job repository tables are created automatically. POSTTRAN marks every daily
 record POSTED or REJECTED in the same transaction as its postings, so a rerun only picks up records still PENDING.

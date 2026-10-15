@@ -42,7 +42,8 @@ services:
     environment:
       CARDDEMO_DB_PASSWORD: ${CARDDEMO_DB_PASSWORD:-carddemo}
     command: ["--jdbc-url=jdbc:postgresql://postgres:5432/carddemo", "--user=carddemo", "--data-dir=/data",
-              "--encoding=ASCII", "--truncate"]
+              "--encoding=ASCII", "--truncate",
+              "--allow-missing-transact"]
     volumes: ["../app/data:/data:ro"]
     depends_on: {identity-service: {condition: service_healthy}}
 

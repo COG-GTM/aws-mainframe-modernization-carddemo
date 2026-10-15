@@ -17,6 +17,7 @@ import java.time.Clock;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Optional;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -32,11 +33,14 @@ public class InterestCalculationService {
     private final CardXrefRepository xrefs;
     private final DisclosureGroupRepository groups;
     private final CardTransactionRepository transactions;
+    private final JdbcTemplate jdbc;
     private final Clock clock;
 
     public InterestCalculationService(TranCatBalanceRepository balances, AccountRepository accounts,
                                       CardXrefRepository xrefs, DisclosureGroupRepository groups,
-                                      CardTransactionRepository transactions, Optional<Clock> clock) {
+                                      CardTransactionRepository transactions, JdbcTemplate jdbc,
+                                      Optional<Clock> clock) {
+        this.jdbc = jdbc;
         this.balances = balances;
         this.accounts = accounts;
         this.xrefs = xrefs;
@@ -54,12 +58,18 @@ public class InterestCalculationService {
     @Transactional
     public JobResult run(LocalDate runDate) {
         String parmDate = runDate.toString();
-        if (transactions.existsByTranIdStartingWithAndSource(parmDate, "System")) {
-            // Interest ids are PARM-DATE + sequence, so a second run for the same date would double-charge.
+        LocalDateTime now = LocalDateTime.now(clock).withNano(0);
+        // A rerun for the same PARM-DATE would double-charge interest and reset cycle totals posted since, so each
+        // date runs once. The marker commits with the postings; a concurrent duplicate fails on the primary key.
+        Integer done = jdbc.queryForObject(
+                "select count(*) from batch_run_marker where job_name = 'INTCALC' and run_date = ?", Integer.class,
+                runDate);
+        if (done != null && done > 0) {
             return JobResult.of("INTCALC", 8, "INTCALC already ran for " + parmDate, "runDate", parmDate,
                     "interestTransactions", 0);
         }
-        LocalDateTime now = LocalDateTime.now(clock).withNano(0);
+        jdbc.update("insert into batch_run_marker (job_name, run_date, completed_at) values ('INTCALC', ?, ?)",
+                runDate, now);
         int recordCount = 0;
         int suffix = 0;
         int accountsUpdated = 0;

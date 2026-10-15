@@ -201,4 +201,13 @@ class BatchParityTest extends ParityTestSupport {
         assertThat(jdbc.queryForObject("select count(*) from card_transaction where tran_id like '2024-01-31%'",
                 Integer.class)).isEqualTo(3);
     }
+
+    @Test
+    void intcalcZeroInterestRunStillBlocksRerun() {
+        jdbc.update("update disclosure_group set int_rate = 0");
+        assertThat(intcalc.run(LocalDate.of(2024, 2, 29)).counters()).containsEntry("interestTransactions", 0);
+        jdbc.update("update account set curr_cyc_credit = 50.00 where acct_id = 1");
+        assertThat(intcalc.run(LocalDate.of(2024, 2, 29)).returnCode()).isEqualTo(8);
+        assertThat(col("select curr_cyc_credit from account where acct_id = 1")).isEqualByComparingTo("50.00");
+    }
 }
