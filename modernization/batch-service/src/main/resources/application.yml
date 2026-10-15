@@ -1,0 +1,33 @@
+server:
+  port: ${PORT:8085}
+spring:
+  application:
+    name: batch-service
+  datasource:
+    url: ${CARDDEMO_DB_URL:jdbc:postgresql://localhost:5432/carddemo}
+    username: ${CARDDEMO_DB_USER:carddemo}
+    password: ${CARDDEMO_DB_PASSWORD:carddemo}
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate
+  flyway:
+    enabled: true
+  batch:
+    job:
+      enabled: false
+    jdbc:
+      initialize-schema: always
+carddemo:
+  security:
+    # Local development only; in AWS inject from Secrets Manager (see docs/modernization/04-security.md).
+    jwt-secret: ${CARDDEMO_JWT_SECRET:local-dev-only-secret-change-me-0123456789}
+    jwt-ttl: PT1H
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+springdoc:
+  swagger-ui:
+    url: /openapi.yaml
