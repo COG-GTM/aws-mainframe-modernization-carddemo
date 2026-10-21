@@ -5,12 +5,12 @@ namespace CardDemo.Cbact01c.Tests;
 /// <summary>Runs the C# port in-process into a temp directory (same file names as the COBOL DDs).</summary>
 internal static class CSharpRunner
 {
-    public static (int ReturnCode, string OutDir) Run(string acctFile)
+    public static (int ReturnCode, string OutDir) Run(string acctFile, string? outFile = null)
     {
         string outDir = Directory.CreateTempSubdirectory("cbact01c-cs-").FullName;
         var files = new Cbact01cFiles(
             acctFile,
-            Path.Combine(outDir, "OUTFILE"),
+            outFile ?? Path.Combine(outDir, "OUTFILE"),
             Path.Combine(outDir, "ARRYFILE"),
             Path.Combine(outDir, "VBRCFILE"));
 

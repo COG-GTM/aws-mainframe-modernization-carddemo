@@ -9,7 +9,7 @@ namespace CardDemo.Cbact01c.Tests;
 /// </summary>
 public class ParityTests
 {
-    public static readonly TheoryData<string> Datasets = new() { "acctdata", "edge_cases" };
+    public static readonly TheoryData<string> Datasets = new() { "acctdata", "edge_cases", "duplicate_keys" };
     private static readonly string[] Artifacts = ["stdout.txt", "OUTFILE", "ARRYFILE", "VBRCFILE"];
 
     /// <summary>Compares against golden output captured from GnuCOBOL (committed under golden/).</summary>
@@ -49,6 +49,36 @@ public class ParityTests
         AssertSameBytes(
             Path.Combine(TestPaths.Golden("missing_acctfile"), "stdout.txt"),
             Path.Combine(csDir, "stdout.txt"));
+    }
+
+    [SkippableFact]
+    public void UnreadableAcctFile_Abends()
+    {
+        Skip.If(OperatingSystem.IsWindows() || Environment.UserName == "root", "Needs POSIX permissions as non-root.");
+        string acct = Path.Combine(Directory.CreateTempSubdirectory("cbact01c-acct-").FullName, "ACCTFILE");
+        File.Copy(TestPaths.TestData("acctdata"), acct);
+        if (!OperatingSystem.IsWindows())
+            File.SetUnixFileMode(acct, UnixFileMode.None);
+
+        var (rc, csDir) = CSharpRunner.Run(acct);
+
+        Assert.Equal(999, rc);
+        Assert.Equal(
+            "START OF EXECUTION OF PROGRAM CBACT01C\nERROR OPENING ACCTFILE\nFILE STATUS IS: NNNN0037\nABENDING PROGRAM\n",
+            File.ReadAllText(Path.Combine(csDir, "stdout.txt")));
+    }
+
+    [SkippableFact]
+    public void FailedOutputWrite_Abends()
+    {
+        Skip.IfNot(File.Exists("/dev/full"), "Needs /dev/full to simulate a full disk.");
+
+        var (rc, csDir) = CSharpRunner.Run(TestPaths.TestData("acctdata"), outFile: "/dev/full");
+
+        Assert.Equal(999, rc);
+        Assert.EndsWith(
+            "ACCOUNT FILE WRITE STATUS IS:30\nFILE STATUS IS: NNNN0030\nABENDING PROGRAM\n",
+            File.ReadAllText(Path.Combine(csDir, "stdout.txt")));
     }
 
     private static void AssertSameBytes(string expectedPath, string actualPath)

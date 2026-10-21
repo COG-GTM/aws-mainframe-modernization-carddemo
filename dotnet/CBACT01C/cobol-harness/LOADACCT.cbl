@@ -1,6 +1,7 @@
       ******************************************************************
       * LOADACCT - builds the ACCTFILE KSDS (indexed) from the
-      *            300-byte ASCII sample extract, like IDCAMS REPRO.
+      *            300-byte ASCII sample extract, like IDCAMS REPRO
+      *            (duplicate keys are rejected, first one kept).
       ******************************************************************
        IDENTIFICATION DIVISION.
        PROGRAM-ID. LOADACCT.
@@ -12,7 +13,7 @@
                   FILE STATUS IS IN-STATUS.
            SELECT KSDS-FILE ASSIGN TO ACCTFILE
                   ORGANIZATION IS INDEXED
-                  ACCESS MODE  IS SEQUENTIAL
+                  ACCESS MODE  IS RANDOM
                   RECORD KEY   IS KSDS-ACCT-ID
                   FILE STATUS  IS KSDS-STATUS.
        DATA DIVISION.
@@ -40,11 +41,16 @@
                    NOT AT END
                        MOVE IN-REC TO KSDS-REC
                        WRITE KSDS-REC
-                       IF KSDS-STATUS NOT = '00'
-                           DISPLAY 'LOAD ERROR ' KSDS-STATUS
-                           STOP RUN RETURNING 8
-                       END-IF
-                       ADD 1 TO WS-COUNT
+                       EVALUATE KSDS-STATUS
+                           WHEN '00'
+                               ADD 1 TO WS-COUNT
+                           WHEN '22'
+                               DISPLAY 'DUPLICATE KEY REJECTED '
+                                       KSDS-ACCT-ID
+                           WHEN OTHER
+                               DISPLAY 'LOAD ERROR ' KSDS-STATUS
+                               STOP RUN RETURNING 8
+                       END-EVALUATE
                END-READ
            END-PERFORM
            CLOSE IN-FILE KSDS-FILE

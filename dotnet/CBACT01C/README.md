@@ -106,6 +106,7 @@ dotnet test
 
 - `testdata/acctdata.txt` — the 50 CardDemo sample accounts (`app/data/ASCII/acctdata.txt`).
 - `testdata/edge_cases.txt` — negatives, `-0`, max values, non-zero debits, blank dates, short record.
+- `testdata/duplicate_keys.txt` — a repeated account ID; like REPRO into a KSDS, the duplicate is rejected and the first record kept.
 - `golden/` — SYSOUT + the three output files captured from GnuCOBOL 3.1 (`-std=ibm -fsign=EBCDIC`).
 - `cobol-harness/` — `COBDATFT.cbl` (COBOL port of the HLASM routine), `CEE3ABD.cbl` stub,
   `LOADACCT.cbl` (IDCAMS-REPRO-style KSDS loader), `run_cobol.sh`.

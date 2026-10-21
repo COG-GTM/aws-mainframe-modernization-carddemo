@@ -189,7 +189,19 @@ public sealed class Cbact01cProgram
             DisplayIoStatus9910("35");
             AbendProgram9999();
         }
-        _acctFile = ReadKsdsSequential(_files.AcctFile).GetEnumerator();
+        List<string> records;
+        try
+        {
+            records = ReadKsdsSequential(_files.AcctFile);
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+        {
+            Display("ERROR OPENING ACCTFILE");
+            DisplayIoStatus9910(ex is UnauthorizedAccessException ? "37" : "30");
+            AbendProgram9999();
+            throw; // unreachable
+        }
+        _acctFile = records.GetEnumerator();
     }
 
     // 2000-OUTFILE-OPEN
@@ -230,23 +242,26 @@ public sealed class Cbact01cProgram
     /// <summary>
     /// ACCTFILE is a VSAM KSDS read with ACCESS MODE SEQUENTIAL, i.e. in
     /// ascending FD-ACCT-ID order. The input here is the 300-byte flat
-    /// extract that is REPRO'd into the KSDS.
+    /// extract that is REPRO'd into the KSDS; like REPRO into a KSDS, a
+    /// duplicate key is rejected and the first record for that key is kept.
     /// </summary>
-    private static IEnumerable<string> ReadKsdsSequential(string path)
+    private static List<string> ReadKsdsSequential(string path)
     {
         string content = File.ReadAllText(path, Text.Latin1);
         var lines = content.Split('\n');
         int count = lines.Length > 0 && lines[^1].Length == 0 ? lines.Length - 1 : lines.Length;
         return lines.Take(count)
                     .Select(l => Text.PicX(l.TrimEnd('\r'), AccountRecord.Length))
-                    .OrderBy(AccountRecord.KeyOf, StringComparer.Ordinal);
+                    .OrderBy(AccountRecord.KeyOf, StringComparer.Ordinal)
+                    .DistinctBy(AccountRecord.KeyOf)
+                    .ToList();
     }
 
     private Stream OpenOutput(string path, string errorText)
     {
         try
         {
-            return new FileStream(path, FileMode.Create, FileAccess.Write);
+            return new FileStream(path, FileMode.Create, FileAccess.Write, FileShare.Read, bufferSize: 0);
         }
         catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
         {
@@ -258,17 +273,26 @@ public sealed class Cbact01cProgram
         }
     }
 
-    private static void WriteRecord(Stream file, byte[] record) => file.Write(record);
+    private void WriteRecord(Stream file, byte[] record)
+    {
+        try
+        {
+            file.Write(record);
+        }
+        catch (IOException)
+        {
+            Display("ACCOUNT FILE WRITE STATUS IS:30");
+            DisplayIoStatus9910("30");
+            AbendProgram9999();
+        }
+    }
 
     /// <summary>
     /// RECORDING MODE V record: 4-byte header (2-byte big-endian length + 2 zero bytes)
     /// followed by the data, matching GnuCOBOL's default variable sequential format.
     /// </summary>
-    private static void WriteVariableRecord(Stream file, byte[] data)
-    {
-        file.Write([(byte)(data.Length >> 8), (byte)data.Length, 0, 0]);
-        file.Write(data);
-    }
+    private void WriteVariableRecord(Stream file, byte[] data) =>
+        WriteRecord(file, [(byte)(data.Length >> 8), (byte)data.Length, 0, 0, .. data]);
 
     private void Display(string line) => _sysout.Write(line + "\n");
 
