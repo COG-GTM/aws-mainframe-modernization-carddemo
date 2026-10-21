@@ -10,7 +10,9 @@ import org.springframework.boot.context.properties.bind.DefaultValue;
  * DD assignments for the POSTTRAN job.
  *
  * @param dataDir      root of the shipped seed data (app/data)
- * @param seed         dataset used to (re)load ACCOUNT/CARD_XREF/TRAN_CAT_BALANCE at startup, or null to skip
+ * @param seed         seed dataset; selects the default DALYTRAN file and format, and is loaded if loadSeed
+ * @param loadSeed     reload ACCOUNT/CARD_XREF/TRAN_CAT_BALANCE (and empty TRANSACT) from the seed before
+ *                     the run; set false to keep the existing tables
  * @param dalytran     DALYTRAN input; defaults to the seed's daily transaction file
  * @param dalyrejs     DALYREJS output
  * @param format       physical format of DALYTRAN/DALYREJS; defaults to the seed's format
@@ -22,6 +24,7 @@ import org.springframework.boot.context.properties.bind.DefaultValue;
 public record PostTranProperties(
         @DefaultValue("../../app/data") Path dataDir,
         @DefaultValue("ASCII") VsamDatasets.Seed seed,
+        @DefaultValue("true") boolean loadSeed,
         Path dalytran,
         @DefaultValue("target/dalyrejs.txt") Path dalyrejs,
         RecordFormat format,

@@ -37,7 +37,7 @@ public class PostTranCommandLineRunner implements ApplicationRunner, ExitCodeGen
     @Override
     public void run(ApplicationArguments args) {
         VsamDatasets.Seed seed = properties.seed();
-        if (seed != null) {
+        if (seed != null && properties.loadSeed()) {
             datasets.load(properties.dataDir(), seed);
         }
         RecordFormat format = properties.format() != null ? properties.format()

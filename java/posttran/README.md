@@ -30,7 +30,8 @@ echo $?   # 4 when any transaction was rejected
 | Property | Default | Meaning |
 |---|---|---|
 | `posttran.data-dir` | `../../app/data` | Seed data root |
-| `posttran.seed` | `ASCII` | `ASCII` or `EBCDIC`: reloads ACCOUNT, CARD_XREF, TRAN_CAT_BALANCE (and empties TRANSACT) before the run; set empty to keep existing tables |
+| `posttran.seed` | `ASCII` | `ASCII` or `EBCDIC`: seed dataset; also picks the default DALYTRAN file and format |
+| `posttran.load-seed` | `true` | Reload ACCOUNT, CARD_XREF, TRAN_CAT_BALANCE from the seed (and empty TRANSACT) before the run; set `false` to keep existing tables |
 | `posttran.dalytran` | seed's daily file | DALYTRAN input |
 | `posttran.dalyrejs` | `target/dalyrejs.txt` | DALYREJS output (430-byte records) |
 | `posttran.format` | seed's format | `ASCII` (ISO-8859-1, one record per line) or `EBCDIC` (CP037, fixed length, no delimiters) |
