@@ -1,0 +1,14 @@
+CBIMPORT: Starting Customer Data Import
+CBIMPORT: Import Date: 2026-10-22
+CBIMPORT: Import Time: 14:05:42
+CBIMPORT: Import validation completed
+CBIMPORT: No validation errors detected
+CBIMPORT: Import completed
+CBIMPORT: Total Records Read: 000000502
+CBIMPORT: Customers Imported: 000000050
+CBIMPORT: Accounts Imported: 000000050
+CBIMPORT: XRefs Imported: 000000050
+CBIMPORT: Transactions Imported: 000000300
+CBIMPORT: Cards Imported: 000000050
+CBIMPORT: Errors Written: 000000002
+CBIMPORT: Unknown Record Types: 000000002
