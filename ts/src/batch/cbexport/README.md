@@ -56,6 +56,8 @@ lines. Unit tests also cover the reference EBCDIC export
   what GnuCOBOL produces (on z/OS it depends on the QSAM buffer).
 - **Missing DD.** CBIMPORT.jcl has no `CARDOUT` DD. A DD omitted from `dd`
   fails its OPEN with status 35 and abends (CBLQDA(OFF) behaviour assumed).
+  Host filesystem errors on an output OPEN/WRITE (e.g. a missing directory)
+  are reported as status 30; all opened files are closed on every exit path.
 - **Reference export file.** It matches `runCbexport` on the EBCDIC seeds
   except: customers 1/50 and accounts 1/50 hold later (online-edited) data;
   sequence numbers 451-459 are skipped (cards are 460-509); timestamps carry

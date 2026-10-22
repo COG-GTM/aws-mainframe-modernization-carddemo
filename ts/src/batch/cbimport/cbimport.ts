@@ -99,9 +99,21 @@ export function runCbimport(opts: CbimportOptions): CbimportResult {
     outputs.set(o.dd, path === undefined ? undefined : new SequentialFile(path, { organization: 'FIXED', recordLength: o.recordLength, padByte: spaceByte(charset) }));
   }
   const out = (dd: CbimportOutputDd) => outputs.get(dd)!;
+  /** Host filesystem failures (ENOENT, EACCES, ENOSPC...) surface as status 30. */
+  const io = (op: () => { status: string }): string => {
+    try {
+      return op().status;
+    } catch {
+      return FileStatus.PERMANENT_ERROR;
+    }
+  };
+  const closeAll = () => {
+    if (input.isOpen) input.close();
+    for (const f of outputs.values()) io(() => f?.close() ?? { status: '00' });
+  };
 
   const writeOrAbend = (dd: CbimportOutputDd, what: string, stat: Stat, record: Buffer) => {
-    const st = out(dd).write(record).status;
+    const st = io(() => out(dd).write(record));
     if (st !== '00') {
       display(`ERROR: Writing ${what} record, Status: ${st}`);
       abend();
@@ -122,7 +134,7 @@ export function runCbimport(opts: CbimportOptions): CbimportResult {
     }
     for (const o of CBIMPORT_OUTPUTS) {
       const f = outputs.get(o.dd);
-      const st = f ? f.open('OUTPUT').status : FileStatus.FILE_NOT_FOUND;
+      const st = f ? io(() => f.open('OUTPUT')) : FileStatus.FILE_NOT_FOUND;
       if (st !== '00') {
         display(`ERROR: Cannot open ${o.fileName}, Status: ${st}`);
         abend();
@@ -255,7 +267,7 @@ export function runCbimport(opts: CbimportOptions): CbimportResult {
             { errTimestamp: currentDate(now()), errRecordType: type, errSequence: seq, errMessage: 'Unknown record type encountered' },
             { charset },
           );
-          const st = out('ERROUT').write(err).status;
+          const st = io(() => out('ERROUT').write(err));
           if (st !== '00') display(`ERROR: Writing error record, Status: ${st}`);
           stats.errors++;
         }
@@ -267,8 +279,7 @@ export function runCbimport(opts: CbimportOptions): CbimportResult {
     display('CBIMPORT: No validation errors detected');
 
     // 4000-FINALIZE
-    input.close();
-    for (const f of outputs.values()) f?.close();
+    closeAll();
     display('CBIMPORT: Import completed');
     display(`CBIMPORT: Total Records Read: ${pic9(stats.read)}`);
     display(`CBIMPORT: Customers Imported: ${pic9(stats.customers)}`);
@@ -280,9 +291,15 @@ export function runCbimport(opts: CbimportOptions): CbimportResult {
     display(`CBIMPORT: Unknown Record Types: ${pic9(stats.unknown)}`);
     return { abended: false, displays, stats };
   } catch (e) {
-    if (!(e instanceof ProgramAbend)) throw e;
-    if (input.isOpen) input.close();
-    for (const f of outputs.values()) f?.close();
+    if (!(e instanceof ProgramAbend)) {
+      try {
+        closeAll();
+      } catch {
+        // keep the original error
+      }
+      throw e;
+    }
+    closeAll();
     return { abended: true, displays, stats };
   }
 }

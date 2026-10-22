@@ -87,6 +87,19 @@ describe('CBIMPORT', () => {
     expect(r.displays.slice(-2)).toEqual(['ERROR: Cannot open CARD-OUTPUT, Status: 35', 'CBIMPORT: ABENDING PROGRAM']);
   });
 
+  it('abends with status 30 when an output path cannot be created, closing what was opened', () => {
+    const catalog = new VsamCatalog();
+    defineExportCluster(catalog);
+    const dir = tempDir();
+    const dd = ddPaths(dir);
+    dd.ACCTOUT = join(dir, 'missing', 'acct.dat');
+    const r = runCbimport({ catalog, dd, now });
+    expect(r.abended).toBe(true);
+    expect(r.displays.slice(-2)).toEqual(['ERROR: Cannot open ACCOUNT-OUTPUT, Status: 30', 'CBIMPORT: ABENDING PROGRAM']);
+    // CUSTOUT was opened and closed again: a second run can reopen it
+    expect(runCbimport({ catalog, dd: ddPaths(dir), now }).abended).toBe(false);
+  });
+
   it('abends when the export file does not exist', () => {
     const r = runCbimport({ catalog: new VsamCatalog(), dd: ddPaths(tempDir()), now });
     expect(r.abended).toBe(true);
