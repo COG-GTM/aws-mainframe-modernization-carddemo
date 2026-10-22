@@ -1,0 +1,10 @@
+      * Golden-harness stand-in for LE CEE3ABD: ends the run with RC=ABCODE.
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. CEE3ABD.
+       DATA DIVISION.
+       LINKAGE SECTION.
+       01 ABCODE PIC S9(9) BINARY.
+       01 TIMING PIC S9(9) BINARY.
+       PROCEDURE DIVISION USING ABCODE TIMING.
+           MOVE ABCODE TO RETURN-CODE
+           STOP RUN.

@@ -213,7 +213,8 @@ export function snapshotScreen(screen: Screen): ScreenSnapshot {
       row: f.row,
       col: f.col,
       length: f.length,
-      value: f.value.replace(/\0/g, ' '),
+      // DRK (non-display) fields such as PASSWD are never exposed to clients.
+      value: f.attr.intensity === 'DRK' ? ' '.repeat(f.length) : f.value.replace(/\0/g, ' '),
       protection: f.attr.protection,
       intensity: f.attr.intensity,
       numeric: f.attr.numeric,

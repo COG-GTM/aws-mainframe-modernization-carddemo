@@ -172,3 +172,54 @@ describe('HTTP API', () => {
     }
   });
 });
+
+describe('review fixes', () => {
+  it('rollback keeps non-unique AIX duplicates in their arrival order', () => {
+    const { catalog } = loadSeedCatalog();
+    const ds = catalog.require(CARDDEMO_CICS_FILES['CARDDAT']!.dataset);
+    const first = ds.records()[0]!;
+    const extra = Buffer.from(first);
+    extra.write('0000000000000001', 0, 'latin1');
+    expect(ds.insert(extra).ok).toBe(true);
+    const order = () => [...ds.alternateIndexes.values()].map((idx) => idx.entries().map((e) => `${e.key}/${e.primary}`));
+    const before = order();
+    const files = new TaskFiles(catalog, CARDDEMO_CICS_FILES, new Set(['CARDDAT']));
+    const another = Buffer.from(first);
+    another.write('0000000000000002', 0, 'latin1');
+    expect(files.write({ file: 'CARDDAT', ridfld: '0000000000000002', from: another }).resp).toBe(0);
+    files.rollback();
+    expect(order()).toEqual(before);
+  });
+
+  it('startTransaction with an invalid AID leaves the pending conversation intact', () => {
+    const rt = runtime();
+    rt.openTerminal('T1');
+    rt.startTransaction('T1', 'CC00');
+    expect(() => rt.startTransaction('T1', 'CC00', { aid: 'PF99' })).toThrow();
+    expect(rt.snapshot('T1').nextTransid).toBe('CC00');
+  });
+
+  it('DRK fields are blanked in snapshots but still retransmitted (FSET)', () => {
+    const rt = runtime();
+    rt.openTerminal('T1');
+    rt.startTransaction('T1', 'CC00');
+    const r = rt.sendInput('T1', { aid: 'ENTER', fields: { USERID: 'USER0001', PASSWD: 'SECRET' } });
+    const pwd = r.screen.fields.find((f) => f.name === 'PASSWD')!;
+    expect(pwd.value).toBe(' '.repeat(8));
+    expect(JSON.stringify(r)).not.toContain('SECRET');
+    const again = rt.sendInput('T1', { aid: 'ENTER', fields: { USERID: 'USER0001' } });
+    expect(again.screen.fields.find((f) => f.name === 'ERRMSG')!.value.trimEnd()).toBe('Wrong Password. Try again ...');
+  });
+
+  it('HTTP rejects oversized bodies with 413', async () => {
+    const server = createOnlineServer(runtime());
+    await new Promise<void>((r) => server.listen(0, r));
+    const base = `http://127.0.0.1:${(server.address() as AddressInfo).port}`;
+    try {
+      const res = await fetch(`${base}/api/transaction/CC00`, { method: 'POST', body: JSON.stringify({ fields: { X: 'x'.repeat(100_000) } }) });
+      expect(res.status).toBe(413);
+    } finally {
+      server.close();
+    }
+  });
+});

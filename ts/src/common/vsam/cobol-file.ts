@@ -90,6 +90,14 @@ interface Cursor {
 
 export interface IndexedFileOptions {
   access?: AccessMode;
+  /**
+   * AIX names declared as ALTERNATE RECORD KEY in the program's SELECT. Only
+   * duplicates in these indexes make WRITE/REWRITE return status 02; the
+   * cluster's other (upgrade-set) AIXs are still maintained but report 00, as
+   * on z/OS. `[]` = no alternate keys declared. Omitted = every AIX of the
+   * cluster counts (original behaviour).
+   */
+  alternateKeys?: readonly string[];
 }
 
 /** ORGANIZATION IS INDEXED file (VSAM KSDS, optionally via ALTERNATE RECORD KEYs). */
@@ -103,9 +111,19 @@ export class IndexedFile extends CobolFileBase {
   private lastRead: Key | undefined;
   private lastWrittenKey: string | undefined;
 
+  private readonly alternateKeys: readonly string[] | undefined;
+
   constructor(catalog: VsamCatalog, assign: string, opts: IndexedFileOptions = {}) {
     super(catalog, assign);
     this.access = opts.access ?? 'SEQUENTIAL';
+    this.alternateKeys = opts.alternateKeys;
+  }
+
+  /** Status 02 after WRITE/REWRITE: only for duplicates in declared alternate keys. */
+  private writeStatus(res: { duplicateAltKey: boolean; duplicateIndexes: string[] }): FileStatusCode {
+    const keys = this.alternateKeys;
+    const dup = keys === undefined ? res.duplicateAltKey : res.duplicateIndexes.some((name) => keys.includes(name));
+    return dup ? FileStatus.DUPLICATE_ALT_KEY : FileStatus.SUCCESS;
   }
 
   protected onClose(): void {
@@ -296,7 +314,7 @@ export class IndexedFile extends CobolFileBase {
     const res = ds.insert(record);
     if (!res.ok) return this.set(FileStatus.DUPLICATE_KEY);
     this.lastWrittenKey = pk;
-    return this.set(res.duplicateAltKey ? FileStatus.DUPLICATE_ALT_KEY : FileStatus.SUCCESS);
+    return this.set(this.writeStatus(res));
   }
 
   rewrite(record: Uint8Array): IoResult {
@@ -310,7 +328,7 @@ export class IndexedFile extends CobolFileBase {
     const res = ds.update(record);
     this.lastRead = undefined;
     if (!res.ok) return this.set(res.reason === 'NOTFND' ? FileStatus.NOT_FOUND : FileStatus.DUPLICATE_KEY);
-    return this.set(res.duplicateAltKey ? FileStatus.DUPLICATE_ALT_KEY : FileStatus.SUCCESS);
+    return this.set(this.writeStatus(res));
   }
 
   /** DELETE: sequential access deletes the last record read; otherwise the given prime key. */
