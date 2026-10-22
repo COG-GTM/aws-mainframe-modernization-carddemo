@@ -3,6 +3,7 @@ import { VsamCatalog } from '../src/common/vsam/catalog.js';
 import { EsdsFile, IndexedFile } from '../src/common/vsam/cobol-file.js';
 import { CicsFileControl } from '../src/common/vsam/cics-file.js';
 import { Resp } from '../src/common/vsam/status.js';
+import { loadSeedCatalog } from '../src/common/seed/index.js';
 
 // 10-byte records: key(4) alt(3) data(3); AIX on alt is NONUNIQUE, UAIX on data is UNIQUE.
 const rec = (k: string, alt: string, data: string) => Buffer.from(k + alt + data, 'latin1');
@@ -288,5 +289,46 @@ describe('review fixes', () => {
     expect(c.readnext({ file: 'TESTAIX' }).record!.toString('latin1', 0, 4)).toBe('0002');
     c.delete({ file: 'TESTFILE', ridfld: '0002' });
     expect(c.readprev({ file: 'TESTAIX' }).resp).toBe(Resp.ENDFILE);
+  });
+});
+
+describe('IndexedFile alternateKeys (declared ALTERNATE RECORD KEYs)', () => {
+  it('WRITE/REWRITE report 02 only for duplicates in declared alternate keys', () => {
+    const cat = catalog();
+    const undeclared = new IndexedFile(cat, 'TESTFILE', { access: 'RANDOM', alternateKeys: [] });
+    undeclared.open('I-O');
+    expect(undeclared.write(rec('0009', 'AAA', 'd09')).status).toBe('00');
+    expect(undeclared.rewrite(rec('0005', 'AAA', 'd05')).status).toBe('00');
+    expect(undeclared.write(rec('0010', 'XXX', 'd01')).status).toBe('22'); // unique AIX still enforced
+    undeclared.close();
+    expect(cat.require('TESTFILE').index('AIX').primariesFor('AAA')).toEqual(['0001', '0002', '0009', '0005']);
+
+    const declared = new IndexedFile(cat, 'TESTFILE', { access: 'RANDOM', alternateKeys: ['AIX'] });
+    declared.open('I-O');
+    expect(declared.write(rec('0011', 'AAA', 'd11')).status).toBe('02');
+    expect(declared.rewrite(rec('0003', 'AAA', 'd03')).status).toBe('02');
+    expect(declared.write(rec('0012', 'NEW', 'd12')).status).toBe('00');
+    declared.close();
+
+    const legacy = new IndexedFile(cat, 'TESTFILE', { access: 'RANDOM' });
+    legacy.open('I-O');
+    expect(legacy.write(rec('0013', 'AAA', 'd13')).status).toBe('02');
+  });
+
+  it('TRANSACT: duplicate TRAN-PROC-TS (TRANAIX) gives 00 when the SELECT declares no alternate key', () => {
+    const { catalog: cat } = loadSeedCatalog({ transactFromDailytran: true });
+    const ds = cat.require('TRANFILE');
+    const existing = ds.records()[0]!;
+    const dupTs = Buffer.from(existing);
+    dupTs.write('9999999999999999', 0, 'latin1');
+    const f = new IndexedFile(cat, 'TRANFILE', { access: 'RANDOM', alternateKeys: [] });
+    f.open('I-O');
+    expect(f.write(dupTs).status).toBe('00');
+    const again = Buffer.from(existing);
+    again.write('9999999999999998', 0, 'latin1');
+    const legacy = new IndexedFile(cat, 'TRANFILE', { access: 'RANDOM' });
+    f.close();
+    legacy.open('I-O');
+    expect(legacy.write(again).status).toBe('02');
   });
 });
