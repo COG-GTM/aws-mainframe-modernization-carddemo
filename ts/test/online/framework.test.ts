@@ -114,7 +114,7 @@ describe('runtime', () => {
     const rt = runtime();
     rt.openTerminal('T1');
     expect(rt.startTransaction('T1', 'ZZZZ').screen.lines[0]).toMatch(/DFHAC2001 .* Transaction 'ZZZZ' is not recognized/);
-    const r = rt.startTransaction('T1', 'CT00');
+    const r = rt.startTransaction('T1', 'CDV1');
     expect(r.abend?.code).toBe('APCT');
     expect(r.nextTransid).toBeNull();
   });

@@ -13,26 +13,24 @@ describe('COMEN01C main menu (regular user)', () => {
 
   it('routes a selected option to its program with the commarea (XCTL)', () => {
     const seen: Buffer[] = [];
-    const rt = runtime([stub('COTRN00C', seen)]);
-    signOn(rt, 'USER0001', 'PASSWORD');
+    const rt = runtime([stub('COTRTUPC', seen)]);
+    signOn(rt, 'ADMIN001', 'PASSWORD');
     const r = rt.sendInput('T1', { aid: 'ENTER', fields: { OPTION: '6' } });
-    expect(r.programs).toEqual(['COMEN01C', 'COTRN00C']);
+    expect(r.programs).toEqual(['COADM01C', 'COTRTUPC']);
     const ca = new CarddemoCommarea(seen[0]);
-    expect(ca.fromTranid).toBe('CM00');
-    expect(ca.fromProgram).toBe('COMEN01C');
-    expect(ca.userId).toBe('USER0001');
+    expect(ca.fromTranid).toBe('CA00');
+    expect(ca.fromProgram).toBe('COADM01C');
+    expect(ca.userId).toBe('ADMIN001');
     expect(ca.isPgmEnter).toBe(true);
   });
 
-  it('option of a not-yet-ported program shows "not installed" (red) and stays on the menu', () => {
+  it('option 1 routes to the ported COACTVWC (Session 7)', () => {
     const rt = runtime();
     signOn(rt, 'USER0001', 'PASSWORD');
-    const r = rt.sendInput('T1', { aid: 'ENTER', fields: { OPTION: '6' } });
+    const r = rt.sendInput('T1', { aid: 'ENTER', fields: { OPTION: '1' } });
     expect(r.abend).toBeNull();
-    expect(errmsg(r)).toBe('This option Transaction List is not installed...');
-    expect(field(r, 'ERRMSG').color).toBe('RED');
-    expect(value(r, 'OPTION')).toBe('06');
-    expect(r.nextTransid).toBe('CM00');
+    expect(r.programs).toEqual(['COMEN01C', 'COACTVWC']);
+    expect(r.screen.map).toBe('CACTVWA');
   });
 
   it('COPAUS0C (pending authorizations) uses INQUIRE PROGRAM -> not installed', () => {
