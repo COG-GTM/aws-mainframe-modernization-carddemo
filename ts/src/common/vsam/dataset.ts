@@ -175,8 +175,9 @@ export class OrderedIndex {
   }
 }
 
-export type InsertResult = { ok: true; duplicateAltKey: boolean } | { ok: false; reason: 'DUPREC' | 'DUPALT'; index?: string };
-export type UpdateResult = { ok: true; duplicateAltKey: boolean } | { ok: false; reason: 'NOTFND' | 'DUPALT'; index?: string };
+/** `duplicateIndexes`: names of the non-unique AIXs in which the record now shares its key with another record. */
+export type InsertResult = { ok: true; duplicateAltKey: boolean; duplicateIndexes: string[] } | { ok: false; reason: 'DUPREC' | 'DUPALT'; index?: string };
+export type UpdateResult = { ok: true; duplicateAltKey: boolean; duplicateIndexes: string[] } | { ok: false; reason: 'NOTFND' | 'DUPALT'; index?: string };
 
 export class VsamDataset {
   readonly primaryIndex: OrderedIndex | undefined;
@@ -247,16 +248,16 @@ export class VsamDataset {
     return rec ? keyOf(rec, index.spec) : '';
   }
 
-  private altConflicts(record: Uint8Array, selfPrimary?: string): { conflict?: string; duplicate: boolean } {
-    let duplicate = false;
+  private altConflicts(record: Uint8Array, selfPrimary?: string): { conflict?: string; duplicates: string[] } {
+    const duplicates: string[] = [];
     for (const idx of this.alternateIndexes.values()) {
       const others = idx.primariesFor(this.collate(keyOf(record, idx.spec))).filter((p) => p !== selfPrimary);
       if (others.length > 0) {
-        if (idx.unique) return { conflict: idx.name, duplicate };
-        duplicate = true;
+        if (idx.unique) return { conflict: idx.name, duplicates };
+        duplicates.push(idx.name);
       }
     }
-    return { duplicate };
+    return { duplicates };
   }
 
   insert(record: Uint8Array): InsertResult {
@@ -270,7 +271,7 @@ export class VsamDataset {
     this.data.set(pk, copy);
     prime.add(pk, pk);
     for (const idx of this.alternateIndexes.values()) idx.add(this.collate(keyOf(copy, idx.spec)), pk);
-    return { ok: true, duplicateAltKey: alt.duplicate };
+    return { ok: true, duplicateAltKey: alt.duplicates.length > 0, duplicateIndexes: alt.duplicates };
   }
 
   /** Replaces the record with the same prime key. */
@@ -292,7 +293,7 @@ export class VsamDataset {
       }
     }
     this.data.set(pk, copy);
-    return { ok: true, duplicateAltKey: alt.duplicate };
+    return { ok: true, duplicateAltKey: alt.duplicates.length > 0, duplicateIndexes: alt.duplicates };
   }
 
   /** Deletes by raw prime key; false when not found. */
