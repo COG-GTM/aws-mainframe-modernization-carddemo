@@ -9,9 +9,18 @@ interface Body {
   fields?: Record<string, string>;
 }
 
+const MAX_BODY_BYTES = 64 * 1024;
+
+class PayloadTooLargeError extends Error {}
+
 async function readBody(req: IncomingMessage): Promise<Body> {
   const chunks: Buffer[] = [];
-  for await (const c of req) chunks.push(c as Buffer);
+  let size = 0;
+  for await (const c of req) {
+    size += (c as Buffer).length;
+    if (size > MAX_BODY_BYTES) throw new PayloadTooLargeError(`request body exceeds ${MAX_BODY_BYTES} bytes`);
+    chunks.push(c as Buffer);
+  }
   const text = Buffer.concat(chunks).toString('utf8').trim();
   if (!text) return {};
   const parsed: unknown = JSON.parse(text);
@@ -29,6 +38,9 @@ function json(res: ServerResponse, status: number, body: unknown): void {
  * - `POST /api/transaction/{transid}` `{ terminalId?, aid?, fields? }` starts a transaction (new terminal if none given)
  * - `POST /api/terminal/{id}` `{ aid, fields }` sends input to the pending RETURN TRANSID
  * - `GET /api/terminal/{id}` current screen; `GET /api/transactions` transaction table; `GET /` browser terminal
+ *
+ * Local development tool: there is no authentication, so anyone who can reach the port can drive any terminal.
+ * `main.ts` binds to 127.0.0.1 unless HOST is set.
  */
 export function createOnlineServer(runtime: OnlineRuntime = createCardDemoRuntime()): Server {
   return createServer((req, res) => {
@@ -55,7 +67,10 @@ export function createOnlineServer(runtime: OnlineRuntime = createCardDemoRuntim
           json(res, 404, { error: 'not found' });
         }
       } catch (e) {
-        if (e instanceof TerminalInputError || e instanceof SyntaxError) json(res, 400, { error: e.message });
+        if (e instanceof PayloadTooLargeError) {
+          json(res, 413, { error: e.message });
+          req.destroy();
+        } else if (e instanceof TerminalInputError || e instanceof SyntaxError) json(res, 400, { error: e.message });
         else if (e instanceof Error && e.message.startsWith('unknown AID')) json(res, 400, { error: e.message });
         else json(res, 500, { error: e instanceof Error ? e.message : String(e) });
       }
