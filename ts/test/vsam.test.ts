@@ -244,3 +244,49 @@ describe('CicsFileControl (RESP)', () => {
     expect(c.readnext({ file: 'TESTAIX', reqid: 1 }).resp).toBe(Resp.INVREQ);
   });
 });
+
+describe('review fixes', () => {
+  it('rejected OPEN (wrong organization) does not empty the cluster', () => {
+    const cat = catalog();
+    cat.define({ name: 'ES', organization: 'ESDS', recordLength: 10 });
+    cat.require('ES').append(rec('0001', 'AAA', 'd01'));
+    expect(new EsdsFile(cat, 'TESTFILE').open('OUTPUT').status).toBe('37');
+    expect(cat.require('TESTFILE').size).toBe(4);
+    expect(new IndexedFile(cat, 'ES').open('OUTPUT').status).toBe('37');
+    expect(cat.require('ES').size).toBe(1);
+  });
+
+  it('IndexedFile: deleting a browsed duplicate-AIX record resumes within the duplicate group', () => {
+    const cat = catalog();
+    const f = new IndexedFile(cat, 'TESTFILE', { access: 'DYNAMIC' });
+    f.open('I-O');
+    expect(f.read('AAA', 'AIX').record!.toString('latin1', 0, 4)).toBe('0001');
+    expect(f.delete('0001').status).toBe('00');
+    expect(f.readNext().record!.toString('latin1', 0, 4)).toBe('0002');
+    expect(f.delete('0002').status).toBe('00');
+    expect(f.readPrevious().status).toBe('10');
+    expect(f.start('>=', 'BBB', 'AIX').status).toBe('00');
+    expect(f.readNext().record!.toString('latin1', 0, 4)).toBe('0003');
+  });
+
+  it('IndexedFile: READ PREVIOUS after deleting the second duplicate returns the first', () => {
+    const cat = catalog();
+    const f = new IndexedFile(cat, 'TESTFILE', { access: 'DYNAMIC' });
+    f.open('I-O');
+    f.read('AAA', 'AIX');
+    expect(f.readNext().record!.toString('latin1', 0, 4)).toBe('0002');
+    f.delete('0002');
+    expect(f.readPrevious().record!.toString('latin1', 0, 4)).toBe('0001');
+  });
+
+  it('CICS browse via path resumes within the duplicate group after a DELETE', () => {
+    const cat = catalog();
+    const c = new CicsFileControl(cat, { TESTFILE: { dataset: 'TESTFILE' }, TESTAIX: { dataset: 'TESTFILE', path: 'AIX' } });
+    c.startbr({ file: 'TESTAIX', ridfld: 'AAA' });
+    expect(c.readnext({ file: 'TESTAIX' }).record!.toString('latin1', 0, 4)).toBe('0001');
+    expect(c.delete({ file: 'TESTFILE', ridfld: '0001' }).resp).toBe(Resp.NORMAL);
+    expect(c.readnext({ file: 'TESTAIX' }).record!.toString('latin1', 0, 4)).toBe('0002');
+    c.delete({ file: 'TESTFILE', ridfld: '0002' });
+    expect(c.readprev({ file: 'TESTAIX' }).resp).toBe(Resp.ENDFILE);
+  });
+});

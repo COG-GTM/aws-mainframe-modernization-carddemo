@@ -32,6 +32,7 @@ export interface SequentialReadResult {
 /** Splits a LINE SEQUENTIAL file into records (CRLF/LF), padding each to `recordLength` when given. */
 export function readLineRecords(path: string, recordLength?: number, padByte = 0x20): Buffer[] {
   const text = readFileSync(path).toString('latin1');
+  if (text.length === 0) return [];
   const lines = text.split(/\r?\n/);
   if (lines.length > 0 && lines[lines.length - 1] === '') lines.pop();
   return lines.map((l) => pad(Buffer.from(l, 'latin1'), recordLength, padByte));
@@ -78,6 +79,8 @@ export class SequentialFile {
       if (!existsSync(this.path)) {
         if (!this.opts.optional) return this.set(FileStatus.FILE_NOT_FOUND);
         this.records = [];
+        this.pos = 0;
+        this.eof = false;
         this.mode = mode;
         return this.set(FileStatus.OPTIONAL_NOT_PRESENT);
       }

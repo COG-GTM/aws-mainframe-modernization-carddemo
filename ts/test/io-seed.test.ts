@@ -1,4 +1,4 @@
-import { mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
+import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
@@ -40,6 +40,31 @@ describe('sequential files', () => {
     const q = join(dir, 'out.bin');
     writeFixedRecords(q, [Buffer.from('ab'), Buffer.from('cdef')], 3, 0x40);
     expect(readFileSync(q).toString('hex')).toBe('616240636465');
+  });
+});
+
+describe('sequential file review fixes', () => {
+  it('empty LINE file has no records (status 10 on first READ)', () => {
+    const p = join(dir, 'empty.txt');
+    writeFileSync(p, '');
+    expect(readLineRecords(p, 4)).toEqual([]);
+    writeFileSync(join(dir, 'blank.txt'), '\n');
+    expect(readLineRecords(join(dir, 'blank.txt'), 2).map(String)).toEqual(['  ']);
+    const f = new SequentialFile(p, { organization: 'LINE', recordLength: 4 });
+    f.open('INPUT');
+    expect(f.read().status).toBe('10');
+  });
+  it('reopening an OPTIONAL file that went missing gives 05 then 10', () => {
+    const p = join(dir, 'opt.txt');
+    writeFileSync(p, 'A\n');
+    const f = new SequentialFile(p, { organization: 'LINE', recordLength: 1, optional: true });
+    f.open('INPUT');
+    f.read();
+    expect(f.read().status).toBe('10');
+    f.close();
+    rmSync(p);
+    expect(f.open('INPUT').status).toBe('05');
+    expect(f.read().status).toBe('10');
   });
 });
 

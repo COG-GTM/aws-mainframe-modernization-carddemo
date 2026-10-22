@@ -144,6 +144,27 @@ export class OrderedIndex {
     return lo;
   }
 
+  /**
+   * Resume point after `entry` was removed while a cursor pointed at it: the
+   * next surviving entry, skipping same-key duplicates in `preceding` (those
+   * that came before it), so the rest of its duplicate group is not skipped.
+   */
+  nextAfterRemoved(entry: IndexEntry, preceding: readonly string[]): number {
+    const entries = this.entries();
+    let pos = this.seek(entry.key);
+    while (entries[pos]?.key === entry.key && preceding.includes(entries[pos]!.primary)) pos++;
+    return pos;
+  }
+
+  /** Like `nextAfterRemoved`, backwards: the last surviving entry before the removed one, or -1. */
+  prevBeforeRemoved(entry: IndexEntry, preceding: readonly string[]): number {
+    const entries = this.entries();
+    const start = this.seek(entry.key);
+    let pos = start - 1;
+    for (let i = start; entries[i]?.key === entry.key; i++) if (preceding.includes(entries[i]!.primary)) pos = i;
+    return pos;
+  }
+
   /** Current position of a specific entry, or -1. */
   positionOf(entry: IndexEntry): number {
     const entries = this.entries();

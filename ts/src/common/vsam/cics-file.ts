@@ -53,6 +53,8 @@ interface Browse {
   ds: VsamDataset;
   last: IndexEntry | undefined;
   lastDir: 'next' | 'prev' | undefined;
+  /** Prime keys of same-key duplicates before `last` (to resume correctly if it is deleted). */
+  lastPreceding: readonly string[];
   /** Position established by STARTBR/RESETBR, before the first READNEXT/READPREV. */
   start: { pos: number; exact: boolean; highValues: boolean } | undefined;
 }
@@ -199,7 +201,7 @@ export class CicsFileControl {
     if (this.browses.has(bk)) return fail(Resp.INVREQ, 33);
     const res = this.position(r.ds, r.index, opts, opts.equal === true && opts.gteq !== true);
     if (!res) return fail(Resp.NOTFND, 80);
-    this.browses.set(bk, { file: opts.file, index: r.index, ds: r.ds, last: undefined, lastDir: undefined, start: res });
+    this.browses.set(bk, { file: opts.file, index: r.index, ds: r.ds, last: undefined, lastDir: undefined, lastPreceding: [], start: res });
     return ok();
   }
 
@@ -212,6 +214,7 @@ export class CicsFileControl {
     b.start = res;
     b.last = undefined;
     b.lastDir = undefined;
+    b.lastPreceding = [];
     return ok();
   }
 
@@ -231,6 +234,8 @@ export class CicsFileControl {
   private deliver(b: Browse, entry: IndexEntry, dir: 'next' | 'prev'): CicsResult {
     b.last = entry;
     b.lastDir = dir;
+    const dups = b.index.primariesFor(entry.key);
+    b.lastPreceding = dups.slice(0, Math.max(0, dups.indexOf(entry.primary)));
     b.start = undefined;
     const record = b.ds.recordAt(entry.primary)!;
     const ridfld = keyOf(record, b.index.spec);
@@ -254,7 +259,7 @@ export class CicsFileControl {
       pos = b.start.pos;
     } else if (b.last) {
       const at = b.index.positionOf(b.last);
-      if (at < 0) pos = b.index.seek(b.last.key, true);
+      if (at < 0) pos = b.index.nextAfterRemoved(b.last, b.lastPreceding);
       else pos = b.lastDir === 'prev' ? at : at + 1;
     } else pos = entries.length;
     const entry = entries[pos];
@@ -278,7 +283,7 @@ export class CicsFileControl {
       else pos = b.start.pos;
     } else if (b.last) {
       const at = b.index.positionOf(b.last);
-      if (at < 0) pos = b.index.seek(b.last.key) - 1;
+      if (at < 0) pos = b.index.prevBeforeRemoved(b.last, b.lastPreceding);
       else pos = b.lastDir === 'next' ? at : at - 1;
     } else pos = -1;
     const entry = pos >= 0 ? entries[pos] : undefined;

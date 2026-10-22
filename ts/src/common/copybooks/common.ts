@@ -241,19 +241,23 @@ export const ADMIN_MENU_OPTIONS: readonly MenuOption[] = Object.freeze([
 ]);
 export const ADMIN_MENU_OPT_COUNT = 6;
 
-/** COADM02Y storage layout (option table REDEFINES the VALUE data, OCCURS 9). */
+/**
+ * COADM02Y storage layout. The OCCURS 9 table (9 x 45 = 405 bytes) REDEFINES the
+ * 6 initialised entries (270 bytes), so the item spans 405 bytes; the 135 bytes
+ * past the VALUE data have no VALUE clause and are initialised to spaces here.
+ */
 export const AdminMenuOptionsLayout = defineRecord('CARDDEMO-ADMIN-MENU-OPTIONS', {
   cdemoAdminOptCount: num('CDEMO-ADMIN-OPT-COUNT', '9(02)', { value: 6 }),
   cdemoAdminOptionsData: alnum(
     'CDEMO-ADMIN-OPTIONS-DATA',
-    `X(${6 * 45})`,
+    'X(405)',
     ADMIN_MENU_OPTIONS.map((o) => String(o.num).padStart(2, '0') + o.name + o.pgmName).join(''),
   ),
   cdemoAdminOptions: redefines(
     'cdemoAdminOptionsData',
     group('CDEMO-ADMIN-OPTIONS', {
       cdemoAdminOpt: occurs(
-        6,
+        9,
         group('CDEMO-ADMIN-OPT', {
           cdemoAdminOptNum: num('CDEMO-ADMIN-OPT-NUM', '9(02)'),
           cdemoAdminOptName: alnum('CDEMO-ADMIN-OPT-NAME', 'X(35)'),
@@ -279,6 +283,33 @@ export const MAIN_MENU_OPTIONS: readonly MenuOption[] = Object.freeze([
   { num: 11, name: 'Pending Authorization View         ', pgmName: 'COPAUS0C', usrType: 'U' },
 ]);
 export const MAIN_MENU_OPT_COUNT = 11;
+
+/**
+ * COMEN02Y storage layout. The OCCURS 12 table (12 x 46 = 552 bytes) REDEFINES the
+ * 11 initialised entries (506 bytes); the 46 bytes past the VALUE data are spaces here.
+ */
+export const MainMenuOptionsLayout = defineRecord('CARDDEMO-MAIN-MENU-OPTIONS', {
+  cdemoMenuOptCount: num('CDEMO-MENU-OPT-COUNT', '9(02)', { value: 11 }),
+  cdemoMenuOptionsData: alnum(
+    'CDEMO-MENU-OPTIONS-DATA',
+    'X(552)',
+    MAIN_MENU_OPTIONS.map((o) => String(o.num).padStart(2, '0') + o.name + o.pgmName + (o.usrType ?? ' ')).join(''),
+  ),
+  cdemoMenuOptions: redefines(
+    'cdemoMenuOptionsData',
+    group('CDEMO-MENU-OPTIONS', {
+      cdemoMenuOpt: occurs(
+        12,
+        group('CDEMO-MENU-OPT', {
+          cdemoMenuOptNum: num('CDEMO-MENU-OPT-NUM', '9(02)'),
+          cdemoMenuOptName: alnum('CDEMO-MENU-OPT-NAME', 'X(35)'),
+          cdemoMenuOptPgmname: alnum('CDEMO-MENU-OPT-PGMNAME', 'X(08)'),
+          cdemoMenuOptUsrtype: alnum('CDEMO-MENU-OPT-USRTYPE', 'X(01)'),
+        }),
+      ),
+    }),
+  ),
+});
 
 /** UNUSED1Y UNUSED-DATA (same shape as SEC-USER-DATA). */
 export const UnusedDataLayout = defineRecord('UNUSED-DATA', {
