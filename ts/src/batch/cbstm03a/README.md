@@ -48,5 +48,13 @@ Unit tests cover CALL order, abends, totals, negative amounts, OCCURS overflow.
 - Alphanumeric comparisons in 4000-TRNXFILE-GET and the SORT use the EBCDIC
   collating sequence (z/OS), while GnuCOBOL uses ASCII; identical for the
   all-digit card numbers in the seed data.
+- **HTML injection (bug-for-bug)**: the COBOL puts customer, account and
+  transaction text into HTMLFILE without escaping, so data that contains markup
+  is rendered (or executed) by whoever opens the statement. That is still the
+  default here. `runCbstm03a({ ..., escapeHtml: true })` HTML-escapes every data
+  value (`& < > " '`) while leaving the fixed markup and STMTFILE unchanged.
+  Escaped lines may be cut off at 100 bytes. On the seed data the only change is
+  `'` becoming `&#39;` in a few merchant and customer names. Turn it on for any
+  output a browser will display.
 - Output files are written as LINE SEQUENTIAL (one record per line, optional
   trailing-space trim) instead of FB 80 / FB 100 datasets.

@@ -61,6 +61,12 @@ export interface Cbstm03aOptions {
   htmlFile?: string;
   /** Strip trailing spaces when writing the files (GnuCOBOL line-sequential style). Default false. */
   trimTrailing?: boolean;
+  /**
+   * HTML-escape (`& < > " '`) the data values written into HTMLFILE. Default
+   * false: the COBOL inserts customer/transaction text verbatim (HTML injection
+   * if the data contains markup). Escaped values may be truncated at 100 bytes.
+   */
+  escapeHtml?: boolean;
 }
 
 export interface Cbstm03aResult {
@@ -131,6 +137,9 @@ const addS9v99 = (a: Decimal, b: Decimal): Decimal => {
   return fromScaledDigits(digitString, 2, negative);
 };
 
+const HTML_ENTITIES: Record<string, string> = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' };
+export const escapeHtml = (v: string): string => v.replace(/[&<>"']/g, (c) => HTML_ENTITIES[c]!);
+
 /** STATEMENT-LINES named items (FILLERs are constants and are rebuilt by the line functions). */
 interface StatementItems {
   stName: string;
@@ -189,6 +198,8 @@ class Cbstm03a {
   private readonly html: string[] = [];
   private readonly sub: { call(area: M03bArea): void };
   private readonly area: M03bArea = newM03bArea();
+  /** Applied to every data value placed in an HTML line. */
+  private readonly h: (v: string) => string;
 
   // COMP-VARIABLES
   private crCnt = 0;
@@ -214,6 +225,7 @@ class Cbstm03a {
 
   constructor(private readonly opts: Cbstm03aOptions) {
     this.sub = opts.subprogram ?? new Cbstm03b(opts.catalog);
+    this.h = opts.escapeHtml ? escapeHtml : (v) => v;
   }
 
   run(): Cbstm03aResult {
@@ -471,7 +483,7 @@ class Cbstm03a {
   private p5100WriteHtmlHeader(): void {
     this.writeFixed('L01', 'L02', 'L03', 'L04', 'L05', 'L06', 'L07', 'L08', 'LTRS', 'L10');
     // HTML-L11: X(34) + L11-ACCT X(20) + '</h3>'
-    this.writeHtml('<h3>Statement for Account Number: ' + pad(field(AccountRecordLayout, this.acctRecord, 'ACCT-ID'), 20) + '</h3>');
+    this.writeHtml('<h3>Statement for Account Number: ' + this.h(pad(field(AccountRecordLayout, this.acctRecord, 'ACCT-ID'), 20)) + '</h3>');
     this.writeFixed('LTDE', 'LTRE', 'LTRS', 'L15', 'L16', 'L17', 'L18', 'LTDE', 'LTRE', 'LTRS', 'L22_35');
   }
 
@@ -480,7 +492,7 @@ class Cbstm03a {
     const para = (open: string, value: string, delim: string, len: number) =>
       stringInto(len, [
         { value: open, delimitedBy: '*' },
-        { value, delimitedBy: delim },
+        { value: this.h(value), delimitedBy: delim },
         ...(delim === '  ' ? [{ value: '  ', delimitedBy: SIZE }] : []),
         { value: '</p>', delimitedBy: '*' },
       ]);
@@ -504,7 +516,7 @@ class Cbstm03a {
     this.writeStmt(ST.line14(this.st));
     const tranLn = (v: string) => stringInto(100, [
       { value: '<p>', delimitedBy: '*' },
-      { value: v, delimitedBy: '*' },
+      { value: this.h(v), delimitedBy: '*' },
       { value: '</p>', delimitedBy: '*' },
     ]);
     this.writeFixed('LTRS', 'L58');

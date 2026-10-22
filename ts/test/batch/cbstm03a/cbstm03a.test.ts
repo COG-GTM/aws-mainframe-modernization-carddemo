@@ -141,3 +141,31 @@ describe('CBSTM03A', () => {
     expect(rows[10]!.startsWith('T10')).toBe(true);
   });
 });
+
+describe('CBSTM03A HTML escaping', () => {
+  const recs = () => [dalytran('0000000000000001', CARD_ACCT1, '<script>alert("x")</script> & co', '00000000100')];
+
+  it('by default writes data verbatim into HTMLFILE, like the COBOL', () => {
+    const { htmlRecords } = runCbstm03a({ catalog: seeded(recs()), job: null });
+    expect(htmlRecords.map((l) => l.trimEnd())).toContain('<p><script>alert("x")</script> & co                 </p>');
+  });
+
+  it('escapeHtml: true escapes every data value but leaves the fixed markup and STMTFILE alone', () => {
+    const plain = runCbstm03a({ catalog: seeded(recs()), job: null });
+    const { htmlRecords, stmtRecords } = runCbstm03a({ catalog: seeded(recs()), job: null, escapeHtml: true });
+    expect(htmlRecords.map((l) => l.trimEnd())).toContain('<p>&lt;script&gt;alert(&quot;x&quot;)&lt;/script&gt; &amp; co                 </p>');
+    expect(htmlRecords.some((l) => l.includes('<script>'))).toBe(false);
+    expect(htmlRecords[0]!.trimEnd()).toBe('<!DOCTYPE html>');
+    expect(stmtRecords).toEqual(plain.stmtRecords);
+    expect(htmlRecords.length).toBe(plain.htmlRecords.length);
+  });
+
+  it('on the seed data escapeHtml only changes apostrophes (e.g. merchant names) to &#39;', () => {
+    const { catalog } = loadSeedCatalog({ transactFromDailytran: true });
+    buildTrnxFile(catalog);
+    const plain = runCbstm03a({ catalog, job: null }).htmlRecords.map((l) => l.trimEnd());
+    const escaped = runCbstm03a({ catalog, job: null, escapeHtml: true }).htmlRecords.map((l) => l.trimEnd());
+    expect(plain.filter((l) => l.includes("'")).length).toBeGreaterThan(0);
+    expect(escaped).toEqual(plain.map((l) => l.replaceAll("'", '&#39;')));
+  });
+});
