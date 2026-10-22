@@ -90,10 +90,10 @@ describe('COADM01C admin menu', () => {
 
   it('routes to a registered admin program', () => {
     const seen: Buffer[] = [];
-    const rt = runtime([stub('COUSR00C', seen)]);
+    const rt = runtime([stub('COTRTLIC', seen)]);
     signOn(rt, 'ADMIN001', 'PASSWORD');
-    const r = rt.sendInput('T1', { aid: 'ENTER', fields: { OPTION: '1' } });
-    expect(r.programs).toEqual(['COADM01C', 'COUSR00C']);
+    const r = rt.sendInput('T1', { aid: 'ENTER', fields: { OPTION: '5' } });
+    expect(r.programs).toEqual(['COADM01C', 'COTRTLIC']);
     const ca = new CarddemoCommarea(seen[0]);
     expect(ca.fromProgram).toBe('COADM01C');
     expect(ca.fromTranid).toBe('CA00');
