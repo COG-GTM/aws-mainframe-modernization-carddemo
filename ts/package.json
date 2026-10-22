@@ -13,7 +13,9 @@
     "lint": "eslint .",
     "test": "vitest run",
     "test:watch": "vitest",
-    "check": "npm run typecheck && npm run lint && npm test"
+    "check": "npm run typecheck && npm run lint && npm test",
+    "gen:bms": "tsx tools/gen-bms-maps.ts",
+    "online": "tsx src/online/server/main.ts"
   },
   "dependencies": {
     "decimal.js": "^10.6.0"
