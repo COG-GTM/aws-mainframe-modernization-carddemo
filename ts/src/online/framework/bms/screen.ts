@@ -172,11 +172,13 @@ export function renderScreen(screen: Screen): string[] {
     for (let i = 0; i < t.length && i < SCREEN_ROWS * SCREEN_COLS; i++) grid[Math.floor(i / SCREEN_COLS)]![i % SCREEN_COLS] = t[i]!;
   }
   for (const f of screen.fields) {
-    const shown = f.attr.intensity === 'DRK' ? ' '.repeat(f.length) : f.value.replace(/\0/g, ' ');
+    const shown = f.attr.intensity === 'DRK' ? ' '.repeat(f.length) : f.value;
     let pos = (f.row - 1) * SCREEN_COLS + (f.col - 1);
     for (const ch of shown) {
       if (pos >= SCREEN_ROWS * SCREEN_COLS) break;
-      grid[Math.floor(pos / SCREEN_COLS)]![pos % SCREEN_COLS] = ch;
+      // Nulls are never transmitted, so they leave whatever an earlier field put there (e.g. the unnamed
+      // POS=(1,1) LENGTH=9 field at the end of COACTVW/COACTUP must not blank 'Tran: CAV').
+      if (ch !== LOW_VALUE) grid[Math.floor(pos / SCREEN_COLS)]![pos % SCREEN_COLS] = ch;
       pos++;
     }
   }
