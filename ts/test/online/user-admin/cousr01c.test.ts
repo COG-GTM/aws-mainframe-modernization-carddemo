@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { errmsg, field, signOn, value } from '../helpers.js';
+import { errmsg, field, runtime, signOn, value } from '../helpers.js';
 import { adminOption, usrsec } from './helpers.js';
 
 const FULL = { FNAME: 'Jane', LNAME: 'Doe', USERID: 'JDOE0001', PASSWD: 'SECRET01', USRTYPE: 'U' };
@@ -79,5 +79,14 @@ describe('COUSR01C add user', () => {
     expect(errmsg(clr)).toBe('');
     const back = rt.sendInput('T1', { aid: 'PF3' });
     expect(back.programs).toEqual(['COUSR01C', 'COADM01C']);
+  });
+
+  it('a regular user cannot reach COUSR01C with a commarea: typing CU01 starts with EIBCALEN = 0 -> sign-on', () => {
+    const rt = runtime();
+    const menu = signOn(rt, 'USER0001', 'PASSWORD');
+    expect(menu.programs).toContain('COMEN01C');
+    const r = rt.startTransaction('T1', 'CU01', { aid: 'ENTER', fields: { FNAME: 'X', LNAME: 'Y', USERID: 'HACKER01', PASSWD: 'P', USRTYPE: 'A' } });
+    expect(r.programs).toEqual(['COUSR01C', 'COSGN00C']);
+    expect(usrsec(rt, 'HACKER01')).toBeUndefined();
   });
 });

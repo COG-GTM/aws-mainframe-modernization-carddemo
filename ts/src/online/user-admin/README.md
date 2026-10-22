@@ -22,6 +22,7 @@ Registered in `src/online/areas/user-admin.ts`. `common.ts` holds two local help
 ## LIMITATIONS
 
 - CICS programs cannot run under GnuCOBOL; expected values in the tests were derived by tracing the COBOL source (no golden files).
+- No admin check inside COUSR01C/02C/03C (none in the COBOL either): access relies on the admin menu (COADM01C, reached only by type `A` users) being the only route that passes a commarea; a directly started CU0x has EIBCALEN = 0 and goes to sign-on. On z/OS, CICS transaction security would also apply.
 - `DISPLAY 'RESP:' ... 'REAS:'` diagnostics (job log) are not reproduced.
 - `CDEMO-CU00-PAGE-NUM PIC 9(08)`: non-digit bytes are read as 0 (on z/OS this would be a data exception or undefined).
 - The S6 test `test/online/menu.test.ts` "routes to a registered admin program" stubbed `COUSR00C`, which is now registered (duplicate registration); it now stubs the never-ported Db2 program `COTRTLIC` (option 5) instead.
