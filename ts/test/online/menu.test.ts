@@ -13,10 +13,10 @@ describe('COMEN01C main menu (regular user)', () => {
 
   it('routes a selected option to its program with the commarea (XCTL)', () => {
     const seen: Buffer[] = [];
-    const rt = runtime([stub('COACTVWC', seen)]);
+    const rt = runtime([stub('COTRN00C', seen)]);
     signOn(rt, 'USER0001', 'PASSWORD');
-    const r = rt.sendInput('T1', { aid: 'ENTER', fields: { OPTION: '1' } });
-    expect(r.programs).toEqual(['COMEN01C', 'COACTVWC']);
+    const r = rt.sendInput('T1', { aid: 'ENTER', fields: { OPTION: '6' } });
+    expect(r.programs).toEqual(['COMEN01C', 'COTRN00C']);
     const ca = new CarddemoCommarea(seen[0]);
     expect(ca.fromTranid).toBe('CM00');
     expect(ca.fromProgram).toBe('COMEN01C');
@@ -27,11 +27,11 @@ describe('COMEN01C main menu (regular user)', () => {
   it('option of a not-yet-ported program shows "not installed" (red) and stays on the menu', () => {
     const rt = runtime();
     signOn(rt, 'USER0001', 'PASSWORD');
-    const r = rt.sendInput('T1', { aid: 'ENTER', fields: { OPTION: '1' } });
+    const r = rt.sendInput('T1', { aid: 'ENTER', fields: { OPTION: '6' } });
     expect(r.abend).toBeNull();
-    expect(errmsg(r)).toBe('This option Account View is not installed...');
+    expect(errmsg(r)).toBe('This option Transaction List is not installed...');
     expect(field(r, 'ERRMSG').color).toBe('RED');
-    expect(value(r, 'OPTION')).toBe('01');
+    expect(value(r, 'OPTION')).toBe('06');
     expect(r.nextTransid).toBe('CM00');
   });
 
