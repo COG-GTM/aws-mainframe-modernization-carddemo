@@ -105,6 +105,9 @@ const { catalog } = loadSeedCatalog();               // all clusters, loaded fro
 
 // Batch (COBOL file I/O): names resolve by DD name, CICS name or DSN.
 const acct = new IndexedFile(catalog, 'ACCTFILE', { access: 'RANDOM' });
+// Pass `alternateKeys` with the ALTERNATE RECORD KEYs the SELECT declares ([] for none):
+// only those report status 02 on WRITE/REWRITE; other cluster AIXs (e.g. TRANAIX) give 00.
+// new IndexedFile(catalog, 'TRANFILE', { access: 'RANDOM', alternateKeys: [] });
 acct.open('I-O');                                   // '00' | '35' ...
 const { status, record } = acct.read('00000000001');// '00' | '23'
 acct.rewrite(record!);                              // also acct.status
