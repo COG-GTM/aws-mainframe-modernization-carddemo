@@ -125,19 +125,38 @@ export class OutputFile {
       return '30';
     }
   }
+  /** WRITE: '34' when the device is out of space (boundary violation), '30' for other I/O errors. */
   write(data: Buffer): string {
     if (this.fd === undefined) return '00';
+    let rec = data;
     if (this.variable) {
       const rdw = Buffer.alloc(4);
       rdw.writeUInt16BE(data.length + 4, 0);
-      writeSync(this.fd, rdw);
+      rec = Buffer.concat([rdw, data]);
     }
-    writeSync(this.fd, data);
-    return '00';
+    try {
+      for (let done = 0; done < rec.length; ) {
+        const n = writeSync(this.fd, rec, done);
+        if (n <= 0) return '34';
+        done += n;
+      }
+      return '00';
+    } catch (e) {
+      const code = (e as NodeJS.ErrnoException).code;
+      return code === 'ENOSPC' || code === 'EFBIG' || code === 'EDQUOT' ? '34' : '30';
+    }
   }
-  close(): void {
-    if (this.fd !== undefined) closeSync(this.fd);
+  /** CLOSE: '30' if the descriptor cannot be closed; closing a closed file is a no-op ('00'). */
+  close(): string {
+    const fd = this.fd;
     this.fd = undefined;
+    if (fd === undefined) return '00';
+    try {
+      closeSync(fd);
+      return '00';
+    } catch {
+      return '30';
+    }
   }
 }
 

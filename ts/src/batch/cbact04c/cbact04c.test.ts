@@ -75,6 +75,13 @@ describe('CBACT04C', () => {
     expect(account(catalog, 2)).toEqual(before2);
   });
 
+  it.runIf(process.platform === 'linux')('out of space on TRANSACT: write status 34, abend 999', () => {
+    const r = runCbact04c({ catalog: catalogWith([['1', '01', '1', '1234.56']]), transactFile: '/dev/full' });
+    expect(r.abended).toBe(true);
+    expect(r.abendCode).toBe(999);
+    expect(r.display.slice(-3)).toEqual(['ERROR WRITING TRANSACTION RECORD', 'FILE STATUS IS: NNNN0034', 'ABENDING PROGRAM']);
+  });
+
   it('account missing: ACCOUNT NOT FOUND, status 23, abend', () => {
     const r = runCbact04c({ catalog: catalogWith([['99', '01', '1', '1.00']]) });
     expect(r.abended).toBe(true);

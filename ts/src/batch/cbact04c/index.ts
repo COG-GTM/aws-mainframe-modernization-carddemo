@@ -197,7 +197,7 @@ export function runCbact04c(opts: Cbact04cOptions = {}): Cbact04cResult {
         closeCheck(out, xref.close().status, 'ERROR CLOSING CROSS REF FILE');
         closeCheck(out, discgrp.close().status, 'ERROR CLOSING DISCLOSURE GROUP FILE');
         closeCheck(out, acct.close().status, 'ERROR CLOSING ACCOUNT FILE');
-        transact.close();
+        closeCheck(out, transact.close(), 'ERROR CLOSING TRANSACTION FILE');
         out.display('END OF EXECUTION OF PROGRAM CBACT04C');
         return { transactRecords, recordCount };
       },

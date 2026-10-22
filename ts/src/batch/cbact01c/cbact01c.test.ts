@@ -76,6 +76,13 @@ describe('CBACT01C', () => {
     expect(OutAcctRecLayout.parse(r.outRecords[1]!).outAcctCurrCycDebit.toFixed(2)).toBe('2525.00');
   });
 
+  it.runIf(process.platform === 'linux')('out of space on OUTFILE: write status 34, abend 999', () => {
+    const r = runCbact01c({ outFile: '/dev/full' });
+    expect(r.abended).toBe(true);
+    expect(r.abendCode).toBe(999);
+    expect(r.display.slice(-3)).toEqual(['ACCOUNT FILE WRITE STATUS IS:34', 'FILE STATUS IS: NNNN0034', 'ABENDING PROGRAM']);
+  });
+
   it('abends with 999 when ACCTFILE cannot be opened', () => {
     const { catalog } = loadSeedCatalog();
     catalog.delete('ACCTFILE');
