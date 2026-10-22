@@ -98,11 +98,12 @@ export class OnlineRuntime {
 
   /** Operator types TRANSID on a cleared screen and presses the AID key (any pending RETURN TRANSID is dropped). */
   startTransaction(terminalId: string, transid: string, input: TerminalInput = {}): TransactionResult {
+    const aid = parseAid(input.aid);
     const t = this.openTerminal(terminalId);
     t.nextTransid = undefined;
     t.commarea = undefined;
     t.screen = emptyScreen();
-    return this.dispatch(t, transid.trim().toUpperCase(), undefined, parseAid(input.aid));
+    return this.dispatch(t, transid.trim().toUpperCase(), undefined, aid);
   }
 
   /** Operator input on the current screen: starts the pending RETURN TRANSID with its COMMAREA. */
