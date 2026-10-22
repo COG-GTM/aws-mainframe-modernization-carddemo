@@ -1,0 +1,39 @@
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. EDITGOLD.
+      * Golden output for numeric MOVE semantics: numeric-edited
+      * (CVTRA07Y PICs) and signed zoned decimal (CVACT01Y PIC).
+       DATA DIVISION.
+       WORKING-STORAGE SECTION.
+       01 WS-VALUES.
+          05 FILLER PIC X(16) VALUE '0000000000000+'.
+          05 FILLER PIC X(16) VALUE '0000000050477+'.
+          05 FILLER PIC X(16) VALUE '0000000050477-'.
+          05 FILLER PIC X(16) VALUE '0000123456780+'.
+          05 FILLER PIC X(16) VALUE '0000123456780-'.
+          05 FILLER PIC X(16) VALUE '0000000000001+'.
+          05 FILLER PIC X(16) VALUE '0000000000001-'.
+          05 FILLER PIC X(16) VALUE '0099999999999+'.
+          05 FILLER PIC X(16) VALUE '0099999999999-'.
+          05 FILLER PIC X(16) VALUE '1234567890123+'.
+          05 FILLER PIC X(16) VALUE '0000000010000+'.
+          05 FILLER PIC X(16) VALUE '0000000000050-'.
+       01 WS-TABLE REDEFINES WS-VALUES.
+          05 WS-ENTRY OCCURS 12 TIMES.
+             10 WS-NUM PIC S9(11)V99 SIGN TRAILING SEPARATE.
+             10 FILLER PIC X(2).
+       01 WS-I         PIC 99.
+       01 WS-E1        PIC -ZZZ,ZZZ,ZZZ.ZZ.
+       01 WS-E2        PIC +ZZZ,ZZZ,ZZZ.ZZ.
+       01 WS-ZG.
+          05 WS-Z      PIC S9(10)V99.
+       01 WS-ZX REDEFINES WS-ZG PIC X(12).
+       01 WS-Z2G.
+          05 WS-Z2     PIC S9(09)V99.
+       01 WS-Z2X REDEFINES WS-Z2G PIC X(11).
+       PROCEDURE DIVISION.
+           PERFORM VARYING WS-I FROM 1 BY 1 UNTIL WS-I > 12
+              MOVE WS-NUM(WS-I) TO WS-E1 WS-E2 WS-Z WS-Z2
+              DISPLAY WS-NUM(WS-I) '|' WS-E1 '|' WS-E2 '|' WS-ZX
+                      '|' WS-Z2X
+           END-PERFORM
+           STOP RUN.

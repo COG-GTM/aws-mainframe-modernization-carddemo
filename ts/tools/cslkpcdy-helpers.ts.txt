@@ -1,0 +1,12 @@
+
+/** 88 VALID-PHONE-AREA-CODE on WS-US-PHONE-AREA-CODE-TO-EDIT PIC XXX. */
+export const isValidPhoneAreaCode = (code: string): boolean => VALID_PHONE_AREA_CODE.has(code.padEnd(3).slice(0, 3));
+/** 88 VALID-GENERAL-PURP-CODE on WS-US-PHONE-AREA-CODE-TO-EDIT PIC XXX. */
+export const isValidGeneralPurposeCode = (code: string): boolean => VALID_GENERAL_PURP_CODE.has(code.padEnd(3).slice(0, 3));
+/** 88 VALID-EASY-RECOG-AREA-CODE on WS-US-PHONE-AREA-CODE-TO-EDIT PIC XXX. */
+export const isValidEasyRecogAreaCode = (code: string): boolean => VALID_EASY_RECOG_AREA_CODE.has(code.padEnd(3).slice(0, 3));
+/** 88 VALID-US-STATE-CODE on US-STATE-CODE-TO-EDIT PIC X(2). */
+export const isValidUsStateCode = (state: string): boolean => VALID_US_STATE_CODE.has(state.padEnd(2).slice(0, 2));
+/** 88 VALID-US-STATE-ZIP-CD2-COMBO on US-STATE-AND-FIRST-ZIP2 PIC X(4) (state + first 2 zip digits). */
+export const isValidUsStateZipCombo = (stateAndZip2: string): boolean =>
+  VALID_US_STATE_ZIP_CD2_COMBO.has(stateAndZip2.padEnd(4).slice(0, 4));
