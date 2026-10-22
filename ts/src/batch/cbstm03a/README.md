@@ -53,7 +53,8 @@ Unit tests cover CALL order, abends, totals, negative amounts, OCCURS overflow.
   is rendered (or executed) by whoever opens the statement. That is still the
   default here. `runCbstm03a({ ..., escapeHtml: true })` HTML-escapes every data
   value (`& < > " '`) while leaving the fixed markup and STMTFILE unchanged.
-  Escaped lines may be cut off at 100 bytes. On the seed data the only change is
+  Escaped lines may be cut off at 100 bytes; a character reference cut off by
+  the record end is blanked rather than left as a partial `&lt`. On the seed data the only change is
   `'` becoming `&#39;` in a few merchant and customer names. Turn it on for any
   output a browser will display.
 - Output files are written as LINE SEQUENTIAL (one record per line, optional

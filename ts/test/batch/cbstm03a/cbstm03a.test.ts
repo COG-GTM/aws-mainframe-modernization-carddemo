@@ -160,6 +160,18 @@ describe('CBSTM03A HTML escaping', () => {
     expect(htmlRecords.length).toBe(plain.htmlRecords.length);
   });
 
+  it('escapeHtml never leaves a character reference cut off at the 100-byte record end', () => {
+    // '<p>' + 49-byte ST-TRAN-DT: n x's then '<' * (49 - n) escapes past the 100-byte record, cutting at every offset of '&lt;'.
+    for (const n of [20, 21, 22, 23]) {
+      const desc = 'x'.repeat(n) + '<'.repeat(49 - n);
+      const { htmlRecords } = runCbstm03a({ catalog: seeded([dalytran('0000000000000001', CARD_ACCT1, desc, '00000000100')]), job: null, escapeHtml: true });
+      const row = htmlRecords.find((l) => l.startsWith('<p>xxxx'))!;
+      expect(row).toHaveLength(100);
+      expect(row.trimEnd()).toMatch(/^<p>x+(&lt;)+$/);
+      expect(row.trimEnd().length).toBe(100 - ((97 - n) % 4));
+    }
+  });
+
   it('on the seed data escapeHtml only changes apostrophes (e.g. merchant names) to &#39;', () => {
     const { catalog } = loadSeedCatalog({ transactFromDailytran: true });
     buildTrnxFile(catalog);

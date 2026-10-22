@@ -139,6 +139,8 @@ const addS9v99 = (a: Decimal, b: Decimal): Decimal => {
 
 const HTML_ENTITIES: Record<string, string> = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' };
 export const escapeHtml = (v: string): string => v.replace(/[&<>"']/g, (c) => HTML_ENTITIES[c]!);
+/** Blanks a character reference cut off by the 100-byte record end, so no partial `&lt` is left for the browser to decode. */
+const dropCutEntity = (line: string): string => line.replace(/&[#a-zA-Z0-9]*$/, (m) => ' '.repeat(m.length));
 
 /** STATEMENT-LINES named items (FILLERs are constants and are rebuilt by the line functions). */
 interface StatementItems {
@@ -200,6 +202,8 @@ class Cbstm03a {
   private readonly area: M03bArea = newM03bArea();
   /** Applied to every data value placed in an HTML line. */
   private readonly h: (v: string) => string;
+  /** Applied to every HTML line built from data (escape mode only). */
+  private readonly hLine: (line: string) => string;
 
   // COMP-VARIABLES
   private crCnt = 0;
@@ -226,6 +230,7 @@ class Cbstm03a {
   constructor(private readonly opts: Cbstm03aOptions) {
     this.sub = opts.subprogram ?? new Cbstm03b(opts.catalog);
     this.h = opts.escapeHtml ? escapeHtml : (v) => v;
+    this.hLine = opts.escapeHtml ? dropCutEntity : (l) => l;
   }
 
   run(): Cbstm03aResult {
@@ -490,12 +495,12 @@ class Cbstm03a {
   private p5200WriteHtmlNmadbs(): void {
     const l23Name = pad(this.st.stName, 50); // MOVE ST-NAME TO L23-NAME
     const para = (open: string, value: string, delim: string, len: number) =>
-      stringInto(len, [
+      this.hLine(stringInto(len, [
         { value: open, delimitedBy: '*' },
         { value: this.h(value), delimitedBy: delim },
         ...(delim === '  ' ? [{ value: '  ', delimitedBy: SIZE }] : []),
         { value: '</p>', delimitedBy: '*' },
-      ]);
+      ]));
     this.writeHtml(para('<p style="font-size:16px">', l23Name, '  ', 100));
     this.writeHtml(para('<p>', this.st.stAdd1, '  ', 100));
     this.writeHtml(para('<p>', this.st.stAdd2, '  ', 100));
@@ -514,11 +519,11 @@ class Cbstm03a {
     this.st.stTranDt = pad(field(t, this.trnxRecord, 'TRNX-DESC'), 49);
     this.st.stTranAmt = formatEdited(PIC_TRANAMT, t.parse(this.trnxRecord).trnxRest.trnxAmt);
     this.writeStmt(ST.line14(this.st));
-    const tranLn = (v: string) => stringInto(100, [
+    const tranLn = (v: string) => this.hLine(stringInto(100, [
       { value: '<p>', delimitedBy: '*' },
       { value: this.h(v), delimitedBy: '*' },
       { value: '</p>', delimitedBy: '*' },
-    ]);
+    ]));
     this.writeFixed('LTRS', 'L58');
     this.writeHtml(tranLn(this.st.stTranId));
     this.writeFixed('LTDE', 'L61');
