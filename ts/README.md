@@ -194,3 +194,35 @@ with OPEN/READ/WRITE/CLOSE statuses, plus `readLineRecords`, `readFixedRecords`,
 - **Sequential files** are read fully into memory on OPEN INPUT; LINE writes keep
   trailing spaces unless `trimTrailing: true` (GnuCOBOL trims by default).
 - **COBSWAIT** non-digit SYSIN characters contribute their low nibble mod 10.
+
+## Adding an online program
+
+The online runtime lives in `src/online/` (see `src/online/README.md`). To add a CICS program port:
+
+1. Create the module under `src/online/<area>/<program>.ts` exporting an `OnlineProgram`:
+   ```ts
+   import { CarddemoCommarea, DFHAID, SymbolicMap, populateHeaderInfo, type CicsContext, type OnlineProgram } from '../framework/index.js';
+   function run(ctx: CicsContext): void {
+     const map = new SymbolicMap('CACTVWA', 'COACTVW');          // generated from app/bms + app/cpy-bms
+     const commarea = CarddemoCommarea.fromDfhCommarea(ctx.commarea); // MOVE DFHCOMMAREA(1:EIBCALEN) ...
+     if (ctx.eib.eibcalen === 0) { /* first entry */ }
+     if (ctx.eib.eibaid === DFHAID.DFHPF3) ctx.xctl('COMEN01C', commarea.toBuffer());
+     const r = ctx.track(ctx.files.read({ file: 'ACCTDAT', ridfld: '00000000001' }));  // r.resp / r.record
+     populateHeaderInfo(map, { tranid: 'CAVW', pgmname: 'COACTVWC', now: ctx.now() });
+     ctx.sendMap(map, { mapset: 'COACTVW', erase: true, cursor: true });
+     ctx.return({ transid: 'CAVW', commarea: commarea.toBuffer() });
+   }
+   export const COACTVWC: OnlineProgram = { program: 'COACTVWC', transid: 'CAVW', run };
+   ```
+2. Register it with **one line** in your area's file (no core file changes):
+   - Session 7 (account/card): `src/online/areas/account-card.ts` -> `ACCOUNT_CARD_PROGRAMS`
+   - Session 8 (transactions/bill pay/reports): `src/online/areas/transaction.ts` -> `TRANSACTION_PROGRAMS`
+   - Session 9 (user admin): `src/online/areas/user-admin.ts` -> `USER_ADMIN_PROGRAMS`
+
+   e.g. add `import { COACTVWC } from '../account/coactvwc.js';` and put `COACTVWC,` in the array.
+   The TRANSID defaults to the CSD table (`CSD_TRANSACTIONS`) if `transid` is omitted.
+3. Menus route to it automatically (until registered, the program behaves as not installed).
+   Test through `createCardDemoRuntime({ catalog, clock })` -> `openTerminal` / `startTransaction` / `sendInput`
+   (see `test/online/helpers.ts`), and try it in a browser with `npm run online` (http://localhost:8080).
+
+Conventions: XCTL/RETURN throw (code after them does not run), HANDLE CONDITION PGMIDERR = `try { ctx.xctl(...) } catch (e) { if (e instanceof CicsCondition) ... }`, HANDLE ABEND = `ctx.abendHandler = ...`. Keep money in `Decimal`; use `numval`/`numvalC`/`formatEdited` from the framework helpers.
