@@ -16,7 +16,7 @@ describe('COUSR02C update user', () => {
     const r = rt.sendInput('T1', { aid: 'ENTER', fields: { USRIDIN: 'USER0002' } });
     expect(value(r, 'FNAME')).toBe('AJITH');
     expect(value(r, 'LNAME')).toBe('KUMAR');
-    expect(value(r, 'PASSWD')).toBe('PASSWORD');
+    expect(value(r, 'PASSWD')).toBe(''); // DRK field: never exposed on the client screen
     expect(value(r, 'USRTYPE')).toBe('U');
     expect(errmsg(r)).toBe('Press PF5 key to save your updates ...');
     expect(field(r, 'ERRMSG').color).toBe('NEUTRAL');
