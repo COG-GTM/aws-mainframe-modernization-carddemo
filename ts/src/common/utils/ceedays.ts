@@ -125,6 +125,9 @@ export function ceedays(date: string, picture: string, century?: number): Ceeday
   let ddd = 0;
   for (const t of tokens) {
     if (t.kind === 'lit') {
+      // Separators must match the picture string (assumption; see README LIMITATIONS).
+      if (pos >= value.length) return fail(CEEDAYS_FC.INSUFFICIENT_DATA);
+      if (value[pos] !== t.text) return fail(CEEDAYS_FC.BAD_DATE_VALUE);
       pos += 1;
       continue;
     }

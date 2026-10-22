@@ -10,7 +10,7 @@
  * acct.close();
  * ```
  */
-import { type Key, type IndexEntry, keyOf, toKey, type VsamDataset } from './dataset.js';
+import { type Key, type IndexEntry, keyOf, type OrderedIndex, toKey, type VsamDataset } from './dataset.js';
 import type { VsamCatalog } from './catalog.js';
 import { FileStatus, type FileStatusCode } from './status.js';
 
@@ -49,10 +49,12 @@ abstract class CobolFileBase {
     return record ? { status, record } : { status };
   }
 
-  protected openDataset(mode: OpenMode): FileStatusCode | VsamDataset {
+  protected openDataset(mode: OpenMode, organization: 'KSDS' | 'ESDS'): FileStatusCode | VsamDataset {
     if (this.mode) return FileStatus.ALREADY_OPEN;
     const ds = this.catalog.get(this.assign);
     if (!ds) return FileStatus.FILE_NOT_FOUND;
+    // Reject a wrong organization before OPEN OUTPUT empties the cluster.
+    if (ds.def.organization !== organization) return FileStatus.OPEN_MODE_NOT_ALLOWED;
     if (mode === 'OUTPUT') ds.clear();
     this.ds = ds;
     this.mode = mode;
@@ -78,6 +80,14 @@ abstract class CobolFileBase {
   }
 }
 
+/** Sequential position: last entry returned (or positioned at by START, not yet consumed). */
+interface Cursor {
+  entry: IndexEntry;
+  consumed: boolean;
+  /** Prime keys of same-key duplicates before `entry` (to resume correctly if it is deleted). */
+  preceding: readonly string[];
+}
+
 export interface IndexedFileOptions {
   access?: AccessMode;
 }
@@ -88,7 +98,7 @@ export class IndexedFile extends CobolFileBase {
   /** Key of reference: undefined = prime key, else AIX name. */
   private keyName: string | undefined;
   /** Next sequential position: the last entry returned plus whether it is still to be returned. */
-  private cursor: { entry: IndexEntry; consumed: boolean } | 'start' | 'eof' | 'invalid' = 'invalid';
+  private cursor: Cursor | 'start' | 'eof' | 'invalid' = 'invalid';
   /** Prime key of the last successful READ (for sequential REWRITE/DELETE). */
   private lastRead: Key | undefined;
   private lastWrittenKey: string | undefined;
@@ -106,15 +116,16 @@ export class IndexedFile extends CobolFileBase {
   }
 
   open(mode: OpenMode): IoResult {
-    const res = this.openDataset(mode);
+    const res = this.openDataset(mode, 'KSDS');
     if (typeof res === 'string') return this.set(res);
-    if (res.def.organization !== 'KSDS') {
-      this.mode = undefined;
-      return this.set(FileStatus.OPEN_MODE_NOT_ALLOWED);
-    }
     this.cursor = 'start';
     this.keyName = undefined;
     return this.set(FileStatus.SUCCESS);
+  }
+
+  private at(idx: OrderedIndex, entry: IndexEntry, consumed: boolean): Cursor {
+    const dups = idx.primariesFor(entry.key);
+    return { entry, consumed, preceding: dups.slice(0, Math.max(0, dups.indexOf(entry.primary))) };
   }
 
   private dataset(): VsamDataset {
@@ -150,7 +161,7 @@ export class IndexedFile extends CobolFileBase {
     }
     this.keyName = keyName && keyName !== ds.name ? keyName : undefined;
     const entry = { key: ck, primary: first };
-    this.cursor = { entry, consumed: true };
+    this.cursor = this.at(idx, entry, true);
     const record = ds.recordAt(first)!;
     this.lastRead = keyOf(record, ds.index().spec);
     return this.set(this.dupFollows(entry) ? FileStatus.DUPLICATE_ALT_KEY : FileStatus.SUCCESS, record);
@@ -172,7 +183,7 @@ export class IndexedFile extends CobolFileBase {
     else {
       const at = idx.positionOf(this.cursor.entry);
       if (at >= 0) pos = this.cursor.consumed ? at + 1 : at;
-      else pos = idx.seek(this.cursor.entry.key, this.cursor.consumed);
+      else pos = idx.nextAfterRemoved(this.cursor.entry, this.cursor.preceding);
     }
     const entry = entries[pos];
     if (!entry) {
@@ -180,7 +191,7 @@ export class IndexedFile extends CobolFileBase {
       this.lastRead = undefined;
       return this.set(FileStatus.END_OF_FILE);
     }
-    this.cursor = { entry, consumed: true };
+    this.cursor = this.at(idx, entry, true);
     const record = ds.recordAt(entry.primary)!;
     this.lastRead = keyOf(record, ds.index().spec);
     return this.set(this.dupFollows(entry) ? FileStatus.DUPLICATE_ALT_KEY : FileStatus.SUCCESS, record);
@@ -206,7 +217,7 @@ export class IndexedFile extends CobolFileBase {
     else {
       const at = idx.positionOf(this.cursor.entry);
       if (at >= 0) pos = this.cursor.consumed ? at - 1 : at;
-      else pos = idx.seek(this.cursor.entry.key) - 1;
+      else pos = idx.prevBeforeRemoved(this.cursor.entry, this.cursor.preceding);
     }
     const entry = pos >= 0 ? entries[pos] : undefined;
     if (!entry) {
@@ -214,7 +225,7 @@ export class IndexedFile extends CobolFileBase {
       this.lastRead = undefined;
       return this.set(FileStatus.END_OF_FILE);
     }
-    this.cursor = { entry, consumed: true };
+    this.cursor = this.at(idx, entry, true);
     const record = ds.recordAt(entry.primary)!;
     this.lastRead = keyOf(record, ds.index().spec);
     return this.set(FileStatus.SUCCESS, record);
@@ -265,7 +276,7 @@ export class IndexedFile extends CobolFileBase {
       return this.set(FileStatus.NOT_FOUND);
     }
     this.keyName = keyName && keyName !== ds.name ? keyName : undefined;
-    this.cursor = { entry, consumed: false };
+    this.cursor = this.at(idx, entry, false);
     return this.set(FileStatus.SUCCESS);
   }
 
@@ -332,12 +343,8 @@ export class EsdsFile extends CobolFileBase {
   }
 
   open(mode: OpenMode): IoResult {
-    const res = this.openDataset(mode);
+    const res = this.openDataset(mode, 'ESDS');
     if (typeof res === 'string') return this.set(res);
-    if (res.def.organization !== 'ESDS') {
-      this.mode = undefined;
-      return this.set(FileStatus.OPEN_MODE_NOT_ALLOWED);
-    }
     return this.set(FileStatus.SUCCESS);
   }
 

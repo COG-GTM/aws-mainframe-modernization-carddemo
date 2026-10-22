@@ -130,6 +130,23 @@ describe('working-storage copybooks', () => {
     expect(C.ReportGrandTotalsLayout.serializeText({ reptGrandTotal: '1000' })).toMatch(/^Grand Total\.+\+ {6}1,000\.00$/);
   });
 
+  it('menu copybooks reserve the full OCCURS table (COADM02Y 9, COMEN02Y 12)', () => {
+    expect(C.AdminMenuOptionsLayout.length).toBe(2 + 9 * 45);
+    const admin = C.AdminMenuOptionsLayout.parse(C.AdminMenuOptionsLayout.serialize({}), { views: true });
+    expect(admin.cdemoAdminOptCount.toNumber()).toBe(6);
+    expect(admin.cdemoAdminOptions!.cdemoAdminOpt.length).toBe(9);
+    expect(admin.cdemoAdminOptions!.cdemoAdminOpt[5]!.cdemoAdminOptPgmname).toBe('COTRTUPC');
+    expect(admin.cdemoAdminOptions!.cdemoAdminOpt[6]!.cdemoAdminOptPgmname).toBe('        ');
+    expect(C.MainMenuOptionsLayout.length).toBe(2 + 12 * 46);
+    const main = C.MainMenuOptionsLayout.parse(C.MainMenuOptionsLayout.serialize({}), { views: true });
+    expect(main.cdemoMenuOptCount.toNumber()).toBe(11);
+    const opts = main.cdemoMenuOptions!.cdemoMenuOpt;
+    expect(opts.length).toBe(12);
+    expect(opts.slice(0, 11).map((o) => o.cdemoMenuOptPgmname)).toEqual(C.MAIN_MENU_OPTIONS.map((o) => o.pgmName));
+    expect(opts[10]!.cdemoMenuOptUsrtype).toBe('U');
+    expect(opts[0]!.cdemoMenuOptNum.toNumber()).toBe(1);
+  });
+
   it('CSLKPCDY lookups', () => {
     expect(C.isValidUsStateCode('NY')).toBe(true);
     expect(C.isValidUsStateCode('XX')).toBe(false);

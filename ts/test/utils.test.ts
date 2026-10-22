@@ -21,6 +21,14 @@ describe('CEEDAYS', () => {
   });
 });
 
+describe('CEEDAYS separators', () => {
+  it('rejects separators that do not match the picture string', () => {
+    expect(ceedays('2024/02/29', 'YYYY-MM-DD').feedback).toBe(CEEDAYS_FC.BAD_DATE_VALUE);
+    expect(ceedays('2024-02', 'YYYY-MM-DD').feedback).toBe(CEEDAYS_FC.INSUFFICIENT_DATA);
+    expect(csutldtc('2024/02/29', 'YYYY-MM-DD').msgNo).toBe('2508');
+  });
+});
+
 describe('CSUTLDTC', () => {
   it('valid date: severity 0000, 80-byte message, RETURN-CODE 0', () => {
     const r = csutldtc('2024-02-29', 'YYYY-MM-DD');
