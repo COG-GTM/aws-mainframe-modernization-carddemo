@@ -16,7 +16,7 @@ type DeleteOpts = Parameters<CicsFileControl['delete']>[0];
  */
 export class TaskFiles {
   readonly control: CicsFileControl;
-  private readonly before = new Map<VsamDataset, Buffer[]>();
+  private readonly before = new Map<VsamDataset, { records: Buffer[]; aix: Map<string, { key: string; primary: string }[]> }>();
 
   constructor(
     private readonly catalog: VsamCatalog,
@@ -31,7 +31,11 @@ export class TaskFiles {
     if (!this.recoverable.has(name)) return;
     const def = this.defs[name];
     const ds = def && this.catalog.get(def.dataset);
-    if (ds && !this.before.has(ds)) this.before.set(ds, ds.records().map((r) => Buffer.from(r)));
+    if (!ds || this.before.has(ds)) return;
+    // Keep each AIX's entry order: non-unique duplicates stay in arrival order, which load() would re-sort.
+    const aix = new Map<string, { key: string; primary: string }[]>();
+    for (const [n, idx] of ds.alternateIndexes) aix.set(n, idx.entries().map((e) => ({ key: e.key, primary: e.primary })));
+    this.before.set(ds, { records: ds.records(), aix });
   }
 
   read(opts: Parameters<CicsFileControl['read']>[0]): CicsResult {
@@ -76,9 +80,15 @@ export class TaskFiles {
 
   /** EXEC CICS SYNCPOINT ROLLBACK: backs out recoverable files, releases locks and browses. */
   rollback(): void {
-    for (const [ds, records] of this.before) {
+    for (const [ds, image] of this.before) {
       ds.clear();
-      ds.load(records);
+      ds.load(image.records);
+      for (const [n, entries] of image.aix) {
+        const idx = ds.alternateIndexes.get(n);
+        if (!idx) continue;
+        idx.clear();
+        for (const e of entries) idx.add(e.key, e.primary);
+      }
     }
     this.before.clear();
     this.control.syncpoint();
