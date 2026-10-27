@@ -91,7 +91,10 @@ public class TransactionPostingJobConfig {
         } catch (IOException e) {
             throw new CobolFileException("DALYREJS", FileStatus.PERMANENT_IO_ERROR, "ERROR OPENING DALY REJECTS FILE", e);
         }
-        Path file = dir.resolve("DALYREJS.G" + String.format("%04d", nextGeneration(dir)) + "V00.txt");
+        // a restarted execution keeps writing the generation its earlier attempt allocated
+        String allocated = stepExecution.getExecutionContext().containsKey(DALYREJS_DATASET)
+                ? stepExecution.getExecutionContext().getString(DALYREJS_DATASET) : null;
+        Path file = allocated != null ? Path.of(allocated) : allocateGeneration(dir);
         stepExecution.getExecutionContext().putString(DALYREJS_DATASET, file.toString());
         FlatFileItemWriter<RejectRecord> writer = new FlatFileItemWriter<>();
         writer.setName("dalyrejsWriter");
@@ -99,11 +102,25 @@ public class TransactionPostingJobConfig {
         writer.setEncoding(StandardCharsets.US_ASCII.name());
         writer.setLineAggregator(RejectRecord::format);
         writer.setShouldDeleteIfEmpty(false);
-        writer.setShouldDeleteIfExists(false);
+        writer.setAppendAllowed(true);                       // the file was created empty by allocateGeneration
         return writer;
     }
 
     public static final String DALYREJS_DATASET = "DALYREJS";
+
+    /** Atomically creates the next generation so concurrent runs can never share a reject dataset. */
+    static Path allocateGeneration(Path dir) {
+        while (true) {
+            Path candidate = dir.resolve("DALYREJS.G" + String.format("%04d", nextGeneration(dir)) + "V00.txt");
+            try {
+                return Files.createFile(candidate);
+            } catch (java.nio.file.FileAlreadyExistsException raced) {
+                // another run took this generation first; try the next one
+            } catch (IOException e) {
+                throw new CobolFileException("DALYREJS", FileStatus.PERMANENT_IO_ERROR, "ERROR OPENING DALY REJECTS FILE", e);
+            }
+        }
+    }
 
     /** GDG (+1): one past the highest existing generation; an existing dataset is never overwritten. */
     static int nextGeneration(Path dir) {
