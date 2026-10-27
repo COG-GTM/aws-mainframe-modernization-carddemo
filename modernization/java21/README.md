@@ -47,3 +47,26 @@ COMP-3 appears in CVEXPORT and working storage instead.
 
 Tests read every ASCII fixture line from the repository, round-trip each layout
 in ASCII and IBM037, and exercise standalone numeric codecs.
+
+### ASCII vs EBCDIC fixture differences
+
+The shipped EBCDIC PS files contain contiguous IBM037 fixed-length records,
+without RDWs or line separators: ACCTDATA and ACCDATA each have 50 x 300 bytes,
+CARDXREF 50 x 50, TCATBALF 50 x 50, DISCGRP 51 x 50, and DALYTRAN 300 x 350.
+Both account files have the same contents. CARDXREF includes the 14 spaces
+missing from the ASCII export. After padding that ASCII filler, the complete
+field-by-field difference list is:
+
+| EBCDIC file (AWS.M2.CARDDEMO.*.PS) / ASCII file | Record key | Field | ASCII value | EBCDIC value |
+| --- | --- | --- | --- | --- |
+| ACCTDATA and ACCDATA / acctdata.txt | account 00000000049 | ACCT-ADDR-ZIP (addressZip) | A000000000 | ZEROAPR followed by 3 spaces |
+| DISCGRP / discgrp.txt | group DEFAULT followed by 3 spaces, type 07, category 0001 | DIS-INT-RATE (interestRate) | 0.00 (raw 00000{) | 15.00 (raw 00150{) |
+
+CARDXREF, TCATBALF, and DALYTRAN have no field differences. Tests decode every
+shipped EBCDIC record with the record codecs, check byte-exact re-encoding, and
+compare every field against ASCII with only the explicit differences above
+allowed (including checking that those differences remain present). DALYTRAN is
+also tested with TransactionRecord because the two transaction layouts match.
+The codecs round-trip both sets. This PR does not choose an authoritative source;
+the golden-set/port work decides, for example by running the COBOL reference on
+the EBCDIC set. No rationale for the differing fixture values is assumed.
