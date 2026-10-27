@@ -33,12 +33,17 @@ final class FixedLengthFiles {
         write(file, records, StandardOpenOption.CREATE_NEW, StandardOpenOption.WRITE);
     }
 
-    /** Replaces an existing dataset through a sibling temporary file and an atomic move. */
-    static void replace(Path file, Collection<byte[]> records) {
+    /** Writes the new content of {@code file} to a sibling temporary file and returns that file. */
+    static Path stage(Path file, Collection<byte[]> records) {
         Path temp = file.resolveSibling(file.getFileName() + ".tmp");
         write(temp, records, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.WRITE);
+        return temp;
+    }
+
+    /** Moves a staged file over the dataset it replaces. */
+    static void commit(Path staged, Path file) {
         try {
-            Files.move(temp, file, StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.ATOMIC_MOVE);
+            Files.move(staged, file, StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.ATOMIC_MOVE);
         } catch (IOException e) {
             throw new UncheckedIOException("cannot replace " + file, e);
         }

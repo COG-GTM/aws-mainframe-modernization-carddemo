@@ -28,7 +28,9 @@ import org.springframework.batch.item.ItemStreamWriter;
 
 /**
  * CBTRN02C step: hands each chunk of DALYTRAN records to {@link TransactionPoster} and backs its {@code Store} with
- * the step's datasets. Indexed files are loaded on open and written back at every chunk commit.
+ * the step's datasets. Indexed files are loaded on open and written back at every chunk commit. If a record fails,
+ * the effects of the records before it (and the failing record's completed writes) are written back before the step
+ * fails, as with the COBOL's record-by-record VSAM updates (POST-11: ordered effects, no rollback).
  */
 final class PostingStepWriter implements ItemStreamWriter<byte[]>, StepExecutionListener, TransactionPoster.Store {
     static final ExitStatus COMPLETED_WITH_REJECTS = new ExitStatus("COMPLETED_WITH_REJECTS");
@@ -76,7 +78,17 @@ final class PostingStepWriter implements ItemStreamWriter<byte[]>, StepExecution
 
     @Override
     public void write(Chunk<? extends byte[]> chunk) {
-        TransactionPoster.Result result = poster.post(List.copyOf(chunk.getItems()), this);
+        TransactionPoster.Result result;
+        try {
+            result = poster.post(List.copyOf(chunk.getItems()), this);
+        } catch (RuntimeException e) {
+            try {
+                persist();
+            } catch (RuntimeException persistFailure) {
+                e.addSuppressed(persistFailure);
+            }
+            throw e;
+        }
         posted += result.posted();
         rejected += result.rejected();
     }
@@ -84,16 +96,20 @@ final class PostingStepWriter implements ItemStreamWriter<byte[]>, StepExecution
     @Override
     public void update(ExecutionContext context) {
         openOutputs();
-        try {
-            dalyrejs.flush();
-        } catch (IOException e) {
-            throw new ItemStreamException("cannot write DALYREJS", e);
-        }
-        tranfile.flushIfDirty();
-        acctfile.flushIfDirty();
-        tcatbalf.flushIfDirty();
+        persist();
         context.putLong("posted", posted);
         context.putLong("rejected", rejected);
+    }
+
+    private void persist() {
+        if (dalyrejs != null) {
+            try {
+                dalyrejs.flush();
+            } catch (IOException e) {
+                throw new ItemStreamException("cannot write DALYREJS", e);
+            }
+        }
+        KeyedDataset.flush(tranfile, acctfile, tcatbalf);
     }
 
     @Override
@@ -132,13 +148,13 @@ final class PostingStepWriter implements ItemStreamWriter<byte[]>, StepExecution
         if (dalyrejs != null) {
             return;
         }
-        tranfile.clear();
         try {
             dalyrejs = new BufferedOutputStream(Files.newOutputStream(runDir.resolve(properties.posting().dalyrejs()),
                     StandardOpenOption.CREATE_NEW, StandardOpenOption.WRITE));
         } catch (IOException e) {
             throw new UncheckedIOException("cannot create DALYREJS", e);
         }
+        tranfile.clear();
     }
 
     @Override

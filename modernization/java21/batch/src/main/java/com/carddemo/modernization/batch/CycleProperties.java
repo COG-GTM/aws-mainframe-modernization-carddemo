@@ -12,8 +12,29 @@ public record CycleProperties(String encoding, Path runRoot, ClockSettings clock
 
     /** {@code dalyrejs} and {@code sysout} are file names inside the run directory. */
     public record Posting(int chunkSize, Path tranfile, Path dalytran, Path xreffile, Path acctfile, Path tcatbalf,
-            String dalyrejs, String sysout) {}
+            String dalyrejs, String sysout) {
+        public Posting {
+            if (chunkSize < 1) {
+                throw new IllegalArgumentException("carddemo.posting.chunk-size must be at least 1");
+            }
+            requireFileName("carddemo.posting.dalyrejs", dalyrejs);
+            requireFileName("carddemo.posting.sysout", sysout);
+        }
+    }
 
     /** {@code transact} and {@code sysout} are file names inside the run directory. */
-    public record Interest(Path tcatbalf, Path xreffile, Path acctfile, Path discgrp, String transact, String sysout) {}
+    public record Interest(Path tcatbalf, Path xreffile, Path acctfile, Path discgrp, String transact, String sysout) {
+        public Interest {
+            requireFileName("carddemo.interest.transact", transact);
+            requireFileName("carddemo.interest.sysout", sysout);
+        }
+    }
+
+    /** Run outputs are bare file names, so they cannot resolve outside {@code <run-root>/<runId>/}. */
+    static void requireFileName(String property, String name) {
+        if (name == null || name.isBlank() || name.equals(".") || name.equals("..")
+                || !Path.of(name).getFileName().toString().equals(name) || Path.of(name).isAbsolute()) {
+            throw new IllegalArgumentException(property + " must be a plain file name, got " + name);
+        }
+    }
 }

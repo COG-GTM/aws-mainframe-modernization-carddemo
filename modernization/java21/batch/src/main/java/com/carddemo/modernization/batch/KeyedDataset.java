@@ -4,6 +4,7 @@ import com.carddemo.modernization.records.codec.RecordCodec;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.TreeMap;
@@ -73,10 +74,19 @@ final class KeyedDataset<T> {
         return records.values().stream().map(record -> codec.decode(record, charset)).toList();
     }
 
-    void flushIfDirty() {
-        if (dirty) {
-            FixedLengthFiles.replace(file, records.values());
-            dirty = false;
+    /**
+     * Writes back every changed dataset. All new contents are staged to temporary files before any dataset is
+     * replaced, so a write failure (a full disk, say) changes none of them.
+     */
+    static void flush(KeyedDataset<?>... datasets) {
+        List<KeyedDataset<?>> changed = Arrays.stream(datasets).filter(d -> d.dirty).toList();
+        List<Path> staged = new ArrayList<>();
+        for (KeyedDataset<?> dataset : changed) {
+            staged.add(FixedLengthFiles.stage(dataset.file, dataset.records.values()));
+        }
+        for (int i = 0; i < changed.size(); i++) {
+            FixedLengthFiles.commit(staged.get(i), changed.get(i).file);
+            changed.get(i).dirty = false;
         }
     }
 

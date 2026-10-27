@@ -42,7 +42,7 @@ final class InterestRunWriter implements ItemWriter<InterestRun>, StepExecutionL
                     throw new IllegalStateException("ACCTFILE rewrite of missing account " + account.acctId());
                 }
             }
-            acctfile.flushIfDirty();
+            KeyedDataset.flush(acctfile);
             FixedLengthFiles.writeNewText(runDir.resolve(dd.sysout()), run.sysout());
             log.info("CBACT04C interest transactions={} RC=0", run.transactions().size());
         }

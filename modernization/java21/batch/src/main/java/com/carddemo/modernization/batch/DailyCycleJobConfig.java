@@ -7,6 +7,7 @@ import java.nio.charset.Charset;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneId;
+import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.job.builder.JobBuilder;
@@ -41,12 +42,14 @@ class DailyCycleJobConfig {
     @Bean
     Job dailyCycleJob(JobRepository jobRepository, Step postingStep, Step interestStep, CycleProperties properties) {
         RunDirectory runDirectory = new RunDirectory(properties.runRoot());
-        // Interest follows posting on COMPLETED and on COMPLETED_WITH_REJECTS (RC 4); only a failed step stops the job.
+        // Interest follows posting on COMPLETED and COMPLETED_WITH_REJECTS (RC 4). A FAILED exit status stops the job,
+        // also when afterStep sets it on a step whose BatchStatus is COMPLETED.
         return new JobBuilder("dailyCycleJob", jobRepository)
                 .validator(runDirectory)
                 .listener(runDirectory)
-                .start(postingStep)
-                .next(interestStep)
+                .start(postingStep).on(ExitStatus.FAILED.getExitCode()).fail()
+                .from(postingStep).on("*").to(interestStep)
+                .end()
                 .build();
     }
 

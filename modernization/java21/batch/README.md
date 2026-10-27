@@ -69,8 +69,17 @@ the cross-reference records as one list.
 
 **Indexed files.** ACCTFILE, TCATBALF, TRANFILE and XREFFILE are KSDS clusters on the mainframe. Here they are
 fixed-length files kept in key order. The posting step loads them when it opens, applies `TransactionPoster`'s reads
-and writes in memory, and writes changed files back at every chunk commit through a temporary file and an atomic
-move. The outputs do not depend on the chunk size (`DailyCycleJobTest` runs chunk sizes 1, 3 and 100).
+and writes in memory, and writes changed files back at every chunk commit. All changed files are staged to temporary
+files first and then moved into place, so a failed write replaces none of them. The outputs do not depend on the
+chunk size (`DailyCycleJobTest` runs chunk sizes 1, 3 and 100).
+
+**Failures.** If a record fails (a duplicate transaction ID, for example), the effects of the records before it are
+written back before the step fails, as the COBOL's record-by-record VSAM updates are never rolled back. The four
+masters are separate files, and the moves into place are not atomic as a group, so recover a failed run the way the
+mainframe cycle does: restore the masters from their pre-run copies and rerun with a new `runId`.
+
+Run output names (`dalyrejs`, `transact`, both `sysout`) must be plain file names; a path separator, `..` or an
+absolute path fails at startup, so no output can be written outside the run directory.
 
 **Interest is one chunk.** `InterestCalculator.run` needs every category balance, account, cross-reference and
 disclosure group at once, so the interest reader returns one `InterestInput` item.
@@ -83,7 +92,7 @@ disclosure group at once, so the interest reader returns one `InterestInput` ite
 | Posting with any reject | `COMPLETED_WITH_REJECTS` (CBTRN02C RC 4) | 4 |
 | Interest completes | `COMPLETED` | 0 |
 | Any step fails, or the run directory already exists | `FAILED` | 12 |
-| Invalid `runId` or `parmDate` | job not launched | 1 |
+| Invalid `runId`, `parmDate` or output file name | job not launched | 1 |
 
 The process exit code is the highest step code, like a JCL job's maximum condition code. `CycleExitCodeGenerator`
 computes it. Registering an `ExitCodeMapper` bean is not enough, because Boot's `JobExecutionExitCodeGenerator`
@@ -92,16 +101,18 @@ highest precedence, so its value is the one that counts.
 
 **Interest runs after posting returns RC 4.** In the documented cycle INTCALC runs after POSTTRAN whatever
 POSTTRAN's condition code, and the golden run executed CBACT04C on the post-posting state after CBTRN02C returned 4.
-The job therefore moves on to `interestStep` after both `COMPLETED` and `COMPLETED_WITH_REJECTS`; only a failed
-posting step stops it.
+The job therefore moves on to `interestStep` after both `COMPLETED` and `COMPLETED_WITH_REJECTS`. It stops on a
+`FAILED` posting exit status, including one set after the chunks completed (the CBTRN02C SYSOUT could not be
+written).
 
 ## Tests
 
 `mvn -f modernization/java21/pom.xml verify` runs:
 
 - `DailyCycleJobTest` (Surefire, in-process): chunk-size independence on the named set, a reused `runId`, an
-  interest abend after posting rejects (exit 12, posting outputs kept, no SYSTRAN), `parmDate` validation and the
-  exit-code mapping.
+  interest abend after posting rejects (exit 12, posting outputs kept, no SYSTRAN), a failing record after a posted
+  one in the same chunk (the earlier posting is kept), a posting SYSOUT failure (interest does not run), output
+  file-name validation, `parmDate` validation and the exit-code mapping.
 - `PackagedJobIT` (Failsafe, after `package`): runs the repackaged jar as a separate process on the `mixed` and
   `volume` golden sets with the clock and PARM from `golden/expected/metadata.json`. It asserts the process exit code
   equals the highest code in `return-codes.json`, that the run directory holds exactly the four run outputs, and that
