@@ -10,6 +10,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.attribute.PosixFilePermission;
 import java.nio.file.attribute.PosixFilePermissions;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
@@ -45,6 +46,23 @@ class KeyedDatasetTest {
         assertArrayEquals(Files.readAllBytes(golden), Files.readAllBytes(second), "b not replaced");
         try (Stream<Path> files = Files.list(first.getParent())) {
             assertEquals(Set.of(first, unrelated), Set.copyOf(files.toList()), "only a's staged file removed");
+        }
+    }
+
+    @Test
+    void readOnlyMasterIsReplacedAndKeepsItsPermissions() throws Exception {
+        Path master = work.resolve("XREFFILE.bin");
+        Files.copy(GoldenSet.defaultGolden().resolve("expected/mixed/initial.XREFFILE.bin"), master);
+        Set<PosixFilePermission> readOnly = PosixFilePermissions.fromString("r--r-----");
+        Files.setPosixFilePermissions(master, readOnly);
+        KeyedDataset<CardXrefRecord> dataset = KeyedDataset.load(master, CardXrefRecord.CODEC, 16, StandardCharsets.US_ASCII);
+        dataset.clear();
+
+        KeyedDataset.flush(dataset);
+        assertEquals(0, Files.size(master));
+        assertEquals(readOnly, Files.getPosixFilePermissions(master));
+        try (Stream<Path> files = Files.list(work)) {
+            assertEquals(List.of(master), files.toList(), "no temporary file left");
         }
     }
 }

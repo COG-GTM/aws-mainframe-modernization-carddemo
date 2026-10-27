@@ -47,11 +47,12 @@ final class FixedLengthFiles {
             throw new UncheckedIOException("cannot stage " + file, e);
         }
         try {
+            write(temp, records, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.WRITE);
+            // After the write, so a read-only master can still be replaced (its directory decides that).
             if (Files.getFileStore(temp).supportsFileAttributeView(PosixFileAttributeView.class)
                     && Files.exists(absolute)) {
                 Files.setPosixFilePermissions(temp, Files.getPosixFilePermissions(absolute));
             }
-            write(temp, records, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.WRITE);
         } catch (IOException e) {
             UncheckedIOException failure = new UncheckedIOException("cannot stage " + file, e);
             deleteQuietly(temp, failure);
