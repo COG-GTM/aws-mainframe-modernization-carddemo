@@ -1,0 +1,23 @@
+spring:
+  datasource:
+    url: jdbc:h2:mem:carddemo-test;DB_CLOSE_DELAY=-1
+    username: sa
+    password:
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    open-in-view: false
+  batch:
+    jdbc:
+      initialize-schema: always
+    job:
+      enabled: false
+
+carddemo:
+  batch:
+    dalytran-file: ../data/ASCII/dailytran.txt
+    dalyrejs-dir: target/test-dalyrejs
+    chunk-size: 50
+  seed:
+    enabled: false
+    data-dir: ../data/ASCII
