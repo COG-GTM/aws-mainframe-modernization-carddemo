@@ -1,0 +1,13 @@
+{
+  "daily_records": 7,
+  "accepted": 2,
+  "reject_reasons": {
+    "XREF_MISS": 100,
+    "NO_ACCOUNT": 101,
+    "OVER_LIMIT": 102,
+    "AFTER_EXPIRY": 103,
+    "EXPIRY_OVERRIDES": 103
+  },
+  "interest_records": 4,
+  "verified": true
+}
