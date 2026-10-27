@@ -19,7 +19,7 @@ Requires Java 21 and Maven 3.9.
 
 ```bash
 cd app/app-java
-mvn verify                                   # 41 JUnit tests using app/data/ASCII
+mvn verify                                   # JUnit tests using app/data/ASCII
 
 # Batch: one job per run. The JVM exit code is the JCL return code (0, 4 = rejects, 12 = abend)
 java -jar target/carddemo-transaction-0.1.0-SNAPSHOT.jar \
