@@ -84,22 +84,38 @@ public class TransactionPostingJobConfig {
     @Bean
     @StepScope
     public FlatFileItemWriter<RejectRecord> dalyrejsWriter(CardDemoProperties properties,
-                                                           @Value("#{stepExecution.jobExecutionId}") Long executionId) {
+                                                           @Value("#{stepExecution}") StepExecution stepExecution) {
         Path dir = Path.of(properties.batch().dalyrejsDir());
         try {
             Files.createDirectories(dir);
         } catch (IOException e) {
             throw new CobolFileException("DALYREJS", FileStatus.PERMANENT_IO_ERROR, "ERROR OPENING DALY REJECTS FILE", e);
         }
-        Path file = dir.resolve("DALYREJS.G" + Pic.zeroFill(executionId, 4) + "V00.txt");
+        Path file = dir.resolve("DALYREJS.G" + String.format("%04d", nextGeneration(dir)) + "V00.txt");
+        stepExecution.getExecutionContext().putString(DALYREJS_DATASET, file.toString());
         FlatFileItemWriter<RejectRecord> writer = new FlatFileItemWriter<>();
         writer.setName("dalyrejsWriter");
         writer.setResource(new FileSystemResource(file));
         writer.setEncoding(StandardCharsets.US_ASCII.name());
         writer.setLineAggregator(RejectRecord::format);
         writer.setShouldDeleteIfEmpty(false);
-        writer.setShouldDeleteIfExists(true);
+        writer.setShouldDeleteIfExists(false);
         return writer;
+    }
+
+    public static final String DALYREJS_DATASET = "DALYREJS";
+
+    /** GDG (+1): one past the highest existing generation; an existing dataset is never overwritten. */
+    static int nextGeneration(Path dir) {
+        java.util.regex.Pattern gen = java.util.regex.Pattern.compile("DALYREJS\\.G(\\d+)V00\\.txt");
+        try (java.util.stream.Stream<Path> files = Files.list(dir)) {
+            return files.map(f -> gen.matcher(f.getFileName().toString()))
+                    .filter(java.util.regex.Matcher::matches)
+                    .mapToInt(m -> Integer.parseInt(m.group(1)))
+                    .max().orElse(0) + 1;
+        } catch (IOException e) {
+            throw new CobolFileException("DALYREJS", FileStatus.PERMANENT_IO_ERROR, "ERROR OPENING DALY REJECTS FILE", e);
+        }
     }
 
     /** Final DISPLAYs and {@code IF WS-REJECT-COUNT > 0 MOVE 4 TO RETURN-CODE}. */

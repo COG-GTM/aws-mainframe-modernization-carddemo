@@ -16,6 +16,11 @@ import java.math.BigDecimal;
 @Table(name = "TCATBALF")
 public class TransactionCategoryBalance {
 
+    /** Optimistic lock: a concurrent REWRITE of the same record fails instead of silently losing an update. */
+    @jakarta.persistence.Version
+    @Column(name = "ROW_VERSION")
+    private Long rowVersion;
+
     @EmbeddedId
     private TransactionCategoryBalanceId id;
     @Column(name = "TRAN_CAT_BAL", precision = 11, scale = 2, nullable = false)

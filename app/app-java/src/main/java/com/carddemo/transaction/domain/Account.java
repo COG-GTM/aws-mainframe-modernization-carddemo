@@ -15,6 +15,11 @@ import java.math.BigDecimal;
 @Table(name = "ACCTDATA")
 public class Account {
 
+    /** Optimistic lock: a concurrent REWRITE of the same record fails instead of silently losing an update. */
+    @jakarta.persistence.Version
+    @Column(name = "ROW_VERSION")
+    private Long rowVersion;
+
     @Id
     @Column(name = "ACCT_ID")
     private Long acctId;                      // PIC 9(11)

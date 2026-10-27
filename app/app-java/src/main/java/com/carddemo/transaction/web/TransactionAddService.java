@@ -163,7 +163,14 @@ public class TransactionAddService {
         if (read(() -> transactions.existsById(tranId), "Unable to Add Transaction...")) {
             throw new OnlineException(HttpStatus.CONFLICT, "Tran ID already exist...", acct, card);
         }
-        read(() -> transactions.save(t), "Unable to Add Transaction...");
+        try {
+            transactions.saveAndFlush(t);
+        } catch (org.springframework.dao.DataIntegrityViolationException e) {
+            // WRITE ... RESP(DUPREC): another writer (e.g. a second instance) took this TRAN-ID first
+            throw new OnlineException(HttpStatus.CONFLICT, "Tran ID already exist...", acct, card);
+        } catch (org.springframework.dao.DataAccessException e) {
+            throw new OnlineException(HttpStatus.INTERNAL_SERVER_ERROR, "Unable to Add Transaction...", acct, card);
+        }
         return new AddTransactionResponse(tranId, acct, card,
                 "Transaction added successfully.  Your Tran ID is " + tranId + ".");
     }

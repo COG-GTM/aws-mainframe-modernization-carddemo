@@ -63,9 +63,7 @@ class BatchJobsTest {
     }
 
     private static List<String> rejects(JobExecution e) throws Exception {
-        Path dir = Path.of("target/test-dalyrejs");
-        String name = "DALYREJS.G" + String.format("%04d", e.getId()) + "V00.txt";
-        return Files.readAllLines(dir.resolve(name));
+        return Files.readAllLines(Path.of(step(e).getExecutionContext().getString(TransactionPostingJobConfig.DALYREJS_DATASET)));
     }
 
     // ---------------------------------------------------------------- CBTRN01C
@@ -238,6 +236,29 @@ class BatchJobsTest {
         assertThat(JclReturnCodes.returnCode(e)).isEqualTo(12);
         assertThat(e.getAllFailureExceptions()).anySatisfy(ex ->
                 assertThat(((CobolFileException) ex).getFileStatus()).isEqualTo("22"));
+    }
+
+    @Test
+    void eachPostingRunWritesTheNextDalyrejsGenerationWithoutOverwritingEarlierOnes() throws Exception {
+        String rec = dalytran("9000000000000040", "01", 1, new BigDecimal("1.00"), "9999999999999999", "2024-01-15 10:00:00.000000");
+        JobExecution first = data.run(postingJob, TestData.writeDalytran(tmp, List.of(rec)));
+        JobExecution second = data.run(postingJob, TestData.writeDalytran(tmp, List.of(rec)));
+        String f1 = step(first).getExecutionContext().getString(TransactionPostingJobConfig.DALYREJS_DATASET);
+        String f2 = step(second).getExecutionContext().getString(TransactionPostingJobConfig.DALYREJS_DATASET);
+        assertThat(f2).isNotEqualTo(f1);
+        assertThat(Files.readAllLines(Path.of(f1))).hasSize(1);
+        assertThat(Files.readAllLines(Path.of(f2))).hasSize(1);
+    }
+
+    @Test
+    void concurrentRewriteOfTheSameAccountFailsInsteadOfLosingAnUpdate() {
+        Account first = data.accounts().findById(1L).orElseThrow();
+        Account stale = data.accounts().findById(1L).orElseThrow();
+        first.setCurrBal(first.getCurrBal().add(BigDecimal.TEN));
+        data.accounts().save(first);
+        stale.setCurrBal(stale.getCurrBal().add(BigDecimal.ONE));
+        org.assertj.core.api.Assertions.assertThatThrownBy(() -> data.accounts().save(stale))
+                .isInstanceOf(org.springframework.orm.ObjectOptimisticLockingFailureException.class);
     }
 
     private static CobolFileException cobolAbend(JobExecution e) {
