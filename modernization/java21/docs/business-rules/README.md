@@ -33,5 +33,8 @@ python3 modernization/java21/docs/business-rules/check_catalog.py --ref origin/m
 
 The script checks that ids are unique and numbered without gaps, that every cite resolves against `origin/main`,
 that every paragraph and decision line is mapped, that the checklist lists every rule id exactly once, and that
-none of the files contains a banned claim word. Add `--show` to print the source lines behind each rule's cites
+none of the files contains a banned claim word. Each branch-map row must sit inside the paragraph it names, start on a
+decision line and not overlap another row, so one catch-all range cannot stand in for the real mapping. Before the
+real check, a self-test confirms that tampered copies are rejected: a catch-all range, a cite past the end of the
+file, and an unknown rule id. Add `--show` to print the source lines behind each rule's cites
 for review.
