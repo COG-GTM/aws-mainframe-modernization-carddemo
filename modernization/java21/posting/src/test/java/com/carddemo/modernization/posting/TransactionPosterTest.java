@@ -44,6 +44,20 @@ class TransactionPosterTest {
         assertEquals(new TransactionPoster.Result(0, 0, 0), POSTER.post(List.of(), new MemoryStore()));
     }
 
+    @Test void reusedStoreStartsFreshOutputsEvenForEmptyBatch() throws Exception {
+        MemoryStore store = load("mixed");
+        POSTER.post(split(Files.readAllBytes(GOLDEN.resolve("mixed/DALYTRAN.bin")), 350), store);
+        assertFalse(store.transactions.isEmpty());
+        assertFalse(store.rejects.isEmpty());
+        Map<String, AccountRecord> accounts = new TreeMap<>(store.accounts);
+        Map<String, TranCatBalanceRecord> categories = new TreeMap<>(store.categories);
+        assertEquals(new TransactionPoster.Result(0, 0, 0), POSTER.post(List.of(), store));
+        assertTrue(store.transactions.isEmpty());
+        assertTrue(store.rejects.isEmpty());
+        assertEquals(accounts, store.accounts);
+        assertEquals(categories, store.categories);
+    }
+
     @Test void failedRewriteDoesNotRejectOrChangeReturnCode() throws Exception {
         MemoryStore store = load("mixed");
         byte[] input = firstPostedInput();
@@ -168,6 +182,7 @@ class TransactionPosterTest {
         final List<byte[]> rejects = new ArrayList<>();
         boolean failRewrite;
         boolean failWrite;
+        public void openOutputs() { transactions.clear(); rejects.clear(); }
         public CardXrefRecord findCard(String key) { return cards.get(key); }
         public AccountRecord findAccount(String key) { return accounts.get(key); }
         public TranCatBalanceRecord findCategory(String account, String type, String category) {

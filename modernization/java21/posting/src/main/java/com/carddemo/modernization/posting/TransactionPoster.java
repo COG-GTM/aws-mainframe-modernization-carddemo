@@ -16,6 +16,8 @@ import java.util.Locale;
 public final class TransactionPoster {
     /** Missing reads return null; other I/O failures throw. Writes throw on failure. */
     public interface Store {
+        /** Open fresh transaction and reject outputs, preserving all input/master records. */
+        void openOutputs();
         CardXrefRecord findCard(String cardNumber);
         AccountRecord findAccount(String accountId);
         TranCatBalanceRecord findCategory(String accountId, String type, String category);
@@ -38,6 +40,8 @@ public final class TransactionPoster {
     }
 
     public Result post(Iterable<byte[]> dailyRecords, Store store) {
+        // POST-01: app/cbl/CBTRN02C.cbl:256,293, OPEN OUTPUT for each batch run.
+        store.openOutputs();
         long posted = 0;
         long rejected = 0;
         for (byte[] bytes : dailyRecords) {
