@@ -11,11 +11,18 @@ Checks, per catalog file:
   5. Every decision line (IF, ELSE, INVALID KEY, NOT INVALID KEY,
      PERFORM UNTIL) of the PROCEDURE DIVISION falls inside a branch-map row,
      and every branch-map row maps to known rule ids or "no business logic".
+     Each row must lie inside the paragraph it names, start on a decision
+     line, end on a decision line or END- terminator, and not overlap
+     another row.
   6. The SME checklist lists every rule id exactly once and nothing else.
   7. No banned claim words appear.
 
 Usage:
   python3 check_catalog.py [--ref <git-ref>] [--show]
+
+Before the real check it runs a self-test: tampered copies of the catalog
+(a catch-all branch range, a cite past end of file, an unknown rule id) must
+each be rejected.
 
 --ref reads the COBOL sources from a git ref (e.g. origin/main) instead of
 the working tree. --show prints the source lines behind each rule cite.
@@ -38,6 +45,8 @@ BANNED = re.compile(r"production[- ]ready|certified|compliant", re.I)
 CITE = re.compile(r"`(app/[A-Za-z0-9_./-]+):(\d+)(?:-(\d+))?`")
 PARAGRAPH = re.compile(r"^ {7}([A-Z0-9][A-Z0-9-]*)\.\s*$")
 DECISION = re.compile(r"(?<![-\w])IF\b|\bELSE\b|\bINVALID KEY\b|\bPERFORM UNTIL\b")
+END_SCOPE = re.compile(r"\bEND-(IF|READ|REWRITE|PERFORM)\b")
+MAIN_LINE = "main line"
 NBL = "no business logic"
 
 _cache = {}
@@ -108,9 +117,10 @@ def check_cites(name, text, ref, errors):
     return count
 
 
-def check_catalog(fname, prefix, program, ref, show, errors):
-    with open(os.path.join(HERE, fname), encoding="utf-8") as fh:
-        text = fh.read()
+def check_catalog(fname, prefix, program, ref, show, errors, text=None):
+    if text is None:
+        with open(os.path.join(HERE, fname), encoding="utf-8") as fh:
+            text = fh.read()
     if BANNED.search(text):
         errors.append(f"{fname}: banned claim word: {BANNED.search(text).group(0)}")
 
@@ -162,17 +172,38 @@ def check_catalog(fname, prefix, program, ref, show, errors):
         if para not in mapped:
             errors.append(f"{fname}: paragraph {para} (line {paragraphs[para]}) missing from paragraph map")
 
-    # Branch map
+    # Branch map: each row must sit inside its declared paragraph, start on a
+    # decision line, end on a decision line or scope terminator, and not
+    # overlap another row, so a catch-all range cannot stand in for real rows.
+    decisions = [n for n in range(first, last + 1)
+                 if is_code(lines[n - 1]) and DECISION.search(lines[n - 1][7:72])]
+    headers = sorted(paragraphs.values())
+    spans = {MAIN_LINE: (first, (headers[0] - 1) if headers else last)}
+    for i, n in enumerate(headers):
+        name = next(k for k, v in paragraphs.items() if v == n)
+        spans[name] = (n, headers[i + 1] - 1 if i + 1 < len(headers) else last)
     ranges = []
     for cells in table_rows(text, "Branch map"):
         r = parse_range(cells[0])
-        if not r:
+        if not r or r[0] > r[1]:
             errors.append(f"{fname}: bad branch-map line range {cells[0]!r}")
             continue
+        a, b = r
+        para = cells[1].strip("`")
+        span = spans.get(para)
+        if span is None:
+            errors.append(f"{fname}: branch {cells[0]} names unknown paragraph {para!r}")
+        elif not (span[0] <= a <= b <= span[1]):
+            errors.append(f"{fname}: branch {cells[0]} is outside {para} (lines {span[0]}-{span[1]})")
+        if a not in decisions:
+            errors.append(f"{fname}: branch {cells[0]} does not start on a decision line")
+        if b <= len(lines) and b not in decisions and not END_SCOPE.search(lines[b - 1][7:72]):
+            errors.append(f"{fname}: branch {cells[0]} does not end on a decision line or END- terminator")
+        for pa, pb in ranges:
+            if a <= pb and pa <= b:
+                errors.append(f"{fname}: branch {cells[0]} overlaps {pa}-{pb}")
         ranges.append(r)
         check_targets(fname, f"branch {cells[0]}", cells[-1], known, errors)
-    decisions = [n for n in range(first, last + 1)
-                 if is_code(lines[n - 1]) and DECISION.search(lines[n - 1][7:72])]
     for n in decisions:
         if not any(a <= n <= b for a, b in ranges):
             errors.append(f"{fname}: decision at {program}:{n} not in branch map: {lines[n - 1].strip()}")
@@ -190,11 +221,41 @@ def check_targets(fname, where, target, known, errors):
             errors.append(f"{fname}: {where} maps to unknown rule {rid}")
 
 
+def self_test(ref):
+    """Negative cases: each tampered catalog must be rejected."""
+    fname, prefix, program = CATALOGS[0]
+    with open(os.path.join(HERE, fname), encoding="utf-8") as fh:
+        good = fh.read()
+    head, rest = good.split("## Branch map", 1)
+    tail = rest[rest.index("\n## ", 1):]
+    catch_all = ("## Branch map\n\n| Lines | Paragraph | Decision | Maps to |\n"
+                 "|---|---|---|---|\n| 1-99999 | main line | all decisions | INT-01 |\n")
+    cases = {
+        "oversized branch range": head + catch_all + tail,
+        "main-line range spanning paragraphs": head + catch_all.replace("1-99999", "188-647") + tail,
+        "cite past end of file": good.replace("CBACT04C.cbl:462-465", "CBACT04C.cbl:462-999"),
+        "unknown rule in branch map": good.replace("| 214-217 | main line | rate not zero | INT-10 |",
+                                                   "| 214-217 | main line | rate not zero | INT-99 |"),
+    }
+    failed = 0
+    for name, text in cases.items():
+        errors = []
+        check_catalog(fname, prefix, program, ref, False, errors, text=text)
+        ok = bool(errors)
+        failed += not ok
+        print(f"self-test {name}: {'rejected' if ok else 'NOT REJECTED'}"
+              + (f" ({errors[0]})" if ok else ""))
+    return failed
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--ref")
     ap.add_argument("--show", action="store_true")
     args = ap.parse_args()
+    if self_test(args.ref):
+        print("RESULT: FAIL (self-test)")
+        return 1
     errors, all_rules = [], []
     for fname, prefix, program in CATALOGS:
         rules, ncites, npara, ndec = check_catalog(fname, prefix, program, args.ref, args.show, errors)
