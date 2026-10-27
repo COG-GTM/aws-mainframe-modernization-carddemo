@@ -36,8 +36,22 @@ final class FixedLengthFiles {
     /** Writes the new content of {@code file} to a sibling temporary file and returns that file. */
     static Path stage(Path file, Collection<byte[]> records) {
         Path temp = file.resolveSibling(file.getFileName() + ".tmp");
-        write(temp, records, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.WRITE);
+        try {
+            write(temp, records, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.WRITE);
+        } catch (RuntimeException e) {
+            deleteQuietly(temp, e);
+            throw e;
+        }
         return temp;
+    }
+
+    /** Removes a staged file that will not be committed, recording a failure to do so on {@code cause}. */
+    static void deleteQuietly(Path staged, Exception cause) {
+        try {
+            Files.deleteIfExists(staged);
+        } catch (IOException e) {
+            cause.addSuppressed(e);
+        }
     }
 
     /** Moves a staged file over the dataset it replaces. */

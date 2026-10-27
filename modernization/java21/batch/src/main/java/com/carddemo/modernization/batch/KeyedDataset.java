@@ -76,17 +76,26 @@ final class KeyedDataset<T> {
 
     /**
      * Writes back every changed dataset. All new contents are staged to temporary files before any dataset is
-     * replaced, so a write failure (a full disk, say) changes none of them.
+     * replaced, so a write failure (a full disk, say) changes none of them. Staged files that are not committed are
+     * removed; datasets already replaced stay replaced.
      */
     static void flush(KeyedDataset<?>... datasets) {
         List<KeyedDataset<?>> changed = Arrays.stream(datasets).filter(d -> d.dirty).toList();
         List<Path> staged = new ArrayList<>();
-        for (KeyedDataset<?> dataset : changed) {
-            staged.add(FixedLengthFiles.stage(dataset.file, dataset.records.values()));
-        }
-        for (int i = 0; i < changed.size(); i++) {
-            FixedLengthFiles.commit(staged.get(i), changed.get(i).file);
-            changed.get(i).dirty = false;
+        int committed = 0;
+        try {
+            for (KeyedDataset<?> dataset : changed) {
+                staged.add(FixedLengthFiles.stage(dataset.file, dataset.records.values()));
+            }
+            for (; committed < changed.size(); committed++) {
+                FixedLengthFiles.commit(staged.get(committed), changed.get(committed).file);
+                changed.get(committed).dirty = false;
+            }
+        } catch (RuntimeException e) {
+            for (int i = committed; i < staged.size(); i++) {
+                FixedLengthFiles.deleteQuietly(staged.get(i), e);
+            }
+            throw e;
         }
     }
 
