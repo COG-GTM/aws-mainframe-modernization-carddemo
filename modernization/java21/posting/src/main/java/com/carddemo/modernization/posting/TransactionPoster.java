@@ -24,7 +24,8 @@ public final class TransactionPoster {
         void saveCategory(TranCatBalanceRecord record, boolean create);
         /** False represents INVALID KEY, not an exception. */
         boolean rewriteAccount(AccountRecord record);
-        void writeTransaction(TransactionRecord record);
+        /** Write an encoded 350-byte record; merchant ID bytes may be non-numeric. */
+        void writeTransaction(byte[] record);
         void writeReject(byte[] record);
     }
 
@@ -86,12 +87,18 @@ public final class TransactionPoster {
                 rejected++;
                 continue;
             }
-            DailyTransactionRecord t = DailyTransactionRecord.CODEC.decode(bytes, charset);
+            // POST-10: app/cbl/CBTRN02C.cbl:431 moves DISPLAY merchant ID bytes without arithmetic.
+            // app/cpy/CVTRA05Y.cpy:5-11 and CVTRA06Y.cpy:5-11: offset 143, length 9.
+            byte[] decodable = bytes.clone();
+            System.arraycopy("000000000".getBytes(charset), 0, decodable, 143, 9);
+            DailyTransactionRecord t = DailyTransactionRecord.CODEC.decode(decodable, charset);
             // POST-10/18: app/cbl/CBTRN02C.cbl:424-438,692-705. Filler remains spaces.
             TransactionRecord transaction = new TransactionRecord(t.id(), t.typeCode(), t.categoryCode(),
                     t.source(), t.description(), new ZonedDecimal(pic(t.amount().value(), 9)), t.merchantId(),
                     t.merchantName(), t.merchantCity(), t.merchantZip(), t.cardNumber(),
                     t.originalTimestamp(), TIMESTAMP.format(LocalDateTime.now(clock)), "");
+            byte[] encodedTransaction = TransactionRecord.CODEC.encode(transaction, charset);
+            System.arraycopy(bytes, 143, encodedTransaction, 143, 9);
             // POST-11: app/cbl/CBTRN02C.cbl:440-442, ordered effects with no rollback.
             TranCatBalanceRecord category = store.findCategory(xref.accountId(), t.typeCode(), t.categoryCode());
             boolean create = category == null;
@@ -110,7 +117,7 @@ public final class TransactionPoster {
             // POST-16: app/cbl/CBTRN02C.cbl:554-560, reason 109 is not acted on: no reject or RC change.
             store.rewriteAccount(updated);
             // POST-17/19: app/cbl/CBTRN02C.cbl:562-579, write errors propagate after prior updates.
-            store.writeTransaction(transaction);
+            store.writeTransaction(encodedTransaction);
             posted++;
         }
         // POST-09: app/cbl/CBTRN02C.cbl:229-231.

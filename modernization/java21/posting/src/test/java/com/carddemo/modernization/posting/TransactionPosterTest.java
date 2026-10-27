@@ -28,7 +28,7 @@ class TransactionPosterTest {
         assertEquals(new TransactionPoster.Result(posted, rejected, rejected > 0 ? 4 : 0), result);
         String rc = Files.readString(GOLDEN.resolve(name).resolve("return-codes.json"));
         assertTrue(rc.contains("\"CBTRN02C\": " + result.returnCode()));
-        compare(name, "CBTRN02C.TRANFILE.bin", encode(store.transactions.values(), TransactionRecord.CODEC));
+        compare(name, "CBTRN02C.TRANFILE.bin", join(store.transactions.values()));
         compare(name, "DALYREJS.bin", join(store.rejects));
         compare(name, "CBTRN02C.ACCTFILE.bin", encode(store.accounts.values(), AccountRecord.CODEC));
         compare(name, "CBTRN02C.TCATBALF.bin", encode(store.categories.values(), TranCatBalanceRecord.CODEC));
@@ -102,14 +102,43 @@ class TransactionPosterTest {
         }
     }
 
-    @Test void malformedFieldsAfterSuccessfulLookupsFailWithoutCoercion() throws Exception {
-        for (int offset : List.of(132, 143)) {
+    @Test void malformedAmountAfterSuccessfulLookupsFailsWithoutUpdates() throws Exception {
+        MemoryStore store = load("mixed");
+        Map<String, AccountRecord> accounts = new TreeMap<>(store.accounts);
+        Map<String, TranCatBalanceRecord> categories = new TreeMap<>(store.categories);
+        byte[] input = firstPostedInput().clone();
+        Arrays.fill(input, 132, 143, (byte) ' ');
+        assertThrows(IllegalArgumentException.class, () -> POSTER.post(List.of(input), store));
+        assertTrue(store.rejects.isEmpty());
+        assertTrue(store.transactions.isEmpty());
+        assertEquals(accounts, store.accounts);
+        assertEquals(categories, store.categories);
+    }
+
+    @Test void nonNumericMerchantIdIsPostedByteForByte() throws Exception {
+        byte[] original = firstPostedInput();
+        MemoryStore baseline = load("mixed");
+        POSTER.post(List.of(original), baseline);
+        for (byte[] merchant : List.of("         ".getBytes(StandardCharsets.US_ASCII),
+                "AbC!9 xyz".getBytes(StandardCharsets.US_ASCII),
+                new byte[] {0, (byte) 0xff, 1, 2, 3, 4, 5, 6, 7})) {
             MemoryStore store = load("mixed");
-            byte[] input = firstPostedInput().clone();
-            Arrays.fill(input, offset, offset + (offset == 132 ? 11 : 9), (byte) ' ');
-            assertThrows(IllegalArgumentException.class, () -> POSTER.post(List.of(input), store));
+            Map<String, AccountRecord> accounts = new TreeMap<>(store.accounts);
+            Map<String, TranCatBalanceRecord> categories = new TreeMap<>(store.categories);
+            byte[] input = original.clone();
+            System.arraycopy(merchant, 0, input, 143, 9);
+            assertEquals(new TransactionPoster.Result(1, 0, 0), POSTER.post(List.of(input), store));
+            byte[] actual = store.transactions.values().iterator().next();
+            assertEquals(350, actual.length);
+            assertArrayEquals(merchant, Arrays.copyOfRange(actual, 143, 152));
+            byte[] expected = baseline.transactions.values().iterator().next().clone();
+            System.arraycopy(merchant, 0, expected, 143, 9);
+            assertArrayEquals(expected, actual);
+            assertNotEquals(accounts, store.accounts);
+            assertNotEquals(categories, store.categories);
+            assertEquals(baseline.accounts, store.accounts);
+            assertEquals(baseline.categories, store.categories);
             assertTrue(store.rejects.isEmpty());
-            assertTrue(store.transactions.isEmpty());
         }
     }
 
@@ -120,7 +149,8 @@ class TransactionPosterTest {
             MemoryStore store = load("mixed");
             byte[] input = firstPostedInput();
             assertEquals(new TransactionPoster.Result(1, 0, 0), POSTER.post(List.of(input), store));
-            assertEquals("2022-07-18-12.34.56.000000", store.transactions.values().iterator().next().processedTimestamp());
+            assertEquals("2022-07-18-12.34.56.000000", TransactionRecord.CODEC.decode(
+                    store.transactions.values().iterator().next()).processedTimestamp());
             store.cards.clear();
             assertEquals(new TransactionPoster.Result(0, 1, 4), POSTER.post(List.of(input), store));
             assertEquals("0100", RejectRecord.CODEC.decode(store.rejects.getFirst()).reasonCode());
@@ -178,7 +208,7 @@ class TransactionPosterTest {
         final Map<String, CardXrefRecord> cards = new TreeMap<>();
         final Map<String, AccountRecord> accounts = new TreeMap<>();
         final Map<String, TranCatBalanceRecord> categories = new TreeMap<>();
-        final Map<String, TransactionRecord> transactions = new TreeMap<>();
+        final Map<String, byte[]> transactions = new TreeMap<>();
         final List<byte[]> rejects = new ArrayList<>();
         boolean failRewrite;
         boolean failWrite;
@@ -197,8 +227,9 @@ class TransactionPosterTest {
             if (failRewrite) return false;
             return accounts.replace(a.acctId(), a) != null;
         }
-        public void writeTransaction(TransactionRecord t) {
-            if (failWrite || transactions.putIfAbsent(t.id(), t) != null) throw new IllegalStateException("Transaction write failed");
+        public void writeTransaction(byte[] record) {
+            String id = new String(record, 0, 16, StandardCharsets.US_ASCII);
+            if (failWrite || transactions.putIfAbsent(id, record.clone()) != null) throw new IllegalStateException("Transaction write failed");
         }
         public void writeReject(byte[] record) { rejects.add(record); }
     }
