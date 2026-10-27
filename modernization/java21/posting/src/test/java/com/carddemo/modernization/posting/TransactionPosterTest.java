@@ -72,6 +72,49 @@ class TransactionPosterTest {
         assertThrows(IllegalArgumentException.class, () -> POSTER.post(List.of(new byte[349]), new MemoryStore()));
     }
 
+    @Test void malformedNumericFieldsDoNotPreventLookupRejects() throws Exception {
+        for (String reason : List.of("0100", "0101")) {
+            MemoryStore store = load("mixed");
+            byte[] input = firstPostedInput().clone();
+            Arrays.fill(input, 143, 152, (byte) ' ');
+            Arrays.fill(input, 132, 143, (byte) ' ');
+            if (reason.equals("0100")) store.cards.clear();
+            else store.accounts.clear();
+            assertEquals(new TransactionPoster.Result(0, 1, 4), POSTER.post(List.of(input), store));
+            byte[] reject = store.rejects.getFirst();
+            assertEquals(430, reject.length);
+            assertArrayEquals(input, Arrays.copyOf(reject, 350));
+            assertEquals(reason, RejectRecord.CODEC.decode(reject).reasonCode());
+        }
+    }
+
+    @Test void malformedFieldsAfterSuccessfulLookupsFailWithoutCoercion() throws Exception {
+        for (int offset : List.of(132, 143)) {
+            MemoryStore store = load("mixed");
+            byte[] input = firstPostedInput().clone();
+            Arrays.fill(input, offset, offset + (offset == 132 ? 11 : 9), (byte) ' ');
+            assertThrows(IllegalArgumentException.class, () -> POSTER.post(List.of(input), store));
+            assertTrue(store.rejects.isEmpty());
+            assertTrue(store.transactions.isEmpty());
+        }
+    }
+
+    @Test void rejectReasonAndTimestampAreLocaleIndependent() throws Exception {
+        Locale original = Locale.getDefault();
+        try {
+            Locale.setDefault(Locale.forLanguageTag("ar-EG"));
+            MemoryStore store = load("mixed");
+            byte[] input = firstPostedInput();
+            assertEquals(new TransactionPoster.Result(1, 0, 0), POSTER.post(List.of(input), store));
+            assertEquals("2022-07-18-12.34.56.000000", store.transactions.values().iterator().next().processedTimestamp());
+            store.cards.clear();
+            assertEquals(new TransactionPoster.Result(0, 1, 4), POSTER.post(List.of(input), store));
+            assertEquals("0100", RejectRecord.CODEC.decode(store.rejects.getFirst()).reasonCode());
+        } finally {
+            Locale.setDefault(original);
+        }
+    }
+
     private byte[] firstPostedInput() throws Exception {
         Set<String> posted = new HashSet<>();
         for (byte[] b : split(Files.readAllBytes(GOLDEN.resolve("mixed/CBTRN02C.TRANFILE.bin")), 350))

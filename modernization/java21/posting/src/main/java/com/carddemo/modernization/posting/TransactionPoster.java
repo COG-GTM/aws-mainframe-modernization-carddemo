@@ -2,6 +2,7 @@ package com.carddemo.modernization.posting;
 
 import com.carddemo.modernization.records.*;
 import com.carddemo.modernization.records.codec.ZonedDecimal;
+import com.carddemo.modernization.records.codec.ZonedDecimalCodec;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.nio.charset.Charset;
@@ -9,6 +10,8 @@ import java.time.Clock;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Objects;
+import java.util.Arrays;
+import java.util.Locale;
 
 public final class TransactionPoster {
     /** Missing reads return null; other I/O failures throw. Writes throw on failure. */
@@ -27,7 +30,7 @@ public final class TransactionPoster {
 
     private final Clock clock;
     private final Charset charset;
-    private static final DateTimeFormatter TIMESTAMP = DateTimeFormatter.ofPattern("uuuu-MM-dd-HH.mm.ss.SS'0000'");
+    private static final DateTimeFormatter TIMESTAMP = DateTimeFormatter.ofPattern("uuuu-MM-dd-HH.mm.ss.SS'0000'", Locale.ROOT);
 
     public TransactionPoster(Clock clock, Charset charset) {
         this.clock = Objects.requireNonNull(clock);
@@ -38,11 +41,14 @@ public final class TransactionPoster {
         long posted = 0;
         long rejected = 0;
         for (byte[] bytes : dailyRecords) {
-            DailyTransactionRecord t = DailyTransactionRecord.CODEC.decode(bytes, charset);
+            if (bytes.length != DailyTransactionRecord.CODEC.length()) {
+                throw new IllegalArgumentException("Expected 350-byte daily record");
+            }
             int reason = 0;
             String description = "";
             // POST-03/04/05: app/cbl/CBTRN02C.cbl:370-400, xref precedes account.
-            CardXrefRecord xref = store.findCard(t.cardNumber());
+            // app/cpy/CVTRA06Y.cpy:5-16: card offset 262, amount offset 132, original timestamp offset 278.
+            CardXrefRecord xref = store.findCard(new String(bytes, 262, 16, charset));
             AccountRecord a = null;
             if (xref == null) {
                 reason = 100;
@@ -55,13 +61,13 @@ public final class TransactionPoster {
                 } else {
                     // POST-06: app/cbl/CBTRN02C.cbl:403-413, S9(09)V99 truncates high digits.
                     BigDecimal temporary = pic(a.cycleCredit().value().subtract(a.cycleDebit().value())
-                            .add(t.amount().value()), 9);
+                            .add(new ZonedDecimalCodec(11, 2).decode(Arrays.copyOfRange(bytes, 132, 143), charset).value()), 9);
                     if (a.creditLimit().value().compareTo(temporary) < 0) {
                         reason = 102;
                         description = "OVERLIMIT TRANSACTION";
                     }
                     // POST-07: app/cbl/CBTRN02C.cbl:414-420, expiry intentionally overwrites 102.
-                    if (a.expirationDate().compareTo(t.originalTimestamp().substring(0, 10)) < 0) {
+                    if (a.expirationDate().compareTo(new String(bytes, 278, 10, charset)) < 0) {
                         reason = 103;
                         description = "TRANSACTION RECEIVED AFTER ACCT EXPIRATION";
                     }
@@ -69,11 +75,14 @@ public final class TransactionPoster {
             }
             if (reason != 0) {
                 // POST-08: app/cbl/CBTRN02C.cbl:446-452, original 350 bytes plus 80-byte trailer.
-                store.writeReject(RejectRecord.CODEC.encode(new RejectRecord(
-                        new String(bytes, charset), String.format("%04d", reason), description), charset));
+                byte[] reject = RejectRecord.CODEC.encode(new RejectRecord(
+                        "", String.format(Locale.ROOT, "%04d", reason), description), charset);
+                System.arraycopy(bytes, 0, reject, 0, bytes.length);
+                store.writeReject(reject);
                 rejected++;
                 continue;
             }
+            DailyTransactionRecord t = DailyTransactionRecord.CODEC.decode(bytes, charset);
             // POST-10/18: app/cbl/CBTRN02C.cbl:424-438,692-705. Filler remains spaces.
             TransactionRecord transaction = new TransactionRecord(t.id(), t.typeCode(), t.categoryCode(),
                     t.source(), t.description(), new ZonedDecimal(pic(t.amount().value(), 9)), t.merchantId(),
