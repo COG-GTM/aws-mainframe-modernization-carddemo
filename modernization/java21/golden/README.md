@@ -1,6 +1,6 @@
 # GnuCOBOL golden master
 
-Run from the repository root:
+Check the committed baseline from the repository root (never modifies expected/):
 
 ```sh
 modernization/java21/golden/run_golden.sh
@@ -82,21 +82,58 @@ and dumps every indexed file by ascending primary key into `.bin` sequential
 files (sizes above). It does not decode/reformat fields or include BDB metadata.
 Thus byte comparison covers all record fields including filler and sign bytes.
 Build executables, generated bridge source and BDB files stay in ignored
-`.build/`. The runner deletes only its own `.build/` and `expected/` before
-regenerating them; it never changes `app/`.
+`.build/`. Every run deletes only its own `.build/` and generates into
+`.build/generated/`, running all fixture assertions there first. Default CHECK
+mode then compares the complete file set and every byte against `expected/`.
+Missing, extra and differing files are named and cause a nonzero exit.
+CHECK also validates `acceptance.sha256` against the complete baseline.
+It never changes `expected/`, `acceptance.sha256` or `app/`.
 
-To reproduce the acceptance check (the runner performs the requested fresh
-expected/build deletion itself), retaining manifests inside ignored scratch:
+For an intentional baseline change, explicitly update after verification:
+
+```sh
+modernization/java21/golden/run_golden.sh --update
+```
+
+Only after both scenarios verify successfully, UPDATE replaces `expected/`
+and regenerates `acceptance.sha256` with repository-relative paths. Review and
+commit both together. Use the same sources and compiler for identical metadata.
+
+Acceptance procedure in a fresh clone of this branch (Bash):
 
 ```sh
 modernization/java21/golden/run_golden.sh
-find modernization/java21/golden/expected -type f -print0 | sort -z | xargs -0 sha256sum > modernization/java21/golden/.build/first.sha256
-# Save the first manifest outside .build because the next run deletes it:
-first=$(cat modernization/java21/golden/.build/first.sha256)
 modernization/java21/golden/run_golden.sh
-find modernization/java21/golden/expected -type f -print0 | sort -z | xargs -0 sha256sum > modernization/java21/golden/.build/second.sha256
-diff -u <(printf '%s\n' "$first") modernization/java21/golden/.build/second.sha256
-cat modernization/java21/golden/.build/second.sha256
+git status --porcelain  # empty
+modernization/java21/golden/run_golden.sh --update
+first=$(cat modernization/java21/golden/acceptance.sha256)
+modernization/java21/golden/run_golden.sh --update
+diff -u <(printf '%s\n' "$first") modernization/java21/golden/acceptance.sha256
+sha256sum -c modernization/java21/golden/acceptance.sha256
+git status --porcelain  # empty: both updates match the committed baseline
+```
+
+Negative test: flip one byte in `expected/mixed/SYSTRAN.bin` in the scratch
+clone, run default CHECK and require nonzero exit naming `mixed/SYSTRAN.bin`.
+Restore the original bytes afterward. CHECK must leave the altered baseline
+untouched. Also test an extra or missing baseline file: both must fail and
+name the affected file.
+
+```sh
+python3 - <<'PY'
+from pathlib import Path
+import subprocess
+p = Path('modernization/java21/golden/expected/mixed/SYSTRAN.bin')
+original = p.read_bytes()
+try:
+    p.write_bytes(bytes([original[0] ^ 1]) + original[1:])
+    result = subprocess.run(['modernization/java21/golden/run_golden.sh'])
+    assert result.returncode != 0
+    assert p.read_bytes() != original
+finally:
+    p.write_bytes(original)
+PY
+git status --porcelain  # empty
 ```
 
 Use the same source files and compiler version for byte-identical metadata.

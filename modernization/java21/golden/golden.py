@@ -1,4 +1,5 @@
 """Synthetic fixed-record fixtures and an independent integer oracle."""
+import argparse
 import hashlib
 import json
 import os
@@ -11,6 +12,7 @@ HERE = Path(__file__).resolve().parent
 ROOT = HERE.parents[2]
 BUILD = HERE / '.build'
 EXPECTED = HERE / 'expected'
+GENERATED = BUILD / 'generated'
 CLOCK = '2022-07-18 12:34:56'
 SPECS = {'ACCTFILE': (300, 11), 'XREFFILE': (50, 16),
          'TCATBALF': (50, 17), 'DISCGRP': (50, 16), 'TRANFILE': (350, 16)}
@@ -149,7 +151,7 @@ def fixture(volume):
 
 def execute(case, volume):
     work = BUILD / case
-    out = EXPECTED / case
+    out = GENERATED / case
     work.mkdir()
     out.mkdir()
     initial, daily = fixture(volume)
@@ -234,14 +236,43 @@ def verify(out, initial, daily, volume):
         'interest_records': len(interest), 'verified': True}, indent=2) + '\n')
 
 
+def manifest(directory):
+    return ''.join(
+        f'{hashlib.sha256(path.read_bytes()).hexdigest()}  '
+        f'modernization/java21/golden/expected/{path.relative_to(directory).as_posix()}\n'
+        for path in sorted(directory.rglob('*')) if path.is_file())
+
+
+def compare():
+    baseline = {p.relative_to(EXPECTED) for p in EXPECTED.rglob('*') if p.is_file()}
+    generated = {p.relative_to(GENERATED) for p in GENERATED.rglob('*') if p.is_file()}
+    differences = []
+    for path in sorted(baseline | generated):
+        if path not in baseline:
+            differences.append(f'Extra generated file: {path}')
+        elif path not in generated:
+            differences.append(f'Missing generated file: {path}')
+        elif (EXPECTED / path).read_bytes() != (GENERATED / path).read_bytes():
+            differences.append(f'Differing file: {path}')
+    acceptance = HERE / 'acceptance.sha256'
+    if not acceptance.is_file() or acceptance.read_text() != manifest(EXPECTED):
+        differences.append('Differing or missing file: acceptance.sha256 (baseline manifest)')
+    if differences:
+        raise SystemExit('\n'.join(differences))
+    print(f'CHECK passed: {len(baseline)} files byte-identical; acceptance.sha256 matches')
+
+
 def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--update', action='store_true',
+                        help='replace expected/ and acceptance.sha256 after verification')
+    args = parser.parse_args()
     os.environ.update(TZ='UTC', LC_ALL='C')
     version = subprocess.check_output(['cobc', '-V']).decode().splitlines()[0]
     assert '3.1' in version, version
-    for directory in (BUILD, EXPECTED):
-        if directory.exists():
-            shutil.rmtree(directory)
-        directory.mkdir()
+    if BUILD.exists():
+        shutil.rmtree(BUILD)
+    GENERATED.mkdir(parents=True)
     for name, (size, key) in SPECS.items():
         bridge(name, size, key)
     flags = ['cobc', '-fsign=EBCDIC', '-I', ROOT / 'app/cpy']
@@ -252,9 +283,17 @@ def main():
                 'volume_seed': 104, 'volume_records': 3000,
                 'sources_sha256': {name: hashlib.sha256((ROOT / 'app/cbl' / name).read_bytes()).hexdigest()
                                    for name in ('CBTRN02C.cbl', 'CBACT04C.cbl')}}
-    (EXPECTED / 'metadata.json').write_text(json.dumps(metadata, indent=2) + '\n')
+    (GENERATED / 'metadata.json').write_text(json.dumps(metadata, indent=2) + '\n')
     execute('mixed', False)
     execute('volume', True)
+    if args.update:
+        if EXPECTED.exists():
+            shutil.rmtree(EXPECTED)
+        shutil.copytree(GENERATED, EXPECTED)
+        (HERE / 'acceptance.sha256').write_text(manifest(EXPECTED))
+        print('UPDATE complete: expected/ and acceptance.sha256 regenerated after verification')
+    else:
+        compare()
 
 
 if __name__ == '__main__':
