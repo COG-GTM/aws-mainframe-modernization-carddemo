@@ -7,6 +7,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.StandardOpenOption;
+import java.nio.file.attribute.PosixFileAttributeView;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -33,11 +34,28 @@ final class FixedLengthFiles {
         write(file, records, StandardOpenOption.CREATE_NEW, StandardOpenOption.WRITE);
     }
 
-    /** Writes the new content of {@code file} to a sibling temporary file and returns that file. */
+    /**
+     * Writes the new content of {@code file} to a new, uniquely named sibling temporary file with the dataset's
+     * permissions and returns it. Only that file is removed if the write fails.
+     */
     static Path stage(Path file, Collection<byte[]> records) {
-        Path temp = file.resolveSibling(file.getFileName() + ".tmp");
+        Path absolute = file.toAbsolutePath();
+        Path temp;
         try {
-            write(temp, records, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.WRITE);
+            temp = Files.createTempFile(absolute.getParent(), absolute.getFileName() + ".", ".tmp");
+        } catch (IOException e) {
+            throw new UncheckedIOException("cannot stage " + file, e);
+        }
+        try {
+            if (Files.getFileStore(temp).supportsFileAttributeView(PosixFileAttributeView.class)
+                    && Files.exists(absolute)) {
+                Files.setPosixFilePermissions(temp, Files.getPosixFilePermissions(absolute));
+            }
+            write(temp, records, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.WRITE);
+        } catch (IOException e) {
+            UncheckedIOException failure = new UncheckedIOException("cannot stage " + file, e);
+            deleteQuietly(temp, failure);
+            throw failure;
         } catch (RuntimeException e) {
             deleteQuietly(temp, e);
             throw e;

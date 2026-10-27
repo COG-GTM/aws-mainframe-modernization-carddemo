@@ -8,7 +8,9 @@ import com.carddemo.modernization.records.CardXrefRecord;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.List;
+import java.nio.file.attribute.PosixFilePermission;
+import java.nio.file.attribute.PosixFilePermissions;
+import java.util.Set;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -29,16 +31,20 @@ class KeyedDatasetTest {
         KeyedDataset<CardXrefRecord> b = KeyedDataset.load(second, CardXrefRecord.CODEC, 16, StandardCharsets.US_ASCII);
         a.clear();
         b.clear();
-        // A non-empty directory where b's temporary file would go makes b's staging fail after a's has succeeded.
-        Path blocker = second.resolveSibling("XREFFILE.bin.tmp");
-        Files.createDirectory(blocker);
-        Files.writeString(blocker.resolve("keep"), "x");
-
-        assertThrows(RuntimeException.class, () -> KeyedDataset.flush(a, b));
+        // An existing path that looks like a temporary file is not the job's and must survive.
+        Path unrelated = Files.createDirectory(first.resolveSibling("XREFFILE.bin.tmp"));
+        // A read-only directory makes b's staging fail after a's has succeeded.
+        Set<PosixFilePermission> writable = Files.getPosixFilePermissions(second.getParent());
+        Files.setPosixFilePermissions(second.getParent(), PosixFilePermissions.fromString("r-x------"));
+        try {
+            assertThrows(RuntimeException.class, () -> KeyedDataset.flush(a, b));
+        } finally {
+            Files.setPosixFilePermissions(second.getParent(), writable);
+        }
         assertArrayEquals(Files.readAllBytes(golden), Files.readAllBytes(first), "a not replaced");
         assertArrayEquals(Files.readAllBytes(golden), Files.readAllBytes(second), "b not replaced");
         try (Stream<Path> files = Files.list(first.getParent())) {
-            assertEquals(List.of(first), files.toList(), "a's staged file removed");
+            assertEquals(Set.of(first, unrelated), Set.copyOf(files.toList()), "only a's staged file removed");
         }
     }
 }
