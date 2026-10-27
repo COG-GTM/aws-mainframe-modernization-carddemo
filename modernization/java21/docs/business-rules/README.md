@@ -37,5 +37,5 @@ that every paragraph and decision line is mapped, that the checklist lists every
 none of the files contains a banned claim word. Each branch-map row must sit inside the paragraph it names, start on a
 decision line and not overlap another row, so one catch-all range cannot stand in for the real mapping. Before the
 real check, a self-test confirms that tampered copies are rejected: a catch-all range, a cite past the end of the
-file, and an unknown rule id. Add `--show` to print the source lines behind each rule's cites
+file, an unquoted source reference, and an unknown rule id. Add `--show` to print the source lines behind each rule's cites
 for review.
