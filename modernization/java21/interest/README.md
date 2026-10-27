@@ -33,3 +33,5 @@ Run the Java 21 reactor verification from the repository root:
 ```sh
 mvn -f modernization/java21/pom.xml verify
 ```
+
+`InterestDifferentialTest` runs the calculator on the golden master's post-posting snapshots (`golden/expected/{mixed,volume}/CBTRN02C.*.bin`) with the pinned clock and run date from `golden/expected/metadata.json`, then compares `SYSTRAN.bin`, `CBACT04C.ACCTFILE.bin` and `CBACT04C.sysout.txt` byte for byte and field by field. It checks each file against `golden/acceptance.sha256` first and applies no tolerance.
