@@ -1,0 +1,2076 @@
+{
+  "clock": {
+    "clock_utc": "2022-07-18 12:34:56",
+    "parm_date": "2022071800",
+    "compiler": "cobc (GnuCOBOL) 3.1.2.0",
+    "volume_seed": 104,
+    "volume_records": 3000,
+    "sources_sha256": {
+      "CBTRN02C.cbl": "708f3cadc555acab63f11e2f3238f5372ac7180e6b01197bf960d96bf0d2e83f",
+      "CBACT04C.cbl": "5084bb8b0c9a0f0199f737487ae1863f12e43cabbdc459a62b6b67bedc683cc4"
+    }
+  },
+  "provenance": {
+    "source_commits": {
+      "app/cbl/CBACT04C.cbl": "fb7841773964059c58d40f41702890d95ca5ac65",
+      "app/cbl/CBTRN02C.cbl": "fb7841773964059c58d40f41702890d95ca5ac65",
+      "app/cpy": "59cc6c2fd7ebd7ef7925cad552a01a4b8b6e4d5e",
+      "modernization/java21/records": "09a6c3768e70f4e938010f468eb0f1396894e748",
+      "modernization/java21/interest": "7b5385a76b365ec26a803b3217e30c5606644183",
+      "modernization/java21/posting": "6b8d9005db238c50880bb2b5bcdab48e9b24ec3f",
+      "modernization/java21/batch": "314bdb66dec89fdc254e6ff5ea90e31f87607462",
+      "modernization/java21/golden": "0bcfb1249c7cb33809326fce6acb0ddd052819b0",
+      "modernization/java21/docs/business-rules": "52bdc795c91786033483bda25d8121454a258bf2",
+      "modernization/java21/pom.xml": "db3b97c9a6108e512254928ba78b659f2aacda1d"
+    },
+    "source_trees": {
+      "app/cbl/CBACT04C.cbl": "1da48c0015ca11995d2c02d8ece3fcbc63b84ec1",
+      "app/cbl/CBTRN02C.cbl": "ee606affbec764cb9c428a6cd43880d2072ffce3",
+      "app/cpy": "c5d07dff7499ae4c0d63c58af48f6153ab000c68",
+      "modernization/java21/records": "40917aa694305e06244683188101dbe619a81809",
+      "modernization/java21/interest": "10d824a8e2f50987f4e1879665e9dcda6ef3fac2",
+      "modernization/java21/posting": "67121a73eb0bb7313d823e9be0531a7a48648a52",
+      "modernization/java21/batch": "6f32e25158747779779bb5c94352a0e4210aa6ab",
+      "modernization/java21/golden": "521c7c99bd58db2a09915d8a78253a0c1fb16ce8",
+      "modernization/java21/docs/business-rules": "f6ac991776521cfec592d48141705dbeeacd203c",
+      "modernization/java21/pom.xml": "503e010691ba18b77a4d73bba1144ba18bf5548d"
+    },
+    "generator_sha256": {
+      "EvidenceExport.java": "3975b630f3fa312fa241a276a9454dd6132a7fe0beeb2f91bf1dae7e87139151",
+      "generate.py": "4dfe2355bc8b379dcc8a2436d6731dfdc1b53fb61157c888516e980c9f546f17",
+      "test_generate.py": "afb6028b80be0b4c2bc45831fe22707695bace769547e92ab8614d6049184fbc"
+    },
+    "tools": {
+      "cobc": [
+        "cobc (GnuCOBOL) 3.1.2.0",
+        "Copyright (C) 2020 Free Software Foundation, Inc.",
+        "License GPLv3+: GNU GPL version 3 or later <https://gnu.org/licenses/gpl.html>",
+        "This is free software; see the source for copying conditions.  There is NO",
+        "warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.",
+        "Written by Keisuke Nishida, Roger While, Ron Norman, Simon Sobisch, Edward Hart",
+        "Built     Sep 14 2021 19:23:38",
+        "Packaged  Dec 23 2020 12:04:58 UTC",
+        "C version \"11.2.0\""
+      ],
+      "jdk": [
+        "openjdk version \"21.0.12.1\" 2026-08-18",
+        "OpenJDK Runtime Environment (build 21.0.12.1+1-1-22.04.4-Ubuntu)",
+        "OpenJDK 64-Bit Server VM (build 21.0.12.1+1-1-22.04.4-Ubuntu, mixed mode, sharing)"
+      ],
+      "maven": [
+        "Apache Maven 3.6.3",
+        "Maven home: /usr/share/maven",
+        "Java version: 21.0.12.1, vendor: Ubuntu, runtime: /usr/lib/jvm/java-21-openjdk-amd64",
+        "Default locale: en_US, platform encoding: UTF-8",
+        "OS name: \"linux\", version: \"6.8.0-1061-aws\", arch: \"amd64\", family: \"unix\""
+      ],
+      "python": [
+        "Python 3.12.13"
+      ]
+    }
+  },
+  "comparisons": [
+    {
+      "stage": "posting",
+      "program": "CBTRN02C",
+      "fixture": "mixed",
+      "file": "CBTRN02C.TRANFILE.bin",
+      "expected_records": 2,
+      "actual_records": 2,
+      "partial_expected_bytes": 0,
+      "partial_actual_bytes": 0,
+      "records": {
+        "match": 2
+      },
+      "fields": {
+        "match": 28
+      },
+      "expected_sha256": "9e012b50e74d75b7e82316c4ea80b06a6cd4ef460b261c202a023fe225fc0fcf",
+      "actual_sha256": "9e012b50e74d75b7e82316c4ea80b06a6cd4ef460b261c202a023fe225fc0fcf",
+      "differences": []
+    },
+    {
+      "stage": "posting",
+      "program": "CBTRN02C",
+      "fixture": "mixed",
+      "file": "DALYREJS.bin",
+      "expected_records": 5,
+      "actual_records": 5,
+      "partial_expected_bytes": 0,
+      "partial_actual_bytes": 0,
+      "records": {
+        "match": 5
+      },
+      "fields": {
+        "match": 80
+      },
+      "expected_sha256": "59e56da95d3d1d53914cb451e7bc164fc8bda09027227fb9c6d2c00cbaaac6ac",
+      "actual_sha256": "59e56da95d3d1d53914cb451e7bc164fc8bda09027227fb9c6d2c00cbaaac6ac",
+      "differences": []
+    },
+    {
+      "stage": "posting",
+      "program": "CBTRN02C",
+      "fixture": "mixed",
+      "file": "CBTRN02C.ACCTFILE.bin",
+      "expected_records": 4,
+      "actual_records": 4,
+      "partial_expected_bytes": 0,
+      "partial_actual_bytes": 0,
+      "records": {
+        "match": 4
+      },
+      "fields": {
+        "match": 52
+      },
+      "expected_sha256": "504477679d0a1a00e3749bd68d1e090e997f73975a18c4eba6697897f655c305",
+      "actual_sha256": "504477679d0a1a00e3749bd68d1e090e997f73975a18c4eba6697897f655c305",
+      "differences": []
+    },
+    {
+      "stage": "posting",
+      "program": "CBTRN02C",
+      "fixture": "mixed",
+      "file": "CBTRN02C.TCATBALF.bin",
+      "expected_records": 4,
+      "actual_records": 4,
+      "partial_expected_bytes": 0,
+      "partial_actual_bytes": 0,
+      "records": {
+        "match": 4
+      },
+      "fields": {
+        "match": 20
+      },
+      "expected_sha256": "feb89c1e4c1ffcd134d3a15cfe38383d69455ba28a5bf02de3d737187ccbbc80",
+      "actual_sha256": "feb89c1e4c1ffcd134d3a15cfe38383d69455ba28a5bf02de3d737187ccbbc80",
+      "differences": []
+    },
+    {
+      "stage": "interest",
+      "program": "CBACT04C",
+      "fixture": "mixed",
+      "file": "SYSTRAN.bin",
+      "expected_records": 4,
+      "actual_records": 4,
+      "partial_expected_bytes": 0,
+      "partial_actual_bytes": 0,
+      "records": {
+        "match": 4
+      },
+      "fields": {
+        "match": 56
+      },
+      "expected_sha256": "abbd47a54b059f8624e5311a35fe969ed431994b82a536998e90adb2f724752a",
+      "actual_sha256": "abbd47a54b059f8624e5311a35fe969ed431994b82a536998e90adb2f724752a",
+      "differences": []
+    },
+    {
+      "stage": "interest",
+      "program": "CBACT04C",
+      "fixture": "mixed",
+      "file": "CBACT04C.ACCTFILE.bin",
+      "expected_records": 4,
+      "actual_records": 4,
+      "partial_expected_bytes": 0,
+      "partial_actual_bytes": 0,
+      "records": {
+        "match": 4
+      },
+      "fields": {
+        "match": 52
+      },
+      "expected_sha256": "a7ae0d7812f015a56909202cd8c76583bcf4dfd2ae860218fcfa89e49b97bfe8",
+      "actual_sha256": "a7ae0d7812f015a56909202cd8c76583bcf4dfd2ae860218fcfa89e49b97bfe8",
+      "differences": []
+    },
+    {
+      "stage": "interest",
+      "program": "CBACT04C",
+      "fixture": "mixed",
+      "file": "CBACT04C.sysout.txt",
+      "expected_records": 14,
+      "actual_records": 14,
+      "partial_expected_bytes": 0,
+      "partial_actual_bytes": 0,
+      "records": {
+        "match": 14
+      },
+      "fields": {},
+      "expected_sha256": "c69af28e841b907ea45a1eafe44c8c5e1b8c83590734033a5bac653a136b9e8c",
+      "actual_sha256": "c69af28e841b907ea45a1eafe44c8c5e1b8c83590734033a5bac653a136b9e8c",
+      "differences": []
+    },
+    {
+      "stage": "batch",
+      "program": "CBACT04C",
+      "fixture": "mixed",
+      "file": "CBACT04C.sysout.txt",
+      "expected_records": 14,
+      "actual_records": 14,
+      "partial_expected_bytes": 0,
+      "partial_actual_bytes": 0,
+      "records": {
+        "match": 14
+      },
+      "fields": {},
+      "expected_sha256": "c69af28e841b907ea45a1eafe44c8c5e1b8c83590734033a5bac653a136b9e8c",
+      "actual_sha256": "c69af28e841b907ea45a1eafe44c8c5e1b8c83590734033a5bac653a136b9e8c",
+      "differences": []
+    },
+    {
+      "stage": "batch",
+      "program": "CBTRN02C",
+      "fixture": "mixed",
+      "file": "CBTRN02C.sysout.txt",
+      "expected_records": 5,
+      "actual_records": 5,
+      "partial_expected_bytes": 0,
+      "partial_actual_bytes": 0,
+      "records": {
+        "match": 5
+      },
+      "fields": {},
+      "expected_sha256": "48c5b907c957d1e1f550937040ef11e161858c5e3bfb0e197257305170ff66dd",
+      "actual_sha256": "48c5b907c957d1e1f550937040ef11e161858c5e3bfb0e197257305170ff66dd",
+      "differences": []
+    },
+    {
+      "stage": "batch",
+      "program": "CBTRN02C",
+      "fixture": "mixed",
+      "file": "DALYREJS.bin",
+      "expected_records": 5,
+      "actual_records": 5,
+      "partial_expected_bytes": 0,
+      "partial_actual_bytes": 0,
+      "records": {
+        "match": 5
+      },
+      "fields": {
+        "match": 80
+      },
+      "expected_sha256": "59e56da95d3d1d53914cb451e7bc164fc8bda09027227fb9c6d2c00cbaaac6ac",
+      "actual_sha256": "59e56da95d3d1d53914cb451e7bc164fc8bda09027227fb9c6d2c00cbaaac6ac",
+      "differences": []
+    },
+    {
+      "stage": "batch",
+      "program": "CBACT04C",
+      "fixture": "mixed",
+      "file": "SYSTRAN.bin",
+      "expected_records": 4,
+      "actual_records": 4,
+      "partial_expected_bytes": 0,
+      "partial_actual_bytes": 0,
+      "records": {
+        "match": 4
+      },
+      "fields": {
+        "match": 56
+      },
+      "expected_sha256": "abbd47a54b059f8624e5311a35fe969ed431994b82a536998e90adb2f724752a",
+      "actual_sha256": "abbd47a54b059f8624e5311a35fe969ed431994b82a536998e90adb2f724752a",
+      "differences": []
+    },
+    {
+      "stage": "batch",
+      "program": "CBACT04C",
+      "fixture": "mixed",
+      "file": "CBACT04C.ACCTFILE.bin",
+      "expected_records": 4,
+      "actual_records": 4,
+      "partial_expected_bytes": 0,
+      "partial_actual_bytes": 0,
+      "records": {
+        "match": 4
+      },
+      "fields": {
+        "match": 52
+      },
+      "expected_sha256": "a7ae0d7812f015a56909202cd8c76583bcf4dfd2ae860218fcfa89e49b97bfe8",
+      "actual_sha256": "a7ae0d7812f015a56909202cd8c76583bcf4dfd2ae860218fcfa89e49b97bfe8",
+      "differences": []
+    },
+    {
+      "stage": "batch",
+      "program": "CBACT04C",
+      "fixture": "mixed",
+      "file": "CBACT04C.DISCGRP.bin",
+      "expected_records": 3,
+      "actual_records": 3,
+      "partial_expected_bytes": 0,
+      "partial_actual_bytes": 0,
+      "records": {
+        "match": 3
+      },
+      "fields": {
+        "match": 15
+      },
+      "expected_sha256": "a387f6327eacd3b111b5e6f4cea916cf347f04af3110871f39c6027b10558ca6",
+      "actual_sha256": "a387f6327eacd3b111b5e6f4cea916cf347f04af3110871f39c6027b10558ca6",
+      "differences": []
+    },
+    {
+      "stage": "batch",
+      "program": "CBACT04C",
+      "fixture": "mixed",
+      "file": "CBACT04C.TCATBALF.bin",
+      "expected_records": 4,
+      "actual_records": 4,
+      "partial_expected_bytes": 0,
+      "partial_actual_bytes": 0,
+      "records": {
+        "match": 4
+      },
+      "fields": {
+        "match": 20
+      },
+      "expected_sha256": "feb89c1e4c1ffcd134d3a15cfe38383d69455ba28a5bf02de3d737187ccbbc80",
+      "actual_sha256": "feb89c1e4c1ffcd134d3a15cfe38383d69455ba28a5bf02de3d737187ccbbc80",
+      "differences": []
+    },
+    {
+      "stage": "batch",
+      "program": "CBACT04C",
+      "fixture": "mixed",
+      "file": "CBACT04C.TRANFILE.bin",
+      "expected_records": 2,
+      "actual_records": 2,
+      "partial_expected_bytes": 0,
+      "partial_actual_bytes": 0,
+      "records": {
+        "match": 2
+      },
+      "fields": {
+        "match": 28
+      },
+      "expected_sha256": "9e012b50e74d75b7e82316c4ea80b06a6cd4ef460b261c202a023fe225fc0fcf",
+      "actual_sha256": "9e012b50e74d75b7e82316c4ea80b06a6cd4ef460b261c202a023fe225fc0fcf",
+      "differences": []
+    },
+    {
+      "stage": "batch",
+      "program": "CBACT04C",
+      "fixture": "mixed",
+      "file": "CBACT04C.XREFFILE.bin",
+      "expected_records": 5,
+      "actual_records": 5,
+      "partial_expected_bytes": 0,
+      "partial_actual_bytes": 0,
+      "records": {
+        "match": 5
+      },
+      "fields": {
+        "match": 20
+      },
+      "expected_sha256": "7f405c134c58b8b66a972df2ae2ed2f6536a9cccfb115e195d8ee366dedd9c3b",
+      "actual_sha256": "7f405c134c58b8b66a972df2ae2ed2f6536a9cccfb115e195d8ee366dedd9c3b",
+      "differences": []
+    },
+    {
+      "stage": "posting",
+      "program": "CBTRN02C",
+      "fixture": "volume",
+      "file": "CBTRN02C.TRANFILE.bin",
+      "expected_records": 3000,
+      "actual_records": 3000,
+      "partial_expected_bytes": 0,
+      "partial_actual_bytes": 0,
+      "records": {
+        "match": 3000
+      },
+      "fields": {
+        "match": 42000
+      },
+      "expected_sha256": "6c84aa921cb65c2e8a0932d221e3b927a6d7a267c1176081d03cdb36916db06e",
+      "actual_sha256": "6c84aa921cb65c2e8a0932d221e3b927a6d7a267c1176081d03cdb36916db06e",
+      "differences": []
+    },
+    {
+      "stage": "posting",
+      "program": "CBTRN02C",
+      "fixture": "volume",
+      "file": "DALYREJS.bin",
+      "expected_records": 0,
+      "actual_records": 0,
+      "partial_expected_bytes": 0,
+      "partial_actual_bytes": 0,
+      "records": {},
+      "fields": {},
+      "expected_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "actual_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "differences": []
+    },
+    {
+      "stage": "posting",
+      "program": "CBTRN02C",
+      "fixture": "volume",
+      "file": "CBTRN02C.ACCTFILE.bin",
+      "expected_records": 3000,
+      "actual_records": 3000,
+      "partial_expected_bytes": 0,
+      "partial_actual_bytes": 0,
+      "records": {
+        "match": 3000
+      },
+      "fields": {
+        "match": 39000
+      },
+      "expected_sha256": "9c451f4929577cf41a74743ba85c5a2993e289aeee8957dc84a6475634428072",
+      "actual_sha256": "9c451f4929577cf41a74743ba85c5a2993e289aeee8957dc84a6475634428072",
+      "differences": []
+    },
+    {
+      "stage": "posting",
+      "program": "CBTRN02C",
+      "fixture": "volume",
+      "file": "CBTRN02C.TCATBALF.bin",
+      "expected_records": 3002,
+      "actual_records": 3002,
+      "partial_expected_bytes": 0,
+      "partial_actual_bytes": 0,
+      "records": {
+        "match": 3002
+      },
+      "fields": {
+        "match": 15010
+      },
+      "expected_sha256": "2ba7e7efc647aba1667d16a95d1ad3c9bff052031db4feeb4eade9c6b80e145a",
+      "actual_sha256": "2ba7e7efc647aba1667d16a95d1ad3c9bff052031db4feeb4eade9c6b80e145a",
+      "differences": []
+    },
+    {
+      "stage": "interest",
+      "program": "CBACT04C",
+      "fixture": "volume",
+      "file": "SYSTRAN.bin",
+      "expected_records": 3002,
+      "actual_records": 3002,
+      "partial_expected_bytes": 0,
+      "partial_actual_bytes": 0,
+      "records": {
+        "match": 3002
+      },
+      "fields": {
+        "match": 42028
+      },
+      "expected_sha256": "4480cc4668a632813004675c387609af76f7fe74117d802a43f63e90fdc5363e",
+      "actual_sha256": "4480cc4668a632813004675c387609af76f7fe74117d802a43f63e90fdc5363e",
+      "differences": []
+    },
+    {
+      "stage": "interest",
+      "program": "CBACT04C",
+      "fixture": "volume",
+      "file": "CBACT04C.ACCTFILE.bin",
+      "expected_records": 3000,
+      "actual_records": 3000,
+      "partial_expected_bytes": 0,
+      "partial_actual_bytes": 0,
+      "records": {
+        "match": 3000
+      },
+      "fields": {
+        "match": 39000
+      },
+      "expected_sha256": "898fc4643f7355cfed5030e5d97f31e63a00cb735b5081d3b1d972854a8060e6",
+      "actual_sha256": "898fc4643f7355cfed5030e5d97f31e63a00cb735b5081d3b1d972854a8060e6",
+      "differences": []
+    },
+    {
+      "stage": "interest",
+      "program": "CBACT04C",
+      "fixture": "volume",
+      "file": "CBACT04C.sysout.txt",
+      "expected_records": 9008,
+      "actual_records": 9008,
+      "partial_expected_bytes": 0,
+      "partial_actual_bytes": 0,
+      "records": {
+        "match": 9008
+      },
+      "fields": {},
+      "expected_sha256": "18872b063a0c2d18c91d5114065f80cba2a94b4eb7058cf382e9cba6b1681e8b",
+      "actual_sha256": "18872b063a0c2d18c91d5114065f80cba2a94b4eb7058cf382e9cba6b1681e8b",
+      "differences": []
+    },
+    {
+      "stage": "batch",
+      "program": "CBACT04C",
+      "fixture": "volume",
+      "file": "CBACT04C.sysout.txt",
+      "expected_records": 9008,
+      "actual_records": 9008,
+      "partial_expected_bytes": 0,
+      "partial_actual_bytes": 0,
+      "records": {
+        "match": 9008
+      },
+      "fields": {},
+      "expected_sha256": "18872b063a0c2d18c91d5114065f80cba2a94b4eb7058cf382e9cba6b1681e8b",
+      "actual_sha256": "18872b063a0c2d18c91d5114065f80cba2a94b4eb7058cf382e9cba6b1681e8b",
+      "differences": []
+    },
+    {
+      "stage": "batch",
+      "program": "CBTRN02C",
+      "fixture": "volume",
+      "file": "CBTRN02C.sysout.txt",
+      "expected_records": 3003,
+      "actual_records": 3003,
+      "partial_expected_bytes": 0,
+      "partial_actual_bytes": 0,
+      "records": {
+        "match": 3003
+      },
+      "fields": {},
+      "expected_sha256": "2276453b09fd472267b9c426938cbf3ab5f4481c01e2c83f81e9dc045c1064a3",
+      "actual_sha256": "2276453b09fd472267b9c426938cbf3ab5f4481c01e2c83f81e9dc045c1064a3",
+      "differences": []
+    },
+    {
+      "stage": "batch",
+      "program": "CBTRN02C",
+      "fixture": "volume",
+      "file": "DALYREJS.bin",
+      "expected_records": 0,
+      "actual_records": 0,
+      "partial_expected_bytes": 0,
+      "partial_actual_bytes": 0,
+      "records": {},
+      "fields": {},
+      "expected_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "actual_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "differences": []
+    },
+    {
+      "stage": "batch",
+      "program": "CBACT04C",
+      "fixture": "volume",
+      "file": "SYSTRAN.bin",
+      "expected_records": 3002,
+      "actual_records": 3002,
+      "partial_expected_bytes": 0,
+      "partial_actual_bytes": 0,
+      "records": {
+        "match": 3002
+      },
+      "fields": {
+        "match": 42028
+      },
+      "expected_sha256": "4480cc4668a632813004675c387609af76f7fe74117d802a43f63e90fdc5363e",
+      "actual_sha256": "4480cc4668a632813004675c387609af76f7fe74117d802a43f63e90fdc5363e",
+      "differences": []
+    },
+    {
+      "stage": "batch",
+      "program": "CBACT04C",
+      "fixture": "volume",
+      "file": "CBACT04C.ACCTFILE.bin",
+      "expected_records": 3000,
+      "actual_records": 3000,
+      "partial_expected_bytes": 0,
+      "partial_actual_bytes": 0,
+      "records": {
+        "match": 3000
+      },
+      "fields": {
+        "match": 39000
+      },
+      "expected_sha256": "898fc4643f7355cfed5030e5d97f31e63a00cb735b5081d3b1d972854a8060e6",
+      "actual_sha256": "898fc4643f7355cfed5030e5d97f31e63a00cb735b5081d3b1d972854a8060e6",
+      "differences": []
+    },
+    {
+      "stage": "batch",
+      "program": "CBACT04C",
+      "fixture": "volume",
+      "file": "CBACT04C.DISCGRP.bin",
+      "expected_records": 3,
+      "actual_records": 3,
+      "partial_expected_bytes": 0,
+      "partial_actual_bytes": 0,
+      "records": {
+        "match": 3
+      },
+      "fields": {
+        "match": 15
+      },
+      "expected_sha256": "a387f6327eacd3b111b5e6f4cea916cf347f04af3110871f39c6027b10558ca6",
+      "actual_sha256": "a387f6327eacd3b111b5e6f4cea916cf347f04af3110871f39c6027b10558ca6",
+      "differences": []
+    },
+    {
+      "stage": "batch",
+      "program": "CBACT04C",
+      "fixture": "volume",
+      "file": "CBACT04C.TCATBALF.bin",
+      "expected_records": 3002,
+      "actual_records": 3002,
+      "partial_expected_bytes": 0,
+      "partial_actual_bytes": 0,
+      "records": {
+        "match": 3002
+      },
+      "fields": {
+        "match": 15010
+      },
+      "expected_sha256": "2ba7e7efc647aba1667d16a95d1ad3c9bff052031db4feeb4eade9c6b80e145a",
+      "actual_sha256": "2ba7e7efc647aba1667d16a95d1ad3c9bff052031db4feeb4eade9c6b80e145a",
+      "differences": []
+    },
+    {
+      "stage": "batch",
+      "program": "CBACT04C",
+      "fixture": "volume",
+      "file": "CBACT04C.TRANFILE.bin",
+      "expected_records": 3000,
+      "actual_records": 3000,
+      "partial_expected_bytes": 0,
+      "partial_actual_bytes": 0,
+      "records": {
+        "match": 3000
+      },
+      "fields": {
+        "match": 42000
+      },
+      "expected_sha256": "6c84aa921cb65c2e8a0932d221e3b927a6d7a267c1176081d03cdb36916db06e",
+      "actual_sha256": "6c84aa921cb65c2e8a0932d221e3b927a6d7a267c1176081d03cdb36916db06e",
+      "differences": []
+    },
+    {
+      "stage": "batch",
+      "program": "CBACT04C",
+      "fixture": "volume",
+      "file": "CBACT04C.XREFFILE.bin",
+      "expected_records": 3000,
+      "actual_records": 3000,
+      "partial_expected_bytes": 0,
+      "partial_actual_bytes": 0,
+      "records": {
+        "match": 3000
+      },
+      "fields": {
+        "match": 12000
+      },
+      "expected_sha256": "44d40cf1db94bf49e2adb4369d5e33a24318cb9eaa4bf79bd9b811ca8952a061",
+      "actual_sha256": "44d40cf1db94bf49e2adb4369d5e33a24318cb9eaa4bf79bd9b811ca8952a061",
+      "differences": []
+    }
+  ],
+  "runs": [
+    {
+      "fixture": "mixed",
+      "posting": {
+        "posted": 2,
+        "rejected": 5,
+        "return_code": 4
+      },
+      "expected_posting": {
+        "posted": 2,
+        "rejected": 5,
+        "return_code": 4
+      },
+      "posting_counts_match": true,
+      "jar_exit": 4,
+      "expected_exit": 4,
+      "program_return_codes": {
+        "CBTRN02C": 4,
+        "CBACT04C": 0
+      },
+      "rejects": [
+        {
+          "index": 1,
+          "transaction_id": "XREF_MISS       ",
+          "reason_code": "0100",
+          "description": "INVALID CARD NUMBER FOUND",
+          "partial_bytes": 0
+        },
+        {
+          "index": 2,
+          "transaction_id": "NO_ACCOUNT      ",
+          "reason_code": "0101",
+          "description": "ACCOUNT RECORD NOT FOUND",
+          "partial_bytes": 0
+        },
+        {
+          "index": 3,
+          "transaction_id": "OVER_LIMIT      ",
+          "reason_code": "0102",
+          "description": "OVERLIMIT TRANSACTION",
+          "partial_bytes": 0
+        },
+        {
+          "index": 4,
+          "transaction_id": "AFTER_EXPIRY    ",
+          "reason_code": "0103",
+          "description": "TRANSACTION RECEIVED AFTER ACCT EXPIRATION",
+          "partial_bytes": 0
+        },
+        {
+          "index": 5,
+          "transaction_id": "EXPIRY_OVERRIDES",
+          "reason_code": "0103",
+          "description": "TRANSACTION RECEIVED AFTER ACCT EXPIRATION",
+          "partial_bytes": 0
+        }
+      ],
+      "reject_counts": {
+        "0100": 1,
+        "0101": 1,
+        "0102": 1,
+        "0103": 2
+      }
+    },
+    {
+      "fixture": "volume",
+      "posting": {
+        "posted": 3000,
+        "rejected": 0,
+        "return_code": 0
+      },
+      "expected_posting": {
+        "posted": 3000,
+        "rejected": 0,
+        "return_code": 0
+      },
+      "posting_counts_match": true,
+      "jar_exit": 0,
+      "expected_exit": 0,
+      "program_return_codes": {
+        "CBTRN02C": 0,
+        "CBACT04C": 0
+      },
+      "rejects": [],
+      "reject_counts": {}
+    }
+  ],
+  "tests": [
+    {
+      "module": "batch",
+      "test": "DailyCycleJobTest#exitCodeIsHighestStepReturnCode",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "module": "batch",
+      "test": "DailyCycleJobTest#failedRecordKeepsTheEffectsOfEarlierRecordsInItsChunk",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "module": "batch",
+      "test": "DailyCycleJobTest#interestAbendAfterPostingRejectsGivesAbendCode",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "module": "batch",
+      "test": "DailyCycleJobTest#outputsDoNotDependOnChunkSize(int)[1]",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "module": "batch",
+      "test": "DailyCycleJobTest#outputsDoNotDependOnChunkSize(int)[2]",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "module": "batch",
+      "test": "DailyCycleJobTest#outputsDoNotDependOnChunkSize(int)[3]",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "module": "batch",
+      "test": "DailyCycleJobTest#parmDateMustBeTenCharacters",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "module": "batch",
+      "test": "DailyCycleJobTest#postingSysoutFailureStopsTheJobBeforeInterest",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "module": "batch",
+      "test": "DailyCycleJobTest#reusedRunIdFailsBeforeAnyStepAndLeavesDatasetsAlone",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "module": "batch",
+      "test": "DailyCycleJobTest#runOutputNamesMustBePlainFileNames(String)[1]",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "module": "batch",
+      "test": "DailyCycleJobTest#runOutputNamesMustBePlainFileNames(String)[2]",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "module": "batch",
+      "test": "DailyCycleJobTest#runOutputNamesMustBePlainFileNames(String)[3]",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "module": "batch",
+      "test": "DailyCycleJobTest#runOutputNamesMustBePlainFileNames(String)[4]",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "module": "batch",
+      "test": "KeyedDatasetTest#failedStagingReplacesNoMasterAndLeavesNoTemporaryFile",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "module": "batch",
+      "test": "KeyedDatasetTest#readOnlyMasterIsReplacedAndKeepsItsPermissions",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "module": "batch",
+      "test": "PackagedJobIT#packagedJarReproducesGoldenSet(String)[1]",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "module": "batch",
+      "test": "PackagedJobIT#packagedJarReproducesGoldenSet(String)[2]",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "module": "interest",
+      "test": "InterestCalculatorTest#int01RequiresA10CharacterParmDate",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "module": "interest",
+      "test": "InterestCalculatorTest#int03DisplaysEBCDICRecordTextWithLatin1Characters",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "module": "interest",
+      "test": "InterestCalculatorTest#int03SortsAndDisplaysCategoryBalancesAndRejectsDuplicatePrimaryKeys",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "module": "interest",
+      "test": "InterestCalculatorTest#int05RewritesThePreviousAccountButNotTheLastAccount",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "module": "interest",
+      "test": "InterestCalculatorTest#int06AndInt07AbendForMissingAccountAndCrossReference",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "module": "interest",
+      "test": "InterestCalculatorTest#int06MissingSecondAccountIncludesPriorDisplaysBeforeAbendLines",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "module": "interest",
+      "test": "InterestCalculatorTest#int07ChoosesTheFirstCrossReferenceInCardNumberPrimaryKeyOrder",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "module": "interest",
+      "test": "InterestCalculatorTest#int09UsesPrimaryRateThenDefaultAndAbendsWhenDefaultIsMissing",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "module": "interest",
+      "test": "InterestCalculatorTest#int10ZeroRateWritesNoTransactionButRewritesOnTheNextAccountBreak",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "module": "interest",
+      "test": "InterestCalculatorTest#int11TruncateToPicDropsHighOrderDigitsAndKeepsNegativeSign",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "module": "interest",
+      "test": "InterestCalculatorTest#int11TruncatesMonthlyInterestAndEncodesZeroAsPositive",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "module": "interest",
+      "test": "InterestCalculatorTest#int12AddsCategoryInterestToTheRewrittenAccountTotal",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "module": "interest",
+      "test": "InterestCalculatorTest#int14CounterSpansAccountsAndWrapsAfterSixDigits",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "module": "interest",
+      "test": "InterestCalculatorTest#int15PopulatesAllTransactionFieldsAndLeavesUnwrittenFieldsBlank",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "module": "interest",
+      "test": "InterestCalculatorTest#int16FormatsInjectedClockHundredthsForBothTimestamps",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "module": "interest",
+      "test": "InterestCalculatorTest#textCodecEBCDICDecodesAllByteValuesWithinLatin1",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "module": "interest",
+      "test": "InterestDifferentialTest#matchesGoldenMasterToTheCent(String)[1]",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "module": "interest",
+      "test": "InterestDifferentialTest#matchesGoldenMasterToTheCent(String)[2]",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "module": "posting",
+      "test": "TransactionPosterTest#emptyInput",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "module": "posting",
+      "test": "TransactionPosterTest#failedRewriteDoesNotRejectOrChangeReturnCode",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "module": "posting",
+      "test": "TransactionPosterTest#malformedAmountAfterSuccessfulLookupsFailsWithoutUpdates",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "module": "posting",
+      "test": "TransactionPosterTest#malformedNumericFieldsDoNotPreventLookupRejects",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "module": "posting",
+      "test": "TransactionPosterTest#malformedRecordFailsRatherThanSkipping",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "module": "posting",
+      "test": "TransactionPosterTest#namedDifferential",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "module": "posting",
+      "test": "TransactionPosterTest#nonNumericMerchantIdIsPostedByteForByte",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "module": "posting",
+      "test": "TransactionPosterTest#rejectReasonAndTimestampAreLocaleIndependent",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "module": "posting",
+      "test": "TransactionPosterTest#reusedStoreStartsFreshOutputsEvenForEmptyBatch",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "module": "posting",
+      "test": "TransactionPosterTest#transactionWriteFailureDoesNotRollBackEarlierUpdates",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "module": "posting",
+      "test": "TransactionPosterTest#volumeDifferential",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "module": "records",
+      "test": "CodecsTest#accounts",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "module": "records",
+      "test": "CodecsTest#balances",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "module": "records",
+      "test": "CodecsTest#binary(int)[1]",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "module": "records",
+      "test": "CodecsTest#binary(int)[2]",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "module": "records",
+      "test": "CodecsTest#binary(int)[3]",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "module": "records",
+      "test": "CodecsTest#binary(int)[4]",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "module": "records",
+      "test": "CodecsTest#binary(int)[5]",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "module": "records",
+      "test": "CodecsTest#binary(int)[6]",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "module": "records",
+      "test": "CodecsTest#daily",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "module": "records",
+      "test": "CodecsTest#decimals(String)[1]",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "module": "records",
+      "test": "CodecsTest#decimals(String)[2]",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "module": "records",
+      "test": "CodecsTest#decimals(String)[3]",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "module": "records",
+      "test": "CodecsTest#decimals(String)[4]",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "module": "records",
+      "test": "CodecsTest#decimals(String)[5]",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "module": "records",
+      "test": "CodecsTest#disclosures",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "module": "records",
+      "test": "CodecsTest#invalidDecimals",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "module": "records",
+      "test": "CodecsTest#negativeZeroRecord",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "module": "records",
+      "test": "CodecsTest#overpunch(String)[10]",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "module": "records",
+      "test": "CodecsTest#overpunch(String)[11]",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "module": "records",
+      "test": "CodecsTest#overpunch(String)[12]",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "module": "records",
+      "test": "CodecsTest#overpunch(String)[13]",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "module": "records",
+      "test": "CodecsTest#overpunch(String)[14]",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "module": "records",
+      "test": "CodecsTest#overpunch(String)[15]",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "module": "records",
+      "test": "CodecsTest#overpunch(String)[16]",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "module": "records",
+      "test": "CodecsTest#overpunch(String)[17]",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "module": "records",
+      "test": "CodecsTest#overpunch(String)[18]",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "module": "records",
+      "test": "CodecsTest#overpunch(String)[19]",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "module": "records",
+      "test": "CodecsTest#overpunch(String)[1]",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "module": "records",
+      "test": "CodecsTest#overpunch(String)[20]",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "module": "records",
+      "test": "CodecsTest#overpunch(String)[2]",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "module": "records",
+      "test": "CodecsTest#overpunch(String)[3]",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "module": "records",
+      "test": "CodecsTest#overpunch(String)[4]",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "module": "records",
+      "test": "CodecsTest#overpunch(String)[5]",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "module": "records",
+      "test": "CodecsTest#overpunch(String)[6]",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "module": "records",
+      "test": "CodecsTest#overpunch(String)[7]",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "module": "records",
+      "test": "CodecsTest#overpunch(String)[8]",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "module": "records",
+      "test": "CodecsTest#overpunch(String)[9]",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "module": "records",
+      "test": "CodecsTest#reject",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "module": "records",
+      "test": "CodecsTest#textAndUnsigned",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "module": "records",
+      "test": "CodecsTest#transactions",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "module": "records",
+      "test": "CodecsTest#xrefs",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "module": "records",
+      "test": "EbcdicFixturesTest#shippedRecords(String)[1]",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "module": "records",
+      "test": "EbcdicFixturesTest#shippedRecords(String)[2]",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "module": "records",
+      "test": "EbcdicFixturesTest#shippedRecords(String)[3]",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "module": "records",
+      "test": "EbcdicFixturesTest#shippedRecords(String)[4]",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "module": "records",
+      "test": "EbcdicFixturesTest#shippedRecords(String)[5]",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "module": "records",
+      "test": "EbcdicFixturesTest#shippedRecords(String)[6]",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "module": "records",
+      "test": "EbcdicFixturesTest#shippedRecords(String)[7]",
+      "status": "passed",
+      "reason": ""
+    }
+  ],
+  "disabled": [],
+  "rules": [
+    {
+      "program": "CBACT04C",
+      "rule": "INT-01",
+      "description": "The job takes one 10-character run parameter, PARM-DATE (INTCALC passes `PARM='2022071800'`); PARM-LENGTH is never checked and PARM-DATE is used only as the TRAN-ID prefix (INT-14), never as a business date.",
+      "tests": [
+        "InterestCalculatorTest#int01RequiresA10CharacterParmDate"
+      ],
+      "fixtures": [
+        "mixed",
+        "volume"
+      ],
+      "fixture_scope": "Normal success path only; see gaps and test-specific Java fixtures.",
+      "gaps": "Java rejects wrong-length PARM; COBOL does not check PARM-LENGTH. No invalid-PARM differential.",
+      "sme": {
+        "status": "pending",
+        "initials": "",
+        "comments": ""
+      }
+    },
+    {
+      "program": "CBACT04C",
+      "rule": "INT-02",
+      "description": "Files are opened TCATBALF INPUT (indexed, sequential access), XREFFILE INPUT (random, alternate key XREF-ACCT-ID), DISCGRP INPUT (random), ACCTFILE I-O (random) and TRANSACT OUTPUT (sequential, a new SYSTRAN generation), and all five are closed at the end.",
+      "tests": [
+        "PackagedJobIT#packagedJarReproducesGoldenSet(String)[1]",
+        "PackagedJobIT#packagedJarReproducesGoldenSet(String)[2]"
+      ],
+      "fixtures": [
+        "mixed",
+        "volume"
+      ],
+      "fixture_scope": "Normal success path only; see gaps and test-specific Java fixtures.",
+      "gaps": "No COBOL open/close failure injection.",
+      "sme": {
+        "status": "pending",
+        "initials": "",
+        "comments": ""
+      }
+    },
+    {
+      "program": "CBACT04C",
+      "rule": "INT-03",
+      "description": "The driver reads TCATBALF sequentially in key order (account id, type code, category code) until file status `10`, counting and DISPLAYing every record.",
+      "tests": [
+        "InterestCalculatorTest#int03SortsAndDisplaysCategoryBalancesAndRejectsDuplicatePrimaryKeys"
+      ],
+      "fixtures": [
+        "mixed",
+        "volume"
+      ],
+      "fixture_scope": "Normal success path only; see gaps and test-specific Java fixtures.",
+      "gaps": "No additional gap identified in this synthetic scope; not exhaustive branch coverage.",
+      "sme": {
+        "status": "pending",
+        "initials": "",
+        "comments": ""
+      }
+    },
+    {
+      "program": "CBACT04C",
+      "rule": "INT-04",
+      "description": "On an account break (TRANCAT-ACCT-ID differs from the previous record's), the previous account is updated (INT-17) unless this is the first record, the interest total is reset to zero, and the new account and its card cross-reference are read.",
+      "tests": [
+        "InterestCalculatorTest#int05RewritesThePreviousAccountButNotTheLastAccount",
+        "InterestCalculatorTest#int12AddsCategoryInterestToTheRewrittenAccountTotal"
+      ],
+      "fixtures": [
+        "mixed",
+        "volume"
+      ],
+      "fixture_scope": "Normal success path only; see gaps and test-specific Java fixtures.",
+      "gaps": "No additional gap identified in this synthetic scope; not exhaustive branch coverage.",
+      "sme": {
+        "status": "pending",
+        "initials": "",
+        "comments": ""
+      }
+    },
+    {
+      "program": "CBACT04C",
+      "rule": "INT-05",
+      "description": "**SME question.** The last account in TCATBALF is never updated: the `ELSE PERFORM 1050-UPDATE-ACCOUNT` branch needs END-OF-FILE = `Y` at the top of an iteration, but `PERFORM UNTIL` tests first and exits, so that account's interest transactions are written but its balance and cycle totals are left unchanged.",
+      "tests": [
+        "InterestCalculatorTest#int05RewritesThePreviousAccountButNotTheLastAccount"
+      ],
+      "fixtures": [
+        "mixed",
+        "volume"
+      ],
+      "fixture_scope": "Normal success path only; see gaps and test-specific Java fixtures.",
+      "gaps": "No additional gap identified in this synthetic scope; not exhaustive branch coverage.",
+      "sme": {
+        "status": "pending",
+        "initials": "",
+        "comments": ""
+      }
+    },
+    {
+      "program": "CBACT04C",
+      "rule": "INT-06",
+      "description": "The account is read by TRANCAT-ACCT-ID; a missing account displays `ACCOUNT NOT FOUND` and then abends, because any status other than `00` abends.",
+      "tests": [
+        "InterestCalculatorTest#int06AndInt07AbendForMissingAccountAndCrossReference",
+        "InterestCalculatorTest#int06MissingSecondAccountIncludesPriorDisplaysBeforeAbendLines"
+      ],
+      "fixtures": [
+        "mixed",
+        "volume"
+      ],
+      "fixture_scope": "Normal success path only; see gaps and test-specific Java fixtures.",
+      "gaps": "Missing-account failure is Java-only; no COBOL abend fixture.",
+      "sme": {
+        "status": "pending",
+        "initials": "",
+        "comments": ""
+      }
+    },
+    {
+      "program": "CBACT04C",
+      "rule": "INT-07",
+      "description": "The card cross-reference is read by the alternate key XREF-ACCT-ID to get the card number for the interest transaction; a missing cross-reference abends.",
+      "tests": [
+        "InterestCalculatorTest#int06AndInt07AbendForMissingAccountAndCrossReference",
+        "InterestCalculatorTest#int07ChoosesTheFirstCrossReferenceInCardNumberPrimaryKeyOrder"
+      ],
+      "fixtures": [
+        "mixed",
+        "volume"
+      ],
+      "fixture_scope": "Normal success path only; see gaps and test-specific Java fixtures.",
+      "gaps": "Missing-xref and multi-card choice are Java-only; golden has one card per account.",
+      "sme": {
+        "status": "pending",
+        "initials": "",
+        "comments": ""
+      }
+    },
+    {
+      "program": "CBACT04C",
+      "rule": "INT-08",
+      "description": "The interest rate is looked up in DISCGRP by the key (ACCT-GROUP-ID, TRANCAT-TYPE-CD, TRANCAT-CD).",
+      "tests": [
+        "InterestCalculatorTest#int09UsesPrimaryRateThenDefaultAndAbendsWhenDefaultIsMissing"
+      ],
+      "fixtures": [
+        "mixed",
+        "volume"
+      ],
+      "fixture_scope": "Normal success path only; see gaps and test-specific Java fixtures.",
+      "gaps": "Primary-rate success is Java-only; golden uses DEFAULT fallback.",
+      "sme": {
+        "status": "pending",
+        "initials": "",
+        "comments": ""
+      }
+    },
+    {
+      "program": "CBACT04C",
+      "rule": "INT-09",
+      "description": "If the group/type/category key is not found (status `23`), the lookup is retried with group id `DEFAULT` and the same type and category; a failure on the `DEFAULT` read, or any primary status other than `00`/`23`, abends.",
+      "tests": [
+        "InterestCalculatorTest#int09UsesPrimaryRateThenDefaultAndAbendsWhenDefaultIsMissing"
+      ],
+      "fixtures": [
+        "mixed",
+        "volume"
+      ],
+      "fixture_scope": "Normal success path only; see gaps and test-specific Java fixtures.",
+      "gaps": "Missing DEFAULT and non-23 I/O failure have no COBOL differential fixture.",
+      "sme": {
+        "status": "pending",
+        "initials": "",
+        "comments": ""
+      }
+    },
+    {
+      "program": "CBACT04C",
+      "rule": "INT-10",
+      "description": "A category whose rate is zero produces no interest, no transaction and no fee call.",
+      "tests": [
+        "InterestCalculatorTest#int10ZeroRateWritesNoTransactionButRewritesOnTheNextAccountBreak"
+      ],
+      "fixtures": [],
+      "fixture_scope": "Normal success path only; see gaps and test-specific Java fixtures.",
+      "gaps": "Zero-rate branch is Java-only; zero balance in golden is not zero rate.",
+      "sme": {
+        "status": "pending",
+        "initials": "",
+        "comments": ""
+      }
+    },
+    {
+      "program": "CBACT04C",
+      "rule": "INT-11",
+      "description": "Monthly interest = TRAN-CAT-BAL \u00d7 DIS-INT-RATE / 1200 into S9(09)V99 with no ROUNDED and no ON SIZE ERROR, so it truncates to the cent and keeps the sign of the balance.",
+      "tests": [
+        "InterestCalculatorTest#int11TruncateToPicDropsHighOrderDigitsAndKeepsNegativeSign",
+        "InterestCalculatorTest#int11TruncatesMonthlyInterestAndEncodesZeroAsPositive"
+      ],
+      "fixtures": [
+        "mixed",
+        "volume"
+      ],
+      "fixture_scope": "Normal success path only; see gaps and test-specific Java fixtures.",
+      "gaps": "PIC overflow is Java-only; no COBOL overflow fixture.",
+      "sme": {
+        "status": "pending",
+        "initials": "",
+        "comments": ""
+      }
+    },
+    {
+      "program": "CBACT04C",
+      "rule": "INT-12",
+      "description": "Each category's monthly interest is added to the account's running total, which is reset to zero at every account break.",
+      "tests": [
+        "InterestCalculatorTest#int12AddsCategoryInterestToTheRewrittenAccountTotal"
+      ],
+      "fixtures": [
+        "mixed",
+        "volume"
+      ],
+      "fixture_scope": "Normal success path only; see gaps and test-specific Java fixtures.",
+      "gaps": "No additional gap identified in this synthetic scope; not exhaustive branch coverage.",
+      "sme": {
+        "status": "pending",
+        "initials": "",
+        "comments": ""
+      }
+    },
+    {
+      "program": "CBACT04C",
+      "rule": "INT-13",
+      "description": "One 350-byte interest transaction is written to TRANSACT for each category with a non-zero rate.",
+      "tests": [
+        "InterestCalculatorTest#int15PopulatesAllTransactionFieldsAndLeavesUnwrittenFieldsBlank"
+      ],
+      "fixtures": [
+        "mixed",
+        "volume"
+      ],
+      "fixture_scope": "Normal success path only; see gaps and test-specific Java fixtures.",
+      "gaps": "No additional gap identified in this synthetic scope; not exhaustive branch coverage.",
+      "sme": {
+        "status": "pending",
+        "initials": "",
+        "comments": ""
+      }
+    },
+    {
+      "program": "CBACT04C",
+      "rule": "INT-14",
+      "description": "TRAN-ID = PARM-DATE (10 bytes) followed by a 6-digit counter that starts at 0 and is incremented before each write for the whole run, not per account.",
+      "tests": [
+        "InterestCalculatorTest#int14CounterSpansAccountsAndWrapsAfterSixDigits"
+      ],
+      "fixtures": [
+        "mixed",
+        "volume"
+      ],
+      "fixture_scope": "Normal success path only; see gaps and test-specific Java fixtures.",
+      "gaps": "Counter wrap is Java-only; no COBOL wrap fixture.",
+      "sme": {
+        "status": "pending",
+        "initials": "",
+        "comments": ""
+      }
+    },
+    {
+      "program": "CBACT04C",
+      "rule": "INT-15",
+      "description": "The interest transaction has type `01`, category `05`, source `System`, description `Int. for a/c ` + ACCT-ID, amount = monthly interest, merchant id 0, blank merchant name/city/zip, and the cross-reference card number.",
+      "tests": [
+        "InterestCalculatorTest#int15PopulatesAllTransactionFieldsAndLeavesUnwrittenFieldsBlank"
+      ],
+      "fixtures": [
+        "mixed",
+        "volume"
+      ],
+      "fixture_scope": "Normal success path only; see gaps and test-specific Java fixtures.",
+      "gaps": "No additional gap identified in this synthetic scope; not exhaustive branch coverage.",
+      "sme": {
+        "status": "pending",
+        "initials": "",
+        "comments": ""
+      }
+    },
+    {
+      "program": "CBACT04C",
+      "rule": "INT-16",
+      "description": "TRAN-ORIG-TS and TRAN-PROC-TS are both set from `FUNCTION CURRENT-DATE` at write time, formatted `YYYY-MM-DD-HH.MM.SS.hh0000` (26 bytes); the run parameter is not used.",
+      "tests": [
+        "InterestCalculatorTest#int16FormatsInjectedClockHundredthsForBothTimestamps"
+      ],
+      "fixtures": [
+        "mixed",
+        "volume"
+      ],
+      "fixture_scope": "Normal success path only; see gaps and test-specific Java fixtures.",
+      "gaps": "No additional gap identified in this synthetic scope; not exhaustive branch coverage.",
+      "sme": {
+        "status": "pending",
+        "initials": "",
+        "comments": ""
+      }
+    },
+    {
+      "program": "CBACT04C",
+      "rule": "INT-17",
+      "description": "The account update adds the total interest to ACCT-CURR-BAL, sets ACCT-CURR-CYC-CREDIT and ACCT-CURR-CYC-DEBIT to zero, and REWRITEs the account; any status other than `00` abends.",
+      "tests": [
+        "InterestCalculatorTest#int05RewritesThePreviousAccountButNotTheLastAccount",
+        "InterestCalculatorTest#int12AddsCategoryInterestToTheRewrittenAccountTotal"
+      ],
+      "fixtures": [
+        "mixed",
+        "volume"
+      ],
+      "fixture_scope": "Normal success path only; see gaps and test-specific Java fixtures.",
+      "gaps": "No additional gap identified in this synthetic scope; not exhaustive branch coverage.",
+      "sme": {
+        "status": "pending",
+        "initials": "",
+        "comments": ""
+      }
+    },
+    {
+      "program": "CBACT04C",
+      "rule": "INT-18",
+      "description": "**SME question.** Fees are not computed: `1400-COMPUTE-FEES` holds only a \"To be implemented\" comment and EXIT, although the job's comment says it computes interest and fees.",
+      "tests": [],
+      "fixtures": [
+        "mixed",
+        "volume"
+      ],
+      "fixture_scope": "Normal success path only; see gaps and test-specific Java fixtures.",
+      "gaps": "No dedicated fee assertion or fee implementation; SME decision pending.",
+      "sme": {
+        "status": "pending",
+        "initials": "",
+        "comments": ""
+      }
+    },
+    {
+      "program": "CBACT04C",
+      "rule": "INT-19",
+      "description": "Any open, read, write, rewrite or close status other than the expected one DISPLAYs a message and the file status, then abends through `CEE3ABD` with code 999.",
+      "tests": [
+        "InterestCalculatorTest#int06AndInt07AbendForMissingAccountAndCrossReference",
+        "InterestCalculatorTest#int09UsesPrimaryRateThenDefaultAndAbendsWhenDefaultIsMissing"
+      ],
+      "fixtures": [],
+      "fixture_scope": "Normal success path only; see gaps and test-specific Java fixtures.",
+      "gaps": "Only selected Java abends; no exhaustive COBOL open/read/write/rewrite/close failures.",
+      "sme": {
+        "status": "pending",
+        "initials": "",
+        "comments": ""
+      }
+    },
+    {
+      "program": "CBACT04C",
+      "rule": "INT-20",
+      "description": "On normal completion the program DISPLAYs start and end messages and returns without setting RETURN-CODE (RC 0); there is no reject path and no warning return code.",
+      "tests": [
+        "InterestDifferentialTest#matchesGoldenMasterToTheCent(String)[1]",
+        "InterestDifferentialTest#matchesGoldenMasterToTheCent(String)[2]"
+      ],
+      "fixtures": [
+        "mixed",
+        "volume"
+      ],
+      "fixture_scope": "Normal success path only; see gaps and test-specific Java fixtures.",
+      "gaps": "No additional gap identified in this synthetic scope; not exhaustive branch coverage.",
+      "sme": {
+        "status": "pending",
+        "initials": "",
+        "comments": ""
+      }
+    },
+    {
+      "program": "CBTRN02C",
+      "rule": "POST-01",
+      "description": "Files are opened DALYTRAN INPUT (sequential), TRANSACT OUTPUT (indexed by TRAN-ID, random; DD TRANFILE), XREFFILE INPUT (random by card number), DALYREJS OUTPUT (sequential, a new generation), ACCTFILE I-O and TCATBALF I-O (both random), and all six are closed at the end.",
+      "tests": [
+        "PackagedJobIT#packagedJarReproducesGoldenSet(String)[1]",
+        "PackagedJobIT#packagedJarReproducesGoldenSet(String)[2]",
+        "TransactionPosterTest#reusedStoreStartsFreshOutputsEvenForEmptyBatch"
+      ],
+      "fixtures": [
+        "mixed",
+        "volume"
+      ],
+      "fixture_scope": "Normal success path only; see gaps and test-specific Java fixtures.",
+      "gaps": "No COBOL open/close failures or target indexed-file lifecycle test.",
+      "sme": {
+        "status": "pending",
+        "initials": "",
+        "comments": ""
+      }
+    },
+    {
+      "program": "CBTRN02C",
+      "rule": "POST-02",
+      "description": "The driver reads DALYTRAN until file status `10`; for each record it adds 1 to the processed count, resets the reason code to 0 and the description to spaces, validates, and posts the record if the reason is still 0, otherwise counts and writes a reject.",
+      "tests": [
+        "TransactionPosterTest#emptyInput",
+        "TransactionPosterTest#namedDifferential",
+        "TransactionPosterTest#volumeDifferential"
+      ],
+      "fixtures": [
+        "mixed",
+        "volume"
+      ],
+      "fixture_scope": "Normal success path only; see gaps and test-specific Java fixtures.",
+      "gaps": "No additional gap identified in this synthetic scope; not exhaustive branch coverage.",
+      "sme": {
+        "status": "pending",
+        "initials": "",
+        "comments": ""
+      }
+    },
+    {
+      "program": "CBTRN02C",
+      "rule": "POST-03",
+      "description": "Validation order is cross-reference first, then account; the account checks run only when the cross-reference check passed, and no other validations exist (`ADD MORE VALIDATIONS HERE`).",
+      "tests": [
+        "TransactionPosterTest#malformedNumericFieldsDoNotPreventLookupRejects"
+      ],
+      "fixtures": [
+        "mixed",
+        "volume"
+      ],
+      "fixture_scope": "Normal success path only; see gaps and test-specific Java fixtures.",
+      "gaps": "Malformed-field lookup ordering is Java-only; golden tests valid record encodings.",
+      "sme": {
+        "status": "pending",
+        "initials": "",
+        "comments": ""
+      }
+    },
+    {
+      "program": "CBTRN02C",
+      "rule": "POST-04",
+      "description": "Reason 100: a card number not found in XREFFILE (INVALID KEY) sets reason 100, `INVALID CARD NUMBER FOUND`.",
+      "tests": [
+        "TransactionPosterTest#namedDifferential"
+      ],
+      "fixtures": [
+        "mixed"
+      ],
+      "fixture_scope": "Normal success path only; see gaps and test-specific Java fixtures.",
+      "gaps": "No additional gap identified in this synthetic scope; not exhaustive branch coverage.",
+      "sme": {
+        "status": "pending",
+        "initials": "",
+        "comments": ""
+      }
+    },
+    {
+      "program": "CBTRN02C",
+      "rule": "POST-05",
+      "description": "Reason 101: an XREF-ACCT-ID not found in ACCTFILE (INVALID KEY) sets reason 101, `ACCOUNT RECORD NOT FOUND`.",
+      "tests": [
+        "TransactionPosterTest#namedDifferential"
+      ],
+      "fixtures": [
+        "mixed"
+      ],
+      "fixture_scope": "Normal success path only; see gaps and test-specific Java fixtures.",
+      "gaps": "No additional gap identified in this synthetic scope; not exhaustive branch coverage.",
+      "sme": {
+        "status": "pending",
+        "initials": "",
+        "comments": ""
+      }
+    },
+    {
+      "program": "CBTRN02C",
+      "rule": "POST-06",
+      "description": "Reason 102: when ACCT-CURR-CYC-CREDIT \u2212 ACCT-CURR-CYC-DEBIT + DALYTRAN-AMT is greater than ACCT-CREDIT-LIMIT, the record gets reason 102, `OVERLIMIT TRANSACTION`; ACCT-CURR-BAL is not used.",
+      "tests": [
+        "TransactionPosterTest#namedDifferential"
+      ],
+      "fixtures": [
+        "mixed",
+        "volume"
+      ],
+      "fixture_scope": "Normal success path only; see gaps and test-specific Java fixtures.",
+      "gaps": "No COBOL equality-at-limit or PIC-overflow fixture.",
+      "sme": {
+        "status": "pending",
+        "initials": "",
+        "comments": ""
+      }
+    },
+    {
+      "program": "CBTRN02C",
+      "rule": "POST-07",
+      "description": "Reason 103: when ACCT-EXPIRAION-DATE is less than the first 10 characters of DALYTRAN-ORIG-TS (alphanumeric compare), reason 103 `TRANSACTION RECEIVED AFTER ACCT EXPIRATION` is set; the check runs after the limit check and overwrites a 102.",
+      "tests": [
+        "TransactionPosterTest#namedDifferential"
+      ],
+      "fixtures": [
+        "mixed",
+        "volume"
+      ],
+      "fixture_scope": "Normal success path only; see gaps and test-specific Java fixtures.",
+      "gaps": "No COBOL equality-at-expiry or malformed-date fixture.",
+      "sme": {
+        "status": "pending",
+        "initials": "",
+        "comments": ""
+      }
+    },
+    {
+      "program": "CBTRN02C",
+      "rule": "POST-08",
+      "description": "A rejected record is written to DALYREJS as 430 bytes: the 350-byte DALYTRAN record followed by an 80-byte trailer of reason code 9(04) and description X(76); a write failure abends.",
+      "tests": [
+        "TransactionPosterTest#malformedNumericFieldsDoNotPreventLookupRejects"
+      ],
+      "fixtures": [
+        "mixed"
+      ],
+      "fixture_scope": "Normal success path only; see gaps and test-specific Java fixtures.",
+      "gaps": "No additional gap identified in this synthetic scope; not exhaustive branch coverage.",
+      "sme": {
+        "status": "pending",
+        "initials": "",
+        "comments": ""
+      }
+    },
+    {
+      "program": "CBTRN02C",
+      "rule": "POST-09",
+      "description": "After closing, the program DISPLAYs the processed and rejected counts and sets RETURN-CODE 4 when at least one record was rejected; otherwise RETURN-CODE is not set (RC 0).",
+      "tests": [
+        "TransactionPosterTest#namedDifferential",
+        "TransactionPosterTest#volumeDifferential"
+      ],
+      "fixtures": [
+        "mixed",
+        "volume"
+      ],
+      "fixture_scope": "Normal success path only; see gaps and test-specific Java fixtures.",
+      "gaps": "No additional gap identified in this synthetic scope; not exhaustive branch coverage.",
+      "sme": {
+        "status": "pending",
+        "initials": "",
+        "comments": ""
+      }
+    },
+    {
+      "program": "CBTRN02C",
+      "rule": "POST-10",
+      "description": "A posted transaction copies every DALYTRAN field into TRAN-RECORD except the processing timestamp, which is replaced by the current timestamp (POST-18); the input DALYTRAN-PROC-TS is discarded.",
+      "tests": [
+        "TransactionPosterTest#namedDifferential",
+        "TransactionPosterTest#nonNumericMerchantIdIsPostedByteForByte"
+      ],
+      "fixtures": [
+        "mixed",
+        "volume"
+      ],
+      "fixture_scope": "Normal success path only; see gaps and test-specific Java fixtures.",
+      "gaps": "Opaque merchant-ID test is Java-only.",
+      "sme": {
+        "status": "pending",
+        "initials": "",
+        "comments": ""
+      }
+    },
+    {
+      "program": "CBTRN02C",
+      "rule": "POST-11",
+      "description": "**SME question.** Posting updates the category balance, then the account, then writes the transaction, with no rollback: an abend in a later step leaves the earlier updates in place.",
+      "tests": [
+        "DailyCycleJobTest#failedRecordKeepsTheEffectsOfEarlierRecordsInItsChunk",
+        "TransactionPosterTest#transactionWriteFailureDoesNotRollBackEarlierUpdates"
+      ],
+      "fixtures": [
+        "mixed",
+        "volume"
+      ],
+      "fixture_scope": "Normal success path only; see gaps and test-specific Java fixtures.",
+      "gaps": "No COBOL mid-write failure injection; Java Store and batch tests only; no multi-file atomicity.",
+      "sme": {
+        "status": "pending",
+        "initials": "",
+        "comments": ""
+      }
+    },
+    {
+      "program": "CBTRN02C",
+      "rule": "POST-12",
+      "description": "The category balance key is (XREF-ACCT-ID, DALYTRAN-TYPE-CD, DALYTRAN-CAT-CD); status `23` on the read creates a new record, `00` updates the existing one, and any other status abends.",
+      "tests": [
+        "TransactionPosterTest#namedDifferential",
+        "TransactionPosterTest#volumeDifferential"
+      ],
+      "fixtures": [
+        "mixed",
+        "volume"
+      ],
+      "fixture_scope": "Normal success path only; see gaps and test-specific Java fixtures.",
+      "gaps": "No COBOL unexpected category-read status injection.",
+      "sme": {
+        "status": "pending",
+        "initials": "",
+        "comments": ""
+      }
+    },
+    {
+      "program": "CBTRN02C",
+      "rule": "POST-13",
+      "description": "Create path: the record is INITIALIZEd, the key is set, the balance becomes 0 + DALYTRAN-AMT, and the record is WRITTEN; any status other than `00` abends.",
+      "tests": [
+        "TransactionPosterTest#volumeDifferential"
+      ],
+      "fixtures": [
+        "mixed",
+        "volume"
+      ],
+      "fixture_scope": "Normal success path only; see gaps and test-specific Java fixtures.",
+      "gaps": "No additional gap identified in this synthetic scope; not exhaustive branch coverage.",
+      "sme": {
+        "status": "pending",
+        "initials": "",
+        "comments": ""
+      }
+    },
+    {
+      "program": "CBTRN02C",
+      "rule": "POST-14",
+      "description": "Update path: DALYTRAN-AMT is added to TRAN-CAT-BAL and the record is REWRITTEN; any status other than `00` abends.",
+      "tests": [
+        "TransactionPosterTest#namedDifferential"
+      ],
+      "fixtures": [
+        "mixed",
+        "volume"
+      ],
+      "fixture_scope": "Normal success path only; see gaps and test-specific Java fixtures.",
+      "gaps": "No additional gap identified in this synthetic scope; not exhaustive branch coverage.",
+      "sme": {
+        "status": "pending",
+        "initials": "",
+        "comments": ""
+      }
+    },
+    {
+      "program": "CBTRN02C",
+      "rule": "POST-15",
+      "description": "The account update adds DALYTRAN-AMT to ACCT-CURR-BAL, and also to ACCT-CURR-CYC-CREDIT when the amount is \u2265 0 or to ACCT-CURR-CYC-DEBIT when it is negative (so the debit total accumulates negative values).",
+      "tests": [
+        "TransactionPosterTest#namedDifferential"
+      ],
+      "fixtures": [
+        "mixed",
+        "volume"
+      ],
+      "fixture_scope": "Normal success path only; see gaps and test-specific Java fixtures.",
+      "gaps": "No additional gap identified in this synthetic scope; not exhaustive branch coverage.",
+      "sme": {
+        "status": "pending",
+        "initials": "",
+        "comments": ""
+      }
+    },
+    {
+      "program": "CBTRN02C",
+      "rule": "POST-16",
+      "description": "**SME question.** Reason 109: an INVALID KEY on the account REWRITE sets reason 109, `ACCOUNT RECORD NOT FOUND`, but nothing reads it afterwards, so the transaction is still written, no reject record is produced, the reject count and RC are unchanged, and the reason is reset for the next record.",
+      "tests": [
+        "TransactionPosterTest#failedRewriteDoesNotRejectOrChangeReturnCode"
+      ],
+      "fixtures": [],
+      "fixture_scope": "Normal success path only; see gaps and test-specific Java fixtures.",
+      "gaps": "Rewrite INVALID KEY is injected only in the Java Store; no COBOL failure fixture.",
+      "sme": {
+        "status": "pending",
+        "initials": "",
+        "comments": ""
+      }
+    },
+    {
+      "program": "CBTRN02C",
+      "rule": "POST-17",
+      "description": "The posted transaction is WRITTEN to TRANSACT keyed by TRAN-ID; any status other than `00` (for example a duplicate key) abends.",
+      "tests": [
+        "DailyCycleJobTest#failedRecordKeepsTheEffectsOfEarlierRecordsInItsChunk",
+        "TransactionPosterTest#transactionWriteFailureDoesNotRollBackEarlierUpdates"
+      ],
+      "fixtures": [
+        "mixed",
+        "volume"
+      ],
+      "fixture_scope": "Normal success path only; see gaps and test-specific Java fixtures.",
+      "gaps": "Duplicate/write failure is Java-only, not a COBOL differential.",
+      "sme": {
+        "status": "pending",
+        "initials": "",
+        "comments": ""
+      }
+    },
+    {
+      "program": "CBTRN02C",
+      "rule": "POST-18",
+      "description": "The processing timestamp comes from `FUNCTION CURRENT-DATE` per record, formatted `YYYY-MM-DD-HH.MM.SS.hh0000` (26 bytes).",
+      "tests": [
+        "TransactionPosterTest#namedDifferential",
+        "TransactionPosterTest#volumeDifferential"
+      ],
+      "fixtures": [
+        "mixed",
+        "volume"
+      ],
+      "fixture_scope": "Normal success path only; see gaps and test-specific Java fixtures.",
+      "gaps": "No additional gap identified in this synthetic scope; not exhaustive branch coverage.",
+      "sme": {
+        "status": "pending",
+        "initials": "",
+        "comments": ""
+      }
+    },
+    {
+      "program": "CBTRN02C",
+      "rule": "POST-19",
+      "description": "Any open, read, write, rewrite or close status other than the expected one DISPLAYs a message and the file status, then abends through `CEE3ABD` with code 999; the two validation reads are the exception, as only their INVALID KEY condition is tested.",
+      "tests": [
+        "DailyCycleJobTest#postingSysoutFailureStopsTheJobBeforeInterest",
+        "TransactionPosterTest#transactionWriteFailureDoesNotRollBackEarlierUpdates"
+      ],
+      "fixtures": [],
+      "fixture_scope": "Normal success path only; see gaps and test-specific Java fixtures.",
+      "gaps": "Selected Java failures only; no complete COBOL I/O status matrix or close-error display check.",
+      "sme": {
+        "status": "pending",
+        "initials": "",
+        "comments": ""
+      }
+    }
+  ],
+  "sme_pending_behaviors": {
+    "INT-05": "Last account's interest transactions exist but its balance/cycles are not updated. Preserved; SME decision pending.",
+    "INT-07": "Multiple cards: Java chooses first card in card-number primary-key order. Not established by a COBOL multi-card fixture; SME confirmation pending.",
+    "INT-18": "Fee paragraph is a stub. No fees computed; SME decision pending.",
+    "POST-11": "Category, account, transaction updates have no rollback. Failure/recovery semantics remain SME-pending.",
+    "POST-16": "Account REWRITE failure sets 109 but does not reject, change RC or stop posting. Preserved in Java-only injected test; SME decision pending."
+  },
+  "classification": {
+    "match": 378763
+  },
+  "unclassified_differences": 0,
+  "generator_tests": 14,
+  "maven_exit": 0,
+  "ledger_sha256": "7c9a7e8ebab9f12d356b4f6d5ca11a653f4ad619f938d3caa57d83e0e0cc564d",
+  "gate_passed": true
+}
