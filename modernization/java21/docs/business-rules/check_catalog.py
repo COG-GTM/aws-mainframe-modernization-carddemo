@@ -5,7 +5,8 @@ Checks, per catalog file:
   1. Rule ids are unique, well formed and numbered without gaps.
   2. Every rule row cites at least one app/cbl or app/cpy line range.
   3. Every `path:line[-line]` cite in the catalog resolves (file exists,
-     range inside the file, at least one non-blank line).
+     range inside the file, at least one non-blank line), and every
+     .cbl/.cpy/.jcl line reference is written as such a backticked cite.
   4. Every paragraph of the PROCEDURE DIVISION is listed in the paragraph
      map at its real header line.
   5. Every decision line (IF, ELSE, INVALID KEY, NOT INVALID KEY,
@@ -21,7 +22,8 @@ Usage:
   python3 check_catalog.py [--ref <git-ref>] [--show]
 
 Before the real check it runs a self-test: tampered copies of the catalog
-(a catch-all branch range, a cite past end of file, an unknown rule id) must
+(a catch-all branch range, a cite past end of file, an unquoted source
+reference, an unknown rule id) must
 each be rejected.
 
 --ref reads the COBOL sources from a git ref (e.g. origin/main) instead of
@@ -43,6 +45,8 @@ CATALOGS = [
 CHECKLIST = "SME-CHECKLIST.md"
 BANNED = re.compile(r"production[- ]ready|certified|compliant", re.I)
 CITE = re.compile(r"`(app/[A-Za-z0-9_./-]+):(\d+)(?:-(\d+))?`")
+# Any source reference with a line number, quoted or not; each must be a CITE.
+ANY_REF = re.compile(r"(?:app/)?[A-Za-z0-9_./-]*\.(?:cbl|cpy|jcl):\d+(?:-\d+)?", re.I)
 PARAGRAPH = re.compile(r"^ {7}([A-Z0-9][A-Z0-9-]*)\.\s*$")
 DECISION = re.compile(r"(?<![-\w])IF\b|\bELSE\b|\bINVALID KEY\b|\bPERFORM UNTIL\b")
 END_SCOPE = re.compile(r"\bEND-(IF|READ|REWRITE|PERFORM)\b")
@@ -102,6 +106,11 @@ def parse_range(text):
 
 
 def check_cites(name, text, ref, errors):
+    quoted = {m.span(0) for m in CITE.finditer(text)}
+    for m in ANY_REF.finditer(text):
+        a, b = m.span(0)
+        if not any(qa < a and b < qb for qa, qb in quoted):
+            errors.append(f"{name}: source reference {m.group(0)!r} is not a backticked app/... cite")
     count = 0
     for m in CITE.finditer(text):
         path, a = m.group(1), int(m.group(2))
@@ -234,6 +243,7 @@ def self_test(ref):
         "oversized branch range": head + catch_all + tail,
         "main-line range spanning paragraphs": head + catch_all.replace("1-99999", "188-647") + tail,
         "cite past end of file": good.replace("CBACT04C.cbl:462-465", "CBACT04C.cbl:462-999"),
+        "unquoted source reference": good.replace("`app/cbl/CBACT04C.cbl:467`", "app/cbl/CBACT04C.cbl:467"),
         "unknown rule in branch map": good.replace("| 214-217 | main line | rate not zero | INT-10 |",
                                                    "| 214-217 | main line | rate not zero | INT-99 |"),
     }

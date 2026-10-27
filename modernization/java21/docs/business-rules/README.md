@@ -31,7 +31,8 @@ hypotheses, and each one was checked against the lines cited here.
 python3 modernization/java21/docs/business-rules/check_catalog.py --ref origin/main
 ```
 
-The script checks that ids are unique and numbered without gaps, that every cite resolves against `origin/main`,
+The script checks that ids are unique and numbered without gaps, that every cite resolves against `origin/main`
+(every `.cbl`, `.cpy` or `.jcl` line reference must be a backticked `app/...` cite),
 that every paragraph and decision line is mapped, that the checklist lists every rule id exactly once, and that
 none of the files contains a banned claim word. Each branch-map row must sit inside the paragraph it names, start on a
 decision line and not overlap another row, so one catch-all range cannot stand in for the real mapping. Before the
