@@ -71,6 +71,38 @@ class InterestCalculatorTest {
     }
 
     @Test
+    void int03DisplaysEBCDICRecordTextWithLatin1Characters() {
+        TranCatBalanceRecord source =
+                new TranCatBalanceRecord("00000000001", "01", "0001", money("100.00"), "é");
+        byte[] bytes = TranCatBalanceRecord.CODEC.encode(source, TextCodec.EBCDIC);
+        TranCatBalanceRecord decoded = TranCatBalanceRecord.CODEC.decode(bytes, TextCodec.EBCDIC);
+        InterestRun run = calculator().run(input(
+                List.of(decoded),
+                List.of(account("00000000001", "GROUP", "0.00", "0.00", "0.00")),
+                List.of(xref("00000000001", "0000000000000001")),
+                List.of(disclosure("GROUP", 1, "12.00"))));
+
+        assertEquals(50, bytes.length);
+        assertEquals(1, run.transactions().size());
+        assertEquals(50, run.sysout().get(1).length());
+        assertTrue(run.sysout().get(1).contains("é"));
+        assertEquals(display(decoded), run.sysout().get(1));
+    }
+
+    @Test
+    void textCodecEBCDICDecodesAllByteValuesWithinLatin1() {
+        byte[] bytes = new byte[256];
+        for (int i = 0; i < bytes.length; i++) {
+            bytes[i] = (byte) i;
+        }
+
+        String decoded = TextCodec.decode(bytes, TextCodec.EBCDIC);
+
+        assertEquals(256, decoded.length());
+        assertTrue(decoded.chars().allMatch(character -> character <= 0xFF));
+    }
+
+    @Test
     void int07ChoosesTheFirstCrossReferenceInCardNumberPrimaryKeyOrder() {
         InterestRun run = calculator().run(input(
                 List.of(category("00000000001", 1, "100.00")),
@@ -129,28 +161,69 @@ class InterestCalculatorTest {
                         List.of(account("00000000001", "GROUP", "0.00", "0.00", "0.00")),
                         List.of(xref("00000000001", "0000000000000001")),
                         List.of())));
-        assertEquals(List.of("ERROR READING DEFAULT DISCLOSURE GROUP"), missingDefault.displayLines());
+        TranCatBalanceRecord category = category("00000000001", 1, "100.00");
+        assertEquals(List.of(
+                "START OF EXECUTION OF PROGRAM CBACT04C",
+                display(category),
+                "DISCLOSURE GROUP RECORD MISSING",
+                "TRY WITH DEFAULT GROUP CODE",
+                "ERROR READING DEFAULT DISCLOSURE GROUP",
+                "FILE STATUS IS: NNNN0023",
+                "ABENDING PROGRAM"), missingDefault.displayLines());
         assertEquals("23", missingDefault.fileStatus());
     }
 
     @Test
     void int06AndInt07AbendForMissingAccountAndCrossReference() {
+        TranCatBalanceRecord category = category("00000000001", 1, "100.00");
         InterestAbendException missingAccount = assertThrows(InterestAbendException.class, () ->
                 calculator().run(input(
-                        List.of(category("00000000001", 1, "100.00")), List.of(), List.of(), List.of())));
-        assertEquals(List.of("ACCOUNT NOT FOUND: 00000000001", "ERROR READING ACCOUNT FILE"),
-                missingAccount.displayLines());
+                        List.of(category), List.of(), List.of(), List.of())));
+        assertEquals(List.of(
+                "START OF EXECUTION OF PROGRAM CBACT04C",
+                display(category),
+                "ACCOUNT NOT FOUND: 00000000001",
+                "ERROR READING ACCOUNT FILE",
+                "FILE STATUS IS: NNNN0023",
+                "ABENDING PROGRAM"), missingAccount.displayLines());
         assertEquals("23", missingAccount.fileStatus());
 
         InterestAbendException missingXref = assertThrows(InterestAbendException.class, () ->
                 calculator().run(input(
-                        List.of(category("00000000001", 1, "100.00")),
+                        List.of(category),
                         List.of(account("00000000001", "GROUP", "0.00", "0.00", "0.00")),
                         List.of(),
                         List.of())));
-        assertEquals(List.of("ACCOUNT NOT FOUND: 00000000001", "ERROR READING XREF FILE"),
-                missingXref.displayLines());
+        assertEquals(List.of(
+                "START OF EXECUTION OF PROGRAM CBACT04C",
+                display(category),
+                "ACCOUNT NOT FOUND: 00000000001",
+                "ERROR READING XREF FILE",
+                "FILE STATUS IS: NNNN0023",
+                "ABENDING PROGRAM"), missingXref.displayLines());
         assertEquals("23", missingXref.fileStatus());
+    }
+
+    @Test
+    void int06MissingSecondAccountIncludesPriorDisplaysBeforeAbendLines() {
+        TranCatBalanceRecord first = category("00000000001", 1, "100.00");
+        TranCatBalanceRecord missing = category("00000000002", 1, "200.00");
+        InterestAbendException exception = assertThrows(InterestAbendException.class, () ->
+                calculator().run(input(
+                        List.of(first, missing),
+                        List.of(account("00000000001", "GROUP", "0.00", "0.00", "0.00")),
+                        List.of(xref("00000000001", "0000000000000001")),
+                        List.of(disclosure("GROUP", 1, "12.00")))));
+
+        assertEquals(List.of(
+                "START OF EXECUTION OF PROGRAM CBACT04C",
+                display(first),
+                display(missing),
+                "ACCOUNT NOT FOUND: 00000000002",
+                "ERROR READING ACCOUNT FILE",
+                "FILE STATUS IS: NNNN0023",
+                "ABENDING PROGRAM"), exception.displayLines());
+        assertEquals("23", exception.fileStatus());
     }
 
     @Test
@@ -317,7 +390,9 @@ class InterestCalculatorTest {
     }
 
     private static String display(TranCatBalanceRecord category) {
-        return new String(TranCatBalanceRecord.CODEC.encode(category), StandardCharsets.US_ASCII);
+        return new String(
+                TranCatBalanceRecord.CODEC.encode(category, StandardCharsets.ISO_8859_1),
+                StandardCharsets.ISO_8859_1);
     }
 
     private static ZonedDecimal money(String value) {

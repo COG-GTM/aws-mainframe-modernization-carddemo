@@ -76,7 +76,10 @@ public final class InterestCalculator {
         int transactionSuffix = 0;
 
         for (TranCatBalanceRecord categoryBalance : categoryBalances) {
-            sysout.add(new String(TranCatBalanceRecord.CODEC.encode(categoryBalance), StandardCharsets.US_ASCII));
+            // IBM037 maps its single-byte repertoire to Latin-1; ISO-8859-1 preserves each character and ASCII.
+            sysout.add(new String(
+                    TranCatBalanceRecord.CODEC.encode(categoryBalance, StandardCharsets.ISO_8859_1),
+                    StandardCharsets.ISO_8859_1));
             // INT-04: At an account break, rewrite the previous account and reset its total
             // (app/cbl/CBACT04C.cbl:194-206).
             if (!categoryBalance.accountId().equals(currentAccountId)) {
@@ -87,13 +90,11 @@ public final class InterestCalculator {
                 accountTotal = ZERO_MONEY;
                 currentAccount = accountsById.get(currentAccountId);
                 if (currentAccount == null) {
-                    throw new InterestAbendException(
-                            List.of("ACCOUNT NOT FOUND: " + currentAccountId, "ERROR READING ACCOUNT FILE"), "23");
+                    throw abend(sysout, "ACCOUNT NOT FOUND: " + currentAccountId, "ERROR READING ACCOUNT FILE");
                 }
                 currentCrossReference = crossReferencesByAccount.get(currentAccountId);
                 if (currentCrossReference == null) {
-                    throw new InterestAbendException(
-                            List.of("ACCOUNT NOT FOUND: " + currentAccountId, "ERROR READING XREF FILE"), "23");
+                    throw abend(sysout, "ACCOUNT NOT FOUND: " + currentAccountId, "ERROR READING XREF FILE");
                 }
             }
 
@@ -107,7 +108,7 @@ public final class InterestCalculator {
                 disclosure = ratesByKey.get(disclosureKey(
                         DEFAULT_GROUP_ID, categoryBalance.typeCode(), categoryBalance.categoryCode()));
                 if (disclosure == null) {
-                    throw new InterestAbendException(List.of("ERROR READING DEFAULT DISCLOSURE GROUP"), "23");
+                    throw abend(sysout, "ERROR READING DEFAULT DISCLOSURE GROUP");
                 }
             }
 
@@ -270,6 +271,16 @@ public final class InterestCalculator {
     private void skipLastAccountUpdatePerInt05() {
         // INT-05: EOF is tested before the loop body; the last account's update branch is unreachable
         // (app/cbl/CBACT04C.cbl:188-191,219-222).
+    }
+
+    private static InterestAbendException abend(List<String> sysout, String... failureLines) {
+        List<String> displayLines = new ArrayList<>(sysout);
+        displayLines.addAll(List.of(failureLines));
+        // INT-19: Preserve prior DISPLAYs, then emit the numeric status and abend line
+        // (app/cbl/CBACT04C.cbl:628-648).
+        displayLines.add("FILE STATUS IS: NNNN0023");
+        displayLines.add("ABENDING PROGRAM");
+        return new InterestAbendException(displayLines, "23");
     }
 
     private record DisclosureKey(String groupId, String typeCode, String categoryCode) {}
