@@ -59,7 +59,7 @@ Enforcement points:
 - **Human paths**: `view-rejects` (masked reject view over DALYREJS), `submit-cutover` /
   `approve-cutover` with separation of duties, and `read-audit`. Denials are audited too.
 
-## Zero Trust pillar coverage (DoD reference architecture)
+## Zero Trust pillar coverage (seven-pillar model)
 
 | Pillar | Coverage |
 |---|---|
