@@ -1,0 +1,16 @@
+# Fixed-width copybook record files: one 350/50/300-byte record after another with no
+# line structure, where trailing blanks are field content (PIC X padding).  Treat them as
+# binary so git never normalises line endings, flags "trailing whitespace" or tries to
+# show a line diff; compare.py is the diff tool for these files.
+sets/*/input/DALYTRAN            binary
+sets/*/input/XREFFILE            binary
+sets/*/input/ACCTFILE            binary
+sets/*/input/TCATBALF            binary
+sets/*/expected/TRANSACT         binary
+sets/*/expected/DALYREJS         binary
+sets/*/expected/ACCTFILE         binary
+sets/*/expected/TCATBALF         binary
+sets/*/expected-variant/TRANSACT binary
+sets/*/expected-variant/DALYREJS binary
+sets/*/expected-variant/ACCTFILE binary
+sets/*/expected-variant/TCATBALF binary
