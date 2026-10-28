@@ -323,7 +323,7 @@ it to migration/phase2/target-architecture.md. It MUST specify:
 TASK 4 — JIRA STRUCTURE
 Structure the plan as JIRA-style work items. Per this org's convention, create a SINGLE Epic for the
 overall migration with stories/sub-tasks underneath it (do not scatter many top-level tickets on the
-board). Use the US-Federal (UF) project. Write the proposed Epic + stories/sub-tasks (summaries +
+board). Use the team's Jira project. Write the proposed Epic + stories/sub-tasks (summaries +
 descriptions + entry/exit criteria + dependencies) to migration/phase2/jira-plan.md FIRST and present
 it for review. Only create the actual JIRA items after the plan is approved. Suggested breakdown:
 Epic "CardDemo COBOL→Python migration"; stories for (1) record-parser + decimal layer,
