@@ -29,7 +29,7 @@ Downstream jobs (`INTCALC`, `TRANBKP`/`COMBTRAN`, reporting) and whatever builds
 | Phase | Production of record | Java runs on | Gate to the next phase |
 |---|---|---|---|
 | 0. Golden sets | COBOL | the golden inputs | `scripts/run-equivalence.sh` → `OVERALL: PASS` on every set |
-| 1. Shadow (dual-run) | COBOL | a copy of each day's real `DALYTRAN` plus the masters as they were before the run, written to a separate location | N consecutive cycles with zero record, control-total or return-code differences. N, and the reviewers, are set by the program office. |
+| 1. Shadow (dual-run) | COBOL | a copy of each day's real `DALYTRAN` plus the masters as they were before the run, written to a separate location | N consecutive cycles with zero record, control-total or return-code differences. N, and the reviewers, are set by the system owner. |
 | 2. Cutover | Java | live datasets | sign-off on the shadow evidence and a tested rollback |
 | 3. Retire | Java | live | COBOL step removed from the schedule after an agreed hold period |
 
