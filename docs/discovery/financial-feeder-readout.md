@@ -48,7 +48,7 @@ Daily order in [`scripts/run_full_batch.sh`](../../scripts/run_full_batch.sh#L46
 
 The sign-on and user administration path (COSGN00C/COUSR*) is a **parallel Zero Trust track**, not a batch slice. Replacing plaintext USRSEC credentials and adding enforced RBAC and audit is the gap the code shows. Whether that meets the mandate is decided by the program's authorizing officials.
 
-## What the scan could not determine (asks for the program office)
+## What the scan could not determine (asks for the system owner)
 
 - **Feeder formats.** Which feeder systems produce the daily transaction file, their record formats, encodings and arrival windows? Only `DALYTRAN.PS` / CVTRA06Y exists here.
 - **External reconciliation.** What control totals does the downstream accounting system or payment-processing interface reconcile against (record counts, hash totals, trailer records)? None are in the code.
