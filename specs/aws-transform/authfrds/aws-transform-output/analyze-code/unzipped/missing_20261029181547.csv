@@ -1,0 +1,40 @@
+Name,Type,Path,Parents,Link Types
+COMEN01C,Missing Program,-,COPAUS0C.cbl,Exec CICS program; [Dynamic] Call
+COSGN00C,Missing Program,-,COPAUS0C.cbl,Exec CICS program; [Dynamic] Call
+COCOM01Y,Missing COBOL Copybook,-,"COPAUS1C.cbl, COPAUS0C.cbl","Copy, Copy"
+COTTL01Y,Missing COBOL Copybook,-,"COPAUS1C.cbl, COPAUS0C.cbl","Copy, Copy"
+CSDAT01Y,Missing COBOL Copybook,-,"COPAUS1C.cbl, COPAUS0C.cbl","Copy, Copy"
+CSMSG01Y,Missing COBOL Copybook,-,"COPAUS1C.cbl, COPAUS0C.cbl","Copy, Copy"
+CSMSG02Y,Missing COBOL Copybook,-,"COPAUS1C.cbl, COPAUS0C.cbl","Copy, Copy"
+CVACT01Y,Missing COBOL Copybook,-,"COPAUA0C.cbl, COPAUS0C.cbl","Copy, Copy"
+CVACT02Y,Missing COBOL Copybook,-,COPAUS0C.cbl,Copy
+CVACT03Y,Missing COBOL Copybook,-,"COPAUA0C.cbl, COPAUS0C.cbl","Copy, Copy"
+CVCUS01Y,Missing COBOL Copybook,-,"COPAUA0C.cbl, COPAUS0C.cbl","Copy, Copy"
+AWS.M2.CARDDEMO.IMSDATA.DBPAUTP0,Missing Dataset,-,DBPAUTP0.jcl,Write Dataset
+AWS.M2.CARDDEMO.PAUTDB.CHILD.FILEO,Missing Dataset,-,"UNLDPADB.JCL, LOADPADB.JCL","Read Dataset; Write Dataset, Read Dataset"
+AWS.M2.CARDDEMO.PAUTDB.CHILD.GSAM,Missing Dataset,-,UNLDGSAM.JCL,Read Dataset
+AWS.M2.CARDDEMO.PAUTDB.ROOT.FILEO,Missing Dataset,-,"UNLDPADB.JCL, LOADPADB.JCL","Read Dataset; Write Dataset, Read Dataset"
+AWS.M2.CARDDEMO.PAUTDB.ROOT.GSAM,Missing Dataset,-,UNLDGSAM.JCL,Read Dataset
+IMS.DBDLIB,Missing Dataset,-,CBPAUP0J.jcl,Read Dataset
+IMS.PROCLIB,Missing Dataset,-,CBPAUP0J.jcl,Read Dataset
+IMS.PSBLIB,Missing Dataset,-,CBPAUP0J.jcl,Read Dataset
+OEM.IMS.IMSP.DBDLIB,Missing Dataset,-,"UNLDPADB.JCL, UNLDGSAM.JCL, DBPAUTP0.jcl, LOADPADB.JCL","Read Dataset, Read Dataset, Read Dataset, Read Dataset"
+OEM.IMS.IMSP.PAUTHDBX,Missing Dataset,-,"UNLDPADB.JCL, UNLDGSAM.JCL, DBPAUTP0.jcl","Read Dataset, Read Dataset, Read Dataset"
+OEM.IMS.IMSP.PAUTHDB,Missing Dataset,-,"UNLDPADB.JCL, UNLDGSAM.JCL, DBPAUTP0.jcl","Read Dataset, Read Dataset, Read Dataset"
+OEM.IMS.IMSP.PSBLIB,Missing Dataset,-,"UNLDPADB.JCL, UNLDGSAM.JCL, DBPAUTP0.jcl, LOADPADB.JCL","Read Dataset, Read Dataset, Read Dataset, Read Dataset"
+OEM.IMS.IMSP.RECON1,Missing Dataset,-,DBPAUTP0.jcl,Read Dataset
+OEM.IMS.IMSP.RECON2,Missing Dataset,-,DBPAUTP0.jcl,Read Dataset
+OEM.IMS.IMSP.RECON3,Missing Dataset,-,DBPAUTP0.jcl,Read Dataset
+OEMA.IMS.IMSP.SDFSRESL.V151,Missing Dataset,-,"UNLDPADB.JCL, UNLDGSAM.JCL, LOADPADB.JCL","Read Dataset, Read Dataset, Read Dataset"
+ACCTDAT,Missing CICS Dataset Definition,-,"COPAUA0C.cbl, COPAUS0C.cbl","Exec CICS Read dataset; [Dynamic] Call, Exec CICS Read dataset; [Dynamic] Call"
+CCXREF,Missing CICS Dataset Definition,-,COPAUA0C.cbl,Exec CICS Read dataset; [Dynamic] Call
+CUSTDAT,Missing CICS Dataset Definition,-,"COPAUA0C.cbl, COPAUS0C.cbl","Exec CICS Read dataset; [Dynamic] Call, Exec CICS Read dataset; [Dynamic] Call"
+CXACAIX,Missing CICS Dataset Definition,-,COPAUS0C.cbl,Exec CICS Read dataset; [Dynamic] Call
+DFSVSMDB,Missing Control Card,-,"UNLDPADB.JCL, UNLDGSAM.JCL, DBPAUTP0.jcl, LOADPADB.JCL","Control card, Control card, Control card, Control card"
+IMS.SDFSRESL,Missing [Dataset, PDS],-,CBPAUP0J.jcl,PDS use; Read Dataset
+INFILE1,Missing Source File,-,PAUDBLOD.CBL,Assignment clause
+INFILE2,Missing Source File,-,PAUDBLOD.CBL,Assignment clause
+OEMA.IMS.IMSP.SDFSRESL,Missing [Dataset, PDS],-,"UNLDPADB.JCL, UNLDGSAM.JCL, DBPAUTP0.jcl, LOADPADB.JCL","PDS use; Read Dataset, PDS use; Read Dataset, PDS use; Read Dataset, PDS use; Read Dataset"
+OEMPP.IMS.V15R01MB.PROCLIB,Missing PDS,-,"UNLDPADB.JCL, UNLDGSAM.JCL, DBPAUTP0.jcl, LOADPADB.JCL","PDS use, PDS use, PDS use, PDS use"
+OUTFIL1,Missing Source File,-,PAUDBUNL.CBL,Assignment clause
+OUTFIL2,Missing Source File,-,PAUDBUNL.CBL,Assignment clause

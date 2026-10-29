@@ -1,0 +1,2442 @@
+[
+  {
+    "dependencies": [
+      {
+        "dependencyType": "Read Dataset",
+        "name": "AWS.M2.CARDDEMO.LOADLIB",
+        "path": null,
+        "properties": {
+          "lineNo": "41",
+          "lineIndex": "0"
+        },
+        "type": "System"
+      },
+      {
+        "dependencyType": "Read Dataset; Write Dataset",
+        "name": "AWS.M2.CARDDEMO.PAUTDB.CHILD.FILEO",
+        "path": null,
+        "properties": {
+          "lineNo": "34;52"
+        },
+        "type": "Missing Dataset"
+      },
+      {
+        "dependencyType": "Read Dataset; Write Dataset",
+        "name": "AWS.M2.CARDDEMO.PAUTDB.ROOT.FILEO",
+        "path": null,
+        "properties": {
+          "lineNo": "32;47"
+        },
+        "type": "Missing Dataset"
+      },
+      {
+        "dependencyType": "Exec program",
+        "name": "DFSRRC00",
+        "path": null,
+        "properties": {
+          "JCL.ddnameToDataset": "STEP01.DDPAUTP0=OEM.IMS.IMSP.PAUTHDB;STEP01.DDPAUTX0=OEM.IMS.IMSP.PAUTHDBX;STEP01.DFSRESLB=OEMA.IMS.IMSP.SDFSRESL;STEP01.DFSVSAMP=OEMPP.IMS.V15R01MB.PROCLIB(DFSVSMDB);STEP01.IMS=OEM.IMS.IMSP.DBDLIB;STEP01.IMS=OEM.IMS.IMSP.PSBLIB;STEP01.OUTFIL1=AWS.M2.CARDDEMO.PAUTDB.ROOT.FILEO;STEP01.OUTFIL2=AWS.M2.CARDDEMO.PAUTDB.CHILD.FILEO;STEP01.STEPLIB=AWS.M2.CARDDEMO.LOADLIB;STEP01.STEPLIB=OEMA.IMS.IMSP.SDFSRESL;STEP01.STEPLIB=OEMA.IMS.IMSP.SDFSRESL.V151",
+          "lineNo": "37",
+          "lineIndex": "0"
+        },
+        "type": "System"
+      },
+      {
+        "dependencyType": "Control card",
+        "name": "DFSVSMDB",
+        "path": null,
+        "properties": {
+          "lineNo": "61",
+          "JCL.PartitionedDataSet": "OEMPP.IMS.V15R01MB.PROCLIB",
+          "lineIndex": "0"
+        },
+        "type": "Missing Control Card"
+      },
+      {
+        "dependencyType": "Exec program",
+        "name": "IEFBR14",
+        "path": null,
+        "properties": {
+          "JCL.ddnameToDataset": "STEP0.DD1=AWS.M2.CARDDEMO.PAUTDB.ROOT.FILEO;STEP0.DD2=AWS.M2.CARDDEMO.PAUTDB.CHILD.FILEO",
+          "lineNo": "24",
+          "lineIndex": "0"
+        },
+        "type": "System"
+      },
+      {
+        "dependencyType": "Read Dataset",
+        "name": "OEM.IMS.IMSP.DBDLIB",
+        "path": null,
+        "properties": {
+          "lineNo": "45",
+          "lineIndex": "0"
+        },
+        "type": "Missing Dataset"
+      },
+      {
+        "dependencyType": "Read Dataset",
+        "name": "OEM.IMS.IMSP.PAUTHDB",
+        "path": null,
+        "properties": {
+          "lineNo": "57",
+          "lineIndex": "0"
+        },
+        "type": "Missing Dataset"
+      },
+      {
+        "dependencyType": "Read Dataset",
+        "name": "OEM.IMS.IMSP.PAUTHDBX",
+        "path": null,
+        "properties": {
+          "lineNo": "58",
+          "lineIndex": "0"
+        },
+        "type": "Missing Dataset"
+      },
+      {
+        "dependencyType": "Read Dataset",
+        "name": "OEM.IMS.IMSP.PSBLIB",
+        "path": null,
+        "properties": {
+          "lineNo": "44",
+          "lineIndex": "0"
+        },
+        "type": "Missing Dataset"
+      },
+      {
+        "dependencyType": "PDS use; Read Dataset",
+        "name": "OEMA.IMS.IMSP.SDFSRESL",
+        "path": null,
+        "properties": {
+          "lineNo": "39;42"
+        },
+        "type": "Missing [Dataset, PDS]"
+      },
+      {
+        "dependencyType": "Read Dataset",
+        "name": "OEMA.IMS.IMSP.SDFSRESL.V151",
+        "path": null,
+        "properties": {
+          "lineNo": "40",
+          "lineIndex": "0"
+        },
+        "type": "Missing Dataset"
+      },
+      {
+        "dependencyType": "PDS use",
+        "name": "OEMPP.IMS.V15R01MB.PROCLIB",
+        "path": null,
+        "properties": {
+          "lineNo": "61",
+          "lineIndex": "0"
+        },
+        "type": "Missing PDS"
+      },
+      {
+        "dependencyType": "File declaration assignement",
+        "name": "OPFILE1",
+        "path": "Global:FILE_DEFINITION:OPFILE1",
+        "properties": {
+          "lineNo": "47",
+          "lineIndex": "0"
+        },
+        "type": "FILE_DEFINITION"
+      },
+      {
+        "dependencyType": "File declaration assignement",
+        "name": "OPFILE2",
+        "path": "Global:FILE_DEFINITION:OPFILE2",
+        "properties": {
+          "lineNo": "52",
+          "lineIndex": "0"
+        },
+        "type": "FILE_DEFINITION"
+      },
+      {
+        "dependencyType": "Exec program",
+        "name": "PAUDBUNL.CBL",
+        "path": "app-authorization-ims-db2-mq/cbl/PAUDBUNL.CBL",
+        "properties": {
+          "lineNo": "37",
+          "lineIndex": "0"
+        },
+        "type": "COB"
+      },
+      {
+        "dependencyType": "Program Specification Block",
+        "name": "PAUTBUNL.PSB",
+        "path": "app-authorization-ims-db2-mq/ims/PAUTBUNL.PSB",
+        "properties": {
+          "lineNo": "37",
+          "lineIndex": "0"
+        },
+        "type": "PSB"
+      }
+    ],
+    "name": "UNLDPADB.JCL",
+    "path": "app-authorization-ims-db2-mq/jcl/UNLDPADB.JCL",
+    "type": "JCL"
+  },
+  {
+    "name": "PAUTBPCB.CPY",
+    "path": "app-authorization-ims-db2-mq/cpy/PAUTBPCB.CPY",
+    "type": "CPY",
+    "dependencies": []
+  },
+  {
+    "dependencies": [
+      {
+        "dependencyType": "Database Description",
+        "name": "DBPAUTP0.dbd",
+        "path": "app-authorization-ims-db2-mq/ims/DBPAUTP0.dbd",
+        "properties": {
+          "lineNo": "18",
+          "lineIndex": "0"
+        },
+        "type": "DBD"
+      }
+    ],
+    "name": "PAUTBUNL.PSB",
+    "path": "app-authorization-ims-db2-mq/ims/PAUTBUNL.PSB",
+    "type": "PSB"
+  },
+  {
+    "name": "COPAU01.bms",
+    "path": "app-authorization-ims-db2-mq/bms/COPAU01.bms",
+    "type": "BMS",
+    "dependencies": []
+  },
+  {
+    "dependencies": [
+      {
+        "dependencyType": "Database Description",
+        "name": "DBPAUTP0.dbd",
+        "path": "app-authorization-ims-db2-mq/ims/DBPAUTP0.dbd",
+        "properties": {
+          "lineNo": "18",
+          "lineIndex": "0"
+        },
+        "type": "DBD"
+      },
+      {
+        "dependencyType": "Database Description",
+        "name": "PADFLDBD.DBD",
+        "path": "app-authorization-ims-db2-mq/ims/PADFLDBD.DBD",
+        "properties": {
+          "lineNo": "22",
+          "lineIndex": "0"
+        },
+        "type": "DBD"
+      },
+      {
+        "dependencyType": "Database Description",
+        "name": "PASFLDBD.DBD",
+        "path": "app-authorization-ims-db2-mq/ims/PASFLDBD.DBD",
+        "properties": {
+          "lineNo": "21",
+          "lineIndex": "0"
+        },
+        "type": "DBD"
+      }
+    ],
+    "name": "DLIGSAMP.PSB",
+    "path": "app-authorization-ims-db2-mq/ims/DLIGSAMP.PSB",
+    "type": "PSB"
+  },
+  {
+    "dependencies": [
+      {
+        "dependencyType": "Exec program",
+        "name": "CBPAUP0C.cbl",
+        "path": "app-authorization-ims-db2-mq/cbl/CBPAUP0C.cbl",
+        "properties": {
+          "lineNo": "23",
+          "lineIndex": "0"
+        },
+        "type": "COB"
+      },
+      {
+        "dependencyType": "Exec program",
+        "name": "DFSRRC00",
+        "path": null,
+        "properties": {
+          "JCL.ddnameToDataset": "STEP01.DFSRESLB=IMS.SDFSRESL;STEP01.DFSSEL=IMS.SDFSRESL;STEP01.IMS=IMS.DBDLIB;STEP01.IMS=IMS.PSBLIB;STEP01.PROCLIB=IMS.PROCLIB;STEP01.STEPLIB=IMS.SDFSRESL;STEP01.STEPLIB=XXXXXXXX.PROD.LOADLIB",
+          "lineNo": "23",
+          "lineIndex": "0"
+        },
+        "type": "System"
+      },
+      {
+        "dependencyType": "Read Dataset",
+        "name": "IMS.DBDLIB",
+        "path": null,
+        "properties": {
+          "lineNo": "33",
+          "lineIndex": "0"
+        },
+        "type": "Missing Dataset"
+      },
+      {
+        "dependencyType": "Read Dataset",
+        "name": "IMS.PROCLIB",
+        "path": null,
+        "properties": {
+          "lineNo": "28",
+          "lineIndex": "0"
+        },
+        "type": "Missing Dataset"
+      },
+      {
+        "dependencyType": "Read Dataset",
+        "name": "IMS.PSBLIB",
+        "path": null,
+        "properties": {
+          "lineNo": "32",
+          "lineIndex": "0"
+        },
+        "type": "Missing Dataset"
+      },
+      {
+        "dependencyType": "PDS use; Read Dataset",
+        "name": "IMS.SDFSRESL",
+        "path": null,
+        "properties": {
+          "lineNo": "25;27"
+        },
+        "type": "Missing [Dataset, PDS]"
+      },
+      {
+        "dependencyType": "Program Specification Block",
+        "name": "PSBPAUTB.psb",
+        "path": "app-authorization-ims-db2-mq/ims/PSBPAUTB.psb",
+        "properties": {
+          "lineNo": "23",
+          "lineIndex": "0"
+        },
+        "type": "PSB"
+      },
+      {
+        "dependencyType": "Read Dataset",
+        "name": "XXXXXXXX.PROD.LOADLIB",
+        "path": null,
+        "properties": {
+          "lineNo": "26",
+          "lineIndex": "0"
+        },
+        "type": "System"
+      }
+    ],
+    "name": "CBPAUP0J.jcl",
+    "path": "app-authorization-ims-db2-mq/jcl/CBPAUP0J.jcl",
+    "type": "JCL"
+  },
+  {
+    "dependencies": [
+      {
+        "dependencyType": "Define TRANSACTION",
+        "name": "CP00",
+        "path": "Global:TRANSACTION:CP00",
+        "type": "TRANSACTION"
+      },
+      {
+        "dependencyType": "Define TRANSACTION",
+        "name": "CPVD",
+        "path": "Global:TRANSACTION:CPVD",
+        "type": "TRANSACTION"
+      },
+      {
+        "dependencyType": "Define TRANSACTION",
+        "name": "CPVS",
+        "path": "Global:TRANSACTION:CPVS",
+        "type": "TRANSACTION"
+      }
+    ],
+    "name": "CRDDEMO2.csd",
+    "path": "app-authorization-ims-db2-mq/csd/CRDDEMO2.csd",
+    "type": "CSDCOMMAND"
+  },
+  {
+    "dependencies": [
+      {
+        "dependencyType": "Default start program; Start program",
+        "name": "COPAUA0C.cbl",
+        "path": "app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl",
+        "type": "COB"
+      }
+    ],
+    "name": "CP00",
+    "path": "Global:TRANSACTION:CP00",
+    "type": "TRANSACTION"
+  },
+  {
+    "dependencies": [
+      {
+        "dependencyType": "Default start program; Start program",
+        "name": "COPAUS0C.cbl",
+        "path": "app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl",
+        "type": "COB"
+      }
+    ],
+    "name": "CPVS",
+    "path": "Global:TRANSACTION:CPVS",
+    "type": "TRANSACTION"
+  },
+  {
+    "dependencies": [
+      {
+        "dependencyType": "Default start program; Start program",
+        "name": "COPAUS1C.cbl",
+        "path": "app-authorization-ims-db2-mq/cbl/COPAUS1C.cbl",
+        "type": "COB"
+      },
+      {
+        "dependencyType": "Default start program",
+        "name": "COPAUS2C.cbl",
+        "path": "app-authorization-ims-db2-mq/cbl/COPAUS2C.cbl",
+        "type": "COB"
+      }
+    ],
+    "name": "CPVD",
+    "path": "Global:TRANSACTION:CPVD",
+    "type": "TRANSACTION"
+  },
+  {
+    "name": "PADFLDBD.DBD",
+    "path": "app-authorization-ims-db2-mq/ims/PADFLDBD.DBD",
+    "type": "DBD",
+    "dependencies": []
+  },
+  {
+    "dependencies": [
+      {
+        "dependencyType": "Exec CICS Read dataset; [Dynamic] Call",
+        "name": "ACCTDAT",
+        "path": null,
+        "properties": {
+          "variableName": "WS-ACCTFILENAME",
+          "lineNo": "524;524"
+        },
+        "type": "Missing CICS Dataset Definition"
+      },
+      {
+        "dependencyType": "Copy",
+        "name": "CCPAUERY.cpy",
+        "path": "app-authorization-ims-db2-mq/cpy/CCPAUERY.cpy",
+        "properties": {
+          "lineNo": "184",
+          "lineIndex": "0"
+        },
+        "type": "CPY"
+      },
+      {
+        "dependencyType": "Copy",
+        "name": "CCPAURLY.cpy",
+        "path": "app-authorization-ims-db2-mq/cpy/CCPAURLY.cpy",
+        "properties": {
+          "lineNo": "181",
+          "lineIndex": "0"
+        },
+        "type": "CPY"
+      },
+      {
+        "dependencyType": "Copy",
+        "name": "CCPAURQY.cpy",
+        "path": "app-authorization-ims-db2-mq/cpy/CCPAURQY.cpy",
+        "properties": {
+          "lineNo": "177",
+          "lineIndex": "0"
+        },
+        "type": "CPY"
+      },
+      {
+        "dependencyType": "Exec CICS Read dataset; [Dynamic] Call",
+        "name": "CCXREF",
+        "path": null,
+        "properties": {
+          "variableName": "WS-CCXREF-FILE",
+          "lineNo": "476;476"
+        },
+        "type": "Missing CICS Dataset Definition"
+      },
+      {
+        "dependencyType": "Copy",
+        "name": "CIPAUDTY.cpy",
+        "path": "app-authorization-ims-db2-mq/cpy/CIPAUDTY.cpy",
+        "properties": {
+          "lineNo": "196",
+          "lineIndex": "0"
+        },
+        "type": "CPY"
+      },
+      {
+        "dependencyType": "Copy",
+        "name": "CIPAUSMY.cpy",
+        "path": "app-authorization-ims-db2-mq/cpy/CIPAUSMY.cpy",
+        "properties": {
+          "lineNo": "192",
+          "lineIndex": "0"
+        },
+        "type": "CPY"
+      },
+      {
+        "dependencyType": "Copy",
+        "name": "CMQGMOV",
+        "path": null,
+        "properties": {
+          "lineNo": "169",
+          "lineIndex": "0"
+        },
+        "type": "System"
+      },
+      {
+        "dependencyType": "Copy",
+        "name": "CMQMDV",
+        "path": null,
+        "properties": {
+          "lineNo": "151",
+          "lineIndex": "0"
+        },
+        "type": "System"
+      },
+      {
+        "dependencyType": "Copy",
+        "name": "CMQODV",
+        "path": null,
+        "properties": {
+          "lineNo": "148",
+          "lineIndex": "0"
+        },
+        "type": "System"
+      },
+      {
+        "dependencyType": "Copy",
+        "name": "CMQPMOV",
+        "path": null,
+        "properties": {
+          "lineNo": "166",
+          "lineIndex": "0"
+        },
+        "type": "System"
+      },
+      {
+        "dependencyType": "Copy",
+        "name": "CMQTML",
+        "path": null,
+        "properties": {
+          "lineNo": "163",
+          "lineIndex": "0"
+        },
+        "type": "System"
+      },
+      {
+        "dependencyType": "Copy",
+        "name": "CMQV",
+        "path": null,
+        "properties": {
+          "lineNo": "160",
+          "lineIndex": "0"
+        },
+        "type": "System"
+      },
+      {
+        "dependencyType": "Exec CICS Read dataset; [Dynamic] Call",
+        "name": "CUSTDAT",
+        "path": null,
+        "properties": {
+          "variableName": "WS-CUSTFILENAME",
+          "lineNo": "572;572"
+        },
+        "type": "Missing CICS Dataset Definition"
+      },
+      {
+        "dependencyType": "Copy",
+        "name": "CVACT01Y",
+        "path": null,
+        "properties": {
+          "lineNo": "205",
+          "lineIndex": "0"
+        },
+        "type": "Missing COBOL Copybook"
+      },
+      {
+        "dependencyType": "Copy",
+        "name": "CVACT03Y",
+        "path": null,
+        "properties": {
+          "lineNo": "202",
+          "lineIndex": "0"
+        },
+        "type": "Missing COBOL Copybook"
+      },
+      {
+        "dependencyType": "Copy",
+        "name": "CVCUS01Y",
+        "path": null,
+        "properties": {
+          "lineNo": "208",
+          "lineIndex": "0"
+        },
+        "type": "Missing COBOL Copybook"
+      },
+      {
+        "dependencyType": "Call",
+        "name": "MQCLOSE",
+        "path": null,
+        "properties": {
+          "lineNo": "955",
+          "lineIndex": "0"
+        },
+        "type": "System"
+      },
+      {
+        "dependencyType": "Call",
+        "name": "MQGET",
+        "path": null,
+        "properties": {
+          "lineNo": "399",
+          "lineIndex": "0"
+        },
+        "type": "System"
+      },
+      {
+        "dependencyType": "Call",
+        "name": "MQOPEN",
+        "path": null,
+        "properties": {
+          "lineNo": "261",
+          "lineIndex": "0"
+        },
+        "type": "System"
+      },
+      {
+        "dependencyType": "Call",
+        "name": "MQPUT1",
+        "path": null,
+        "properties": {
+          "lineNo": "757",
+          "lineIndex": "0"
+        },
+        "type": "System"
+      }
+    ],
+    "name": "COPAUA0C.cbl",
+    "path": "app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl",
+    "type": "COB"
+  },
+  {
+    "name": "CCPAURQY.cpy",
+    "path": "app-authorization-ims-db2-mq/cpy/CCPAURQY.cpy",
+    "type": "CPY",
+    "dependencies": []
+  },
+  {
+    "dependencies": [
+      {
+        "dependencyType": "Define [SQL]INDEX",
+        "name": "XAUTHFRD",
+        "path": "Global:INDEX:XAUTHFRD",
+        "type": "[SQL]INDEX"
+      }
+    ],
+    "name": "XAUTHFRD.ddl",
+    "path": "app-authorization-ims-db2-mq/ddl/XAUTHFRD.ddl",
+    "type": "SQL"
+  },
+  {
+    "dependencies": [
+      {
+        "dependencyType": "Create in query",
+        "name": "CARDDEMO.AUTHFRDS",
+        "path": "Global:TABLE:CARDDEMO.AUTHFRDS",
+        "properties": {
+          "lineNo": "0",
+          "lineIndex": "0"
+        },
+        "type": "[SQL]TABLE"
+      }
+    ],
+    "name": "XAUTHFRD",
+    "path": "Global:INDEX:XAUTHFRD",
+    "type": "[SQL]INDEX"
+  },
+  {
+    "dependencies": [
+      {
+        "dependencyType": "Call",
+        "name": "CBLTDLI",
+        "path": null,
+        "properties": {
+          "lineNo": "301",
+          "lineIndex": "0"
+        },
+        "type": "System"
+      },
+      {
+        "dependencyType": "IMS message invocation; [Dynamic] Call",
+        "name": "CHILD-UNQUAL-SSA",
+        "path": null,
+        "properties": {
+          "variableName": "CHILD-UNQUAL-SSA",
+          "lineNo": "266;266"
+        },
+        "type": "Missing Dynamic Call Value"
+      },
+      {
+        "dependencyType": "Copy",
+        "name": "CIPAUDTY.cpy",
+        "path": "app-authorization-ims-db2-mq/cpy/CIPAUDTY.cpy",
+        "properties": {
+          "lineNo": "146",
+          "lineIndex": "0"
+        },
+        "type": "CPY"
+      },
+      {
+        "dependencyType": "Copy",
+        "name": "CIPAUSMY.cpy",
+        "path": "app-authorization-ims-db2-mq/cpy/CIPAUSMY.cpy",
+        "properties": {
+          "lineNo": "142",
+          "lineIndex": "0"
+        },
+        "type": "CPY"
+      },
+      {
+        "dependencyType": "Program Specification Block",
+        "name": "DLIGSAMP.PSB",
+        "path": "app-authorization-ims-db2-mq/ims/DLIGSAMP.PSB",
+        "type": "PSB"
+      },
+      {
+        "dependencyType": "Copy",
+        "name": "IMSFUNCS.cpy",
+        "path": "app-authorization-ims-db2-mq/cpy/IMSFUNCS.cpy",
+        "properties": {
+          "lineNo": "135",
+          "lineIndex": "0"
+        },
+        "type": "CPY"
+      },
+      {
+        "dependencyType": "Copy",
+        "name": "PADFLPCB.CPY",
+        "path": "app-authorization-ims-db2-mq/cpy/PADFLPCB.CPY",
+        "properties": {
+          "lineNo": "155",
+          "lineIndex": "0"
+        },
+        "type": "CPY"
+      },
+      {
+        "dependencyType": "Copy",
+        "name": "PASFLPCB.CPY",
+        "path": "app-authorization-ims-db2-mq/cpy/PASFLPCB.CPY",
+        "properties": {
+          "lineNo": "154",
+          "lineIndex": "0"
+        },
+        "type": "CPY"
+      },
+      {
+        "dependencyType": "Copy",
+        "name": "PAUTBPCB.CPY",
+        "path": "app-authorization-ims-db2-mq/cpy/PAUTBPCB.CPY",
+        "properties": {
+          "lineNo": "153",
+          "lineIndex": "0"
+        },
+        "type": "CPY"
+      },
+      {
+        "dependencyType": "IMS message invocation; [Dynamic] Call",
+        "name": "ROOT-UNQUAL-SSA",
+        "path": null,
+        "properties": {
+          "variableName": "ROOT-UNQUAL-SSA",
+          "lineNo": "221;221"
+        },
+        "type": "Missing Dynamic Call Value"
+      }
+    ],
+    "name": "DBUNLDGS.CBL",
+    "path": "app-authorization-ims-db2-mq/cbl/DBUNLDGS.CBL",
+    "type": "COB"
+  },
+  {
+    "name": "CIPAUSMY.cpy",
+    "path": "app-authorization-ims-db2-mq/cpy/CIPAUSMY.cpy",
+    "type": "CPY",
+    "dependencies": []
+  },
+  {
+    "name": "PASFLPCB.CPY",
+    "path": "app-authorization-ims-db2-mq/cpy/PASFLPCB.CPY",
+    "type": "CPY",
+    "dependencies": []
+  },
+  {
+    "dependencies": [
+      {
+        "dependencyType": "IMS message invocation; [Dynamic] Call",
+        "name": "CHILD-UNQUAL-SSA",
+        "path": null,
+        "properties": {
+          "variableName": "CHILD-UNQUAL-SSA",
+          "lineNo": "256;256"
+        },
+        "type": "Missing Dynamic Call Value"
+      },
+      {
+        "dependencyType": "Copy",
+        "name": "CIPAUDTY.cpy",
+        "path": "app-authorization-ims-db2-mq/cpy/CIPAUDTY.cpy",
+        "properties": {
+          "lineNo": "142",
+          "lineIndex": "0"
+        },
+        "type": "CPY"
+      },
+      {
+        "dependencyType": "Copy",
+        "name": "CIPAUSMY.cpy",
+        "path": "app-authorization-ims-db2-mq/cpy/CIPAUSMY.cpy",
+        "properties": {
+          "lineNo": "138",
+          "lineIndex": "0"
+        },
+        "type": "CPY"
+      },
+      {
+        "dependencyType": "Copy",
+        "name": "IMSFUNCS.cpy",
+        "path": "app-authorization-ims-db2-mq/cpy/IMSFUNCS.cpy",
+        "properties": {
+          "lineNo": "131",
+          "lineIndex": "0"
+        },
+        "type": "CPY"
+      },
+      {
+        "dependencyType": "Close file; Open file; Write file",
+        "name": "OPFILE1",
+        "path": "Global:FILE_DEFINITION:OPFILE1",
+        "properties": {
+          "lineNo": "290;185;232"
+        },
+        "type": "FILE_DEFINITION"
+      },
+      {
+        "dependencyType": "Close file; Open file; Write file",
+        "name": "OPFILE2",
+        "path": "Global:FILE_DEFINITION:OPFILE2",
+        "properties": {
+          "lineNo": "297;193;270"
+        },
+        "type": "FILE_DEFINITION"
+      },
+      {
+        "dependencyType": "Assignment clause",
+        "name": "OUTFIL1",
+        "path": null,
+        "properties": {
+          "lineNo": "25",
+          "lineIndex": "0"
+        },
+        "type": "Missing Source File"
+      },
+      {
+        "dependencyType": "Assignment clause",
+        "name": "OUTFIL2",
+        "path": null,
+        "properties": {
+          "lineNo": "31",
+          "lineIndex": "0"
+        },
+        "type": "Missing Source File"
+      },
+      {
+        "dependencyType": "Copy",
+        "name": "PAUTBPCB.CPY",
+        "path": "app-authorization-ims-db2-mq/cpy/PAUTBPCB.CPY",
+        "properties": {
+          "lineNo": "149",
+          "lineIndex": "0"
+        },
+        "type": "CPY"
+      },
+      {
+        "dependencyType": "Program Specification Block",
+        "name": "PAUTBUNL.PSB",
+        "path": "app-authorization-ims-db2-mq/ims/PAUTBUNL.PSB",
+        "type": "PSB"
+      },
+      {
+        "dependencyType": "IMS message invocation; [Dynamic] Call",
+        "name": "ROOT-UNQUAL-SSA",
+        "path": null,
+        "properties": {
+          "variableName": "ROOT-UNQUAL-SSA",
+          "lineNo": "212;212"
+        },
+        "type": "Missing Dynamic Call Value"
+      }
+    ],
+    "name": "PAUDBUNL.CBL",
+    "path": "app-authorization-ims-db2-mq/cbl/PAUDBUNL.CBL",
+    "type": "COB"
+  },
+  {
+    "name": "OPFILE2",
+    "path": "Global:FILE_DEFINITION:OPFILE2",
+    "type": "FILE_DEFINITION",
+    "dependencies": []
+  },
+  {
+    "name": "OPFILE1",
+    "path": "Global:FILE_DEFINITION:OPFILE1",
+    "type": "FILE_DEFINITION",
+    "dependencies": []
+  },
+  {
+    "dependencies": [
+      {
+        "dependencyType": "Read Dataset",
+        "name": "AWS.M2.CARDDEMO.LOADLIB",
+        "path": null,
+        "properties": {
+          "lineNo": "29",
+          "lineIndex": "0"
+        },
+        "type": "System"
+      },
+      {
+        "dependencyType": "Read Dataset",
+        "name": "AWS.M2.CARDDEMO.PAUTDB.CHILD.GSAM",
+        "path": null,
+        "properties": {
+          "lineNo": "38",
+          "lineIndex": "0"
+        },
+        "type": "Missing Dataset"
+      },
+      {
+        "dependencyType": "Read Dataset",
+        "name": "AWS.M2.CARDDEMO.PAUTDB.ROOT.GSAM",
+        "path": null,
+        "properties": {
+          "lineNo": "35",
+          "lineIndex": "0"
+        },
+        "type": "Missing Dataset"
+      },
+      {
+        "dependencyType": "Exec program",
+        "name": "DBUNLDGS.CBL",
+        "path": "app-authorization-ims-db2-mq/cbl/DBUNLDGS.CBL",
+        "properties": {
+          "lineNo": "25",
+          "lineIndex": "0"
+        },
+        "type": "COB"
+      },
+      {
+        "dependencyType": "Exec program",
+        "name": "DFSRRC00",
+        "path": null,
+        "properties": {
+          "JCL.ddnameToDataset": "STEP01.DDPAUTP0=OEM.IMS.IMSP.PAUTHDB;STEP01.DDPAUTX0=OEM.IMS.IMSP.PAUTHDBX;STEP01.DFSRESLB=OEMA.IMS.IMSP.SDFSRESL;STEP01.DFSVSAMP=OEMPP.IMS.V15R01MB.PROCLIB(DFSVSMDB);STEP01.IMS=OEM.IMS.IMSP.DBDLIB;STEP01.IMS=OEM.IMS.IMSP.PSBLIB;STEP01.PADFILOP=AWS.M2.CARDDEMO.PAUTDB.CHILD.GSAM;STEP01.PASFILOP=AWS.M2.CARDDEMO.PAUTDB.ROOT.GSAM;STEP01.STEPLIB=AWS.M2.CARDDEMO.LOADLIB;STEP01.STEPLIB=OEMA.IMS.IMSP.SDFSRESL;STEP01.STEPLIB=OEMA.IMS.IMSP.SDFSRESL.V151",
+          "lineNo": "25",
+          "lineIndex": "0"
+        },
+        "type": "System"
+      },
+      {
+        "dependencyType": "Control card",
+        "name": "DFSVSMDB",
+        "path": null,
+        "properties": {
+          "lineNo": "45",
+          "JCL.PartitionedDataSet": "OEMPP.IMS.V15R01MB.PROCLIB",
+          "lineIndex": "0"
+        },
+        "type": "Missing Control Card"
+      },
+      {
+        "dependencyType": "Program Specification Block",
+        "name": "DLIGSAMP.PSB",
+        "path": "app-authorization-ims-db2-mq/ims/DLIGSAMP.PSB",
+        "properties": {
+          "lineNo": "25",
+          "lineIndex": "0"
+        },
+        "type": "PSB"
+      },
+      {
+        "dependencyType": "Read Dataset",
+        "name": "OEM.IMS.IMSP.DBDLIB",
+        "path": null,
+        "properties": {
+          "lineNo": "33",
+          "lineIndex": "0"
+        },
+        "type": "Missing Dataset"
+      },
+      {
+        "dependencyType": "Read Dataset",
+        "name": "OEM.IMS.IMSP.PAUTHDB",
+        "path": null,
+        "properties": {
+          "lineNo": "41",
+          "lineIndex": "0"
+        },
+        "type": "Missing Dataset"
+      },
+      {
+        "dependencyType": "Read Dataset",
+        "name": "OEM.IMS.IMSP.PAUTHDBX",
+        "path": null,
+        "properties": {
+          "lineNo": "42",
+          "lineIndex": "0"
+        },
+        "type": "Missing Dataset"
+      },
+      {
+        "dependencyType": "Read Dataset",
+        "name": "OEM.IMS.IMSP.PSBLIB",
+        "path": null,
+        "properties": {
+          "lineNo": "32",
+          "lineIndex": "0"
+        },
+        "type": "Missing Dataset"
+      },
+      {
+        "dependencyType": "PDS use; Read Dataset",
+        "name": "OEMA.IMS.IMSP.SDFSRESL",
+        "path": null,
+        "properties": {
+          "lineNo": "27;30"
+        },
+        "type": "Missing [Dataset, PDS]"
+      },
+      {
+        "dependencyType": "Read Dataset",
+        "name": "OEMA.IMS.IMSP.SDFSRESL.V151",
+        "path": null,
+        "properties": {
+          "lineNo": "28",
+          "lineIndex": "0"
+        },
+        "type": "Missing Dataset"
+      },
+      {
+        "dependencyType": "PDS use",
+        "name": "OEMPP.IMS.V15R01MB.PROCLIB",
+        "path": null,
+        "properties": {
+          "lineNo": "45",
+          "lineIndex": "0"
+        },
+        "type": "Missing PDS"
+      }
+    ],
+    "name": "UNLDGSAM.JCL",
+    "path": "app-authorization-ims-db2-mq/jcl/UNLDGSAM.JCL",
+    "type": "JCL"
+  },
+  {
+    "dependencies": [
+      {
+        "dependencyType": "Include SQL",
+        "name": "AUTHFRDS.dcl",
+        "path": "app-authorization-ims-db2-mq/dcl/AUTHFRDS.dcl",
+        "properties": {
+          "lineNo": "67",
+          "lineIndex": "0"
+        },
+        "type": "CPY"
+      },
+      {
+        "dependencyType": "Include SQL",
+        "name": "AUTHFRDS.ddl",
+        "path": "app-authorization-ims-db2-mq/ddl/AUTHFRDS.ddl",
+        "properties": {
+          "lineNo": "67",
+          "lineIndex": "0"
+        },
+        "type": "SQL"
+      },
+      {
+        "dependencyType": "Insert query; Update query",
+        "name": "CARDDEMO.AUTHFRDS",
+        "path": "Global:TABLE:CARDDEMO.AUTHFRDS",
+        "properties": {
+          "lineNo": "0;0"
+        },
+        "type": "[SQL]TABLE"
+      },
+      {
+        "dependencyType": "Copy",
+        "name": "CIPAUDTY.cpy",
+        "path": "app-authorization-ims-db2-mq/cpy/CIPAUDTY.cpy",
+        "properties": {
+          "lineNo": "77",
+          "lineIndex": "0"
+        },
+        "type": "CPY"
+      },
+      {
+        "dependencyType": "Include SQL",
+        "name": "SQLCA",
+        "path": null,
+        "properties": {
+          "lineNo": "64",
+          "lineIndex": "0"
+        },
+        "type": "System"
+      }
+    ],
+    "name": "COPAUS2C.cbl",
+    "path": "app-authorization-ims-db2-mq/cbl/COPAUS2C.cbl",
+    "type": "COB"
+  },
+  {
+    "name": "README.md",
+    "path": "app-authorization-ims-db2-mq/README.md",
+    "type": "md",
+    "dependencies": []
+  },
+  {
+    "name": "PADFLPCB.CPY",
+    "path": "app-authorization-ims-db2-mq/cpy/PADFLPCB.CPY",
+    "type": "CPY",
+    "dependencies": []
+  },
+  {
+    "dependencies": [
+      {
+        "dependencyType": "Write Dataset",
+        "name": "AWS.M2.CARDDEMO.IMSDATA.DBPAUTP0",
+        "path": null,
+        "properties": {
+          "lineNo": "8",
+          "lineIndex": "0"
+        },
+        "type": "Missing Dataset"
+      },
+      {
+        "dependencyType": "Read Dataset",
+        "name": "AWS.M2.CARDDEMO.LOADLIB",
+        "path": null,
+        "properties": {
+          "lineNo": "18",
+          "lineIndex": "0"
+        },
+        "type": "System"
+      },
+      {
+        "dependencyType": "Exec program",
+        "name": "DFSRRC00",
+        "path": null,
+        "properties": {
+          "JCL.ddnameToDataset": "UNLOAD.DDPAUTP0=OEM.IMS.IMSP.PAUTHDB;UNLOAD.DDPAUTX0=OEM.IMS.IMSP.PAUTHDBX;UNLOAD.DFSRESLB=OEMA.IMS.IMSP.SDFSRESL;UNLOAD.DFSURGU1=AWS.M2.CARDDEMO.IMSDATA.DBPAUTP0;UNLOAD.DFSVSAMP=OEMPP.IMS.V15R01MB.PROCLIB(DFSVSMDB);UNLOAD.IMS=OEM.IMS.IMSP.DBDLIB;UNLOAD.IMS=OEM.IMS.IMSP.PSBLIB;UNLOAD.RECON1=OEM.IMS.IMSP.RECON1;UNLOAD.RECON2=OEM.IMS.IMSP.RECON2;UNLOAD.RECON3=OEM.IMS.IMSP.RECON3;UNLOAD.STEPLIB=AWS.M2.CARDDEMO.LOADLIB;UNLOAD.STEPLIB=OEMA.IMS.IMSP.SDFSRESL",
+          "lineNo": "14",
+          "lineIndex": "0"
+        },
+        "type": "System"
+      },
+      {
+        "dependencyType": "Control card",
+        "name": "DFSVSMDB",
+        "path": null,
+        "properties": {
+          "lineNo": "32",
+          "JCL.PartitionedDataSet": "OEMPP.IMS.V15R01MB.PROCLIB",
+          "lineIndex": "0"
+        },
+        "type": "Missing Control Card"
+      },
+      {
+        "dependencyType": "Exec program",
+        "name": "IEFBR14",
+        "path": null,
+        "properties": {
+          "JCL.ddnameToDataset": "STEPDEL.SYSUT1=AWS.M2.CARDDEMO.IMSDATA.DBPAUTP0",
+          "lineNo": "6",
+          "lineIndex": "0"
+        },
+        "type": "System"
+      },
+      {
+        "dependencyType": "Read Dataset",
+        "name": "OEM.IMS.IMSP.DBDLIB",
+        "path": null,
+        "properties": {
+          "lineNo": "21",
+          "lineIndex": "0"
+        },
+        "type": "Missing Dataset"
+      },
+      {
+        "dependencyType": "Read Dataset",
+        "name": "OEM.IMS.IMSP.PAUTHDB",
+        "path": null,
+        "properties": {
+          "lineNo": "30",
+          "lineIndex": "0"
+        },
+        "type": "Missing Dataset"
+      },
+      {
+        "dependencyType": "Read Dataset",
+        "name": "OEM.IMS.IMSP.PAUTHDBX",
+        "path": null,
+        "properties": {
+          "lineNo": "31",
+          "lineIndex": "0"
+        },
+        "type": "Missing Dataset"
+      },
+      {
+        "dependencyType": "Read Dataset",
+        "name": "OEM.IMS.IMSP.PSBLIB",
+        "path": null,
+        "properties": {
+          "lineNo": "20",
+          "lineIndex": "0"
+        },
+        "type": "Missing Dataset"
+      },
+      {
+        "dependencyType": "Read Dataset",
+        "name": "OEM.IMS.IMSP.RECON1",
+        "path": null,
+        "properties": {
+          "lineNo": "39",
+          "lineIndex": "0"
+        },
+        "type": "Missing Dataset"
+      },
+      {
+        "dependencyType": "Read Dataset",
+        "name": "OEM.IMS.IMSP.RECON2",
+        "path": null,
+        "properties": {
+          "lineNo": "40",
+          "lineIndex": "0"
+        },
+        "type": "Missing Dataset"
+      },
+      {
+        "dependencyType": "Read Dataset",
+        "name": "OEM.IMS.IMSP.RECON3",
+        "path": null,
+        "properties": {
+          "lineNo": "41",
+          "lineIndex": "0"
+        },
+        "type": "Missing Dataset"
+      },
+      {
+        "dependencyType": "PDS use; Read Dataset",
+        "name": "OEMA.IMS.IMSP.SDFSRESL",
+        "path": null,
+        "properties": {
+          "lineNo": "17;19"
+        },
+        "type": "Missing [Dataset, PDS]"
+      },
+      {
+        "dependencyType": "PDS use",
+        "name": "OEMPP.IMS.V15R01MB.PROCLIB",
+        "path": null,
+        "properties": {
+          "lineNo": "32",
+          "lineIndex": "0"
+        },
+        "type": "Missing PDS"
+      }
+    ],
+    "name": "DBPAUTP0.jcl",
+    "path": "app-authorization-ims-db2-mq/jcl/DBPAUTP0.jcl",
+    "type": "JCL"
+  },
+  {
+    "dependencies": [
+      {
+        "dependencyType": "Copy",
+        "name": "CIPAUDTY.cpy",
+        "path": "app-authorization-ims-db2-mq/cpy/CIPAUDTY.cpy",
+        "properties": {
+          "lineNo": "120",
+          "lineIndex": "0"
+        },
+        "type": "CPY"
+      },
+      {
+        "dependencyType": "Copy",
+        "name": "CIPAUSMY.cpy",
+        "path": "app-authorization-ims-db2-mq/cpy/CIPAUSMY.cpy",
+        "properties": {
+          "lineNo": "116",
+          "lineIndex": "0"
+        },
+        "type": "CPY"
+      },
+      {
+        "dependencyType": "Program Specification Block",
+        "name": "PSBPAUTB.psb",
+        "path": "app-authorization-ims-db2-mq/ims/PSBPAUTB.psb",
+        "type": "PSB"
+      }
+    ],
+    "name": "CBPAUP0C.cbl",
+    "path": "app-authorization-ims-db2-mq/cbl/CBPAUP0C.cbl",
+    "type": "COB"
+  },
+  {
+    "dependencies": [
+      {
+        "dependencyType": "Declare query",
+        "name": "CARDDEMO.AUTHFRDS",
+        "path": "Global:TABLE:CARDDEMO.AUTHFRDS",
+        "properties": {
+          "lineNo": "0",
+          "lineIndex": "0"
+        },
+        "type": "[SQL]TABLE"
+      }
+    ],
+    "name": "AUTHFRDS.dcl",
+    "path": "app-authorization-ims-db2-mq/dcl/AUTHFRDS.dcl",
+    "type": "CPY"
+  },
+  {
+    "dependencies": [
+      {
+        "dependencyType": "Copy",
+        "name": "CIPAUDTY.cpy",
+        "path": "app-authorization-ims-db2-mq/cpy/CIPAUDTY.cpy",
+        "properties": {
+          "lineNo": "145",
+          "lineIndex": "0"
+        },
+        "type": "CPY"
+      },
+      {
+        "dependencyType": "Copy",
+        "name": "CIPAUSMY.cpy",
+        "path": "app-authorization-ims-db2-mq/cpy/CIPAUSMY.cpy",
+        "properties": {
+          "lineNo": "141",
+          "lineIndex": "0"
+        },
+        "type": "CPY"
+      },
+      {
+        "dependencyType": "Copy",
+        "name": "COCOM01Y",
+        "path": null,
+        "properties": {
+          "lineNo": "108",
+          "lineIndex": "0"
+        },
+        "type": "Missing COBOL Copybook"
+      },
+      {
+        "dependencyType": "Exec CICS map",
+        "name": "COPAU01.bms",
+        "path": "app-authorization-ims-db2-mq/bms/COPAU01.bms",
+        "properties": {
+          "lineNo": "380",
+          "lineIndex": "0"
+        },
+        "type": "BMS"
+      },
+      {
+        "dependencyType": "Copy",
+        "name": "COPAU01.cpy",
+        "path": "app-authorization-ims-db2-mq/cpy-bms/COPAU01.cpy",
+        "properties": {
+          "lineNo": "121",
+          "lineIndex": "0"
+        },
+        "type": "CPY"
+      },
+      {
+        "dependencyType": "Exec CICS program; [Dynamic] Call",
+        "name": "COPAUS0C.cbl",
+        "path": "app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl",
+        "properties": {
+          "variableName": "CDEMO-TO-PROGRAM",
+          "lineNo": "366;366"
+        },
+        "type": "COB"
+      },
+      {
+        "dependencyType": "Exec CICS program; [Dynamic] Call",
+        "name": "COPAUS2C.cbl",
+        "path": "app-authorization-ims-db2-mq/cbl/COPAUS2C.cbl",
+        "properties": {
+          "variableName": "WS-PGM-AUTH-FRAUD",
+          "lineNo": "247;247"
+        },
+        "type": "COB"
+      },
+      {
+        "dependencyType": "Copy",
+        "name": "COTTL01Y",
+        "path": null,
+        "properties": {
+          "lineNo": "125",
+          "lineIndex": "0"
+        },
+        "type": "Missing COBOL Copybook"
+      },
+      {
+        "dependencyType": "Exec CICS Return transaction; [Dynamic] Call",
+        "name": "CPVD",
+        "path": "Global:TRANSACTION:CPVD",
+        "properties": {
+          "variableName": "WS-CICS-TRANID",
+          "lineNo": "201;201"
+        },
+        "type": "TRANSACTION"
+      },
+      {
+        "dependencyType": "Copy",
+        "name": "CSDAT01Y",
+        "path": null,
+        "properties": {
+          "lineNo": "128",
+          "lineIndex": "0"
+        },
+        "type": "Missing COBOL Copybook"
+      },
+      {
+        "dependencyType": "Copy",
+        "name": "CSMSG01Y",
+        "path": null,
+        "properties": {
+          "lineNo": "131",
+          "lineIndex": "0"
+        },
+        "type": "Missing COBOL Copybook"
+      },
+      {
+        "dependencyType": "Copy",
+        "name": "CSMSG02Y",
+        "path": null,
+        "properties": {
+          "lineNo": "134",
+          "lineIndex": "0"
+        },
+        "type": "Missing COBOL Copybook"
+      },
+      {
+        "dependencyType": "Copy",
+        "name": "DFHAID",
+        "path": null,
+        "properties": {
+          "lineNo": "147",
+          "lineIndex": "0"
+        },
+        "type": "System"
+      },
+      {
+        "dependencyType": "Copy",
+        "name": "DFHBMSCA",
+        "path": null,
+        "properties": {
+          "lineNo": "148",
+          "lineIndex": "0"
+        },
+        "type": "System"
+      }
+    ],
+    "name": "COPAUS1C.cbl",
+    "path": "app-authorization-ims-db2-mq/cbl/COPAUS1C.cbl",
+    "type": "COB"
+  },
+  {
+    "name": "COPAU00.bms",
+    "path": "app-authorization-ims-db2-mq/bms/COPAU00.bms",
+    "type": "BMS",
+    "dependencies": []
+  },
+  {
+    "name": "IMSFUNCS.cpy",
+    "path": "app-authorization-ims-db2-mq/cpy/IMSFUNCS.cpy",
+    "type": "CPY",
+    "dependencies": []
+  },
+  {
+    "name": "DBPAUTX0.dbd",
+    "path": "app-authorization-ims-db2-mq/ims/DBPAUTX0.dbd",
+    "type": "DBD",
+    "dependencies": []
+  },
+  {
+    "name": "PASFLDBD.DBD",
+    "path": "app-authorization-ims-db2-mq/ims/PASFLDBD.DBD",
+    "type": "DBD",
+    "dependencies": []
+  },
+  {
+    "dependencies": [
+      {
+        "dependencyType": "IMS message invocation; [Dynamic] Call",
+        "name": "CHILD-UNQUAL-SSA",
+        "path": null,
+        "properties": {
+          "variableName": "CHILD-UNQUAL-SSA",
+          "lineNo": "320;320"
+        },
+        "type": "Missing Dynamic Call Value"
+      },
+      {
+        "dependencyType": "Copy",
+        "name": "CIPAUDTY.cpy",
+        "path": "app-authorization-ims-db2-mq/cpy/CIPAUDTY.cpy",
+        "properties": {
+          "lineNo": "152",
+          "lineIndex": "0"
+        },
+        "type": "CPY"
+      },
+      {
+        "dependencyType": "Copy",
+        "name": "CIPAUSMY.cpy",
+        "path": "app-authorization-ims-db2-mq/cpy/CIPAUSMY.cpy",
+        "properties": {
+          "lineNo": "148",
+          "lineIndex": "0"
+        },
+        "type": "CPY"
+      },
+      {
+        "dependencyType": "Copy",
+        "name": "IMSFUNCS.cpy",
+        "path": "app-authorization-ims-db2-mq/cpy/IMSFUNCS.cpy",
+        "properties": {
+          "lineNo": "141",
+          "lineIndex": "0"
+        },
+        "type": "CPY"
+      },
+      {
+        "dependencyType": "Assignment clause",
+        "name": "INFILE1",
+        "path": null,
+        "properties": {
+          "lineNo": "25",
+          "lineIndex": "0"
+        },
+        "type": "Missing Source File"
+      },
+      {
+        "dependencyType": "Close file; Open file; Read file",
+        "name": "INFILE1",
+        "path": "Global:FILE_DEFINITION:INFILE1",
+        "properties": {
+          "lineNo": "342;200;225"
+        },
+        "type": "FILE_DEFINITION"
+      },
+      {
+        "dependencyType": "Assignment clause",
+        "name": "INFILE2",
+        "path": null,
+        "properties": {
+          "lineNo": "31",
+          "lineIndex": "0"
+        },
+        "type": "Missing Source File"
+      },
+      {
+        "dependencyType": "Close file; Open file; Read file",
+        "name": "INFILE2",
+        "path": "Global:FILE_DEFINITION:INFILE2",
+        "properties": {
+          "lineNo": "349;208;271"
+        },
+        "type": "FILE_DEFINITION"
+      },
+      {
+        "dependencyType": "Copy",
+        "name": "PAUTBPCB.CPY",
+        "path": "app-authorization-ims-db2-mq/cpy/PAUTBPCB.CPY",
+        "properties": {
+          "lineNo": "160",
+          "lineIndex": "0"
+        },
+        "type": "CPY"
+      },
+      {
+        "dependencyType": "Program Specification Block",
+        "name": "PSBPAUTB.psb",
+        "path": "app-authorization-ims-db2-mq/ims/PSBPAUTB.psb",
+        "type": "PSB"
+      },
+      {
+        "dependencyType": "IMS message invocation; [Dynamic] Call",
+        "name": "ROOT-QUAL-SSA",
+        "path": null,
+        "properties": {
+          "variableName": "ROOT-QUAL-SSA",
+          "lineNo": "295;295"
+        },
+        "type": "Missing Dynamic Call Value"
+      },
+      {
+        "dependencyType": "IMS message invocation; [Dynamic] Call",
+        "name": "ROOT-UNQUAL-SSA",
+        "path": null,
+        "properties": {
+          "variableName": "ROOT-UNQUAL-SSA",
+          "lineNo": "243;243"
+        },
+        "type": "Missing Dynamic Call Value"
+      }
+    ],
+    "name": "PAUDBLOD.CBL",
+    "path": "app-authorization-ims-db2-mq/cbl/PAUDBLOD.CBL",
+    "type": "COB"
+  },
+  {
+    "name": "INFILE2",
+    "path": "Global:FILE_DEFINITION:INFILE2",
+    "type": "FILE_DEFINITION",
+    "dependencies": []
+  },
+  {
+    "name": "INFILE1",
+    "path": "Global:FILE_DEFINITION:INFILE1",
+    "type": "FILE_DEFINITION",
+    "dependencies": []
+  },
+  {
+    "name": "COPAU00.cpy",
+    "path": "app-authorization-ims-db2-mq/cpy-bms/COPAU00.cpy",
+    "type": "CPY",
+    "dependencies": []
+  },
+  {
+    "name": "DBPAUTP0.dbd",
+    "path": "app-authorization-ims-db2-mq/ims/DBPAUTP0.dbd",
+    "type": "DBD",
+    "dependencies": []
+  },
+  {
+    "name": "COPAU01.cpy",
+    "path": "app-authorization-ims-db2-mq/cpy-bms/COPAU01.cpy",
+    "type": "CPY",
+    "dependencies": []
+  },
+  {
+    "dependencies": [
+      {
+        "dependencyType": "Read Dataset",
+        "name": "AWS.M2.CARDDEMO.LOADLIB",
+        "path": null,
+        "properties": {
+          "lineNo": "29",
+          "lineIndex": "0"
+        },
+        "type": "System"
+      },
+      {
+        "dependencyType": "Read Dataset",
+        "name": "AWS.M2.CARDDEMO.PAUTDB.CHILD.FILEO",
+        "path": null,
+        "properties": {
+          "lineNo": "37",
+          "lineIndex": "0"
+        },
+        "type": "Missing Dataset"
+      },
+      {
+        "dependencyType": "Read Dataset",
+        "name": "AWS.M2.CARDDEMO.PAUTDB.ROOT.FILEO",
+        "path": null,
+        "properties": {
+          "lineNo": "35",
+          "lineIndex": "0"
+        },
+        "type": "Missing Dataset"
+      },
+      {
+        "dependencyType": "Exec program",
+        "name": "DFSRRC00",
+        "path": null,
+        "properties": {
+          "JCL.ddnameToDataset": "STEP01.DFSRESLB=OEMA.IMS.IMSP.SDFSRESL;STEP01.DFSVSAMP=OEMPP.IMS.V15R01MB.PROCLIB(DFSVSMDB);STEP01.IMS=OEM.IMS.IMSP.DBDLIB;STEP01.IMS=OEM.IMS.IMSP.PSBLIB;STEP01.INFILE1=AWS.M2.CARDDEMO.PAUTDB.ROOT.FILEO;STEP01.INFILE2=AWS.M2.CARDDEMO.PAUTDB.CHILD.FILEO;STEP01.STEPLIB=AWS.M2.CARDDEMO.LOADLIB;STEP01.STEPLIB=OEMA.IMS.IMSP.SDFSRESL;STEP01.STEPLIB=OEMA.IMS.IMSP.SDFSRESL.V151",
+          "lineNo": "25",
+          "lineIndex": "0"
+        },
+        "type": "System"
+      },
+      {
+        "dependencyType": "Control card",
+        "name": "DFSVSMDB",
+        "path": null,
+        "properties": {
+          "lineNo": "43",
+          "JCL.PartitionedDataSet": "OEMPP.IMS.V15R01MB.PROCLIB",
+          "lineIndex": "0"
+        },
+        "type": "Missing Control Card"
+      },
+      {
+        "dependencyType": "File declaration assignement",
+        "name": "INFILE1",
+        "path": "Global:FILE_DEFINITION:INFILE1",
+        "properties": {
+          "lineNo": "35",
+          "lineIndex": "0"
+        },
+        "type": "FILE_DEFINITION"
+      },
+      {
+        "dependencyType": "File declaration assignement",
+        "name": "INFILE2",
+        "path": "Global:FILE_DEFINITION:INFILE2",
+        "properties": {
+          "lineNo": "37",
+          "lineIndex": "0"
+        },
+        "type": "FILE_DEFINITION"
+      },
+      {
+        "dependencyType": "Read Dataset",
+        "name": "OEM.IMS.IMSP.DBDLIB",
+        "path": null,
+        "properties": {
+          "lineNo": "33",
+          "lineIndex": "0"
+        },
+        "type": "Missing Dataset"
+      },
+      {
+        "dependencyType": "Read Dataset",
+        "name": "OEM.IMS.IMSP.PSBLIB",
+        "path": null,
+        "properties": {
+          "lineNo": "32",
+          "lineIndex": "0"
+        },
+        "type": "Missing Dataset"
+      },
+      {
+        "dependencyType": "PDS use; Read Dataset",
+        "name": "OEMA.IMS.IMSP.SDFSRESL",
+        "path": null,
+        "properties": {
+          "lineNo": "27;30"
+        },
+        "type": "Missing [Dataset, PDS]"
+      },
+      {
+        "dependencyType": "Read Dataset",
+        "name": "OEMA.IMS.IMSP.SDFSRESL.V151",
+        "path": null,
+        "properties": {
+          "lineNo": "28",
+          "lineIndex": "0"
+        },
+        "type": "Missing Dataset"
+      },
+      {
+        "dependencyType": "PDS use",
+        "name": "OEMPP.IMS.V15R01MB.PROCLIB",
+        "path": null,
+        "properties": {
+          "lineNo": "43",
+          "lineIndex": "0"
+        },
+        "type": "Missing PDS"
+      },
+      {
+        "dependencyType": "Exec program",
+        "name": "PAUDBLOD.CBL",
+        "path": "app-authorization-ims-db2-mq/cbl/PAUDBLOD.CBL",
+        "properties": {
+          "lineNo": "25",
+          "lineIndex": "0"
+        },
+        "type": "COB"
+      },
+      {
+        "dependencyType": "Program Specification Block",
+        "name": "PSBPAUTB.psb",
+        "path": "app-authorization-ims-db2-mq/ims/PSBPAUTB.psb",
+        "properties": {
+          "lineNo": "25",
+          "lineIndex": "0"
+        },
+        "type": "PSB"
+      }
+    ],
+    "name": "LOADPADB.JCL",
+    "path": "app-authorization-ims-db2-mq/jcl/LOADPADB.JCL",
+    "type": "JCL"
+  },
+  {
+    "name": "CCPAURLY.cpy",
+    "path": "app-authorization-ims-db2-mq/cpy/CCPAURLY.cpy",
+    "type": "CPY",
+    "dependencies": []
+  },
+  {
+    "name": "CIPAUDTY.cpy",
+    "path": "app-authorization-ims-db2-mq/cpy/CIPAUDTY.cpy",
+    "type": "CPY",
+    "dependencies": []
+  },
+  {
+    "dependencies": [
+      {
+        "dependencyType": "Exec CICS Read dataset; [Dynamic] Call",
+        "name": "ACCTDAT",
+        "path": null,
+        "properties": {
+          "variableName": "WS-ACCTFILENAME",
+          "lineNo": "868;868"
+        },
+        "type": "Missing CICS Dataset Definition"
+      },
+      {
+        "dependencyType": "Copy",
+        "name": "CIPAUDTY.cpy",
+        "path": "app-authorization-ims-db2-mq/cpy/CIPAUDTY.cpy",
+        "properties": {
+          "lineNo": "164",
+          "lineIndex": "0"
+        },
+        "type": "CPY"
+      },
+      {
+        "dependencyType": "Copy",
+        "name": "CIPAUSMY.cpy",
+        "path": "app-authorization-ims-db2-mq/cpy/CIPAUSMY.cpy",
+        "properties": {
+          "lineNo": "160",
+          "lineIndex": "0"
+        },
+        "type": "CPY"
+      },
+      {
+        "dependencyType": "Copy",
+        "name": "COCOM01Y",
+        "path": null,
+        "properties": {
+          "lineNo": "115",
+          "lineIndex": "0"
+        },
+        "type": "Missing COBOL Copybook"
+      },
+      {
+        "dependencyType": "Exec CICS program; [Dynamic] Call",
+        "name": "COMEN01C",
+        "path": null,
+        "properties": {
+          "variableName": "CDEMO-TO-PROGRAM",
+          "lineNo": "[321 673];[321 673]"
+        },
+        "type": "Missing Program"
+      },
+      {
+        "dependencyType": "Exec CICS map",
+        "name": "COPAU00.bms",
+        "path": "app-authorization-ims-db2-mq/bms/COPAU00.bms",
+        "properties": {
+          "lineNo": "694",
+          "lineIndex": "0"
+        },
+        "type": "BMS"
+      },
+      {
+        "dependencyType": "Copy",
+        "name": "COPAU00.cpy",
+        "path": "app-authorization-ims-db2-mq/cpy-bms/COPAU00.cpy",
+        "properties": {
+          "lineNo": "128",
+          "lineIndex": "0"
+        },
+        "type": "CPY"
+      },
+      {
+        "dependencyType": "Exec CICS program; [Dynamic] Call",
+        "name": "COPAUS1C.cbl",
+        "path": "app-authorization-ims-db2-mq/cbl/COPAUS1C.cbl",
+        "properties": {
+          "variableName": "CDEMO-TO-PROGRAM",
+          "lineNo": "[321 673];[321 673]"
+        },
+        "type": "COB"
+      },
+      {
+        "dependencyType": "Exec CICS program; [Dynamic] Call",
+        "name": "COSGN00C",
+        "path": null,
+        "properties": {
+          "variableName": "CDEMO-TO-PROGRAM",
+          "lineNo": "[321 673];[321 673]"
+        },
+        "type": "Missing Program"
+      },
+      {
+        "dependencyType": "Copy",
+        "name": "COTTL01Y",
+        "path": null,
+        "properties": {
+          "lineNo": "131",
+          "lineIndex": "0"
+        },
+        "type": "Missing COBOL Copybook"
+      },
+      {
+        "dependencyType": "Exec CICS Return transaction; [Dynamic] Call",
+        "name": "CPVS",
+        "path": "Global:TRANSACTION:CPVS",
+        "properties": {
+          "variableName": "WS-CICS-TRANID",
+          "lineNo": "253;253"
+        },
+        "type": "TRANSACTION"
+      },
+      {
+        "dependencyType": "Copy",
+        "name": "CSDAT01Y",
+        "path": null,
+        "properties": {
+          "lineNo": "134",
+          "lineIndex": "0"
+        },
+        "type": "Missing COBOL Copybook"
+      },
+      {
+        "dependencyType": "Copy",
+        "name": "CSMSG01Y",
+        "path": null,
+        "properties": {
+          "lineNo": "137",
+          "lineIndex": "0"
+        },
+        "type": "Missing COBOL Copybook"
+      },
+      {
+        "dependencyType": "Copy",
+        "name": "CSMSG02Y",
+        "path": null,
+        "properties": {
+          "lineNo": "140",
+          "lineIndex": "0"
+        },
+        "type": "Missing COBOL Copybook"
+      },
+      {
+        "dependencyType": "Exec CICS Read dataset; [Dynamic] Call",
+        "name": "CUSTDAT",
+        "path": null,
+        "properties": {
+          "variableName": "WS-CUSTFILENAME",
+          "lineNo": "919;919"
+        },
+        "type": "Missing CICS Dataset Definition"
+      },
+      {
+        "dependencyType": "Copy",
+        "name": "CVACT01Y",
+        "path": null,
+        "properties": {
+          "lineNo": "143",
+          "lineIndex": "0"
+        },
+        "type": "Missing COBOL Copybook"
+      },
+      {
+        "dependencyType": "Copy",
+        "name": "CVACT02Y",
+        "path": null,
+        "properties": {
+          "lineNo": "146",
+          "lineIndex": "0"
+        },
+        "type": "Missing COBOL Copybook"
+      },
+      {
+        "dependencyType": "Copy",
+        "name": "CVACT03Y",
+        "path": null,
+        "properties": {
+          "lineNo": "149",
+          "lineIndex": "0"
+        },
+        "type": "Missing COBOL Copybook"
+      },
+      {
+        "dependencyType": "Copy",
+        "name": "CVCUS01Y",
+        "path": null,
+        "properties": {
+          "lineNo": "152",
+          "lineIndex": "0"
+        },
+        "type": "Missing COBOL Copybook"
+      },
+      {
+        "dependencyType": "Exec CICS Read dataset; [Dynamic] Call",
+        "name": "CXACAIX",
+        "path": null,
+        "properties": {
+          "variableName": "WS-CARDXREFNAME-ACCT-PATH",
+          "lineNo": "817;817"
+        },
+        "type": "Missing CICS Dataset Definition"
+      },
+      {
+        "dependencyType": "Copy",
+        "name": "DFHAID",
+        "path": null,
+        "properties": {
+          "lineNo": "167",
+          "lineIndex": "0"
+        },
+        "type": "System"
+      },
+      {
+        "dependencyType": "Copy",
+        "name": "DFHBMSCA",
+        "path": null,
+        "properties": {
+          "lineNo": "168",
+          "lineIndex": "0"
+        },
+        "type": "System"
+      }
+    ],
+    "name": "COPAUS0C.cbl",
+    "path": "app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl",
+    "type": "COB"
+  },
+  {
+    "dependencies": [
+      {
+        "dependencyType": "Define [SQL]TABLE",
+        "name": "CARDDEMO.AUTHFRDS",
+        "path": "Global:TABLE:CARDDEMO.AUTHFRDS",
+        "type": "[SQL]TABLE"
+      }
+    ],
+    "name": "AUTHFRDS.ddl",
+    "path": "app-authorization-ims-db2-mq/ddl/AUTHFRDS.ddl",
+    "type": "SQL"
+  },
+  {
+    "name": "CARDDEMO.AUTHFRDS",
+    "path": "Global:TABLE:CARDDEMO.AUTHFRDS",
+    "type": "[SQL]TABLE",
+    "dependencies": []
+  },
+  {
+    "dependencies": [
+      {
+        "dependencyType": "Database Description",
+        "name": "DBPAUTP0.dbd",
+        "path": "app-authorization-ims-db2-mq/ims/DBPAUTP0.dbd",
+        "properties": {
+          "lineNo": "17",
+          "lineIndex": "0"
+        },
+        "type": "DBD"
+      }
+    ],
+    "name": "PSBPAUTL.psb",
+    "path": "app-authorization-ims-db2-mq/ims/PSBPAUTL.psb",
+    "type": "PSB"
+  },
+  {
+    "dependencies": [
+      {
+        "dependencyType": "Database Description",
+        "name": "DBPAUTP0.dbd",
+        "path": "app-authorization-ims-db2-mq/ims/DBPAUTP0.dbd",
+        "properties": {
+          "lineNo": "17",
+          "lineIndex": "0"
+        },
+        "type": "DBD"
+      }
+    ],
+    "name": "PSBPAUTB.psb",
+    "path": "app-authorization-ims-db2-mq/ims/PSBPAUTB.psb",
+    "type": "PSB"
+  },
+  {
+    "name": "CCPAUERY.cpy",
+    "path": "app-authorization-ims-db2-mq/cpy/CCPAUERY.cpy",
+    "type": "CPY",
+    "dependencies": []
+  },
+  {
+    "name": "ACCTDAT",
+    "type": "Missing CICS Dataset Definition",
+    "dependencies": [],
+    "path": null
+  },
+  {
+    "name": "AWS.M2.CARDDEMO.IMSDATA.DBPAUTP0",
+    "type": "Missing Dataset",
+    "dependencies": [],
+    "path": null
+  },
+  {
+    "name": "AWS.M2.CARDDEMO.LOADLIB",
+    "type": "System",
+    "dependencies": [],
+    "path": null
+  },
+  {
+    "name": "AWS.M2.CARDDEMO.PAUTDB.CHILD.FILEO",
+    "type": "Missing Dataset",
+    "dependencies": [],
+    "path": null
+  },
+  {
+    "name": "AWS.M2.CARDDEMO.PAUTDB.CHILD.GSAM",
+    "type": "Missing Dataset",
+    "dependencies": [],
+    "path": null
+  },
+  {
+    "name": "AWS.M2.CARDDEMO.PAUTDB.ROOT.FILEO",
+    "type": "Missing Dataset",
+    "dependencies": [],
+    "path": null
+  },
+  {
+    "name": "AWS.M2.CARDDEMO.PAUTDB.ROOT.GSAM",
+    "type": "Missing Dataset",
+    "dependencies": [],
+    "path": null
+  },
+  {
+    "name": "CBLTDLI",
+    "type": "System",
+    "dependencies": [],
+    "path": null
+  },
+  {
+    "name": "CCXREF",
+    "type": "Missing CICS Dataset Definition",
+    "dependencies": [],
+    "path": null
+  },
+  {
+    "name": "CHILD-UNQUAL-SSA",
+    "type": "Missing Dynamic Call Value",
+    "dependencies": [],
+    "path": null
+  },
+  {
+    "name": "CMQGMOV",
+    "type": "System",
+    "dependencies": [],
+    "path": null
+  },
+  {
+    "name": "CMQMDV",
+    "type": "System",
+    "dependencies": [],
+    "path": null
+  },
+  {
+    "name": "CMQODV",
+    "type": "System",
+    "dependencies": [],
+    "path": null
+  },
+  {
+    "name": "CMQPMOV",
+    "type": "System",
+    "dependencies": [],
+    "path": null
+  },
+  {
+    "name": "CMQTML",
+    "type": "System",
+    "dependencies": [],
+    "path": null
+  },
+  {
+    "name": "CMQV",
+    "type": "System",
+    "dependencies": [],
+    "path": null
+  },
+  {
+    "name": "COCOM01Y",
+    "type": "Missing COBOL Copybook",
+    "dependencies": [],
+    "path": null
+  },
+  {
+    "name": "COMEN01C",
+    "type": "Missing Program",
+    "dependencies": [],
+    "path": null
+  },
+  {
+    "name": "COSGN00C",
+    "type": "Missing Program",
+    "dependencies": [],
+    "path": null
+  },
+  {
+    "name": "COTTL01Y",
+    "type": "Missing COBOL Copybook",
+    "dependencies": [],
+    "path": null
+  },
+  {
+    "name": "CSDAT01Y",
+    "type": "Missing COBOL Copybook",
+    "dependencies": [],
+    "path": null
+  },
+  {
+    "name": "CSMSG01Y",
+    "type": "Missing COBOL Copybook",
+    "dependencies": [],
+    "path": null
+  },
+  {
+    "name": "CSMSG02Y",
+    "type": "Missing COBOL Copybook",
+    "dependencies": [],
+    "path": null
+  },
+  {
+    "name": "CUSTDAT",
+    "type": "Missing CICS Dataset Definition",
+    "dependencies": [],
+    "path": null
+  },
+  {
+    "name": "CVACT01Y",
+    "type": "Missing COBOL Copybook",
+    "dependencies": [],
+    "path": null
+  },
+  {
+    "name": "CVACT02Y",
+    "type": "Missing COBOL Copybook",
+    "dependencies": [],
+    "path": null
+  },
+  {
+    "name": "CVACT03Y",
+    "type": "Missing COBOL Copybook",
+    "dependencies": [],
+    "path": null
+  },
+  {
+    "name": "CVCUS01Y",
+    "type": "Missing COBOL Copybook",
+    "dependencies": [],
+    "path": null
+  },
+  {
+    "name": "CXACAIX",
+    "type": "Missing CICS Dataset Definition",
+    "dependencies": [],
+    "path": null
+  },
+  {
+    "name": "DFHAID",
+    "type": "System",
+    "dependencies": [],
+    "path": null
+  },
+  {
+    "name": "DFHBMSCA",
+    "type": "System",
+    "dependencies": [],
+    "path": null
+  },
+  {
+    "name": "DFSRRC00",
+    "type": "System",
+    "dependencies": [],
+    "path": null
+  },
+  {
+    "name": "DFSVSMDB",
+    "type": "Missing Control Card",
+    "dependencies": [],
+    "path": null
+  },
+  {
+    "name": "IEFBR14",
+    "type": "System",
+    "dependencies": [],
+    "path": null
+  },
+  {
+    "name": "IMS.DBDLIB",
+    "type": "Missing Dataset",
+    "dependencies": [],
+    "path": null
+  },
+  {
+    "name": "IMS.PROCLIB",
+    "type": "Missing Dataset",
+    "dependencies": [],
+    "path": null
+  },
+  {
+    "name": "IMS.PSBLIB",
+    "type": "Missing Dataset",
+    "dependencies": [],
+    "path": null
+  },
+  {
+    "name": "IMS.SDFSRESL",
+    "type": "Missing [Dataset, PDS]",
+    "dependencies": [],
+    "path": null
+  },
+  {
+    "name": "INFILE1",
+    "type": "Missing Source File",
+    "dependencies": [],
+    "path": null
+  },
+  {
+    "name": "INFILE2",
+    "type": "Missing Source File",
+    "dependencies": [],
+    "path": null
+  },
+  {
+    "name": "MQCLOSE",
+    "type": "System",
+    "dependencies": [],
+    "path": null
+  },
+  {
+    "name": "MQGET",
+    "type": "System",
+    "dependencies": [],
+    "path": null
+  },
+  {
+    "name": "MQOPEN",
+    "type": "System",
+    "dependencies": [],
+    "path": null
+  },
+  {
+    "name": "MQPUT1",
+    "type": "System",
+    "dependencies": [],
+    "path": null
+  },
+  {
+    "name": "OEM.IMS.IMSP.DBDLIB",
+    "type": "Missing Dataset",
+    "dependencies": [],
+    "path": null
+  },
+  {
+    "name": "OEM.IMS.IMSP.PAUTHDBX",
+    "type": "Missing Dataset",
+    "dependencies": [],
+    "path": null
+  },
+  {
+    "name": "OEM.IMS.IMSP.PAUTHDB",
+    "type": "Missing Dataset",
+    "dependencies": [],
+    "path": null
+  },
+  {
+    "name": "OEM.IMS.IMSP.PSBLIB",
+    "type": "Missing Dataset",
+    "dependencies": [],
+    "path": null
+  },
+  {
+    "name": "OEM.IMS.IMSP.RECON1",
+    "type": "Missing Dataset",
+    "dependencies": [],
+    "path": null
+  },
+  {
+    "name": "OEM.IMS.IMSP.RECON2",
+    "type": "Missing Dataset",
+    "dependencies": [],
+    "path": null
+  },
+  {
+    "name": "OEM.IMS.IMSP.RECON3",
+    "type": "Missing Dataset",
+    "dependencies": [],
+    "path": null
+  },
+  {
+    "name": "OEMA.IMS.IMSP.SDFSRESL.V151",
+    "type": "Missing Dataset",
+    "dependencies": [],
+    "path": null
+  },
+  {
+    "name": "OEMA.IMS.IMSP.SDFSRESL",
+    "type": "Missing [Dataset, PDS]",
+    "dependencies": [],
+    "path": null
+  },
+  {
+    "name": "OEMPP.IMS.V15R01MB.PROCLIB",
+    "type": "Missing PDS",
+    "dependencies": [],
+    "path": null
+  },
+  {
+    "name": "OUTFIL1",
+    "type": "Missing Source File",
+    "dependencies": [],
+    "path": null
+  },
+  {
+    "name": "OUTFIL2",
+    "type": "Missing Source File",
+    "dependencies": [],
+    "path": null
+  },
+  {
+    "name": "ROOT-QUAL-SSA",
+    "type": "Missing Dynamic Call Value",
+    "dependencies": [],
+    "path": null
+  },
+  {
+    "name": "ROOT-UNQUAL-SSA",
+    "type": "Missing Dynamic Call Value",
+    "dependencies": [],
+    "path": null
+  },
+  {
+    "name": "SQLCA",
+    "type": "System",
+    "dependencies": [],
+    "path": null
+  },
+  {
+    "name": "XXXXXXXX.PROD.LOADLIB",
+    "type": "System",
+    "dependencies": [],
+    "path": null
+  }
+]
