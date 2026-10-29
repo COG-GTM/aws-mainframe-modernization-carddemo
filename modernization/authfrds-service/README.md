@@ -24,7 +24,7 @@ make db2-sql Q="SELECT CARD_NUM, AUTH_TS, AUTH_FRAUD, FRAUD_RPT_DATE FROM CARDDE
 | Method | Path | Legacy |
 |---|---|---|
 | POST | `/api/v1/fraud-records` | COPAUS2C LINK (INSERT, -803 -> FRAUD-UPDATE) |
-| GET | `/api/v1/fraud-records?cardNum&acctId&authFraud&page&size` | inspection read (BR-AF-030, no legacy cursor) |
+| GET | `/api/v1/fraud-records?cardNum&acctId&authFraud&page` (page size: `carddemo.list.page-size`, default 5, env `CARDDEMO_LIST_PAGE_SIZE`) | inspection read (BR-AF-030, no legacy cursor) |
 | GET | `/api/v1/fraud-records/{cardNum}/{authTs}` | inspection read by PK |
 | GET | `/api/v1/accounts`, `/api/v1/accounts/{acctId}/authorizations` | IMS stub browse |
 | GET | `/api/v1/accounts/{acctId}/authorizations/{authKey}` | COPAUS1C ENTER |
