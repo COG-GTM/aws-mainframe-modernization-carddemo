@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Supplier;
 import org.springframework.dao.DataAccessException;
+import org.springframework.dao.DataAccessResourceFailureException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
@@ -118,7 +119,14 @@ public class JdbcTransactionTypeStore implements TransactionTypeStore {
     private static <T> T sql(Supplier<T> call) {
         try {
             return call.get();
+        } catch (DataAccessResourceFailureException e) {
+            throw e;
         } catch (DataAccessException e) {
+            for (Throwable t = e; t != null; t = t.getCause()) {
+                if (t instanceof SQLException se && isConnectionFailure(se)) {
+                    throw new DataAccessResourceFailureException(se.getMessage(), e);
+                }
+            }
             for (Throwable t = e; t != null; t = t.getCause()) {
                 if (t instanceof SQLException se && se.getErrorCode() != 0) {
                     throw new SqlCodeException(se.getErrorCode(), se.getMessage(), e);
@@ -126,5 +134,11 @@ public class JdbcTransactionTypeStore implements TransactionTypeStore {
             }
             throw e;
         }
+    }
+
+    /** BR-TT-061: SQLSTATE class 08 or JCC -4499 means Db2 is unreachable, not a statement error. */
+    private static boolean isConnectionFailure(SQLException se) {
+        String state = se.getSQLState();
+        return se.getErrorCode() == -4499 || (state != null && state.startsWith("08"));
     }
 }

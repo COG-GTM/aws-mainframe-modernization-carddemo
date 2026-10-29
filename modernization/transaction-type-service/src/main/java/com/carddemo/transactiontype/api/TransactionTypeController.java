@@ -94,12 +94,16 @@ public class TransactionTypeController {
     @GetMapping(value = "/transaction-types/extract", produces = MediaType.TEXT_PLAIN_VALUE)
     @Operation(summary = "TRANEXTR STEP40: TRANTYPE.PS 60-byte records")
     public String extractTypes() {
-        return String.join("\n", service.extractTransactionTypes()) + "\n";
+        return toRecords(service.extractTransactionTypes());
     }
 
     @GetMapping(value = "/transaction-type-categories/extract", produces = MediaType.TEXT_PLAIN_VALUE)
     @Operation(summary = "TRANEXTR STEP50: TRANCATG.PS 60-byte records")
     public String extractCategories() {
-        return String.join("\n", service.extractCategories()) + "\n";
+        return toRecords(service.extractCategories());
+    }
+
+    static String toRecords(List<String> records) {
+        return records.isEmpty() ? "" : String.join("\n", records) + "\n";
     }
 }

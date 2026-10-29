@@ -39,7 +39,7 @@ Reference run: `specs/aws-transform/transaction-type/` -> `modernization/transac
 ## Phase 4 - Tests on real Db2
 1. Add a `db2-it` Maven profile (Failsafe, `*IT.java`). Run `@SpringBootTest(webEnvironment=RANDOM_PORT)` against the container and cover seeded reads, paging, create/update/delete persistence, and the real SQLCODEs (-803 duplicate, -532 FK restrict, +100 not found).
 2. Run `mvn -B -Pdb2-it verify`. Keep the output and quote only the numbers you saw.
-3. Start the service (`make run` or `make up`). Check `/actuator/health` is UP and `/swagger-ui/index.html` returns 200.
+3. Start the service (`make run` or `make up`). After any source change, rebuild it with `make up`: a container can be healthy and still run an old jar, so a passing health check does not prove it runs the current code. Check `/actuator/health` is UP and `/swagger-ui/index.html` returns 200.
 
 **Checkpoint 4:** unit + IT green; health UP; Swagger 200.
 

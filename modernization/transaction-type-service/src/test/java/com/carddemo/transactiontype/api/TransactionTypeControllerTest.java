@@ -12,6 +12,9 @@ import com.carddemo.transactiontype.domain.InMemoryTransactionTypeStore;
 import com.carddemo.transactiontype.domain.TransactionTypeService;
 import com.carddemo.transactiontype.domain.TransactionTypeStore;
 import com.carddemo.transactiontype.domain.batch.BatchMaintenanceService;
+import static org.assertj.core.api.Assertions.assertThat;
+
+import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -103,5 +106,12 @@ class TransactionTypeControllerTest {
     @DisplayName("BR-TT-018 one action per request: only PUT (U) and DELETE (D) act on a row")
     void br_tt_018_singleActionPerRequest() throws Exception {
         mvc.perform(patch("/api/v1/transaction-types/01")).andExpect(status().isMethodNotAllowed());
+    }
+
+    @Test
+    @DisplayName("BR-TT-080 an empty extract is an empty file, not a blank record")
+    void br_tt_080_emptyExtract() {
+        assertThat(TransactionTypeController.toRecords(List.of())).isEmpty();
+        assertThat(TransactionTypeController.toRecords(List.of("a", "b"))).isEqualTo("a\nb\n");
     }
 }
