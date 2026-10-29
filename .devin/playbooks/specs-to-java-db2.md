@@ -30,7 +30,7 @@ Reference run: `specs/aws-transform/transaction-type/` -> `modernization/transac
 
 ## Phase 3 - Real Db2 in Docker
 1. Add `SERVICE_DIR/docker-compose.yml` with `icr.io/db2_community/db2:latest`, `privileged: true`, `LICENSE=accept`, `DBNAME`, `DB2INST1_PASSWORD`, port 50000, mount `LEGACY_DIR` read-only and an init script into `/var/custom`.
-2. The init script applies `LEGACY_DIR/ddl/*.ddl` and the load cards. Make it idempotent (skip if the tables exist). Strip z/OS-only clauses (`ERASE NO`, `CLOSE NO`, `STOGROUP`, `BUFFERPOOL`, `IN DATABASE`), and tolerate SQL0605W (duplicate index). If the init script fails, the container still reports "Setup has completed", so health-check on a marker file the script touches.
+2. The init script applies `LEGACY_DIR/ddl/*.ddl` and the load cards. Make it idempotent per stage: check each table and each seed load separately. Run every `db2` command in the shell that ran `db2 connect` (CLP connections belong to that shell, so `$(db2 ...)` runs without the connection); write results to a file and read them from there. Test the first boot on a **fresh** volume. Strip z/OS-only clauses (`ERASE NO`, `CLOSE NO`, `STOGROUP`, `BUFFERPOOL`, `IN DATABASE`), and tolerate SQL0605W (duplicate index). If the init script fails, the container still reports "Setup has completed", so health-check on a marker file the script touches.
 3. Add a `Makefile` with `db2-up`, `db2-wait`, `db2-sql Q=...`, `run`, `up`, `it`, and a `Dockerfile` that copies a jar built on the host (Maven inside Docker builds may not reach the network).
 4. First start pulls ~1.5 GB and takes a few minutes. Wait for the healthcheck, not a fixed sleep.
 
