@@ -1,0 +1,26 @@
+spring:
+  application:
+    name: transaction-type-service
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:db2://localhost:50000/CARDDEMO:retrieveMessagesFromServerOnGetMessage=true;}
+    username: ${SPRING_DATASOURCE_USERNAME:db2inst1}
+    password: ${SPRING_DATASOURCE_PASSWORD:carddemo}
+    driver-class-name: com.ibm.db2.jcc.DB2Driver
+    hikari:
+      connection-test-query: SELECT 1 FROM SYSIBM.SYSDUMMY1
+      initialization-fail-timeout: -1
+server:
+  port: ${SERVER_PORT:8080}
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+    operations-sorter: method
+    try-it-out-enabled: true
+carddemo:
+  list:
+    page-size: 7
