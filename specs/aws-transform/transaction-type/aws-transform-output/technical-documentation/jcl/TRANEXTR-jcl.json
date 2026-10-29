@@ -1,0 +1,147 @@
+{
+  "documentation": {
+    "high_level_overview": {
+      "program_information": {
+        "name": "TRANEXTR.jcl",
+        "type": "jcl"
+      },
+      "overview": "The TRANEXTR job extracts transaction reference data from a Db2 database to support daily Transaction Report generation for the CardDemo application. It backs up existing transaction type and category files to Generation Data Groups (GDGs), removes the prior run's output files, and then uses the Db2 DSNTIAUL utility to unload current data from the TRANSACTION_TYPE and TRANSACTION_TYPE_CATEGORY tables into flat files. Since this job runs once per day, any changes to the underlying reference data will only be reflected in reports after the next scheduled batch execution.",
+      "parameters": [
+        {
+          "name": "JOB",
+          "value": "TRANEXTR",
+          "description": "The JOB statement marks the beginning of a JCL job and assigns the job name 'TRANEXTR', which is used to identify the job in the system and in job logs."
+        },
+        {
+          "name": "ACCOUNTING INFORMATION",
+          "value": "'EXTRACT TRAN TYPE'",
+          "description": "The positional parameter on the JOB statement providing accounting information or job description. Here it describes the job purpose as 'EXTRACT TRAN TYPE', used for accounting and identification purposes."
+        },
+        {
+          "name": "CLASS",
+          "value": "A",
+          "description": "Specifies the job class that determines the initiator queue where the job will be placed for execution. CLASS=A assigns the job to job class A, which controls scheduling priority and resource allocation."
+        },
+        {
+          "name": "MSGCLASS",
+          "value": "0",
+          "description": "Specifies the output class for the job log (JES message log), including JCL listing, allocation/termination messages, and system messages. MSGCLASS=0 routes the job log to output class 0."
+        },
+        {
+          "name": "NOTIFY",
+          "value": "&SYSUID",
+          "description": "Specifies the TSO user ID to be notified when the job completes. &SYSUID is a symbolic parameter that resolves to the user ID of the person who submitted the job, so that user receives a notification message upon job completion or failure."
+        }
+      ]
+    },
+    "job_details": [
+      {
+        "step": "STEP10",
+        "purpose": "Backs up the current version of the Transaction Type flat file to a Generation Data Group (GDG) dataset, preserving the previous day's data before the new extract overwrites it.",
+        "programs": "IEBGENER*",
+        "inputs": "SYSUT1: AWS.M2.CARDDEMO.TRANTYPE.PS",
+        "outputs": "SYSUT2: AWS.M2.CARDDEMO.TRANTYPE.BKUP(+1) (new GDG generation, LRECL=60, RECFM=FB, BLKSIZE=600); SYSPRINT"
+      },
+      {
+        "step": "STEP20",
+        "purpose": "Backs up the current version of the Transaction Category flat file to a Generation Data Group (GDG) dataset, preserving the previous day's data before the new extract overwrites it. Executes only if STEP10 completed with return code 0.",
+        "programs": "IEBGENER*",
+        "inputs": "SYSUT1: AWS.M2.CARDDEMO.TRANCATG.PS",
+        "outputs": "SYSUT2: AWS.M2.CARDDEMO.TRANCATG.PS.BKUP(+1) (new GDG generation, LRECL=60, RECFM=FB, BLKSIZE=600); SYSPRINT"
+      },
+      {
+        "step": "STEP30",
+        "purpose": "Deletes the Transaction Type and Transaction Category flat files from the previous run to ensure clean datasets are available for the current day's extract. Executes only if all prior steps completed with return code 0.",
+        "programs": "IEFBR14*",
+        "inputs": "N/A",
+        "outputs": "DD01: AWS.M2.CARDDEMO.TRANTYPE.PS (deleted); DD02: AWS.M2.CARDDEMO.TRANCATG.PS (deleted)"
+      },
+      {
+        "step": "STEP40",
+        "purpose": "Extracts all rows from the CARDDEMO.TRANSACTION_TYPE Db2 table using the DSNTIAUL unload utility, formatting each row as a 60-character fixed-length record containing TR_TYPE, TR_DESCRIPTION (padded to 50 chars), and 8 trailing zeros, ordered by TR_TYPE. Executes only if all prior steps completed with return code 0.",
+        "programs": "IKJEFT01 (DSNTIAUL)*",
+        "inputs": "SYSIN: SQL SELECT statement querying CARDDEMO.TRANSACTION_TYPE ordered by TR_TYPE; SYSTSIN: DSN SYSTEM(DAZ1) RUN PROGRAM(DSNTIAUL) PLAN(DSNTIAUL) PARMS('SQL')",
+        "outputs": "SYSREC00: AWS.M2.CARDDEMO.TRANTYPE.PS (new cataloged dataset, LRECL=60 fixed-block, extracted transaction type records); SYSTSPRT, SYSPRINT, SYSUDUMP"
+      },
+      {
+        "step": "STEP50",
+        "purpose": "Extracts all rows from the CARDDEMO.TRANSACTION_TYPE_CATEGORY Db2 table using the DSNTIAUL unload utility, formatting each row as a 60-character fixed-length record containing TRC_TYPE_CODE, TRC_TYPE_CATEGORY, TRC_CAT_DATA (padded to 50 chars), and 4 trailing zeros, ordered by TRC_TYPE_CODE and TRC_TYPE_CATEGORY. Executes only if the return code from prior steps is less than 4.",
+        "programs": "IKJEFT01 (DSNTIAUL)*",
+        "inputs": "SYSIN: SQL SELECT statement querying CARDDEMO.TRANSACTION_TYPE_CATEGORY ordered by TRC_TYPE_CODE and TRC_TYPE_CATEGORY; SYSTSIN: DSN SYSTEM(DAZ1) RUN PROGRAM(DSNTIAUL) PLAN(DSNTIAUL) PARMS('SQL')",
+        "outputs": "SYSREC00: AWS.M2.CARDDEMO.TRANCATG.PS (new cataloged dataset, LRECL=60 fixed-block, extracted transaction category records); SYSTSPRT, SYSPRINT, SYSUDUMP"
+      }
+    ],
+    "data_operations": [
+      {
+        "step": "STEP10",
+        "type": "Dataset",
+        "objects": "AWS.M2.CARDDEMO.TRANTYPE.PS",
+        "operations": "READ",
+        "description": "IEBGENER reads the current TRANTYPE PS file as input (SYSUT1)"
+      },
+      {
+        "step": "STEP10",
+        "type": "Dataset",
+        "objects": "AWS.M2.CARDDEMO.TRANTYPE.BKUP(+1)",
+        "operations": "WRITE",
+        "description": "IEBGENER copies the TRANTYPE PS file to the next generation of the GDG backup dataset (SYSUT2), cataloging the new generation with LRECL=60, RECFM=FB, BLKSIZE=600"
+      },
+      {
+        "step": "STEP20",
+        "type": "Dataset",
+        "objects": "AWS.M2.CARDDEMO.TRANCATG.PS",
+        "operations": "READ",
+        "description": "IEBGENER reads the current TRANCATG PS file as input (SYSUT1)"
+      },
+      {
+        "step": "STEP20",
+        "type": "Dataset",
+        "objects": "AWS.M2.CARDDEMO.TRANCATG.PS.BKUP(+1)",
+        "operations": "WRITE",
+        "description": "IEBGENER copies the TRANCATG PS file to the next generation of the GDG backup dataset (SYSUT2), cataloging the new generation with LRECL=60, RECFM=FB, BLKSIZE=600"
+      },
+      {
+        "step": "STEP30",
+        "type": "Dataset",
+        "objects": "AWS.M2.CARDDEMO.TRANTYPE.PS",
+        "operations": "DELETE",
+        "description": "IEFBR14 deletes the existing TRANTYPE PS file from the previous run using DISP=(MOD,DELETE,DELETE)"
+      },
+      {
+        "step": "STEP30",
+        "type": "Dataset",
+        "objects": "AWS.M2.CARDDEMO.TRANCATG.PS",
+        "operations": "DELETE",
+        "description": "IEFBR14 deletes the existing TRANCATG PS file from the previous run using DISP=(MOD,DELETE,DELETE)"
+      },
+      {
+        "step": "STEP40",
+        "type": "DB2",
+        "objects": "CARDDEMO.TRANSACTION_TYPE",
+        "operations": "SELECT",
+        "description": "DSNTIAUL utility executes a SQL SELECT against CARDDEMO.TRANSACTION_TYPE, concatenating TR_TYPE, TR_DESCRIPTION (CHAR 50), and 8 repeated '0' characters cast as CHAR(60), ordered by TR_TYPE, using DB2 subsystem DAZ1 with plan DSNTIAUL"
+      },
+      {
+        "step": "STEP40",
+        "type": "Dataset",
+        "objects": "AWS.M2.CARDDEMO.TRANTYPE.PS",
+        "operations": "WRITE",
+        "description": "DSNTIAUL writes the extracted TRANSACTION_TYPE rows to the new TRANTYPE PS sequential file via SYSREC00, cataloging on success and deleting on failure"
+      },
+      {
+        "step": "STEP50",
+        "type": "DB2",
+        "objects": "CARDDEMO.TRANSACTION_TYPE_CATEGORY",
+        "operations": "SELECT",
+        "description": "DSNTIAUL utility executes a SQL SELECT against CARDDEMO.TRANSACTION_TYPE_CATEGORY, concatenating TRC_TYPE_CODE, TRC_TYPE_CATEGORY, TRC_CAT_DATA (CHAR 50), and 4 repeated '0' characters cast as CHAR(60), ordered by TRC_TYPE_CODE and TRC_TYPE_CATEGORY, using DB2 subsystem DAZ1 with plan DSNTIAUL"
+      },
+      {
+        "step": "STEP50",
+        "type": "Dataset",
+        "objects": "AWS.M2.CARDDEMO.TRANCATG.PS",
+        "operations": "WRITE",
+        "description": "DSNTIAUL writes the extracted TRANSACTION_TYPE_CATEGORY rows to the new TRANCATG PS sequential file via SYSREC00, cataloging on success and deleting on failure"
+      }
+    ]
+  }
+}

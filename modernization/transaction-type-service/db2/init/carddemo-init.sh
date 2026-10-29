@@ -25,22 +25,21 @@ chmod -R a+rwX "$WORK"
 su - db2inst1 -c "
   set -e
   db2 connect to $DB >/dev/null
-  # CLP keeps the connection per parent shell, so no \$(...) subshell here.
-  count() { db2 -x \"\$1\" > $WORK/count.out; tr -dc '0-9' < $WORK/count.out; }
+  # CLP connections belong to this shell: never run db2 inside \$(...), read results from a file instead.
+  count() { db2 -x \"\$1\" > $WORK/count.out; N=\$(tr -dc '0-9' < $WORK/count.out); }
   table() { count \"SELECT COUNT(*) FROM SYSCAT.TABLES WHERE TABSCHEMA='CARDDEMO' AND TABNAME='\$1'\"; }
-  # Each stage is checked on its own so a partially initialised volume recovers on restart.
-  if [ \"\$(table TRANSACTION_TYPE)\" = \"0\" ]; then
+  table TRANSACTION_TYPE; if [ \"\$N\" = \"0\" ]; then
     db2 -tvf $WORK/TRNTYPE.ddl
     db2 -tvf $WORK/XTRNTYPE.ddl || true   # SQL0605W: PK index already covers TR_TYPE
   fi
-  if [ \"\$(table TRANSACTION_TYPE_CATEGORY)\" = \"0\" ]; then
+  table TRANSACTION_TYPE_CATEGORY; if [ \"\$N\" = \"0\" ]; then
     db2 -tvf $WORK/TRNTYCAT.ddl
     db2 -tvf $WORK/XTRNTYCAT.ddl || true
   fi
-  if [ \"\$(count 'SELECT COUNT(*) FROM CARDDEMO.TRANSACTION_TYPE')\" = \"0\" ]; then
+  count 'SELECT COUNT(*) FROM CARDDEMO.TRANSACTION_TYPE'; if [ \"\$N\" = \"0\" ]; then
     db2 -tvf $WORK/DB2LTTYP.sql
   fi
-  if [ \"\$(count 'SELECT COUNT(*) FROM CARDDEMO.TRANSACTION_TYPE_CATEGORY')\" = \"0\" ]; then
+  count 'SELECT COUNT(*) FROM CARDDEMO.TRANSACTION_TYPE_CATEGORY'; if [ \"\$N\" = \"0\" ]; then
     db2 -tvf $WORK/DB2LTCAT.sql
   fi
   db2 \"SELECT COUNT(*) AS TRANSACTION_TYPES FROM CARDDEMO.TRANSACTION_TYPE\"

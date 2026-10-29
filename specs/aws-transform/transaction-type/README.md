@@ -15,3 +15,5 @@ Source analysed: `app/app-transaction-type-db2/` (CICS `COTRTLIC`, `COTRTUPC`; b
 | [GAP-REVIEW.md](GAP-REVIEW.md) | Legacy COBOL vs this spec vs the Java implementation |
 
 Implementation: `modernization/transaction-type-service/` (traceability table in its README).
+
+> **Update:** the real AWS Transform technical documentation for this module is now committed, unmodified, in [`aws-transform-output/`](aws-transform-output/README.md).

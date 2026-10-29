@@ -76,3 +76,15 @@ Legend: Spec = captured in the first spec draft (**MISSED** = absent, added by t
 - **The spec missed:** (1) the third paging message, `No more pages for these search conditions`, which shows when PF8 lands on the final page (now BR-TT-019); (2) that legacy treats delete +100 as a generic failure (BR-TT-052 wording corrected); (3) that a filter change also discards pending row selections (UI-only, not applicable to REST).
 - **The Java missed / changed:** the BR-TT-019 message and the BR-TT-052 message (both fixed, with tests). Tests were added for BR-TT-018 and BR-TT-061, which had code but no dedicated test.
 - **Deliberate deviation:** batch descriptions are trimmed (see the batch table).
+
+## Cross-check against the real AWS Transform technical documentation
+
+The real AWS Transform technical documentation arrived later and is in `aws-transform-output/technical-documentation/`. A text search of its JSON for the COTRTLIC paging messages found:
+
+| Legacy literal (COTRTLIC) | Devin spec | AWS Transform tech docs |
+|---|---|---|
+| `No previous pages to display` | BR-TT-014 | present |
+| `No more pages to display` | BR-TT-015 | present |
+| `No more pages for these search conditions` | BR-TT-019 (added in this review) | **absent**, so the generated docs miss it too |
+
+The extra message only shows up when you read 2000-SEND-SCREEN / 9000-READ-FORWARD side by side, which is why this gap review exists.
