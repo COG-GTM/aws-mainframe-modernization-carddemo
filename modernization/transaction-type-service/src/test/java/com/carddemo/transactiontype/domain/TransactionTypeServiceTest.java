@@ -66,8 +66,17 @@ class TransactionTypeServiceTest {
     void br_tt_015_pagingBoundaries() {
         assertThat(service.list(null, null, "01", PageDirection.PREVIOUS).message())
                 .isEqualTo("No previous pages to display");
-        assertThat(service.list(null, null, "17", PageDirection.NEXT).message())
+        assertThat(service.list(null, null, "99", PageDirection.NEXT).message())
                 .isEqualTo("No more pages to display");
+    }
+
+    @Test
+    @DisplayName("BR-TT-019 PF8 landing on the final page says 'No more pages for these search conditions'")
+    void br_tt_019_pf8OntoLastPage() {
+        var last = service.list(null, null, "17", PageDirection.NEXT);
+        assertThat(last.items()).extracting(TransactionType::code).containsExactly("17", "18", "19");
+        assertThat(last.hasNextPage()).isFalse();
+        assertThat(last.message()).isEqualTo("No more pages for these search conditions");
     }
 
     @Test
@@ -168,6 +177,8 @@ class TransactionTypeServiceTest {
             }
         };
         assertRule(() -> new TransactionTypeService(racing).delete("03", true), "BR-TT-052", Kind.NOT_FOUND);
+        assertThatThrownBy(() -> new TransactionTypeService(racing).delete("03", true))
+                .hasMessage("Delete failed with message: SQLCODE:+100");
     }
 
     @Test

@@ -2,6 +2,7 @@ package com.carddemo.transactiontype.api;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -96,5 +97,11 @@ class TransactionTypeControllerTest {
                         .content("A09NINE\n*comment\nX00BAD\n"))
                 .andExpect(status().isOk()).andExpect(jsonPath("$.returnCode").value(4))
                 .andExpect(jsonPath("$.inserted").value(1));
+    }
+
+    @Test
+    @DisplayName("BR-TT-018 one action per request: only PUT (U) and DELETE (D) act on a row")
+    void br_tt_018_singleActionPerRequest() throws Exception {
+        mvc.perform(patch("/api/v1/transaction-types/01")).andExpect(status().isMethodNotAllowed());
     }
 }

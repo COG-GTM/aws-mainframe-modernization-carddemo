@@ -26,7 +26,7 @@ public class TransactionTypeService {
         this.pageSize = DEFAULT_PAGE_SIZE;
     }
 
-    /** BR-TT-010..017. */
+    /** BR-TT-010..019. */
     public TransactionTypePage list(String typeCodeFilter, String descriptionFilter, String startKey,
                                     PageDirection direction) {
         ListFilter filter = new ListFilter(
@@ -47,8 +47,11 @@ public class TransactionTypeService {
             return forwardPage(rows.get(0).code(), filter, total, null);
         }
         TransactionTypePage page = forwardPage(dir == PageDirection.FIRST ? "" : key, filter, total, null);
-        if (dir == PageDirection.NEXT && !page.hasNextPage() && page.message() == null) {
-            return withMessage(page, "No more pages to display");
+        if (dir == PageDirection.NEXT && !page.hasNextPage() && total > 0) {
+            // BR-TT-019: PF8 that lands on the final page; BR-TT-015: PF8 past the last page.
+            return withMessage(page, page.items().isEmpty()
+                    ? "No more pages to display"
+                    : "No more pages for these search conditions");
         }
         return page;
     }
@@ -142,7 +145,7 @@ public class TransactionTypeService {
         }
         if (deleted == 0) {
             throw new LegacyRuleException("BR-TT-052", NOT_FOUND,
-                    "Record not found. Deleted by others ? ", SqlCodes.NOT_FOUND);
+                    "Delete failed with message: SQLCODE:+100", SqlCodes.NOT_FOUND);
         }
         return new MaintenanceResult(current, "Delete successful.", false);
     }

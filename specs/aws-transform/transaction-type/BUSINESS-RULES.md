@@ -17,10 +17,11 @@
 | BR-TT-012 | Description filter is a contains match `LIKE '%' || TRIM(x) || '%'` | COTRTLIC 1230-EDIT-DESC |
 | BR-TT-013 | Forward page: `TR_TYPE >= start`; the 8th row decides whether there is a next page and is the next start key | COTRTLIC 8000-READ-FORWARD |
 | BR-TT-014 | Backward page: `TR_TYPE < first`, read descending, shown ascending | COTRTLIC 8100-READ-BACKWARDS |
-| BR-TT-015 | Paging past either end gives `No previous pages to display` / `No more pages to display` | COTRTLIC 0000-MAIN PF7/PF8 |
+| BR-TT-015 | PF7 on page 1 / PF8 when the last page is already shown gives `No previous pages to display` / `No more pages to display` | COTRTLIC 0000-MAIN PF7/PF8 |
 | BR-TT-016 | No matching rows gives `No records found for this search condition.` | COTRTLIC 9100-CHECK-FILTERS |
 | BR-TT-017 | Filters combine with AND; a filter change restarts at page 1 | COTRTLIC cursor WHERE, 1200 |
 | BR-TT-018 | Only one action per interaction; only U/D are valid actions | COTRTLIC 1210-EDIT-ARRAY |
+| BR-TT-019 | PF8 that reaches the final page (8th-row fetch = +100) gives `No more pages for these search conditions` *(added by gap review)* | COTRTLIC 8000-READ-FORWARD WS-MESG-NO-MORE-RECORDS |
 | BR-TT-020 | Lookup of a missing key gives `No record found for this key in database` | COTRTUPC 9100-GET-TRANSACTION-TYPE |
 | BR-TT-030 | Add inserts a new row; insert failure (e.g. -803 duplicate) is reported with SQLCODE | COTRTUPC 9700-INSERT-RECORD |
 | BR-TT-040 | Update hitting +100 gives `Record not found. Deleted by others ? ` | COTRTLIC 9200-UPDATE-RECORD |

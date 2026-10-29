@@ -14,7 +14,7 @@ Admin list of transaction types from `CARDDEMO.TRANSACTION_TYPE`. Shows 7 rows p
 2. Edit filters (BR-TT-011, BR-TT-012). Changing a filter resets paging to the first page (BR-TT-017).
 3. Edit selections. Only one action is allowed at a time (`Please select only 1 action`). Anything other than U, D or blank gives `Action code selected is invalid` (BR-TT-018).
 4. Read forward with cursor `C-TR-TYPE-FORWARD` (`TR_TYPE >= :start`, filters, ORDER BY TR_TYPE). It fills 7 rows and fetches an 8th to decide whether another page exists. The 8th key becomes the next start key (BR-TT-010, BR-TT-013).
-5. PF7 uses cursor `C-TR-TYPE-BACKWARD` (`TR_TYPE < :first`, ORDER BY TR_TYPE DESC) (BR-TT-014). The first-page and last-page boundaries show messages (BR-TT-015). If nothing matches: `No records found for this search condition.` (BR-TT-016).
+5. PF7 uses cursor `C-TR-TYPE-BACKWARD` (`TR_TYPE < :first`, ORDER BY TR_TYPE DESC) (BR-TT-014). The first-page and last-page boundaries show messages (BR-TT-015). A PF8 that lands on the final page shows `No more pages for these search conditions` (BR-TT-019, added by gap review). If nothing matches: `No records found for this search condition.` (BR-TT-016).
 6. `U` + F10: the description is edited (BR-TT-005..008), then UPDATE runs. +100 gives `Record not found. Deleted by others ? ` (BR-TT-040), -911 gives `Deadlock. Someone else updating ?` (BR-TT-041), any other negative gives `Update failed with` + SQLCODE (BR-TT-060). Success ends with SYNCPOINT.
 7. `D` highlights the row with `Delete HIGHLIGHTED row ? Press F10 to confirm`. F10 runs the DELETE (BR-TT-050). -532 gives `Please delete associated child records first:` (BR-TT-051). Any other non-zero SQLCODE gives `Delete failed with message:` + SQLCODE (BR-TT-052, BR-TT-060).
 
@@ -27,4 +27,4 @@ Admin list of transaction types from `CARDDEMO.TRANSACTION_TYPE`. Shows 7 rows p
 | PF7 / PF8 | page backward / forward |
 | PF10 | confirm the pending U or D |
 
-Rules: BR-TT-005..008, 010..018, 040, 041, 050..052, 060, 061.
+Rules: BR-TT-005..008, 010..019, 040, 041, 050..052, 060, 061.
