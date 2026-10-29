@@ -28,7 +28,7 @@ public class BatchMaintenanceService {
         out.add("OPEN FILE OK");
         for (String raw : records) {
             String rec = pad(raw);
-            out.add("PROCESSING   " + rec);
+            out.add(("PROCESSING   " + rec).stripTrailing());
             char action = rec.charAt(0);
             String code = rec.substring(1, 3);
             String description = rec.substring(3, RECORD_LENGTH).stripTrailing();
