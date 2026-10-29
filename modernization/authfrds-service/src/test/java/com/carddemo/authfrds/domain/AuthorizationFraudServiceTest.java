@@ -8,9 +8,16 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneOffset;
+import java.util.List;
+import java.util.concurrent.Callable;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.Executors;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.transaction.support.SimpleTransactionStatus;
+import org.springframework.transaction.support.TransactionCallback;
+import org.springframework.transaction.support.TransactionOperations;
 
 class AuthorizationFraudServiceTest {
 
@@ -99,5 +106,39 @@ class AuthorizationFraudServiceTest {
         assertThat(service.next(1L, all.get(0).key()).key()).isEqualTo(all.get(1).key());
         assertThatThrownBy(() -> service.next(1L, all.get(all.size() - 1).key()))
                 .hasMessage("Already at the last Authorization...");
+    }
+
+    @Test
+    @DisplayName("BR-AF-024 Db2 commit fails after the IMS REPL -> IMS detail restored (both stores roll back)")
+    void commitFailureRestoresIms() {
+        TransactionOperations failingCommit = new TransactionOperations() {
+            @Override
+            public <T> T execute(TransactionCallback<T> action) {
+                action.doInTransaction(new SimpleTransactionStatus());
+                throw new IllegalStateException("commit failed");
+            }
+        };
+        var svc = new AuthorizationFraudService(ims, new FraudRecordService(db2,
+                Clock.fixed(Instant.parse("2026-10-29T12:00:00Z"), ZoneOffset.UTC)), failingCommit);
+        String before = ims.findDetail(1L, first).orElseThrow().authFraud();
+        assertThatThrownBy(() -> svc.toggleFraud(1L, null, first)).hasMessage("commit failed");
+        assertThat(ims.findDetail(1L, first).orElseThrow().authFraud()).isEqualTo(before);
+    }
+
+    @Test
+    @DisplayName("BR-AF-020 concurrent PF5 on one authorization is serialised: 2 toggles -> F then R")
+    void concurrentToggles() throws Exception {
+        var pool = Executors.newFixedThreadPool(2);
+        var start = new CountDownLatch(1);
+        Callable<String> pf5 = () -> {
+            start.await();
+            return service.toggleFraud(1L, null, first).authorization().authFraud();
+        };
+        var a = pool.submit(pf5);
+        var b = pool.submit(pf5);
+        start.countDown();
+        assertThat(List.of(a.get(), b.get())).containsExactlyInAnyOrder("F", "R");
+        assertThat(ims.findDetail(1L, first).orElseThrow().authFraud()).isEqualTo("R");
+        pool.shutdown();
     }
 }

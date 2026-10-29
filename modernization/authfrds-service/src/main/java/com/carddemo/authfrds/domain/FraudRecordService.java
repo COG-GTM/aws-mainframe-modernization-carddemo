@@ -50,6 +50,10 @@ public class FraudRecordService {
 
     private FraudResult ok(String op, String msg, FraudRow row, String rptDate) {
         FraudRecord stored = store.findByHostTs(row.cardNum(), row.authTsHost()).orElse(null);
+        // BR-AF-003/010: report the date Db2 actually wrote (CURRENT DATE), so IMS and AUTHFRDS agree
+        if (stored != null && stored.fraudRptDate() != null) {
+            rptDate = AuthFraudRules.fraudRptDate(stored.fraudRptDate());
+        }
         return new FraudResult("S", op, msg, SqlCodes.OK, "00000", row.authTsHost().trim(), rptDate, stored);
     }
 }

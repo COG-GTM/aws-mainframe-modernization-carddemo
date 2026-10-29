@@ -3,8 +3,11 @@ package com.carddemo.authfrds.domain;
 import com.carddemo.authfrds.domain.ims.ImsStatusException;
 import com.carddemo.authfrds.domain.ims.PendingAuthorizationStore;
 import com.carddemo.authfrds.domain.ims.PendingAuthorizationSummary;
+import java.util.concurrent.ConcurrentHashMap;
+import org.springframework.beans.factory.ObjectProvider;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionOperations;
 
 /** COPAUS1C paths that reach AUTHFRDS: ENTER (view), PF5 (MARK-AUTH-FRAUD) and PF8 (next authorization). */
 @Service
@@ -15,10 +18,24 @@ public class AuthorizationFraudService {
 
     private final PendingAuthorizationStore ims;
     private final FraudRecordService fraudRecords;
+    private final TransactionOperations tx;
+    private final ConcurrentHashMap<String, Object> keyLocks = new ConcurrentHashMap<>();
 
     public AuthorizationFraudService(PendingAuthorizationStore ims, FraudRecordService fraudRecords) {
+        this(ims, fraudRecords, TransactionOperations.withoutTransaction());
+    }
+
+    @Autowired
+    public AuthorizationFraudService(PendingAuthorizationStore ims, FraudRecordService fraudRecords,
+                                     ObjectProvider<TransactionOperations> tx) {
+        this(ims, fraudRecords, tx.getIfAvailable(TransactionOperations::withoutTransaction));
+    }
+
+    public AuthorizationFraudService(PendingAuthorizationStore ims, FraudRecordService fraudRecords,
+                                     TransactionOperations tx) {
         this.ims = ims;
         this.fraudRecords = fraudRecords;
+        this.tx = tx;
     }
 
     /** BR-AF-025/026: PROCESS-ENTER-KEY -> READ-AUTH-RECORD (GU summary, GNP detail by key). */
@@ -39,9 +56,24 @@ public class AuthorizationFraudService {
     /**
      * BR-AF-020..024: PF5 MARK-AUTH-FRAUD. One unit of work: the COPAUS2C Db2 write and the IMS REPL commit
      * together (CICS SYNCPOINT) or roll back together (SYNCPOINT ROLLBACK) - any exception rolls back Db2 here.
+     * PF5 on one authorization is serialised (IMS held the segment for the unit of work); if the Db2 commit
+     * fails after the IMS REPL, the IMS stub detail is restored so both stores roll back.
      */
-    @Transactional
     public ToggleResult toggleFraud(long acctId, Long custId, AuthKey key) {
+        synchronized (keyLocks.computeIfAbsent(acctId + "/" + key, k -> new Object())) {
+            AuthorizationDetail[] replaced = new AuthorizationDetail[1];
+            try {
+                return tx.execute(status -> toggleInUnitOfWork(acctId, custId, key, replaced));
+            } catch (RuntimeException e) {
+                if (replaced[0] != null) {
+                    ims.replaceDetail(acctId, replaced[0]);
+                }
+                throw e;
+            }
+        }
+    }
+
+    private ToggleResult toggleInUnitOfWork(long acctId, Long custId, AuthKey key, AuthorizationDetail[] replaced) {
         PendingAuthorizationSummary sum = summary(acctId);
         AuthorizationDetail current = detail(acctId, key);
         // BR-AF-020: PA-FRAUD-CONFIRMED -> remove ('R'), otherwise report ('F')
@@ -59,6 +91,7 @@ public class AuthorizationFraudService {
         AuthorizationDetail updated = current.withFraud(action.code(), result.fraudRptDate());
         try {
             ims.replaceDetail(acctId, updated);
+            replaced[0] = current;
         } catch (ImsStatusException e) {
             // BR-AF-024: REPL failed -> ROLL-BACK (undoes the AUTHFRDS write) + ' System error while FRAUD Tagging'
             throw new LegacyRuleException("BR-AF-024", LegacyRuleException.Kind.IMS_ERROR,
