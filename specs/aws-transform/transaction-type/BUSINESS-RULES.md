@@ -29,7 +29,7 @@
 | BR-TT-042 | Save from the maintenance screen = UPDATE, falling back to INSERT on +100 | COTRTUPC 9600-WRITE-PROCESSING |
 | BR-TT-050 | Delete needs an explicit second confirmation | COTRTUPC PF4 x2, COTRTLIC D + F10 |
 | BR-TT-051 | Delete blocked by child categories (-532) gives `Please delete associated child records first:` | COTRTLIC 9300, COTRTUPC 9800 |
-| BR-TT-052 | Delete of a row that is already gone is reported as a failure | COTRTLIC 9300 WHEN OTHER |
+| BR-TT-052 | Delete of a row that is already gone (+100) is reported as a generic failure `Delete failed with message:` + SQLCODE *(wording corrected by gap review)* | COTRTLIC 9300 WHEN OTHER |
 | BR-TT-060 | Any other negative SQLCODE gives a generic Db2 error message carrying the SQLCODE | 9999-FORMAT-DB2-MESSAGE |
 | BR-TT-061 | Db2 connectivity is checked before serving (priming query) | COTRTLIC 9998-PRIMING-QUERY |
 | BR-TT-070 | Batch input record = action X(1) + code X(2) + description X(50) | COBTUPDT FD |
