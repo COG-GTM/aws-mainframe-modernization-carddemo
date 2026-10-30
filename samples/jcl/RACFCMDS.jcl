@@ -23,6 +23,24 @@
 //SYSTSIN  DD *                                                                 
  RALT GCICSTRN CARD ADDMEM(CT02)                                                
 /*                                                                              
+//*                                                                             
+//* Restrict the customer account and card transactions to                      
+//* CardDemo users so they cannot be started from an unsecured                  
+//* terminal (CAVW shows customer SSN, DOB and FICO score).                     
+//TRANSEC  EXEC PGM=IKJEFT01,REGION=6M                                          
+//SYSTSPRT DD SYSOUT=*                                                          
+//SYSTSIN  DD *                                                                 
+ RDEFINE TCICSTRN CAVW UACC(NONE)                                               
+ PERMIT CAVW CLASS(TCICSTRN) ID(M2APPDEV) ACCESS(READ)                          
+ RDEFINE TCICSTRN CAUP UACC(NONE)                                               
+ PERMIT CAUP CLASS(TCICSTRN) ID(M2APPDEV) ACCESS(READ)                          
+ RDEFINE TCICSTRN CCLI UACC(NONE)                                               
+ PERMIT CCLI CLASS(TCICSTRN) ID(M2APPDEV) ACCESS(READ)                          
+ RDEFINE TCICSTRN CCDL UACC(NONE)                                               
+ PERMIT CCDL CLASS(TCICSTRN) ID(M2APPDEV) ACCESS(READ)                          
+ RDEFINE TCICSTRN CCUP UACC(NONE)                                               
+ PERMIT CCUP CLASS(TCICSTRN) ID(M2APPDEV) ACCESS(READ)                          
+ SETROPTS RACLIST(TCICSTRN) REFRESH                                             
 //                                                                              
 //* Add user to a group.                                                        
 //SYSTSIN  DD *                                                                 

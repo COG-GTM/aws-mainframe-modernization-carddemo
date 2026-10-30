@@ -554,6 +554,8 @@
                                                    VALUE 'COCRDLI'.
           05 LIT-CCLISTMAP                         PIC X(7)
                                                    VALUE 'CCRDSLA'.
+          05 LIT-SIGNONPGM                         PIC X(8)
+                                                   VALUE 'COSGN00C'.
           05 LIT-MENUPGM                           PIC X(8)
                                                    VALUE 'COMEN01C'.
           05 LIT-MENUTRANID                        PIC X(4)
@@ -875,18 +877,33 @@
       *****************************************************************
            SET WS-RETURN-MSG-OFF  TO TRUE
       *****************************************************************
-      * Store passed data if  any                *
+      * Only a signed-on CardDemo session may use this transaction.
+      * No commarea (transaction typed at a terminal), a short one or
+      * one without a user id goes to the sign-on program instead of
+      * being treated as a fresh session.
       *****************************************************************
-           IF EIBCALEN IS EQUAL TO 0
-               OR (CDEMO-FROM-PROGRAM = LIT-MENUPGM
-               AND NOT CDEMO-PGM-REENTER)
-              INITIALIZE CARDDEMO-COMMAREA
-                         WS-THIS-PROGCOMMAREA
+           IF EIBCALEN < LENGTH OF CARDDEMO-COMMAREA
+              PERFORM SEND-TO-SIGNON
+                 THRU SEND-TO-SIGNON-EXIT
+           END-IF
+
+           MOVE DFHCOMMAREA (1:LENGTH OF CARDDEMO-COMMAREA)  TO
+                             CARDDEMO-COMMAREA
+
+           IF CDEMO-USER-ID EQUAL SPACES OR LOW-VALUES
+              PERFORM SEND-TO-SIGNON
+                 THRU SEND-TO-SIGNON-EXIT
+           END-IF
+
+      *****************************************************************
+      * Coming from the menu: keep the session, reset local state.
+      *****************************************************************
+           IF CDEMO-FROM-PROGRAM = LIT-MENUPGM
+              AND NOT CDEMO-PGM-REENTER
+              INITIALIZE WS-THIS-PROGCOMMAREA
               SET CDEMO-PGM-ENTER TO TRUE
               SET ACUP-DETAILS-NOT-FETCHED TO TRUE
            ELSE
-              MOVE DFHCOMMAREA (1:LENGTH OF CARDDEMO-COMMAREA)  TO
-                                CARDDEMO-COMMAREA
               MOVE DFHCOMMAREA(LENGTH OF CARDDEMO-COMMAREA + 1:
                                LENGTH OF WS-THIS-PROGCOMMAREA ) TO
                                 WS-THIS-PROGCOMMAREA
@@ -4199,6 +4216,19 @@
        COPY 'CSSTRPFY'
            .
 
+
+      *****************************************************************
+      * No CardDemo session: transfer to sign-on without a commarea so
+      * COSGN00C starts with a fresh sign-on screen.
+      *****************************************************************
+       SEND-TO-SIGNON.
+           EXEC CICS XCTL
+                PROGRAM (LIT-SIGNONPGM)
+           END-EXEC
+           .
+       SEND-TO-SIGNON-EXIT.
+           EXIT
+           .
 
        ABEND-ROUTINE.
 
