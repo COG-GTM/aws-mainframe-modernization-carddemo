@@ -216,6 +216,8 @@
 021600                                             VALUE 'COADM1A'.     02160000
 021700    05 LIT-LISTTPGM                           PIC X(8)            02170000
 021800                                             VALUE 'COTRTLIC'.    02180000
+021810    05 LIT-SIGNONPGM                          PIC X(8)            02181000
+021820                                             VALUE 'COSGN00C'.    02182000
 021900    05 LIT-LISTTTRANID                        PIC X(4)            02190000
 022000                                             VALUE 'CTLI'.        02200000
 022100    05 LIT-LISTTMAPSET                        PIC X(7)            02210000
@@ -363,22 +365,35 @@
 036300***************************************************************** 03630000
 036400* Store passed data if  any                *                      03640000
 036500***************************************************************** 03650000
-036600     IF EIBCALEN IS EQUAL TO 0                                    03660000
-036700         OR (CDEMO-FROM-PROGRAM = LIT-ADMINPGM                    03670000
-036800         AND NOT CDEMO-PGM-REENTER)                               03680000
-036900         OR (CDEMO-FROM-PROGRAM = LIT-LISTTPGM                    03690000
-037000         AND NOT CDEMO-PGM-REENTER)                               03700000
-037100        INITIALIZE CARDDEMO-COMMAREA                              03710000
-037200                   WS-THIS-PROGCOMMAREA                           03720000
-037300        SET CDEMO-PGM-ENTER TO TRUE                               03730000
-037400        SET TTUP-DETAILS-NOT-FETCHED TO TRUE                      03740000
-037500     ELSE                                                         03750000
-037600        MOVE DFHCOMMAREA (1:LENGTH OF CARDDEMO-COMMAREA)  TO      03760000
-037700                          CARDDEMO-COMMAREA                       03770000
-037800        MOVE DFHCOMMAREA(LENGTH OF CARDDEMO-COMMAREA + 1:         03780000
-037900                         LENGTH OF WS-THIS-PROGCOMMAREA ) TO      03790000
-038000                          WS-THIS-PROGCOMMAREA                    03800000
-038100     END-IF                                                       03810000
+036601     IF EIBCALEN < LENGTH OF CARDDEMO-COMMAREA                    03660100
+036602        PERFORM 0050-RETURN-TO-SIGNON                             03660200
+036603           THRU 0050-RETURN-TO-SIGNON-EXIT                        03660300
+036604     END-IF                                                       03660400
+036605                                                                  03660500
+036606     MOVE DFHCOMMAREA (1:LENGTH OF CARDDEMO-COMMAREA)  TO         03660600
+036607                       CARDDEMO-COMMAREA                          03660700
+036608***************************************************************** 03660800
+036609* Only a signed-on administrator may maintain transaction types * 03660900
+036610* (role is set by COSGN00C alone)                               * 03661000
+036611***************************************************************** 03661100
+036612     IF CDEMO-USER-ID EQUAL SPACES OR LOW-VALUES                  03661200
+036613     OR NOT CDEMO-USRTYP-ADMIN                                    03661300
+036614        PERFORM 0050-RETURN-TO-SIGNON                             03661400
+036615           THRU 0050-RETURN-TO-SIGNON-EXIT                        03661500
+036616     END-IF                                                       03661600
+036617                                                                  03661700
+036618     IF (CDEMO-FROM-PROGRAM = LIT-ADMINPGM                        03661800
+036619         AND NOT CDEMO-PGM-REENTER)                               03661900
+036620         OR (CDEMO-FROM-PROGRAM = LIT-LISTTPGM                    03662000
+036621         AND NOT CDEMO-PGM-REENTER)                               03662100
+036622        INITIALIZE WS-THIS-PROGCOMMAREA                           03662200
+036623        SET CDEMO-PGM-ENTER TO TRUE                               03662300
+036624        SET TTUP-DETAILS-NOT-FETCHED TO TRUE                      03662400
+036625     ELSE                                                         03662500
+036626        MOVE DFHCOMMAREA(LENGTH OF CARDDEMO-COMMAREA + 1:         03662600
+036627                         LENGTH OF WS-THIS-PROGCOMMAREA ) TO      03662700
+036628                          WS-THIS-PROGCOMMAREA                    03662800
+036629     END-IF                                                       03662900
 038200***************************************************************** 03820000
 038300* Store the Mapped PF Key                                         03830000
 038400* Remap PFkeys as needed.                                         03840000
@@ -445,7 +460,6 @@
 044500             MOVE LIT-THISTRANID     TO CDEMO-FROM-TRANID         04450000
 044600             MOVE LIT-THISPGM        TO CDEMO-FROM-PROGRAM        04460000
 044700                                                                  04470000
-044800             SET  CDEMO-USRTYP-ADMIN TO TRUE                      04480000
 044900             SET  CDEMO-PGM-ENTER    TO TRUE                      04490000
 045000             MOVE LIT-THISMAPSET     TO CDEMO-LAST-MAPSET         04500000
 045100             MOVE LIT-THISMAP        TO CDEMO-LAST-MAP            04510000
@@ -573,6 +587,15 @@
 057300 0000-MAIN-EXIT.                                                  05730000
 057400     EXIT                                                         05740000
 057500     .                                                            05750000
+057501                                                                  05750100
+057502 0050-RETURN-TO-SIGNON.                                           05750200
+057503     EXEC CICS XCTL                                               05750300
+057504          PROGRAM (LIT-SIGNONPGM)                                 05750400
+057505     END-EXEC                                                     05750500
+057506     .                                                            05750600
+057507 0050-RETURN-TO-SIGNON-EXIT.                                      05750700
+057508     EXIT                                                         05750800
+057509     .                                                            05750900
 057600                                                                  05760000
 057700 0001-CHECK-PFKEYS.                                               05770000
 057800                                                                  05780000
