@@ -93,7 +93,9 @@
            05  EXPORT-CARD-DATA REDEFINES EXPORT-RECORD-DATA.
                10  EXP-CARD-NUM                    PIC X(16).
                10  EXP-CARD-ACCT-ID                PIC 9(11) COMP.
-               10  EXP-CARD-CVV-CD                 PIC 9(03) COMP.
+      *        Former CVV slot: card verification codes must not be
+      *        stored or exported, so these 2 bytes are always blank.
+               10  FILLER                          PIC X(02).
                10  EXP-CARD-EMBOSSED-NAME          PIC X(50).
                10  EXP-CARD-EXPIRAION-DATE         PIC X(10).
                10  EXP-CARD-ACTIVE-STATUS          PIC X(01).
