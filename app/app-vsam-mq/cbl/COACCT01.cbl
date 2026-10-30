@@ -108,8 +108,11 @@
 011600 01 ERROR-MESSAGE                   PIC X(1000).                  01230000
 011700 01 REQUEST-MSG-COPY.                                             01240002
 011700    10 WS-FUNC                      PIC X(04) VALUE SPACES.       01241000
-011700    10 WS-KEY                       PIC 9(11) VALUE ZEROES.       01242000
+          10 WS-KEY-X                     PIC X(11) VALUE SPACES.
+          10 WS-KEY REDEFINES WS-KEY-X    PIC 9(11).
 011700    10 WS-FILLER                    PIC X(985) VALUE SPACES.      01243000
+       01 WS-REQUEST-MIN-LENGTH          PIC S9(09) BINARY VALUE 15.
+       01 WS-MAX-BACKOUT-COUNT           PIC S9(09) BINARY VALUE 3.
 011800                                                                  01250000
        01 WS-VARIABLES.                                                 01251000
           05 LIT-ACCTFILENAME                      PIC X(8)             01251100
@@ -371,7 +374,11 @@
 034100        MOVE MQ-QUEUE-REPLY    TO SAVE-REPLY2Q                    03480000
 034200        MOVE MQ-MSG-ID         TO SAVE-MSGID                      03490000
 034300        MOVE REQUEST-MESSAGE   TO REQUEST-MSG-COPY                03500000
-034400        PERFORM 4000-PROCESS-REQUEST-REPLY                        03510010
+              IF MQMD-BACKOUTCOUNT >= WS-MAX-BACKOUT-COUNT
+                 PERFORM 4200-REJECT-POISON-MSG
+              ELSE
+                 PERFORM 4000-PROCESS-REQUEST-REPLY
+              END-IF
 034500        ADD  1                 TO MQ-MSG-COUNT                    03520000
 034600     ELSE                                                         03530000
 034700        IF MQ-REASON-CODE  =  MQRC-NO-MSG-AVAILABLE               03540011
@@ -390,6 +397,12 @@
 036000 4000-PROCESS-REQUEST-REPLY.                                      03670010
 036100     MOVE SPACES TO REPLY-MESSAGE                                 03680000
 036100     INITIALIZE WS-DATE-TIME REPLACING NUMERIC BY ZEROES          03690000
+           IF MQ-DATA-LENGTH < WS-REQUEST-MIN-LENGTH
+              OR WS-KEY-X IS NOT NUMERIC
+              MOVE 'INVALID REQUEST PARAMETERS ACCT ID NOT NUMERIC'
+                                           TO REPLY-MESSAGE
+              PERFORM 4100-PUT-REPLY
+           ELSE
 036100     IF WS-FUNC = 'INQA' AND WS-KEY > ZEROES                      03700000
               MOVE WS-KEY       TO  WS-CARD-RID-ACCT-ID                 03700106
                                                                         03700206
@@ -457,6 +470,7 @@
 036100     END-IF                                                       03706705
 036100                                                                  03707005
 036100                                                                  03780000
+           END-IF
 036800     .                                                            03860000
 036900                                                                  03870000
 037000 4100-PUT-REPLY.                                                  03880010
@@ -498,6 +512,44 @@
 040800              PERFORM 8000-TERMINATION                            04260007
 040900     END-EVALUATE.                                                04270000
 041000                                                                  04280000
+       4200-REJECT-POISON-MSG.
+      * A REQUEST ALREADY BACKED OUT WS-MAX-BACKOUT-COUNT TIMES IS MOVED
+      * TO THE ERROR QUEUE SO IT CANNOT BLOCK THE REQUEST QUEUE.
+
+           MOVE MQ-DATA-LENGTH               TO MQ-BUFFER-LENGTH
+           IF MQ-BUFFER-LENGTH > LENGTH OF MQ-BUFFER
+              MOVE LENGTH OF MQ-BUFFER       TO MQ-BUFFER-LENGTH
+           END-IF
+           MOVE REQUEST-MESSAGE              TO MQ-BUFFER
+
+           COMPUTE MQPMO-OPTIONS = MQPMO-SYNCPOINT
+                                 + MQPMO-DEFAULT-CONTEXT
+                                 + MQPMO-FAIL-IF-QUIESCING
+
+           CALL 'MQPUT'  USING MQ-HCONN
+                               ERROR-QUEUE-HANDLE
+                               MQ-MESSAGE-DESCRIPTOR
+                               MQ-PUT-MESSAGE-OPTIONS
+                               MQ-BUFFER-LENGTH
+                               MQ-BUFFER
+                               MQ-CONDITION-CODE
+                               MQ-REASON-CODE
+
+           MOVE MQ-CONDITION-CODE            TO MQ-APPL-CONDITION-CODE
+           MOVE MQ-REASON-CODE               TO MQ-APPL-REASON-CODE
+           IF MQ-CONDITION-CODE NOT = MQCC-OK
+              MOVE ERROR-QUEUE-NAME          TO MQ-APPL-QUEUE-NAME
+              MOVE 'POISON MQPUT ERR'        TO MQ-APPL-RETURN-MESSAGE
+              DISPLAY MQ-ERR-DISPLAY
+      * ROLL BACK SO THE REQUEST GOES BACK ON THE QUEUE INSTEAD OF BEING
+      * LOST WHEN THE TASK ENDS NORMALLY.
+              EXEC CICS
+                   SYNCPOINT ROLLBACK
+              END-EXEC
+              PERFORM 8000-TERMINATION
+           END-IF
+           .
+
 041100 9000-ERROR.                                                      04290007
 041200* PUT WILL PUT A MESSAGE ON THE QUEUE AND CONVERT IT TO A STRING  04300000
 041300                                                                  04310000

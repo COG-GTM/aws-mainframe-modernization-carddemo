@@ -53,6 +53,14 @@ This extension provides the following capabilities:
      DEFINE QLOCAL('CARDDEMO.REQUEST.QUEUE') REPLACE
      DEFINE QLOCAL('CARDDEMO.RESPONSE.QUEUE') REPLACE
      ```
+   - Give the CDRA request queue a backout threshold and backout queue so a
+     message that keeps failing cannot block the queue (see
+     [Poison Message Handling](#poison-message-handling)):
+     ```
+     DEFINE QLOCAL('CARD.DEMO.ERROR') REPLACE
+     ALTER QLOCAL('CARDDEMO.REQUEST.QUEUE') BOTHRESH(3) +
+           BOQNAME('CARD.DEMO.ERROR') HARDENBO
+     ```
 
 2. **Compile Programs**
    - Compile the COBOL programs with MQ support
@@ -92,6 +100,11 @@ The CDRA transaction demonstrates how to retrieve account information via MQ:
 3. A listener program retrieves the account details from VSAM and sends them to the response queue
 4. The CDRA transaction retrieves and displays the account information
 
+COACCT01 expects bytes 1-4 of the request to be the function (`INQA`) and bytes
+5-15 to be an 11-digit account number. A request shorter than 15 bytes, or one
+whose account number is not all digits, gets the reply
+`INVALID REQUEST PARAMETERS ACCT ID NOT NUMERIC` and is removed from the queue.
+
 ## Technical Details
 
 ### Message Formats
@@ -126,6 +139,16 @@ The CDRA transaction demonstrates how to retrieve account information via MQ:
    05 RESPONSE-ID         PIC X(8).
    05 ACCOUNT-DATA        PIC X(300).
 ```
+
+### Poison Message Handling
+
+COACCT01 reads requests under syncpoint, so if the task abends the request goes
+back on the queue with its backout count increased. CICS does not move such a
+message to the backout queue itself, so COACCT01 checks `MQMD-BACKOUTCOUNT`:
+once it reaches `WS-MAX-BACKOUT-COUNT` (3) the request is put on
+`CARD.DEMO.ERROR` unprocessed and the next request is read. Keep
+`WS-MAX-BACKOUT-COUNT` equal to the queue's `BOTHRESH`, and set `HARDENBO` so the
+count survives a queue manager restart.
 
 ### Integration Patterns
 
