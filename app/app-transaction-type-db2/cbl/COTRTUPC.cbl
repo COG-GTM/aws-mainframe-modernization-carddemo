@@ -290,6 +290,10 @@
 029000******************************************************************02900000
 029100*Application Commmarea Copybook                                   02910000
 029200 COPY COCOM01Y.                                                   02920000
+029201                                                                  02920100
+029202 01 WS-CALLER-SESSION.                                            02920200
+029203    05 WS-CALLER-USER-ID              PIC X(08).                  02920300
+029204    05 WS-CALLER-USER-TYPE            PIC X(01).                  02920400
 029300                                                                  02930000
 029400 01 WS-THIS-PROGCOMMAREA.                                         02940000
 029500    05 TTUP-UPDATE-SCREEN-DATA.                                   02950000
@@ -373,8 +377,14 @@
 036800         AND NOT CDEMO-PGM-REENTER)                               03680000
 036900         OR (CDEMO-FROM-PROGRAM = LIT-LISTTPGM                    03690000
 037000         AND NOT CDEMO-PGM-REENTER)                               03700000
+037001        MOVE DFHCOMMAREA (1:LENGTH OF CARDDEMO-COMMAREA)  TO      03700100
+037002                          CARDDEMO-COMMAREA                       03700200
+037003        MOVE CDEMO-USER-ID     TO WS-CALLER-USER-ID               03700300
+037004        MOVE CDEMO-USER-TYPE   TO WS-CALLER-USER-TYPE             03700400
 037100        INITIALIZE CARDDEMO-COMMAREA                              03710000
 037200                   WS-THIS-PROGCOMMAREA                           03720000
+037201        MOVE WS-CALLER-USER-ID   TO CDEMO-USER-ID                 03720100
+037202        MOVE WS-CALLER-USER-TYPE TO CDEMO-USER-TYPE               03720200
 037300        SET CDEMO-PGM-ENTER TO TRUE                               03730000
 037400        SET TTUP-DETAILS-NOT-FETCHED TO TRUE                      03740000
 037500     ELSE                                                         03750000
