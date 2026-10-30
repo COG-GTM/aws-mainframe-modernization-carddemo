@@ -20,6 +20,8 @@
 //* Process and load daily transaction file and create transaction              
 //* category balance and update transaction master vsam                         
 //* *******************************************************************         
+//* Optional PARM='YYYY-MM-DD' sets the processing date used for the            
+//* account expiry check (default: system date).                                
 //STEP15 EXEC PGM=CBTRN02C                                                      
 //STEPLIB  DD DISP=SHR,                                                         
 //            DSN=AWS.M2.CARDDEMO.LOADLIB                                       
@@ -31,6 +33,8 @@
 //         DSN=AWS.M2.CARDDEMO.DALYTRAN.PS                                      
 //XREFFILE DD DISP=SHR,                                                         
 //         DSN=AWS.M2.CARDDEMO.CARDXREF.VSAM.KSDS                               
+//CARDFILE DD DISP=SHR,                                                         
+//         DSN=AWS.M2.CARDDEMO.CARDDATA.VSAM.KSDS                               
 //DALYREJS DD DISP=(NEW,CATLG,DELETE),                                          
 //         UNIT=SYSDA,                                                          
 //         DCB=(RECFM=F,LRECL=430,BLKSIZE=0),                                   

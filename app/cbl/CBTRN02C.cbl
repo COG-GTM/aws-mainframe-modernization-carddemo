@@ -43,6 +43,12 @@
                   RECORD KEY   IS FD-XREF-CARD-NUM                              
                   FILE STATUS  IS XREFFILE-STATUS.                              
                                                                                 
+           SELECT CARD-FILE ASSIGN TO   CARDFILE                                
+                  ORGANIZATION IS INDEXED                                       
+                  ACCESS MODE  IS RANDOM                                        
+                  RECORD KEY   IS FD-CARD-NUM                                   
+                  FILE STATUS  IS CARDFILE-STATUS.                              
+                                                                                
            SELECT DALYREJS-FILE ASSIGN TO DALYREJS                              
                   ORGANIZATION IS SEQUENTIAL                                    
                   ACCESS MODE  IS SEQUENTIAL                                    
@@ -77,6 +83,11 @@
        01  FD-XREFFILE-REC.                                                     
            05 FD-XREF-CARD-NUM                  PIC X(16).                      
            05 FD-XREF-DATA                      PIC X(34).                      
+                                                                                
+       FD  CARD-FILE.                                                           
+       01  FD-CARDFILE-REC.                                                     
+           05 FD-CARD-NUM                       PIC X(16).                      
+           05 FD-CARD-DATA                      PIC X(134).                     
                                                                                 
        FD  DALYREJS-FILE.                                                       
        01  FD-REJS-RECORD.                                                      
@@ -113,6 +124,11 @@
        01  XREFFILE-STATUS.                                                     
            05  XREFFILE-STAT1      PIC X.                                       
            05  XREFFILE-STAT2      PIC X.                                       
+                                                                                
+       COPY CVACT02Y.                                                           
+       01  CARDFILE-STATUS.                                                     
+           05  CARDFILE-STAT1      PIC X.                                       
+           05  CARDFILE-STAT2      PIC X.                                       
                                                                                 
        01  DALYREJS-STATUS.                                                     
            05  DALYREJS-STAT1      PIC X.                                       
@@ -184,17 +200,41 @@
         01 WS-COUNTERS.                                                         
            05 WS-TRANSACTION-COUNT          PIC 9(09) VALUE 0.                  
            05 WS-REJECT-COUNT               PIC 9(09) VALUE 0.                  
-           05 WS-TEMP-BAL                   PIC S9(09)V99.                      
+           05 WS-TEMP-BAL                   PIC S9(11)V99.                      
                                                                                 
         01 WS-FLAGS.                                                            
            05 WS-CREATE-TRANCAT-REC         PIC X(01) VALUE 'N'.                
                                                                                 
+      * Processing date (YYYY-MM-DD) used for the expiry check. Taken           
+      * from the optional JCL PARM, else the system date - never from           
+      * the input record.                                                       
+        01 WS-PROC-DATE                     PIC X(10).                          
+        01 WS-PARM-DATE-OK                  PIC X(01).                          
+        01 WS-PARM-YYYYMMDD-X               PIC X(08).                          
+        01 WS-PARM-YYYYMMDD REDEFINES WS-PARM-YYYYMMDD-X PIC 9(08).             
+                                                                                
+        01 WS-TRAN-TYPE-CD                  PIC X(02).                          
+      *    Only these types may carry a negative (credit) amount.               
+           88 WS-CREDIT-TRAN-TYPE           VALUES '02' '03' '05' '06'.         
+                                                                                
+       LINKAGE SECTION.                                                         
+       01  EXTERNAL-PARMS.                                                      
+           05  PARM-LENGTH         PIC S9(04) COMP.                             
+           05  PARM-PROC-DATE.                                                  
+               10  PARM-YYYY       PIC X(04).                                   
+               10  PARM-SEP-1      PIC X(01).                                   
+               10  PARM-MM         PIC X(02).                                   
+               10  PARM-SEP-2      PIC X(01).                                   
+               10  PARM-DD         PIC X(02).                                   
+                                                                                
       *****************************************************************         
-       PROCEDURE DIVISION.                                                      
+       PROCEDURE DIVISION USING EXTERNAL-PARMS.                                 
            DISPLAY 'START OF EXECUTION OF PROGRAM CBTRN02C'.                    
+           PERFORM 0050-SET-PROCESSING-DATE.                                    
            PERFORM 0000-DALYTRAN-OPEN.                                          
            PERFORM 0100-TRANFILE-OPEN.                                          
            PERFORM 0200-XREFFILE-OPEN.                                          
+           PERFORM 0250-CARDFILE-OPEN.                                          
            PERFORM 0300-DALYREJS-OPEN.                                          
            PERFORM 0400-ACCTFILE-OPEN.                                          
            PERFORM 0500-TCATBALF-OPEN.                                          
@@ -221,6 +261,7 @@
            PERFORM 9000-DALYTRAN-CLOSE.                                         
            PERFORM 9100-TRANFILE-CLOSE.                                         
            PERFORM 9200-XREFFILE-CLOSE.                                         
+           PERFORM 9250-CARDFILE-CLOSE.                                         
            PERFORM 9300-DALYREJS-CLOSE.                                         
            PERFORM 9400-ACCTFILE-CLOSE.                                         
            PERFORM 9500-TCATBALF-CLOSE.                                         
@@ -232,6 +273,35 @@
            DISPLAY 'END OF EXECUTION OF PROGRAM CBTRN02C'.                      
                                                                                 
            GOBACK.                                                              
+      *---------------------------------------------------------------*         
+       0050-SET-PROCESSING-DATE.                                                
+           IF PARM-LENGTH = 0                                                   
+              MOVE FUNCTION CURRENT-DATE TO COBOL-TS                            
+              STRING COB-YYYY '-' COB-MM '-' COB-DD                             
+                     DELIMITED BY SIZE INTO WS-PROC-DATE                        
+           ELSE                                                                 
+              MOVE 'N' TO WS-PARM-DATE-OK                                       
+              IF PARM-LENGTH = 10                                               
+              AND PARM-YYYY IS NUMERIC                                          
+              AND PARM-SEP-1 = '-'                                              
+              AND PARM-MM IS NUMERIC                                            
+              AND PARM-SEP-2 = '-'                                              
+              AND PARM-DD IS NUMERIC                                            
+                 STRING PARM-YYYY PARM-MM PARM-DD                               
+                        DELIMITED BY SIZE INTO WS-PARM-YYYYMMDD-X               
+                 IF FUNCTION TEST-DATE-YYYYMMDD(WS-PARM-YYYYMMDD) = 0           
+                    MOVE 'Y' TO WS-PARM-DATE-OK                                 
+                 END-IF                                                         
+              END-IF                                                            
+              IF WS-PARM-DATE-OK = 'Y'                                          
+                 MOVE PARM-PROC-DATE TO WS-PROC-DATE                            
+              ELSE                                                              
+                 DISPLAY 'INVALID PARM - EXPECTED YYYY-MM-DD'                   
+                 PERFORM 9999-ABEND-PROGRAM                                     
+              END-IF                                                            
+           END-IF                                                               
+           DISPLAY 'PROCESSING DATE        :' WS-PROC-DATE                      
+           EXIT.                                                                
       *---------------------------------------------------------------*         
        0000-DALYTRAN-OPEN.                                                      
            MOVE 8 TO APPL-RESULT.                                               
@@ -283,6 +353,24 @@
            ELSE                                                                 
                DISPLAY 'ERROR OPENING CROSS REF FILE'                           
                MOVE XREFFILE-STATUS TO IO-STATUS                                
+               PERFORM 9910-DISPLAY-IO-STATUS                                   
+               PERFORM 9999-ABEND-PROGRAM                                       
+           END-IF                                                               
+           EXIT.                                                                
+      *---------------------------------------------------------------*         
+       0250-CARDFILE-OPEN.                                                      
+           MOVE 8 TO APPL-RESULT.                                               
+           OPEN INPUT CARD-FILE                                                 
+           IF  CARDFILE-STATUS = '00'                                           
+               MOVE 0 TO APPL-RESULT                                            
+           ELSE                                                                 
+               MOVE 12 TO APPL-RESULT                                           
+           END-IF                                                               
+           IF  APPL-AOK                                                         
+               CONTINUE                                                         
+           ELSE                                                                 
+               DISPLAY 'ERROR OPENING CARD FILE'                                
+               MOVE CARDFILE-STATUS TO IO-STATUS                                
                PERFORM 9910-DISPLAY-IO-STATUS                                   
                PERFORM 9999-ABEND-PROGRAM                                       
            END-IF                                                               
@@ -367,14 +455,22 @@
                END-IF                                                           
            END-IF                                                               
            EXIT.                                                                
+      * Reject reasons: 100 card not in xref, 101 account not found,            
+      * 102 over credit limit, 103 account expired, 104 account not             
+      * active, 105 card not found / not on account, 106 card not               
+      * active, 107 amount invalid for transaction type, 108 credit             
+      * exceeds outstanding balance. First failing check wins.                  
        1500-VALIDATE-TRAN.                                                      
            PERFORM 1500-A-LOOKUP-XREF.                                          
            IF WS-VALIDATION-FAIL-REASON = 0                                     
-              PERFORM 1500-B-LOOKUP-ACCT                                        
-           ELSE                                                                 
-              CONTINUE                                                          
+              PERFORM 1500-C-LOOKUP-CARD                                        
            END-IF                                                               
-      * ADD MORE VALIDATIONS HERE                                               
+           IF WS-VALIDATION-FAIL-REASON = 0                                     
+              PERFORM 1500-B-LOOKUP-ACCT                                        
+           END-IF                                                               
+           IF WS-VALIDATION-FAIL-REASON = 0                                     
+              PERFORM 1500-D-CHECK-AMOUNT                                       
+           END-IF                                                               
            EXIT.                                                                
                                                                                 
        1500-A-LOOKUP-XREF.                                                      
@@ -398,27 +494,75 @@
                 MOVE 'ACCOUNT RECORD NOT FOUND'                                 
                   TO WS-VALIDATION-FAIL-REASON-DESC                             
               NOT INVALID KEY                                                   
-      *         DISPLAY 'ACCT-CREDIT-LIMIT:' ACCT-CREDIT-LIMIT                  
-      *         DISPLAY 'TRAN-AMT         :' DALYTRAN-AMT                       
-                COMPUTE WS-TEMP-BAL = ACCT-CURR-CYC-CREDIT                      
-                                    - ACCT-CURR-CYC-DEBIT                       
-                                    + DALYTRAN-AMT                              
-                                                                                
-                IF ACCT-CREDIT-LIMIT >= WS-TEMP-BAL                             
-                  CONTINUE                                                      
-                ELSE                                                            
-                  MOVE 102 TO WS-VALIDATION-FAIL-REASON                         
-                  MOVE 'OVERLIMIT TRANSACTION'                                  
+                IF ACCT-ACTIVE-STATUS NOT = 'Y'                                 
+                  MOVE 104 TO WS-VALIDATION-FAIL-REASON                         
+                  MOVE 'ACCOUNT NOT ACTIVE'                                     
                     TO WS-VALIDATION-FAIL-REASON-DESC                           
-                END-IF                                                          
-                IF ACCT-EXPIRAION-DATE >= DALYTRAN-ORIG-TS (1:10)               
-                  CONTINUE                                                      
                 ELSE                                                            
-                  MOVE 103 TO WS-VALIDATION-FAIL-REASON                         
-                  MOVE 'TRANSACTION RECEIVED AFTER ACCT EXPIRATION'             
-                    TO WS-VALIDATION-FAIL-REASON-DESC                           
+                  IF ACCT-EXPIRAION-DATE < WS-PROC-DATE                         
+                    MOVE 103 TO WS-VALIDATION-FAIL-REASON                       
+                    MOVE 'TRANSACTION RECEIVED AFTER ACCT EXPIRATION'           
+                      TO WS-VALIDATION-FAIL-REASON-DESC                         
+                  END-IF                                                        
                 END-IF                                                          
            END-READ                                                             
+           EXIT.                                                                
+                                                                                
+       1500-C-LOOKUP-CARD.                                                      
+           MOVE DALYTRAN-CARD-NUM TO FD-CARD-NUM                                
+           READ CARD-FILE INTO CARD-RECORD                                      
+              INVALID KEY                                                       
+                MOVE 105 TO WS-VALIDATION-FAIL-REASON                           
+                MOVE 'CARD RECORD NOT FOUND'                                    
+                  TO WS-VALIDATION-FAIL-REASON-DESC                             
+              NOT INVALID KEY                                                   
+                IF CARD-ACCT-ID NOT = XREF-ACCT-ID                              
+                  MOVE 105 TO WS-VALIDATION-FAIL-REASON                         
+                  MOVE 'CARD NOT LINKED TO XREF ACCOUNT'                        
+                    TO WS-VALIDATION-FAIL-REASON-DESC                           
+                ELSE                                                            
+                  IF CARD-ACTIVE-STATUS NOT = 'Y'                               
+                    MOVE 106 TO WS-VALIDATION-FAIL-REASON                       
+                    MOVE 'CARD NOT ACTIVE'                                      
+                      TO WS-VALIDATION-FAIL-REASON-DESC                         
+                  END-IF                                                        
+                END-IF                                                          
+           END-READ                                                             
+           EXIT.                                                                
+                                                                                
+       1500-D-CHECK-AMOUNT.                                                     
+           MOVE DALYTRAN-TYPE-CD TO WS-TRAN-TYPE-CD                             
+           EVALUATE TRUE                                                        
+              WHEN DALYTRAN-AMT NOT NUMERIC                                     
+                MOVE 107 TO WS-VALIDATION-FAIL-REASON                           
+                MOVE 'INVALID TRANSACTION AMOUNT'                               
+                  TO WS-VALIDATION-FAIL-REASON-DESC                             
+              WHEN DALYTRAN-AMT < 0 AND NOT WS-CREDIT-TRAN-TYPE                 
+                MOVE 107 TO WS-VALIDATION-FAIL-REASON                           
+                MOVE 'CREDIT AMOUNT ON NON-CREDIT TRANSACTION TYPE'             
+                  TO WS-VALIDATION-FAIL-REASON-DESC                             
+              WHEN DALYTRAN-AMT > 0 AND WS-CREDIT-TRAN-TYPE                     
+                MOVE 107 TO WS-VALIDATION-FAIL-REASON                           
+                MOVE 'DEBIT AMOUNT ON CREDIT TRANSACTION TYPE'                  
+                  TO WS-VALIDATION-FAIL-REASON-DESC                             
+              WHEN OTHER                                                        
+                CONTINUE                                                        
+           END-EVALUATE                                                         
+           IF WS-VALIDATION-FAIL-REASON = 0                                     
+              COMPUTE WS-TEMP-BAL = ACCT-CURR-BAL + DALYTRAN-AMT                
+              IF DALYTRAN-AMT > 0                                               
+              AND WS-TEMP-BAL > ACCT-CREDIT-LIMIT                               
+                MOVE 102 TO WS-VALIDATION-FAIL-REASON                           
+                MOVE 'OVERLIMIT TRANSACTION'                                    
+                  TO WS-VALIDATION-FAIL-REASON-DESC                             
+              END-IF                                                            
+              IF DALYTRAN-AMT < 0                                               
+              AND WS-TEMP-BAL < 0                                               
+                MOVE 108 TO WS-VALIDATION-FAIL-REASON                           
+                MOVE 'CREDIT EXCEEDS OUTSTANDING BALANCE'                       
+                  TO WS-VALIDATION-FAIL-REASON-DESC                             
+              END-IF                                                            
+           END-IF                                                               
            EXIT.                                                                
       *---------------------------------------------------------------*         
        2000-POST-TRANSACTION.                                                   
@@ -629,6 +773,24 @@
            ELSE                                                                 
                DISPLAY 'ERROR CLOSING CROSS REF FILE'                           
                MOVE XREFFILE-STATUS TO IO-STATUS                                
+               PERFORM 9910-DISPLAY-IO-STATUS                                   
+               PERFORM 9999-ABEND-PROGRAM                                       
+           END-IF                                                               
+           EXIT.                                                                
+      *---------------------------------------------------------------*         
+       9250-CARDFILE-CLOSE.                                                     
+           MOVE 8 TO APPL-RESULT.                                               
+           CLOSE CARD-FILE                                                      
+           IF  CARDFILE-STATUS = '00'                                           
+               MOVE 0 TO APPL-RESULT                                            
+           ELSE                                                                 
+               MOVE 12 TO APPL-RESULT                                           
+           END-IF                                                               
+           IF  APPL-AOK                                                         
+               CONTINUE                                                         
+           ELSE                                                                 
+               DISPLAY 'ERROR CLOSING CARD FILE'                                
+               MOVE CARDFILE-STATUS TO IO-STATUS                                
                PERFORM 9910-DISPLAY-IO-STATUS                                   
                PERFORM 9999-ABEND-PROGRAM                                       
            END-IF                                                               
