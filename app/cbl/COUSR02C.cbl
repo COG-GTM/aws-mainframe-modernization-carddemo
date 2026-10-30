@@ -45,6 +45,7 @@
          05 WS-USR-MODIFIED            PIC X(01) VALUE 'N'.
            88 USR-MODIFIED-YES                   VALUE 'Y'.
            88 USR-MODIFIED-NO                    VALUE 'N'.
+         05 WS-NEW-USR-PWD             PIC X(08) VALUE SPACES.
 
        COPY COCOM01Y.
           05 CDEMO-CU02-INFO.
@@ -166,7 +167,6 @@
            IF NOT ERR-FLG-ON
                MOVE SEC-USR-FNAME      TO FNAMEI    OF COUSR2AI
                MOVE SEC-USR-LNAME      TO LNAMEI    OF COUSR2AI
-               MOVE SEC-USR-PWD        TO PASSWDI   OF COUSR2AI
                MOVE SEC-USR-TYPE       TO USRTYPEI  OF COUSR2AI
                PERFORM SEND-USRUPD-SCREEN
            END-IF.
@@ -175,6 +175,11 @@
       *                      UPDATE-USER-INFO
       *----------------------------------------------------------------*
        UPDATE-USER-INFO.
+
+      *    A blank password keeps the stored one; a non-blank value
+      *    resets it. The value is never sent back to the terminal.
+           MOVE PASSWDI OF COUSR2AI TO WS-NEW-USR-PWD
+           MOVE SPACES              TO PASSWDI OF COUSR2AI
 
            EVALUATE TRUE
                WHEN USRIDINI OF COUSR2AI = SPACES OR LOW-VALUES
@@ -194,12 +199,6 @@
                    MOVE 'Last Name can NOT be empty...' TO
                                    WS-MESSAGE
                    MOVE -1       TO LNAMEL OF COUSR2AI
-                   PERFORM SEND-USRUPD-SCREEN
-               WHEN PASSWDI OF COUSR2AI = SPACES OR LOW-VALUES
-                   MOVE 'Y'     TO WS-ERR-FLG
-                   MOVE 'Password can NOT be empty...' TO
-                                   WS-MESSAGE
-                   MOVE -1       TO PASSWDL OF COUSR2AI
                    PERFORM SEND-USRUPD-SCREEN
                WHEN USRTYPEI OF COUSR2AI = SPACES OR LOW-VALUES
                    MOVE 'Y'     TO WS-ERR-FLG
@@ -224,8 +223,9 @@
                    MOVE LNAMEI   OF COUSR2AI TO SEC-USR-LNAME
                    SET USR-MODIFIED-YES TO TRUE
                END-IF
-               IF PASSWDI  OF COUSR2AI NOT = SEC-USR-PWD
-                   MOVE PASSWDI  OF COUSR2AI TO SEC-USR-PWD
+               IF WS-NEW-USR-PWD NOT = SPACES AND LOW-VALUES
+                  AND WS-NEW-USR-PWD NOT = SEC-USR-PWD
+                   MOVE WS-NEW-USR-PWD TO SEC-USR-PWD
                    SET USR-MODIFIED-YES TO TRUE
                END-IF
                IF USRTYPEI  OF COUSR2AI NOT = SEC-USR-TYPE
@@ -242,7 +242,9 @@
                    PERFORM SEND-USRUPD-SCREEN
                END-IF
 
-           END-IF.
+           END-IF
+
+           MOVE SPACES TO WS-NEW-USR-PWD.
 
       *----------------------------------------------------------------*
       *                      RETURN-TO-PREV-SCREEN
@@ -268,6 +270,7 @@
            PERFORM POPULATE-HEADER-INFO
 
            MOVE WS-MESSAGE TO ERRMSGO OF COUSR2AO
+           MOVE SPACES     TO PASSWDO OF COUSR2AO
 
            EXEC CICS SEND
                      MAP('COUSR2A')
@@ -333,8 +336,9 @@
            EVALUATE WS-RESP-CD
                WHEN DFHRESP(NORMAL)
                    CONTINUE
-                   MOVE 'Press PF5 key to save your updates ...' TO
-                                   WS-MESSAGE
+                   MOVE
+           'Press PF5 to save. Blank Password keeps current ...'
+                                   TO WS-MESSAGE
                    MOVE DFHNEUTR       TO ERRMSGC  OF COUSR2AO
                    PERFORM SEND-USRUPD-SCREEN
                WHEN DFHRESP(NOTFND)
