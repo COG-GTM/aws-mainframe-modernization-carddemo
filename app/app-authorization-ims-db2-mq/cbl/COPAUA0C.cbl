@@ -49,6 +49,7 @@
                                                                                 
          05 WS-ABS-TIME                PIC S9(15) COMP-3 VALUE 0.               
          05 WS-CUR-DATE-X6             PIC X(06)  VALUE SPACES.                 
+         05 WS-CUR-DATE-X10            PIC X(10)  VALUE SPACES.
          05 WS-CUR-TIME-X6             PIC X(06)  VALUE SPACES.                 
          05 WS-CUR-TIME-N6             PIC 9(06)  VALUE ZERO.                   
          05 WS-CUR-TIME-MS             PIC S9(08) COMP.                         
@@ -143,6 +144,15 @@
               88 ACCOUNT-CLOSED        VALUE 'C'.                               
               88 CARD-FRAUD            VALUE 'F'.                               
               88 MERCHANT-FRAUD        VALUE 'M'.                               
+           05 WS-CARD-MASTER-READ-FLG  PIC X(1).
+              88 FOUND-CARD-IN-MSTR    VALUE 'Y'.
+              88 NFOUND-CARD-IN-MSTR   VALUE 'N'.
+           05 WS-CARD-FRAUD-FLG        PIC X(1).
+              88 CARD-FRAUD-ON-FILE    VALUE 'Y'.
+              88 NO-CARD-FRAUD-ON-FILE VALUE 'N'.
+           05 WS-PAUT-DTL-SCAN-FLG     PIC X(1).
+              88 PAUT-DTL-SCAN-DONE    VALUE 'Y'.
+              88 PAUT-DTL-SCAN-MORE    VALUE 'N'.
                                                                                 
                                                                                 
        01  MQM-OD-REQUEST.                                                      
@@ -204,6 +214,9 @@
                                                                                 
       *- ACCT RECORD LAYOUT                                                     
        COPY CVACT01Y.                                                           
+                                                                                
+      *- CARD RECORD LAYOUT
+       COPY CVACT02Y.
                                                                                 
       *- CUSTOMER LAYOUT                                                        
        COPY CVCUS01Y.                                                           
@@ -439,21 +452,27 @@
       * ------------------------------------------------------------- *         
       *                                                                         
            SET APPROVE-AUTH                  TO TRUE                            
+           MOVE SPACE                        TO WS-DECLINE-REASON-FLG
                                                                                 
            PERFORM 1200-SCHEDULE-PSB         THRU 1200-EXIT                     
                                                                                 
            SET CARD-FOUND-XREF               TO TRUE                            
            SET FOUND-ACCT-IN-MSTR            TO TRUE                            
+           SET FOUND-CUST-IN-MSTR            TO TRUE
+           SET NFOUND-CARD-IN-MSTR           TO TRUE
+           SET NFOUND-PAUT-SMRY-SEG          TO TRUE
+           SET NO-CARD-FRAUD-ON-FILE         TO TRUE
                                                                                 
            PERFORM 5100-READ-XREF-RECORD     THRU 5100-EXIT                     
                                                                                 
            IF CARD-FOUND-XREF                                                   
               PERFORM 5200-READ-ACCT-RECORD  THRU 5200-EXIT                     
               PERFORM 5300-READ-CUST-RECORD  THRU 5300-EXIT                     
-                                                                                
-              PERFORM 5500-READ-AUTH-SUMMRY  THRU 5500-EXIT                     
+              PERFORM 5400-READ-CARD-RECORD  THRU 5400-EXIT
                                                                                 
               PERFORM 5600-READ-PROFILE-DATA THRU 5600-EXIT                     
+      *-      Summary must be the last DL/I get: 8400 REPLs it
+              PERFORM 5500-READ-AUTH-SUMMRY  THRU 5500-EXIT                     
            END-IF                                                               
                                                                                 
            PERFORM 6000-MAKE-DECISION        THRU 6000-EXIT                     
@@ -612,6 +631,54 @@
        5300-EXIT.                                                               
            EXIT.                                                                
       *                                                                         
+      * ------------------------------------------------------------- *
+       5400-READ-CARD-RECORD.
+      * ------------------------------------------------------------- *
+      *
+           MOVE PA-RQ-CARD-NUM               TO WS-CARD-RID-CARDNUM
+
+           EXEC CICS READ
+                DATASET   (WS-CARDFILENAME)
+                RIDFLD    (WS-CARD-RID-CARDNUM)
+                KEYLENGTH (LENGTH OF WS-CARD-RID-CARDNUM)
+                INTO      (CARD-RECORD)
+                LENGTH    (LENGTH OF CARD-RECORD)
+                RESP      (WS-RESP-CD)
+                RESP2     (WS-REAS-CD)
+           END-EXEC
+
+           EVALUATE WS-RESP-CD
+               WHEN DFHRESP(NORMAL)
+                  SET FOUND-CARD-IN-MSTR     TO TRUE
+               WHEN DFHRESP(NOTFND)
+                  SET NFOUND-CARD-IN-MSTR    TO TRUE
+
+                  MOVE 'A004'                TO ERR-LOCATION
+                  SET  ERR-WARNING           TO TRUE
+                  SET  ERR-APP               TO TRUE
+                  MOVE 'CARD NOT FOUND IN CARDDAT'
+                                             TO ERR-MESSAGE
+                  MOVE WS-CARD-RID-CARDNUM   TO ERR-EVENT-KEY
+                  PERFORM 9500-LOG-ERROR
+      *
+               WHEN OTHER
+                  MOVE 'C004'                TO ERR-LOCATION
+                  SET  ERR-CRITICAL          TO TRUE
+                  SET  ERR-CICS              TO TRUE
+                  MOVE WS-RESP-CD            TO WS-CODE-DISPLAY
+                  MOVE WS-CODE-DISPLAY       TO ERR-CODE-1
+                  MOVE WS-REAS-CD            TO WS-CODE-DISPLAY
+                  MOVE WS-CODE-DISPLAY       TO ERR-CODE-2
+                  MOVE 'FAILED TO READ CARD FILE'
+                                             TO ERR-MESSAGE
+                  MOVE WS-CARD-RID-CARDNUM   TO ERR-EVENT-KEY
+                  PERFORM 9500-LOG-ERROR
+           END-EVALUATE
+           .
+      *
+       5400-EXIT.
+           EXIT.
+      *
       * ------------------------------------------------------------- *         
        5500-READ-AUTH-SUMMRY.                                                   
       * ------------------------------------------------------------- *         
@@ -646,8 +713,62 @@
       * ------------------------------------------------------------- *         
        5600-READ-PROFILE-DATA.                                                  
       * ------------------------------------------------------------- *         
+      *    Look for a confirmed fraud mark (set via COPAUS1C) on any
+      *    pending authorization for this card under the account.
       *                                                                         
-           CONTINUE                                                             
+           MOVE XREF-ACCT-ID                    TO PA-ACCT-ID
+           EXEC DLI GU USING PCB(PAUT-PCB-NUM)
+               SEGMENT (PAUTSUM0)
+               INTO (PENDING-AUTH-SUMMARY)
+               WHERE (ACCNTID = PA-ACCT-ID)
+           END-EXEC
+
+           MOVE DIBSTAT                          TO IMS-RETURN-CODE
+           EVALUATE TRUE
+               WHEN STATUS-OK
+                  SET PAUT-DTL-SCAN-MORE         TO TRUE
+               WHEN SEGMENT-NOT-FOUND
+                  SET PAUT-DTL-SCAN-DONE         TO TRUE
+               WHEN OTHER
+                  SET PAUT-DTL-SCAN-DONE         TO TRUE
+                  MOVE 'I005'                    TO ERR-LOCATION
+                  SET  ERR-CRITICAL              TO TRUE
+                  SET  ERR-IMS                   TO TRUE
+                  MOVE IMS-RETURN-CODE           TO ERR-CODE-1
+                  MOVE 'IMS GET SUMMARY FAILED'  TO ERR-MESSAGE
+                  MOVE PA-RQ-CARD-NUM            TO ERR-EVENT-KEY
+                  PERFORM 9500-LOG-ERROR
+           END-EVALUATE
+
+           PERFORM UNTIL PAUT-DTL-SCAN-DONE
+              EXEC DLI GNP USING PCB(PAUT-PCB-NUM)
+                  SEGMENT (PAUTDTL1)
+                  INTO (PENDING-AUTH-DETAILS)
+              END-EXEC
+
+              MOVE DIBSTAT                       TO IMS-RETURN-CODE
+              EVALUATE TRUE
+                  WHEN STATUS-OK
+                     IF PA-CARD-NUM = PA-RQ-CARD-NUM
+                        AND PA-FRAUD-CONFIRMED
+                        SET CARD-FRAUD-ON-FILE   TO TRUE
+                        SET PAUT-DTL-SCAN-DONE   TO TRUE
+                     END-IF
+                  WHEN SEGMENT-NOT-FOUND
+                  WHEN END-OF-DB
+                     SET PAUT-DTL-SCAN-DONE      TO TRUE
+                  WHEN OTHER
+                     SET PAUT-DTL-SCAN-DONE      TO TRUE
+                     MOVE 'I006'                 TO ERR-LOCATION
+                     SET  ERR-CRITICAL           TO TRUE
+                     SET  ERR-IMS                TO TRUE
+                     MOVE IMS-RETURN-CODE        TO ERR-CODE-1
+                     MOVE 'IMS GET AUTH DTL FAILED'
+                                                 TO ERR-MESSAGE
+                     MOVE PA-RQ-CARD-NUM         TO ERR-EVENT-KEY
+                     PERFORM 9500-LOG-ERROR
+              END-EVALUATE
+           END-PERFORM
            .                                                                    
       *                                                                         
        5600-EXIT.                                                               
@@ -661,27 +782,31 @@
            MOVE PA-RQ-TRANSACTION-ID   TO PA-RL-TRANSACTION-ID                  
            MOVE PA-RQ-AUTH-TIME        TO PA-RL-AUTH-ID-CODE                    
                                                                                 
+           PERFORM 6100-CHECK-CARD-ACCT      THRU 6100-EXIT
+
       *-   Decline Auth if Above Limit; If no AUTH summary, use ACT data        
-           IF FOUND-PAUT-SMRY-SEG                                               
-              COMPUTE WS-AVAILABLE-AMT = PA-CREDIT-LIMIT                        
-                                       - PA-CREDIT-BALANCE                      
-              IF WS-TRANSACTION-AMT > WS-AVAILABLE-AMT                          
-                 SET DECLINE-AUTH      TO TRUE                                  
-                 SET INSUFFICIENT-FUND TO TRUE                                  
-              END-IF                                                            
-           ELSE                                                                 
-              IF FOUND-ACCT-IN-MSTR                                             
-                 COMPUTE WS-AVAILABLE-AMT = ACCT-CREDIT-LIMIT                   
-                                          - ACCT-CURR-BAL                       
-                 IF WS-TRANSACTION-AMT > WS-AVAILABLE-AMT                       
-                    SET DECLINE-AUTH      TO TRUE                               
-                    SET INSUFFICIENT-FUND TO TRUE                               
-                 END-IF                                                         
-              ELSE                                                              
-                 SET DECLINE-AUTH         TO TRUE                               
-              END-IF                                                            
-           END-IF                                                               
-                                                                                
+           IF APPROVE-AUTH
+              IF FOUND-PAUT-SMRY-SEG
+                 COMPUTE WS-AVAILABLE-AMT = PA-CREDIT-LIMIT
+                                          - PA-CREDIT-BALANCE
+                 IF WS-TRANSACTION-AMT > WS-AVAILABLE-AMT
+                    SET DECLINE-AUTH      TO TRUE
+                    SET INSUFFICIENT-FUND TO TRUE
+                 END-IF
+              ELSE
+                 IF FOUND-ACCT-IN-MSTR
+                    COMPUTE WS-AVAILABLE-AMT = ACCT-CREDIT-LIMIT
+                                             - ACCT-CURR-BAL
+                    IF WS-TRANSACTION-AMT > WS-AVAILABLE-AMT
+                       SET DECLINE-AUTH      TO TRUE
+                       SET INSUFFICIENT-FUND TO TRUE
+                    END-IF
+                 ELSE
+                    SET DECLINE-AUTH         TO TRUE
+                 END-IF
+              END-IF
+           END-IF
+
            IF DECLINE-AUTH                                                      
               SET  AUTH-RESP-DECLINED     TO TRUE                               
                                                                                 
@@ -701,6 +826,7 @@
                  WHEN CARD-NFOUND-XREF                                          
                  WHEN NFOUND-ACCT-IN-MSTR                                       
                  WHEN NFOUND-CUST-IN-MSTR                                       
+                 WHEN NFOUND-CARD-IN-MSTR
                       MOVE '3100'         TO PA-RL-AUTH-RESP-REASON             
                  WHEN INSUFFICIENT-FUND                                         
                       MOVE '4100'         TO PA-RL-AUTH-RESP-REASON             
@@ -718,6 +844,8 @@
            END-IF                                                               
                                                                                 
            MOVE WS-APPROVED-AMT        TO WS-APPROVED-AMT-DIS                   
+           MOVE 1                      TO WS-RESP-LENGTH
+           MOVE SPACES                 TO W02-PUT-BUFFER
                                                                                 
            STRING PA-RL-CARD-NUM         ','                                    
                   PA-RL-TRANSACTION-ID   ','                                    
@@ -734,6 +862,51 @@
        6000-EXIT.                                                               
            EXIT.                                                                
       *                                                                         
+      * ------------------------------------------------------------- *
+       6100-CHECK-CARD-ACCT.
+      * ------------------------------------------------------------- *
+      *    Card on file must be active, unexpired and match the
+      *    request expiry (MMYY); account must be active; no
+      *    confirmed fraud on the card.
+      *
+           EXEC CICS ASKTIME NOHANDLE
+              ABSTIME(WS-ABS-TIME)
+           END-EXEC
+
+           EXEC CICS FORMATTIME
+             ABSTIME(WS-ABS-TIME)
+             YYYYMMDD(WS-CUR-DATE-X10)
+             DATESEP('-')
+           END-EXEC
+
+           EVALUATE TRUE
+              WHEN CARD-NFOUND-XREF
+              WHEN NFOUND-ACCT-IN-MSTR
+              WHEN NFOUND-CARD-IN-MSTR
+                 SET DECLINE-AUTH            TO TRUE
+              WHEN CARD-ACTIVE-STATUS NOT = 'Y'
+              WHEN CARD-ACCT-ID NOT = XREF-ACCT-ID
+              WHEN CARD-EXPIRAION-DATE < WS-CUR-DATE-X10
+              WHEN PA-RQ-CARD-EXPIRY-DATE(1:2)
+                   NOT = CARD-EXPIRAION-DATE(6:2)
+              WHEN PA-RQ-CARD-EXPIRY-DATE(3:2)
+                   NOT = CARD-EXPIRAION-DATE(3:2)
+                 SET DECLINE-AUTH            TO TRUE
+                 SET CARD-NOT-ACTIVE         TO TRUE
+              WHEN ACCT-ACTIVE-STATUS NOT = 'Y'
+                 SET DECLINE-AUTH            TO TRUE
+                 SET ACCOUNT-CLOSED          TO TRUE
+              WHEN CARD-FRAUD-ON-FILE
+                 SET DECLINE-AUTH            TO TRUE
+                 SET CARD-FRAUD              TO TRUE
+              WHEN OTHER
+                 CONTINUE
+           END-EVALUATE
+           .
+      *
+       6100-EXIT.
+           EXIT.
+      *
       * ------------------------------------------------------------- *         
        7100-SEND-RESPONSE.                                                      
       * ------------------------------------------------------------- *         
@@ -804,6 +977,9 @@
                                                                                 
               MOVE XREF-ACCT-ID             TO PA-ACCT-ID                       
               MOVE XREF-CUST-ID             TO PA-CUST-ID                       
+              IF FOUND-ACCT-IN-MSTR
+                 MOVE ACCT-CURR-BAL         TO PA-CREDIT-BALANCE
+              END-IF
                                                                                 
            END-IF                                                               
                                                                                 
