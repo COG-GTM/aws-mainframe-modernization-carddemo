@@ -186,6 +186,8 @@
              VALUE 'CCRDLIA'.                                                   
          05  LIT-MENUPGM                            PIC X(8)                    
              VALUE 'COMEN01C'.                                                  
+         05  LIT-SIGNONPGM                          PIC X(8)
+             VALUE 'COSGN00C'.
          05  LIT-MENUTRANID                         PIC X(4)                    
              VALUE 'CM00'.                                                      
          05  LIT-MENUMAPSET                         PIC X(7)                    
@@ -312,24 +314,26 @@
       *****************************************************************         
       * Retrived passed data if  any. Initialize them if first run.             
       *****************************************************************         
-           IF EIBCALEN = 0
-              INITIALIZE CARDDEMO-COMMAREA
-                         WS-THIS-PROGCOMMAREA 
-              MOVE LIT-THISTRANID        TO CDEMO-FROM-TRANID                   
-              MOVE LIT-THISPGM           TO CDEMO-FROM-PROGRAM                  
-              SET CDEMO-USRTYP-USER      TO TRUE                                
-              SET CDEMO-PGM-ENTER        TO TRUE                                
-              MOVE LIT-THISMAP           TO CDEMO-LAST-MAP                      
-              MOVE LIT-THISMAPSET        TO CDEMO-LAST-MAPSET                   
-              SET CA-FIRST-PAGE          TO TRUE                                
-              SET CA-LAST-PAGE-NOT-SHOWN TO TRUE                                
-           ELSE
-              MOVE DFHCOMMAREA (1:LENGTH OF CARDDEMO-COMMAREA) TO               
-                                CARDDEMO-COMMAREA                               
-              MOVE DFHCOMMAREA(LENGTH OF CARDDEMO-COMMAREA + 1:                 
+      *****************************************************************
+      * Only a session handed over by signon/menu is accepted.
+      * Direct entry (no commarea) or no signed-on user -> signon.
+      *****************************************************************
+           IF EIBCALEN < LENGTH OF CARDDEMO-COMMAREA
+              PERFORM 0050-RETURN-TO-SIGNON
+                 THRU 0050-RETURN-TO-SIGNON-EXIT
+           END-IF
+
+           MOVE DFHCOMMAREA (1:LENGTH OF CARDDEMO-COMMAREA)  TO
+                             CARDDEMO-COMMAREA
+
+           IF CDEMO-USER-ID EQUAL SPACES OR LOW-VALUES
+              PERFORM 0050-RETURN-TO-SIGNON
+                 THRU 0050-RETURN-TO-SIGNON-EXIT
+           END-IF
+
+           MOVE DFHCOMMAREA(LENGTH OF CARDDEMO-COMMAREA + 1:
                                LENGTH OF WS-THIS-PROGCOMMAREA )TO               
                                 WS-THIS-PROGCOMMAREA                            
-           END-IF                                                               
       *****************************************************************         
       * If coming in from menu. Lets forget the past and start afresh *         
       *****************************************************************         
@@ -459,8 +463,14 @@
                WHEN CDEMO-PGM-REENTER AND                                       
                     CDEMO-FROM-PROGRAM NOT EQUAL LIT-THISPGM                    
                                                                                 
-                    INITIALIZE CARDDEMO-COMMAREA                                
-                               WS-THIS-PROGCOMMAREA                             
+      *             KEEP THE SIGNED-ON USER, RESET EVERYTHING ELSE
+                    INITIALIZE CDEMO-CUSTOMER-INFO
+                               CDEMO-ACCOUNT-INFO
+                               CDEMO-CARD-INFO
+                               CDEMO-MORE-INFO
+                               WS-THIS-PROGCOMMAREA
+                    MOVE SPACES              TO CDEMO-TO-TRANID
+                                                CDEMO-TO-PROGRAM
                     MOVE LIT-THISTRANID      TO CDEMO-FROM-TRANID               
                     MOVE LIT-THISPGM         TO CDEMO-FROM-PROGRAM              
                     SET CDEMO-USRTYP-USER    TO TRUE                            
@@ -621,6 +631,16 @@
        0000-MAIN-EXIT.                                                          
            EXIT                                                                 
            .                                                                    
+
+       0050-RETURN-TO-SIGNON.
+           EXEC CICS XCTL
+                PROGRAM (LIT-SIGNONPGM)
+           END-EXEC
+           .
+       0050-RETURN-TO-SIGNON-EXIT.
+           EXIT
+           .
+
        1000-SEND-MAP.                                                           
            PERFORM 1100-SCREEN-INIT                                             
               THRU 1100-SCREEN-INIT-EXIT                                        
