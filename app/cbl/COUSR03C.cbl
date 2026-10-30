@@ -45,6 +45,14 @@
          05 WS-USR-MODIFIED            PIC X(01) VALUE 'N'.
            88 USR-MODIFIED-YES                   VALUE 'Y'.
            88 USR-MODIFIED-NO                    VALUE 'N'.
+         05 WS-CALLER-AUTH-FLG         PIC X(01) VALUE 'N'.
+           88 CALLER-IS-ADMIN                    VALUE 'Y'.
+           88 CALLER-NOT-ADMIN                   VALUE 'N'.
+         05 WS-CALLER-SEC-DATA.
+           10 WS-CALLER-SEC-ID         PIC X(08).
+           10 FILLER                   PIC X(48).
+           10 WS-CALLER-SEC-TYPE       PIC X(01).
+           10 FILLER                   PIC X(23).
            
        COPY COCOM01Y.
           05 CDEMO-CU03-INFO.
@@ -92,6 +100,9 @@
                PERFORM RETURN-TO-PREV-SCREEN
            ELSE
                MOVE DFHCOMMAREA(1:EIBCALEN) TO CARDDEMO-COMMAREA
+               IF NOT CDEMO-USRTYP-ADMIN
+                   PERFORM RETURN-TO-SIGNON-SCREEN
+               END-IF
                IF NOT CDEMO-PGM-REENTER
                    SET CDEMO-PGM-REENTER    TO TRUE
                    MOVE LOW-VALUES          TO COUSR3AO
@@ -180,15 +191,61 @@
                                    WS-MESSAGE
                    MOVE -1       TO USRIDINL OF COUSR3AI
                    PERFORM SEND-USRDEL-SCREEN
+               WHEN USRIDINI OF COUSR3AI = CDEMO-USER-ID
+                   MOVE 'Y'     TO WS-ERR-FLG
+                   MOVE 'You can NOT delete your own User ID...' TO
+                                   WS-MESSAGE
+                   MOVE -1       TO USRIDINL OF COUSR3AI
+                   PERFORM SEND-USRDEL-SCREEN
                WHEN OTHER
                    MOVE -1       TO USRIDINL OF COUSR3AI
                    CONTINUE
            END-EVALUATE
 
            IF NOT ERR-FLG-ON
+               PERFORM VERIFY-CALLER-IS-ADMIN
+           END-IF
+
+           IF NOT ERR-FLG-ON
                MOVE USRIDINI  OF COUSR3AI TO SEC-USR-ID
                PERFORM READ-USER-SEC-FILE
+           END-IF
+
+           IF NOT ERR-FLG-ON
                PERFORM DELETE-USER-SEC-FILE
+           END-IF.
+
+      *----------------------------------------------------------------*
+      *                      VERIFY-CALLER-IS-ADMIN
+      *----------------------------------------------------------------*
+       VERIFY-CALLER-IS-ADMIN.
+
+           SET CALLER-NOT-ADMIN TO TRUE
+
+           IF CDEMO-USER-ID NOT = SPACES AND LOW-VALUES
+               EXEC CICS READ
+                    DATASET   (WS-USRSEC-FILE)
+                    INTO      (WS-CALLER-SEC-DATA)
+                    LENGTH    (LENGTH OF WS-CALLER-SEC-DATA)
+                    RIDFLD    (CDEMO-USER-ID)
+                    KEYLENGTH (LENGTH OF CDEMO-USER-ID)
+                    RESP      (WS-RESP-CD)
+                    RESP2     (WS-REAS-CD)
+               END-EXEC
+
+               IF WS-RESP-CD = DFHRESP(NORMAL)
+                  AND WS-CALLER-SEC-TYPE = 'A'
+                   SET CALLER-IS-ADMIN TO TRUE
+               END-IF
+           END-IF
+
+           IF CALLER-NOT-ADMIN
+               MOVE 'Y'     TO WS-ERR-FLG
+               MOVE 'You are NOT authorized to delete users...' TO
+                               WS-MESSAGE
+               MOVE DFHRED   TO ERRMSGC  OF COUSR3AO
+               MOVE -1       TO USRIDINL OF COUSR3AI
+               PERFORM SEND-USRDEL-SCREEN
            END-IF.
 
       *----------------------------------------------------------------*
@@ -205,6 +262,16 @@
            EXEC CICS
                XCTL PROGRAM(CDEMO-TO-PROGRAM)
                COMMAREA(CARDDEMO-COMMAREA)
+           END-EXEC.
+
+      *----------------------------------------------------------------*
+      *                      RETURN-TO-SIGNON-SCREEN
+      *----------------------------------------------------------------*
+       RETURN-TO-SIGNON-SCREEN.
+
+           MOVE 'COSGN00C' TO CDEMO-TO-PROGRAM
+           EXEC CICS
+               XCTL PROGRAM(CDEMO-TO-PROGRAM)
            END-EXEC.
 
       *----------------------------------------------------------------*
