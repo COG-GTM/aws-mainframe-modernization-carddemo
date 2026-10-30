@@ -202,6 +202,7 @@ CardDemo includes several optional modules that extend the base functionality:
 - **Online Functions**: Start the CardDemo application using the CC00 transaction
   - Admin access: Use userid ADMIN001 with password PASSWORD
   - User access: Use userid USER0001 with password PASSWORD
+  - Regular users only see their own cards in Credit Card List (CCLI). The link is the customer id stored in the USRSEC record (`SEC-USR-CUST-ID`); USER0001-USER0005 are seeded as customers 1-5. Regular users without a customer id see no cards.
 - **Batch Functions**: See the "Running Batch Jobs" section below
 
 ## Running Batch Jobs

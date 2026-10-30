@@ -156,6 +156,7 @@
                MOVE LNAMEI   OF COUSR1AI TO SEC-USR-LNAME
                MOVE PASSWDI  OF COUSR1AI TO SEC-USR-PWD
                MOVE USRTYPEI OF COUSR1AI TO SEC-USR-TYPE
+               MOVE ZEROS              TO SEC-USR-CUST-ID
                PERFORM WRITE-USER-SEC-FILE
            END-IF.
 

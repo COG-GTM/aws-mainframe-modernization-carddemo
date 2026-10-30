@@ -124,6 +124,8 @@
                'PLEASE SELECT ONLY ONE RECORD TO VIEW OR UPDATE'.               
            88  WS-INVALID-ACTION-CODE              VALUE                        
                'INVALID ACTION CODE'.                                           
+           88  WS-CARD-NOT-AUTHORIZED              VALUE                        
+               'NOT AUTHORIZED TO VIEW OR UPDATE THE SELECTED CARD'.            
          05  WS-PFK-FLAG                           PIC X(1).                    
            88  PFK-VALID                           VALUE '0'.                   
            88  PFK-INVALID                         VALUE '1'.                   
@@ -144,6 +146,25 @@
                                                                                 
          05  WS-SCRN-COUNTER               PIC S9(4) COMP VALUE 0.              
                                                                                 
+      ******************************************************************        
+      * Object level authorization                                              
+      ******************************************************************        
+         05  WS-AUTH-RESP-CD                       PIC S9(09) COMP              
+                                                   VALUE ZEROS.                 
+         05  WS-AUTH-REAS-CD                       PIC S9(09) COMP              
+                                                   VALUE ZEROS.                 
+         05  WS-USER-AUTH-FLAG                     PIC X(1).                    
+           88  WS-USER-IS-ADMIN                    VALUE 'A'.                   
+           88  WS-USER-IS-CARDHOLDER               VALUE 'C'.                   
+           88  WS-USER-NOT-AUTHORIZED              VALUES 'N' ' '.              
+         05  WS-USER-CUST-ID                       PIC 9(09).                   
+         05  WS-SAVE-USER-ID                       PIC X(08).                   
+         05  WS-XREF-RID-CARDNUM                   PIC X(16).                   
+         05  WS-CHK-CARD-NUM                       PIC X(16).                   
+         05  WS-CHK-ACCT-ID                        PIC 9(11).                   
+         05  WS-CARD-OWNER-FLAG                    PIC X(1).                    
+           88  WS-CARD-OWNED-BY-USER               VALUE 'Y'.                   
+           88  WS-CARD-NOT-OWNED-BY-USER           VALUE 'N'.                   
          05  WS-FILTER-RECORD-FLAG                 PIC X(1).                    
            88  WS-EXCLUDE-THIS-RECORD               VALUE '0'.                  
            88  WS-DONOT-EXCLUDE-THIS-RECORD         VALUE '1'.                  
@@ -215,6 +236,10 @@
          05  LIT-CARD-FILE-ACCT-PATH                PIC X(8)                    
                                                                                 
                                                    VALUE 'CARDAIX '.            
+         05  LIT-CARDXREF-FILE                      PIC X(8)                    
+                                                   VALUE 'CCXREF  '.            
+         05  LIT-USRSEC-FILE                        PIC X(8)                    
+                                                   VALUE 'USRSEC  '.            
       ******************************************************************        
       *Other common working storage Variables                                   
       ******************************************************************        
@@ -288,6 +313,8 @@
                                                                                 
       *CARD RECORD LAYOUT                                                       
        COPY CVACT02Y.                                                           
+      *CARD XREF RECORD LAYOUT                                                  
+       COPY CVACT03Y.                                                           
                                                                                 
        LINKAGE SECTION.                                                         
        01  DFHCOMMAREA.                                                         
@@ -342,6 +369,11 @@
                SET CA-LAST-PAGE-NOT-SHOWN TO TRUE                               
            END-IF 
                                                                                 
+      *****************************************************************         
+      * Who is signed on: admin, cardholder or not authorized         *         
+      *****************************************************************         
+           PERFORM 9600-GET-SIGNED-ON-USER                                      
+              THRU 9600-GET-SIGNED-ON-USER-EXIT                                 
       ******************************************************************        
       * Remap PFkeys as needed.                                                 
       * Store the Mapped PF Key                                                 
@@ -413,6 +445,15 @@
               SET CA-LAST-PAGE-NOT-SHOWN   TO TRUE                              
            END-IF                                                               
       *****************************************************************         
+      * Selected card must belong to the signed-on user               *         
+      *****************************************************************         
+           IF  CCARD-AID-ENTER                                                  
+           AND DETAIL-WAS-REQUESTED                                             
+           AND CDEMO-FROM-PROGRAM  EQUAL LIT-THISPGM                            
+               PERFORM 9700-VERIFY-SELECTED-CARD                                
+                  THRU 9700-VERIFY-SELECTED-CARD-EXIT                           
+           END-IF                                                               
+      *****************************************************************         
       * Now we decide what to do                                                
       *****************************************************************         
            EVALUATE TRUE                                                        
@@ -459,8 +500,10 @@
                WHEN CDEMO-PGM-REENTER AND                                       
                     CDEMO-FROM-PROGRAM NOT EQUAL LIT-THISPGM                    
                                                                                 
+                    MOVE CDEMO-USER-ID       TO WS-SAVE-USER-ID                 
                     INITIALIZE CARDDEMO-COMMAREA                                
                                WS-THIS-PROGCOMMAREA                             
+                    MOVE WS-SAVE-USER-ID     TO CDEMO-USER-ID                   
                     MOVE LIT-THISTRANID      TO CDEMO-FROM-TRANID               
                     MOVE LIT-THISPGM         TO CDEMO-FROM-PROGRAM              
                     SET CDEMO-USRTYP-USER    TO TRUE                            
@@ -1194,15 +1237,26 @@
                       MOVE CARD-ACCT-ID     TO WS-CA-LAST-CARD-ACCT-ID          
                       MOVE CARD-NUM         TO WS-CA-LAST-CARD-NUM              
                                                                                 
-                      EXEC CICS READNEXT                                        
-                        DATASET(LIT-CARD-FILE)                                  
-                        INTO (CARD-RECORD)                                      
-                        LENGTH(LENGTH OF CARD-RECORD)                           
-                        RIDFLD(WS-CARD-RID-CARDNUM)                             
-                        KEYLENGTH(LENGTH OF WS-CARD-RID-CARDNUM)                
-                        RESP(WS-RESP-CD)                                        
-                        RESP2(WS-REAS-CD)                                       
-                      END-EXEC                                                  
+                      SET WS-EXCLUDE-THIS-RECORD TO TRUE                        
+                      PERFORM UNTIL WS-DONOT-EXCLUDE-THIS-RECORD                
+                         EXEC CICS READNEXT                                     
+                           DATASET(LIT-CARD-FILE)                               
+                           INTO (CARD-RECORD)                                   
+                           LENGTH(LENGTH OF CARD-RECORD)                        
+                           RIDFLD(WS-CARD-RID-CARDNUM)                          
+                           KEYLENGTH(LENGTH OF WS-CARD-RID-CARDNUM)             
+                           RESP(WS-RESP-CD)                                     
+                           RESP2(WS-REAS-CD)                                    
+                         END-EXEC                                               
+                         IF  WS-RESP-CD = DFHRESP(NORMAL)                       
+                         OR  WS-RESP-CD = DFHRESP(DUPREC)                       
+                            PERFORM 9500-FILTER-RECORDS                         
+                               THRU 9500-FILTER-RECORDS-EXIT                    
+                         ELSE                                                   
+                            SET WS-DONOT-EXCLUDE-THIS-RECORD                    
+                                           TO TRUE                              
+                         END-IF                                                 
+                      END-PERFORM                                               
                                                                                 
                       EVALUATE WS-RESP-CD                                       
                          WHEN DFHRESP(NORMAL)                                   
@@ -1404,9 +1458,123 @@
              CONTINUE                                                           
            END-IF                                                               
                                                                                 
+           IF NOT WS-USER-IS-ADMIN                                              
+              MOVE CARD-NUM              TO WS-CHK-CARD-NUM                     
+              MOVE CARD-ACCT-ID          TO WS-CHK-ACCT-ID                      
+              PERFORM 9550-CHECK-CARD-OWNER                                     
+                 THRU 9550-CHECK-CARD-OWNER-EXIT                                
+              IF WS-CARD-NOT-OWNED-BY-USER                                      
+                 SET WS-EXCLUDE-THIS-RECORD TO TRUE                             
+              END-IF                                                            
+           END-IF                                                               
            .                                                                    
                                                                                 
        9500-FILTER-RECORDS-EXIT.                                                
+           EXIT                                                                 
+           .                                                                    
+      *****************************************************************         
+      * Object level check: card must be cross-referenced to the      *         
+      * signed-on user's customer id and to the same account          *         
+      *****************************************************************         
+       9550-CHECK-CARD-OWNER.                                                   
+           SET WS-CARD-NOT-OWNED-BY-USER TO TRUE                                
+                                                                                
+           IF NOT WS-USER-IS-CARDHOLDER                                         
+              GO TO 9550-CHECK-CARD-OWNER-EXIT                                  
+           END-IF                                                               
+                                                                                
+           MOVE WS-CHK-CARD-NUM          TO WS-XREF-RID-CARDNUM                 
+                                                                                
+           EXEC CICS READ                                                       
+                DATASET(LIT-CARDXREF-FILE)                                      
+                INTO (CARD-XREF-RECORD)                                         
+                LENGTH(LENGTH OF CARD-XREF-RECORD)                              
+                RIDFLD(WS-XREF-RID-CARDNUM)                                     
+                KEYLENGTH(LENGTH OF WS-XREF-RID-CARDNUM)                        
+                RESP(WS-AUTH-RESP-CD)                                           
+                RESP2(WS-AUTH-REAS-CD)                                          
+           END-EXEC                                                             
+                                                                                
+           IF  WS-AUTH-RESP-CD = DFHRESP(NORMAL)                                
+           AND XREF-CUST-ID    = WS-USER-CUST-ID                                
+           AND XREF-ACCT-ID    = WS-CHK-ACCT-ID                                 
+               SET WS-CARD-OWNED-BY-USER TO TRUE                                
+           END-IF                                                               
+           .                                                                    
+       9550-CHECK-CARD-OWNER-EXIT.                                              
+           EXIT                                                                 
+           .                                                                    
+      *****************************************************************         
+      * Identify the signed-on user from USRSEC. Admins may list all  *         
+      * cards; regular users only cards of their own customer id.     *         
+      * No user id, unknown user or unlinked user sees no cards.      *         
+      *****************************************************************         
+       9600-GET-SIGNED-ON-USER.                                                 
+           SET WS-USER-NOT-AUTHORIZED    TO TRUE                                
+           MOVE ZEROS                    TO WS-USER-CUST-ID                     
+                                                                                
+           IF EIBCALEN = 0                                                      
+           OR CDEMO-USER-ID = SPACES OR LOW-VALUES                              
+              GO TO 9600-GET-SIGNED-ON-USER-EXIT                                
+           END-IF                                                               
+                                                                                
+           EXEC CICS READ                                                       
+                DATASET(LIT-USRSEC-FILE)                                        
+                INTO (SEC-USER-DATA)                                            
+                LENGTH(LENGTH OF SEC-USER-DATA)                                 
+                RIDFLD(CDEMO-USER-ID)                                           
+                KEYLENGTH(LENGTH OF CDEMO-USER-ID)                              
+                RESP(WS-AUTH-RESP-CD)                                           
+                RESP2(WS-AUTH-REAS-CD)                                          
+           END-EXEC                                                             
+                                                                                
+           IF WS-AUTH-RESP-CD NOT = DFHRESP(NORMAL)                             
+              GO TO 9600-GET-SIGNED-ON-USER-EXIT                                
+           END-IF                                                               
+                                                                                
+           IF SEC-USR-TYPE = 'A'                                                
+              SET WS-USER-IS-ADMIN       TO TRUE                                
+           ELSE                                                                 
+              IF SEC-USR-TYPE = 'U'                                             
+              AND SEC-USR-CUST-ID IS NUMERIC                                    
+                 IF SEC-USR-CUST-ID > ZERO                                      
+                    MOVE SEC-USR-CUST-ID TO WS-USER-CUST-ID                     
+                    SET WS-USER-IS-CARDHOLDER                                   
+                                         TO TRUE                                
+                 END-IF                                                         
+              END-IF                                                            
+           END-IF                                                               
+           .                                                                    
+       9600-GET-SIGNED-ON-USER-EXIT.                                            
+           EXIT                                                                 
+           .                                                                    
+      *****************************************************************         
+      * Re-verify ownership of the selected row before XCTL to the    *         
+      * card detail / card update programs                            *         
+      *****************************************************************         
+       9700-VERIFY-SELECTED-CARD.                                               
+           IF WS-USER-IS-ADMIN                                                  
+              GO TO 9700-VERIFY-SELECTED-CARD-EXIT                              
+           END-IF                                                               
+                                                                                
+           SET WS-CARD-NOT-OWNED-BY-USER TO TRUE                                
+           MOVE WS-ROW-CARD-NUM(I-SELECTED) TO WS-CHK-CARD-NUM                  
+           MOVE WS-ROW-ACCTNO(I-SELECTED)   TO CARD-ACCT-ID-X                   
+                                                                                
+           IF CARD-ACCT-ID-X IS NUMERIC                                         
+              MOVE CARD-ACCT-ID-N        TO WS-CHK-ACCT-ID                      
+              PERFORM 9550-CHECK-CARD-OWNER                                     
+                 THRU 9550-CHECK-CARD-OWNER-EXIT                                
+           END-IF                                                               
+                                                                                
+           IF WS-CARD-NOT-OWNED-BY-USER                                         
+              SET INPUT-ERROR            TO TRUE                                
+              SET WS-CARD-NOT-AUTHORIZED TO TRUE                                
+              MOVE '1'                   TO                                     
+                   WS-ROW-CRDSELECT-ERROR(I-SELECTED)                           
+           END-IF                                                               
+           .                                                                    
+       9700-VERIFY-SELECTED-CARD-EXIT.                                          
            EXIT                                                                 
            .                                                                    
                                                                                 
