@@ -43,6 +43,8 @@
       * General CICS related                                                    
       ******************************************************************        
                                                                                 
+         05 WS-SAVED-USER-ID                     PIC X(08).
+         05 WS-SAVED-USER-TYPE                   PIC X(01).
          05 WS-CICS-PROCESSNG-VARS.                                             
             07 WS-RESP-CD                          PIC S9(09) COMP              
                                                    VALUE ZEROS.                 
@@ -464,8 +466,12 @@
                WHEN CDEMO-PGM-REENTER AND                                       
                     CDEMO-FROM-PROGRAM NOT EQUAL LIT-THISPGM                    
                                                                                 
-                    INITIALIZE CARDDEMO-COMMAREA                                
-                               WS-THIS-PROGCOMMAREA                             
+                    MOVE CDEMO-USER-ID       TO WS-SAVED-USER-ID
+                    MOVE CDEMO-USER-TYPE     TO WS-SAVED-USER-TYPE
+                    INITIALIZE CARDDEMO-COMMAREA
+                               WS-THIS-PROGCOMMAREA
+                    MOVE WS-SAVED-USER-ID    TO CDEMO-USER-ID
+                    MOVE WS-SAVED-USER-TYPE  TO CDEMO-USER-TYPE
                     MOVE LIT-THISTRANID      TO CDEMO-FROM-TRANID               
                     MOVE LIT-THISPGM         TO CDEMO-FROM-PROGRAM              
                     SET CDEMO-PGM-ENTER      TO TRUE                            
