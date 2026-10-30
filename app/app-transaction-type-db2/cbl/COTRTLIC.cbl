@@ -830,12 +830,16 @@
 082400                 THRU 2000-SEND-MAP-EXIT
 082500
 082600              IF FLG-DELETED-YES
+082610                 MOVE CDEMO-USER-ID    TO WS-SAVED-USER-ID
+082620                 MOVE CDEMO-USER-TYPE  TO WS-SAVED-USER-TYPE
 082700                 INITIALIZE CARDDEMO-COMMAREA
 082800                         WS-THIS-PROGCOMMAREA
 082900                         WS-MISC-STORAGE
 083000                 SET CDEMO-PGM-ENTER      TO TRUE
 083100                 SET CA-FIRST-PAGE        TO TRUE
 083200                 SET CA-LAST-PAGE-NOT-SHOWN TO TRUE
+083210                 MOVE WS-SAVED-USER-ID   TO CDEMO-USER-ID
+083220                 MOVE WS-SAVED-USER-TYPE TO CDEMO-USER-TYPE
 083300              END-IF
 083400             GO TO COMMON-RETURN
 083500*****************************************************************

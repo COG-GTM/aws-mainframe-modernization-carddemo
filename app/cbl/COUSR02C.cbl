@@ -92,7 +92,8 @@
                PERFORM RETURN-TO-PREV-SCREEN
            ELSE
                MOVE DFHCOMMAREA(1:EIBCALEN) TO CARDDEMO-COMMAREA
-               IF CDEMO-USER-ID = SPACES OR LOW-VALUES
+               IF EIBCALEN < LENGTH OF CARDDEMO-COMMAREA
+               OR CDEMO-USER-ID = SPACES OR LOW-VALUES
                OR NOT CDEMO-USRTYP-ADMIN
                    EXEC CICS
                        XCTL PROGRAM('COSGN00C')
