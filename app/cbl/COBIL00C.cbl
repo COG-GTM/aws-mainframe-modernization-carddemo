@@ -40,6 +40,8 @@
          05 WS-TRANSACT-FILE           PIC X(08) VALUE 'TRANSACT'.
          05 WS-ACCTDAT-FILE            PIC X(08) VALUE 'ACCTDAT '.
          05 WS-CXACAIX-FILE            PIC X(08) VALUE 'CXACAIX '.
+         05 WS-USRSEC-FILE             PIC X(08) VALUE 'USRSEC  '.
+         05 WS-USR-CUST-ID             PIC 9(09) VALUE ZEROS.
          05 WS-ERR-FLG                 PIC X(01) VALUE 'N'.
            88 ERR-FLG-ON                         VALUE 'Y'.
            88 ERR-FLG-OFF                        VALUE 'N'.
@@ -80,6 +82,7 @@
        COPY CVACT01Y.
        COPY CVACT03Y.
        COPY CVTRA05Y.
+       COPY CSUSR01Y.
 
        COPY DFHAID.
        COPY DFHBMSCA.
@@ -169,7 +172,10 @@
            IF NOT ERR-FLG-ON
                MOVE ACTIDINI  OF COBIL0AI TO ACCT-ID
                                              XREF-ACCT-ID
+               PERFORM CHECK-ACCOUNT-OWNERSHIP
+           END-IF
 
+           IF NOT ERR-FLG-ON
                EVALUATE CONFIRMI OF COBIL0AI
                    WHEN 'Y'
                    WHEN 'y'
@@ -241,6 +247,43 @@
 
                PERFORM SEND-BILLPAY-SCREEN
 
+           END-IF.
+
+      *----------------------------------------------------------------*
+      *                      CHECK-ACCOUNT-OWNERSHIP
+      *----------------------------------------------------------------*
+      * The account must belong to the customer linked to the signed-on
+      * user (USRSEC), checked before any READ UPDATE. CDEMO-CUST-ID is
+      * not used: other programs overwrite it with the viewed account.
+       CHECK-ACCOUNT-OWNERSHIP.
+
+           PERFORM READ-USRSEC-FILE
+
+           IF NOT ERR-FLG-ON
+               IF SEC-USR-CUST-ID IS NUMERIC AND
+                  SEC-USR-CUST-ID NOT = ZEROS
+                   MOVE SEC-USR-CUST-ID TO WS-USR-CUST-ID
+               ELSE
+                   MOVE 'Y'     TO WS-ERR-FLG
+                   MOVE 'User is not linked to a customer...' TO
+                                   WS-MESSAGE
+                   MOVE -1       TO ACTIDINL OF COBIL0AI
+                   PERFORM SEND-BILLPAY-SCREEN
+               END-IF
+           END-IF
+
+           IF NOT ERR-FLG-ON
+               PERFORM READ-CXACAIX-FILE
+           END-IF
+
+           IF NOT ERR-FLG-ON
+               IF XREF-CUST-ID NOT = WS-USR-CUST-ID
+                   MOVE 'Y'     TO WS-ERR-FLG
+                   MOVE 'Account ID NOT found...' TO
+                                   WS-MESSAGE
+                   MOVE -1       TO ACTIDINL OF COBIL0AI
+                   PERFORM SEND-BILLPAY-SCREEN
+               END-IF
            END-IF.
 
       *----------------------------------------------------------------*
@@ -336,6 +379,33 @@
            MOVE WS-CURTIME-SECOND      TO WS-CURTIME-SS
 
            MOVE WS-CURTIME-HH-MM-SS    TO CURTIMEO OF COBIL0AO.
+
+      *----------------------------------------------------------------*
+      *                      READ-USRSEC-FILE
+      *----------------------------------------------------------------*
+       READ-USRSEC-FILE.
+
+           EXEC CICS READ
+                DATASET   (WS-USRSEC-FILE)
+                INTO      (SEC-USER-DATA)
+                LENGTH    (LENGTH OF SEC-USER-DATA)
+                RIDFLD    (CDEMO-USER-ID)
+                KEYLENGTH (LENGTH OF CDEMO-USER-ID)
+                RESP      (WS-RESP-CD)
+                RESP2     (WS-REAS-CD)
+           END-EXEC
+
+           EVALUATE WS-RESP-CD
+               WHEN DFHRESP(NORMAL)
+                   CONTINUE
+               WHEN OTHER
+                   DISPLAY 'RESP:' WS-RESP-CD 'REAS:' WS-REAS-CD
+                   MOVE 'Y'     TO WS-ERR-FLG
+                   MOVE 'Unable to verify the User ...' TO
+                                   WS-MESSAGE
+                   MOVE -1       TO ACTIDINL OF COBIL0AI
+                   PERFORM SEND-BILLPAY-SCREEN
+           END-EVALUATE.
 
       *----------------------------------------------------------------*
       *                      READ-ACCTDAT-FILE

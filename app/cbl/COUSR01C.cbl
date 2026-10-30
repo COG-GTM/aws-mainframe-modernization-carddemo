@@ -151,6 +151,7 @@
            END-EVALUATE
 
            IF NOT ERR-FLG-ON
+               MOVE SPACES             TO SEC-USER-DATA
                MOVE USERIDI  OF COUSR1AI TO SEC-USR-ID
                MOVE FNAMEI   OF COUSR1AI TO SEC-USR-FNAME
                MOVE LNAMEI   OF COUSR1AI TO SEC-USR-LNAME
