@@ -214,6 +214,8 @@
 021400                                             VALUE 'COADM01'.     02140000
 021500    05 LIT-ADMINMAP                           PIC X(7)            02150000
 021600                                             VALUE 'COADM1A'.     02160000
+021610    05 LIT-SIGNONPGM                          PIC X(8)            02161000
+021620                                             VALUE 'COSGN00C'.    02162000
 021700    05 LIT-LISTTPGM                           PIC X(8)            02170000
 021800                                             VALUE 'COTRTLIC'.    02180000
 021900    05 LIT-LISTTTRANID                        PIC X(4)            02190000
@@ -379,6 +381,19 @@
 037900                         LENGTH OF WS-THIS-PROGCOMMAREA ) TO      03790000
 038000                          WS-THIS-PROGCOMMAREA                    03800000
 038100     END-IF                                                       03810000
+038110***************************************************************** 03811000
+038120* Only administrators may maintain transaction types. A start     03812000
+038130* without a commarea, or by a non-admin user, goes to sign-on.    03813000
+038140***************************************************************** 03814000
+038150     IF EIBCALEN IS EQUAL TO 0                                    03815000
+038160     OR NOT CDEMO-USRTYP-ADMIN                                    03816000
+038170        EXEC CICS XCTL                                            03817000
+038180             PROGRAM (LIT-SIGNONPGM)                              03818000
+038190             NOHANDLE                                             03819000
+038191        END-EXEC                                                  03819100
+038192        EXEC CICS RETURN                                          03819200
+038193        END-EXEC                                                  03819300
+038194     END-IF                                                       03819400
 038200***************************************************************** 03820000
 038300* Store the Mapped PF Key                                         03830000
 038400* Remap PFkeys as needed.                                         03840000
@@ -445,7 +460,6 @@
 044500             MOVE LIT-THISTRANID     TO CDEMO-FROM-TRANID         04450000
 044600             MOVE LIT-THISPGM        TO CDEMO-FROM-PROGRAM        04460000
 044700                                                                  04470000
-044800             SET  CDEMO-USRTYP-ADMIN TO TRUE                      04480000
 044900             SET  CDEMO-PGM-ENTER    TO TRUE                      04490000
 045000             MOVE LIT-THISMAPSET     TO CDEMO-LAST-MAPSET         04500000
 045100             MOVE LIT-THISMAP        TO CDEMO-LAST-MAP            04510000
