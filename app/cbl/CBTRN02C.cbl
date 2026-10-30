@@ -209,6 +209,9 @@
       * from the optional JCL PARM, else the system date - never from           
       * the input record.                                                       
         01 WS-PROC-DATE                     PIC X(10).                          
+        01 WS-PARM-DATE-OK                  PIC X(01).                          
+        01 WS-PARM-YYYYMMDD-X               PIC X(08).                          
+        01 WS-PARM-YYYYMMDD REDEFINES WS-PARM-YYYYMMDD-X PIC 9(08).             
                                                                                 
         01 WS-TRAN-TYPE-CD                  PIC X(02).                          
       *    Only these types may carry a negative (credit) amount.               
@@ -277,14 +280,20 @@
               STRING COB-YYYY '-' COB-MM '-' COB-DD                             
                      DELIMITED BY SIZE INTO WS-PROC-DATE                        
            ELSE                                                                 
+              MOVE 'N' TO WS-PARM-DATE-OK                                       
               IF PARM-LENGTH = 10                                               
               AND PARM-YYYY IS NUMERIC                                          
               AND PARM-SEP-1 = '-'                                              
               AND PARM-MM IS NUMERIC                                            
-              AND PARM-MM >= '01' AND PARM-MM <= '12'                           
               AND PARM-SEP-2 = '-'                                              
               AND PARM-DD IS NUMERIC                                            
-              AND PARM-DD >= '01' AND PARM-DD <= '31'                           
+                 STRING PARM-YYYY PARM-MM PARM-DD                               
+                        DELIMITED BY SIZE INTO WS-PARM-YYYYMMDD-X               
+                 IF FUNCTION TEST-DATE-YYYYMMDD(WS-PARM-YYYYMMDD) = 0           
+                    MOVE 'Y' TO WS-PARM-DATE-OK                                 
+                 END-IF                                                         
+              END-IF                                                            
+              IF WS-PARM-DATE-OK = 'Y'                                          
                  MOVE PARM-PROC-DATE TO WS-PROC-DATE                            
               ELSE                                                              
                  DISPLAY 'INVALID PARM - EXPECTED YYYY-MM-DD'                   
