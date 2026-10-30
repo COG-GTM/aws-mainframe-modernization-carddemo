@@ -247,7 +247,7 @@ The application supports two user roles:
 ![User Function Flow](./diagrams/Application-Flow-User.png "User Function Flow")
 
 The regular user can perform the following functions:
-- View and update account information
+- View account information
 - Manage credit cards
 - View, add, and process transactions
 - Generate transaction reports
@@ -261,6 +261,7 @@ The regular user can perform the following functions:
 Admin users can perform the following functions:
 - User management (list, add, update, delete)
 - Transaction type management (with DB2 optional module)
+- Account update (account balances, limits and customer details)
 
 ### Application Inventory
 
@@ -271,7 +272,7 @@ Admin users can perform the following functions:
 | CC00        | COSGN00 | COSGN00C | Signon Screen                   |                                    |                                                           |
 | CM00        | COMEN01 | COMEN01C | Main Menu                       |                                    |                                                           |
 | CAVW        | COACTVW | COACTVWC | Account View                    |                                    |                                                           |
-| CAUP        | COACTUP | COACTUPC | Account Update                  |                                    |                                                           |
+| CAUP        | COACTUP | COACTUPC | Account Update                  |                                    | Admin only (Admin Menu option 7)                          |
 | CCLI        | COCRDLI | COCRDLIC | Credit Card List                |                                    |                                                           |
 | CCDL        | COCRDSL | COCRDSLC | Credit Card View                |                                    |                                                           |
 | CCUP        | COCRDUP | COCRDUPC | Credit Card Update              |                                    |                                                           |
@@ -342,6 +343,8 @@ Admin users can perform the following functions:
 ![Admin Menu](./diagrams/Admin-Menu.png "Admin Menu")
 
 **Note**: Options 5 and 6 will be enabled only if you install the Transaction Type Management with DB2 optional feature (transactions CTTU and CTLI).
+
+**Note**: Account Update (CAUP / COACTUPC) is option 7 on the Admin Menu. It is restricted to administrators: COACTUPC sends anyone who is not signed on as an admin back to the signon screen or main menu before reading any account, and main menu option 2 is marked admin only.
 
 ## Technical Highlights
 
