@@ -222,6 +222,8 @@
 022200                                             VALUE 'COTRTLI'.     02220000
 022300    05 LIT-LISTTMAP                           PIC X(7)            02230000
 022400                                             VALUE 'CTRTLIA'.     02240000
+022410    05 LIT-SIGNONPGM                          PIC X(8)            02241000
+022420                                             VALUE 'COSGN00C'.    02242000
 022500                                                                  02250000
 022600                                                                  02260000
 022700******************************************************************02270000
@@ -361,23 +363,30 @@
 036100***************************************************************** 03610000
 036200     SET WS-RETURN-MSG-OFF  TO TRUE                               03620000
 036300***************************************************************** 03630000
-036400* Store passed data if  any                *                      03640000
+036400* A direct start (no commarea) has not been through signon.       03640000
 036500***************************************************************** 03650000
 036600     IF EIBCALEN IS EQUAL TO 0                                    03660000
-036700         OR (CDEMO-FROM-PROGRAM = LIT-ADMINPGM                    03670000
+036610        PERFORM 0100-RETURN-TO-SIGNON                             03661000
+036620           THRU 0100-RETURN-TO-SIGNON-EXIT                        03662000
+036630     END-IF                                                       03663000
+036640                                                                  03664000
+036650     MOVE DFHCOMMAREA (1:LENGTH OF CARDDEMO-COMMAREA)  TO         03665000
+036660                       CARDDEMO-COMMAREA                          03666000
+036670                                                                  03667000
+036680     PERFORM 0110-VERIFY-ADMIN-SESSION                            03668000
+036690        THRU 0110-VERIFY-ADMIN-SESSION-EXIT                       03669000
+036695                                                                  03669500
+036700     IF (CDEMO-FROM-PROGRAM = LIT-ADMINPGM                        03670000
 036800         AND NOT CDEMO-PGM-REENTER)                               03680000
 036900         OR (CDEMO-FROM-PROGRAM = LIT-LISTTPGM                    03690000
 037000         AND NOT CDEMO-PGM-REENTER)                               03700000
-037100        INITIALIZE CARDDEMO-COMMAREA                              03710000
-037200                   WS-THIS-PROGCOMMAREA                           03720000
+037100        INITIALIZE WS-THIS-PROGCOMMAREA                           03710000
 037300        SET CDEMO-PGM-ENTER TO TRUE                               03730000
 037400        SET TTUP-DETAILS-NOT-FETCHED TO TRUE                      03740000
 037500     ELSE                                                         03750000
-037600        MOVE DFHCOMMAREA (1:LENGTH OF CARDDEMO-COMMAREA)  TO      03760000
-037700                          CARDDEMO-COMMAREA                       03770000
 037800        MOVE DFHCOMMAREA(LENGTH OF CARDDEMO-COMMAREA + 1:         03780000
-037900                         LENGTH OF WS-THIS-PROGCOMMAREA ) TO      03790000
-038000                          WS-THIS-PROGCOMMAREA                    03800000
+037900                       LENGTH OF WS-THIS-PROGCOMMAREA ) TO        03790000
+038000                        WS-THIS-PROGCOMMAREA                      03800000
 038100     END-IF                                                       03810000
 038200***************************************************************** 03820000
 038300* Store the Mapped PF Key                                         03830000
@@ -445,7 +454,6 @@
 044500             MOVE LIT-THISTRANID     TO CDEMO-FROM-TRANID         04450000
 044600             MOVE LIT-THISPGM        TO CDEMO-FROM-PROGRAM        04460000
 044700                                                                  04470000
-044800             SET  CDEMO-USRTYP-ADMIN TO TRUE                      04480000
 044900             SET  CDEMO-PGM-ENTER    TO TRUE                      04490000
 045000             MOVE LIT-THISMAPSET     TO CDEMO-LAST-MAPSET         04500000
 045100             MOVE LIT-THISMAP        TO CDEMO-LAST-MAP            04510000
@@ -1700,3 +1708,31 @@
 170000     EXIT                                                         17000000
 170100     .                                                            17010000
 170200                                                                  17020000
+170300***************************************************************** 17030000
+170400* Caller has not signed on as an admin user: XCTL to COSGN00C     17040000
+170500* without a commarea so the signon screen is shown afresh.        17050000
+170600***************************************************************** 17060000
+170700 0100-RETURN-TO-SIGNON.                                           17070000
+170800     EXEC CICS XCTL                                               17080000
+170900          PROGRAM (LIT-SIGNONPGM)                                 17090000
+171000     END-EXEC                                                     17100000
+171100     .                                                            17110000
+171200 0100-RETURN-TO-SIGNON-EXIT.                                      17120000
+171300     EXIT                                                         17130000
+171400     .                                                            17140000
+171500                                                                  17150000
+171600***************************************************************** 17160000
+171700* The user id and role are set only by COSGN00C. Reject any       17170000
+171800* commarea without a signed-on admin user.                        17180000
+171900***************************************************************** 17190000
+172000 0110-VERIFY-ADMIN-SESSION.                                       17200000
+172100     IF CDEMO-USER-ID EQUAL SPACES                                17210000
+172200     OR CDEMO-USER-ID EQUAL LOW-VALUES                            17220000
+172300     OR NOT CDEMO-USRTYP-ADMIN                                    17230000
+172400        PERFORM 0100-RETURN-TO-SIGNON                             17240000
+172500           THRU 0100-RETURN-TO-SIGNON-EXIT                        17250000
+172600     END-IF                                                       17260000
+172700     .                                                            17270000
+172800 0110-VERIFY-ADMIN-SESSION-EXIT.                                  17280000
+172900     EXIT                                                         17290000
+173000     .                                                            17300000

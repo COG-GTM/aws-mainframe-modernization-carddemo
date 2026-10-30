@@ -79,6 +79,16 @@ This extension provides the following capabilities:
      DEFINE TRANSACTION(CTTU) GROUP(CARDDEMO) PROGRAM(COTRTUPC)
      DEFINE TRANSACTION(CTLI) GROUP(CARDDEMO) PROGRAM(COTRTLIC)
      ```
+   - CTLI and CTTU are admin-only. The programs send any caller without a signed-on
+     admin session (including a direct start from a blank screen) to signon (COSGN00C).
+     Where the region runs with transaction security (`XTRAN=YES`), also restrict the
+     transactions to your CardDemo administrators, for example:
+     ```
+     RDEFINE TCICSTRN (CTLI CTTU) UACC(NONE)
+     PERMIT CTLI CLASS(TCICSTRN) ID(<admin-group>) ACCESS(READ)
+     PERMIT CTTU CLASS(TCICSTRN) ID(<admin-group>) ACCESS(READ)
+     SETROPTS RACLIST(TCICSTRN) REFRESH
+     ```
 
 4. **Extract Initial Data**
    - Run the TRANEXTR job to extract transaction type data from DB2
