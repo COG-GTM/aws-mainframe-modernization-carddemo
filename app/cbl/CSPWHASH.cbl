@@ -41,6 +41,7 @@
        01 WS-CONSTANTS.
          05 WS-SCHEME-PBKDF2           PIC X(02) VALUE 'P1'.
          05 WS-DEFAULT-ITERATIONS      PIC 9(06) VALUE 001000.
+         05 WS-MAX-ITERATIONS          PIC 9(06) VALUE 100000.
          05 WS-HEX-LOWER               PIC X(16)
                                        VALUE '0123456789abcdef'.
          05 WS-HEX-UPPER               PIC X(16)
@@ -307,6 +308,7 @@
 
            IF PWH-ITERATIONS IS NOT NUMERIC
               OR PWH-ITERATIONS = ZERO
+              OR PWH-ITERATIONS > WS-MAX-ITERATIONS
                SET PWH-RC-BAD-INPUT TO TRUE
                EXIT PARAGRAPH
            END-IF

@@ -74,7 +74,7 @@ USER0005LEE                 TING                PASSWORDU
 //* DEFINE VSAM FILE FOR USER SECURITY (ESDS)
 //*-------------------------------------------------------------------*
 //*
-//STEP02  EXEC PGM=IDCAMS
+//STEP02  EXEC PGM=IDCAMS,COND=((0,NE,STEP01),(0,NE,STEP1A))
 //*
 //SYSPRINT DD  SYSOUT=*
 //SYSIN    DD  *
@@ -94,7 +94,7 @@ USER0005LEE                 TING                PASSWORDU
 //* COPY USER SECURITY DATA FROM PS TO VSAM FILE(ESDS)
 //*-------------------------------------------------------------------*
 //*
-//STEP03  EXEC PGM=IDCAMS
+//STEP03  EXEC PGM=IDCAMS,COND=((0,NE,STEP01),(0,NE,STEP1A))
 //*
 //IN       DD  DSN=AWS.M2.CARDDEMO.ESDSRRDS.PS,DISP=SHR
 //OUT      DD  DSN=AWS.M2.CARDDEMO.USRSEC.VSAM.ESDS,DISP=SHR
@@ -108,7 +108,7 @@ USER0005LEE                 TING                PASSWORDU
 //* DEFINE VSAM FILE FOR USER SECURITY (RRDS)
 //*-------------------------------------------------------------------*
 //*
-//STEP04  EXEC PGM=IDCAMS
+//STEP04  EXEC PGM=IDCAMS,COND=((0,NE,STEP01),(0,NE,STEP1A))
 //*
 //SYSPRINT DD  SYSOUT=*
 //SYSIN    DD  *
@@ -128,7 +128,7 @@ USER0005LEE                 TING                PASSWORDU
 //* COPY USER SECURITY DATA FROM PS TO VSAM FILE(ESDS)
 //*-------------------------------------------------------------------*
 //*
-//STEP05  EXEC PGM=IDCAMS
+//STEP05  EXEC PGM=IDCAMS,COND=((0,NE,STEP01),(0,NE,STEP1A))
 //*
 //IN       DD  DSN=AWS.M2.CARDDEMO.ESDSRRDS.PS,DISP=SHR
 //OUT      DD  DSN=AWS.M2.CARDDEMO.USRSEC.VSAM.RRDS,DISP=SHR

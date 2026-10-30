@@ -73,7 +73,7 @@ USER0005LEE                 TING                PASSWORDU
 //* DEFINE VSAM FILE FOR USER SECURITY
 //*-------------------------------------------------------------------*
 //*
-//STEP02  EXEC PGM=IDCAMS
+//STEP02  EXEC PGM=IDCAMS,COND=((0,NE,STEP01),(0,NE,STEP1A))
 //*
 //SYSPRINT DD  SYSOUT=*
 //SYSIN    DD  *
@@ -95,7 +95,7 @@ USER0005LEE                 TING                PASSWORDU
 //* COPY USER SECURITY DATA FROM PS TO VSAM FILE
 //*-------------------------------------------------------------------*
 //*
-//STEP03  EXEC PGM=IDCAMS
+//STEP03  EXEC PGM=IDCAMS,COND=((0,NE,STEP01),(0,NE,STEP1A))
 //*
 //IN       DD  DSN=AWS.M2.CARDDEMO.USRSEC.PS,DISP=SHR
 //OUT      DD  DSN=AWS.M2.CARDDEMO.USRSEC.VSAM.KSDS,DISP=SHR
