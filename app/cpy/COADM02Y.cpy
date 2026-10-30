@@ -19,7 +19,8 @@
 001900 01 CARDDEMO-ADMIN-MENU-OPTIONS.                                  00190000
 002000*    Option added for Db2 release                                 00200000
 002100*  05 CDEMO-ADMIN-OPT-COUNT           PIC 9(02) VALUE 4.          00210000
-002200   05 CDEMO-ADMIN-OPT-COUNT           PIC 9(02) VALUE 6.          00220000
+002110*  05 CDEMO-ADMIN-OPT-COUNT           PIC 9(02) VALUE 6.          00211000
+002200   05 CDEMO-ADMIN-OPT-COUNT           PIC 9(02) VALUE 7.          00220000
 002300*Option added for Db2 release                                     00230000
 002400   05 CDEMO-ADMIN-OPTIONS-DATA.                                   00240000
 002500                                                                  00250000
@@ -52,6 +53,11 @@
 004930         'Transaction Type Maintenance (Db2) '.                   00493003
 004940     10 FILLER                        PIC X(08) VALUE 'COTRTUPC'. 00494002
 005000*    Option added for Db2 v1 release end                          00500002
+005010*    Transaction Add moved from the main menu (admin only)        00501000
+005020     10 FILLER                        PIC 9(02) VALUE 7.          00502000
+005030     10 FILLER                        PIC X(35) VALUE             00503000
+005040         'Transaction Add                    '.                   00504000
+005050     10 FILLER                        PIC X(08) VALUE 'COTRN02C'. 00505000
 005100   05 CDEMO-ADMIN-OPTIONS REDEFINES CDEMO-ADMIN-OPTIONS-DATA.     00510000
 005200     10 CDEMO-ADMIN-OPT OCCURS 9 TIMES.                           00520000
 005300       15 CDEMO-ADMIN-OPT-NUM           PIC 9(02).                00530000

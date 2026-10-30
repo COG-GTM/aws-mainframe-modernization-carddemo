@@ -117,6 +117,9 @@
                PERFORM RETURN-TO-PREV-SCREEN
            ELSE
                MOVE DFHCOMMAREA(1:EIBCALEN) TO CARDDEMO-COMMAREA
+               IF NOT CDEMO-USRTYP-ADMIN
+                   PERFORM DENY-NON-ADMIN-ACCESS
+               END-IF
                IF NOT CDEMO-PGM-REENTER
                    SET CDEMO-PGM-REENTER    TO TRUE
                    MOVE LOW-VALUES          TO COTRN2AO
@@ -441,6 +444,10 @@
       *----------------------------------------------------------------*
        ADD-TRANSACTION.
 
+           IF NOT CDEMO-USRTYP-ADMIN
+               PERFORM DENY-NON-ADMIN-ACCESS
+           END-IF
+
            MOVE HIGH-VALUES TO TRAN-ID
            PERFORM STARTBR-TRANSACT-FILE
            PERFORM READPREV-TRANSACT-FILE
@@ -464,6 +471,26 @@
            MOVE TORIGDTI OF COTRN2AI TO TRAN-ORIG-TS
            MOVE TPROCDTI OF COTRN2AI TO TRAN-PROC-TS
            PERFORM WRITE-TRANSACT-FILE.
+
+      *----------------------------------------------------------------*
+      *                    DENY-NON-ADMIN-ACCESS
+      *----------------------------------------------------------------*
+      * Transaction Add is an admin-only function. Regular users get
+      * an error screen and can only leave with PF3 (back to the main
+      * menu); no file is read or written for them.
+       DENY-NON-ADMIN-ACCESS.
+
+           IF CDEMO-PGM-REENTER AND EIBAID = DFHPF3
+               MOVE 'COMEN01C' TO CDEMO-TO-PROGRAM
+               PERFORM RETURN-TO-PREV-SCREEN
+           END-IF
+
+           SET CDEMO-PGM-REENTER TO TRUE
+           MOVE LOW-VALUES       TO COTRN2AO
+           MOVE 'Y'              TO WS-ERR-FLG
+           MOVE 'No access - Admin Only option... ' TO WS-MESSAGE
+           MOVE -1               TO ACTIDINL OF COTRN2AI
+           PERFORM SEND-TRNADD-SCREEN.
 
       *----------------------------------------------------------------*
       *                      COPY-LAST-TRAN-DATA

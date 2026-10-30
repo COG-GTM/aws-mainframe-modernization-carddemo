@@ -249,7 +249,7 @@ The application supports two user roles:
 The regular user can perform the following functions:
 - View and update account information
 - Manage credit cards
-- View, add, and process transactions
+- View and process transactions
 - Generate transaction reports
 - Make bill payments
 - View pending authorizations (with optional module)
@@ -260,6 +260,7 @@ The regular user can perform the following functions:
 
 Admin users can perform the following functions:
 - User management (list, add, update, delete)
+- Transaction add (manual entry against any card; admin only)
 - Transaction type management (with DB2 optional module)
 
 ### Application Inventory
@@ -277,7 +278,7 @@ Admin users can perform the following functions:
 | CCUP        | COCRDUP | COCRDUPC | Credit Card Update              |                                    |                                                           |
 | CT00        | COTRN00 | COTRN00C | Transaction List                |                                    |                                                           |
 | CT01        | COTRN01 | COTRN01C | Transaction View                |                                    |                                                           |
-| CT02        | COTRN02 | COTRN02C | Transaction Add                 |                                    |                                                           |
+| CT02        | COTRN02 | COTRN02C | Transaction Add                 |                                    | Admin only (Admin Menu option 7)                          |
 | CR00        | CORPT00 | CORPT00C | Transaction Reports             |                                    |                                                           |
 | CB00        | COBIL00 | COBIL00C | Bill Payment                    |                                    |                                                           |
 | CPVS        | COPAU00 | COPAUS0C | Pending Authorization Summary   | IMS-DB2-MQ: Pending Authorizations | Read IMS and VSAM                                         |
@@ -342,6 +343,8 @@ Admin users can perform the following functions:
 ![Admin Menu](./diagrams/Admin-Menu.png "Admin Menu")
 
 **Note**: Options 5 and 6 will be enabled only if you install the Transaction Type Management with DB2 optional feature (transactions CTTU and CTLI).
+
+Option 7 (Transaction Add, CT02) is admin only. It is no longer offered to regular users on the Main Menu, and COTRN02C itself rejects regular users.
 
 ## Technical Highlights
 
