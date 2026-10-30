@@ -200,8 +200,9 @@ CardDemo includes several optional modules that extend the base functionality:
 
 ### Accessing the Application
 - **Online Functions**: Start the CardDemo application using the CC00 transaction
-  - Admin access: Use userid ADMIN001 with password PASSWORD
-  - User access: Use userid USER0001 with password PASSWORD
+  - There is no default password. Before running DUSRSECJ, type an 8-character initial password that is unique to your install into columns 49-56 of each seed record in `app/jcl/DUSRSECJ.jcl` (seed users: admin ADMIN001, regular users USER0001-USER0005). Records left blank cannot sign on, and the old default `PASSWORD` is rejected at sign-on and by the user add/update screens.
+  - Admin access: Use userid ADMIN001 with the password you set for it
+  - User access: Use userid USER0001 with the password you set for it
 - **Batch Functions**: See the "Running Batch Jobs" section below
 
 ## Running Batch Jobs

@@ -19,6 +19,8 @@
          05 SEC-USR-FNAME              PIC X(20).
          05 SEC-USR-LNAME              PIC X(20).
          05 SEC-USR-PWD                PIC X(08).
+           88 SEC-USR-PWD-UNUSABLE     VALUES SPACES LOW-VALUES
+                                              'PASSWORD'.
          05 SEC-USR-TYPE               PIC X(01).
          05 SEC-USR-FILLER             PIC X(23).
       *
