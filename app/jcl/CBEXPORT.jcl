@@ -66,7 +66,9 @@
 //* *******************************************************************
 //* STEP 2: RUN EXPORT PROGRAM
 //* *******************************************************************
-//STEP02 EXEC PGM=CBEXPORT
+//* BYPASSED UNLESS STEP01 ENDED RC=0, SO A FAILED DELETE/DEFINE CAN
+//* NEVER LEAVE CBEXPORT WRITING INTO AN OLD UNENCRYPTED CLUSTER.
+//STEP02 EXEC PGM=CBEXPORT,COND=(0,NE,STEP01)
 //STEPLIB  DD DISP=SHR,
 //         DSN=AWS.M2.CARDDEMO.LOADLIB
 //*
