@@ -82,7 +82,12 @@
            10 WS-ACCOUNT-MASTER-READ-FLAG          PIC X(1).
               88 FOUND-ACCT-IN-MASTER              VALUE '1'.
            10 WS-CUST-MASTER-READ-FLAG             PIC X(1).
-              88 FOUND-CUST-IN-MASTER              VALUE '1'.                   
+              88 FOUND-CUST-IN-MASTER              VALUE '1'.
+           10 WS-USRSEC-READ-FLAG                  PIC X(1).
+              88 FOUND-USER-IN-USRSEC              VALUE '1'.
+         05  WS-ACCT-AUTH-FLAG                     PIC X(1).
+           88  ACCT-ACCESS-ALLOWED                 VALUE 'Y'.
+           88  ACCT-ACCESS-DENIED                  VALUE 'N'.                   
          05  WS-FILE-ERROR-MESSAGE.                                             
            10  FILLER                              PIC X(12)                    
                                                    VALUE 'File Error: '.        
@@ -132,6 +137,8 @@
                'Did not find this account in account master file'.              
            88  DID-NOT-FIND-CUST-IN-CUSTDAT        VALUE                        
                'Did not find associated customer in master file'.               
+           88  ACCT-NOT-AUTHORIZED-FOR-USER        VALUE
+               'Account not found or not linked to your user id'.
            88  XREF-READ-ERROR                     VALUE                        
                'Error reading account card xref File'.                          
            88  CODING-TO-BE-DONE                   VALUE                        
@@ -187,6 +194,8 @@
                                                    VALUE 'CARDDAT '.            
           05 LIT-CUSTFILENAME                      PIC X(8)                     
                                                    VALUE 'CUSTDAT '.            
+          05 LIT-USRSECFILENAME                    PIC X(8)
+                                                   VALUE 'USRSEC  '.
           05 LIT-CARDFILENAME-ACCT-PATH            PIC X(8)                     
                                                    VALUE 'CARDAIX '.            
           05 LIT-CARDXREFNAME-ACCT-PATH            PIC X(8)                     
@@ -690,13 +699,32 @@
            
            MOVE CDEMO-ACCT-ID TO WS-CARD-RID-ACCT-ID                            
                                                                                 
+           PERFORM 9100-GETUSER-BYUSERID
+              THRU 9100-GETUSER-BYUSERID-EXIT
+
+           IF NOT FOUND-USER-IN-USRSEC
+              GO TO 9000-READ-ACCT-EXIT
+           END-IF
+
            PERFORM 9200-GETCARDXREF-BYACCT                                      
               THRU 9200-GETCARDXREF-BYACCT-EXIT                                 
                                                                                 
       *    IF DID-NOT-FIND-ACCT-IN-CARDXREF                                     
            IF FLG-ACCTFILTER-NOT-OK                                             
+      *       Do not let regular users probe which account ids exist
+              IF  SEC-USR-TYPE NOT EQUAL 'A'
+              AND WS-RESP-CD   EQUAL DFHRESP(NOTFND)
+                 SET ACCT-NOT-AUTHORIZED-FOR-USER TO TRUE
+              END-IF
               GO TO 9000-READ-ACCT-EXIT                                         
            END-IF                                                               
+
+           PERFORM 9150-CHECK-ACCT-OWNERSHIP
+              THRU 9150-CHECK-ACCT-OWNERSHIP-EXIT
+
+           IF NOT ACCT-ACCESS-ALLOWED
+              GO TO 9000-READ-ACCT-EXIT
+           END-IF
                                                                                 
            PERFORM 9300-GETACCTDATA-BYACCT                                      
               THRU 9300-GETACCTDATA-BYACCT-EXIT                                 
@@ -720,6 +748,85 @@
        9000-READ-ACCT-EXIT.                                                     
            EXIT                                                                 
            .                                                                    
+       9100-GETUSER-BYUSERID.
+      *    Re-read the signed-on user so the access decision does not
+      *    rely on the user type carried in the COMMAREA
+           MOVE LOW-VALUES                  TO WS-USRSEC-READ-FLAG
+           INITIALIZE SEC-USER-DATA
+
+           IF CDEMO-USER-ID EQUAL SPACES
+           OR CDEMO-USER-ID EQUAL LOW-VALUES
+              SET INPUT-ERROR                  TO TRUE
+              SET FLG-ACCTFILTER-NOT-OK        TO TRUE
+              SET ACCT-NOT-AUTHORIZED-FOR-USER TO TRUE
+              GO TO 9100-GETUSER-BYUSERID-EXIT
+           END-IF
+
+           EXEC CICS READ
+                DATASET   (LIT-USRSECFILENAME)
+                RIDFLD    (CDEMO-USER-ID)
+                KEYLENGTH (LENGTH OF CDEMO-USER-ID)
+                INTO      (SEC-USER-DATA)
+                LENGTH    (LENGTH OF SEC-USER-DATA)
+                RESP      (WS-RESP-CD)
+                RESP2     (WS-REAS-CD)
+           END-EXEC
+
+           EVALUATE WS-RESP-CD
+               WHEN DFHRESP(NORMAL)
+                  SET FOUND-USER-IN-USRSEC        TO TRUE
+                  MOVE SPACES                     TO SEC-USR-PWD
+               WHEN DFHRESP(NOTFND)
+                  INITIALIZE SEC-USER-DATA
+                  SET INPUT-ERROR                 TO TRUE
+                  SET FLG-ACCTFILTER-NOT-OK       TO TRUE
+                  SET ACCT-NOT-AUTHORIZED-FOR-USER TO TRUE
+               WHEN OTHER
+                  INITIALIZE SEC-USER-DATA
+                  SET INPUT-ERROR                 TO TRUE
+                  SET FLG-ACCTFILTER-NOT-OK       TO TRUE
+                  MOVE 'READ'                     TO ERROR-OPNAME
+                  MOVE LIT-USRSECFILENAME         TO ERROR-FILE
+                  MOVE WS-RESP-CD                 TO ERROR-RESP
+                  MOVE WS-REAS-CD                 TO ERROR-RESP2
+                  MOVE WS-FILE-ERROR-MESSAGE      TO WS-RETURN-MSG
+           END-EVALUATE
+           .
+       9100-GETUSER-BYUSERID-EXIT.
+           EXIT
+           .
+
+       9150-CHECK-ACCT-OWNERSHIP.
+      *    Admins may view any account. Regular users may only view
+      *    accounts of the customer linked to their USRSEC record.
+           SET ACCT-ACCESS-DENIED              TO TRUE
+
+           EVALUATE TRUE
+               WHEN NOT FOUND-USER-IN-USRSEC
+                  CONTINUE
+               WHEN SEC-USR-TYPE EQUAL 'A'
+                  SET ACCT-ACCESS-ALLOWED      TO TRUE
+               WHEN SEC-USR-TYPE EQUAL 'U'
+                AND SEC-USR-CUST-ID IS NUMERIC
+                AND SEC-USR-CUST-ID NOT EQUAL ZEROES
+                AND SEC-USR-CUST-ID EQUAL XREF-CUST-ID
+                  SET ACCT-ACCESS-ALLOWED      TO TRUE
+               WHEN OTHER
+                  CONTINUE
+           END-EVALUATE
+
+           IF ACCT-ACCESS-DENIED
+              SET INPUT-ERROR                  TO TRUE
+              SET FLG-ACCTFILTER-NOT-OK        TO TRUE
+              SET ACCT-NOT-AUTHORIZED-FOR-USER TO TRUE
+              MOVE ZEROES                      TO CDEMO-CUST-ID
+                                                  CDEMO-CARD-NUM
+           END-IF
+           .
+       9150-CHECK-ACCT-OWNERSHIP-EXIT.
+           EXIT
+           .
+
        9200-GETCARDXREF-BYACCT.                                                 
                                                                                 
       *    Read the Card file. Access via alternate index ACCTID                
