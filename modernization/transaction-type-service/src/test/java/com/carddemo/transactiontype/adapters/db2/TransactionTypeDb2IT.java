@@ -26,9 +26,15 @@ import org.springframework.jdbc.core.JdbcTemplate;
 class TransactionTypeDb2IT {
 
     @Autowired
+    TestRestTemplate anonymous;
     TestRestTemplate http;
     @Autowired
     JdbcTemplate jdbc;
+
+    @BeforeEach
+    void authenticate() {
+        http = anonymous.withBasicAuth("it-maintainer", "it-maintainer-pw");
+    }
 
     @BeforeEach
     @AfterEach
@@ -126,5 +132,20 @@ class TransactionTypeDb2IT {
         String cats = http.getForObject("/api/v1/transaction-type-categories/extract", String.class);
         assertThat(cats.lines().count()).isEqualTo(18);
         assertThat(cats.lines()).allMatch(l -> l.length() == 60);
+    }
+
+    @Test
+    @DisplayName("HTTP Basic on the real stack: anonymous 401, reader GET 200 / POST 403, nothing written to Db2")
+    void security() {
+        assertThat(anonymous.getForEntity("/api/v1/transaction-types", String.class).getStatusCode())
+                .isEqualTo(HttpStatus.UNAUTHORIZED);
+        var reader = anonymous.withBasicAuth("it-reader", "it-reader-pw");
+        assertThat(reader.getForEntity("/api/v1/transaction-types", String.class).getStatusCode())
+                .isEqualTo(HttpStatus.OK);
+        assertThat(reader.postForEntity("/api/v1/transaction-types",
+                Map.of("code", "92", "description", "READER WRITE"), String.class).getStatusCode())
+                .isEqualTo(HttpStatus.FORBIDDEN);
+        assertThat(dbDescription("92")).isNull();
+        assertThat(anonymous.getForEntity("/actuator/health", String.class).getStatusCode()).isEqualTo(HttpStatus.OK);
     }
 }

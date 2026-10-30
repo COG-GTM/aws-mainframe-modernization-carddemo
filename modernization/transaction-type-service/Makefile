@@ -1,12 +1,16 @@
 JAVA_HOME ?= /usr/lib/jvm/java-21-openjdk-amd64
 DB2_PORT ?= 50000
-DB2_PASSWORD ?= carddemo
+# Secrets (DB2_PASSWORD, TT_API_*) come only from an uncommitted .env: cp .env.example .env
+-include .env
 DB2_URL := jdbc:db2://localhost:$(DB2_PORT)/CARDDEMO
-export DB2_PORT DB2_PASSWORD
-MVN := JAVA_HOME=$(JAVA_HOME) mvn -B -Ddb2.url=$(DB2_URL) -Ddb2.password=$(DB2_PASSWORD)
+export DB2_PORT DB2_PASSWORD TT_API_USER TT_API_PASSWORD TT_API_READER_USER TT_API_READER_PASSWORD
+MVN := JAVA_HOME=$(JAVA_HOME) mvn -B -Ddb2.url=$(DB2_URL)
 export JAVA_HOME
 
-.PHONY: build test it db2-up db2-wait db2-sql up run down clean-db2
+.PHONY: build test it db2-up db2-wait db2-sql up run down clean-db2 check-env
+
+check-env:
+	@test -n "$$DB2_PASSWORD" || { echo "DB2_PASSWORD is not set: cp .env.example .env and fill it in"; exit 1; }
 
 build:            ## host build of the jar (used by the Dockerfile)
 	$(MVN) -DskipTests package
@@ -14,7 +18,7 @@ build:            ## host build of the jar (used by the Dockerfile)
 test:             ## unit + MockMvc tests
 	$(MVN) verify
 
-db2-up:           ## IBM Db2 Community in Docker with CardDemo DDL + seed data
+db2-up: check-env ## IBM Db2 Community in Docker with CardDemo DDL + seed data
 	docker compose up -d db2
 	$(MAKE) db2-wait
 
@@ -31,10 +35,10 @@ it: db2-up        ## integration tests against the real Db2 container
 	$(MVN) -Pdb2-it verify
 
 run: db2-up build ## run the service on the host against Db2 (Swagger: http://localhost:8080/swagger-ui.html)
-	SPRING_DATASOURCE_URL=$(DB2_URL) SPRING_DATASOURCE_PASSWORD=$(DB2_PASSWORD) \
+	SPRING_DATASOURCE_URL=$(DB2_URL) SPRING_DATASOURCE_PASSWORD="$$DB2_PASSWORD" \
 	  $(JAVA_HOME)/bin/java -jar target/transaction-type-service-0.1.0.jar
 
-up: build         ## db2 + service containers
+up: check-env build ## db2 + service containers
 	docker compose up -d --build
 	$(MAKE) db2-wait
 

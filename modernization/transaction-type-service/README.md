@@ -4,6 +4,7 @@ Java 21 / Spring Boot 3 service that implements the CardDemo Db2 transaction-typ
 
 ## Run it
 ```bash
+cp .env.example .env   # gitignored; set DB2_PASSWORD and the four TT_API_* values (no defaults are committed)
 make db2-up     # IBM Db2 Community in Docker; applies ddl/*.ddl + loads ctl/DB2LT*.ctl (first start: a few minutes)
 make run        # builds the jar with Java 21 and runs it on :8080 against Db2
 # or: make up   # Db2 + service both in docker compose (jar is built on the host, then copied in)
@@ -12,6 +13,17 @@ make it         # + integration tests against the real Db2 container (-Pdb2-it)
 make db2-sql Q="SELECT * FROM CARDDEMO.TRANSACTION_TYPE"
 ```
 Swagger UI: http://localhost:8080/swagger-ui.html · health: `/actuator/health`.
+
+### Credentials and access
+`.env` is read by `docker compose` and the Makefile (`-include .env`); `make db2-up`/`make up` stop with a message if `DB2_PASSWORD` is missing.
+
+| Variable | Used for |
+|---|---|
+| `DB2_PASSWORD` | `db2inst1` password of the Db2 container; passed to the service as `SPRING_DATASOURCE_PASSWORD` and to the ITs |
+| `TT_API_USER` / `TT_API_PASSWORD` | HTTP Basic user with role MAINTAINER: every method on `/api/**` |
+| `TT_API_READER_USER` / `TT_API_READER_PASSWORD` | HTTP Basic user with role READER: `GET /api/**` only (writes -> 403) |
+
+The service refuses to start if any `TT_API_*` value is blank or both usernames are the same (`config/SecurityConfig`). Public without credentials: `/actuator/health`, `/swagger-ui.html`, `/swagger-ui/**`, `/v3/api-docs/**`; everything else returns 401 without credentials. In Swagger UI click **Authorize** and enter one of the two users. Unit tests and the Db2 ITs run on the `test` profile, which takes test-only users from `src/test/resources/application-test.yml`. The service has no test/debug endpoints; any added later must live in a `@Profile("testing")` controller (off by default; `SecurityTest` asserts `/api/v1/testing/**` is 404 and that no extra handler is registered).
 
 Db2 notes: `db2/init/carddemo-init.sh` runs inside the container. It strips the z/OS-only `ERASE NO`/`CLOSE NO` clauses from the index DDL and drops the comment lines from the load cards. A marker file then makes the container healthy. The jar connects with the IBM JCC driver (`com.ibm.db2:jcc`).
 

@@ -23,7 +23,7 @@
     <springdoc.version>2.6.0</springdoc.version>
     <db2.url>jdbc:db2://localhost:50000/CARDDEMO</db2.url>
     <db2.user>db2inst1</db2.user>
-    <db2.password>carddemo</db2.password>
+    <db2.password>${env.DB2_PASSWORD}</db2.password>
   </properties>
 
   <dependencies>
@@ -57,7 +57,17 @@
 
     <dependency>
       <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-security</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-test</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.security</groupId>
+      <artifactId>spring-security-test</artifactId>
       <scope>test</scope>
     </dependency>
   </dependencies>
@@ -75,6 +85,9 @@
           <excludes>
             <exclude>**/*IT.java</exclude>
           </excludes>
+          <systemPropertyVariables>
+            <spring.profiles.active>test</spring.profiles.active>
+          </systemPropertyVariables>
         </configuration>
       </plugin>
     </plugins>
@@ -94,6 +107,7 @@
                 <include>**/*IT.java</include>
               </includes>
               <systemPropertyVariables>
+                <spring.profiles.active>test</spring.profiles.active>
                 <spring.datasource.url>${db2.url}</spring.datasource.url>
                 <spring.datasource.username>${db2.user}</spring.datasource.username>
                 <spring.datasource.password>${db2.password}</spring.datasource.password>

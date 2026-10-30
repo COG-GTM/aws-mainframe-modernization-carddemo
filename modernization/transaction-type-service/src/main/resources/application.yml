@@ -4,7 +4,7 @@ spring:
   datasource:
     url: ${SPRING_DATASOURCE_URL:jdbc:db2://localhost:50000/CARDDEMO:retrieveMessagesFromServerOnGetMessage=true;}
     username: ${SPRING_DATASOURCE_USERNAME:db2inst1}
-    password: ${SPRING_DATASOURCE_PASSWORD:carddemo}
+    password: ${SPRING_DATASOURCE_PASSWORD:}
     driver-class-name: com.ibm.db2.jcc.DB2Driver
     hikari:
       connection-test-query: SELECT 1 FROM SYSIBM.SYSDUMMY1
@@ -24,3 +24,11 @@ springdoc:
 carddemo:
   list:
     page-size: 7
+  # HTTP Basic users. No defaults: the service refuses to start unless all four are set (see .env.example).
+  security:
+    maintainer:
+      username: ${TT_API_USER:}
+      password: ${TT_API_PASSWORD:}
+    reader:
+      username: ${TT_API_READER_USER:}
+      password: ${TT_API_READER_PASSWORD:}
