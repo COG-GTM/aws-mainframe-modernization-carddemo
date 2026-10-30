@@ -188,7 +188,9 @@ CardDemo includes several optional modules that extend the base functionality:
      `CSPWHASH` must be in the load library and defined to CICS (CSD entry provided). Sign-on
      (`COSGN00C`), add user (`COUSR01C`) and update user (`COUSR02C`) call it; the update
      screen no longer shows the current password and a blank password keeps the existing one.
-     Existing 80-byte USRSEC files must be converted once with `USRSECMG`.
+     Existing 80-byte USRSEC files must be converted once with `USRSECMG`;
+     after sign-on is verified, run `USRSECCL` to delete the legacy
+     clear-text cluster.
 
 8. **Install and Load Resources**
    - Install the resources in your CICS region:
@@ -308,6 +310,7 @@ Admin users can perform the following functions:
 |:---------|:---------|:-----------------------------------------------------|:---------------|
 | DUSRSECJ | CBUSR01C | Initial Load of User security file (hashes passwords)|                |
 | USRSECMG | CBUSR01C | Migrate an existing 80-byte USRSEC file to hashes     |                |
+| USRSECCL | IDCAMS   | Delete legacy USRSEC copy after verifying migration   |                |
 | DEFGDGB  | IDCAMS   | Setup GDG Bases                                      |                |
 | DEFGDGD  | IDCAMS   | Setup more GDG Bases for Db2                         |                |
 | ACCTFILE | IDCAMS   | Refresh Account Master                               |                |
