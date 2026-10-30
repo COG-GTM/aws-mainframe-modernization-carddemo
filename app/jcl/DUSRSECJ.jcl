@@ -26,7 +26,9 @@
 //            DISP=(MOD,DELETE,DELETE)
 //*
 //*-------------------------------------------------------------------*
-//* CREATE USER SECURITY FILE (PS) FROM IN-STREAM DATA
+//* LOAD IN-STREAM INITIAL USERS (LEGACY 80-BYTE LAYOUT, INITIAL
+//* PASSWORD IN COLUMNS 57-64) INTO A TEMPORARY DATASET. THE PASSWORD
+//* IS NEVER STORED: STEP1A REPLACES IT WITH A SALTED HASH.
 //*-------------------------------------------------------------------*
 //*
 //STEP01  EXEC PGM=IEBGENER
@@ -43,13 +45,29 @@ USER0003LAURITZ             ALME                PASSWORDU
 USER0004AVERARDO            MAZZI               PASSWORDU
 USER0005LEE                 TING                PASSWORDU
 /*
-//SYSUT2   DD DSN=AWS.M2.CARDDEMO.USRSEC.PS,
-//            DISP=(NEW,CATLG,DELETE),
+//SYSUT2   DD DSN=&&USRIN,
+//            DISP=(NEW,PASS,DELETE),
 //            DCB=(LRECL=80,RECFM=FB,DSORG=PS,BLKSIZE=0),
 //            UNIT=SYSAD,SPACE=(TRK,(10,5),RLSE)
 //*
 //SYSPRINT DD SYSOUT=*
 //SYSIN    DD DUMMY
+//*
+//*-------------------------------------------------------------------*
+//* CREATE USER SECURITY FILE (PS, 200-BYTE CSUSR01Y LAYOUT) WITH
+//* SALTED PBKDF2-HMAC-SHA256 PASSWORD HASHES (PROGRAM CSPWHASH)
+//*-------------------------------------------------------------------*
+//*
+//STEP1A  EXEC PGM=CBUSR01C
+//STEPLIB  DD DISP=SHR,
+//         DSN=AWS.M2.CARDDEMO.LOADLIB
+//USRIN    DD DSN=&&USRIN,DISP=(OLD,DELETE,DELETE)
+//USROUT   DD DSN=AWS.M2.CARDDEMO.USRSEC.PS,
+//            DISP=(NEW,CATLG,DELETE),
+//            DCB=(LRECL=200,RECFM=FB,DSORG=PS,BLKSIZE=0),
+//            UNIT=SYSAD,SPACE=(TRK,(10,5),RLSE)
+//SYSOUT   DD SYSOUT=*
+//SYSPRINT DD SYSOUT=*
 //*
 //*-------------------------------------------------------------------*
 //* DEFINE VSAM FILE FOR USER SECURITY
@@ -63,7 +81,7 @@ USER0005LEE                 TING                PASSWORDU
  SET       MAXCC = 0
  DEFINE    CLUSTER (NAME(AWS.M2.CARDDEMO.USRSEC.VSAM.KSDS)    -
                     KEYS(8,0)                                 -
-                    RECORDSIZE(80,80)                         -
+                    RECORDSIZE(200,200)                       -
                     REUSE                                     -
                     INDEXED                                   -
                     TRACKS(45,15)                             -

@@ -130,7 +130,7 @@ CardDemo includes several optional modules that extend the base functionality:
 
      | Dataset name                      | Description                                  | Copybook     | Format | Length |
      | :---------------------------------| :------------------------------------------- | :----------- | :----- | -----: |
-     | AWS.M2.CARDDEMO.USRSEC.PS         | User Security file                           | CSUSR01Y     | FB     |     80 |
+     | AWS.M2.CARDDEMO.USRSEC.PS         | User Security file (salted password hashes)  | CSUSR01Y     | FB     |    200 |
      | AWS.M2.CARDDEMO.ACCTDATA.PS       | Account Data                                 | CVACT01Y     | FB     |    300 |
      | AWS.M2.CARDDEMO.CARDDATA.PS       | Card Data                                    | CVACT02Y     | FB     |    150 |
      | AWS.M2.CARDDEMO.CUSTDATA.PS       | Customer Data                                | CVCUS01Y     | FB     |    500 |
@@ -178,8 +178,17 @@ CardDemo includes several optional modules that extend the base functionality:
      DEF PROGRAM(COCRDLIC) GROUP(CARDDEMO)
      DEF MAPSET(COCRDLI) GROUP(CARDDEMO)
      DEFINE PROGRAM(COSGN00C) GROUP(CARDDEMO) DA(ANY) TRANSID(CC00) DESCRIPTION(LOGIN)
+     DEFINE PROGRAM(CSPWHASH) GROUP(CARDDEMO) DA(ANY) DESCRIPTION(PASSWORD HASH)
      DEFINE TRANSACTION(CC00) GROUP(CARDDEMO) PROGRAM(COSGN00C) TASKDATAL(ANY)
      ```
+
+   - **Password storage:** USRSEC never holds passwords. `CSUSR01Y` stores a salted
+     PBKDF2-HMAC-SHA256 hash (scheme `P1`, per-record salt and iteration count) that is
+     created and checked by the called subprogram `CSPWHASH` (parameter block `CSPWH01Y`).
+     `CSPWHASH` must be in the load library and defined to CICS (CSD entry provided). Sign-on
+     (`COSGN00C`), add user (`COUSR01C`) and update user (`COUSR02C`) call it; the update
+     screen no longer shows the current password and a blank password keeps the existing one.
+     Existing 80-byte USRSEC files must be converted once with `USRSECMG`.
 
 8. **Install and Load Resources**
    - Install the resources in your CICS region:
@@ -297,7 +306,8 @@ Admin users can perform the following functions:
 
 | Job      | Program  | Function                                             | Optional Module |
 |:---------|:---------|:-----------------------------------------------------|:---------------|
-| DUSRSECJ | IEBGENER | Initial Load of User security file                   |                |
+| DUSRSECJ | CBUSR01C | Initial Load of User security file (hashes passwords)|                |
+| USRSECMG | CBUSR01C | Migrate an existing 80-byte USRSEC file to hashes     |                |
 | DEFGDGB  | IDCAMS   | Setup GDG Bases                                      |                |
 | DEFGDGD  | IDCAMS   | Setup more GDG Bases for Db2                         |                |
 | ACCTFILE | IDCAMS   | Refresh Account Master                               |                |
