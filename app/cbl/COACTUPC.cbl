@@ -554,6 +554,8 @@
                                                    VALUE 'COCRDLI'.
           05 LIT-CCLISTMAP                         PIC X(7)
                                                    VALUE 'CCRDSLA'.
+          05 LIT-SIGNONPGM                         PIC X(8)
+                                                   VALUE 'COSGN00C'.
           05 LIT-MENUPGM                           PIC X(8)
                                                    VALUE 'COMEN01C'.
           05 LIT-MENUTRANID                        PIC X(4)
@@ -875,18 +877,34 @@
       *****************************************************************
            SET WS-RETURN-MSG-OFF  TO TRUE
       *****************************************************************
+      * No commarea, a short one or no signed-on user means the       *
+      * transaction was started directly: send the caller to sign on  *
+      *****************************************************************
+           IF EIBCALEN < LENGTH OF CARDDEMO-COMMAREA
+              PERFORM 0100-RETURN-TO-SIGNON
+                 THRU 0100-RETURN-TO-SIGNON-EXIT
+           END-IF
+
+           MOVE DFHCOMMAREA (1:LENGTH OF CARDDEMO-COMMAREA)  TO
+                             CARDDEMO-COMMAREA
+
+           IF CDEMO-USER-ID   EQUAL SPACES OR LOW-VALUES
+           OR NOT (CDEMO-USRTYP-ADMIN OR CDEMO-USRTYP-USER)
+              PERFORM 0100-RETURN-TO-SIGNON
+                 THRU 0100-RETURN-TO-SIGNON-EXIT
+           END-IF
+
+      *****************************************************************
       * Store passed data if  any                *
       *****************************************************************
-           IF EIBCALEN IS EQUAL TO 0
-               OR (CDEMO-FROM-PROGRAM = LIT-MENUPGM
+           IF (CDEMO-FROM-PROGRAM = LIT-MENUPGM
                AND NOT CDEMO-PGM-REENTER)
-              INITIALIZE CARDDEMO-COMMAREA
-                         WS-THIS-PROGCOMMAREA
+           OR EIBCALEN < LENGTH OF CARDDEMO-COMMAREA +
+                         LENGTH OF WS-THIS-PROGCOMMAREA
+              INITIALIZE WS-THIS-PROGCOMMAREA
               SET CDEMO-PGM-ENTER TO TRUE
               SET ACUP-DETAILS-NOT-FETCHED TO TRUE
            ELSE
-              MOVE DFHCOMMAREA (1:LENGTH OF CARDDEMO-COMMAREA)  TO
-                                CARDDEMO-COMMAREA
               MOVE DFHCOMMAREA(LENGTH OF CARDDEMO-COMMAREA + 1:
                                LENGTH OF WS-THIS-PROGCOMMAREA ) TO
                                 WS-THIS-PROGCOMMAREA
@@ -1019,6 +1037,15 @@
            END-EXEC
            .
        0000-MAIN-EXIT.
+           EXIT
+           .
+
+       0100-RETURN-TO-SIGNON.
+           EXEC CICS XCTL
+                PROGRAM (LIT-SIGNONPGM)
+           END-EXEC
+           .
+       0100-RETURN-TO-SIGNON-EXIT.
            EXIT
            .
 
