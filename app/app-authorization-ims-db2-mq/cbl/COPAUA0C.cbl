@@ -60,7 +60,9 @@
          05 WS-WAIT-INTERVAL           PIC S9(9)  BINARY.                       
          05 WS-CODE-DISPLAY            PIC 9(9).                                
          05 WS-AVAILABLE-AMT           PIC S9(09)V99 COMP-3.                    
-         05 WS-TRANSACTION-AMT-AN      PIC X(13).
+         05 WS-TRANSACTION-AMT-AN      PIC X(500).
+         05 WS-AMT-MAX-LEN             PIC S9(4)  COMP VALUE 13.
+         05 WS-MSG-IDX                 PIC S9(9)  COMP VALUE ZERO.
          05 WS-TRANSACTION-AMT-LEN     PIC S9(4)  COMP VALUE ZERO.
          05 WS-REQ-FIELD-CNT           PIC S9(4)  COMP VALUE ZERO.
          05 WS-REQ-FIELDS-EXPECTED     PIC S9(4)  COMP VALUE 18.
@@ -454,7 +456,18 @@
            IF WS-REQ-FIELD-CNT NOT = WS-REQ-FIELDS-EXPECTED
            OR REQ-HAS-EXTRA-FIELDS
            OR WS-TRANSACTION-AMT-LEN < 1
-           OR WS-TRANSACTION-AMT-LEN > LENGTH OF WS-TRANSACTION-AMT-AN
+           OR WS-TRANSACTION-AMT-LEN > WS-AMT-MAX-LEN
+              SET AUTH-REQUEST-INVALID    TO TRUE
+           END-IF
+
+      *-   A trailing delimiter means an extra empty field
+           PERFORM VARYING WS-MSG-IDX FROM W01-DATALEN BY -1
+                   UNTIL WS-MSG-IDX < 1
+                      OR W01-GET-BUFFER(WS-MSG-IDX:1) NOT = SPACE
+              CONTINUE
+           END-PERFORM
+           IF WS-MSG-IDX < 1
+           OR W01-GET-BUFFER(WS-MSG-IDX:1) = ','
               SET AUTH-REQUEST-INVALID    TO TRUE
            END-IF
 
