@@ -40,6 +40,9 @@
          05 WS-ACCTDAT-FILE            PIC X(08) VALUE 'ACCTDAT '.
          05 WS-CCXREF-FILE             PIC X(08) VALUE 'CCXREF  '.
          05 WS-CXACAIX-FILE            PIC X(08) VALUE 'CXACAIX '.
+      * Serializes TRANSACT id allocation + WRITE (same in COBIL00C)
+         05 WS-TRANID-ENQ-RES          PIC X(24)
+                                VALUE 'CARDDEMO.TRANSACT.NEXTID'.
 
          05 WS-ERR-FLG                 PIC X(01) VALUE 'N'.
            88 ERR-FLG-ON                         VALUE 'Y'.
@@ -440,6 +443,42 @@
       *                        ADD-TRANSACTION
       *----------------------------------------------------------------*
        ADD-TRANSACTION.
+
+           PERFORM ENQ-TRAN-ID-ALLOC
+           IF NOT ERR-FLG-ON
+               PERFORM WRITE-NEW-TRANSACTION
+           END-IF.
+
+      *----------------------------------------------------------------*
+      *                      ENQ-TRAN-ID-ALLOC
+      * Held until syncpoint so the highest-id browse and WRITE cannot
+      * interleave with another task (COBIL00C takes the same ENQ).
+      *----------------------------------------------------------------*
+       ENQ-TRAN-ID-ALLOC.
+
+           EXEC CICS ENQ
+                RESOURCE  (WS-TRANID-ENQ-RES)
+                LENGTH    (LENGTH OF WS-TRANID-ENQ-RES)
+                RESP      (WS-RESP-CD)
+                RESP2     (WS-REAS-CD)
+           END-EXEC
+
+           EVALUATE WS-RESP-CD
+               WHEN DFHRESP(NORMAL)
+                   CONTINUE
+               WHEN OTHER
+                   DISPLAY 'RESP:' WS-RESP-CD 'REAS:' WS-REAS-CD
+                   MOVE 'Y'     TO WS-ERR-FLG
+                   MOVE 'Unable to allocate Transaction ID...' TO
+                                   WS-MESSAGE
+                   MOVE -1       TO ACTIDINL OF COTRN2AI
+                   PERFORM SEND-TRNADD-SCREEN
+           END-EVALUATE.
+
+      *----------------------------------------------------------------*
+      *                      WRITE-NEW-TRANSACTION
+      *----------------------------------------------------------------*
+       WRITE-NEW-TRANSACTION.
 
            MOVE HIGH-VALUES TO TRAN-ID
            PERFORM STARTBR-TRANSACT-FILE

@@ -40,6 +40,9 @@
          05 WS-TRANSACT-FILE           PIC X(08) VALUE 'TRANSACT'.
          05 WS-ACCTDAT-FILE            PIC X(08) VALUE 'ACCTDAT '.
          05 WS-CXACAIX-FILE            PIC X(08) VALUE 'CXACAIX '.
+      * Serializes TRANSACT id allocation + WRITE (same in COTRN02C)
+         05 WS-TRANID-ENQ-RES          PIC X(24)
+                                VALUE 'CARDDEMO.TRANSACT.NEXTID'.
          05 WS-ERR-FLG                 PIC X(01) VALUE 'N'.
            88 ERR-FLG-ON                         VALUE 'Y'.
            88 ERR-FLG-OFF                        VALUE 'N'.
@@ -209,30 +212,39 @@
 
                IF CONF-PAY-YES
                    PERFORM READ-CXACAIX-FILE
-                   MOVE HIGH-VALUES TO TRAN-ID
-                   PERFORM STARTBR-TRANSACT-FILE
-                   PERFORM READPREV-TRANSACT-FILE
-                   PERFORM ENDBR-TRANSACT-FILE
-                   MOVE TRAN-ID     TO WS-TRAN-ID-NUM
-                   ADD 1 TO WS-TRAN-ID-NUM
-                   INITIALIZE TRAN-RECORD
-                   MOVE WS-TRAN-ID-NUM       TO TRAN-ID
-                   MOVE '02'                 TO TRAN-TYPE-CD
-                   MOVE 2                    TO TRAN-CAT-CD
-                   MOVE 'POS TERM'           TO TRAN-SOURCE
-                   MOVE 'BILL PAYMENT - ONLINE' TO TRAN-DESC
-                   MOVE ACCT-CURR-BAL        TO TRAN-AMT
-                   MOVE XREF-CARD-NUM        TO TRAN-CARD-NUM
-                   MOVE 999999999            TO TRAN-MERCHANT-ID
-                   MOVE 'BILL PAYMENT'       TO TRAN-MERCHANT-NAME
-                   MOVE 'N/A'                TO TRAN-MERCHANT-CITY
-                   MOVE 'N/A'                TO TRAN-MERCHANT-ZIP
-                   PERFORM GET-CURRENT-TIMESTAMP
-                   MOVE WS-TIMESTAMP         TO TRAN-ORIG-TS
-                                                TRAN-PROC-TS
-                   PERFORM WRITE-TRANSACT-FILE
-                   COMPUTE ACCT-CURR-BAL = ACCT-CURR-BAL - TRAN-AMT
-                   PERFORM UPDATE-ACCTDAT-FILE
+                   IF NOT ERR-FLG-ON
+                       PERFORM ENQ-TRAN-ID-ALLOC
+                   END-IF
+                   IF NOT ERR-FLG-ON
+                       PERFORM GET-NEXT-TRAN-ID
+                   END-IF
+                   IF NOT ERR-FLG-ON
+                       INITIALIZE TRAN-RECORD
+                       MOVE WS-TRAN-ID-NUM       TO TRAN-ID
+                       MOVE '02'                 TO TRAN-TYPE-CD
+                       MOVE 2                    TO TRAN-CAT-CD
+                       MOVE 'POS TERM'           TO TRAN-SOURCE
+                       MOVE 'BILL PAYMENT - ONLINE' TO TRAN-DESC
+                       MOVE ACCT-CURR-BAL        TO TRAN-AMT
+                       MOVE XREF-CARD-NUM        TO TRAN-CARD-NUM
+                       MOVE 999999999            TO TRAN-MERCHANT-ID
+                       MOVE 'BILL PAYMENT'       TO TRAN-MERCHANT-NAME
+                       MOVE 'N/A'                TO TRAN-MERCHANT-CITY
+                       MOVE 'N/A'                TO TRAN-MERCHANT-ZIP
+                       PERFORM GET-CURRENT-TIMESTAMP
+                       MOVE WS-TIMESTAMP         TO TRAN-ORIG-TS
+                                                    TRAN-PROC-TS
+                       PERFORM WRITE-TRANSACT-FILE
+                   END-IF
+                   IF NOT ERR-FLG-ON
+                       COMPUTE ACCT-CURR-BAL = ACCT-CURR-BAL - TRAN-AMT
+                       PERFORM UPDATE-ACCTDAT-FILE
+                   END-IF
+                   IF ERR-FLG-ON
+                       PERFORM ROLLBACK-BILL-PAYMENT
+                   ELSE
+                       PERFORM SHOW-PAYMENT-SUCCESS
+                   END-IF
                ELSE
                    MOVE 'Confirm to make a bill payment...' TO
                                    WS-MESSAGE
@@ -242,6 +254,74 @@
                PERFORM SEND-BILLPAY-SCREEN
 
            END-IF.
+
+      *----------------------------------------------------------------*
+      *                      ENQ-TRAN-ID-ALLOC
+      * Held until syncpoint/rollback so the highest-id browse, WRITE
+      * and account REWRITE cannot interleave with another task.
+      *----------------------------------------------------------------*
+       ENQ-TRAN-ID-ALLOC.
+
+           EXEC CICS ENQ
+                RESOURCE  (WS-TRANID-ENQ-RES)
+                LENGTH    (LENGTH OF WS-TRANID-ENQ-RES)
+                RESP      (WS-RESP-CD)
+                RESP2     (WS-REAS-CD)
+           END-EXEC
+
+           EVALUATE WS-RESP-CD
+               WHEN DFHRESP(NORMAL)
+                   CONTINUE
+               WHEN OTHER
+                   DISPLAY 'RESP:' WS-RESP-CD 'REAS:' WS-REAS-CD
+                   MOVE 'Y'     TO WS-ERR-FLG
+                   MOVE 'Unable to allocate Transaction ID...' TO
+                                   WS-MESSAGE
+                   MOVE -1       TO ACTIDINL OF COBIL0AI
+                   PERFORM SEND-BILLPAY-SCREEN
+           END-EVALUATE.
+
+      *----------------------------------------------------------------*
+      *                      GET-NEXT-TRAN-ID
+      *----------------------------------------------------------------*
+       GET-NEXT-TRAN-ID.
+
+           MOVE HIGH-VALUES TO TRAN-ID
+           PERFORM STARTBR-TRANSACT-FILE
+           IF NOT ERR-FLG-ON
+               PERFORM READPREV-TRANSACT-FILE
+               PERFORM ENDBR-TRANSACT-FILE
+           END-IF
+           IF NOT ERR-FLG-ON
+               MOVE TRAN-ID     TO WS-TRAN-ID-NUM
+               ADD 1 TO WS-TRAN-ID-NUM
+           END-IF.
+
+      *----------------------------------------------------------------*
+      *                      ROLLBACK-BILL-PAYMENT
+      * Backs out any partial update and releases the account lock
+      * and the transaction id ENQ.
+      *----------------------------------------------------------------*
+       ROLLBACK-BILL-PAYMENT.
+
+           EXEC CICS
+                SYNCPOINT ROLLBACK
+           END-EXEC.
+
+      *----------------------------------------------------------------*
+      *                      SHOW-PAYMENT-SUCCESS
+      *----------------------------------------------------------------*
+       SHOW-PAYMENT-SUCCESS.
+
+           PERFORM INITIALIZE-ALL-FIELDS
+           MOVE SPACES             TO WS-MESSAGE
+           MOVE DFHGREEN           TO ERRMSGC  OF COBIL0AO
+           STRING 'Payment successful. '     DELIMITED BY SIZE
+             ' Your Transaction ID is ' DELIMITED BY SIZE
+                  TRAN-ID  DELIMITED BY SPACE
+                  '.' DELIMITED BY SIZE
+             INTO WS-MESSAGE
+           PERFORM SEND-BILLPAY-SCREEN.
 
       *----------------------------------------------------------------*
       *                      GET-CURRENT-TIMESTAMP
@@ -521,20 +601,12 @@
 
            EVALUATE WS-RESP-CD
                WHEN DFHRESP(NORMAL)
-                   PERFORM INITIALIZE-ALL-FIELDS
-                   MOVE SPACES             TO WS-MESSAGE
-                   MOVE DFHGREEN           TO ERRMSGC  OF COBIL0AO
-                   STRING 'Payment successful. '     DELIMITED BY SIZE
-                     ' Your Transaction ID is ' DELIMITED BY SIZE
-                          TRAN-ID  DELIMITED BY SPACE
-                          '.' DELIMITED BY SIZE
-                     INTO WS-MESSAGE
-                   PERFORM SEND-BILLPAY-SCREEN
+                   CONTINUE
                WHEN DFHRESP(DUPKEY)
                WHEN DFHRESP(DUPREC)
                    MOVE 'Y'     TO WS-ERR-FLG
-                   MOVE 'Tran ID already exist...' TO
-                                   WS-MESSAGE
+                   MOVE 'Tran ID conflict - payment NOT made. Retry...'
+                                TO WS-MESSAGE
                    MOVE -1       TO ACTIDINL OF COBIL0AI
                    PERFORM SEND-BILLPAY-SCREEN
                WHEN OTHER
