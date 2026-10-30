@@ -45,6 +45,9 @@
 004500                                             VALUE SPACES.        00450000
 004600      07 WS-UCTRANS                          PIC X(4)             00460000
 004700                                             VALUE SPACES.        00470000
+004710      07 WS-CALLER-USER-TYPE                 PIC X(1)             00471000
+004720                                             VALUE SPACES.        00472000
+004730         88 WS-CALLER-IS-ADMIN                 VALUE 'A'.         00473000
 004800******************************************************************00480000
 004900*      Input edits                                                00490000
 005000******************************************************************00500000
@@ -368,8 +371,14 @@
 036800         AND NOT CDEMO-PGM-REENTER)                               03680000
 036900         OR (CDEMO-FROM-PROGRAM = LIT-LISTTPGM                    03690000
 037000         AND NOT CDEMO-PGM-REENTER)                               03700000
+037010        IF EIBCALEN > 0                                           03701000
+037020           MOVE DFHCOMMAREA (1:LENGTH OF CARDDEMO-COMMAREA)       03702000
+037030                                  TO CARDDEMO-COMMAREA            03703000
+037040           MOVE CDEMO-USER-TYPE   TO WS-CALLER-USER-TYPE          03704000
+037050        END-IF                                                    03705000
 037100        INITIALIZE CARDDEMO-COMMAREA                              03710000
 037200                   WS-THIS-PROGCOMMAREA                           03720000
+037210        MOVE WS-CALLER-USER-TYPE   TO CDEMO-USER-TYPE             03721000
 037300        SET CDEMO-PGM-ENTER TO TRUE                               03730000
 037400        SET TTUP-DETAILS-NOT-FETCHED TO TRUE                      03740000
 037500     ELSE                                                         03750000
