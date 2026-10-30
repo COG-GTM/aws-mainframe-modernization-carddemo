@@ -1237,15 +1237,26 @@
                       MOVE CARD-ACCT-ID     TO WS-CA-LAST-CARD-ACCT-ID          
                       MOVE CARD-NUM         TO WS-CA-LAST-CARD-NUM              
                                                                                 
-                      EXEC CICS READNEXT                                        
-                        DATASET(LIT-CARD-FILE)                                  
-                        INTO (CARD-RECORD)                                      
-                        LENGTH(LENGTH OF CARD-RECORD)                           
-                        RIDFLD(WS-CARD-RID-CARDNUM)                             
-                        KEYLENGTH(LENGTH OF WS-CARD-RID-CARDNUM)                
-                        RESP(WS-RESP-CD)                                        
-                        RESP2(WS-REAS-CD)                                       
-                      END-EXEC                                                  
+                      SET WS-EXCLUDE-THIS-RECORD TO TRUE                        
+                      PERFORM UNTIL WS-DONOT-EXCLUDE-THIS-RECORD                
+                         EXEC CICS READNEXT                                     
+                           DATASET(LIT-CARD-FILE)                               
+                           INTO (CARD-RECORD)                                   
+                           LENGTH(LENGTH OF CARD-RECORD)                        
+                           RIDFLD(WS-CARD-RID-CARDNUM)                          
+                           KEYLENGTH(LENGTH OF WS-CARD-RID-CARDNUM)             
+                           RESP(WS-RESP-CD)                                     
+                           RESP2(WS-REAS-CD)                                    
+                         END-EXEC                                               
+                         IF  WS-RESP-CD = DFHRESP(NORMAL)                       
+                         OR  WS-RESP-CD = DFHRESP(DUPREC)                       
+                            PERFORM 9500-FILTER-RECORDS                         
+                               THRU 9500-FILTER-RECORDS-EXIT                    
+                         ELSE                                                   
+                            SET WS-DONOT-EXCLUDE-THIS-RECORD                    
+                                           TO TRUE                              
+                         END-IF                                                 
+                      END-PERFORM                                               
                                                                                 
                       EVALUATE WS-RESP-CD                                       
                          WHEN DFHRESP(NORMAL)                                   
