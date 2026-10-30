@@ -66,10 +66,9 @@
 
            10 FILLER                        PIC 9(02) VALUE 8.
            10 FILLER                       PIC X(35) VALUE
-      *        'Transaction Add (Admin Only)       '.
-               'Transaction Add                    '.
+               'Transaction Add (Admin Only)       '.
            10 FILLER                       PIC X(08) VALUE 'COTRN02C'.
-           10 FILLER                       PIC X(01) VALUE 'U'.
+           10 FILLER                       PIC X(01) VALUE 'A'.
 
            10 FILLER                       PIC 9(02) VALUE 9.
            10 FILLER                       PIC X(35) VALUE
