@@ -240,6 +240,8 @@
                                                    VALUE 'COMEN01'.             
           05 LIT-MENUMAP                           PIC X(7)                     
                                                    VALUE 'COMEN1A'.             
+          05 LIT-SIGNONPGM                         PIC X(8)                     
+                                                   VALUE 'COSGN00C'.            
           05  LIT-CARDDTLPGM                       PIC X(8)                     
                                                    VALUE 'COCRDSLC'.            
           05  LIT-CARDDTLTRANID                    PIC X(4)                     
@@ -385,19 +387,31 @@
       *****************************************************************         
       * Store passed data if  any                *                              
       *****************************************************************         
-           IF EIBCALEN IS EQUAL TO 0                                            
-               OR (CDEMO-FROM-PROGRAM = LIT-MENUPGM                             
-               AND NOT CDEMO-PGM-REENTER)                                       
-              INITIALIZE CARDDEMO-COMMAREA                                      
-                         WS-THIS-PROGCOMMAREA                                   
-              SET CDEMO-PGM-ENTER TO TRUE                                       
-              SET CCUP-DETAILS-NOT-FETCHED TO TRUE                              
-           ELSE                                                                 
-              MOVE DFHCOMMAREA (1:LENGTH OF CARDDEMO-COMMAREA)  TO              
-                                CARDDEMO-COMMAREA                               
+      * Only a commarea carried forward from signon/menu is a valid             
+      * session. Direct entry (no commarea) or no signed-on user is             
+      * sent to the signon program.                                             
+      *****************************************************************         
+           IF EIBCALEN IS LESS THAN LENGTH OF CARDDEMO-COMMAREA                 
+              PERFORM 9800-RETURN-TO-SIGNON                                     
+                 THRU 9800-RETURN-TO-SIGNON-EXIT                                
+           END-IF                                                               
+                                                                                
+           MOVE DFHCOMMAREA (1:LENGTH OF CARDDEMO-COMMAREA)  TO                 
+                             CARDDEMO-COMMAREA                                  
+                                                                                
+           IF CDEMO-USER-ID EQUAL SPACES                                        
+           OR CDEMO-USER-ID EQUAL LOW-VALUES                                    
+              PERFORM 9800-RETURN-TO-SIGNON                                     
+                 THRU 9800-RETURN-TO-SIGNON-EXIT                                
+           END-IF                                                               
+                                                                                
+           IF EIBCALEN IS GREATER THAN LENGTH OF CARDDEMO-COMMAREA              
               MOVE DFHCOMMAREA(LENGTH OF CARDDEMO-COMMAREA + 1:                 
                                LENGTH OF WS-THIS-PROGCOMMAREA ) TO              
                                 WS-THIS-PROGCOMMAREA                            
+           ELSE                                                                 
+              INITIALIZE WS-THIS-PROGCOMMAREA                                   
+              SET CCUP-DETAILS-NOT-FETCHED TO TRUE                              
            END-IF                                                               
       *****************************************************************         
       * Remap PFkeys as needed.                                                 
@@ -1519,6 +1533,18 @@
            END-IF EXIT                                                          
            .                                                                    
        9300-CHECK-CHANGE-IN-REC-EXIT.                                           
+           EXIT                                                                 
+           .                                                                    
+                                                                                
+      ******************************************************************        
+      * No signed-on session: hand control to signon, no commarea               
+      ******************************************************************        
+       9800-RETURN-TO-SIGNON.                                                   
+           EXEC CICS XCTL                                                       
+                PROGRAM (LIT-SIGNONPGM)                                         
+           END-EXEC                                                             
+           .                                                                    
+       9800-RETURN-TO-SIGNON-EXIT.                                              
            EXIT                                                                 
            .                                                                    
                                                                                 
