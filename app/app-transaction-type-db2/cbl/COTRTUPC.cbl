@@ -363,6 +363,11 @@
 036300***************************************************************** 03630000
 036400* Store passed data if  any                *                      03640000
 036500***************************************************************** 03650000
+036501     IF EIBCALEN IS EQUAL TO 0                                    03650100
+036502        PERFORM 9900-REJECT-NON-ADMIN                             03650200
+036503           THRU 9900-REJECT-NON-ADMIN-EXIT                        03650300
+036504     END-IF                                                       03650400
+036505                                                                  03650500
 036600     IF EIBCALEN IS EQUAL TO 0                                    03660000
 036700         OR (CDEMO-FROM-PROGRAM = LIT-ADMINPGM                    03670000
 036800         AND NOT CDEMO-PGM-REENTER)                               03680000
@@ -379,6 +384,10 @@
 037900                         LENGTH OF WS-THIS-PROGCOMMAREA ) TO      03790000
 038000                          WS-THIS-PROGCOMMAREA                    03800000
 038100     END-IF                                                       03810000
+038101     IF NOT CDEMO-USRTYP-ADMIN                                    03810100
+038102        PERFORM 9900-REJECT-NON-ADMIN                             03810200
+038103           THRU 9900-REJECT-NON-ADMIN-EXIT                        03810300
+038104     END-IF                                                       03810400
 038200***************************************************************** 03820000
 038300* Store the Mapped PF Key                                         03830000
 038400* Remap PFkeys as needed.                                         03840000
@@ -445,7 +454,6 @@
 044500             MOVE LIT-THISTRANID     TO CDEMO-FROM-TRANID         04450000
 044600             MOVE LIT-THISPGM        TO CDEMO-FROM-PROGRAM        04460000
 044700                                                                  04470000
-044800             SET  CDEMO-USRTYP-ADMIN TO TRUE                      04480000
 044900             SET  CDEMO-PGM-ENTER    TO TRUE                      04490000
 045000             MOVE LIT-THISMAPSET     TO CDEMO-LAST-MAPSET         04500000
 045100             MOVE LIT-THISMAP        TO CDEMO-LAST-MAP            04510000
@@ -1665,6 +1673,22 @@
 166500     EXIT                                                         16650000
 166600     .                                                            16660000
 166700                                                                  16670000
+166701***************************************************************** 16670100
+166702* Transaction type maintenance is an admin function: never     *  16670200
+166703* run it (or mint an admin COMMAREA) for an unverified caller. *  16670300
+166704***************************************************************** 16670400
+166705 9900-REJECT-NON-ADMIN.                                           16670500
+166706     EXEC CICS XCTL                                               16670600
+166707          PROGRAM ('COSGN00C')                                    16670700
+166708     END-EXEC                                                     16670800
+166709                                                                  16670900
+166710     EXEC CICS RETURN                                             16671000
+166711     END-EXEC                                                     16671100
+166712     .                                                            16671200
+166713 9900-REJECT-NON-ADMIN-EXIT.                                      16671300
+166714     EXIT                                                         16671400
+166715     .                                                            16671500
+166716                                                                  16671600
 166800******************************************************************16680000
 166900*Common code to store PFKey                                       16690000
 167000******************************************************************16700000

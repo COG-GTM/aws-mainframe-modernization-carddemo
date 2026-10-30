@@ -92,6 +92,9 @@
                PERFORM RETURN-TO-PREV-SCREEN
            ELSE
                MOVE DFHCOMMAREA(1:EIBCALEN) TO CARDDEMO-COMMAREA
+               IF NOT CDEMO-USRTYP-ADMIN
+                   PERFORM REJECT-NON-ADMIN-USER
+               END-IF
                IF NOT CDEMO-PGM-REENTER
                    SET CDEMO-PGM-REENTER    TO TRUE
                    MOVE LOW-VALUES          TO COUSR2AO
@@ -207,6 +210,13 @@
                                    WS-MESSAGE
                    MOVE -1       TO USRTYPEL OF COUSR2AI
                    PERFORM SEND-USRUPD-SCREEN
+               WHEN USRTYPEI OF COUSR2AI NOT = 'A' AND
+                    USRTYPEI OF COUSR2AI NOT = 'U'
+                   MOVE 'Y'     TO WS-ERR-FLG
+                   MOVE 'User Type must be A (Admin) or U (User)...'
+                                TO WS-MESSAGE
+                   MOVE -1       TO USRTYPEL OF COUSR2AI
+                   PERFORM SEND-USRUPD-SCREEN
                WHEN OTHER
                    MOVE -1       TO FNAMEL OF COUSR2AI
                    CONTINUE
@@ -243,6 +253,20 @@
                END-IF
 
            END-IF.
+
+      *----------------------------------------------------------------*
+      *                      REJECT-NON-ADMIN-USER
+      *    User administration is admin-only: do not trust the caller
+      *    to have checked CDEMO-USER-TYPE before transferring here.
+      *----------------------------------------------------------------*
+       REJECT-NON-ADMIN-USER.
+
+           EXEC CICS
+               XCTL PROGRAM('COSGN00C')
+           END-EXEC
+
+           EXEC CICS RETURN
+           END-EXEC.
 
       *----------------------------------------------------------------*
       *                      RETURN-TO-PREV-SCREEN
