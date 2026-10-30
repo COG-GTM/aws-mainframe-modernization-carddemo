@@ -37,6 +37,10 @@
          05 WS-TRANID                  PIC X(04) VALUE 'CT01'.
          05 WS-MESSAGE                 PIC X(80) VALUE SPACES.
          05 WS-TRANSACT-FILE             PIC X(08) VALUE 'TRANSACT'.
+         05 WS-USRSEC-FILE             PIC X(08) VALUE 'USRSEC  '.
+         05 WS-CCXREF-FILE             PIC X(08) VALUE 'CCXREF  '.
+         05 WS-USR-ACCT-ID             PIC 9(11) VALUE ZEROS.
+         05 WS-CARD-NUM-MASKED         PIC X(16) VALUE SPACES.
          05 WS-ERR-FLG                 PIC X(01) VALUE 'N'.
            88 ERR-FLG-ON                         VALUE 'Y'.
            88 ERR-FLG-OFF                        VALUE 'N'.
@@ -67,6 +71,8 @@
        COPY CSMSG01Y.
 
        COPY CVTRA05Y.
+       COPY CVACT03Y.
+       COPY CSUSR01Y.
 
        COPY DFHAID.
        COPY DFHBMSCA.
@@ -174,9 +180,21 @@
            END-IF.
 
            IF NOT ERR-FLG-ON
+               PERFORM AUTHORIZE-TRAN-VIEW
+           END-IF.
+
+           IF NOT ERR-FLG-ON
                MOVE TRAN-AMT TO WS-TRAN-AMT
                MOVE TRAN-ID      TO TRNIDI    OF COTRN1AI
-               MOVE TRAN-CARD-NUM      TO CARDNUMI    OF COTRN1AI
+               IF CDEMO-USRTYP-ADMIN
+                   MOVE TRAN-CARD-NUM  TO CARDNUMI    OF COTRN1AI
+               ELSE
+                   MOVE ALL '*'        TO WS-CARD-NUM-MASKED
+                   MOVE TRAN-CARD-NUM(13:4)
+                                       TO WS-CARD-NUM-MASKED(13:4)
+                   MOVE WS-CARD-NUM-MASKED
+                                       TO CARDNUMI    OF COTRN1AI
+               END-IF
                MOVE TRAN-TYPE-CD        TO TTYPCDI   OF COTRN1AI
                MOVE TRAN-CAT-CD        TO TCATCDI   OF COTRN1AI
                MOVE TRAN-SOURCE       TO TRNSRCI  OF COTRN1AI
@@ -272,7 +290,6 @@
                 LENGTH    (LENGTH OF TRAN-RECORD)
                 RIDFLD    (TRAN-ID)
                 KEYLENGTH (LENGTH OF TRAN-ID)
-                UPDATE
                 RESP      (WS-RESP-CD)
                 RESP2     (WS-REAS-CD)
            END-EXEC.
@@ -294,6 +311,96 @@
                    MOVE -1       TO TRNIDINL OF COTRN1AI
                    PERFORM SEND-TRNVIEW-SCREEN
            END-EVALUATE.
+
+      *----------------------------------------------------------------*
+      *                      AUTHORIZE-TRAN-VIEW
+      *    Admins may view any transaction. Any other user may only
+      *    view a transaction whose card belongs (via CCXREF) to the
+      *    account linked to their USRSEC record (SEC-USR-ACCT-ID).
+      *----------------------------------------------------------------*
+       AUTHORIZE-TRAN-VIEW.
+
+           IF NOT CDEMO-USRTYP-ADMIN
+               PERFORM READ-USER-SEC-FILE
+               IF NOT ERR-FLG-ON
+                   MOVE TRAN-CARD-NUM TO XREF-CARD-NUM
+                   PERFORM READ-CCXREF-FILE
+               END-IF
+               IF NOT ERR-FLG-ON
+                   IF XREF-ACCT-ID NOT = WS-USR-ACCT-ID
+                       PERFORM DENY-TRAN-VIEW
+                   END-IF
+               END-IF
+           END-IF.
+
+      *----------------------------------------------------------------*
+      *                      READ-USER-SEC-FILE
+      *----------------------------------------------------------------*
+       READ-USER-SEC-FILE.
+
+           MOVE ZEROS TO WS-USR-ACCT-ID
+
+           EXEC CICS READ
+                DATASET   (WS-USRSEC-FILE)
+                INTO      (SEC-USER-DATA)
+                LENGTH    (LENGTH OF SEC-USER-DATA)
+                RIDFLD    (CDEMO-USER-ID)
+                KEYLENGTH (LENGTH OF CDEMO-USER-ID)
+                RESP      (WS-RESP-CD)
+                RESP2     (WS-REAS-CD)
+           END-EXEC.
+
+           EVALUATE WS-RESP-CD
+               WHEN DFHRESP(NORMAL)
+                   IF SEC-USR-ACCT-ID IS NUMERIC AND
+                      SEC-USR-ACCT-ID NOT = ZEROS
+                       MOVE SEC-USR-ACCT-ID TO WS-USR-ACCT-ID
+                   ELSE
+                       PERFORM DENY-TRAN-VIEW
+                   END-IF
+               WHEN DFHRESP(NOTFND)
+                   PERFORM DENY-TRAN-VIEW
+               WHEN OTHER
+                   DISPLAY 'RESP:' WS-RESP-CD 'REAS:' WS-REAS-CD
+                   PERFORM DENY-TRAN-VIEW
+           END-EVALUATE.
+
+      *----------------------------------------------------------------*
+      *                      READ-CCXREF-FILE
+      *----------------------------------------------------------------*
+       READ-CCXREF-FILE.
+
+           EXEC CICS READ
+                DATASET   (WS-CCXREF-FILE)
+                INTO      (CARD-XREF-RECORD)
+                LENGTH    (LENGTH OF CARD-XREF-RECORD)
+                RIDFLD    (XREF-CARD-NUM)
+                KEYLENGTH (LENGTH OF XREF-CARD-NUM)
+                RESP      (WS-RESP-CD)
+                RESP2     (WS-REAS-CD)
+           END-EXEC.
+
+           EVALUATE WS-RESP-CD
+               WHEN DFHRESP(NORMAL)
+                   CONTINUE
+               WHEN DFHRESP(NOTFND)
+                   PERFORM DENY-TRAN-VIEW
+               WHEN OTHER
+                   DISPLAY 'RESP:' WS-RESP-CD 'REAS:' WS-REAS-CD
+                   PERFORM DENY-TRAN-VIEW
+           END-EVALUATE.
+
+      *----------------------------------------------------------------*
+      *                      DENY-TRAN-VIEW
+      *----------------------------------------------------------------*
+       DENY-TRAN-VIEW.
+
+           INITIALIZE TRAN-RECORD
+           MOVE 'Y'     TO WS-ERR-FLG
+           MOVE 'You are not authorized to view this transaction...'
+                        TO WS-MESSAGE
+           MOVE -1      TO TRNIDINL OF COTRN1AI
+           PERFORM SEND-TRNVIEW-SCREEN.
 
       *----------------------------------------------------------------*
       *                      CLEAR-CURRENT-SCREEN
