@@ -65,3 +65,5 @@ No DELETE: no legacy program deletes AUTHFRDS rows (see GAP-REVIEW).
 | BR-AF-026 | AuthKey | AuthorizationFraudServiceTest |
 | BR-AF-027 | AuthorizationFraudService | AuthorizationFraudServiceTest, FraudRecordControllerTest |
 | BR-AF-030 | FraudRecordController, JdbcFraudRecordStore | AuthFrdsDb2IT, FraudRecordControllerTest |
+| BR-AF-040 | ApiCredentials, SecurityConfig | ApiCredentialsTest, SecurityHttpTest, SecurityTest |
+| BR-AF-041 | ImsStubTestController | SecurityHttpTest, SecurityTest |
