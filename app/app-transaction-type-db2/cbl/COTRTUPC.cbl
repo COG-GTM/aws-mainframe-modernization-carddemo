@@ -45,6 +45,9 @@
 004500                                             VALUE SPACES.        00450000
 004600      07 WS-UCTRANS                          PIC X(4)             00460000
 004700                                             VALUE SPACES.        00470000
+004710      07 WS-CALLER-USER-TYPE                 PIC X(1)             00471000
+004720                                             VALUE SPACES.        00472000
+004730         88 WS-CALLER-IS-ADMIN                 VALUE 'A'.         00473000
 004800******************************************************************00480000
 004900*      Input edits                                                00490000
 005000******************************************************************00500000
@@ -368,8 +371,14 @@
 036800         AND NOT CDEMO-PGM-REENTER)                               03680000
 036900         OR (CDEMO-FROM-PROGRAM = LIT-LISTTPGM                    03690000
 037000         AND NOT CDEMO-PGM-REENTER)                               03700000
+037010        IF EIBCALEN > 0                                           03701000
+037020           MOVE DFHCOMMAREA (1:LENGTH OF CARDDEMO-COMMAREA)       03702000
+037030                                  TO CARDDEMO-COMMAREA            03703000
+037040           MOVE CDEMO-USER-TYPE   TO WS-CALLER-USER-TYPE          03704000
+037050        END-IF                                                    03705000
 037100        INITIALIZE CARDDEMO-COMMAREA                              03710000
 037200                   WS-THIS-PROGCOMMAREA                           03720000
+037210        MOVE WS-CALLER-USER-TYPE   TO CDEMO-USER-TYPE             03721000
 037300        SET CDEMO-PGM-ENTER TO TRUE                               03730000
 037400        SET TTUP-DETAILS-NOT-FETCHED TO TRUE                      03740000
 037500     ELSE                                                         03750000
@@ -379,6 +388,15 @@
 037900                         LENGTH OF WS-THIS-PROGCOMMAREA ) TO      03790000
 038000                          WS-THIS-PROGCOMMAREA                    03800000
 038100     END-IF                                                       03810000
+038110                                                                  03811000
+038120***************************************************************** 03812000
+038130* Only a signed-on administrator may use this screen            * 03813000
+038140***************************************************************** 03814000
+038150     IF EIBCALEN = 0                                              03815000
+038160     OR NOT CDEMO-USRTYP-ADMIN                                    03816000
+038170        PERFORM 9800-REJECT-NON-ADMIN                             03817000
+038180           THRU 9800-REJECT-NON-ADMIN-EXIT                        03818000
+038190     END-IF                                                       03819000
 038200***************************************************************** 03820000
 038300* Store the Mapped PF Key                                         03830000
 038400* Remap PFkeys as needed.                                         03840000
@@ -1700,3 +1718,18 @@
 170000     EXIT                                                         17000000
 170100     .                                                            17010000
 170200                                                                  17020000
+170300***************************************************************** 17030000
+170400* Send callers without an admin session back to sign-on        *  17040000
+170500***************************************************************** 17050000
+170600 9800-REJECT-NON-ADMIN.                                           17060000
+170700     EXEC CICS XCTL                                               17070000
+170800          PROGRAM ('COSGN00C')                                    17080000
+170900          RESP(WS-RESP-CD)                                        17090000
+171000     END-EXEC                                                     17100000
+171100                                                                  17110000
+171200     EXEC CICS RETURN                                             17120000
+171300     END-EXEC                                                     17130000
+171400     .                                                            17140000
+171500 9800-REJECT-NON-ADMIN-EXIT.                                      17150000
+171600     EXIT                                                         17160000
+171700     .                                                            17170000
