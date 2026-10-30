@@ -491,7 +491,9 @@
                    MOVE CDEMO-CARD-NUM      TO CC-CARD-NUM-N                    
                    PERFORM 9000-READ-DATA                                       
                       THRU 9000-READ-DATA-EXIT                                  
-                   SET CCUP-SHOW-DETAILS TO TRUE                                
+                   IF FOUND-CARDS-FOR-ACCOUNT                                   
+                      SET CCUP-SHOW-DETAILS TO TRUE                             
+                   END-IF                                                       
                    PERFORM 3000-SEND-MAP                                        
                       THRU 3000-SEND-MAP-EXIT                                   
                    GO TO COMMON-RETURN                                          
@@ -669,7 +671,9 @@
            SET FLG-ACCTFILTER-ISVALID  TO TRUE                                  
            SET FLG-CARDFILTER-ISVALID  TO TRUE                                  
            MOVE CCUP-OLD-ACCTID     TO CDEMO-ACCT-ID                            
+                                       CC-ACCT-ID                               
            MOVE CCUP-OLD-CARDID     TO CDEMO-CARD-NUM                           
+                                       CC-CARD-NUM                              
            MOVE CCUP-OLD-CRDNAME    TO CARD-EMBOSSED-NAME                       
            MOVE CCUP-OLD-CRDSTCD    TO CARD-ACTIVE-STATUS                       
            MOVE CCUP-OLD-EXPDAY     TO CARD-EXPIRY-DAY                          
@@ -1351,6 +1355,8 @@
                                                                                 
            IF FOUND-CARDS-FOR-ACCOUNT                                           
                                                                                 
+              MOVE CARD-ACCT-ID         TO CCUP-OLD-ACCTID                      
+              MOVE CARD-NUM             TO CCUP-OLD-CARDID                      
               MOVE CARD-CVV-CD          TO CCUP-OLD-CVV-CD                      
                                                                                 
               INSPECT CARD-EMBOSSED-NAME                                        
@@ -1391,7 +1397,18 @@
                                                                                 
            EVALUATE WS-RESP-CD                                                  
                WHEN DFHRESP(NORMAL)                                             
-                  SET FOUND-CARDS-FOR-ACCOUNT TO TRUE                           
+                  IF CARD-ACCT-ID EQUAL CC-ACCT-ID-N                            
+                     SET FOUND-CARDS-FOR-ACCOUNT     TO TRUE                    
+                  ELSE                                                          
+      *              Card is not linked to this account                         
+                     SET WS-NO-INFO-MESSAGE          TO TRUE                    
+                     SET INPUT-ERROR                 TO TRUE                    
+                     SET FLG-ACCTFILTER-NOT-OK       TO TRUE                    
+                     SET FLG-CARDFILTER-NOT-OK       TO TRUE                    
+                     IF  WS-RETURN-MSG-OFF                                      
+                        SET DID-NOT-FIND-ACCTCARD-COMBO TO TRUE                 
+                     END-IF                                                     
+                  END-IF                                                        
                WHEN DFHRESP(NOTFND)                                             
                   SET INPUT-ERROR                    TO TRUE                    
                   SET FLG-ACCTFILTER-NOT-OK          TO TRUE                    
@@ -1422,7 +1439,7 @@
       *    Read the Card file                                                   
       *                                                                         
       *    MOVE CC-ACCT-ID-N            TO WS-CARD-RID-ACCT-ID                  
-           MOVE CC-CARD-NUM             TO WS-CARD-RID-CARDNUM                  
+           MOVE CCUP-OLD-CARDID         TO WS-CARD-RID-CARDNUM                  
                                                                                 
            EXEC CICS READ                                                       
                 FILE      (LIT-CARDFILENAME)                                    
@@ -1459,8 +1476,8 @@
       * Prepare the update                                                      
       *****************************************************************         
            INITIALIZE CARD-UPDATE-RECORD                                        
-           MOVE CCUP-NEW-CARDID             TO CARD-UPDATE-NUM                  
-           MOVE CC-ACCT-ID-N                TO CARD-UPDATE-ACCT-ID              
+           MOVE CARD-NUM                    TO CARD-UPDATE-NUM                  
+           MOVE CARD-ACCT-ID                TO CARD-UPDATE-ACCT-ID              
            MOVE CCUP-NEW-CVV-CD             TO CARD-CVV-CD-X                    
            MOVE CARD-CVV-CD-N               TO CARD-UPDATE-CVV-CD               
            MOVE CCUP-NEW-CRDNAME            TO CARD-UPDATE-EMBOSSED-NAME        
@@ -1500,7 +1517,8 @@
            CONVERTING LIT-LOWER                                                 
                    TO LIT-UPPER                                                 
                                                                                 
-           IF  CARD-CVV-CD              EQUAL  TO CCUP-OLD-CVV-CD               
+           IF  CARD-ACCT-ID             EQUAL  TO CCUP-OLD-ACCTID               
+           AND CARD-CVV-CD              EQUAL  TO CCUP-OLD-CVV-CD               
            AND CARD-EMBOSSED-NAME       EQUAL  TO CCUP-OLD-CRDNAME              
            AND CARD-EXPIRAION-DATE(1:4) EQUAL  TO CCUP-OLD-EXPYEAR              
            AND CARD-EXPIRAION-DATE(6:2) EQUAL  TO CCUP-OLD-EXPMON               
@@ -1509,6 +1527,7 @@
                CONTINUE                                                         
            ELSE                                                                 
               SET DATA-WAS-CHANGED-BEFORE-UPDATE TO TRUE                        
+              MOVE CARD-ACCT-ID                TO CCUP-OLD-ACCTID               
               MOVE CARD-CVV-CD                 TO CCUP-OLD-CVV-CD               
               MOVE CARD-EMBOSSED-NAME          TO CCUP-OLD-CRDNAME              
               MOVE CARD-EXPIRAION-DATE(1:4)    TO CCUP-OLD-EXPYEAR              
