@@ -57,6 +57,8 @@
          05 WS-OPTIONS                 PIC S9(9)  BINARY.                       
          05 WS-COMPCODE                PIC S9(9)  BINARY.                       
          05 WS-REASON                  PIC S9(9)  BINARY.                       
+         05 WS-REQUEST-LEN             PIC S9(9)  BINARY.                       
+         05 WS-UNUSED-FIELD            PIC X(50).                               
          05 WS-WAIT-INTERVAL           PIC S9(9)  BINARY.                       
          05 WS-CODE-DISPLAY            PIC 9(9).                                
          05 WS-AVAILABLE-AMT           PIC S9(09)V99 COMP-3.                    
@@ -116,6 +118,9 @@
            05 WS-MSG-AVAILABLE-FLG     PIC X(01) VALUE 'M'.                     
               88 NO-MORE-MSG-AVAILABLE VALUE 'N'.                               
               88 MORE-MSG-AVAILABLE    VALUE 'M'.                               
+           05 WS-REQUEST-MSG-FLG       PIC X(01) VALUE 'V'.                     
+              88 REQUEST-MSG-VALID     VALUE 'V'.                               
+              88 REQUEST-MSG-INVALID   VALUE 'I'.                               
            05 WS-REQUEST-MQ-FLG        PIC X(01) VALUE 'C'.                     
               88 WS-REQUEST-MQ-OPEN    VALUE 'O'.                               
               88 WS-REQUEST-MQ-CLSE    VALUE 'C'.                               
@@ -325,9 +330,13 @@
       *                                                                         
            PERFORM UNTIL NO-MORE-MSG-AVAILABLE OR WS-LOOP-END                   
                                                                                 
-             PERFORM 2100-EXTRACT-REQUEST-MSG THRU 2100-EXIT                    
+             IF REQUEST-MSG-VALID                                               
+                PERFORM 2100-EXTRACT-REQUEST-MSG THRU 2100-EXIT                 
                                                                                 
-             PERFORM 5000-PROCESS-AUTH        THRU 5000-EXIT                    
+                PERFORM 5000-PROCESS-AUTH     THRU 5000-EXIT                    
+             ELSE                                                               
+                PERFORM 5900-REJECT-REQUEST   THRU 5900-EXIT                    
+             END-IF                                                             
                                                                                 
              ADD 1                            TO WS-MSG-PROCESSED               
                                                                                 
@@ -389,6 +398,9 @@
            COMPUTE MQGMO-OPTIONS  =  MQGMO-NO-SYNCPOINT + MQGMO-WAIT            
                                   +  MQGMO-CONVERT                              
                                   +  MQGMO-FAIL-IF-QUIESCING                    
+                                  +  MQGMO-ACCEPT-TRUNCATED-MSG                 
+                                                                                
+           SET REQUEST-MSG-VALID      TO TRUE                                   
                                                                                 
            MOVE WS-WAIT-INTERVAL      TO MQGMO-WAITINTERVAL                     
                                                                                 
@@ -407,11 +419,18 @@
                               WS-COMPCODE                                       
                               WS-REASON                                         
            END-CALL                                                             
-           IF WS-COMPCODE = MQCC-OK                                             
+      *    A WARNING means the message was removed from the queue but           
+      *    is truncated or unconverted; it is declined, not processed.          
+           IF WS-COMPCODE = MQCC-OK OR WS-COMPCODE = MQCC-WARNING               
               MOVE MQMD-CORRELID OF MQM-MD-REQUEST                              
                                            TO WS-SAVE-CORRELID                  
               MOVE MQMD-REPLYTOQ OF MQM-MD-REQUEST                              
                                            TO WS-REPLY-QNAME                    
+              IF WS-COMPCODE = MQCC-WARNING                                     
+              OR W01-DATALEN < 1                                                
+              OR W01-DATALEN > LENGTH OF W01-GET-BUFFER                         
+                 SET REQUEST-MSG-INVALID   TO TRUE                              
+              END-IF                                                            
            ELSE                                                                 
               IF WS-REASON = MQRC-NO-MSG-AVAILABLE                              
                  SET NO-MORE-MSG-AVAILABLE TO TRUE                              
@@ -717,7 +736,76 @@
               END-EVALUATE                                                      
            END-IF                                                               
                                                                                 
+           PERFORM 6900-FORMAT-RESPONSE      THRU 6900-EXIT                     
+           .                                                                    
+      *                                                                         
+       6000-EXIT.                                                               
+           EXIT.                                                                
+      *                                                                         
+      * ------------------------------------------------------------- *         
+       5900-REJECT-REQUEST.                                                     
+      * ------------------------------------------------------------- *         
+      *    Decline a truncated, unconverted or empty request message            
+      *    so the task carries on with the next message on the queue.           
+           INITIALIZE PENDING-AUTH-REQUEST                                      
+           IF W01-DATALEN > 0                                                   
+              COMPUTE WS-REQUEST-LEN = FUNCTION MIN(W01-DATALEN,                
+                                          LENGTH OF W01-GET-BUFFER)             
+              UNSTRING W01-GET-BUFFER(1:WS-REQUEST-LEN)                         
+                       DELIMITED BY ','                                         
+                       INTO WS-UNUSED-FIELD                                     
+                            PA-RQ-AUTH-TIME                                     
+                            PA-RQ-CARD-NUM                                      
+                            WS-UNUSED-FIELD WS-UNUSED-FIELD                     
+                            WS-UNUSED-FIELD WS-UNUSED-FIELD                     
+                            WS-UNUSED-FIELD WS-UNUSED-FIELD                     
+                            WS-UNUSED-FIELD WS-UNUSED-FIELD                     
+                            WS-UNUSED-FIELD WS-UNUSED-FIELD                     
+                            WS-UNUSED-FIELD WS-UNUSED-FIELD                     
+                            WS-UNUSED-FIELD WS-UNUSED-FIELD                     
+                            PA-RQ-TRANSACTION-ID                                
+              END-UNSTRING                                                      
+           END-IF                                                               
+                                                                                
+           MOVE 'M006'                   TO ERR-LOCATION                        
+           SET  ERR-WARNING              TO TRUE                                
+           SET  ERR-MQ                   TO TRUE                                
+           MOVE WS-COMPCODE              TO WS-CODE-DISPLAY                     
+           MOVE WS-CODE-DISPLAY          TO ERR-CODE-1                          
+           MOVE WS-REASON                TO WS-CODE-DISPLAY                     
+           MOVE WS-CODE-DISPLAY          TO ERR-CODE-2                          
+           MOVE 'INVALID REQUEST MSG - DECLINED'                                
+                                         TO ERR-MESSAGE                         
+           MOVE PA-RQ-CARD-NUM           TO ERR-EVENT-KEY                       
+           PERFORM 9500-LOG-ERROR                                               
+                                                                                
+           SET  DECLINE-AUTH             TO TRUE                                
+           SET  AUTH-RESP-DECLINED       TO TRUE                                
+           MOVE PA-RQ-CARD-NUM           TO PA-RL-CARD-NUM                      
+           MOVE PA-RQ-TRANSACTION-ID     TO PA-RL-TRANSACTION-ID                
+           MOVE PA-RQ-AUTH-TIME          TO PA-RL-AUTH-ID-CODE                  
+           MOVE '05'                     TO PA-RL-AUTH-RESP-CODE                
+           MOVE '9000'                   TO PA-RL-AUTH-RESP-REASON              
+           MOVE 0                        TO PA-RL-APPROVED-AMT                  
+                                            WS-APPROVED-AMT                     
+                                                                                
+           PERFORM 6900-FORMAT-RESPONSE  THRU 6900-EXIT                         
+                                                                                
+           IF WS-REPLY-QNAME NOT = SPACES                                       
+              PERFORM 7100-SEND-RESPONSE THRU 7100-EXIT                         
+           END-IF                                                               
+           .                                                                    
+      *                                                                         
+       5900-EXIT.                                                               
+           EXIT.                                                                
+      *                                                                         
+      * ------------------------------------------------------------- *         
+       6900-FORMAT-RESPONSE.                                                    
+      * ------------------------------------------------------------- *         
+      *                                                                         
            MOVE WS-APPROVED-AMT        TO WS-APPROVED-AMT-DIS                   
+           MOVE SPACES                 TO W02-PUT-BUFFER                        
+           MOVE 1                      TO WS-RESP-LENGTH                        
                                                                                 
            STRING PA-RL-CARD-NUM         ','                                    
                   PA-RL-TRANSACTION-ID   ','                                    
@@ -731,7 +819,7 @@
            END-STRING                                                           
            .                                                                    
       *                                                                         
-       6000-EXIT.                                                               
+       6900-EXIT.                                                               
            EXIT.                                                                
       *                                                                         
       * ------------------------------------------------------------- *         
