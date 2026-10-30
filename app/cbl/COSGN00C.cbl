@@ -44,6 +44,9 @@
          05 WS-REAS-CD                 PIC S9(09) COMP VALUE ZEROS.
          05 WS-USER-ID                 PIC X(08).
          05 WS-USER-PWD                PIC X(08).
+         05 WS-PWD-MATCH               PIC X(01) VALUE 'N'.
+           88 PWD-MATCH-YES                      VALUE 'Y'.
+           88 PWD-MATCH-NO                       VALUE 'N'.
 
        COPY COCOM01Y.
 
@@ -53,6 +56,7 @@
        COPY CSDAT01Y.
        COPY CSMSG01Y.
        COPY CSUSR01Y.
+       COPY CSPWH01Y.
 
        COPY DFHAID.
        COPY DFHBMSCA.
@@ -220,7 +224,8 @@
 
            EVALUATE WS-RESP-CD
                WHEN 0
-                   IF SEC-USR-PWD = WS-USER-PWD
+                   PERFORM VERIFY-USER-PASSWORD
+                   IF PWD-MATCH-YES
                        MOVE WS-TRANID    TO CDEMO-FROM-TRANID
                        MOVE WS-PGMNAME   TO CDEMO-FROM-PROGRAM
                        MOVE WS-USER-ID   TO CDEMO-USER-ID
@@ -255,6 +260,27 @@
                    MOVE -1       TO USERIDL OF COSGN0AI
                    PERFORM SEND-SIGNON-SCREEN
            END-EVALUATE.
+
+      *----------------------------------------------------------------*
+      *                      VERIFY-USER-PASSWORD
+      *----------------------------------------------------------------*
+       VERIFY-USER-PASSWORD.
+
+           SET PWD-MATCH-NO TO TRUE
+           INITIALIZE PWH-PARMS
+           SET PWH-FUNC-VERIFY        TO TRUE
+           MOVE WS-USER-PWD           TO PWH-PASSWORD
+           MOVE SEC-USR-PWD-SCHEME    TO PWH-SCHEME
+           MOVE SEC-USR-PWD-ITERATIONS TO PWH-ITERATIONS
+           MOVE SEC-USR-PWD-SALT      TO PWH-SALT
+           MOVE SEC-USR-PWD-DIGEST    TO PWH-HASH
+           CALL 'CSPWHASH' USING PWH-PARMS
+           MOVE SPACES                TO PWH-PASSWORD
+                                         WS-USER-PWD
+
+           IF PWH-RC-OK
+               SET PWD-MATCH-YES TO TRUE
+           END-IF.
       *
       * Ver: CardDemo_v1.0-15-g27d6c6f-68 Date: 2022-07-19 23:12:33 CDT
       *
