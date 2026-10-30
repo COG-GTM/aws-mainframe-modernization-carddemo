@@ -403,10 +403,10 @@
       *****************************************************************
            INITIALIZE CARD-RECORD
            
-      *    Map export fields to card record
+      *    Map export fields to card record. The export carries no
+      *    CVV, so CARD-CVV-CD stays zero from INITIALIZE.
            MOVE EXP-CARD-NUM TO CARD-NUM
            MOVE EXP-CARD-ACCT-ID TO CARD-ACCT-ID
-           MOVE EXP-CARD-CVV-CD TO CARD-CVV-CD
            MOVE EXP-CARD-EMBOSSED-NAME TO CARD-EMBOSSED-NAME
            MOVE EXP-CARD-EXPIRAION-DATE TO CARD-EXPIRAION-DATE
            MOVE EXP-CARD-ACTIVE-STATUS TO CARD-ACTIVE-STATUS

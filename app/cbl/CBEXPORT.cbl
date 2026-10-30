@@ -531,10 +531,10 @@
            MOVE '0001' TO EXPORT-BRANCH-ID
            MOVE 'NORTH' TO EXPORT-REGION-CODE
            
-      *    Map card fields to export record
+      *    Map card fields to export record. CARD-CVV-CD is never
+      *    exported: verification codes must not leave the card file.
            MOVE CARD-NUM TO EXP-CARD-NUM
            MOVE CARD-ACCT-ID TO EXP-CARD-ACCT-ID
-           MOVE CARD-CVV-CD TO EXP-CARD-CVV-CD
            MOVE CARD-EMBOSSED-NAME TO EXP-CARD-EMBOSSED-NAME
            MOVE CARD-EXPIRAION-DATE TO EXP-CARD-EXPIRAION-DATE
            MOVE CARD-ACTIVE-STATUS TO EXP-CARD-ACTIVE-STATUS
