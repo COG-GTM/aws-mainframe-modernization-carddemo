@@ -202,6 +202,7 @@ CardDemo includes several optional modules that extend the base functionality:
 - **Online Functions**: Start the CardDemo application using the CC00 transaction
   - Admin access: Use userid ADMIN001 with password PASSWORD
   - User access: Use userid USER0001 with password PASSWORD
+  - Bill Payment (CB00) only pays accounts owned by the customer linked to the signed-on user (USRSEC `SEC-USR-CUST-ID`, columns 58-66; sample USER0001-USER0005 are linked to customers 1-5). Users without a linked customer, including admins, are refused.
 - **Batch Functions**: See the "Running Batch Jobs" section below
 
 ## Running Batch Jobs

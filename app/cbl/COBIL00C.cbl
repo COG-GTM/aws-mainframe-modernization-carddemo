@@ -40,6 +40,15 @@
          05 WS-TRANSACT-FILE           PIC X(08) VALUE 'TRANSACT'.
          05 WS-ACCTDAT-FILE            PIC X(08) VALUE 'ACCTDAT '.
          05 WS-CXACAIX-FILE            PIC X(08) VALUE 'CXACAIX '.
+         05 WS-USRSEC-FILE             PIC X(08) VALUE 'USRSEC  '.
+         05 WS-USR-CUST-ID             PIC 9(09) VALUE ZEROS.
+         05 WS-XREF-ACCT-KEY           PIC 9(11) VALUE ZEROS.
+         05 WS-XREF-OWNER-FLG          PIC X(01) VALUE 'N'.
+           88 XREF-OWNER-YES                     VALUE 'Y'.
+           88 XREF-OWNER-NO                      VALUE 'N'.
+         05 WS-XREF-BROWSE-FLG         PIC X(01) VALUE 'N'.
+           88 XREF-BROWSE-END                    VALUE 'Y'.
+           88 XREF-BROWSE-MORE                   VALUE 'N'.
          05 WS-ERR-FLG                 PIC X(01) VALUE 'N'.
            88 ERR-FLG-ON                         VALUE 'Y'.
            88 ERR-FLG-OFF                        VALUE 'N'.
@@ -80,6 +89,7 @@
        COPY CVACT01Y.
        COPY CVACT03Y.
        COPY CVTRA05Y.
+       COPY CSUSR01Y.
 
        COPY DFHAID.
        COPY DFHBMSCA.
@@ -169,7 +179,12 @@
            IF NOT ERR-FLG-ON
                MOVE ACTIDINI  OF COBIL0AI TO ACCT-ID
                                              XREF-ACCT-ID
+               IF CONFIRMI OF COBIL0AI NOT = 'N' AND 'n'
+                   PERFORM CHECK-ACCOUNT-OWNERSHIP
+               END-IF
+           END-IF
 
+           IF NOT ERR-FLG-ON
                EVALUATE CONFIRMI OF COBIL0AI
                    WHEN 'Y'
                    WHEN 'y'
@@ -208,7 +223,6 @@
            IF NOT ERR-FLG-ON
 
                IF CONF-PAY-YES
-                   PERFORM READ-CXACAIX-FILE
                    MOVE HIGH-VALUES TO TRAN-ID
                    PERFORM STARTBR-TRANSACT-FILE
                    PERFORM READPREV-TRANSACT-FILE
@@ -242,6 +256,116 @@
                PERFORM SEND-BILLPAY-SCREEN
 
            END-IF.
+
+      *----------------------------------------------------------------*
+      *                      CHECK-ACCOUNT-OWNERSHIP
+      *----------------------------------------------------------------*
+      * The account must belong to the customer linked to the signed-on
+      * user (USRSEC), checked before any READ UPDATE. CDEMO-CUST-ID is
+      * not used: other programs overwrite it with the viewed account.
+       CHECK-ACCOUNT-OWNERSHIP.
+
+           PERFORM READ-USRSEC-FILE
+
+           IF NOT ERR-FLG-ON
+               IF SEC-USR-CUST-ID IS NUMERIC AND
+                  SEC-USR-CUST-ID NOT = ZEROS
+                   MOVE SEC-USR-CUST-ID TO WS-USR-CUST-ID
+               ELSE
+                   MOVE 'Y'     TO WS-ERR-FLG
+                   MOVE 'User is not linked to a customer...' TO
+                                   WS-MESSAGE
+                   MOVE -1       TO ACTIDINL OF COBIL0AI
+                   PERFORM SEND-BILLPAY-SCREEN
+               END-IF
+           END-IF
+
+           IF NOT ERR-FLG-ON
+               PERFORM FIND-OWNED-CXACAIX
+           END-IF.
+
+      *----------------------------------------------------------------*
+      *                      FIND-OWNED-CXACAIX
+      *----------------------------------------------------------------*
+      * An account can have cards for several customers (CXACAIX allows
+      * duplicate keys): accept if any of them is the user's customer and
+      * leave that card's xref in CARD-XREF-RECORD for the payment.
+       FIND-OWNED-CXACAIX.
+
+           SET XREF-OWNER-NO    TO TRUE
+           SET XREF-BROWSE-MORE TO TRUE
+           MOVE ACCT-ID         TO WS-XREF-ACCT-KEY
+
+           EXEC CICS STARTBR
+                DATASET   (WS-CXACAIX-FILE)
+                RIDFLD    (WS-XREF-ACCT-KEY)
+                KEYLENGTH (LENGTH OF WS-XREF-ACCT-KEY)
+                EQUAL
+                RESP      (WS-RESP-CD)
+                RESP2     (WS-REAS-CD)
+           END-EXEC
+
+           EVALUATE WS-RESP-CD
+               WHEN DFHRESP(NORMAL)
+                   PERFORM READNEXT-CXACAIX-FILE
+                       UNTIL XREF-OWNER-YES OR XREF-BROWSE-END
+                   EXEC CICS ENDBR
+                        DATASET   (WS-CXACAIX-FILE)
+                   END-EXEC
+               WHEN DFHRESP(NOTFND)
+                   CONTINUE
+               WHEN OTHER
+                   DISPLAY 'RESP:' WS-RESP-CD 'REAS:' WS-REAS-CD
+                   MOVE 'Y'     TO WS-ERR-FLG
+                   MOVE 'Unable to lookup XREF AIX file...' TO
+                                   WS-MESSAGE
+           END-EVALUATE
+
+           IF NOT ERR-FLG-ON AND NOT XREF-OWNER-YES
+               MOVE 'Y'     TO WS-ERR-FLG
+               MOVE 'Account ID NOT found...' TO
+                               WS-MESSAGE
+           END-IF
+
+           IF ERR-FLG-ON
+               MOVE -1       TO ACTIDINL OF COBIL0AI
+               PERFORM SEND-BILLPAY-SCREEN
+           END-IF.
+
+      *----------------------------------------------------------------*
+      *                      READNEXT-CXACAIX-FILE
+      *----------------------------------------------------------------*
+       READNEXT-CXACAIX-FILE.
+
+           EXEC CICS READNEXT
+                DATASET   (WS-CXACAIX-FILE)
+                INTO      (CARD-XREF-RECORD)
+                LENGTH    (LENGTH OF CARD-XREF-RECORD)
+                RIDFLD    (WS-XREF-ACCT-KEY)
+                KEYLENGTH (LENGTH OF WS-XREF-ACCT-KEY)
+                RESP      (WS-RESP-CD)
+                RESP2     (WS-REAS-CD)
+           END-EXEC
+
+           EVALUATE WS-RESP-CD
+               WHEN DFHRESP(NORMAL)
+               WHEN DFHRESP(DUPKEY)
+                   IF XREF-ACCT-ID NOT = ACCT-ID
+                       SET XREF-BROWSE-END TO TRUE
+                   ELSE
+                       IF XREF-CUST-ID = WS-USR-CUST-ID
+                           SET XREF-OWNER-YES TO TRUE
+                       END-IF
+                   END-IF
+               WHEN DFHRESP(ENDFILE)
+                   SET XREF-BROWSE-END TO TRUE
+               WHEN OTHER
+                   DISPLAY 'RESP:' WS-RESP-CD 'REAS:' WS-REAS-CD
+                   SET XREF-BROWSE-END TO TRUE
+                   MOVE 'Y'     TO WS-ERR-FLG
+                   MOVE 'Unable to lookup XREF AIX file...' TO
+                                   WS-MESSAGE
+           END-EVALUATE.
 
       *----------------------------------------------------------------*
       *                      GET-CURRENT-TIMESTAMP
@@ -338,6 +462,33 @@
            MOVE WS-CURTIME-HH-MM-SS    TO CURTIMEO OF COBIL0AO.
 
       *----------------------------------------------------------------*
+      *                      READ-USRSEC-FILE
+      *----------------------------------------------------------------*
+       READ-USRSEC-FILE.
+
+           EXEC CICS READ
+                DATASET   (WS-USRSEC-FILE)
+                INTO      (SEC-USER-DATA)
+                LENGTH    (LENGTH OF SEC-USER-DATA)
+                RIDFLD    (CDEMO-USER-ID)
+                KEYLENGTH (LENGTH OF CDEMO-USER-ID)
+                RESP      (WS-RESP-CD)
+                RESP2     (WS-REAS-CD)
+           END-EXEC
+
+           EVALUATE WS-RESP-CD
+               WHEN DFHRESP(NORMAL)
+                   CONTINUE
+               WHEN OTHER
+                   DISPLAY 'RESP:' WS-RESP-CD 'REAS:' WS-REAS-CD
+                   MOVE 'Y'     TO WS-ERR-FLG
+                   MOVE 'Unable to verify the User ...' TO
+                                   WS-MESSAGE
+                   MOVE -1       TO ACTIDINL OF COBIL0AI
+                   PERFORM SEND-BILLPAY-SCREEN
+           END-EVALUATE.
+
+      *----------------------------------------------------------------*
       *                      READ-ACCTDAT-FILE
       *----------------------------------------------------------------*
        READ-ACCTDAT-FILE.
@@ -397,39 +548,6 @@
                    DISPLAY 'RESP:' WS-RESP-CD 'REAS:' WS-REAS-CD
                    MOVE 'Y'     TO WS-ERR-FLG
                    MOVE 'Unable to Update Account...' TO
-                                   WS-MESSAGE
-                   MOVE -1       TO ACTIDINL OF COBIL0AI
-                   PERFORM SEND-BILLPAY-SCREEN
-           END-EVALUATE.
-
-      *----------------------------------------------------------------*
-      *                      READ-CXACAIX-FILE
-      *----------------------------------------------------------------*
-       READ-CXACAIX-FILE.
-
-           EXEC CICS READ
-                DATASET   (WS-CXACAIX-FILE)
-                INTO      (CARD-XREF-RECORD)
-                LENGTH    (LENGTH OF CARD-XREF-RECORD)
-                RIDFLD    (XREF-ACCT-ID)
-                KEYLENGTH (LENGTH OF XREF-ACCT-ID)
-                RESP      (WS-RESP-CD)
-                RESP2     (WS-REAS-CD)
-           END-EXEC
-
-           EVALUATE WS-RESP-CD
-               WHEN DFHRESP(NORMAL)
-                   CONTINUE
-               WHEN DFHRESP(NOTFND)
-                   MOVE 'Y'     TO WS-ERR-FLG
-                   MOVE 'Account ID NOT found...' TO
-                                   WS-MESSAGE
-                   MOVE -1       TO ACTIDINL OF COBIL0AI
-                   PERFORM SEND-BILLPAY-SCREEN
-               WHEN OTHER
-                   DISPLAY 'RESP:' WS-RESP-CD 'REAS:' WS-REAS-CD
-                   MOVE 'Y'     TO WS-ERR-FLG
-                   MOVE 'Unable to lookup XREF AIX file...' TO
                                    WS-MESSAGE
                    MOVE -1       TO ACTIDINL OF COBIL0AI
                    PERFORM SEND-BILLPAY-SCREEN
