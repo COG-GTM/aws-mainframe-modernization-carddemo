@@ -92,7 +92,7 @@ This extension provides the following capabilities:
 
 ### Online Transaction Type Management
 
-1. Log in to CardDemo using an admin account to access the Admin Menu (e.g., ADMIN001/PASSWORD)
+1. Log in to CardDemo using an admin account to access the Admin Menu (see Bootstrap Administrator in the main README)
 2. Select option '5' to list/update/delete transaction types (CTLI)
    - Browse transaction types using forward/backward paging
    - Update transaction descriptions inline

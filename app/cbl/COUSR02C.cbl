@@ -63,6 +63,7 @@
        COPY CSDAT01Y.
        COPY CSMSG01Y.
        COPY CSUSR01Y.
+       COPY CSUTLPWY.
 
        COPY DFHAID.
        COPY DFHBMSCA.
@@ -224,23 +225,38 @@
                    MOVE LNAMEI   OF COUSR2AI TO SEC-USR-LNAME
                    SET USR-MODIFIED-YES TO TRUE
                END-IF
-               IF PASSWDI  OF COUSR2AI NOT = SEC-USR-PWD
-                   MOVE PASSWDI  OF COUSR2AI TO SEC-USR-PWD
-                   SET USR-MODIFIED-YES TO TRUE
+               IF FUNCTION UPPER-CASE(PASSWDI OF COUSR2AI)
+                                         NOT = SEC-USR-PWD
+                   MOVE SEC-USR-ID           TO CSUTLPWC-USER-ID
+                   MOVE PASSWDI  OF COUSR2AI TO CSUTLPWC-PASSWORD
+                   CALL 'CSUTLPWC' USING CSUTLPWC-PARM
+                   IF CSUTLPWC-PWD-OK
+                       MOVE FUNCTION UPPER-CASE(PASSWDI OF COUSR2AI)
+                                             TO SEC-USR-PWD
+                       SET SEC-USR-PWD-CHG-REQ   TO TRUE
+                       SET USR-MODIFIED-YES TO TRUE
+                   ELSE
+                       MOVE 'Y'     TO WS-ERR-FLG
+                   END-IF
                END-IF
                IF USRTYPEI  OF COUSR2AI NOT = SEC-USR-TYPE
                    MOVE USRTYPEI OF COUSR2AI TO SEC-USR-TYPE
                    SET USR-MODIFIED-YES TO TRUE
                END-IF
 
-               IF USR-MODIFIED-YES
+               EVALUATE TRUE
+               WHEN ERR-FLG-ON
+                   MOVE CSUTLPWC-MESSAGE TO WS-MESSAGE
+                   MOVE -1       TO PASSWDL OF COUSR2AI
+                   PERFORM SEND-USRUPD-SCREEN
+               WHEN USR-MODIFIED-YES
                    PERFORM UPDATE-USER-SEC-FILE
-               ELSE
+               WHEN OTHER
                    MOVE 'Please modify to update ...' TO
                                    WS-MESSAGE
                    MOVE DFHRED       TO ERRMSGC  OF COUSR2AO
                    PERFORM SEND-USRUPD-SCREEN
-               END-IF
+               END-EVALUATE
 
            END-IF.
 

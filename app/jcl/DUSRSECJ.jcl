@@ -26,36 +26,45 @@
 //            DISP=(MOD,DELETE,DELETE)
 //*
 //*-------------------------------------------------------------------*
-//* CREATE USER SECURITY FILE (PS) FROM IN-STREAM DATA
+//* VALIDATE THE BOOTSTRAP USER FILE AND BUILD THE USRSEC LOAD FILE
+//*
+//* No user IDs or passwords are shipped with this job. Before running
+//* it, the security administrator creates the bootstrap dataset
+//* AWS.M2.CARDDEMO.USRSEC.BOOTSTRAP (FB, LRECL=80, layout CSUSR01Y)
+//* holding ONE administrator record with a randomly generated,
+//* one-time password, and protects it so only the administrator and
+//* the batch user ID can read it, e.g.
+//*   ADDSD  'AWS.M2.CARDDEMO.USRSEC.BOOTSTRAP' UACC(NONE)
+//*   PERMIT 'AWS.M2.CARDDEMO.USRSEC.BOOTSTRAP' ID(batchid) ACCESS(READ)
+//* CBUSR01C rejects the whole file (RC=12, nothing loaded, existing
+//* USRSEC left in place) if any password is blank, shorter than 8,
+//* equal to the user ID, a published default such as PASSWORD, or
+//* lacks letters and digits. Every loaded account must change its
+//* password at first sign-on. Delete the bootstrap dataset after the
+//* administrator has signed on. The validated load file is a
+//* temporary dataset deleted at end of job, and the PREDEL step
+//* removes any cataloged USRSEC.PS copy left by older versions of
+//* this job. Never load demo/test users with
+//* known passwords into a non-demo region.
 //*-------------------------------------------------------------------*
 //*
-//STEP01  EXEC PGM=IEBGENER
-//*
-//SYSUT1   DD *
-ADMIN001MARGARET            GOLD                PASSWORDA
-ADMIN002RUSSELL             RUSSELL             PASSWORDA
-ADMIN003RAYMOND             WHITMORE            PASSWORDA
-ADMIN004EMMANUEL            CASGRAIN            PASSWORDA
-ADMIN005GRANVILLE           LACHAPELLE          PASSWORDA
-USER0001LAWRENCE            THOMAS              PASSWORDU
-USER0002AJITH               KUMAR               PASSWORDU
-USER0003LAURITZ             ALME                PASSWORDU
-USER0004AVERARDO            MAZZI               PASSWORDU
-USER0005LEE                 TING                PASSWORDU
-/*
-//SYSUT2   DD DSN=AWS.M2.CARDDEMO.USRSEC.PS,
-//            DISP=(NEW,CATLG,DELETE),
+//STEP01  EXEC PGM=CBUSR01C
+//STEPLIB  DD DISP=SHR,
+//            DSN=AWS.M2.CARDDEMO.LOADLIB
+//BOOTIN   DD DISP=SHR,
+//            DSN=AWS.M2.CARDDEMO.USRSEC.BOOTSTRAP
+//USROUT   DD DSN=&&USRSEC,
+//            DISP=(NEW,PASS,DELETE),
 //            DCB=(LRECL=80,RECFM=FB,DSORG=PS,BLKSIZE=0),
 //            UNIT=SYSAD,SPACE=(TRK,(10,5),RLSE)
-//*
+//SYSOUT   DD SYSOUT=*
 //SYSPRINT DD SYSOUT=*
-//SYSIN    DD DUMMY
 //*
 //*-------------------------------------------------------------------*
 //* DEFINE VSAM FILE FOR USER SECURITY
 //*-------------------------------------------------------------------*
 //*
-//STEP02  EXEC PGM=IDCAMS
+//STEP02  EXEC PGM=IDCAMS,COND=(4,LT,STEP01)
 //*
 //SYSPRINT DD  SYSOUT=*
 //SYSIN    DD  *
@@ -77,9 +86,9 @@ USER0005LEE                 TING                PASSWORDU
 //* COPY USER SECURITY DATA FROM PS TO VSAM FILE
 //*-------------------------------------------------------------------*
 //*
-//STEP03  EXEC PGM=IDCAMS
+//STEP03  EXEC PGM=IDCAMS,COND=(4,LT)
 //*
-//IN       DD  DSN=AWS.M2.CARDDEMO.USRSEC.PS,DISP=SHR
+//IN       DD  DSN=&&USRSEC,DISP=(OLD,DELETE,DELETE)
 //OUT      DD  DSN=AWS.M2.CARDDEMO.USRSEC.VSAM.KSDS,DISP=SHR
 //SYSOUT   DD  SYSOUT=*
 //SYSPRINT DD  SYSOUT=*

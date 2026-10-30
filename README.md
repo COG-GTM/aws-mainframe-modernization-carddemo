@@ -126,11 +126,12 @@ CardDemo includes several optional modules that extend the base functionality:
 4. **Upload Sample Data**
    - Transfer the sample data from the `main/-/data/EBCDIC/` folder to the mainframe
    - Use binary transfer mode to preserve data integrity
+   - No user security data is shipped. Create `AWS.M2.CARDDEMO.USRSEC.BOOTSTRAP` yourself (see [Bootstrap Administrator](#bootstrap-administrator)); `DUSRSECJ` validates it and loads the user security KSDS through a temporary dataset
    - Create the following datasets:
 
      | Dataset name                      | Description                                  | Copybook     | Format | Length |
      | :---------------------------------| :------------------------------------------- | :----------- | :----- | -----: |
-     | AWS.M2.CARDDEMO.USRSEC.PS         | User Security file                           | CSUSR01Y     | FB     |     80 |
+     | AWS.M2.CARDDEMO.USRSEC.BOOTSTRAP  | Bootstrap admin (operator created, protected) | CSUSR01Y     | FB     |     80 |
      | AWS.M2.CARDDEMO.ACCTDATA.PS       | Account Data                                 | CVACT01Y     | FB     |    300 |
      | AWS.M2.CARDDEMO.CARDDATA.PS       | Card Data                                    | CVACT02Y     | FB     |    150 |
      | AWS.M2.CARDDEMO.CUSTDATA.PS       | Customer Data                                | CVCUS01Y     | FB     |    500 |
@@ -198,10 +199,20 @@ CardDemo includes several optional modules that extend the base functionality:
      CEMT SET PROG(COCRDUPC) NEWCOPY
      ```
 
+### Bootstrap Administrator
+CardDemo ships with no user IDs or passwords. Before running `DUSRSECJ`:
+
+1. Generate a random, one-time 8-character password containing letters and digits (for example `openssl rand -base64 12 | tr -dc 'A-Z0-9' | cut -c1-8`). Do not reuse it anywhere else.
+2. Create `AWS.M2.CARDDEMO.USRSEC.BOOTSTRAP` (FB, LRECL 80) holding one administrator record in the `CSUSR01Y` layout: user ID (cols 1-8), first name (9-28), last name (29-48), password (49-56), type `A` (57).
+3. Protect it so only the security administrator and the batch user ID can read it, e.g. RACF `ADDSD 'AWS.M2.CARDDEMO.USRSEC.BOOTSTRAP' UACC(NONE)` plus `PERMIT ... ACCESS(READ)`.
+4. Run `DUSRSECJ`. Program `CBUSR01C` validates every record and fails the job with RC=12, loading nothing, if any password is blank, shorter than 8 characters, equal to the user ID, a published default such as `PASSWORD`, or lacks letters and digits, or if there is no administrator.
+5. Sign on with the bootstrap administrator. Existing accounts whose stored password is a published default or otherwise fails these rules (for example records loaded by older versions of `DUSRSECJ`) are refused at sign-on. If no administrator can sign on to reset them, put new one-time passwords for those user IDs (at least one administrator) in the bootstrap dataset and run `RUSRSECJ`; it validates them the same way and uses `REPRO ... REPLACE` to overwrite only those records, keeping all other users. Every account loaded by `DUSRSECJ` or created/reset through the admin user screens is flagged and must set a new password (the **New Password** and **Confirm Pwd** fields on the sign-on screen) before it can sign on.
+6. Delete the bootstrap dataset and create further users from the Admin Menu.
+
+Demo or test users with known passwords must never exist in a non-demo region.
+
 ### Accessing the Application
-- **Online Functions**: Start the CardDemo application using the CC00 transaction
-  - Admin access: Use userid ADMIN001 with password PASSWORD
-  - User access: Use userid USER0001 with password PASSWORD
+- **Online Functions**: Start the CardDemo application using the CC00 transaction and sign on with the bootstrap administrator created above
 - **Batch Functions**: See the "Running Batch Jobs" section below
 
 ## Running Batch Jobs
@@ -297,7 +308,8 @@ Admin users can perform the following functions:
 
 | Job      | Program  | Function                                             | Optional Module |
 |:---------|:---------|:-----------------------------------------------------|:---------------|
-| DUSRSECJ | IEBGENER | Initial Load of User security file                   |                |
+| DUSRSECJ | CBUSR01C | Validated load of bootstrap user security file       |                |
+| RUSRSECJ | CBUSR01C | Reset locked user passwords in place (recovery)      |                |
 | DEFGDGB  | IDCAMS   | Setup GDG Bases                                      |                |
 | DEFGDGD  | IDCAMS   | Setup more GDG Bases for Db2                         |                |
 | ACCTFILE | IDCAMS   | Refresh Account Master                               |                |

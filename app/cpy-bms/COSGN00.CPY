@@ -76,6 +76,18 @@
              03 PASSWDA    PICTURE X.
            02  FILLER   PICTURE X(4).
            02  PASSWDI  PIC X(8).
+           02  NEWPWDL    COMP  PIC  S9(4).
+           02  NEWPWDF    PICTURE X.
+           02  FILLER REDEFINES NEWPWDF.
+             03 NEWPWDA    PICTURE X.
+           02  FILLER   PICTURE X(4).
+           02  NEWPWDI  PIC X(8).
+           02  CNFPWDL    COMP  PIC  S9(4).
+           02  CNFPWDF    PICTURE X.
+           02  FILLER REDEFINES CNFPWDF.
+             03 CNFPWDA    PICTURE X.
+           02  FILLER   PICTURE X(4).
+           02  CNFPWDI  PIC X(8).
            02  ERRMSGL    COMP  PIC  S9(4).
            02  ERRMSGF    PICTURE X.
            02  FILLER REDEFINES ERRMSGF.
@@ -144,6 +156,18 @@
            02  PASSWDH    PICTURE X.
            02  PASSWDV    PICTURE X.
            02  PASSWDO  PIC X(8).
+           02  FILLER PICTURE X(3).
+           02  NEWPWDC    PICTURE X.
+           02  NEWPWDP    PICTURE X.
+           02  NEWPWDH    PICTURE X.
+           02  NEWPWDV    PICTURE X.
+           02  NEWPWDO  PIC X(8).
+           02  FILLER PICTURE X(3).
+           02  CNFPWDC    PICTURE X.
+           02  CNFPWDP    PICTURE X.
+           02  CNFPWDH    PICTURE X.
+           02  CNFPWDV    PICTURE X.
+           02  CNFPWDO  PIC X(8).
            02  FILLER PICTURE X(3).
            02  ERRMSGC    PICTURE X.
            02  ERRMSGP    PICTURE X.

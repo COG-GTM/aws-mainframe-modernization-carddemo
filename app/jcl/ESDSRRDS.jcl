@@ -27,30 +27,22 @@
 //            DISP=(MOD,DELETE,DELETE)
 //*
 //*-------------------------------------------------------------------*
-//* CREATE USER SECURITY FILE (PS) FROM IN-STREAM DATA
+//* UNLOAD THE USER SECURITY KSDS LOADED BY DUSRSECJ TO A TEMPORARY
+//* DATASET (no in-stream user IDs or passwords; run DUSRSECJ first)
 //*-------------------------------------------------------------------*
 //*
-//STEP01  EXEC PGM=IEBGENER
+//STEP01  EXEC PGM=IDCAMS
 //*
-//SYSUT1   DD *
-ADMIN001MARGARET            GOLD                PASSWORDA
-ADMIN002RUSSELL             RUSSELL             PASSWORDA
-ADMIN003RAYMOND             WHITMORE            PASSWORDA
-ADMIN004EMMANUEL            CASGRAIN            PASSWORDA
-ADMIN005GRANVILLE           LACHAPELLE          PASSWORDA
-USER0001LAWRENCE            THOMAS              PASSWORDU
-USER0002AJITH               KUMAR               PASSWORDU
-USER0003LAURITZ             ALME                PASSWORDU
-USER0004AVERARDO            MAZZI               PASSWORDU
-USER0005LEE                 TING                PASSWORDU
-/*
-//SYSUT2   DD DSN=AWS.M2.CARDDEMO.ESDSRRDS.PS,
-//            DISP=(NEW,CATLG,DELETE),
+//IN       DD DSN=AWS.M2.CARDDEMO.USRSEC.VSAM.KSDS,DISP=SHR
+//OUT      DD DSN=&&ESDSRR,
+//            DISP=(NEW,PASS,DELETE),
 //            DCB=(LRECL=80,RECFM=FB,DSORG=PS,BLKSIZE=0),
 //            UNIT=SYSAD,SPACE=(TRK,(10,5),RLSE)
 //*
 //SYSPRINT DD SYSOUT=*
-//SYSIN    DD DUMMY
+//SYSIN    DD *
+  REPRO INFILE(IN) OUTFILE(OUT)
+/*
 //*
 //*-------------------------------------------------------------------*
 //* DEFINE VSAM FILE FOR USER SECURITY (ESDS)
@@ -78,7 +70,7 @@ USER0005LEE                 TING                PASSWORDU
 //*
 //STEP03  EXEC PGM=IDCAMS
 //*
-//IN       DD  DSN=AWS.M2.CARDDEMO.ESDSRRDS.PS,DISP=SHR
+//IN       DD  DSN=&&ESDSRR,DISP=(OLD,PASS)
 //OUT      DD  DSN=AWS.M2.CARDDEMO.USRSEC.VSAM.ESDS,DISP=SHR
 //SYSOUT   DD  SYSOUT=*
 //SYSPRINT DD  SYSOUT=*
@@ -112,7 +104,7 @@ USER0005LEE                 TING                PASSWORDU
 //*
 //STEP05  EXEC PGM=IDCAMS
 //*
-//IN       DD  DSN=AWS.M2.CARDDEMO.ESDSRRDS.PS,DISP=SHR
+//IN       DD  DSN=&&ESDSRR,DISP=(OLD,DELETE,DELETE)
 //OUT      DD  DSN=AWS.M2.CARDDEMO.USRSEC.VSAM.RRDS,DISP=SHR
 //SYSOUT   DD  SYSOUT=*
 //SYSPRINT DD  SYSOUT=*
