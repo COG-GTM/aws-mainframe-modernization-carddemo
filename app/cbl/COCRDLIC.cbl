@@ -184,6 +184,8 @@
              VALUE 'COCRDLI'.                                                   
          05  LIT-THISMAP                            PIC X(7)                    
              VALUE 'CCRDLIA'.                                                   
+         05  LIT-SIGNONPGM                          PIC X(8)                    
+             VALUE 'COSGN00C'.                                                  
          05  LIT-MENUPGM                            PIC X(8)                    
              VALUE 'COMEN01C'.                                                  
          05  LIT-MENUTRANID                         PIC X(4)                    
@@ -310,25 +312,35 @@
       *****************************************************************         
            SET WS-ERROR-MSG-OFF  TO TRUE                                        
       *****************************************************************         
-      * Retrived passed data if  any. Initialize them if first run.             
+      * Only a signed-on CardDemo session may use this transaction.             
+      * No commarea (transaction typed at a terminal), a short one or           
+      * one without a user id goes to the sign-on program instead of            
+      * being treated as a fresh session.                                       
       *****************************************************************         
-           IF EIBCALEN = 0
-              INITIALIZE CARDDEMO-COMMAREA
-                         WS-THIS-PROGCOMMAREA 
-              MOVE LIT-THISTRANID        TO CDEMO-FROM-TRANID                   
-              MOVE LIT-THISPGM           TO CDEMO-FROM-PROGRAM                  
-              SET CDEMO-USRTYP-USER      TO TRUE                                
-              SET CDEMO-PGM-ENTER        TO TRUE                                
-              MOVE LIT-THISMAP           TO CDEMO-LAST-MAP                      
-              MOVE LIT-THISMAPSET        TO CDEMO-LAST-MAPSET                   
+           IF EIBCALEN < LENGTH OF CARDDEMO-COMMAREA                            
+              PERFORM SEND-TO-SIGNON                                            
+                 THRU SEND-TO-SIGNON-EXIT                                       
+           END-IF                                                               
+                                                                                
+           MOVE DFHCOMMAREA (1:LENGTH OF CARDDEMO-COMMAREA)  TO                 
+                             CARDDEMO-COMMAREA                                  
+                                                                                
+           IF CDEMO-USER-ID EQUAL SPACES OR LOW-VALUES                          
+              PERFORM SEND-TO-SIGNON                                            
+                 THRU SEND-TO-SIGNON-EXIT                                       
+           END-IF                                                               
+                                                                                
+      *****************************************************************         
+      * Retrieve this program's own state, if any.                              
+      *****************************************************************         
+           IF EIBCALEN > LENGTH OF CARDDEMO-COMMAREA                            
+              MOVE DFHCOMMAREA(LENGTH OF CARDDEMO-COMMAREA + 1:                 
+                               LENGTH OF WS-THIS-PROGCOMMAREA ) TO              
+                                WS-THIS-PROGCOMMAREA                            
+           ELSE                                                                 
+              INITIALIZE WS-THIS-PROGCOMMAREA                                   
               SET CA-FIRST-PAGE          TO TRUE                                
               SET CA-LAST-PAGE-NOT-SHOWN TO TRUE                                
-           ELSE
-              MOVE DFHCOMMAREA (1:LENGTH OF CARDDEMO-COMMAREA) TO               
-                                CARDDEMO-COMMAREA                               
-              MOVE DFHCOMMAREA(LENGTH OF CARDDEMO-COMMAREA + 1:                 
-                               LENGTH OF WS-THIS-PROGCOMMAREA )TO               
-                                WS-THIS-PROGCOMMAREA                            
            END-IF                                                               
       *****************************************************************         
       * If coming in from menu. Lets forget the past and start afresh *         
@@ -459,7 +471,16 @@
                WHEN CDEMO-PGM-REENTER AND                                       
                     CDEMO-FROM-PROGRAM NOT EQUAL LIT-THISPGM                    
                                                                                 
-                    INITIALIZE CARDDEMO-COMMAREA                                
+      *             Keep the signed-on user id; reset everything else           
+                    INITIALIZE CDEMO-FROM-TRANID                                
+                               CDEMO-FROM-PROGRAM                               
+                               CDEMO-TO-TRANID                                  
+                               CDEMO-TO-PROGRAM                                 
+                               CDEMO-PGM-CONTEXT                                
+                               CDEMO-CUSTOMER-INFO                              
+                               CDEMO-ACCOUNT-INFO                               
+                               CDEMO-CARD-INFO                                  
+                               CDEMO-MORE-INFO                                  
                                WS-THIS-PROGCOMMAREA                             
                     MOVE LIT-THISTRANID      TO CDEMO-FROM-TRANID               
                     MOVE LIT-THISPGM         TO CDEMO-FROM-PROGRAM              
@@ -1416,6 +1437,19 @@
        COPY 'CSSTRPFY'
            .
 
+      *****************************************************************         
+      * No CardDemo session: transfer to sign-on without a commarea so          
+      * COSGN00C starts with a fresh sign-on screen.                            
+      *****************************************************************         
+       SEND-TO-SIGNON.                                                          
+           EXEC CICS XCTL                                                       
+                PROGRAM (LIT-SIGNONPGM)                                         
+           END-EXEC                                                             
+           .                                                                    
+       SEND-TO-SIGNON-EXIT.                                                     
+           EXIT                                                                 
+           .                                                                    
+                                                                                
       *****************************************************************         
       * Plain text exit - Dont use in production                      *         
       *****************************************************************         
