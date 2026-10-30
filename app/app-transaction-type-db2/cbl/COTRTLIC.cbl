@@ -830,7 +830,15 @@
 082400                 THRU 2000-SEND-MAP-EXIT
 082500
 082600              IF FLG-DELETED-YES
-082700                 INITIALIZE CARDDEMO-COMMAREA
+082700                 INITIALIZE CDEMO-FROM-TRANID
+082710                         CDEMO-FROM-PROGRAM
+082720                         CDEMO-TO-TRANID
+082730                         CDEMO-TO-PROGRAM
+082740                         CDEMO-PGM-CONTEXT
+082750                         CDEMO-CUSTOMER-INFO
+082760                         CDEMO-ACCOUNT-INFO
+082770                         CDEMO-CARD-INFO
+082780                         CDEMO-MORE-INFO
 082800                         WS-THIS-PROGCOMMAREA
 082900                         WS-MISC-STORAGE
 083000                 SET CDEMO-PGM-ENTER      TO TRUE

@@ -375,7 +375,15 @@
 036800         AND NOT CDEMO-PGM-REENTER)                               03680000
 036900         OR (CDEMO-FROM-PROGRAM = LIT-LISTTPGM                    03690000
 037000         AND NOT CDEMO-PGM-REENTER)                               03700000
-037100        INITIALIZE CARDDEMO-COMMAREA                              03710000
+037100       INITIALIZE CDEMO-FROM-TRANID                               03710000
+037110                  CDEMO-FROM-PROGRAM                              03711000
+037120                  CDEMO-TO-TRANID                                 03712000
+037130                  CDEMO-TO-PROGRAM                                03713000
+037140                  CDEMO-PGM-CONTEXT                               03714000
+037150                  CDEMO-CUSTOMER-INFO                             03715000
+037160                  CDEMO-ACCOUNT-INFO                              03716000
+037170                  CDEMO-CARD-INFO                                 03717000
+037180                  CDEMO-MORE-INFO                                 03718000
 037200                   WS-THIS-PROGCOMMAREA                           03720000
 037300        SET CDEMO-PGM-ENTER TO TRUE                               03730000
 037400        SET TTUP-DETAILS-NOT-FETCHED TO TRUE                      03740000
