@@ -27,23 +27,13 @@
 //            DISP=(MOD,DELETE,DELETE)
 //*
 //*-------------------------------------------------------------------*
-//* CREATE USER SECURITY FILE (PS) FROM IN-STREAM DATA
+//* COPY THE VALIDATED USER SECURITY FILE BUILT BY DUSRSECJ (PS)
+//* (no in-stream user IDs or passwords; run DUSRSECJ first)
 //*-------------------------------------------------------------------*
 //*
 //STEP01  EXEC PGM=IEBGENER
 //*
-//SYSUT1   DD *
-ADMIN001MARGARET            GOLD                PASSWORDA
-ADMIN002RUSSELL             RUSSELL             PASSWORDA
-ADMIN003RAYMOND             WHITMORE            PASSWORDA
-ADMIN004EMMANUEL            CASGRAIN            PASSWORDA
-ADMIN005GRANVILLE           LACHAPELLE          PASSWORDA
-USER0001LAWRENCE            THOMAS              PASSWORDU
-USER0002AJITH               KUMAR               PASSWORDU
-USER0003LAURITZ             ALME                PASSWORDU
-USER0004AVERARDO            MAZZI               PASSWORDU
-USER0005LEE                 TING                PASSWORDU
-/*
+//SYSUT1   DD DSN=AWS.M2.CARDDEMO.USRSEC.PS,DISP=SHR
 //SYSUT2   DD DSN=AWS.M2.CARDDEMO.ESDSRRDS.PS,
 //            DISP=(NEW,CATLG,DELETE),
 //            DCB=(LRECL=80,RECFM=FB,DSORG=PS,BLKSIZE=0),

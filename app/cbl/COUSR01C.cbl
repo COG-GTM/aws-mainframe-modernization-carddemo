@@ -51,6 +51,7 @@
        COPY CSDAT01Y.
        COPY CSMSG01Y.
        COPY CSUSR01Y.
+       COPY CSUTLPWY.
 
        COPY DFHAID.
        COPY DFHBMSCA.
@@ -114,6 +115,10 @@
       *----------------------------------------------------------------*
        PROCESS-ENTER-KEY.
 
+           MOVE USERIDI OF COUSR1AI TO CSUTLPWC-USER-ID
+           MOVE PASSWDI OF COUSR1AI TO CSUTLPWC-PASSWORD
+           CALL 'CSUTLPWC' USING CSUTLPWC-PARM
+
            EVALUATE TRUE
                WHEN FNAMEI OF COUSR1AI = SPACES OR LOW-VALUES
                    MOVE 'Y'     TO WS-ERR-FLG
@@ -145,6 +150,11 @@
                                    WS-MESSAGE
                    MOVE -1       TO USRTYPEL OF COUSR1AI
                    PERFORM SEND-USRADD-SCREEN
+               WHEN NOT CSUTLPWC-PWD-OK
+                   MOVE 'Y'     TO WS-ERR-FLG
+                   MOVE CSUTLPWC-MESSAGE TO WS-MESSAGE
+                   MOVE -1       TO PASSWDL OF COUSR1AI
+                   PERFORM SEND-USRADD-SCREEN
                WHEN OTHER
                    MOVE -1       TO FNAMEL OF COUSR1AI
                    CONTINUE
@@ -156,6 +166,8 @@
                MOVE LNAMEI   OF COUSR1AI TO SEC-USR-LNAME
                MOVE PASSWDI  OF COUSR1AI TO SEC-USR-PWD
                MOVE USRTYPEI OF COUSR1AI TO SEC-USR-TYPE
+               SET SEC-USR-PWD-CHG-REQ   TO TRUE
+               MOVE SPACES               TO SEC-USR-FILLER
                PERFORM WRITE-USER-SEC-FILE
            END-IF.
 

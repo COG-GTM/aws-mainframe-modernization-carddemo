@@ -44,6 +44,8 @@
          05 WS-REAS-CD                 PIC S9(09) COMP VALUE ZEROS.
          05 WS-USER-ID                 PIC X(08).
          05 WS-USER-PWD                PIC X(08).
+         05 WS-NEW-PWD                 PIC X(08).
+         05 WS-CNF-PWD                 PIC X(08).
 
        COPY COCOM01Y.
 
@@ -53,6 +55,7 @@
        COPY CSDAT01Y.
        COPY CSMSG01Y.
        COPY CSUSR01Y.
+       COPY CSUTLPWY.
 
        COPY DFHAID.
        COPY DFHBMSCA.
@@ -134,6 +137,10 @@
                            CDEMO-USER-ID
            MOVE FUNCTION UPPER-CASE(PASSWDI OF COSGN0AI) TO
                            WS-USER-PWD
+           MOVE FUNCTION UPPER-CASE(NEWPWDI OF COSGN0AI) TO
+                           WS-NEW-PWD
+           MOVE FUNCTION UPPER-CASE(CNFPWDI OF COSGN0AI) TO
+                           WS-CNF-PWD
 
            IF NOT ERR-FLG-ON
                PERFORM READ-USER-SEC-FILE
@@ -147,6 +154,8 @@
            PERFORM POPULATE-HEADER-INFO
 
            MOVE WS-MESSAGE TO ERRMSGO OF COSGN0AO
+           MOVE LOW-VALUES TO NEWPWDO OF COSGN0AO
+                              CNFPWDO OF COSGN0AO
 
            EXEC CICS SEND
                      MAP('COSGN0A')
@@ -221,22 +230,9 @@
            EVALUATE WS-RESP-CD
                WHEN 0
                    IF SEC-USR-PWD = WS-USER-PWD
-                       MOVE WS-TRANID    TO CDEMO-FROM-TRANID
-                       MOVE WS-PGMNAME   TO CDEMO-FROM-PROGRAM
-                       MOVE WS-USER-ID   TO CDEMO-USER-ID
-                       MOVE SEC-USR-TYPE TO CDEMO-USER-TYPE
-                       MOVE ZEROS        TO CDEMO-PGM-CONTEXT
-
-                       IF CDEMO-USRTYP-ADMIN
-                            EXEC CICS XCTL
-                              PROGRAM ('COADM01C')
-                              COMMAREA(CARDDEMO-COMMAREA)
-                            END-EXEC
-                       ELSE
-                            EXEC CICS XCTL
-                              PROGRAM ('COMEN01C')
-                              COMMAREA(CARDDEMO-COMMAREA)
-                            END-EXEC
+                       PERFORM CHECK-PASSWORD-CHANGE
+                       IF NOT ERR-FLG-ON
+                           PERFORM SIGNON-USER
                        END-IF
                    ELSE
                        MOVE 'Wrong Password. Try again ...' TO
@@ -255,6 +251,115 @@
                    MOVE -1       TO USERIDL OF COSGN0AI
                    PERFORM SEND-SIGNON-SCREEN
            END-EVALUATE.
+
+      *----------------------------------------------------------------*
+      *                      SIGNON-USER
+      *----------------------------------------------------------------*
+       SIGNON-USER.
+
+           MOVE WS-TRANID    TO CDEMO-FROM-TRANID
+           MOVE WS-PGMNAME   TO CDEMO-FROM-PROGRAM
+           MOVE WS-USER-ID   TO CDEMO-USER-ID
+           MOVE SEC-USR-TYPE TO CDEMO-USER-TYPE
+           MOVE ZEROS        TO CDEMO-PGM-CONTEXT
+
+           IF CDEMO-USRTYP-ADMIN
+                EXEC CICS XCTL
+                  PROGRAM ('COADM01C')
+                  COMMAREA(CARDDEMO-COMMAREA)
+                END-EXEC
+           ELSE
+                EXEC CICS XCTL
+                  PROGRAM ('COMEN01C')
+                  COMMAREA(CARDDEMO-COMMAREA)
+                END-EXEC
+           END-IF.
+
+      *----------------------------------------------------------------*
+      *                      CHECK-PASSWORD-CHANGE
+      * Accounts loaded by DUSRSECJ must replace their one-time
+      * password before they can sign on. Any user may also change
+      * their password here by filling in New Password and Confirm.
+      *----------------------------------------------------------------*
+       CHECK-PASSWORD-CHANGE.
+
+           EVALUATE TRUE
+               WHEN WS-NEW-PWD = SPACES OR LOW-VALUES
+                   IF SEC-USR-PWD-CHG-REQ
+                       MOVE 'Y'      TO WS-ERR-FLG
+                       MOVE 'Password change required. Enter a new one.'
+                         TO WS-MESSAGE
+                       MOVE -1       TO NEWPWDL OF COSGN0AI
+                       PERFORM SEND-SIGNON-SCREEN
+                   END-IF
+               WHEN WS-NEW-PWD NOT = WS-CNF-PWD
+                   MOVE 'Y'      TO WS-ERR-FLG
+                   MOVE 'New and Confirm Password do not match ...'
+                     TO WS-MESSAGE
+                   MOVE -1       TO NEWPWDL OF COSGN0AI
+                   PERFORM SEND-SIGNON-SCREEN
+               WHEN WS-NEW-PWD = SEC-USR-PWD
+                   MOVE 'Y'      TO WS-ERR-FLG
+                   MOVE 'New Password must differ from the old one ...'
+                     TO WS-MESSAGE
+                   MOVE -1       TO NEWPWDL OF COSGN0AI
+                   PERFORM SEND-SIGNON-SCREEN
+               WHEN OTHER
+                   MOVE WS-USER-ID TO CSUTLPWC-USER-ID
+                   MOVE WS-NEW-PWD TO CSUTLPWC-PASSWORD
+                   CALL 'CSUTLPWC' USING CSUTLPWC-PARM
+                   IF CSUTLPWC-PWD-OK
+                       PERFORM UPDATE-USER-PASSWORD
+                   ELSE
+                       MOVE 'Y'      TO WS-ERR-FLG
+                       MOVE CSUTLPWC-MESSAGE TO WS-MESSAGE
+                       MOVE -1       TO NEWPWDL OF COSGN0AI
+                       PERFORM SEND-SIGNON-SCREEN
+                   END-IF
+           END-EVALUATE.
+
+      *----------------------------------------------------------------*
+      *                      UPDATE-USER-PASSWORD
+      *----------------------------------------------------------------*
+       UPDATE-USER-PASSWORD.
+
+           EXEC CICS READ
+                DATASET   (WS-USRSEC-FILE)
+                INTO      (SEC-USER-DATA)
+                LENGTH    (LENGTH OF SEC-USER-DATA)
+                RIDFLD    (WS-USER-ID)
+                KEYLENGTH (LENGTH OF WS-USER-ID)
+                UPDATE
+                RESP      (WS-RESP-CD)
+                RESP2     (WS-REAS-CD)
+           END-EXEC.
+
+           IF WS-RESP-CD = DFHRESP(NORMAL)
+              AND SEC-USR-PWD = WS-USER-PWD
+               MOVE WS-NEW-PWD TO SEC-USR-PWD
+               MOVE SPACE      TO SEC-USR-PWD-STATUS
+               EXEC CICS REWRITE
+                    DATASET   (WS-USRSEC-FILE)
+                    FROM      (SEC-USER-DATA)
+                    LENGTH    (LENGTH OF SEC-USER-DATA)
+                    RESP      (WS-RESP-CD)
+                    RESP2     (WS-REAS-CD)
+               END-EXEC
+           ELSE
+               IF WS-RESP-CD = DFHRESP(NORMAL)
+                   EXEC CICS UNLOCK
+                        DATASET   (WS-USRSEC-FILE)
+                   END-EXEC
+                   MOVE DFHRESP(NOTFND) TO WS-RESP-CD
+               END-IF
+           END-IF
+
+           IF WS-RESP-CD NOT = DFHRESP(NORMAL)
+               MOVE 'Y'      TO WS-ERR-FLG
+               MOVE 'Unable to change the password ...' TO WS-MESSAGE
+               MOVE -1       TO PASSWDL OF COSGN0AI
+               PERFORM SEND-SIGNON-SCREEN
+           END-IF.
       *
       * Ver: CardDemo_v1.0-15-g27d6c6f-68 Date: 2022-07-19 23:12:33 CDT
       *
