@@ -8,11 +8,18 @@ plus the PF5 / PF8 slice of `COPAUS1C.cbl` that calls it. Specs: `specs/aws-tran
 - **Db2 is real** (IBM Db2 Community in Docker, schema from the repo DDL).
 - **IMS is stubbed** behind `domain/ims/PendingAuthorizationStore`; `adapters/ims/InMemoryPendingAuthorizationStore`
   is seeded from `ims-stub/pending-authorizations.json` (decoded from the IMS unload `DBPAUTP0.dat` by `tools/decode_ims_unload.py`).
-  `POST /api/v1/ims-stub/fail-next-repl?status=XX` makes the next REPL fail, to exercise the rollback path.
+  `POST /api/v1/ims-stub/fail-next-repl?status=XX` (profile `testing` only) makes the next REPL fail, to exercise the rollback path.
 - **CICS** LINK/SYNCPOINT become an in-process call + Spring `@Transactional`. **MQ** is not touched by COPAUS2C and is out of scope.
+
+## Security (BR-AF-040 / BR-AF-041)
+- HTTP Basic, stateless. `GET /api/**` needs role READER or MAINTAINER, writes need MAINTAINER. `/actuator/health` and Swagger UI are public; use **Authorize** in Swagger.
+- Credentials come only from the environment: `AUTHFRDS_API_USER` / `AUTHFRDS_API_PASSWORD` (maintainer) and `AUTHFRDS_API_READER_USER` / `AUTHFRDS_API_READER_PASSWORD` (reader). The service refuses to start if any is unset or both usernames match.
+- `cp .env.example .env` and set real values (`.env` is gitignored, and also holds `DB2_PASSWORD`). Nothing in the repo has a default password.
+- The IMS stub test hooks (`/api/v1/ims-stub/*`) exist only under the `testing` profile: `make run PROFILES=testing`. Without it they return 404.
 
 ## Run
 ```
+cp .env.example .env      # then edit the values
 make db2-up db2-wait      # first start pulls ~1.5 GB
 make test                 # unit + MockMvc
 make it                   # + real-Db2 integration tests (Failsafe, *IT.java)
@@ -30,9 +37,9 @@ make db2-sql Q="SELECT CARD_NUM, AUTH_TS, AUTH_FRAUD, FRAUD_RPT_DATE FROM CARDDE
 | GET | `/api/v1/accounts/{acctId}/authorizations/{authKey}` | COPAUS1C ENTER |
 | GET | `/api/v1/accounts/{acctId}/authorizations/{authKey}/next` | COPAUS1C PF8 |
 | POST | `/api/v1/accounts/{acctId}/authorizations/{authKey}/fraud` | COPAUS1C PF5 -> COPAUS2C -> IMS REPL |
-| POST | `/api/v1/ims-stub/fail-next-repl`, `/api/v1/ims-stub/reset` | test hooks for the IMS stub |
+| POST | `/api/v1/ims-stub/fail-next-repl`, `/api/v1/ims-stub/reset` | IMS stub test hooks, `testing` profile only |
 
-HTTP mapping: rule/validation failure 400, not found / end of data 404, COPAUS2C failure (`WS-FRD-UPDT-FAILED`) 422, IMS error 500, Db2 down 503.
+HTTP mapping: 401 no/bad credentials, 403 reader write, rule/validation failure 400, not found / end of data 404, COPAUS2C failure (`WS-FRD-UPDT-FAILED`) 422, IMS error 500, Db2 down 503.
 No DELETE: no legacy program deletes AUTHFRDS rows (see GAP-REVIEW).
 
 ## Traceability (rule -> code -> test)

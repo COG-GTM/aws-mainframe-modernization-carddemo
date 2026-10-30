@@ -9,7 +9,6 @@ import com.carddemo.authfrds.domain.ims.PendingAuthorizationSummary;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.List;
-import java.util.Map;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -64,19 +63,5 @@ public class AuthorizationController {
     public ToggleResult toggle(@PathVariable long acctId, @PathVariable String authKey,
                                @RequestParam(required = false) Long custId) {
         return service.toggleFraud(acctId, custId, AuthKey.parse(authKey));
-    }
-
-    @PostMapping("/ims-stub/fail-next-repl")
-    @Operation(summary = "IMS STUB CONTROL (test hook, not legacy): make the next REPL return this DL/I status")
-    public Map<String, String> failNextRepl(@RequestParam(defaultValue = "AI") String status) {
-        ims.failNextReplace(status);
-        return Map.of("nextReplStatus", status);
-    }
-
-    @PostMapping("/ims-stub/reset")
-    @Operation(summary = "IMS STUB CONTROL (test hook, not legacy): reload the seed from the legacy IMS unload")
-    public Map<String, Integer> reset() {
-        ims.reset();
-        return Map.of("accounts", ims.summaries().size());
     }
 }

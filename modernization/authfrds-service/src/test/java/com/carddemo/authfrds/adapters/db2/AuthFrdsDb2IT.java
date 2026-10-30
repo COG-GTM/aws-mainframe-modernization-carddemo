@@ -42,6 +42,7 @@ class AuthFrdsDb2IT {
     @BeforeEach
     @AfterEach
     void cleanUp() {
+        http = http.withBasicAuth("test-maintainer", "test-maintainer-pw");
         ims.reset();
         acct1Card = ims.listDetails(1L).get(0).cardNum();
         jdbc.update("DELETE FROM CARDDEMO.AUTHFRDS WHERE CARD_NUM LIKE '411122223333%' OR CARD_NUM = ?", acct1Card);

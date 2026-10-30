@@ -6,7 +6,7 @@ services:
     environment:
       LICENSE: accept
       DB2INSTANCE: db2inst1
-      DB2INST1_PASSWORD: ${DB2_PASSWORD:-carddemo}
+      DB2INST1_PASSWORD: ${DB2_PASSWORD:?set DB2_PASSWORD in .env (see .env.example)}
       DBNAME: CARDDEMO
       ARCHIVE_LOGS: "false"
       AUTOCONFIG: "false"
@@ -32,7 +32,12 @@ services:
     environment:
       SPRING_DATASOURCE_URL: jdbc:db2://db2:50000/CARDDEMO:retrieveMessagesFromServerOnGetMessage=true;
       SPRING_DATASOURCE_USERNAME: db2inst1
-      SPRING_DATASOURCE_PASSWORD: ${DB2_PASSWORD:-carddemo}
+      SPRING_DATASOURCE_PASSWORD: ${DB2_PASSWORD:?set DB2_PASSWORD in .env (see .env.example)}
+      AUTHFRDS_API_USER: ${AUTHFRDS_API_USER:?set in .env}
+      AUTHFRDS_API_PASSWORD: ${AUTHFRDS_API_PASSWORD:?set in .env}
+      AUTHFRDS_API_READER_USER: ${AUTHFRDS_API_READER_USER:?set in .env}
+      AUTHFRDS_API_READER_PASSWORD: ${AUTHFRDS_API_READER_PASSWORD:?set in .env}
+      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE:-}
     ports:
       - "127.0.0.1:${SERVICE_PORT:-8080}:8080"
 

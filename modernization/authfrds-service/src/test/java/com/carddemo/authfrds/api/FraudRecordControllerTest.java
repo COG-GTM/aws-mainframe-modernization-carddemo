@@ -6,6 +6,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.carddemo.authfrds.adapters.ims.InMemoryPendingAuthorizationStore;
+import com.carddemo.authfrds.config.SecurityConfig;
 import com.carddemo.authfrds.domain.AuthorizationFraudService;
 import com.carddemo.authfrds.domain.Fixtures;
 import com.carddemo.authfrds.domain.FraudRecordService;
@@ -23,11 +24,15 @@ import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
-@WebMvcTest({FraudRecordController.class, AuthorizationController.class})
-@Import({FraudRecordService.class, AuthorizationFraudService.class, InMemoryPendingAuthorizationStore.class,
+@WebMvcTest({FraudRecordController.class, AuthorizationController.class, ImsStubTestController.class})
+@ActiveProfiles({"test", "testing"})
+@WithMockUser(roles = SecurityConfig.MAINTAINER)
+@Import({SecurityConfig.class, FraudRecordService.class, AuthorizationFraudService.class, InMemoryPendingAuthorizationStore.class,
         FraudRecordControllerTest.Config.class})
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 class FraudRecordControllerTest {

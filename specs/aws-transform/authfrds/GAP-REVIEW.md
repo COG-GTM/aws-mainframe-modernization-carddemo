@@ -33,6 +33,9 @@
 | `YY` pivot: Db2 LUW resolves `99-...` to **2099** (observed: `TIMESTAMP_FORMAT('99-10-29 ...')` = `2099-10-29-00.12.52.555000`) | BR-AF-001 | same SQL in Java | **MISSED -> documented** (two-digit-year risk inherited from the legacy `YY` format; was not in the first spec draft, added to BR-AF-001). Not fixed on purpose - Java reproduces the legacy SQL. |
 | MARK-AUTH-FRAUD does not check READ-AUTH-RECORD status before toggling | BR-AF-025 | Java stops with 404/500 if the read fails | *intentional deviation* (legacy would toggle a stale buffer) |
 
+| No authentication in COPAUS1C/COPAUS2C (CICS signon + RACF upstream) | BR-AF-040 | `SecurityConfig` HTTP Basic, READER/MAINTAINER; `SecurityTest` (401/403/200), `ApiCredentialsTest` (fail-fast) | *intentional deviation*: REST has no CICS signon, so the service enforces it itself |
+| IMS stub test hooks | BR-AF-041 | `ImsStubTestController` `@Profile("testing")`; `SecurityTest` 404 without the profile | *intentional deviation* (test-only, off by default) |
+
 ## Confirmation flows
 | Legacy behaviour | Spec | Java + test | Verdict |
 |---|---|---|---|
