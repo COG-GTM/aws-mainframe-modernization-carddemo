@@ -230,7 +230,10 @@
            EVALUATE WS-RESP-CD
                WHEN 0
                    IF SEC-USR-PWD = WS-USER-PWD
-                       PERFORM CHECK-PASSWORD-CHANGE
+                       PERFORM CHECK-STORED-PASSWORD
+                       IF NOT ERR-FLG-ON
+                           PERFORM CHECK-PASSWORD-CHANGE
+                       END-IF
                        IF NOT ERR-FLG-ON
                            PERFORM SIGNON-USER
                        END-IF
@@ -273,6 +276,26 @@
                   PROGRAM ('COMEN01C')
                   COMMAREA(CARDDEMO-COMMAREA)
                 END-EXEC
+           END-IF.
+
+      *----------------------------------------------------------------*
+      *                      CHECK-STORED-PASSWORD
+      * Refuse accounts still holding a published default or otherwise
+      * weak password (e.g. legacy seed records). Only an administrator
+      * can reset them, so the known password cannot be used to sign on
+      * or to take the account over.
+      *----------------------------------------------------------------*
+       CHECK-STORED-PASSWORD.
+
+           MOVE WS-USER-ID  TO CSUTLPWC-USER-ID
+           MOVE SEC-USR-PWD TO CSUTLPWC-PASSWORD
+           CALL 'CSUTLPWC' USING CSUTLPWC-PARM
+           IF NOT CSUTLPWC-PWD-OK
+               MOVE 'Y'      TO WS-ERR-FLG
+               MOVE 'Account locked: insecure password. Contact admin.'
+                 TO WS-MESSAGE
+               MOVE -1       TO USERIDL OF COSGN0AI
+               PERFORM SEND-SIGNON-SCREEN
            END-IF.
 
       *----------------------------------------------------------------*

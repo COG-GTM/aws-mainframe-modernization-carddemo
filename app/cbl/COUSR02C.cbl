@@ -225,12 +225,14 @@
                    MOVE LNAMEI   OF COUSR2AI TO SEC-USR-LNAME
                    SET USR-MODIFIED-YES TO TRUE
                END-IF
-               IF PASSWDI  OF COUSR2AI NOT = SEC-USR-PWD
+               IF FUNCTION UPPER-CASE(PASSWDI OF COUSR2AI)
+                                         NOT = SEC-USR-PWD
                    MOVE SEC-USR-ID           TO CSUTLPWC-USER-ID
                    MOVE PASSWDI  OF COUSR2AI TO CSUTLPWC-PASSWORD
                    CALL 'CSUTLPWC' USING CSUTLPWC-PARM
                    IF CSUTLPWC-PWD-OK
-                       MOVE PASSWDI  OF COUSR2AI TO SEC-USR-PWD
+                       MOVE FUNCTION UPPER-CASE(PASSWDI OF COUSR2AI)
+                                             TO SEC-USR-PWD
                        SET SEC-USR-PWD-CHG-REQ   TO TRUE
                        SET USR-MODIFIED-YES TO TRUE
                    ELSE

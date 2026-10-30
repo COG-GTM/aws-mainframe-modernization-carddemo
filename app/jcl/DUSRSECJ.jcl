@@ -41,7 +41,10 @@
 //* equal to the user ID, a published default such as PASSWORD, or
 //* lacks letters and digits. Every loaded account must change its
 //* password at first sign-on. Delete the bootstrap dataset after the
-//* administrator has signed on. Never load demo/test users with
+//* administrator has signed on. The validated load file is a
+//* temporary dataset deleted at end of job, and the PREDEL step
+//* removes any cataloged USRSEC.PS copy left by older versions of
+//* this job. Never load demo/test users with
 //* known passwords into a non-demo region.
 //*-------------------------------------------------------------------*
 //*
@@ -50,8 +53,8 @@
 //            DSN=AWS.M2.CARDDEMO.LOADLIB
 //BOOTIN   DD DISP=SHR,
 //            DSN=AWS.M2.CARDDEMO.USRSEC.BOOTSTRAP
-//USROUT   DD DSN=AWS.M2.CARDDEMO.USRSEC.PS,
-//            DISP=(NEW,CATLG,DELETE),
+//USROUT   DD DSN=&&USRSEC,
+//            DISP=(NEW,PASS,DELETE),
 //            DCB=(LRECL=80,RECFM=FB,DSORG=PS,BLKSIZE=0),
 //            UNIT=SYSAD,SPACE=(TRK,(10,5),RLSE)
 //SYSOUT   DD SYSOUT=*
@@ -85,7 +88,7 @@
 //*
 //STEP03  EXEC PGM=IDCAMS,COND=(4,LT)
 //*
-//IN       DD  DSN=AWS.M2.CARDDEMO.USRSEC.PS,DISP=SHR
+//IN       DD  DSN=&&USRSEC,DISP=(OLD,DELETE,DELETE)
 //OUT      DD  DSN=AWS.M2.CARDDEMO.USRSEC.VSAM.KSDS,DISP=SHR
 //SYSOUT   DD  SYSOUT=*
 //SYSPRINT DD  SYSOUT=*

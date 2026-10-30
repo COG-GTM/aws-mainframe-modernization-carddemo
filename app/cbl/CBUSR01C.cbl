@@ -210,4 +210,9 @@
                END-IF
            END-PERFORM
 
-           CLOSE USROUT-FILE.
+           CLOSE USROUT-FILE
+           IF WS-USROUT-STATUS NOT = '00'
+               DISPLAY 'CBUSR01C: ERROR CLOSING USROUT, STATUS '
+                       WS-USROUT-STATUS
+               MOVE 12 TO RETURN-CODE
+           END-IF.

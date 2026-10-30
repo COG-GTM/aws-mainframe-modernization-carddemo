@@ -164,7 +164,8 @@
                MOVE USERIDI  OF COUSR1AI TO SEC-USR-ID
                MOVE FNAMEI   OF COUSR1AI TO SEC-USR-FNAME
                MOVE LNAMEI   OF COUSR1AI TO SEC-USR-LNAME
-               MOVE PASSWDI  OF COUSR1AI TO SEC-USR-PWD
+               MOVE FUNCTION UPPER-CASE(PASSWDI OF COUSR1AI)
+                                         TO SEC-USR-PWD
                MOVE USRTYPEI OF COUSR1AI TO SEC-USR-TYPE
                SET SEC-USR-PWD-CHG-REQ   TO TRUE
                MOVE SPACES               TO SEC-USR-FILLER

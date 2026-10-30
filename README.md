@@ -126,7 +126,7 @@ CardDemo includes several optional modules that extend the base functionality:
 4. **Upload Sample Data**
    - Transfer the sample data from the `main/-/data/EBCDIC/` folder to the mainframe
    - Use binary transfer mode to preserve data integrity
-   - No user security data is shipped. Create `AWS.M2.CARDDEMO.USRSEC.BOOTSTRAP` yourself (see [Bootstrap Administrator](#bootstrap-administrator)); `DUSRSECJ` builds `AWS.M2.CARDDEMO.USRSEC.PS` from it
+   - No user security data is shipped. Create `AWS.M2.CARDDEMO.USRSEC.BOOTSTRAP` yourself (see [Bootstrap Administrator](#bootstrap-administrator)); `DUSRSECJ` validates it and loads the user security KSDS through a temporary dataset
    - Create the following datasets:
 
      | Dataset name                      | Description                                  | Copybook     | Format | Length |
@@ -206,7 +206,7 @@ CardDemo ships with no user IDs or passwords. Before running `DUSRSECJ`:
 2. Create `AWS.M2.CARDDEMO.USRSEC.BOOTSTRAP` (FB, LRECL 80) holding one administrator record in the `CSUSR01Y` layout: user ID (cols 1-8), first name (9-28), last name (29-48), password (49-56), type `A` (57).
 3. Protect it so only the security administrator and the batch user ID can read it, e.g. RACF `ADDSD 'AWS.M2.CARDDEMO.USRSEC.BOOTSTRAP' UACC(NONE)` plus `PERMIT ... ACCESS(READ)`.
 4. Run `DUSRSECJ`. Program `CBUSR01C` validates every record and fails the job with RC=12, loading nothing, if any password is blank, shorter than 8 characters, equal to the user ID, a published default such as `PASSWORD`, or lacks letters and digits, or if there is no administrator.
-5. Sign on with the bootstrap administrator. Every account loaded by `DUSRSECJ` or created/reset through the admin user screens is flagged and must set a new password (the **New Password** and **Confirm Pwd** fields on the sign-on screen) before it can sign on.
+5. Sign on with the bootstrap administrator. Existing accounts whose stored password is a published default or otherwise fails these rules (for example records loaded by older versions of `DUSRSECJ`) are refused at sign-on until an administrator resets them. Every account loaded by `DUSRSECJ` or created/reset through the admin user screens is flagged and must set a new password (the **New Password** and **Confirm Pwd** fields on the sign-on screen) before it can sign on.
 6. Delete the bootstrap dataset and create further users from the Admin Menu.
 
 Demo or test users with known passwords must never exist in a non-demo region.
