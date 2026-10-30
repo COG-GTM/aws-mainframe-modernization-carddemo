@@ -168,6 +168,10 @@
                MOVE SEC-USR-LNAME      TO LNAMEI    OF COUSR2AI
                MOVE SEC-USR-PWD        TO PASSWDI   OF COUSR2AI
                MOVE SEC-USR-TYPE       TO USRTYPEI  OF COUSR2AI
+               IF SEC-USR-LOCKED
+                   MOVE 'Locked after failed sign-ons. PF5 unlocks ...'
+                                   TO WS-MESSAGE
+               END-IF
                PERFORM SEND-USRUPD-SCREEN
            END-IF.
 
@@ -230,6 +234,14 @@
                END-IF
                IF USRTYPEI  OF COUSR2AI NOT = SEC-USR-TYPE
                    MOVE USRTYPEI OF COUSR2AI TO SEC-USR-TYPE
+                   SET USR-MODIFIED-YES TO TRUE
+               END-IF
+               IF SEC-USR-FAIL-CNT NOT NUMERIC
+                   MOVE ZEROS TO SEC-USR-FAIL-CNT
+               END-IF
+               IF SEC-USR-LOCKED OR SEC-USR-FAIL-CNT > ZEROS
+                   MOVE ZEROS TO SEC-USR-FAIL-CNT
+                   SET SEC-USR-UNLOCKED TO TRUE
                    SET USR-MODIFIED-YES TO TRUE
                END-IF
 

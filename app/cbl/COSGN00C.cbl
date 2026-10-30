@@ -44,6 +44,9 @@
          05 WS-REAS-CD                 PIC S9(09) COMP VALUE ZEROS.
          05 WS-USER-ID                 PIC X(08).
          05 WS-USER-PWD                PIC X(08).
+         05 WS-MAX-SIGNON-FAILS        PIC 9(02) VALUE 3.
+         05 WS-SIGNON-FAILED-MSG       PIC X(50) VALUE
+            'Invalid User ID or Password, or account locked ...'.
 
        COPY COCOM01Y.
 
@@ -132,8 +135,7 @@
            MOVE FUNCTION UPPER-CASE(USERIDI OF COSGN0AI) TO
                            WS-USER-ID
                            CDEMO-USER-ID
-           MOVE FUNCTION UPPER-CASE(PASSWDI OF COSGN0AI) TO
-                           WS-USER-PWD
+           MOVE PASSWDI OF COSGN0AI TO WS-USER-PWD
 
            IF NOT ERR-FLG-ON
                PERFORM READ-USER-SEC-FILE
@@ -214,47 +216,120 @@
                 LENGTH    (LENGTH OF SEC-USER-DATA)
                 RIDFLD    (WS-USER-ID)
                 KEYLENGTH (LENGTH OF WS-USER-ID)
+                UPDATE
                 RESP      (WS-RESP-CD)
                 RESP2     (WS-REAS-CD)
            END-EXEC.
 
            EVALUATE WS-RESP-CD
                WHEN 0
-                   IF SEC-USR-PWD = WS-USER-PWD
-                       MOVE WS-TRANID    TO CDEMO-FROM-TRANID
-                       MOVE WS-PGMNAME   TO CDEMO-FROM-PROGRAM
-                       MOVE WS-USER-ID   TO CDEMO-USER-ID
-                       MOVE SEC-USR-TYPE TO CDEMO-USER-TYPE
-                       MOVE ZEROS        TO CDEMO-PGM-CONTEXT
-
-                       IF CDEMO-USRTYP-ADMIN
-                            EXEC CICS XCTL
-                              PROGRAM ('COADM01C')
-                              COMMAREA(CARDDEMO-COMMAREA)
-                            END-EXEC
-                       ELSE
-                            EXEC CICS XCTL
-                              PROGRAM ('COMEN01C')
-                              COMMAREA(CARDDEMO-COMMAREA)
-                            END-EXEC
-                       END-IF
-                   ELSE
-                       MOVE 'Wrong Password. Try again ...' TO
-                                                          WS-MESSAGE
-                       MOVE -1       TO PASSWDL OF COSGN0AI
-                       PERFORM SEND-SIGNON-SCREEN
+                   IF SEC-USR-FAIL-CNT NOT NUMERIC
+                       MOVE ZEROS TO SEC-USR-FAIL-CNT
                    END-IF
+                   EVALUATE TRUE
+                       WHEN SEC-USR-LOCKED
+                           PERFORM UNLOCK-USER-SEC-FILE
+                           PERFORM SIGNON-FAILED
+                       WHEN SEC-USR-PWD = WS-USER-PWD
+                           PERFORM RESET-SIGNON-FAILURES
+                           PERFORM SIGNON-SUCCESS
+                       WHEN OTHER
+                           PERFORM RECORD-SIGNON-FAILURE
+                           PERFORM SIGNON-FAILED
+                   END-EVALUATE
                WHEN 13
-                   MOVE 'Y'      TO WS-ERR-FLG
-                   MOVE 'User not found. Try again ...' TO WS-MESSAGE
-                   MOVE -1       TO USERIDL OF COSGN0AI
-                   PERFORM SEND-SIGNON-SCREEN
+                   PERFORM SIGNON-FAILED
                WHEN OTHER
                    MOVE 'Y'      TO WS-ERR-FLG
                    MOVE 'Unable to verify the User ...' TO WS-MESSAGE
                    MOVE -1       TO USERIDL OF COSGN0AI
                    PERFORM SEND-SIGNON-SCREEN
            END-EVALUATE.
+
+      *----------------------------------------------------------------*
+      *                      SIGNON-SUCCESS
+      *----------------------------------------------------------------*
+       SIGNON-SUCCESS.
+
+           MOVE WS-TRANID    TO CDEMO-FROM-TRANID
+           MOVE WS-PGMNAME   TO CDEMO-FROM-PROGRAM
+           MOVE WS-USER-ID   TO CDEMO-USER-ID
+           MOVE SEC-USR-TYPE TO CDEMO-USER-TYPE
+           MOVE ZEROS        TO CDEMO-PGM-CONTEXT
+
+           IF CDEMO-USRTYP-ADMIN
+                EXEC CICS XCTL
+                  PROGRAM ('COADM01C')
+                  COMMAREA(CARDDEMO-COMMAREA)
+                END-EXEC
+           ELSE
+                EXEC CICS XCTL
+                  PROGRAM ('COMEN01C')
+                  COMMAREA(CARDDEMO-COMMAREA)
+                END-EXEC
+           END-IF.
+
+      *----------------------------------------------------------------*
+      *                      SIGNON-FAILED
+      *  Same message and cursor for unknown, wrong-password and
+      *  locked IDs so the screen does not reveal which IDs exist.
+      *----------------------------------------------------------------*
+       SIGNON-FAILED.
+
+           MOVE 'Y'      TO WS-ERR-FLG
+           MOVE WS-SIGNON-FAILED-MSG TO WS-MESSAGE
+           MOVE SPACES   TO PASSWDO OF COSGN0AO
+           MOVE -1       TO USERIDL OF COSGN0AI
+           PERFORM SEND-SIGNON-SCREEN.
+
+      *----------------------------------------------------------------*
+      *                      RECORD-SIGNON-FAILURE
+      *----------------------------------------------------------------*
+       RECORD-SIGNON-FAILURE.
+
+           IF SEC-USR-FAIL-CNT < WS-MAX-SIGNON-FAILS
+               ADD 1 TO SEC-USR-FAIL-CNT
+           END-IF
+           IF SEC-USR-FAIL-CNT >= WS-MAX-SIGNON-FAILS
+               SET SEC-USR-LOCKED TO TRUE
+           END-IF
+           PERFORM REWRITE-USER-SEC-FILE.
+
+      *----------------------------------------------------------------*
+      *                      RESET-SIGNON-FAILURES
+      *----------------------------------------------------------------*
+       RESET-SIGNON-FAILURES.
+
+           IF SEC-USR-FAIL-CNT = ZEROS
+               PERFORM UNLOCK-USER-SEC-FILE
+           ELSE
+               MOVE ZEROS TO SEC-USR-FAIL-CNT
+               PERFORM REWRITE-USER-SEC-FILE
+           END-IF.
+
+      *----------------------------------------------------------------*
+      *                      REWRITE-USER-SEC-FILE
+      *----------------------------------------------------------------*
+       REWRITE-USER-SEC-FILE.
+
+           EXEC CICS REWRITE
+                DATASET   (WS-USRSEC-FILE)
+                FROM      (SEC-USER-DATA)
+                LENGTH    (LENGTH OF SEC-USER-DATA)
+                RESP      (WS-RESP-CD)
+                RESP2     (WS-REAS-CD)
+           END-EXEC.
+
+      *----------------------------------------------------------------*
+      *                      UNLOCK-USER-SEC-FILE
+      *----------------------------------------------------------------*
+       UNLOCK-USER-SEC-FILE.
+
+           EXEC CICS UNLOCK
+                DATASET   (WS-USRSEC-FILE)
+                RESP      (WS-RESP-CD)
+                RESP2     (WS-REAS-CD)
+           END-EXEC.
       *
       * Ver: CardDemo_v1.0-15-g27d6c6f-68 Date: 2022-07-19 23:12:33 CDT
       *
