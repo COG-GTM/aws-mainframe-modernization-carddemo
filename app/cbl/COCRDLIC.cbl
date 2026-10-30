@@ -186,6 +186,8 @@
              VALUE 'CCRDLIA'.                                                   
          05  LIT-MENUPGM                            PIC X(8)                    
              VALUE 'COMEN01C'.                                                  
+         05  LIT-SIGNONPGM                          PIC X(8)                    
+             VALUE 'COSGN00C'.                                                  
          05  LIT-MENUTRANID                         PIC X(4)                    
              VALUE 'CM00'.                                                      
          05  LIT-MENUMAPSET                         PIC X(7)                    
@@ -310,25 +312,29 @@
       *****************************************************************         
            SET WS-ERROR-MSG-OFF  TO TRUE                                        
       *****************************************************************         
-      * Retrived passed data if  any. Initialize them if first run.             
+      * Retrieve the session passed in by the calling program.                    
       *****************************************************************         
-           IF EIBCALEN = 0
-              INITIALIZE CARDDEMO-COMMAREA
-                         WS-THIS-PROGCOMMAREA 
-              MOVE LIT-THISTRANID        TO CDEMO-FROM-TRANID                   
-              MOVE LIT-THISPGM           TO CDEMO-FROM-PROGRAM                  
-              SET CDEMO-USRTYP-USER      TO TRUE                                
-              SET CDEMO-PGM-ENTER        TO TRUE                                
-              MOVE LIT-THISMAP           TO CDEMO-LAST-MAP                      
-              MOVE LIT-THISMAPSET        TO CDEMO-LAST-MAPSET                   
-              SET CA-FIRST-PAGE          TO TRUE                                
-              SET CA-LAST-PAGE-NOT-SHOWN TO TRUE                                
-           ELSE
-              MOVE DFHCOMMAREA (1:LENGTH OF CARDDEMO-COMMAREA) TO               
-                                CARDDEMO-COMMAREA                               
-              MOVE DFHCOMMAREA(LENGTH OF CARDDEMO-COMMAREA + 1:                 
-                               LENGTH OF WS-THIS-PROGCOMMAREA )TO               
-                                WS-THIS-PROGCOMMAREA                            
+      *****************************************************************         
+      * No commarea means the caller never signed on to CardDemo.               
+      * Send them to the sign-on program instead of starting a session.         
+      *****************************************************************         
+           IF EIBCALEN IS EQUAL TO 0                                            
+              EXEC CICS XCTL                                                    
+                   PROGRAM (LIT-SIGNONPGM)                                      
+              END-EXEC                                                          
+           END-IF                                                               
+           MOVE DFHCOMMAREA (1:LENGTH OF CARDDEMO-COMMAREA) TO
+                             CARDDEMO-COMMAREA
+           MOVE DFHCOMMAREA(LENGTH OF CARDDEMO-COMMAREA + 1:
+                            LENGTH OF WS-THIS-PROGCOMMAREA )TO
+                             WS-THIS-PROGCOMMAREA
+      *****************************************************************         
+      * A session without a signed-on user id is not trusted.                   
+      *****************************************************************         
+           IF CDEMO-USER-ID EQUAL SPACES OR LOW-VALUES                          
+              EXEC CICS XCTL                                                    
+                   PROGRAM (LIT-SIGNONPGM)                                      
+              END-EXEC                                                          
            END-IF                                                               
       *****************************************************************         
       * If coming in from menu. Lets forget the past and start afresh *         
@@ -385,7 +391,6 @@
            AND CDEMO-FROM-PROGRAM  EQUAL LIT-THISPGM)                           
               MOVE LIT-THISTRANID   TO CDEMO-FROM-TRANID                        
               MOVE LIT-THISPGM      TO CDEMO-FROM-PROGRAM                       
-              SET  CDEMO-USRTYP-USER TO TRUE                                    
               SET  CDEMO-PGM-ENTER  TO TRUE                                     
               MOVE LIT-THISMAPSET   TO CDEMO-LAST-MAPSET                        
               MOVE LIT-THISMAP      TO CDEMO-LAST-MAP                           
@@ -463,7 +468,6 @@
                                WS-THIS-PROGCOMMAREA                             
                     MOVE LIT-THISTRANID      TO CDEMO-FROM-TRANID               
                     MOVE LIT-THISPGM         TO CDEMO-FROM-PROGRAM              
-                    SET CDEMO-USRTYP-USER    TO TRUE                            
                     SET CDEMO-PGM-ENTER      TO TRUE                            
                     MOVE LIT-THISMAP         TO CDEMO-LAST-MAP                  
                     MOVE LIT-THISMAPSET      TO CDEMO-LAST-MAPSET               
@@ -519,7 +523,6 @@
                 AND CDEMO-FROM-PROGRAM  EQUAL LIT-THISPGM                       
                    MOVE LIT-THISTRANID    TO CDEMO-FROM-TRANID                  
                    MOVE LIT-THISPGM       TO CDEMO-FROM-PROGRAM                 
-                   SET  CDEMO-USRTYP-USER TO TRUE                               
                    SET  CDEMO-PGM-ENTER   TO TRUE                               
                    MOVE LIT-THISMAPSET    TO CDEMO-LAST-MAPSET                  
                    MOVE LIT-THISMAP       TO CDEMO-LAST-MAP                     
@@ -547,7 +550,6 @@
                 AND CDEMO-FROM-PROGRAM  EQUAL LIT-THISPGM                       
                    MOVE LIT-THISTRANID    TO CDEMO-FROM-TRANID                  
                    MOVE LIT-THISPGM       TO CDEMO-FROM-PROGRAM                 
-                   SET  CDEMO-USRTYP-USER TO TRUE                               
                    SET  CDEMO-PGM-ENTER   TO TRUE                               
                    MOVE LIT-THISMAPSET    TO CDEMO-LAST-MAPSET                  
                    MOVE LIT-THISMAP       TO CDEMO-LAST-MAP                     

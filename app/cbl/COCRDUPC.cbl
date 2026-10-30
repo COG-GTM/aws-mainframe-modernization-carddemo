@@ -234,6 +234,8 @@
                                                    VALUE 'CCRDSLA'.             
           05 LIT-MENUPGM                           PIC X(8)                     
                                                    VALUE 'COMEN01C'.            
+          05 LIT-SIGNONPGM                         PIC X(8)                     
+                                                   VALUE 'COSGN00C'.            
           05 LIT-MENUTRANID                        PIC X(4)                     
                                                    VALUE 'CM00'.                
           05 LIT-MENUMAPSET                        PIC X(7)                     
@@ -383,6 +385,15 @@
       *****************************************************************         
            SET WS-RETURN-MSG-OFF  TO TRUE                                       
       *****************************************************************         
+      * No commarea means the caller never signed on to CardDemo.               
+      * Send them to the sign-on program instead of starting a session.         
+      *****************************************************************         
+           IF EIBCALEN IS EQUAL TO 0                                            
+              EXEC CICS XCTL                                                    
+                   PROGRAM (LIT-SIGNONPGM)                                      
+              END-EXEC                                                          
+           END-IF                                                               
+      *****************************************************************         
       * Store passed data if  any                *                              
       *****************************************************************         
            IF EIBCALEN IS EQUAL TO 0                                            
@@ -398,6 +409,14 @@
               MOVE DFHCOMMAREA(LENGTH OF CARDDEMO-COMMAREA + 1:                 
                                LENGTH OF WS-THIS-PROGCOMMAREA ) TO              
                                 WS-THIS-PROGCOMMAREA                            
+           END-IF                                                               
+      *****************************************************************         
+      * A session without a signed-on user id is not trusted.                   
+      *****************************************************************         
+           IF CDEMO-USER-ID EQUAL SPACES OR LOW-VALUES                          
+              EXEC CICS XCTL                                                    
+                   PROGRAM (LIT-SIGNONPGM)                                      
+              END-EXEC                                                          
            END-IF                                                               
       *****************************************************************         
       * Remap PFkeys as needed.                                                 
@@ -461,7 +480,6 @@
                                               CDEMO-CARD-NUM                    
                    END-IF                                                       
                                                                                 
-                   SET  CDEMO-USRTYP-USER  TO TRUE                              
                    SET  CDEMO-PGM-ENTER    TO TRUE                              
                    MOVE LIT-THISMAPSET     TO CDEMO-LAST-MAPSET                 
                    MOVE LIT-THISMAP        TO CDEMO-LAST-MAP                    
