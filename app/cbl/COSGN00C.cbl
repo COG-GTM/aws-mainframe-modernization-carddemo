@@ -220,6 +220,14 @@
 
            EVALUATE WS-RESP-CD
                WHEN 0
+                   IF SEC-USR-PWD-UNUSABLE
+                       MOVE 'Y'      TO WS-ERR-FLG
+                       MOVE
+                         'Password not set or default. Contact admin...'
+                         TO WS-MESSAGE
+                       MOVE -1       TO PASSWDL OF COSGN0AI
+                       PERFORM SEND-SIGNON-SCREEN
+                   ELSE
                    IF SEC-USR-PWD = WS-USER-PWD
                        MOVE WS-TRANID    TO CDEMO-FROM-TRANID
                        MOVE WS-PGMNAME   TO CDEMO-FROM-PROGRAM
@@ -243,6 +251,7 @@
                                                           WS-MESSAGE
                        MOVE -1       TO PASSWDL OF COSGN0AI
                        PERFORM SEND-SIGNON-SCREEN
+                   END-IF
                    END-IF
                WHEN 13
                    MOVE 'Y'      TO WS-ERR-FLG

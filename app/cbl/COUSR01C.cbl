@@ -139,6 +139,13 @@
                                    WS-MESSAGE
                    MOVE -1       TO PASSWDL OF COUSR1AI
                    PERFORM SEND-USRADD-SCREEN
+               WHEN FUNCTION UPPER-CASE(PASSWDI OF COUSR1AI)
+                    = 'PASSWORD'
+                   MOVE 'Y'     TO WS-ERR-FLG
+                   MOVE 'Default password is not allowed...' TO
+                                   WS-MESSAGE
+                   MOVE -1       TO PASSWDL OF COUSR1AI
+                   PERFORM SEND-USRADD-SCREEN
                WHEN USRTYPEI OF COUSR1AI = SPACES OR LOW-VALUES
                    MOVE 'Y'     TO WS-ERR-FLG
                    MOVE 'User Type can NOT be empty...' TO
