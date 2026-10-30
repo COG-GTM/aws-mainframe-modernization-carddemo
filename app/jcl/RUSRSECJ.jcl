@@ -30,7 +30,10 @@
 //* least one administrator. CBUSR01C validates every record; if any
 //* fails the job ends RC=12 and the KSDS is not touched. Otherwise
 //* REPRO REPLACE overwrites only those user IDs (adding any that do
-//* not exist) and every other account is kept. Reset accounts must
+//* not exist) and every other account is kept. The WHOLE record is
+//* replaced, so copy each account's current names and type from the
+//* KSDS (e.g. IDCAMS PRINT INDATASET(...) FROMKEY(id) COUNT(1))
+//* and change only the password. Reset accounts must
 //* change their password at first sign-on. Delete the bootstrap
 //* dataset afterwards.
 //*-------------------------------------------------------------------*
