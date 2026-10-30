@@ -210,6 +210,8 @@
 021000                                             VALUE 'COADM01C'.    02100000
 021100    05 LIT-ADMINTRANID                        PIC X(4)            02110000
 021200                                             VALUE 'CA00'.        02120000
+021210    05 LIT-SIGNONPGM                          PIC X(8)            02121000
+021220                                            VALUE 'COSGN00C'.     02122000
 021300    05 LIT-ADMINMAPSET                        PIC X(7)            02130000
 021400                                             VALUE 'COADM01'.     02140000
 021500    05 LIT-ADMINMAP                           PIC X(7)            02150000
@@ -363,12 +365,25 @@
 036300***************************************************************** 03630000
 036400* Store passed data if  any                *                      03640000
 036500***************************************************************** 03650000
+036410     IF EIBCALEN IS EQUAL TO 0                                    03641000
+036420        PERFORM 9100-RETURN-TO-SIGNON                             03642000
+036430           THRU 9100-RETURN-TO-SIGNON-EXIT                        03643000
+036440     END-IF                                                       03644000
+036450                                                                  03645000
 036600     IF EIBCALEN IS EQUAL TO 0                                    03660000
 036700         OR (CDEMO-FROM-PROGRAM = LIT-ADMINPGM                    03670000
 036800         AND NOT CDEMO-PGM-REENTER)                               03680000
 036900         OR (CDEMO-FROM-PROGRAM = LIT-LISTTPGM                    03690000
 037000         AND NOT CDEMO-PGM-REENTER)                               03700000
-037100        INITIALIZE CARDDEMO-COMMAREA                              03710000
+037100       INITIALIZE CDEMO-FROM-TRANID                               03710000
+037110                  CDEMO-FROM-PROGRAM                              03711000
+037120                  CDEMO-TO-TRANID                                 03712000
+037130                  CDEMO-TO-PROGRAM                                03713000
+037140                  CDEMO-PGM-CONTEXT                               03714000
+037150                  CDEMO-CUSTOMER-INFO                             03715000
+037160                  CDEMO-ACCOUNT-INFO                              03716000
+037170                  CDEMO-CARD-INFO                                 03717000
+037180                  CDEMO-MORE-INFO                                 03718000
 037200                   WS-THIS-PROGCOMMAREA                           03720000
 037300        SET CDEMO-PGM-ENTER TO TRUE                               03730000
 037400        SET TTUP-DETAILS-NOT-FETCHED TO TRUE                      03740000
@@ -379,6 +394,14 @@
 037900                         LENGTH OF WS-THIS-PROGCOMMAREA ) TO      03790000
 038000                          WS-THIS-PROGCOMMAREA                    03800000
 038100     END-IF                                                       03810000
+038110***************************************************************** 03811000
+038120* Only a signed-on administrator may use this program             03812000
+038130***************************************************************** 03813000
+038140     IF NOT CDEMO-USRTYP-ADMIN                                    03814000
+038150     OR CDEMO-USER-ID EQUAL SPACES OR LOW-VALUES                  03815000
+038160        PERFORM 9100-RETURN-TO-SIGNON                             03816000
+038170           THRU 9100-RETURN-TO-SIGNON-EXIT                        03817000
+038180     END-IF                                                       03818000
 038200***************************************************************** 03820000
 038300* Store the Mapped PF Key                                         03830000
 038400* Remap PFkeys as needed.                                         03840000
@@ -445,7 +468,6 @@
 044500             MOVE LIT-THISTRANID     TO CDEMO-FROM-TRANID         04450000
 044600             MOVE LIT-THISPGM        TO CDEMO-FROM-PROGRAM        04460000
 044700                                                                  04470000
-044800             SET  CDEMO-USRTYP-ADMIN TO TRUE                      04480000
 044900             SET  CDEMO-PGM-ENTER    TO TRUE                      04490000
 045000             MOVE LIT-THISMAPSET     TO CDEMO-LAST-MAPSET         04500000
 045100             MOVE LIT-THISMAP        TO CDEMO-LAST-MAP            04510000
@@ -556,6 +578,15 @@
 055600     END-EVALUATE                                                 05560000
 055700     .                                                            05570000
 055800                                                                  05580000
+055810 9100-RETURN-TO-SIGNON.                                           05581000
+055820     EXEC CICS XCTL                                               05582000
+055830          PROGRAM (LIT-SIGNONPGM)                                 05583000
+055840     END-EXEC                                                     05584000
+055850     .                                                            05585000
+055860 9100-RETURN-TO-SIGNON-EXIT.                                      05586000
+055870     EXIT                                                         05587000
+055880     .                                                            05588000
+055890                                                                  05589000
 055900 COMMON-RETURN.                                                   05590000
 056000     MOVE WS-RETURN-MSG     TO CCARD-ERROR-MSG                    05600000
 056100                                                                  05610000
