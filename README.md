@@ -242,6 +242,8 @@ The application supports two user roles:
 - **Regular Users**: Can perform standard card management functions
 - **Admin Users**: Can perform administrative functions like user management
 
+Transaction View (COTRN01C) only shows a regular user transactions on cards that belong to the account linked to their USRSEC record (`SEC-USR-ACCT-ID` in CSUSR01Y, columns 58-68 of the record; DUSRSECJ seeds USER0001-USER0005). Users with no linked account get an access error, and regular users see only the last four digits of the card number.
+
 ### User Functions
 
 ![User Function Flow](./diagrams/Application-Flow-User.png "User Function Flow")
