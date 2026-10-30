@@ -38,7 +38,8 @@ public class SecurityConfig {
                 .csrf(c -> c.disable())
                 .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(a -> a
-                        .requestMatchers("/actuator/health", "/actuator/health/**", "/swagger-ui.html",
+                        // /error: the container error-dispatches 404/400/500 there; denying it turns them into 403
+                        .requestMatchers("/error", "/actuator/health", "/actuator/health/**", "/swagger-ui.html",
                                 "/swagger-ui/**", "/v3/api-docs/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/**").hasAnyRole(READER, MAINTAINER)
                         .requestMatchers("/api/**").hasRole(MAINTAINER)

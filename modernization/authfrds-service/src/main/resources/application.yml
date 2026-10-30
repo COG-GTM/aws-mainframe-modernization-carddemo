@@ -10,6 +10,8 @@ spring:
       connection-test-query: SELECT 1 FROM SYSIBM.SYSDUMMY1
       initialization-fail-timeout: -1
 server:
+  # loopback by default (HTTP Basic over plain HTTP); put TLS in front before exposing it
+  address: ${SERVER_ADDRESS:127.0.0.1}
   port: ${SERVER_PORT:8080}
 management:
   endpoints:

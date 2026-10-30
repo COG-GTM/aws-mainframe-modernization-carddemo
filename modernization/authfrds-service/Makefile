@@ -5,11 +5,12 @@ DB2_PORT ?= 50000
 export DB2_PASSWORD AUTHFRDS_API_USER AUTHFRDS_API_PASSWORD AUTHFRDS_API_READER_USER AUTHFRDS_API_READER_PASSWORD
 DB2_URL := jdbc:db2://localhost:$(DB2_PORT)/CARDDEMO
 export DB2_PORT DB2_PASSWORD
-MVN := JAVA_HOME=$(JAVA_HOME) mvn -B -Ddb2.url=$(DB2_URL) -Ddb2.password=$(DB2_PASSWORD)
+# Secrets reach Maven/Java via the exported environment, never interpolated into the command line.
+MVN := JAVA_HOME=$(JAVA_HOME) mvn -B -Ddb2.url=$(DB2_URL)
 export JAVA_HOME
 
 check-env:
-	@test -n "$(DB2_PASSWORD)" || { echo "DB2_PASSWORD is not set: cp .env.example .env and edit it"; exit 1; }
+	@test -n "$$DB2_PASSWORD" || { echo "DB2_PASSWORD is not set: cp .env.example .env and edit it"; exit 1; }
 
 .PHONY: check-env build test it db2-up db2-wait db2-sql up run down clean-db2
 
@@ -36,7 +37,7 @@ it: db2-up        ## integration tests against the real Db2 container
 	$(MVN) -Pdb2-it verify
 
 run: db2-up build ## run on the host against Db2 (Swagger: http://localhost:8080/swagger-ui.html); PROFILES=testing enables the IMS stub hooks
-	SPRING_DATASOURCE_URL=$(DB2_URL) SPRING_DATASOURCE_PASSWORD=$(DB2_PASSWORD) SPRING_PROFILES_ACTIVE=$(PROFILES) \
+	SPRING_DATASOURCE_URL=$(DB2_URL) SPRING_DATASOURCE_PASSWORD="$$DB2_PASSWORD" SPRING_PROFILES_ACTIVE="$(PROFILES)" \
 	  $(JAVA_HOME)/bin/java -jar target/authfrds-service-0.1.0.jar
 
 up: build         ## db2 + service containers

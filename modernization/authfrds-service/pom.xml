@@ -23,7 +23,6 @@
     <springdoc.version>2.6.0</springdoc.version>
     <db2.url>jdbc:db2://localhost:50000/CARDDEMO</db2.url>
     <db2.user>db2inst1</db2.user>
-    <db2.password></db2.password>
   </properties>
 
   <dependencies>
@@ -110,7 +109,7 @@
                 <spring.profiles.active>test,testing</spring.profiles.active>
                 <spring.datasource.url>${db2.url}</spring.datasource.url>
                 <spring.datasource.username>${db2.user}</spring.datasource.username>
-                <spring.datasource.password>${db2.password}</spring.datasource.password>
+                <spring.datasource.password>${env.DB2_PASSWORD}</spring.datasource.password>
               </systemPropertyVariables>
             </configuration>
             <executions>
