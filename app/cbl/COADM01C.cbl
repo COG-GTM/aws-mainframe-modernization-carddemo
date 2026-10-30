@@ -88,7 +88,7 @@
                PERFORM RETURN-TO-SIGNON-SCREEN                                  
            ELSE                                                                 
                MOVE DFHCOMMAREA(1:EIBCALEN) TO CARDDEMO-COMMAREA                
-               IF EIBCALEN < LENGTH OF CARDDEMO-COMMAREA                        
+               IF EIBCALEN < LENGTH OF CDEMO-GENERAL-INFO                       
                OR CDEMO-USER-ID = SPACES OR LOW-VALUES                          
                OR NOT CDEMO-USRTYP-ADMIN                                        
                    MOVE 'COSGN00C' TO CDEMO-TO-PROGRAM                          
