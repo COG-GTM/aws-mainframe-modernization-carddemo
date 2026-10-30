@@ -30,9 +30,9 @@
 
            10 FILLER                       PIC 9(02) VALUE 2.
            10 FILLER                       PIC X(35) VALUE
-               'Account Update                     '.
+               'Account Update (Admin Only)        '.
            10 FILLER                       PIC X(08) VALUE 'COACTUPC'.
-           10 FILLER                       PIC X(01) VALUE 'U'.
+           10 FILLER                       PIC X(01) VALUE 'A'.
 
            10 FILLER                       PIC 9(02) VALUE 3.
            10 FILLER                       PIC X(35) VALUE

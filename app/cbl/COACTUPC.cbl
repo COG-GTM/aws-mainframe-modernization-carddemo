@@ -562,6 +562,12 @@
                                                    VALUE 'COMEN01'.
           05 LIT-MENUMAP                           PIC X(7)
                                                    VALUE 'COMEN1A'.
+          05 LIT-ADMINPGM                          PIC X(8)
+                                                   VALUE 'COADM01C'.
+          05 LIT-ADMINTRANID                       PIC X(4)
+                                                   VALUE 'CA00'.
+          05 LIT-SIGNONPGM                         PIC X(8)
+                                                   VALUE 'COSGN00C'.
           05 LIT-CARDDTLPGM                        PIC X(8)
                                                    VALUE 'COCRDSLC'.
           05 LIT-CARDDTLTRANID                     PIC X(4)
@@ -878,8 +884,6 @@
       * Store passed data if  any                *
       *****************************************************************
            IF EIBCALEN IS EQUAL TO 0
-               OR (CDEMO-FROM-PROGRAM = LIT-MENUPGM
-               AND NOT CDEMO-PGM-REENTER)
               INITIALIZE CARDDEMO-COMMAREA
                          WS-THIS-PROGCOMMAREA
               SET CDEMO-PGM-ENTER TO TRUE
@@ -887,9 +891,25 @@
            ELSE
               MOVE DFHCOMMAREA (1:LENGTH OF CARDDEMO-COMMAREA)  TO
                                 CARDDEMO-COMMAREA
-              MOVE DFHCOMMAREA(LENGTH OF CARDDEMO-COMMAREA + 1:
-                               LENGTH OF WS-THIS-PROGCOMMAREA ) TO
-                                WS-THIS-PROGCOMMAREA
+              IF (CDEMO-FROM-PROGRAM = LIT-MENUPGM
+              OR  CDEMO-FROM-PROGRAM = LIT-ADMINPGM)
+              AND NOT CDEMO-PGM-REENTER
+                 INITIALIZE WS-THIS-PROGCOMMAREA
+                 SET CDEMO-PGM-ENTER TO TRUE
+                 SET ACUP-DETAILS-NOT-FETCHED TO TRUE
+              ELSE
+                 MOVE DFHCOMMAREA(LENGTH OF CARDDEMO-COMMAREA + 1:
+                                  LENGTH OF WS-THIS-PROGCOMMAREA ) TO
+                                   WS-THIS-PROGCOMMAREA
+              END-IF
+           END-IF
+      *****************************************************************
+      * Account update is restricted to administrators. Refuse before
+      * any card cross reference, account or customer record is read.
+      *****************************************************************
+           IF NOT CDEMO-USRTYP-ADMIN
+              PERFORM 0100-REJECT-NON-ADMIN
+                 THRU 0100-REJECT-NON-ADMIN-EXIT
            END-IF
       *****************************************************************
       * Remap PFkeys as needed.
@@ -929,14 +949,14 @@
 
                    IF CDEMO-FROM-TRANID    EQUAL LOW-VALUES
                    OR CDEMO-FROM-TRANID    EQUAL SPACES
-                      MOVE LIT-MENUTRANID  TO CDEMO-TO-TRANID
+                      MOVE LIT-ADMINTRANID TO CDEMO-TO-TRANID
                    ELSE
                       MOVE CDEMO-FROM-TRANID  TO CDEMO-TO-TRANID
                    END-IF
 
                    IF CDEMO-FROM-PROGRAM   EQUAL LOW-VALUES
                    OR CDEMO-FROM-PROGRAM   EQUAL SPACES
-                      MOVE LIT-MENUPGM     TO CDEMO-TO-PROGRAM
+                      MOVE LIT-ADMINPGM    TO CDEMO-TO-PROGRAM
                    ELSE
                       MOVE CDEMO-FROM-PROGRAM TO CDEMO-TO-PROGRAM
                    END-IF
@@ -944,7 +964,6 @@
                    MOVE LIT-THISTRANID     TO CDEMO-FROM-TRANID
                    MOVE LIT-THISPGM        TO CDEMO-FROM-PROGRAM
 
-                   SET  CDEMO-USRTYP-USER  TO TRUE
                    SET  CDEMO-PGM-ENTER    TO TRUE
                    MOVE LIT-THISMAPSET     TO CDEMO-LAST-MAPSET
                    MOVE LIT-THISMAP        TO CDEMO-LAST-MAP
@@ -964,6 +983,8 @@
               WHEN ACUP-DETAILS-NOT-FETCHED
                AND CDEMO-PGM-ENTER
               WHEN CDEMO-FROM-PROGRAM   EQUAL LIT-MENUPGM
+               AND NOT CDEMO-PGM-REENTER
+              WHEN CDEMO-FROM-PROGRAM   EQUAL LIT-ADMINPGM
                AND NOT CDEMO-PGM-REENTER
                    INITIALIZE WS-THIS-PROGCOMMAREA
                    PERFORM 3000-SEND-MAP THRU
@@ -1019,6 +1040,35 @@
            END-EXEC
            .
        0000-MAIN-EXIT.
+           EXIT
+           .
+
+      *****************************************************************
+      * Not signed on: back to the signon screen.
+      * Signed on but not an administrator: back to the main menu,
+      * which reports the option as admin only.
+      *****************************************************************
+       0100-REJECT-NON-ADMIN.
+           IF EIBCALEN IS EQUAL TO 0
+           OR CDEMO-USER-ID EQUAL SPACES
+           OR CDEMO-USER-ID EQUAL LOW-VALUES
+              EXEC CICS XCTL
+                   PROGRAM (LIT-SIGNONPGM)
+              END-EXEC
+           END-IF
+
+           MOVE LIT-MENUTRANID          TO CDEMO-TO-TRANID
+           MOVE LIT-MENUPGM             TO CDEMO-TO-PROGRAM
+           MOVE LIT-THISTRANID          TO CDEMO-FROM-TRANID
+           MOVE LIT-THISPGM             TO CDEMO-FROM-PROGRAM
+           SET  CDEMO-PGM-ENTER         TO TRUE
+
+           EXEC CICS XCTL
+                PROGRAM (CDEMO-TO-PROGRAM)
+                COMMAREA(CARDDEMO-COMMAREA)
+           END-EXEC
+           .
+       0100-REJECT-NON-ADMIN-EXIT.
            EXIT
            .
 
