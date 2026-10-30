@@ -33,6 +33,8 @@
          05 WS-PGM-AUTH-SMRY           PIC X(08) VALUE 'COPAUS0C'.              
          05 WS-PGM-AUTH-DTL            PIC X(08) VALUE 'COPAUS1C'.              
          05 WS-PGM-MENU                PIC X(08) VALUE 'COMEN01C'.              
+         05 WS-PGM-ADMIN-MENU          PIC X(08) VALUE 'COADM01C'.
+         05 WS-PGM-SIGNON              PIC X(08) VALUE 'COSGN00C'.
          05 WS-CICS-TRANID             PIC X(04) VALUE 'CPVS'.                  
          05 WS-MESSAGE                 PIC X(80) VALUE SPACES.                  
          05 WS-ACCTFILENAME            PIC X(8)  VALUE 'ACCTDAT '.              
@@ -188,16 +190,12 @@
            MOVE -1       TO ACCTIDL OF COPAU0AI
 
            IF EIBCALEN = 0
-               INITIALIZE CARDDEMO-COMMAREA
-               MOVE WS-PGM-AUTH-SMRY    TO CDEMO-TO-PROGRAM
-
-               SET CDEMO-PGM-REENTER    TO TRUE
-               MOVE LOW-VALUES          TO COPAU0AO
-               MOVE -1                  TO ACCTIDL OF COPAU0AI
-
-              PERFORM SEND-PAULST-SCREEN
+               PERFORM RETURN-TO-SIGNON-SCREEN
            ELSE
                MOVE DFHCOMMAREA(1:EIBCALEN) TO CARDDEMO-COMMAREA
+               IF CDEMO-USER-ID = SPACES OR LOW-VALUES
+                   PERFORM RETURN-TO-SIGNON-SCREEN
+               END-IF
 
                IF NOT CDEMO-PGM-REENTER
                   SET CDEMO-PGM-REENTER     TO TRUE
@@ -233,7 +231,11 @@
 
                        PERFORM SEND-PAULST-SCREEN
                      WHEN DFHPF3
-                       MOVE WS-PGM-MENU        TO CDEMO-TO-PROGRAM
+                       IF CDEMO-USRTYP-ADMIN
+                          MOVE WS-PGM-ADMIN-MENU TO CDEMO-TO-PROGRAM
+                       ELSE
+                          MOVE WS-PGM-MENU     TO CDEMO-TO-PROGRAM
+                       END-IF
                        PERFORM RETURN-TO-PREV-SCREEN
                        PERFORM SEND-PAULST-SCREEN
                      WHEN DFHPF7
@@ -674,6 +676,14 @@
            EXEC CICS
                XCTL PROGRAM(CDEMO-TO-PROGRAM)
                COMMAREA(CARDDEMO-COMMAREA)
+           END-EXEC.
+
+      *****************************************************************
+       RETURN-TO-SIGNON-SCREEN.
+      *****************************************************************
+
+           EXEC CICS
+               XCTL PROGRAM(WS-PGM-SIGNON)
            END-EXEC.
 
 

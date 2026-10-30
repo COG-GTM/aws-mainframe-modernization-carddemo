@@ -33,8 +33,11 @@
          05 WS-PGM-AUTH-DTL            PIC X(08) VALUE 'COPAUS1C'.              
          05 WS-PGM-AUTH-SMRY           PIC X(08) VALUE 'COPAUS0C'.              
          05 WS-PGM-AUTH-FRAUD          PIC X(08) VALUE 'COPAUS2C'.              
+         05 WS-PGM-SIGNON              PIC X(08) VALUE 'COSGN00C'.
          05 WS-CICS-TRANID             PIC X(04) VALUE 'CPVD'.                  
          05 WS-MESSAGE                 PIC X(80) VALUE SPACES.                  
+         05 WS-MSG-FRAUD-NO-ACCESS     PIC X(80) VALUE
+               'No access - Admin Only: cannot mark/remove fraud...'.
          05 WS-ERR-FLG                 PIC X(01) VALUE 'N'.                     
            88 ERR-FLG-ON                         VALUE 'Y'.                     
            88 ERR-FLG-OFF                        VALUE 'N'.                     
@@ -163,12 +166,12 @@
                           ERRMSGO OF COPAU1AO
 
            IF EIBCALEN = 0
-               INITIALIZE CARDDEMO-COMMAREA
-
-               MOVE WS-PGM-AUTH-SMRY        TO CDEMO-TO-PROGRAM
-               PERFORM RETURN-TO-PREV-SCREEN
+               PERFORM RETURN-TO-SIGNON-SCREEN
            ELSE
                MOVE DFHCOMMAREA(1:EIBCALEN) TO CARDDEMO-COMMAREA
+               IF CDEMO-USER-ID = SPACES OR LOW-VALUES
+                   PERFORM RETURN-TO-SIGNON-SCREEN
+               END-IF
                MOVE SPACES                  TO CDEMO-CPVD-FRAUD-DATA
                IF NOT CDEMO-PGM-REENTER
                    SET CDEMO-PGM-REENTER    TO TRUE
@@ -185,7 +188,13 @@
                            MOVE WS-PGM-AUTH-SMRY     TO CDEMO-TO-PROGRAM
                            PERFORM RETURN-TO-PREV-SCREEN
                        WHEN DFHPF5
-                           PERFORM MARK-AUTH-FRAUD
+                           IF CDEMO-USRTYP-ADMIN
+                               PERFORM MARK-AUTH-FRAUD
+                           ELSE
+                               PERFORM PROCESS-ENTER-KEY
+                               MOVE WS-MSG-FRAUD-NO-ACCESS
+                                                     TO WS-MESSAGE
+                           END-IF
                            PERFORM SEND-AUTHVIEW-SCREEN
                        WHEN DFHPF8
                            PERFORM PROCESS-PF8-KEY
@@ -367,6 +376,12 @@
            EXEC CICS
                XCTL PROGRAM(CDEMO-TO-PROGRAM)
                COMMAREA(CARDDEMO-COMMAREA)
+           END-EXEC.
+
+       RETURN-TO-SIGNON-SCREEN.
+
+           EXEC CICS
+               XCTL PROGRAM(WS-PGM-SIGNON)
            END-EXEC.
 
 
