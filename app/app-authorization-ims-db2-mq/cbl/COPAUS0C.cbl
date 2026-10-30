@@ -33,6 +33,7 @@
          05 WS-PGM-AUTH-SMRY           PIC X(08) VALUE 'COPAUS0C'.              
          05 WS-PGM-AUTH-DTL            PIC X(08) VALUE 'COPAUS1C'.              
          05 WS-PGM-MENU                PIC X(08) VALUE 'COMEN01C'.              
+         05 WS-PGM-SIGNON              PIC X(08) VALUE 'COSGN00C'.              
          05 WS-CICS-TRANID             PIC X(04) VALUE 'CPVS'.                  
          05 WS-MESSAGE                 PIC X(80) VALUE SPACES.                  
          05 WS-ACCTFILENAME            PIC X(8)  VALUE 'ACCTDAT '.              
@@ -189,15 +190,17 @@
 
            IF EIBCALEN = 0
                INITIALIZE CARDDEMO-COMMAREA
-               MOVE WS-PGM-AUTH-SMRY    TO CDEMO-TO-PROGRAM
-
-               SET CDEMO-PGM-REENTER    TO TRUE
-               MOVE LOW-VALUES          TO COPAU0AO
-               MOVE -1                  TO ACCTIDL OF COPAU0AI
-
-              PERFORM SEND-PAULST-SCREEN
+               MOVE WS-PGM-SIGNON       TO CDEMO-TO-PROGRAM
+               PERFORM RETURN-TO-PREV-SCREEN
            ELSE
                MOVE DFHCOMMAREA(1:EIBCALEN) TO CARDDEMO-COMMAREA
+
+               IF CDEMO-USER-ID = SPACES OR LOW-VALUES
+                  OR NOT (CDEMO-USRTYP-ADMIN OR CDEMO-USRTYP-USER)
+                  INITIALIZE CARDDEMO-COMMAREA
+                  MOVE WS-PGM-SIGNON    TO CDEMO-TO-PROGRAM
+                  PERFORM RETURN-TO-PREV-SCREEN
+               END-IF
 
                IF NOT CDEMO-PGM-REENTER
                   SET CDEMO-PGM-REENTER     TO TRUE
