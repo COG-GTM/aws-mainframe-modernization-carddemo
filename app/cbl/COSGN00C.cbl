@@ -232,7 +232,11 @@
                            PERFORM SIGNON-FAILED
                        WHEN SEC-USR-PWD = WS-USER-PWD
                            PERFORM RESET-SIGNON-FAILURES
-                           PERFORM SIGNON-SUCCESS
+                           IF WS-RESP-CD = 0
+                               PERFORM SIGNON-SUCCESS
+                           ELSE
+                               PERFORM SIGNON-FAILED
+                           END-IF
                        WHEN OTHER
                            PERFORM RECORD-SIGNON-FAILURE
                            PERFORM SIGNON-FAILED
@@ -297,15 +301,14 @@
 
       *----------------------------------------------------------------*
       *                      RESET-SIGNON-FAILURES
+      *  Always rewritten so a sign-on only succeeds when the failure
+      *  counter can be stored; otherwise a write outage would let
+      *  unlimited guesses through without ever reaching the lockout.
       *----------------------------------------------------------------*
        RESET-SIGNON-FAILURES.
 
-           IF SEC-USR-FAIL-CNT = ZEROS
-               PERFORM UNLOCK-USER-SEC-FILE
-           ELSE
-               MOVE ZEROS TO SEC-USR-FAIL-CNT
-               PERFORM REWRITE-USER-SEC-FILE
-           END-IF.
+           MOVE ZEROS TO SEC-USR-FAIL-CNT
+           PERFORM REWRITE-USER-SEC-FILE.
 
       *----------------------------------------------------------------*
       *                      REWRITE-USER-SEC-FILE
