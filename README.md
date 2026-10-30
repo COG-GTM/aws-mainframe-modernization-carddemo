@@ -202,6 +202,7 @@ CardDemo includes several optional modules that extend the base functionality:
 - **Online Functions**: Start the CardDemo application using the CC00 transaction
   - Admin access: Use userid ADMIN001 with password PASSWORD
   - User access: Use userid USER0001 with password PASSWORD
+  - Passwords are case-sensitive. A failed sign-on shows the same message whether the user ID is unknown, the password is wrong or the account is locked. After 3 consecutive failed sign-ons (`WS-MAX-SIGNON-FAILS` in COSGN00C) the user is locked (`SEC-USR-LOCK-FLG` in CSUSR01Y); an admin unlocks it by opening the user in Update User (CU02) and pressing PF5. Change the sample passwords before exposing the region.
 - **Batch Functions**: See the "Running Batch Jobs" section below
 
 ## Running Batch Jobs
