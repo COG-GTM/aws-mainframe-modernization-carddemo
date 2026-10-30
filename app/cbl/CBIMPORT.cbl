@@ -28,7 +28,14 @@
       * Business Use Case: Branch Migration Import
       * - Import complete customer profiles from export file
       * - Split multi-record layout into normalized target files
-      * - Validate data integrity using checksums
+      * - Validate every record before any load file is written:
+      *   field formats, duplicate keys, collisions with the live
+      *   target files and customer/account/card references, which
+      *   must resolve to records in the same export file
+      * - Destination target files (CUSTFILE..CARDFILE) must be
+      *   allocated; imported keys that already exist there are rejected
+      * - Fail the import (RC=8, load files left empty) when any
+      *   record is rejected; rejects are listed in the error file
       * - Generate import statistics and error reports
       ******************************************************************
        ENVIRONMENT DIVISION.
@@ -37,7 +44,7 @@
            SELECT EXPORT-INPUT ASSIGN TO EXPFILE
                ORGANIZATION IS INDEXED
                ACCESS MODE IS SEQUENTIAL
-               RECORD KEY IS EXPORT-SEQUENCE-NUM
+               RECORD KEY IS EXPORT-INPUT-KEY
                FILE STATUS IS WS-EXPORT-STATUS.
                
            SELECT CUSTOMER-OUTPUT ASSIGN TO CUSTOUT
@@ -70,13 +77,55 @@
                ACCESS MODE IS SEQUENTIAL
                FILE STATUS IS WS-ERROR-STATUS.
 
+      * Work file of keys seen in the export file (validation only)
+           SELECT KEY-WORK-FILE ASSIGN TO KEYWORK
+               ORGANIZATION IS INDEXED
+               ACCESS MODE IS RANDOM
+               RECORD KEY IS KW-KEY
+               FILE STATUS IS WS-KEYWORK-STATUS.
+
+      * Live target files, read only to detect key collisions
+           SELECT OPTIONAL LIVE-CUSTOMER-FILE ASSIGN TO CUSTFILE
+               ORGANIZATION IS INDEXED
+               ACCESS MODE IS RANDOM
+               RECORD KEY IS LIVE-CUST-KEY
+               FILE STATUS IS WS-LIVE-CUST-STATUS.
+
+           SELECT OPTIONAL LIVE-ACCOUNT-FILE ASSIGN TO ACCTFILE
+               ORGANIZATION IS INDEXED
+               ACCESS MODE IS RANDOM
+               RECORD KEY IS LIVE-ACCT-KEY
+               FILE STATUS IS WS-LIVE-ACCT-STATUS.
+
+           SELECT OPTIONAL LIVE-XREF-FILE ASSIGN TO XREFFILE
+               ORGANIZATION IS INDEXED
+               ACCESS MODE IS RANDOM
+               RECORD KEY IS LIVE-XREF-KEY
+               FILE STATUS IS WS-LIVE-XREF-STATUS.
+
+           SELECT OPTIONAL LIVE-TRAN-FILE ASSIGN TO TRANSACT
+               ORGANIZATION IS INDEXED
+               ACCESS MODE IS RANDOM
+               RECORD KEY IS LIVE-TRAN-KEY
+               FILE STATUS IS WS-LIVE-TRAN-STATUS.
+
+           SELECT OPTIONAL LIVE-CARD-FILE ASSIGN TO CARDFILE
+               ORGANIZATION IS INDEXED
+               ACCESS MODE IS RANDOM
+               RECORD KEY IS LIVE-CARD-KEY
+               FILE STATUS IS WS-LIVE-CARD-STATUS.
+
        DATA DIVISION.
        FILE SECTION.
        
        FD  EXPORT-INPUT
            RECORDING MODE IS F
            RECORD CONTAINS 500 CHARACTERS.
-       01  EXPORT-INPUT-RECORD                        PIC X(500).
+      * Key position matches KEYS(4 28) in CBEXPORT.jcl
+       01  EXPORT-INPUT-RECORD.
+           05  FILLER                                  PIC X(28).
+           05  EXPORT-INPUT-KEY                        PIC X(04).
+           05  FILLER                                  PIC X(468).
 
        FD  CUSTOMER-OUTPUT
            RECORDING MODE IS F
@@ -108,6 +157,41 @@
            RECORD CONTAINS 132 CHARACTERS.
        01  ERROR-OUTPUT-RECORD                        PIC X(132).
 
+       FD  KEY-WORK-FILE.
+       01  KEY-WORK-RECORD.
+           05  KW-KEY.
+               10  KW-REC-TYPE                         PIC X(01).
+               10  KW-KEY-VALUE                        PIC X(16).
+           05  KW-ACCT-ID                              PIC 9(11).
+           05  KW-CUST-ID                              PIC 9(09).
+           05  KW-SEQUENCE                             PIC 9(09).
+           05  FILLER                                  PIC X(04).
+
+       FD  LIVE-CUSTOMER-FILE.
+       01  LIVE-CUSTOMER-RECORD.
+           05  LIVE-CUST-KEY                           PIC X(09).
+           05  FILLER                                  PIC X(491).
+
+       FD  LIVE-ACCOUNT-FILE.
+       01  LIVE-ACCOUNT-RECORD.
+           05  LIVE-ACCT-KEY                           PIC X(11).
+           05  FILLER                                  PIC X(289).
+
+       FD  LIVE-XREF-FILE.
+       01  LIVE-XREF-RECORD.
+           05  LIVE-XREF-KEY                           PIC X(16).
+           05  FILLER                                  PIC X(34).
+
+       FD  LIVE-TRAN-FILE.
+       01  LIVE-TRAN-RECORD.
+           05  LIVE-TRAN-KEY                           PIC X(16).
+           05  FILLER                                  PIC X(334).
+
+       FD  LIVE-CARD-FILE.
+       01  LIVE-CARD-RECORD.
+           05  LIVE-CARD-KEY                           PIC X(16).
+           05  FILLER                                  PIC X(134).
+
        WORKING-STORAGE SECTION.
 
        COPY CVEXPORT.
@@ -129,6 +213,27 @@
                88  WS-CARD-OK                          VALUE '00'.
            05  WS-ERROR-STATUS                         PIC X(02).
                88  WS-ERROR-OK                         VALUE '00'.
+           05  WS-KEYWORK-STATUS                       PIC X(02).
+               88  WS-KEYWORK-OK                       VALUE '00'.
+               88  WS-KEYWORK-DUPLICATE                VALUE '22'.
+               88  WS-KEYWORK-NOT-FOUND                VALUE '23'.
+           05  WS-LIVE-CUST-STATUS                     PIC X(02).
+           05  WS-LIVE-ACCT-STATUS                     PIC X(02).
+           05  WS-LIVE-XREF-STATUS                     PIC X(02).
+           05  WS-LIVE-TRAN-STATUS                     PIC X(02).
+           05  WS-LIVE-CARD-STATUS                     PIC X(02).
+
+      * Live target file availability ('Y' = opened, collisions checked)
+       01  WS-LIVE-FILES-PRESENT.
+           05  WS-LIVE-CUST-PRESENT                    PIC X(01).
+           05  WS-LIVE-ACCT-PRESENT                    PIC X(01).
+           05  WS-LIVE-XREF-PRESENT                    PIC X(01).
+           05  WS-LIVE-TRAN-PRESENT                    PIC X(01).
+           05  WS-LIVE-CARD-PRESENT                    PIC X(01).
+       01  WS-LIVE-CHECK.
+           05  WS-LIVE-STATUS                          PIC X(02).
+           05  WS-LIVE-PRESENT                         PIC X(01).
+           05  WS-LIVE-DD                              PIC X(08).
 
       * Import Control Variables
        01  WS-IMPORT-CONTROL.
@@ -145,6 +250,30 @@
            05  WS-CARD-RECORDS-IMPORTED               PIC 9(09) VALUE 0.
            05  WS-ERROR-RECORDS-WRITTEN               PIC 9(09) VALUE 0.
            05  WS-UNKNOWN-RECORD-TYPE-COUNT           PIC 9(09) VALUE 0.
+           05  WS-RECORDS-VALIDATED                   PIC 9(09) VALUE 0.
+           05  WS-REJECT-COUNT                        PIC 9(09) VALUE 0.
+
+      * Validation work areas
+       01  WS-VALIDATION-AREA.
+           05  WS-VALIDATION-RESULT                   PIC X(01)
+                                                      VALUE 'N'.
+               88  WS-VALIDATION-PASSED               VALUE 'Y'.
+           05  WS-REJECT-REASON                       PIC X(50).
+           05  WS-KEY-CUST-ID                         PIC 9(09).
+           05  WS-KEY-ACCT-ID                         PIC 9(11).
+           05  WS-DATE-CHECK.
+               10  WS-DATE-YYYY                       PIC X(04).
+               10  WS-DATE-SEP-1                      PIC X(01).
+               10  WS-DATE-MM                         PIC X(02).
+               10  WS-DATE-SEP-2                      PIC X(01).
+               10  WS-DATE-DD                         PIC X(02).
+           05  WS-DATE-NUM                            PIC 9(08).
+           05  WS-DATE-NUM-R REDEFINES WS-DATE-NUM.
+               10  WS-DATE-NUM-YYYY                   PIC X(04).
+               10  WS-DATE-NUM-MM                     PIC X(02).
+               10  WS-DATE-NUM-DD                     PIC X(02).
+           05  WS-DATE-RESULT                         PIC X(01).
+               88  WS-DATE-VALID                      VALUE 'Y'.
 
 
 
@@ -165,8 +294,10 @@
        0000-MAIN-PROCESSING.
       *****************************************************************
            PERFORM 1000-INITIALIZE
-           PERFORM 2000-PROCESS-EXPORT-FILE
            PERFORM 3000-VALIDATE-IMPORT
+           IF WS-VALIDATION-PASSED
+               PERFORM 2000-PROCESS-EXPORT-FILE
+           END-IF
            PERFORM 4000-FINALIZE
            GOBACK.
 
@@ -242,7 +373,65 @@
                DISPLAY 'ERROR: Cannot open ERROR-OUTPUT, Status: '
                        WS-ERROR-STATUS
                PERFORM 9999-ABEND-PROGRAM
-           END-IF.
+           END-IF
+
+           OPEN OUTPUT KEY-WORK-FILE
+           IF NOT WS-KEYWORK-OK
+               DISPLAY 'ERROR: Cannot open KEY-WORK-FILE, Status: '
+                       WS-KEYWORK-STATUS
+               PERFORM 9999-ABEND-PROGRAM
+           END-IF
+
+           OPEN INPUT LIVE-CUSTOMER-FILE
+           MOVE WS-LIVE-CUST-STATUS TO WS-LIVE-STATUS
+           MOVE 'CUSTFILE' TO WS-LIVE-DD
+           PERFORM 1150-CHECK-LIVE-OPEN
+           MOVE WS-LIVE-PRESENT TO WS-LIVE-CUST-PRESENT
+
+           OPEN INPUT LIVE-ACCOUNT-FILE
+           MOVE WS-LIVE-ACCT-STATUS TO WS-LIVE-STATUS
+           MOVE 'ACCTFILE' TO WS-LIVE-DD
+           PERFORM 1150-CHECK-LIVE-OPEN
+           MOVE WS-LIVE-PRESENT TO WS-LIVE-ACCT-PRESENT
+
+           OPEN INPUT LIVE-XREF-FILE
+           MOVE WS-LIVE-XREF-STATUS TO WS-LIVE-STATUS
+           MOVE 'XREFFILE' TO WS-LIVE-DD
+           PERFORM 1150-CHECK-LIVE-OPEN
+           MOVE WS-LIVE-PRESENT TO WS-LIVE-XREF-PRESENT
+
+           OPEN INPUT LIVE-TRAN-FILE
+           MOVE WS-LIVE-TRAN-STATUS TO WS-LIVE-STATUS
+           MOVE 'TRANSACT' TO WS-LIVE-DD
+           PERFORM 1150-CHECK-LIVE-OPEN
+           MOVE WS-LIVE-PRESENT TO WS-LIVE-TRAN-PRESENT
+
+           OPEN INPUT LIVE-CARD-FILE
+           MOVE WS-LIVE-CARD-STATUS TO WS-LIVE-STATUS
+           MOVE 'CARDFILE' TO WS-LIVE-DD
+           PERFORM 1150-CHECK-LIVE-OPEN
+           MOVE WS-LIVE-PRESENT TO WS-LIVE-CARD-PRESENT.
+
+      *****************************************************************
+       1150-CHECK-LIVE-OPEN.
+      *****************************************************************
+           EVALUATE WS-LIVE-STATUS
+               WHEN '00'
+                   MOVE 'Y' TO WS-LIVE-PRESENT
+               WHEN '05'
+      *            Collision checks are mandatory: missing DD fails
+                   MOVE 'N' TO WS-LIVE-PRESENT
+                   DISPLAY 'ERROR: ' WS-LIVE-DD ' not allocated'
+                   MOVE SPACES TO EXPORT-REC-TYPE
+                   MOVE 0 TO EXPORT-SEQUENCE-NUM
+                   STRING 'Target file not allocated: ' WS-LIVE-DD
+                       DELIMITED BY SIZE INTO WS-REJECT-REASON
+                   PERFORM 3800-REJECT-RECORD
+               WHEN OTHER
+                   DISPLAY 'ERROR: Cannot open ' WS-LIVE-DD
+                           ', Status: ' WS-LIVE-STATUS
+                   PERFORM 9999-ABEND-PROGRAM
+           END-EVALUATE.
 
       *****************************************************************
        2000-PROCESS-EXPORT-FILE.
@@ -448,8 +637,442 @@
       *****************************************************************
        3000-VALIDATE-IMPORT.
       *****************************************************************
-           DISPLAY 'CBIMPORT: Import validation completed'
-           DISPLAY 'CBIMPORT: No validation errors detected'.
+      *    Pass 1: field checks, duplicate keys, live-file collisions
+           DISPLAY 'CBIMPORT: Validating export file'
+           PERFORM 2100-READ-EXPORT-RECORD
+           PERFORM UNTIL WS-EXPORT-EOF
+               ADD 1 TO WS-RECORDS-VALIDATED
+               PERFORM 3100-VALIDATE-RECORD
+               PERFORM 2100-READ-EXPORT-RECORD
+           END-PERFORM
+
+           IF WS-RECORDS-VALIDATED = 0
+               MOVE SPACES TO EXPORT-REC-TYPE
+               MOVE 0 TO EXPORT-SEQUENCE-NUM
+               MOVE 'Export file contains no records'
+                 TO WS-REJECT-REASON
+               PERFORM 3800-REJECT-RECORD
+           END-IF
+
+      *    Pass 2: references must resolve within the export file
+           CLOSE KEY-WORK-FILE
+           OPEN INPUT KEY-WORK-FILE
+           IF NOT WS-KEYWORK-OK
+               DISPLAY 'ERROR: Cannot reopen KEY-WORK-FILE, Status: '
+                       WS-KEYWORK-STATUS
+               PERFORM 9999-ABEND-PROGRAM
+           END-IF
+
+           PERFORM 3900-REOPEN-EXPORT-INPUT
+           PERFORM 2100-READ-EXPORT-RECORD
+           PERFORM UNTIL WS-EXPORT-EOF
+               PERFORM 3500-VALIDATE-REFERENCES
+               PERFORM 2100-READ-EXPORT-RECORD
+           END-PERFORM
+
+           IF WS-REJECT-COUNT = 0
+               SET WS-VALIDATION-PASSED TO TRUE
+               DISPLAY 'CBIMPORT: Import validation passed'
+               PERFORM 3900-REOPEN-EXPORT-INPUT
+           ELSE
+               DISPLAY 'CBIMPORT: Import validation FAILED, '
+                       'records rejected: ' WS-REJECT-COUNT
+               DISPLAY 'CBIMPORT: No records written to load files'
+           END-IF.
+
+      *****************************************************************
+       3100-VALIDATE-RECORD.
+      *****************************************************************
+           MOVE SPACES TO WS-REJECT-REASON
+
+           EVALUATE EXPORT-REC-TYPE
+               WHEN 'C'
+                   PERFORM 3110-CHECK-CUSTOMER-FIELDS
+               WHEN 'A'
+                   PERFORM 3120-CHECK-ACCOUNT-FIELDS
+               WHEN 'X'
+                   PERFORM 3130-CHECK-XREF-FIELDS
+               WHEN 'T'
+                   PERFORM 3140-CHECK-TRAN-FIELDS
+               WHEN 'D'
+                   PERFORM 3150-CHECK-CARD-FIELDS
+               WHEN OTHER
+                   ADD 1 TO WS-UNKNOWN-RECORD-TYPE-COUNT
+                   MOVE 'Unknown record type encountered'
+                     TO WS-REJECT-REASON
+           END-EVALUATE
+
+           IF WS-REJECT-REASON = SPACES
+               PERFORM 3200-REGISTER-KEY
+           END-IF
+
+           IF WS-REJECT-REASON NOT = SPACES
+               PERFORM 3800-REJECT-RECORD
+           END-IF.
+
+      *****************************************************************
+       3110-CHECK-CUSTOMER-FIELDS.
+      *****************************************************************
+           EVALUATE TRUE
+               WHEN EXP-CUST-ID = 0 OR EXP-CUST-ID > 999999999
+                   MOVE 'Customer id invalid' TO WS-REJECT-REASON
+               WHEN EXP-CUST-FIRST-NAME = SPACES
+                 OR EXP-CUST-LAST-NAME = SPACES
+                   MOVE 'Customer name is blank' TO WS-REJECT-REASON
+               WHEN EXP-CUST-SSN NOT NUMERIC
+                   MOVE 'Customer SSN is not numeric'
+                     TO WS-REJECT-REASON
+               WHEN EXP-CUST-FICO-CREDIT-SCORE NOT NUMERIC
+                   MOVE 'Customer FICO score is not numeric'
+                     TO WS-REJECT-REASON
+               WHEN EXP-CUST-FICO-CREDIT-SCORE > 850
+                   MOVE 'Customer FICO score out of range'
+                     TO WS-REJECT-REASON
+               WHEN EXP-CUST-PRI-CARD-HOLDER-IND NOT = 'Y'
+                AND EXP-CUST-PRI-CARD-HOLDER-IND NOT = 'N'
+                   MOVE 'Customer primary card holder flag invalid'
+                     TO WS-REJECT-REASON
+               WHEN OTHER
+                   MOVE EXP-CUST-DOB-YYYY-MM-DD TO WS-DATE-CHECK
+                   PERFORM 3190-CHECK-DATE
+                   IF NOT WS-DATE-VALID
+                       MOVE 'Customer date of birth invalid'
+                         TO WS-REJECT-REASON
+                   END-IF
+           END-EVALUATE.
+
+      *****************************************************************
+       3120-CHECK-ACCOUNT-FIELDS.
+      *****************************************************************
+           EVALUATE TRUE
+               WHEN EXP-ACCT-ID NOT NUMERIC
+                   MOVE 'Account id is not numeric' TO WS-REJECT-REASON
+               WHEN EXP-ACCT-ID = 0
+                   MOVE 'Account id invalid' TO WS-REJECT-REASON
+               WHEN EXP-ACCT-ACTIVE-STATUS NOT = 'Y'
+                AND EXP-ACCT-ACTIVE-STATUS NOT = 'N'
+                   MOVE 'Account active status invalid'
+                     TO WS-REJECT-REASON
+               WHEN EXP-ACCT-CURR-BAL NOT NUMERIC
+                 OR EXP-ACCT-CURR-CYC-CREDIT NOT NUMERIC
+                   MOVE 'Account balance is not numeric'
+                     TO WS-REJECT-REASON
+               WHEN EXP-ACCT-CREDIT-LIMIT NOT NUMERIC
+                 OR EXP-ACCT-CASH-CREDIT-LIMIT NOT NUMERIC
+                   MOVE 'Account credit limit is not numeric'
+                     TO WS-REJECT-REASON
+               WHEN EXP-ACCT-CREDIT-LIMIT < 0
+                 OR EXP-ACCT-CASH-CREDIT-LIMIT < 0
+                 OR EXP-ACCT-CASH-CREDIT-LIMIT > EXP-ACCT-CREDIT-LIMIT
+                   MOVE 'Account credit limit out of range'
+                     TO WS-REJECT-REASON
+               WHEN OTHER
+                   MOVE EXP-ACCT-OPEN-DATE TO WS-DATE-CHECK
+                   PERFORM 3190-CHECK-DATE
+                   IF WS-DATE-VALID
+                       MOVE EXP-ACCT-EXPIRAION-DATE TO WS-DATE-CHECK
+                       PERFORM 3190-CHECK-DATE
+                   END-IF
+                   IF WS-DATE-VALID
+                       MOVE EXP-ACCT-REISSUE-DATE TO WS-DATE-CHECK
+                       PERFORM 3190-CHECK-DATE
+                   END-IF
+                   IF NOT WS-DATE-VALID
+                       MOVE 'Account date invalid' TO WS-REJECT-REASON
+                   END-IF
+           END-EVALUATE.
+
+      *****************************************************************
+       3130-CHECK-XREF-FIELDS.
+      *****************************************************************
+           EVALUATE TRUE
+               WHEN EXP-XREF-CARD-NUM NOT NUMERIC
+                   MOVE 'Cross-reference card number invalid'
+                     TO WS-REJECT-REASON
+               WHEN EXP-XREF-CUST-ID NOT NUMERIC
+                 OR EXP-XREF-CUST-ID = 0
+                   MOVE 'Cross-reference customer id invalid'
+                     TO WS-REJECT-REASON
+               WHEN EXP-XREF-ACCT-ID = 0
+                 OR EXP-XREF-ACCT-ID > 99999999999
+                   MOVE 'Cross-reference account id invalid'
+                     TO WS-REJECT-REASON
+               WHEN OTHER
+                   CONTINUE
+           END-EVALUATE.
+
+      *****************************************************************
+       3140-CHECK-TRAN-FIELDS.
+      *****************************************************************
+           EVALUATE TRUE
+               WHEN EXP-TRAN-ID = SPACES
+                   MOVE 'Transaction id is blank' TO WS-REJECT-REASON
+               WHEN EXP-TRAN-TYPE-CD = SPACES
+                   MOVE 'Transaction type is blank' TO WS-REJECT-REASON
+               WHEN EXP-TRAN-CAT-CD NOT NUMERIC
+                   MOVE 'Transaction category is not numeric'
+                     TO WS-REJECT-REASON
+               WHEN EXP-TRAN-AMT NOT NUMERIC
+                   MOVE 'Transaction amount is not numeric'
+                     TO WS-REJECT-REASON
+               WHEN EXP-TRAN-CARD-NUM NOT NUMERIC
+                   MOVE 'Transaction card number invalid'
+                     TO WS-REJECT-REASON
+               WHEN EXP-TRAN-ORIG-TS = SPACES
+                   MOVE 'Transaction timestamp is blank'
+                     TO WS-REJECT-REASON
+               WHEN OTHER
+                   CONTINUE
+           END-EVALUATE.
+
+      *****************************************************************
+       3150-CHECK-CARD-FIELDS.
+      *****************************************************************
+           EVALUATE TRUE
+               WHEN EXP-CARD-NUM NOT NUMERIC
+                   MOVE 'Card number invalid' TO WS-REJECT-REASON
+               WHEN EXP-CARD-ACCT-ID = 0
+                 OR EXP-CARD-ACCT-ID > 99999999999
+                   MOVE 'Card account id invalid' TO WS-REJECT-REASON
+               WHEN EXP-CARD-CVV-CD > 999
+                   MOVE 'Card CVV code invalid' TO WS-REJECT-REASON
+               WHEN EXP-CARD-EMBOSSED-NAME = SPACES
+                   MOVE 'Card embossed name is blank'
+                     TO WS-REJECT-REASON
+               WHEN EXP-CARD-ACTIVE-STATUS NOT = 'Y'
+                AND EXP-CARD-ACTIVE-STATUS NOT = 'N'
+                   MOVE 'Card active status invalid' TO WS-REJECT-REASON
+               WHEN OTHER
+                   MOVE EXP-CARD-EXPIRAION-DATE TO WS-DATE-CHECK
+                   PERFORM 3190-CHECK-DATE
+                   IF NOT WS-DATE-VALID
+                       MOVE 'Card expiration date invalid'
+                         TO WS-REJECT-REASON
+                   END-IF
+           END-EVALUATE.
+
+      *****************************************************************
+       3190-CHECK-DATE.
+      *****************************************************************
+      *    WS-DATE-CHECK must be a real calendar date in YYYY-MM-DD
+           MOVE 'N' TO WS-DATE-RESULT
+           IF  WS-DATE-YYYY IS NUMERIC
+           AND WS-DATE-SEP-1 = '-'
+           AND WS-DATE-MM IS NUMERIC
+           AND WS-DATE-SEP-2 = '-'
+           AND WS-DATE-DD IS NUMERIC
+               MOVE WS-DATE-YYYY TO WS-DATE-NUM-YYYY
+               MOVE WS-DATE-MM   TO WS-DATE-NUM-MM
+               MOVE WS-DATE-DD   TO WS-DATE-NUM-DD
+               IF FUNCTION TEST-DATE-YYYYMMDD(WS-DATE-NUM) = 0
+                   MOVE 'Y' TO WS-DATE-RESULT
+               END-IF
+           END-IF.
+
+      *****************************************************************
+       3200-REGISTER-KEY.
+      *****************************************************************
+      *    Record the key in the work file (status 22 = duplicate in
+      *    the export file) and reject keys already in a live file
+           INITIALIZE KEY-WORK-RECORD
+           MOVE EXPORT-REC-TYPE TO KW-REC-TYPE
+           MOVE EXPORT-SEQUENCE-NUM TO KW-SEQUENCE
+
+           EVALUATE EXPORT-REC-TYPE
+               WHEN 'C'
+                   MOVE EXP-CUST-ID TO WS-KEY-CUST-ID
+                   MOVE WS-KEY-CUST-ID TO KW-KEY-VALUE
+                   IF WS-LIVE-CUST-PRESENT = 'Y'
+                       MOVE WS-KEY-CUST-ID TO LIVE-CUST-KEY
+                       READ LIVE-CUSTOMER-FILE
+                       MOVE WS-LIVE-CUST-STATUS TO WS-LIVE-STATUS
+                       MOVE 'CUSTFILE' TO WS-LIVE-DD
+                       PERFORM 3250-CHECK-LIVE-READ
+                   END-IF
+               WHEN 'A'
+                   MOVE EXP-ACCT-ID TO WS-KEY-ACCT-ID
+                   MOVE WS-KEY-ACCT-ID TO KW-KEY-VALUE
+                   IF WS-LIVE-ACCT-PRESENT = 'Y'
+                       MOVE WS-KEY-ACCT-ID TO LIVE-ACCT-KEY
+                       READ LIVE-ACCOUNT-FILE
+                       MOVE WS-LIVE-ACCT-STATUS TO WS-LIVE-STATUS
+                       MOVE 'ACCTFILE' TO WS-LIVE-DD
+                       PERFORM 3250-CHECK-LIVE-READ
+                   END-IF
+               WHEN 'X'
+                   MOVE EXP-XREF-CARD-NUM TO KW-KEY-VALUE
+                   MOVE EXP-XREF-ACCT-ID TO KW-ACCT-ID
+                   MOVE EXP-XREF-CUST-ID TO KW-CUST-ID
+                   IF WS-LIVE-XREF-PRESENT = 'Y'
+                       MOVE EXP-XREF-CARD-NUM TO LIVE-XREF-KEY
+                       READ LIVE-XREF-FILE
+                       MOVE WS-LIVE-XREF-STATUS TO WS-LIVE-STATUS
+                       MOVE 'XREFFILE' TO WS-LIVE-DD
+                       PERFORM 3250-CHECK-LIVE-READ
+                   END-IF
+               WHEN 'T'
+                   MOVE EXP-TRAN-ID TO KW-KEY-VALUE
+                   IF WS-LIVE-TRAN-PRESENT = 'Y'
+                       MOVE EXP-TRAN-ID TO LIVE-TRAN-KEY
+                       READ LIVE-TRAN-FILE
+                       MOVE WS-LIVE-TRAN-STATUS TO WS-LIVE-STATUS
+                       MOVE 'TRANSACT' TO WS-LIVE-DD
+                       PERFORM 3250-CHECK-LIVE-READ
+                   END-IF
+               WHEN 'D'
+                   MOVE EXP-CARD-NUM TO KW-KEY-VALUE
+                   MOVE EXP-CARD-ACCT-ID TO KW-ACCT-ID
+                   IF WS-LIVE-CARD-PRESENT = 'Y'
+                       MOVE EXP-CARD-NUM TO LIVE-CARD-KEY
+                       READ LIVE-CARD-FILE
+                       MOVE WS-LIVE-CARD-STATUS TO WS-LIVE-STATUS
+                       MOVE 'CARDFILE' TO WS-LIVE-DD
+                       PERFORM 3250-CHECK-LIVE-READ
+                   END-IF
+           END-EVALUATE
+
+           WRITE KEY-WORK-RECORD
+           EVALUATE TRUE
+               WHEN WS-KEYWORK-OK
+                   CONTINUE
+               WHEN WS-KEYWORK-DUPLICATE
+                   IF WS-REJECT-REASON = SPACES
+                       MOVE 'Duplicate key in export file'
+                         TO WS-REJECT-REASON
+                   END-IF
+               WHEN OTHER
+                   DISPLAY 'ERROR: Writing KEY-WORK-FILE, Status: '
+                           WS-KEYWORK-STATUS
+                   PERFORM 9999-ABEND-PROGRAM
+           END-EVALUATE.
+
+      *****************************************************************
+       3250-CHECK-LIVE-READ.
+      *****************************************************************
+           EVALUATE WS-LIVE-STATUS
+               WHEN '00'
+                   MOVE 'Key already exists in target file'
+                     TO WS-REJECT-REASON
+               WHEN '23'
+                   CONTINUE
+               WHEN OTHER
+                   DISPLAY 'ERROR: Reading ' WS-LIVE-DD
+                           ', Status: ' WS-LIVE-STATUS
+                   PERFORM 9999-ABEND-PROGRAM
+           END-EVALUATE.
+
+      *****************************************************************
+       3500-VALIDATE-REFERENCES.
+      *****************************************************************
+           MOVE SPACES TO WS-REJECT-REASON
+
+           EVALUATE EXPORT-REC-TYPE
+               WHEN 'X'
+                   MOVE EXP-XREF-CUST-ID TO WS-KEY-CUST-ID
+                   MOVE 'C' TO KW-REC-TYPE
+                   MOVE WS-KEY-CUST-ID TO KW-KEY-VALUE
+                   PERFORM 3590-READ-KEY-WORK
+                   IF NOT WS-KEYWORK-OK
+                       MOVE 'Cross-reference customer not in export'
+                         TO WS-REJECT-REASON
+                   ELSE
+                       MOVE EXP-XREF-ACCT-ID TO WS-KEY-ACCT-ID
+                       MOVE 'A' TO KW-REC-TYPE
+                       MOVE WS-KEY-ACCT-ID TO KW-KEY-VALUE
+                       PERFORM 3590-READ-KEY-WORK
+                       IF NOT WS-KEYWORK-OK
+                           MOVE 'Cross-reference account not in export'
+                             TO WS-REJECT-REASON
+                       ELSE
+                           MOVE 'D' TO KW-REC-TYPE
+                           MOVE EXP-XREF-CARD-NUM TO KW-KEY-VALUE
+                           PERFORM 3590-READ-KEY-WORK
+                           EVALUATE TRUE
+                               WHEN NOT WS-KEYWORK-OK
+                                   MOVE 'Xref card not in export'
+                                     TO WS-REJECT-REASON
+                               WHEN KW-ACCT-ID NOT = WS-KEY-ACCT-ID
+                                   MOVE 'Xref account differs'
+                                     TO WS-REJECT-REASON
+                               WHEN OTHER
+                                   CONTINUE
+                           END-EVALUATE
+                       END-IF
+                   END-IF
+               WHEN 'D'
+                   MOVE EXP-CARD-ACCT-ID TO WS-KEY-ACCT-ID
+                   MOVE 'A' TO KW-REC-TYPE
+                   MOVE WS-KEY-ACCT-ID TO KW-KEY-VALUE
+                   PERFORM 3590-READ-KEY-WORK
+                   IF NOT WS-KEYWORK-OK
+                       MOVE 'Card account not in export file'
+                         TO WS-REJECT-REASON
+                   ELSE
+                       MOVE 'X' TO KW-REC-TYPE
+                       MOVE EXP-CARD-NUM TO KW-KEY-VALUE
+                       PERFORM 3590-READ-KEY-WORK
+                       EVALUATE TRUE
+                           WHEN NOT WS-KEYWORK-OK
+                               MOVE 'Card has no cross-reference record'
+                                 TO WS-REJECT-REASON
+                           WHEN KW-ACCT-ID NOT = WS-KEY-ACCT-ID
+                               MOVE 'Card account differs from xref'
+                                 TO WS-REJECT-REASON
+                           WHEN OTHER
+                               CONTINUE
+                       END-EVALUATE
+                   END-IF
+               WHEN 'T'
+      *            Card must have both a D and an X record in the file
+                   MOVE 'D' TO KW-REC-TYPE
+                   MOVE EXP-TRAN-CARD-NUM TO KW-KEY-VALUE
+                   PERFORM 3590-READ-KEY-WORK
+                   IF WS-KEYWORK-OK
+                       MOVE 'X' TO KW-REC-TYPE
+                       PERFORM 3590-READ-KEY-WORK
+                   END-IF
+                   IF NOT WS-KEYWORK-OK
+                       MOVE 'Transaction card not in export file'
+                         TO WS-REJECT-REASON
+                   END-IF
+               WHEN OTHER
+                   CONTINUE
+           END-EVALUATE
+
+           IF WS-REJECT-REASON NOT = SPACES
+               PERFORM 3800-REJECT-RECORD
+           END-IF.
+
+      *****************************************************************
+       3590-READ-KEY-WORK.
+      *****************************************************************
+           READ KEY-WORK-FILE
+           IF NOT WS-KEYWORK-OK AND NOT WS-KEYWORK-NOT-FOUND
+               DISPLAY 'ERROR: Reading KEY-WORK-FILE, Status: '
+                       WS-KEYWORK-STATUS
+               PERFORM 9999-ABEND-PROGRAM
+           END-IF.
+
+      *****************************************************************
+       3800-REJECT-RECORD.
+      *****************************************************************
+           ADD 1 TO WS-REJECT-COUNT
+           MOVE FUNCTION CURRENT-DATE TO ERR-TIMESTAMP
+           MOVE EXPORT-REC-TYPE TO ERR-RECORD-TYPE
+           MOVE EXPORT-SEQUENCE-NUM TO ERR-SEQUENCE
+           MOVE WS-REJECT-REASON TO ERR-MESSAGE
+           PERFORM 2750-WRITE-ERROR.
+
+      *****************************************************************
+       3900-REOPEN-EXPORT-INPUT.
+      *****************************************************************
+           CLOSE EXPORT-INPUT
+           OPEN INPUT EXPORT-INPUT
+           IF NOT WS-EXPORT-OK
+               DISPLAY 'ERROR: Cannot reopen EXPORT-INPUT, Status: '
+                       WS-EXPORT-STATUS
+               PERFORM 9999-ABEND-PROGRAM
+           END-IF.
 
       *****************************************************************
        4000-FINALIZE.
@@ -461,6 +1084,12 @@
            CLOSE TRANSACTION-OUTPUT
            CLOSE CARD-OUTPUT
            CLOSE ERROR-OUTPUT
+           CLOSE KEY-WORK-FILE
+           CLOSE LIVE-CUSTOMER-FILE
+           CLOSE LIVE-ACCOUNT-FILE
+           CLOSE LIVE-XREF-FILE
+           CLOSE LIVE-TRAN-FILE
+           CLOSE LIVE-CARD-FILE
            
            DISPLAY 'CBIMPORT: Import completed'
            DISPLAY 'CBIMPORT: Total Records Read: '
@@ -475,7 +1104,14 @@
            DISPLAY 'CBIMPORT: Cards Imported: ' WS-CARD-RECORDS-IMPORTED
            DISPLAY 'CBIMPORT: Errors Written: ' WS-ERROR-RECORDS-WRITTEN
            DISPLAY 'CBIMPORT: Unknown Record Types: ' 
-                   WS-UNKNOWN-RECORD-TYPE-COUNT.
+                   WS-UNKNOWN-RECORD-TYPE-COUNT
+           DISPLAY 'CBIMPORT: Records Validated: ' WS-RECORDS-VALIDATED
+           DISPLAY 'CBIMPORT: Records Rejected: ' WS-REJECT-COUNT
+
+           IF WS-REJECT-COUNT > 0
+               DISPLAY 'CBIMPORT: Import FAILED - see ERROUT'
+               MOVE 8 TO RETURN-CODE
+           END-IF.
 
       *****************************************************************
        9999-ABEND-PROGRAM.
