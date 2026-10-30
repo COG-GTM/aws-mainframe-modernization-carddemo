@@ -32,6 +32,8 @@
       *   field formats, duplicate keys, collisions with the live
       *   target files and customer/account/card references, which
       *   must resolve to records in the same export file
+      * - Destination target files (CUSTFILE..CARDFILE) must be
+      *   allocated; imported keys that already exist there are rejected
       * - Fail the import (RC=8, load files left empty) when any
       *   record is rejected; rejects are listed in the error file
       * - Generate import statistics and error reports
@@ -417,9 +419,14 @@
                WHEN '00'
                    MOVE 'Y' TO WS-LIVE-PRESENT
                WHEN '05'
+      *            Collision checks are mandatory: missing DD fails
                    MOVE 'N' TO WS-LIVE-PRESENT
-                   DISPLAY 'CBIMPORT: WARNING: ' WS-LIVE-DD
-                           ' not allocated, collision check skipped'
+                   DISPLAY 'ERROR: ' WS-LIVE-DD ' not allocated'
+                   MOVE SPACES TO EXPORT-REC-TYPE
+                   MOVE 0 TO EXPORT-SEQUENCE-NUM
+                   STRING 'Target file not allocated: ' WS-LIVE-DD
+                       DELIMITED BY SIZE INTO WS-REJECT-REASON
+                   PERFORM 3800-REJECT-RECORD
                WHEN OTHER
                    DISPLAY 'ERROR: Cannot open ' WS-LIVE-DD
                            ', Status: ' WS-LIVE-STATUS
