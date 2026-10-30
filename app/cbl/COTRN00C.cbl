@@ -37,6 +37,7 @@
          05 WS-TRANID                  PIC X(04) VALUE 'CT00'.
          05 WS-MESSAGE                 PIC X(80) VALUE SPACES.
          05 WS-TRANSACT-FILE             PIC X(08) VALUE 'TRANSACT'.
+         05 WS-CCXREF-FILE             PIC X(08) VALUE 'CCXREF  '.
          05 WS-ERR-FLG                 PIC X(01) VALUE 'N'.
            88 ERR-FLG-ON                         VALUE 'Y'.
            88 ERR-FLG-OFF                        VALUE 'N'.
@@ -46,6 +47,11 @@
          05 WS-SEND-ERASE-FLG          PIC X(01) VALUE 'Y'.
            88 SEND-ERASE-YES                     VALUE 'Y'.
            88 SEND-ERASE-NO                      VALUE 'N'.
+         05 WS-TRAN-VISIBLE-FLG        PIC X(01) VALUE 'N'.
+           88 TRAN-VISIBLE                       VALUE 'Y'.
+           88 TRAN-NOT-VISIBLE                   VALUE 'N'.
+         05 WS-XREF-CARD-CACHED        PIC X(16) VALUE LOW-VALUES.
+         05 WS-XREF-ACCT-CACHED        PIC 9(11) VALUE ZEROS.
 
          05 WS-RESP-CD                 PIC S9(09) COMP VALUE ZEROS.
          05 WS-REAS-CD                 PIC S9(09) COMP VALUE ZEROS.
@@ -76,6 +82,7 @@
        COPY CSMSG01Y.
 
        COPY CVTRA05Y.
+       COPY CVACT03Y.
 
        COPY DFHAID.
        COPY DFHBMSCA.
@@ -185,14 +192,17 @@
                EVALUATE CDEMO-CT00-TRN-SEL-FLG
                    WHEN 'S'
                    WHEN 's'
-                        MOVE 'COTRN01C'   TO CDEMO-TO-PROGRAM
-                        MOVE WS-TRANID    TO CDEMO-FROM-TRANID
-                        MOVE WS-PGMNAME   TO CDEMO-FROM-PROGRAM
-                        MOVE 0        TO CDEMO-PGM-CONTEXT
-                        EXEC CICS
-                            XCTL PROGRAM(CDEMO-TO-PROGRAM)
-                            COMMAREA(CARDDEMO-COMMAREA)
-                        END-EXEC
+                        PERFORM CHECK-SELECTED-TRAN-VISIBLE
+                        IF NOT ERR-FLG-ON
+                          MOVE 'COTRN01C'   TO CDEMO-TO-PROGRAM
+                          MOVE WS-TRANID    TO CDEMO-FROM-TRANID
+                          MOVE WS-PGMNAME   TO CDEMO-FROM-PROGRAM
+                          MOVE 0        TO CDEMO-PGM-CONTEXT
+                          EXEC CICS
+                              XCTL PROGRAM(CDEMO-TO-PROGRAM)
+                              COMMAREA(CARDDEMO-COMMAREA)
+                          END-EXEC
+                        END-IF
                    WHEN OTHER
       *                SET TRANSACT-EOF TO TRUE
                        MOVE
@@ -278,7 +288,10 @@
       *----------------------------------------------------------------*
        PROCESS-PAGE-FORWARD.
 
-           PERFORM STARTBR-TRANSACT-FILE
+           PERFORM CHECK-LIST-SCOPE
+           IF NOT ERR-FLG-ON
+               PERFORM STARTBR-TRANSACT-FILE
+           END-IF
 
            IF NOT ERR-FLG-ON
 
@@ -295,7 +308,7 @@
                MOVE 1             TO  WS-IDX
 
                PERFORM UNTIL WS-IDX >= 11 OR TRANSACT-EOF OR ERR-FLG-ON
-                   PERFORM READNEXT-TRANSACT-FILE
+                   PERFORM READNEXT-VISIBLE-TRAN
                    IF TRANSACT-NOT-EOF AND ERR-FLG-OFF
                        PERFORM POPULATE-TRAN-DATA
                        COMPUTE WS-IDX = WS-IDX + 1
@@ -305,7 +318,7 @@
                IF TRANSACT-NOT-EOF AND ERR-FLG-OFF
                    COMPUTE CDEMO-CT00-PAGE-NUM =
                            CDEMO-CT00-PAGE-NUM + 1
-                   PERFORM READNEXT-TRANSACT-FILE
+                   PERFORM READNEXT-VISIBLE-TRAN
                    IF TRANSACT-NOT-EOF AND ERR-FLG-OFF
                        SET NEXT-PAGE-YES TO TRUE
                    ELSE
@@ -332,7 +345,10 @@
       *----------------------------------------------------------------*
        PROCESS-PAGE-BACKWARD.
 
-           PERFORM STARTBR-TRANSACT-FILE
+           PERFORM CHECK-LIST-SCOPE
+           IF NOT ERR-FLG-ON
+               PERFORM STARTBR-TRANSACT-FILE
+           END-IF
 
            IF NOT ERR-FLG-ON
 
@@ -349,7 +365,7 @@
                MOVE 10          TO  WS-IDX
 
                PERFORM UNTIL WS-IDX <= 0 OR TRANSACT-EOF OR ERR-FLG-ON
-                   PERFORM READPREV-TRANSACT-FILE
+                   PERFORM READPREV-VISIBLE-TRAN
                    IF TRANSACT-NOT-EOF AND ERR-FLG-OFF
                        PERFORM POPULATE-TRAN-DATA
                        COMPUTE WS-IDX = WS-IDX - 1
@@ -357,7 +373,7 @@
                END-PERFORM
 
                IF TRANSACT-NOT-EOF AND ERR-FLG-OFF
-                  PERFORM READPREV-TRANSACT-FILE
+                  PERFORM READPREV-VISIBLE-TRAN
                   IF NEXT-PAGE-YES
                      IF TRANSACT-NOT-EOF AND ERR-FLG-OFF AND
                         CDEMO-CT00-PAGE-NUM > 1
@@ -681,6 +697,161 @@
                    DISPLAY 'RESP:' WS-RESP-CD 'REAS:' WS-REAS-CD
                    MOVE 'Y'     TO WS-ERR-FLG
                    MOVE 'Unable to lookup transaction...' TO
+                                   WS-MESSAGE
+                   MOVE -1       TO TRNIDINL OF COTRN0AI
+                   PERFORM SEND-TRNLST-SCREEN
+           END-EVALUATE.
+
+      *----------------------------------------------------------------*
+      *                      CHECK-LIST-SCOPE
+      * Regular users only see transactions on cards of the account in
+      * COMMAREA context (same rule as COCRDLIC). Admins see all.
+      *----------------------------------------------------------------*
+       CHECK-LIST-SCOPE.
+
+           IF ERR-FLG-OFF AND NOT CDEMO-USRTYP-ADMIN
+               IF CDEMO-ACCT-ID IS NOT NUMERIC OR
+                  CDEMO-ACCT-ID = ZEROS
+                   MOVE 'Y'     TO WS-ERR-FLG
+                   MOVE 'Select an account first (Account View)...' TO
+                                   WS-MESSAGE
+                   MOVE -1       TO TRNIDINL OF COTRN0AI
+                   PERFORM SEND-TRNLST-SCREEN
+               END-IF
+           END-IF.
+
+      *----------------------------------------------------------------*
+      *                      CHECK-TRAN-VISIBLE
+      *----------------------------------------------------------------*
+       CHECK-TRAN-VISIBLE.
+
+           SET TRAN-NOT-VISIBLE TO TRUE
+
+           IF CDEMO-USRTYP-ADMIN
+               SET TRAN-VISIBLE TO TRUE
+           ELSE
+               IF TRAN-CARD-NUM NOT = WS-XREF-CARD-CACHED
+                   PERFORM READ-CCXREF-FILE
+               END-IF
+               IF ERR-FLG-OFF AND
+                  CDEMO-ACCT-ID IS NUMERIC AND
+                  CDEMO-ACCT-ID NOT = ZEROS AND
+                  WS-XREF-ACCT-CACHED = CDEMO-ACCT-ID
+                   SET TRAN-VISIBLE TO TRUE
+               END-IF
+           END-IF.
+
+      *----------------------------------------------------------------*
+      *                      CHECK-SELECTED-TRAN-VISIBLE
+      *----------------------------------------------------------------*
+       CHECK-SELECTED-TRAN-VISIBLE.
+
+           IF NOT CDEMO-USRTYP-ADMIN
+               PERFORM CHECK-LIST-SCOPE
+               IF ERR-FLG-OFF
+                   MOVE CDEMO-CT00-TRN-SELECTED TO TRAN-ID
+                   PERFORM READ-TRANSACT-FILE
+               END-IF
+               IF ERR-FLG-OFF
+                   PERFORM CHECK-TRAN-VISIBLE
+                   IF TRAN-NOT-VISIBLE AND ERR-FLG-OFF
+                       MOVE 'Y'     TO WS-ERR-FLG
+                       MOVE 'Transaction ID NOT found...' TO
+                                       WS-MESSAGE
+                       MOVE -1       TO TRNIDINL OF COTRN0AI
+                       PERFORM SEND-TRNLST-SCREEN
+                   END-IF
+               END-IF
+           END-IF.
+
+      *----------------------------------------------------------------*
+      *                      READNEXT-VISIBLE-TRAN
+      *----------------------------------------------------------------*
+       READNEXT-VISIBLE-TRAN.
+
+           SET TRAN-NOT-VISIBLE TO TRUE
+           PERFORM UNTIL TRAN-VISIBLE OR TRANSACT-EOF OR ERR-FLG-ON
+               PERFORM READNEXT-TRANSACT-FILE
+               IF TRANSACT-NOT-EOF AND ERR-FLG-OFF
+                   PERFORM CHECK-TRAN-VISIBLE
+               END-IF
+           END-PERFORM.
+
+      *----------------------------------------------------------------*
+      *                      READPREV-VISIBLE-TRAN
+      *----------------------------------------------------------------*
+       READPREV-VISIBLE-TRAN.
+
+           SET TRAN-NOT-VISIBLE TO TRUE
+           PERFORM UNTIL TRAN-VISIBLE OR TRANSACT-EOF OR ERR-FLG-ON
+               PERFORM READPREV-TRANSACT-FILE
+               IF TRANSACT-NOT-EOF AND ERR-FLG-OFF
+                   PERFORM CHECK-TRAN-VISIBLE
+               END-IF
+           END-PERFORM.
+
+      *----------------------------------------------------------------*
+      *                      READ-TRANSACT-FILE
+      *----------------------------------------------------------------*
+       READ-TRANSACT-FILE.
+
+           EXEC CICS READ
+                DATASET   (WS-TRANSACT-FILE)
+                INTO      (TRAN-RECORD)
+                LENGTH    (LENGTH OF TRAN-RECORD)
+                RIDFLD    (TRAN-ID)
+                KEYLENGTH (LENGTH OF TRAN-ID)
+                RESP      (WS-RESP-CD)
+                RESP2     (WS-REAS-CD)
+           END-EXEC.
+
+           EVALUATE WS-RESP-CD
+               WHEN DFHRESP(NORMAL)
+                   CONTINUE
+               WHEN DFHRESP(NOTFND)
+                   MOVE 'Y'     TO WS-ERR-FLG
+                   MOVE 'Transaction ID NOT found...' TO
+                                   WS-MESSAGE
+                   MOVE -1       TO TRNIDINL OF COTRN0AI
+                   PERFORM SEND-TRNLST-SCREEN
+               WHEN OTHER
+                   DISPLAY 'RESP:' WS-RESP-CD 'REAS:' WS-REAS-CD
+                   MOVE 'Y'     TO WS-ERR-FLG
+                   MOVE 'Unable to lookup transaction...' TO
+                                   WS-MESSAGE
+                   MOVE -1       TO TRNIDINL OF COTRN0AI
+                   PERFORM SEND-TRNLST-SCREEN
+           END-EVALUATE.
+
+      *----------------------------------------------------------------*
+      *                      READ-CCXREF-FILE
+      *----------------------------------------------------------------*
+       READ-CCXREF-FILE.
+
+           MOVE TRAN-CARD-NUM  TO XREF-CARD-NUM
+                                  WS-XREF-CARD-CACHED
+           MOVE ZEROS          TO WS-XREF-ACCT-CACHED
+
+           EXEC CICS READ
+                DATASET   (WS-CCXREF-FILE)
+                INTO      (CARD-XREF-RECORD)
+                LENGTH    (LENGTH OF CARD-XREF-RECORD)
+                RIDFLD    (XREF-CARD-NUM)
+                KEYLENGTH (LENGTH OF XREF-CARD-NUM)
+                RESP      (WS-RESP-CD)
+                RESP2     (WS-REAS-CD)
+           END-EXEC.
+
+           EVALUATE WS-RESP-CD
+               WHEN DFHRESP(NORMAL)
+                   MOVE XREF-ACCT-ID TO WS-XREF-ACCT-CACHED
+               WHEN DFHRESP(NOTFND)
+                   CONTINUE
+               WHEN OTHER
+                   DISPLAY 'RESP:' WS-RESP-CD 'REAS:' WS-REAS-CD
+                   MOVE LOW-VALUES TO WS-XREF-CARD-CACHED
+                   MOVE 'Y'     TO WS-ERR-FLG
+                   MOVE 'Unable to lookup card xref...' TO
                                    WS-MESSAGE
                    MOVE -1       TO TRNIDINL OF COTRN0AI
                    PERFORM SEND-TRNLST-SCREEN
