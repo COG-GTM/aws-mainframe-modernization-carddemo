@@ -33,10 +33,11 @@ services:
       SPRING_DATASOURCE_URL: jdbc:db2://db2:50000/CARDDEMO
       SPRING_DATASOURCE_USERNAME: db2inst1
       SPRING_DATASOURCE_PASSWORD: ${DB2_PASSWORD:?set DB2_PASSWORD in .env}
-      TT_API_USER: ${TT_API_USER:?set TT_API_USER in .env}
-      TT_API_PASSWORD: ${TT_API_PASSWORD:?set TT_API_PASSWORD in .env}
-      TT_API_READER_USER: ${TT_API_READER_USER:?set TT_API_READER_USER in .env}
-      TT_API_READER_PASSWORD: ${TT_API_READER_PASSWORD:?set TT_API_READER_PASSWORD in .env}
+      # Not :? here: compose interpolates every service, so db2-up would need API creds. The service itself fails fast.
+      TT_API_USER: ${TT_API_USER:-}
+      TT_API_PASSWORD: ${TT_API_PASSWORD:-}
+      TT_API_READER_USER: ${TT_API_READER_USER:-}
+      TT_API_READER_PASSWORD: ${TT_API_READER_PASSWORD:-}
     ports:
       - "127.0.0.1:${SERVICE_PORT:-8080}:8080"
 

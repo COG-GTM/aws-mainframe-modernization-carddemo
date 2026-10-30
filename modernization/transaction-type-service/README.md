@@ -15,7 +15,7 @@ make db2-sql Q="SELECT * FROM CARDDEMO.TRANSACTION_TYPE"
 Swagger UI: http://localhost:8080/swagger-ui.html · health: `/actuator/health`.
 
 ### Credentials and access
-`.env` is read by `docker compose` and the Makefile (`-include .env`); `make db2-up`/`make up` stop with a message if `DB2_PASSWORD` is missing.
+`.env` is read by `docker compose` and the Makefile (`-include .env`); `make db2-up` stops with a message if `DB2_PASSWORD` is missing; `make up`/`make run` also need the four `TT_API_*` values. Compose only requires `DB2_PASSWORD`, so Db2 can start without API users.
 
 | Variable | Used for |
 |---|---|
