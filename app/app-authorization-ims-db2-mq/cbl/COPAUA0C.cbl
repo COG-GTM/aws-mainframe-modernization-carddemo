@@ -977,7 +977,9 @@
                                                                                 
               MOVE XREF-ACCT-ID             TO PA-ACCT-ID                       
               MOVE XREF-CUST-ID             TO PA-CUST-ID                       
-              MOVE ACCT-CURR-BAL            TO PA-CREDIT-BALANCE
+              IF FOUND-ACCT-IN-MSTR
+                 MOVE ACCT-CURR-BAL         TO PA-CREDIT-BALANCE
+              END-IF
                                                                                 
            END-IF                                                               
                                                                                 
