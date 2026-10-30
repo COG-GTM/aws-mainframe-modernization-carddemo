@@ -44,6 +44,8 @@
          05 WS-REPLY-QNAME             PIC X(48).                               
          05 WS-SAVE-CORRELID           PIC X(24).                               
          05 WS-RESP-LENGTH             PIC S9(4)  VALUE 1.                      
+         05 WS-REQ-FIELD-CNT           PIC S9(4)  COMP VALUE ZERO.
+         05 WS-REQ-FIELDS-EXPECTED     PIC S9(4)  COMP VALUE 18.
          05 WS-RESP-CD                 PIC S9(09) COMP VALUE ZEROS.             
          05 WS-REAS-CD                 PIC S9(09) COMP VALUE ZEROS.             
                                                                                 
@@ -143,6 +145,10 @@
               88 ACCOUNT-CLOSED        VALUE 'C'.                               
               88 CARD-FRAUD            VALUE 'F'.                               
               88 MERCHANT-FRAUD        VALUE 'M'.                               
+              88 MALFORMED-REQUEST     VALUE 'R'.
+           05 WS-REQUEST-VALID-FLG     PIC X(01) VALUE 'Y'.
+              88 REQUEST-VALID         VALUE 'Y'.
+              88 REQUEST-INVALID       VALUE 'N'.
                                                                                 
                                                                                 
        01  MQM-OD-REQUEST.                                                      
@@ -351,32 +357,64 @@
        2100-EXTRACT-REQUEST-MSG.                                                
       * ------------------------------------------------------------- *         
       *                                                                         
-           UNSTRING W01-GET-BUFFER(1:W01-DATALEN)                               
-                    DELIMITED BY ','                                            
-                    INTO PA-RQ-AUTH-DATE                                        
-                         PA-RQ-AUTH-TIME                                        
-                         PA-RQ-CARD-NUM                                         
-                         PA-RQ-AUTH-TYPE                                        
-                         PA-RQ-CARD-EXPIRY-DATE                                 
-                         PA-RQ-MESSAGE-TYPE                                     
-                         PA-RQ-MESSAGE-SOURCE                                   
-                         PA-RQ-PROCESSING-CODE                                  
-                         WS-TRANSACTION-AMT-AN                                  
-                         PA-RQ-MERCHANT-CATAGORY-CODE                           
-                         PA-RQ-ACQR-COUNTRY-CODE                                
-                         PA-RQ-POS-ENTRY-MODE                                   
-                         PA-RQ-MERCHANT-ID                                      
-                         PA-RQ-MERCHANT-NAME                                    
-                         PA-RQ-MERCHANT-CITY                                    
-                         PA-RQ-MERCHANT-STATE                                   
-                         PA-RQ-MERCHANT-ZIP                                     
-                         PA-RQ-TRANSACTION-ID                                   
-           END-UNSTRING                                                         
-                                                                                
-           COMPUTE PA-RQ-TRANSACTION-AMT =                                      
-                               FUNCTION NUMVAL(WS-TRANSACTION-AMT-AN)           
-                                                                                
-           MOVE PA-RQ-TRANSACTION-AMT  TO WS-TRANSACTION-AMT                    
+      *-   Reset request/reply state so nothing carries over from the
+      *-   previous message processed in this task
+           INITIALIZE PENDING-AUTH-REQUEST
+                      PENDING-AUTH-RESPONSE
+           MOVE SPACES                 TO WS-TRANSACTION-AMT-AN
+           MOVE ZERO                   TO WS-TRANSACTION-AMT
+                                          WS-APPROVED-AMT
+                                          WS-REQ-FIELD-CNT
+           SET REQUEST-VALID           TO TRUE
+
+           IF W01-DATALEN < 1 OR
+              W01-DATALEN > LENGTH OF W01-GET-BUFFER
+              SET REQUEST-INVALID      TO TRUE
+           ELSE
+              UNSTRING W01-GET-BUFFER(1:W01-DATALEN)
+                       DELIMITED BY ','
+                       INTO PA-RQ-AUTH-DATE
+                            PA-RQ-AUTH-TIME
+                            PA-RQ-CARD-NUM
+                            PA-RQ-AUTH-TYPE
+                            PA-RQ-CARD-EXPIRY-DATE
+                            PA-RQ-MESSAGE-TYPE
+                            PA-RQ-MESSAGE-SOURCE
+                            PA-RQ-PROCESSING-CODE
+                            WS-TRANSACTION-AMT-AN
+                            PA-RQ-MERCHANT-CATAGORY-CODE
+                            PA-RQ-ACQR-COUNTRY-CODE
+                            PA-RQ-POS-ENTRY-MODE
+                            PA-RQ-MERCHANT-ID
+                            PA-RQ-MERCHANT-NAME
+                            PA-RQ-MERCHANT-CITY
+                            PA-RQ-MERCHANT-STATE
+                            PA-RQ-MERCHANT-ZIP
+                            PA-RQ-TRANSACTION-ID
+                       TALLYING IN WS-REQ-FIELD-CNT
+              END-UNSTRING
+              IF WS-REQ-FIELD-CNT < WS-REQ-FIELDS-EXPECTED
+                 SET REQUEST-INVALID   TO TRUE
+              END-IF
+           END-IF
+
+           IF REQUEST-VALID
+              COMPUTE PA-RQ-TRANSACTION-AMT =
+                                  FUNCTION NUMVAL(WS-TRANSACTION-AMT-AN)
+              MOVE PA-RQ-TRANSACTION-AMT TO WS-TRANSACTION-AMT
+           ELSE
+              MOVE 'A004'              TO ERR-LOCATION
+              SET  ERR-WARNING         TO TRUE
+              SET  ERR-APP             TO TRUE
+              MOVE WS-REQ-FIELD-CNT    TO WS-CODE-DISPLAY
+              MOVE WS-CODE-DISPLAY     TO ERR-CODE-1
+              MOVE W01-DATALEN         TO WS-CODE-DISPLAY
+              MOVE WS-CODE-DISPLAY     TO ERR-CODE-2
+              MOVE 'MALFORMED AUTH REQUEST MSG'
+                                       TO ERR-MESSAGE
+              MOVE SPACES              TO ERR-EVENT-KEY
+              PERFORM 9500-LOG-ERROR
+           END-IF
            .                                                                    
       *                                                                         
        2100-EXIT.                                                               
@@ -439,22 +477,27 @@
       * ------------------------------------------------------------- *         
       *                                                                         
            SET APPROVE-AUTH                  TO TRUE                            
-                                                                                
-           PERFORM 1200-SCHEDULE-PSB         THRU 1200-EXIT                     
-                                                                                
-           SET CARD-FOUND-XREF               TO TRUE                            
-           SET FOUND-ACCT-IN-MSTR            TO TRUE                            
-                                                                                
-           PERFORM 5100-READ-XREF-RECORD     THRU 5100-EXIT                     
-                                                                                
-           IF CARD-FOUND-XREF                                                   
-              PERFORM 5200-READ-ACCT-RECORD  THRU 5200-EXIT                     
-              PERFORM 5300-READ-CUST-RECORD  THRU 5300-EXIT                     
-                                                                                
-              PERFORM 5500-READ-AUTH-SUMMRY  THRU 5500-EXIT                     
-                                                                                
-              PERFORM 5600-READ-PROFILE-DATA THRU 5600-EXIT                     
-           END-IF                                                               
+           MOVE SPACES                       TO WS-AUTH-RESP-FLG
+                                                WS-DECLINE-REASON-FLG
+                                                WS-CUST-MASTER-READ-FLG
+           SET NFOUND-PAUT-SMRY-SEG          TO TRUE
+           IF REQUEST-INVALID
+              SET DECLINE-AUTH               TO TRUE
+              SET MALFORMED-REQUEST          TO TRUE
+              SET CARD-NFOUND-XREF           TO TRUE
+              SET NFOUND-ACCT-IN-MSTR        TO TRUE
+           ELSE
+              PERFORM 1200-SCHEDULE-PSB      THRU 1200-EXIT
+              SET CARD-FOUND-XREF            TO TRUE
+              SET FOUND-ACCT-IN-MSTR         TO TRUE
+              PERFORM 5100-READ-XREF-RECORD  THRU 5100-EXIT
+              IF CARD-FOUND-XREF
+                 PERFORM 5200-READ-ACCT-RECORD  THRU 5200-EXIT
+                 PERFORM 5300-READ-CUST-RECORD  THRU 5300-EXIT
+                 PERFORM 5500-READ-AUTH-SUMMRY  THRU 5500-EXIT
+                 PERFORM 5600-READ-PROFILE-DATA THRU 5600-EXIT
+              END-IF
+           END-IF
                                                                                 
            PERFORM 6000-MAKE-DECISION        THRU 6000-EXIT                     
                                                                                 
@@ -698,6 +741,8 @@
            MOVE '0000'                    TO PA-RL-AUTH-RESP-REASON             
            IF AUTH-RESP-DECLINED                                                
               EVALUATE TRUE                                                     
+                 WHEN MALFORMED-REQUEST
+                      MOVE '9100'         TO PA-RL-AUTH-RESP-REASON
                  WHEN CARD-NFOUND-XREF                                          
                  WHEN NFOUND-ACCT-IN-MSTR                                       
                  WHEN NFOUND-CUST-IN-MSTR                                       
@@ -718,6 +763,10 @@
            END-IF                                                               
                                                                                 
            MOVE WS-APPROVED-AMT        TO WS-APPROVED-AMT-DIS                   
+
+      *-   Each reply holds only this request's record
+           MOVE SPACES                 TO W02-PUT-BUFFER
+           MOVE 1                      TO WS-RESP-LENGTH
                                                                                 
            STRING PA-RL-CARD-NUM         ','                                    
                   PA-RL-TRANSACTION-ID   ','                                    
@@ -753,7 +802,7 @@
            COMPUTE MQPMO-OPTIONS     =  MQPMO-NO-SYNCPOINT +                    
                                         MQPMO-DEFAULT-CONTEXT                   
                                                                                 
-           MOVE WS-RESP-LENGTH       TO W02-BUFFLEN                             
+           COMPUTE W02-BUFFLEN       =  WS-RESP-LENGTH - 1
       *                                                                         
            CALL 'MQPUT1' USING W02-HCONN-REPLY                                  
                                MQM-OD-REPLY                                     

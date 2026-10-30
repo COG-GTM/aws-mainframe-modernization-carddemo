@@ -317,6 +317,8 @@ AUTH-RESP-REASON
 APPROVED-AMT  
 ```
 
+Each reply carries exactly one record, for the request it answers. A request with fewer than 18 fields is declined (`AUTH-RESP-CODE` `05`, `AUTH-RESP-REASON` `9100`), logged to CSSL as `A004`, and not written to IMS.
+
 ### IMS DB Structure
 
 The IMS database uses a hierarchical structure with a root segment (Authorization Summary) and child segment (Authorization Details):
