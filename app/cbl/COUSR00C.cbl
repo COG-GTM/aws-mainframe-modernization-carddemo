@@ -112,6 +112,9 @@
                PERFORM RETURN-TO-PREV-SCREEN
            ELSE
                MOVE DFHCOMMAREA(1:EIBCALEN) TO CARDDEMO-COMMAREA
+               IF NOT CDEMO-USRTYP-ADMIN
+                   PERFORM REJECT-NON-ADMIN-USER
+               END-IF
                IF NOT CDEMO-PGM-REENTER
                    SET CDEMO-PGM-REENTER    TO TRUE
                    MOVE LOW-VALUES          TO COUSR0AO
@@ -499,6 +502,20 @@
                WHEN OTHER
                    CONTINUE
            END-EVALUATE.
+
+      *----------------------------------------------------------------*
+      *                      REJECT-NON-ADMIN-USER
+      *    User administration is admin-only: do not trust the caller
+      *    to have checked CDEMO-USER-TYPE before transferring here.
+      *----------------------------------------------------------------*
+       REJECT-NON-ADMIN-USER.
+
+           EXEC CICS
+               XCTL PROGRAM('COSGN00C')
+           END-EXEC
+
+           EXEC CICS RETURN
+           END-EXEC.
 
       *----------------------------------------------------------------*
       *                      RETURN-TO-PREV-SCREEN
