@@ -349,7 +349,7 @@ The Authorization Details screen shows comprehensive information about a specifi
 
 ### Fraud Marking
 
-Pressing PF5 on the Authorization Details screen marks the transaction as fraudulent:
+Pressing PF5 on the Authorization Details screen marks the transaction as fraudulent, or removes an existing fraud mark. Only signed-on admin users (user type `A`) can do this; regular users can view details, but PF5 shows "No access - Admin Only". CPVS and CPVD both go to the signon screen (COSGN00C) when they start without a signed-on CardDemo session. Admins open the summary from option 7 on the Admin Menu, and PF3 takes them back to that menu:
 
 ![Mark Authorization Fraud](../../diagrams/auth_fraud.png "Mark Authorization Fraud")
 

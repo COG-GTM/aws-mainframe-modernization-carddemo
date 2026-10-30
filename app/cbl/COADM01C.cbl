@@ -46,6 +46,9 @@
          05 WS-OPTION                  PIC 9(02) VALUE 0.                       
          05 WS-IDX                     PIC S9(04) COMP VALUE ZEROS.             
          05 WS-ADMIN-OPT-TXT           PIC X(40) VALUE SPACES.                  
+         05 WS-OPT-INSTALLED-FLG       PIC X(01) VALUE 'Y'.
+           88 OPT-INSTALLED                      VALUE 'Y'.
+           88 OPT-NOT-INSTALLED                  VALUE 'N'.
                                                                                 
        COPY COCOM01Y.                                                           
        COPY COADM02Y.                                                           
@@ -138,7 +141,18 @@
            END-IF                                                               
 
            IF NOT ERR-FLG-ON                                                    
+               SET OPT-INSTALLED       TO TRUE
+               IF CDEMO-ADMIN-OPT-PGMNAME(WS-OPTION) = 'COPAUS0C'
+                   EXEC CICS INQUIRE
+                       PROGRAM(CDEMO-ADMIN-OPT-PGMNAME(WS-OPTION))
+                       NOHANDLE
+                   END-EXEC
+                   IF EIBRESP NOT = DFHRESP(NORMAL)
+                       SET OPT-NOT-INSTALLED TO TRUE
+                   END-IF
+               END-IF
                IF CDEMO-ADMIN-OPT-PGMNAME(WS-OPTION)(1:5) NOT = 'DUMMY'
+                  AND OPT-INSTALLED
                    MOVE WS-TRANID    TO CDEMO-FROM-TRANID                       
                    MOVE WS-PGMNAME   TO CDEMO-FROM-PROGRAM                      
                    MOVE ZEROS        TO CDEMO-PGM-CONTEXT                       

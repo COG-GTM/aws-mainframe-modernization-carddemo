@@ -261,6 +261,7 @@ The regular user can perform the following functions:
 Admin users can perform the following functions:
 - User management (list, add, update, delete)
 - Transaction type management (with DB2 optional module)
+- Pending authorization view and fraud marking (with IMS-DB2-MQ optional module)
 
 ### Application Inventory
 
