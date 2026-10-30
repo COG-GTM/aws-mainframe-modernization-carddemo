@@ -976,6 +976,20 @@
                        IF NOT WS-KEYWORK-OK
                            MOVE 'Cross-reference account not in export'
                              TO WS-REJECT-REASON
+                       ELSE
+                           MOVE 'D' TO KW-REC-TYPE
+                           MOVE EXP-XREF-CARD-NUM TO KW-KEY-VALUE
+                           PERFORM 3590-READ-KEY-WORK
+                           EVALUATE TRUE
+                               WHEN NOT WS-KEYWORK-OK
+                                   MOVE 'Xref card not in export'
+                                     TO WS-REJECT-REASON
+                               WHEN KW-ACCT-ID NOT = WS-KEY-ACCT-ID
+                                   MOVE 'Xref account differs'
+                                     TO WS-REJECT-REASON
+                               WHEN OTHER
+                                   CONTINUE
+                           END-EVALUATE
                        END-IF
                    END-IF
                WHEN 'D'
@@ -1002,9 +1016,14 @@
                        END-EVALUATE
                    END-IF
                WHEN 'T'
-                   MOVE 'X' TO KW-REC-TYPE
+      *            Card must have both a D and an X record in the file
+                   MOVE 'D' TO KW-REC-TYPE
                    MOVE EXP-TRAN-CARD-NUM TO KW-KEY-VALUE
                    PERFORM 3590-READ-KEY-WORK
+                   IF WS-KEYWORK-OK
+                       MOVE 'X' TO KW-REC-TYPE
+                       PERFORM 3590-READ-KEY-WORK
+                   END-IF
                    IF NOT WS-KEYWORK-OK
                        MOVE 'Transaction card not in export file'
                          TO WS-REJECT-REASON
