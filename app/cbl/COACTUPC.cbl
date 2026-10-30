@@ -907,7 +907,10 @@
       * Account update is restricted to administrators. Refuse before
       * any card cross reference, account or customer record is read.
       *****************************************************************
-           IF NOT CDEMO-USRTYP-ADMIN
+           IF EIBCALEN IS EQUAL TO 0
+           OR CDEMO-USER-ID EQUAL SPACES
+           OR CDEMO-USER-ID EQUAL LOW-VALUES
+           OR NOT CDEMO-USRTYP-ADMIN
               PERFORM 0100-REJECT-NON-ADMIN
                  THRU 0100-REJECT-NON-ADMIN-EXIT
            END-IF
