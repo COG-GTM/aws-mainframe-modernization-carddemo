@@ -143,6 +143,19 @@ EBCDIC-to-ASCII conversion of `PIC X` and zoned fields happens before these help
 `app/data/ASCII` are already converted); packed and binary fields must be transferred as binary,
 not code-page converted.
 
+**Record layouts** (`com.carddemo.common.record`): one class per copybook under `record.layout`
+(`AccountRecordLayout` = CVACT01Y, … `SecUserDataLayout` = CSUSR01Y, `ExportRecordLayout` = CVEXPORT
+with its REDEFINES views) declares every field with its COBOL name and PICTURE. `RecordReader` reads
+a file into `CobolRecord`s (line sequential for `app/data/ASCII`, fixed blocks for `app/data/EBCDIC`),
+`CobolRecord` gets and sets typed values in `CodePage.ASCII` or `CodePage.EBCDIC` (CP037) and
+`RecordWriter` writes them back. `SampleDataset` maps each dataset to its layout and files.
+`SampleDataRoundTripTest` reads every file in `app/data`, decodes every field, re-encodes it and gets
+the same bytes back; `AsciiEbcdicEquivalenceTest` compares the two copies field by field. Two source
+differences are expected, both in the data files rather than the decoding: `acctdata.txt` record 49
+has `ACCT-ADDR-ZIP` = `A000000000` where `ACCTDATA.PS` has `ZEROAPR`, and `discgrp.txt` record 34 has
+`DIS-INT-RATE` 0.00 where `DISCGRP.PS` has 15.00. `ACCDATA.PS` is a byte-identical copy of
+`ACCTDATA.PS`; `DALYTRAN.PS.INIT` is one all-zero 350-byte record, not data.
+
 ## 6. Alternate indexes → indexes or lookup endpoints
 
 | VSAM AIX (fact: `app/jcl`) | Key | PostgreSQL | Endpoint |

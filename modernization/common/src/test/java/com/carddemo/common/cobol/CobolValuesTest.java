@@ -122,4 +122,27 @@ class CobolValuesTest {
         }
         return result;
     }
+
+    @Test
+    void encodePackedIsTheInverseOfDecodePacked() {
+        assertThat(CobolValues.encodePacked(new BigDecimal("-123.45"), 2, 3, true)).containsExactly(0x12, 0x34, 0x5D);
+        assertThat(CobolValues.encodePacked(new BigDecimal("123.45"), 2, 3, true)).containsExactly(0x12, 0x34, 0x5C);
+        assertThat(CobolValues.encodePacked(new BigDecimal("720"), 0, 2, false)).containsExactly(0x72, 0x0F);
+        assertThat(CobolValues.decodePacked(CobolValues.encodePacked(new BigDecimal("-0.01"), 2, 7, true), 2))
+                .isEqualByComparingTo("-0.01");
+        assertThatThrownBy(() -> CobolValues.encodePacked(new BigDecimal("1000"), 0, 2, true))
+                .isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @Test
+    void encodeBinaryIsTheInverseOfDecodeBinary() {
+        assertThat(CobolValues.encodeBinary(new BigDecimal("-1"), 0, 2, true)).containsExactly(0xFF, 0xFF);
+        assertThat(CobolValues.encodeBinary(new BigDecimal("50"), 0, 8, false)).containsExactly(0, 0, 0, 0, 0, 0, 0, 0x32);
+        assertThat(CobolValues.decodeBinary(CobolValues.encodeBinary(new BigDecimal("-12.34"), 2, 8, true), true, 2))
+                .isEqualByComparingTo("-12.34");
+        assertThatThrownBy(() -> CobolValues.encodeBinary(new BigDecimal("-1"), 0, 2, false))
+                .isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> CobolValues.encodeBinary(new BigDecimal("40000"), 0, 2, true))
+                .isInstanceOf(IllegalArgumentException.class);
+    }
 }
