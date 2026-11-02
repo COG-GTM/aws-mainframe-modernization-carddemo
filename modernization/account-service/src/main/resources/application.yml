@@ -25,6 +25,9 @@ carddemo:
     # HS256 key shared by all five services; no default here, compose supplies a dev-only value.
     token-secret: ${CARDDEMO_TOKEN_SECRET:}
     token-ttl: ${CARDDEMO_TOKEN_TTL:PT8H}
+  services:
+    card-url: ${CARD_SERVICE_URL:http://localhost:8083}
+    customer-url: ${CUSTOMER_SERVICE_URL:http://localhost:8081}
 
 management:
   endpoints:

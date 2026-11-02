@@ -21,3 +21,6 @@ spring:
 carddemo:
   security:
     token-secret: test-only-token-secret-0123456789abcdef
+  services:
+    card-url: http://card-service.test
+    customer-url: http://customer-service.test

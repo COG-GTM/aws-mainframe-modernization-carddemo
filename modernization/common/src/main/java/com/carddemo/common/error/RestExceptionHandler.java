@@ -59,6 +59,13 @@ public class RestExceptionHandler {
                 .body(ApiError.of(422, "Unprocessable Entity", ex.getMessage()));
     }
 
+    /** Screen edits checked in service code: the first problem is the message the COBOL would show. */
+    @ExceptionHandler(FieldValidationException.class)
+    public ResponseEntity<ApiError> handleFieldValidation(FieldValidationException ex) {
+        return ResponseEntity.badRequest()
+                .body(ApiError.of(400, "Bad Request", ex.getMessage(), ex.problems()));
+    }
+
     /** Query parameter edits, such as the page and size of a browse. */
     @ExceptionHandler(ConstraintViolationException.class)
     public ResponseEntity<ApiError> handleConstraintViolation(ConstraintViolationException ex) {

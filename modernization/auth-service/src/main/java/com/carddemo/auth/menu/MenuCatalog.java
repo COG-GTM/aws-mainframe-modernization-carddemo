@@ -7,7 +7,7 @@ public final class MenuCatalog {
 
     /** COMEN02Y: CDEMO-MENU-OPT-COUNT = 11, every USRTYPE is 'U'. */
     public static final List<MenuOption> MAIN = List.of(
-            new MenuOption(1, "Account View", "COACTVWC", false, true, "GET /api/v1/accounts/{accountId}"),
+            new MenuOption(1, "Account View", "COACTVWC", false, true, "GET /api/v1/accounts/{accountId}/view"),
             new MenuOption(2, "Account Update", "COACTUPC", false, true, "PUT /api/v1/accounts/{accountId}"),
             new MenuOption(3, "Credit Card List", "COCRDLIC", false, true, "GET /api/v1/cards"),
             new MenuOption(4, "Credit Card View", "COCRDSLC", false, true, "GET /api/v1/cards/{cardNumber}"),

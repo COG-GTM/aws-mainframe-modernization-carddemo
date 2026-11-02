@@ -59,4 +59,36 @@ class CustomerControllerTest {
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.fieldErrors[0].field").value("ficoScore"));
     }
+
+    @Test
+    void returnsTheVersionAndRejectsAStaleOne() throws Exception {
+        long version = customers.findById(CUST_ID).orElseThrow().getVersion();
+        mockMvc.perform(get("/api/v1/customers/{id}", CUST_ID))
+                .andExpect(jsonPath("$.version").value(version));
+        mockMvc.perform(put("/api/v1/customers/{id}", CUST_ID)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {"firstName": "JOHN", "lastName": "DOE", "version": %d}
+                                """.formatted(version + 1)))
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.message").value("Record changed by some one else. Please review"));
+    }
+
+    @Test
+    void updatesTheSsnOnlyWhenGiven() throws Exception {
+        mockMvc.perform(put("/api/v1/customers/{id}", CUST_ID)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {"firstName": "JOHN", "lastName": "DOE", "ficoScore": 700}
+                                """))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.ssnLast4").value("6789"));
+        mockMvc.perform(put("/api/v1/customers/{id}", CUST_ID)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {"firstName": "JOHN", "lastName": "DOE", "ficoScore": 700, "ssn": 987654321}
+                                """))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.ssnLast4").value("4321"));
+    }
 }

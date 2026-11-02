@@ -99,8 +99,8 @@ needs the definition of done in scope §4. "Branch label" is the status the base
 |---|---|---|
 | `common` | complete | Error envelope, pagination, `CobolValues` (PIC X trim, date/timestamp parsing). |
 | `auth-service` | partial | Signon issues the bearer token (§3.1), user CRUD is admin-only, `GET /api/v1/menu` serves COMEN01C/COADM01C. |
-| `customer-service` | partial | Read/list/update with no field edits; the customer edits of COACTUPC are not here. |
-| `account-service` | partial | View works; update covers account fields only; posting/interest settlement follow CBTRN02C/CBACT04C. |
+| `customer-service` | partial | Read/list/update; the COACTUPC customer edits run in account-service before it calls the update (version-checked, optional SSN). |
+| `account-service` | partial | COACTVWC/COACTUPC reviewed (UNT149-17, `account-view-update.md`); posting/interest settlement follow CBTRN02C/CBACT04C. |
 | `card-service` | partial | List/view/update work; COCRDUPC date edits incomplete. |
 | `transaction-service` | partial | Online list/view/add/bill pay and both batch jobs run; reports and statements are stubs. |
 | Reports, statements, export/import, MQ replacement, client | stub | Not built (`modernization/README.md`). |
@@ -112,8 +112,8 @@ needs the definition of done in scope §4. "Branch label" is the status the base
 | COSGN00C | ported | complete | `AuthService.signon`: BCrypt check, COBOL messages (`Wrong Password. Try again ...`, `User not found. Try again ...`, `Please enter User ID ...`, `Please enter Password ...`), `nextScreen` routing, HS256 token replacing `CDEMO-USER-ID`/`CDEMO-USER-TYPE` (§3.1). |
 | COMEN01C | ported | complete | `GET /api/v1/menu` for a `U` token (COMEN02Y, 11 options in order); `GET /api/v1/menu/options/{n}` keeps the range check, the admin-only check (unreachable with the shipped table) and `This option ... is not installed...`. |
 | COADM01C | ported | complete | `GET /api/v1/menu` for an `A` token (COADM02Y, 6 options); options 5–6 (Db2) `available: false`, `This option is not installed ...`. |
-| COACTVWC | ported | complete | `GET /api/v1/accounts/{id}`; card → account through `GET /api/v1/cards/{n}/xref`. |
-| COACTUPC | ported | partial | COBOL rewrites both ACCTDATA and CUSTDATA (lines 4066, 4086) and edits phone, SSN, state, ZIP, FICO (`1260`–`1280-EDIT-*`). Java `AccountService.update` writes account fields only, with three record-level checks; `CustomerService.update` has no edits. |
+| COACTVWC | ported | complete | `GET /api/v1/accounts/{id}/view`: xref → account → customer with the COBOL not-found messages (UNT149-17). |
+| COACTUPC | ported | complete | `PUT /api/v1/accounts/{id}`: all 1200-EDIT-MAP-INPUTS edits with COBOL messages (`AccountUpdateValidator`, `CSLKPCDY` tables), no-change check, version check on both records, account rewrite rolled back when the customer rewrite fails. Deviations listed in `account-view-update.md` §4 (UNT149-17). |
 | COCRDLIC | ported | complete | `GET /api/v1/cards?accountId=&customerId=` with both filters intersecting. Paging is by page number, not STARTBR key. |
 | COCRDSLC | ported | complete | `GET /api/v1/cards/{n}`. |
 | COCRDUPC | ported | partial | COBOL requires month 1–12 and year 1950–2099 (`VALID-MONTH`, `VALID-YEAR`); Java only rejects year > 2099. |

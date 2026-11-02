@@ -7,7 +7,12 @@ import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import java.time.LocalDate;
 
-/** Customer half of the COACTUPC update. */
+/**
+ * Customer half of the COACTUPC update (CUST-UPDATE-RECORD). Account-service applies the COACTUPC
+ * field edits before calling; these constraints only guard the columns. {@code ssn} null keeps the
+ * stored SSN. {@code version}, when given, must be the version the caller read (409 otherwise), the
+ * check COACTUPC 9700-CHECK-CHANGE-IN-REC makes before its CUSTDAT REWRITE.
+ */
 public record CustomerUpdateRequest(
         @NotBlank @Size(max = 25) String firstName,
         @Size(max = 25) String middleName,
@@ -24,5 +29,7 @@ public record CustomerUpdateRequest(
         LocalDate dateOfBirth,
         @Size(max = 10) String eftAccountId,
         @Pattern(regexp = "[YN]") String primaryCardHolderIndicator,
-        @Min(300) @Max(850) Integer ficoScore) {
+        @Min(300) @Max(850) Integer ficoScore,
+        @Min(0) @Max(999999999) Long ssn,
+        Long version) {
 }
