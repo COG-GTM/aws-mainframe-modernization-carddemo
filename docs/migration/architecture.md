@@ -109,7 +109,8 @@ result, which is the `TRANREPT` report data set.
    generation) or `FAILED`. `GET .../{reportId}` polls it (submitter or admin) and gives `reportPath`;
    `GET .../{reportId}/content` returns the `TRANREPT` file.
 5. The queue lives in memory: requests a stopped batch-service had not finished are marked `FAILED`
-   (`Interrupted: ...`) at the next start-up. A message queue (what the internal reader models) is
+   (`Interrupted: ...`) at the next start-up of the web service (CLI `--job=` launches skip this). This
+   assumes one batch-service web instance, as in compose; several would need an owner/lease column. A message queue (what the internal reader models) is
    the production-grade replacement and would change only step 2.
 
 ## 4. Status per service
