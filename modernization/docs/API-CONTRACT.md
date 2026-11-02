@@ -1,7 +1,13 @@
 # CardDemo API contract
 
 REST replacement for the BMS 3270 screens. Each service also publishes a live OpenAPI document at
-`/v3/api-docs` and Swagger UI at `/swagger-ui.html`.
+`/v3/api-docs` and Swagger UI at `/swagger-ui.html`. The rules behind this contract (naming, errors,
+paging, authentication, async jobs) are in `docs/migration/api-style.md`.
+
+**Authentication (current):** sign-on verifies the password but issues no token, and no endpoint
+checks the caller. Target (UNT149-16): bearer token carrying user id and type, 401 without it, 403 for
+a `U` user on admin-only endpoints (`/api/v1/users/**`, `/api/v1/menu` returns the admin menu only to
+`A`).
 
 Media type is `application/json`. Errors use the shared envelope:
 
@@ -79,11 +85,60 @@ Browse operations (`STARTBR` / `READNEXT` / PF7 / PF8) become page based collect
 | POST | `/api/v1/batch/post-transactions` | JCL POSTTRAN / CBTRN02C | launches the Spring Batch job, returns posted and rejected counts |
 | POST | `/api/v1/batch/interest-calculation` | JCL INTCALC / CBACT04C | returns accounts settled and total interest |
 
+## Menus — COMEN01C (CM00, `COMEN02Y`) and COADM01C (CA00, `COADM02Y`)
+
+Planned (UNT149-16): `GET /api/v1/menu` in auth-service returns the menu for the caller's user type.
+Today the only menu support is `nextScreen` (`MAIN` / `ADMIN`) in the sign-on response.
+
+Main menu (user type `U`; every option is flagged `U` in `COMEN02Y`, none is admin-only):
+
+| # | Option | Program | Endpoint |
+| --- | --- | --- | --- |
+| 1 | Account View | COACTVWC | `GET /api/v1/accounts/{accountId}` |
+| 2 | Account Update | COACTUPC | `PUT /api/v1/accounts/{accountId}` |
+| 3 | Credit Card List | COCRDLIC | `GET /api/v1/cards` |
+| 4 | Credit Card View | COCRDSLC | `GET /api/v1/cards/{cardNumber}` |
+| 5 | Credit Card Update | COCRDUPC | `PUT /api/v1/cards/{cardNumber}` |
+| 6 | Transaction List | COTRN00C | `GET /api/v1/transactions` |
+| 7 | Transaction View | COTRN01C | `GET /api/v1/transactions/{transactionId}` |
+| 8 | Transaction Add | COTRN02C | `POST /api/v1/transactions` |
+| 9 | Transaction Reports | CORPT00C | `POST /api/v1/reports/transactions` (planned) |
+| 10 | Bill Payment | COBIL00C | `POST /api/v1/bill-payments` |
+| 11 | Pending Authorization View | COPAUS0C | not available (IMS/MQ extension, excluded by d-scope) |
+
+Admin menu (user type `A`):
+
+| # | Option | Program | Endpoint |
+| --- | --- | --- | --- |
+| 1 | User List (Security) | COUSR00C | `GET /api/v1/users` |
+| 2 | User Add (Security) | COUSR01C | `POST /api/v1/users` |
+| 3 | User Update (Security) | COUSR02C | `PUT /api/v1/users/{userId}` |
+| 4 | User Delete (Security) | COUSR03C | `DELETE /api/v1/users/{userId}` |
+| 5 | Transaction Type List/Update (Db2) | COTRTLIC | not available (DB2 extension, excluded by d-scope) |
+| 6 | Transaction Type Maintenance (Db2) | COTRTUPC | not available (DB2 extension, excluded by d-scope) |
+
+## Reports — CORPT00C (CR00) → TRANREPT / CBTRN03C
+
+Planned (UNT149-20), asynchronous job with polling:
+
+| Method | Path | Notes |
+| --- | --- | --- |
+| POST | `/api/v1/reports/transactions` | body `{"reportType": "MONTHLY"\|"YEARLY"\|"CUSTOM", "startDate", "endDate"}`; dates only for `CUSTOM`; 202 + `{"reportId", "status", "startDate", "endDate"}` |
+| GET | `/api/v1/reports/transactions/{reportId}` | `SUBMITTED` / `RUNNING` / `COMPLETED` / `FAILED` |
+| GET | `/api/v1/reports/transactions/{reportId}/content` | `text/plain` report as CBTRN03C writes it |
+
+## Statements — CREASTMT / CBSTM03A / CBSTM03B
+
+Batch only (no CICS screen). Planned: `POST /api/v1/batch/statements` runs statement generation for
+all accounts, text and HTML output. Renamed from the earlier `POST /api/v1/statements` to follow the
+`/batch` convention.
+
 ## Not yet implemented
 
 | Legacy | Planned endpoint | Status |
 | --- | --- | --- |
-| CORPT00C, CBTRN03C | `POST /api/v1/reports` | stub |
-| CBSTM03A / CBSTM03B | `POST /api/v1/statements` | stub |
+| COSGN00C token, all `CDEMO-USRTYP-ADMIN` checks | bearer token + `common` auth filter | not built (UNT149-16) |
+| COMEN01C / COADM01C menus | `GET /api/v1/menu` | only `nextScreen` today (UNT149-16) |
+| CORPT00C, CBTRN03C | `POST /api/v1/reports/transactions` | not built (UNT149-20) |
+| CBSTM03A / CBSTM03B | `POST /api/v1/batch/statements` | not built |
 | CDRD / CDRA MQ pairs | SQS request queue + SNS event topic | designed in COBOL-PROGRAM-MAPPING.md, not built |
-| COMEN01C / COADM01C menus | SPA routes | replaced by the route table above; no SPA in this change |
