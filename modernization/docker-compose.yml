@@ -101,8 +101,9 @@ services:
       postgres:
         condition: service_healthy
 
-  # Batch programs the transaction-service jobs do not cover: TRANREPT (CBTRN03C) today; statements and
-  # export/import land here too. CLI launch: `docker compose run --rm batch-service --job=<JCL member>`.
+  # Batch programs the transaction-service jobs do not cover: TRANREPT (CBTRN03C), statements, export/import
+  # and reader dumps. Reads the service schemas read-only. CLI launch:
+  # `docker compose run --rm batch-service --job=<JCL member>`.
   batch-service:
     build:
       context: .

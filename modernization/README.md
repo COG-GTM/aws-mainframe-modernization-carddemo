@@ -14,11 +14,10 @@ migration validation.
 | `account-service` | 8082 | CVACT01Y, COACTVWC, COACTUPC, account side of CBTRN02C and CBACT04C | reference vertical slice |
 | `card-service` | 8083 | CVACT02Y, CVACT03Y, COCRDLIC/SLC/UPC | reference vertical slice |
 | `transaction-service` | 8084 | CVTRA01Y-06Y, COTRN00C/01C/02C, COBIL00C, CBTRN02C, CBACT04C | online API + POSTTRAN, INTCALC, COMBTRAN, CBTRN01C jobs |
-| `batch-service` | 8085 | CBTRN03C, CBSTM03A/B, CBEXPORT/CBIMPORT, CBACT01C-03C, CBCUS01C | empty: the jobs land here (UNT149-14/15) |
+| `batch-service` | 8085 | CBTRN03C, CBSTM03A/B, CBEXPORT/CBIMPORT, CBACT01C-03C, CBCUS01C, COBSWAIT | CREASTMT, CBEXPORT, CBIMPORT, READACCT/CARD/CUST/XREF, WAITSTEP jobs (TRANREPT: UNT149-14) |
 | `data-loader` | - | the `app/data` sample datasets (nine ASCII extracts + EBCDIC USRSEC) | `load-data` command + reconciliation |
 
-Not built yet: statements (CBSTM03A/B), export/import and reader
-utilities go into `batch-service` (UNT149-14/15); the MQ replacement wiring and a SPA front end are
+The MQ replacement wiring and a SPA front end are
 not built. See `docs/API-CONTRACT.md` and `docs/migration/jcl-mapping.md`.
 
 ## Documentation
@@ -191,7 +190,9 @@ command before the smoke test.
 
 Each JCL job is a Spring Batch job registered under its JCL member name; the full JCL → Java
 mapping and the Control-M order are in `docs/migration/jcl-mapping.md`. transaction-service runs
-POSTTRAN (CBTRN02C), INTCALC (CBACT04C) and COMBTRAN (sort); batch-service runs TRANREPT (CBTRN03C).
+POSTTRAN (CBTRN02C), INTCALC (CBACT04C) and COMBTRAN (sort); batch-service runs TRANREPT (CBTRN03C), CREASTMT (CBSTM03A/B),
+CBEXPORT, CBIMPORT, READACCT (CBACT01C), READCARD (CBACT02C), READCUST (CBCUS01C), READXREF (CBACT03C)
+and WAITSTEP (COBSWAIT). batch-service jobs read the five service schemas read-only when no `--dd` is given.
 
 **Command line** (what a scheduler or the golden-set harness calls; the process exits with the
 job's return code):
@@ -209,6 +210,11 @@ java -jar batch-service/target/batch-service-*.jar --job=TRANREPT \
     --dd=CARDXREF=../app/data/ASCII/cardxref.txt --dd=TRANTYPE=../app/data/ASCII/trantype.txt \
     --dd=TRANCATG=../app/data/ASCII/trancatg.txt                                     # every DD a file
 java -jar batch-service/target/batch-service-*.jar --job=TRANREPT --dd=DATEPARM=dateparm.txt   # data from the services
+java -jar batch-service/target/batch-service-*.jar --job=CREASTMT                  # statements from the tables
+java -jar batch-service/target/batch-service-*.jar --job=CBEXPORT                  # tables -> EXPFILE
+java -jar batch-service/target/batch-service-*.jar --job=CBIMPORT                  # latest CBEXPORT EXPFILE -> *OUT files
+java -jar batch-service/target/batch-service-*.jar --job=READACCT \
+    --dd=ACCTFILE=../app/data/ASCII/acctdata.txt                                     # dump a file instead of the table
 ```
 
 TRANREPT takes DATEPARM as `--dd=DATEPARM=<file>` (its first record, `YYYY-MM-DD YYYY-MM-DD`) or as
@@ -226,7 +232,7 @@ transaction-service --job=POSTTRAN --date=2022-07-18`.
 
 | Option | Meaning |
 | --- | --- |
-| `--job=NAME` | JCL member (required): POSTTRAN, INTCALC, COMBTRAN (transaction-service); TRANREPT (batch-service); or CBTRN01C (no JCL member; needs `--dd=DALYTRAN=`, writes `SYSOUT`) |
+| `--job=NAME` | JCL member (required): POSTTRAN, INTCALC, COMBTRAN, or CBTRN01C (no JCL member; needs `--dd=DALYTRAN=`, writes `SYSOUT`) on transaction-service; TRANREPT, CREASTMT, CBEXPORT, CBIMPORT, READACCT, READCARD, READCUST, READXREF, WAITSTEP on batch-service |
 | `--date=YYYY-MM-DD` | run date (also `YYYYMMDD`); default today |
 | `--parm=VALUE` | the `EXEC PARM=` value; default `<date as yyyyMMdd>00` |
 | `--dd=DDNAME=path` | input file for a DD, repeatable (`*.txt` = line sequential, else fixed-length records) |
@@ -250,6 +256,11 @@ out/COMBTRAN/<ts>/TRANSACT.COMBINED         TRANSACT.BKUP(0) + SYSTRAN(0) sorted
 out/TRANREPT/<ts>/TRANSACT.BKUP             350-byte TRANSACT unload (STEP05R REPROC)
                   TRANSACT.DALY             the DATEPARM window, sorted by card number (STEP05R SORT)
                   TRANREPT                  133-byte report records (STEP10R CBTRN03C); absent when it abends
+out/CREASTMT/<ts>/TRXFL.SEQ                  STEP010 sort output (card number + TRAN-ID, OUTREC)
+                  STMTFILE, HTMLFILE        80-byte statements, 100-byte HTML (STATEMNT.PS / .HTML)
+out/CBEXPORT/<ts>/EXPFILE                   500-byte CVEXPORT records
+out/CBIMPORT/<ts>/CUSTOUT ACCTOUT XREFOUT TRNXOUT CARDOUT ERROUT
+out/READACCT/<ts>/OUTFILE ARRYFILE VBRCFILE SYSOUT   (READCARD/CUST/XREF: SYSOUT)
 ```
 
 **HTTP** (unchanged endpoints; same job, same output directory, reported as `outputDir`):
@@ -259,6 +270,9 @@ curl -X POST http://localhost:8084/api/v1/batch/post-transactions     # POSTTRAN
 curl -X POST http://localhost:8084/api/v1/batch/interest-calculation  # INTCALC  / CBACT04C (?date=, ?parm=)
 curl -X POST -H "Authorization: Bearer $TOKEN" 'http://localhost:8085/api/v1/batch/transaction-report?startDate=2022-01-01&endDate=2022-07-06'  # TRANREPT / CBTRN03C
 # The submit forwards the caller's token to transaction-service and card-service; a --job=TRANREPT CLI launch signs as BATCH.
+curl -X POST -H "Authorization: Bearer $TOKEN" http://localhost:8085/api/v1/batch/statements            # CREASTMT / CBSTM03A+B
+curl -X POST -H "Authorization: Bearer $TOKEN" http://localhost:8085/api/v1/batch/export                # CBEXPORT
+curl -X POST -H "Authorization: Bearer $TOKEN" http://localhost:8085/api/v1/batch/import                # CBIMPORT (latest CBEXPORT EXPFILE)
 ```
 
 Each call runs the job synchronously and returns `jobName`, `executionId`, `status`, `returnCode`,
