@@ -17,3 +17,7 @@ spring:
     schemas: account
     default-schema: account
     create-schemas: true
+
+carddemo:
+  security:
+    token-secret: test-only-token-secret-0123456789abcdef

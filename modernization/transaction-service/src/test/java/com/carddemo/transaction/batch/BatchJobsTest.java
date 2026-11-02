@@ -18,6 +18,7 @@ import com.carddemo.common.record.layout.DalyrejsRecordLayout;
 import com.carddemo.common.record.layout.DalytranRecordLayout;
 import com.carddemo.common.record.layout.TranCatBalRecordLayout;
 import com.carddemo.common.record.layout.TranRecordLayout;
+import com.carddemo.common.security.TokenService;
 import com.carddemo.transaction.repository.CategoryBalanceRepository;
 import com.carddemo.transaction.repository.DailyTransactionRepository;
 import com.carddemo.transaction.repository.TransactionRejectRepository;
@@ -37,6 +38,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
+import org.springframework.http.HttpHeaders;
 import org.springframework.test.web.servlet.MockMvc;
 
 /** The file adapters and launch semantics of POSTTRAN, INTCALC and COMBTRAN (not business parity). */
@@ -56,6 +58,9 @@ class BatchJobsTest {
 
     @Autowired
     private MockMvc mvc;
+
+    @Autowired
+    private TokenService tokens;
 
     @Autowired
     private DailyTransactionRepository dailyTransactions;
@@ -103,6 +108,33 @@ class BatchJobsTest {
     private BatchRun run(String job, Map<String, Path> dd) throws Exception {
         return launcher.launch(new BatchArguments(job, LocalDate.of(2022, 7, 18), null, work.resolve("out"), dd,
                 null, null));
+    }
+
+    @Test
+    void cbtrn01cPrintsEachRecordAndItsLookupsAndChangesNothing() throws Exception {
+        cards.register("4222222222222222", 100000002L, 22222222222L);
+        Path dalytranFile = work.resolve("DALYTRAN");
+        CobolRecord first = dalytran("0000000000000001", CARD, "25.00");
+        RecordWriter.writeAll(dalytranFile, List.of(first, dalytran("0000000000000002", "9999999999999999", "10.00"),
+                dalytran("0000000000000003", "4222222222222222", "5.00")), RecordFormat.FIXED);
+
+        BatchRun run = run("CBTRN01C", Map.of("DALYTRAN", dalytranFile));
+
+        assertThat(run.returnCode()).isZero();
+        List<String> sysout = Files.readAllLines(run.outputDir().resolve("SYSOUT"));
+        assertThat(sysout.get(0)).isEqualTo("START OF EXECUTION OF PROGRAM CBTRN01C");
+        assertThat(sysout.get(1)).isEqualTo(new String(first.toBytes())).hasSize(350);
+        assertThat(sysout.subList(2, 7)).containsExactly("SUCCESSFUL READ OF XREF", "CARD NUMBER: " + CARD,
+                "ACCOUNT ID : 11111111111", "CUSTOMER ID: 100000001", "SUCCESSFUL READ OF ACCOUNT FILE");
+        assertThat(sysout.subList(8, 10)).containsExactly("INVALID CARD NUMBER FOR XREF",
+                "CARD NUMBER 9999999999999999 COULD NOT BE VERIFIED. SKIPPING TRANSACTION ID-0000000000000002");
+        assertThat(sysout.subList(15, 17)).containsExactly("INVALID ACCOUNT NUMBER FOUND", "ACCOUNT 22222222222 NOT FOUND");
+        // The end-of-file read leaves the last record in place and MAIN-PARA looks it up once more.
+        assertThat(sysout.subList(17, 24)).containsExactly("SUCCESSFUL READ OF XREF", "CARD NUMBER: 4222222222222222",
+                "ACCOUNT ID : 22222222222", "CUSTOMER ID: 100000002", "INVALID ACCOUNT NUMBER FOUND",
+                "ACCOUNT 22222222222 NOT FOUND", "END OF EXECUTION OF PROGRAM CBTRN01C");
+        assertThat(accounts.postings()).isEmpty();
+        assertThat(dailyTransactions.count()).isZero();
     }
 
     @Test
@@ -228,14 +260,16 @@ class BatchJobsTest {
 
     @Test
     void httpLaunchStillWorksAndReportsTheOutputDirectory() throws Exception {
-        mvc.perform(post("/api/v1/batch/post-transactions"))
+        String bearer = "Bearer " + tokens.issue("ADMIN001", "A").token();
+        mvc.perform(post("/api/v1/batch/post-transactions").header(HttpHeaders.AUTHORIZATION, bearer))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.status").value("COMPLETED"))
                 .andExpect(jsonPath("$.jobName").value(BatchConfig.POST_TRANSACTIONS_JOB))
                 .andExpect(jsonPath("$.returnCode").value(0))
                 .andExpect(jsonPath("$.results.posted").value(0))
                 .andExpect(jsonPath("$.outputDir").exists());
-        mvc.perform(post("/api/v1/batch/interest-calculation").param("parm", "2022071800"))
+        mvc.perform(post("/api/v1/batch/interest-calculation").param("parm", "2022071800")
+                        .header(HttpHeaders.AUTHORIZATION, bearer))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.status").value("COMPLETED"))
                 .andExpect(jsonPath("$.results.parm").value("2022071800"));

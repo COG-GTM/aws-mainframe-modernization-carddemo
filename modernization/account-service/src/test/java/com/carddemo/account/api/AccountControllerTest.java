@@ -1,11 +1,14 @@
 package com.carddemo.account.api;
 
+import com.carddemo.testsupport.AdminCaller;
+import org.springframework.context.annotation.Import;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.carddemo.account.domain.Account;
+import com.carddemo.account.repository.AccountPostingRepository;
 import com.carddemo.account.repository.AccountRepository;
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -19,6 +22,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 @SpringBootTest
 @AutoConfigureMockMvc
+@Import(AdminCaller.class)
 class AccountControllerTest {
 
     private static final long ACCT_ID = 12345678901L;
@@ -29,8 +33,12 @@ class AccountControllerTest {
     @Autowired
     private AccountRepository accounts;
 
+    @Autowired
+    private AccountPostingRepository postings;
+
     @BeforeEach
     void setUp() {
+        postings.deleteAll();
         accounts.deleteAll();
         Account account = new Account(ACCT_ID);
         account.setCurrBal(new BigDecimal("42.00"));
@@ -118,16 +126,39 @@ class AccountControllerTest {
         mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders
                         .post("/api/v1/accounts/{id}/postings", ACCT_ID)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"amount\": 25.00, \"transactionDate\": \"2024-05-01\"}"))
+                        .content("{\"transactionId\": \"0000000000000001\", \"amount\": 25.00, \"transactionDate\": \"2024-05-01\"}"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.posted").value(true))
+                .andExpect(jsonPath("$.currentBalance").value(67.00));
+
+        // Retry of the same transaction id: same answer, balance not changed again.
+        mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders
+                        .post("/api/v1/accounts/{id}/postings", ACCT_ID)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"transactionId\": \"0000000000000001\", \"amount\": 25.00, \"transactionDate\": \"2024-05-01\"}"))
+                .andExpect(status().isOk())
                 .andExpect(jsonPath("$.currentBalance").value(67.00));
 
         mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders
                         .post("/api/v1/accounts/{id}/postings", ACCT_ID)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"amount\": 5000.00, \"transactionDate\": \"2024-05-01\"}"))
+                        .content("{\"transactionId\": \"0000000000000001\", \"amount\": 26.00, \"transactionDate\": \"2024-05-01\"}"))
+                .andExpect(status().isConflict());
+
+        mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders
+                        .post("/api/v1/accounts/{id}/postings", ACCT_ID)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"transactionId\": \"0000000000000002\", \"amount\": 5000.00, \"transactionDate\": \"2024-05-01\"}"))
                 .andExpect(status().isUnprocessableEntity())
                 .andExpect(jsonPath("$.reasonCode").value(102));
+    }
+
+    @Test
+    void postingWithoutATransactionIdIsABadRequest() throws Exception {
+        mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders
+                        .post("/api/v1/accounts/{id}/postings", ACCT_ID)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"amount\": 25.00, \"transactionDate\": \"2024-05-01\"}"))
+                .andExpect(status().isBadRequest());
     }
 }

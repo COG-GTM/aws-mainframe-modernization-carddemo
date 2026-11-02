@@ -91,6 +91,25 @@ Data note: in `app/data/ASCII/acctdata.txt` the `ACCT-ADDR-ZIP` positions hold `
 `ACCT-GROUP-ID` is blank for all 50 records. Loaded as-is; CBACT04C falls back to the `DEFAULT`
 disclosure group when the group lookup misses.
 
+## Posting idempotency ledger (no copybook) → `account.account_postings`
+
+No COBOL counterpart: CBTRN02C updates ACCTFILE and TRANFILE in one program, the Java port spans
+account-service and transaction-service. One row per posting applied by `POST
+/api/v1/accounts/{id}/postings`, written in the same database transaction as the account update
+(`V2__posting_idempotency.sql`); a retry with the same transaction id returns the recorded figures
+and does not post again. Emptied with the batch outputs by `data-loader --replace`.
+
+| Field | Picture | Column | Type | Notes |
+|---|---|---|---|---|
+| *(new)* | — | `tran_id` | `VARCHAR(16)` | primary key; `DALYTRAN-ID` / `TRAN-ID` of the posting |
+| *(new)* | — | `acct_id` | `BIGINT` | foreign key to `accounts` |
+| *(new)* | — | `amount` | `NUMERIC(12,2)` | posted amount (`DALYTRAN-AMT`; the endpoint accepts 10 integer digits) |
+| *(new)* | — | `transaction_date` | `DATE` | date part of `DALYTRAN-ORIG-TS` |
+| *(new)* | — | `curr_bal` | `NUMERIC(12,2)` | `ACCT-CURR-BAL` after the posting |
+| *(new)* | — | `curr_cyc_credit` | `NUMERIC(12,2)` | `ACCT-CURR-CYC-CREDIT` after the posting |
+| *(new)* | — | `curr_cyc_debit` | `NUMERIC(12,2)` | `ACCT-CURR-CYC-DEBIT` after the posting |
+| *(new)* | — | `posted_at` | `TIMESTAMP` | time the posting was applied |
+
 ## CARDDATA — `CVACT02Y` → `card.cards`
 
 VSAM KSDS `AWS.M2.CARDDEMO.CARDDATA.VSAM.KSDS`, RECLN 150, key `KEYS(16 0)`; AIX `CARDAIX` on

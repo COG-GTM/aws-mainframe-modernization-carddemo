@@ -1,5 +1,7 @@
 package com.carddemo.customer.api;
 
+import com.carddemo.testsupport.AdminCaller;
+import org.springframework.context.annotation.Import;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -17,6 +19,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 @SpringBootTest
 @AutoConfigureMockMvc
+@Import(AdminCaller.class)
 class CustomerControllerTest {
 
     private static final long CUST_ID = 100000001L;

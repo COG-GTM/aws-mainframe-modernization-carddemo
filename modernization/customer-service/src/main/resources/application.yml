@@ -20,6 +20,12 @@ spring:
     default-schema: customer
     create-schemas: true
 
+carddemo:
+  security:
+    # HS256 key shared by all five services; no default here, compose supplies a dev-only value.
+    token-secret: ${CARDDEMO_TOKEN_SECRET:}
+    token-ttl: ${CARDDEMO_TOKEN_TTL:PT8H}
+
 management:
   endpoints:
     web:

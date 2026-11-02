@@ -4,3 +4,7 @@ spring:
     driver-class-name: org.testcontainers.jdbc.ContainerDatabaseDriver
     username: test
     password: test
+
+carddemo:
+  security:
+    token-secret: test-only-token-secret-0123456789abcdef

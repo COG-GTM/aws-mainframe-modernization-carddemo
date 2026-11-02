@@ -9,11 +9,11 @@ migration validation.
 | Module | Port | Legacy origin | Status |
 | --- | --- | --- | --- |
 | `common` | - | shared error envelope, pagination, COBOL value helpers, record I/O, batch launch framework (`com.carddemo.common.batch`) | complete |
-| `auth-service` | 8080 | CSUSR01Y, COSGN00C, COUSR00C-03C | complete for signon + user CRUD |
+| `auth-service` | 8080 | CSUSR01Y, COSGN00C, COMEN01C, COADM01C, COUSR00C-03C | signon + bearer token, `GET /api/v1/menu` (COMEN01C, COADM01C), admin-only user CRUD |
 | `customer-service` | 8081 | CVCUS01Y | baseline read/update |
 | `account-service` | 8082 | CVACT01Y, COACTVWC, COACTUPC, account side of CBTRN02C and CBACT04C | reference vertical slice |
 | `card-service` | 8083 | CVACT02Y, CVACT03Y, COCRDLIC/SLC/UPC | reference vertical slice |
-| `transaction-service` | 8084 | CVTRA01Y-06Y, COTRN00C/01C/02C, COBIL00C, CBTRN02C, CBACT04C | online API + POSTTRAN, INTCALC, COMBTRAN jobs |
+| `transaction-service` | 8084 | CVTRA01Y-06Y, COTRN00C/01C/02C, COBIL00C, CBTRN02C, CBACT04C | online API + POSTTRAN, INTCALC, COMBTRAN, CBTRN01C jobs |
 | `batch-service` | 8085 | CBTRN03C, CBSTM03A/B, CBEXPORT/CBIMPORT, CBACT01C-03C, CBCUS01C | empty: the jobs land here (UNT149-14/15) |
 | `data-loader` | - | the `app/data` sample datasets (nine ASCII extracts + EBCDIC USRSEC) | `load-data` command + reconciliation |
 
@@ -52,21 +52,24 @@ not built. See `docs/API-CONTRACT.md` and `docs/migration/jcl-mapping.md`.
 This stack is a migration reference that runs on a laptop, not a deployable system. Before any
 non-local use it needs:
 
-- Authentication and authorisation on every endpoint. Signon verifies a BCrypt hash but issues no
-  token, so user administration, account updates, postings, bill payments and the batch triggers
-  are currently open to anyone who can reach the port.
+- A real token key. Every `/api/**` endpoint requires the HS256 bearer token from sign-on (see
+  `docs/migration/architecture.md` §3.1); `docker-compose.yml` signs with a dev-only default
+  `CARDDEMO_TOKEN_SECRET`, so set your own value outside a laptop.
 - TLS (ideally mTLS or a service mesh) between transaction-service and account/card-service; the
   gateways speak plain HTTP today.
 - Real database credentials. The services read `*_DB_USER` and `*_DB_PASSWORD` from the
   environment with no fallback; `docker-compose.yml` fills them with `carddemo`/`carddemo` for the
   local demo only and publishes PostgreSQL on `127.0.0.1` alone.
 
-## Known limitation: cross service batch retries
+## Cross service batch retries
 
-Transaction posting updates account-service over HTTP and then writes its own rows. If the local
-write fails after the remote update committed, a retry posts the amount twice. Making this safe
-needs an idempotency key on the posting endpoint plus an outbox or saga; the `AccountGateway` seam
-is where that belongs.
+Transaction posting updates account-service over HTTP and then writes its own rows. The posting
+endpoint is idempotent per transaction id (`DALYTRAN-ID`, recorded in `account.account_postings` in
+the same database transaction as the account update): if the local write fails after the remote
+update committed, posting the same transaction again returns the first result instead of applying
+the amount twice. The same id with another account, amount or date is refused with 409. What is
+still not automatic is the retry itself: a failed POSTTRAN leaves the transaction unprocessed and
+the next run posts it.
 
 ## Runbook
 
@@ -204,13 +207,15 @@ java -jar transaction-service/target/transaction-service-*.jar --job=POSTTRAN \
 ```
 
 The CLI needs the same database settings as the service (`TRANSACTION_DB_URL`, `TRANSACTION_DB_USER`,
-`TRANSACTION_DB_PASSWORD`, and `ACCOUNT_SERVICE_URL` / `CARD_SERVICE_URL` for POSTTRAN). Against the
+`TRANSACTION_DB_PASSWORD`, and `ACCOUNT_SERVICE_URL` / `CARD_SERVICE_URL` for POSTTRAN) plus
+`CARDDEMO_TOKEN_SECRET`: with no caller to forward, the account/card calls carry a token minted for
+user `BATCH` (type `U`). Against the
 compose stack: `docker compose run --rm -v "$PWD/batch-out:/batch-out" -e BATCH_OUTPUT_DIR=/batch-out
 transaction-service --job=POSTTRAN --date=2022-07-18`.
 
 | Option | Meaning |
 | --- | --- |
-| `--job=NAME` | JCL member (required): POSTTRAN, INTCALC, COMBTRAN |
+| `--job=NAME` | JCL member (required): POSTTRAN, INTCALC, COMBTRAN; or CBTRN01C (no JCL member; needs `--dd=DALYTRAN=`, writes `SYSOUT`) |
 | `--date=YYYY-MM-DD` | run date (also `YYYYMMDD`); default today |
 | `--parm=VALUE` | the `EXEC PARM=` value; default `<date as yyyyMMdd>00` |
 | `--dd=DDNAME=path` | input file for a DD, repeatable (`*.txt` = line sequential, else fixed-length records) |
@@ -247,12 +252,15 @@ Each call runs the job synchronously and returns `jobName`, `executionId`, `stat
 ### 6. Call the services
 
 ```bash
-curl -s -X POST http://localhost:8080/api/v1/auth/signon \
-  -H 'Content-Type: application/json' -d '{"userId":"ADMIN001","password":"PASSWORD"}'
-curl -s http://localhost:8081/api/v1/customers
-curl -s http://localhost:8082/api/v1/accounts/00000000001
-curl -s 'http://localhost:8083/api/v1/cards?accountId=00000000001'
-curl -s 'http://localhost:8084/api/v1/transactions?cardNumber=9680294154603697'
+TOKEN=$(curl -s -X POST http://localhost:8080/api/v1/auth/signon \
+  -H 'Content-Type: application/json' -d '{"userId":"ADMIN001","password":"PASSWORD"}' \
+  | sed -n 's/.*"token":"\([^"]*\)".*/\1/p')
+AUTH="Authorization: Bearer $TOKEN"
+curl -s -H "$AUTH" http://localhost:8080/api/v1/menu
+curl -s -H "$AUTH" http://localhost:8081/api/v1/customers
+curl -s -H "$AUTH" http://localhost:8082/api/v1/accounts/00000000001
+curl -s -H "$AUTH" 'http://localhost:8083/api/v1/cards?accountId=00000000001'
+curl -s -H "$AUTH" 'http://localhost:8084/api/v1/transactions?cardNumber=9680294154603697'
 ```
 
 The full contract is in `docs/API-CONTRACT.md` and in each service's Swagger UI.
