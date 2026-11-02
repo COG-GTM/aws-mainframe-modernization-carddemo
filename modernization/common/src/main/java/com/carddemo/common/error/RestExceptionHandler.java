@@ -4,6 +4,7 @@ import com.carddemo.common.api.ApiError;
 import jakarta.validation.ConstraintViolationException;
 import jakarta.validation.Path;
 import java.util.List;
+import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -12,7 +13,8 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 /**
  * Maps the CICS RESP codes the COBOL programs checked onto HTTP status codes:
- * NOTFND to 404, DUPREC to 409, screen level edit failures to 400.
+ * NOTFND to 404, DUPREC to 409, a changed record (READ UPDATE / {@code @Version} conflict) to 409,
+ * screen level edit failures to 400.
  */
 @RestControllerAdvice
 public class RestExceptionHandler {
@@ -27,6 +29,12 @@ public class RestExceptionHandler {
     public ResponseEntity<ApiError> handleDuplicate(DuplicateKeyException ex) {
         return ResponseEntity.status(HttpStatus.CONFLICT)
                 .body(ApiError.of(409, "Conflict", ex.getMessage()));
+    }
+
+    @ExceptionHandler({RecordChangedException.class, OptimisticLockingFailureException.class})
+    public ResponseEntity<ApiError> handleRecordChanged(RuntimeException ex) {
+        return ResponseEntity.status(HttpStatus.CONFLICT)
+                .body(ApiError.of(409, "Conflict", RecordChangedException.MESSAGE));
     }
 
     @ExceptionHandler(BusinessRuleException.class)

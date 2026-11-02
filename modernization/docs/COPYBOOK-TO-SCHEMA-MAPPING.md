@@ -6,13 +6,17 @@ compatible). Every table below is created by a Flyway migration inside the ownin
 
 ## Type conversion rules
 
+The binding rules, with COBOL evidence and worked examples, are in
+[`docs/migration/conventions.md`](../../docs/migration/conventions.md); this table is the summary.
+
 | COBOL picture | Meaning | PostgreSQL type | Notes |
 |---|---|---|---|
 | `PIC X(n)` | fixed alphanumeric | `VARCHAR(n)` | trailing blanks trimmed on load |
-| `PIC X(n)` used as a key | fixed alphanumeric key | `CHAR(n)` | keeps the fixed-width key semantics of a KSDS |
-| `PIC 9(n)` | unsigned zoned decimal | `NUMERIC(n,0)` | keeps leading zeros meaningful ids exact |
-| `PIC S9(n)V99` | signed decimal, 2 implied decimals | `NUMERIC(n+2,2)` | money; never `float` |
-| `PIC X(10)` date | `YYYY-MM-DD` | `DATE` | invalid/blank legacy values load as `NULL` |
+| `PIC X(n)` used as a key | fixed alphanumeric key | `VARCHAR(n)` | the migrations use `VARCHAR` for keys too; fixed width is restored on output |
+| `PIC 9(n)` id | unsigned zoned decimal | `BIGINT` + range `CHECK` | emitted zero-padded to `n` digits (`@PicId`) so leading zeros are kept |
+| `PIC 9(n)` code | unsigned zoned decimal | `INTEGER` | category codes, FICO score; no padding |
+| `PIC S9(n)V99` | signed decimal, 2 implied decimals | `NUMERIC(n+2,2)` | money; never `float`; results truncate (no `ROUNDED` in the COBOL) |
+| `PIC X(10)` date | `YYYY-MM-DD` | `DATE` | only where the COBOL compares/validates it as a date; invalid/blank legacy values load as `NULL` |
 | `PIC X(26)` timestamp | DB2 format `YYYY-MM-DD-HH.MM.SS.mmmmmm` | `TIMESTAMP(6)` | converted on load |
 | `FILLER` | record padding to the VSAM record length | *(dropped)* | padding only, carries no data |
 
@@ -86,7 +90,7 @@ Owned by **card-service**.
 
 | Field | Picture | Column | Type |
 |---|---|---|---|
-| `CARD-NUM` | `X(16)` | `card_num` | `CHAR(16)` PK |
+| `CARD-NUM` | `X(16)` | `card_num` | `VARCHAR(16)` PK |
 | `CARD-ACCT-ID` | `9(11)` | `acct_id` | `NUMERIC(11,0)`, indexed (AIX `CARDAIX`) |
 | `CARD-CVV-CD` | `9(03)` | `cvv_cd` | `SMALLINT` |
 | `CARD-EMBOSSED-NAME` | `X(50)` | `embossed_name` | `VARCHAR(50)` |
@@ -100,7 +104,7 @@ Owned by **card-service**; it is the join between the three aggregates.
 
 | Field | Picture | Column | Type |
 |---|---|---|---|
-| `XREF-CARD-NUM` | `X(16)` | `card_num` | `CHAR(16)` PK, FK -> `cards` |
+| `XREF-CARD-NUM` | `X(16)` | `card_num` | `VARCHAR(16)` PK, FK -> `cards` |
 | `XREF-CUST-ID` | `9(09)` | `cust_id` | `NUMERIC(9,0)`, indexed |
 | `XREF-ACCT-ID` | `9(11)` | `acct_id` | `NUMERIC(11,0)`, indexed (AIX `XREFAIX`) |
 
@@ -114,7 +118,7 @@ VSAM KSDS, key `TRAN-ID`. Owned by **transaction-service**.
 
 | Field | Picture | Column | Type |
 |---|---|---|---|
-| `TRAN-ID` | `X(16)` | `tran_id` | `CHAR(16)` PK |
+| `TRAN-ID` | `X(16)` | `tran_id` | `VARCHAR(16)` PK |
 | `TRAN-TYPE-CD` | `X(02)` | `type_cd` | `CHAR(2)` FK -> `transaction_types` |
 | `TRAN-CAT-CD` | `9(04)` | `cat_cd` | `SMALLINT`, (`type_cd`,`cat_cd`) FK -> `transaction_categories` |
 | `TRAN-SOURCE` | `X(10)` | `source` | `VARCHAR(10)` |
@@ -124,7 +128,7 @@ VSAM KSDS, key `TRAN-ID`. Owned by **transaction-service**.
 | `TRAN-MERCHANT-NAME` | `X(50)` | `merchant_name` | `VARCHAR(50)` |
 | `TRAN-MERCHANT-CITY` | `X(50)` | `merchant_city` | `VARCHAR(50)` |
 | `TRAN-MERCHANT-ZIP` | `X(10)` | `merchant_zip` | `VARCHAR(10)` |
-| `TRAN-CARD-NUM` | `X(16)` | `card_num` | `CHAR(16)`, indexed |
+| `TRAN-CARD-NUM` | `X(16)` | `card_num` | `VARCHAR(16)`, indexed |
 | `TRAN-ORIG-TS` | `X(26)` | `orig_ts` | `TIMESTAMP(6)` |
 | `TRAN-PROC-TS` | `X(26)` | `proc_ts` | `TIMESTAMP(6)` |
 

@@ -71,8 +71,8 @@ cd modernization
 mvn -B verify
 ```
 
-Tests run against in memory H2 with the Flyway migrations disabled and Hibernate DDL applied, so
-no database is needed for the suite.
+Tests run against PostgreSQL 16 in a Testcontainers container with the Flyway migrations applied
+and Hibernate in `validate` mode, so Docker must be available to run the suite.
 
 ## Run locally
 

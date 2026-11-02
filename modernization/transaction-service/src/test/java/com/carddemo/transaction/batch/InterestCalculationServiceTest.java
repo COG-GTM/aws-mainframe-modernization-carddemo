@@ -77,6 +77,23 @@ class InterestCalculationServiceTest {
     }
 
     @Test
+    void truncatesTheMonthlyInterestLikeTheCobolComputeWithoutRounded() {
+        // 1234.56 * 12.00 / 1200 = 12.3456: PIC S9(09)V99 keeps 12.34 (HALF_UP would give 12.35).
+        categoryBalances.deleteAll();
+        categoryBalances.save(new CategoryBalance(new CategoryBalanceId(ACCOUNT, "01", 1),
+                new BigDecimal("1234.56")));
+        accounts.register(ACCOUNT, "GOLD", new BigDecimal("1234.56"));
+        disclosureGroups.save(new DisclosureGroup(new DisclosureGroupId("GOLD", "01", 1),
+                new BigDecimal("12.00")));
+
+        InterestCalculationService.InterestReport report = interestCalculationService.calculateInterest();
+
+        assertThat(report.totalInterest()).isEqualByComparingTo("12.34");
+        assertThat(transactions.findAll()).singleElement()
+                .satisfies(transaction -> assertThat(transaction.getAmount()).isEqualByComparingTo("12.34"));
+    }
+
+    @Test
     void failsTheRunWhenAnAccountHasNoCardCrossReference() {
         accounts.register(ACCOUNT, "GOLD", new BigDecimal("1200.00"));
         disclosureGroups.save(new DisclosureGroup(new DisclosureGroupId("GOLD", "01", 1),

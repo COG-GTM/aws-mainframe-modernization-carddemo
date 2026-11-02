@@ -1,6 +1,7 @@
 package com.carddemo.account.api.dto;
 
 import jakarta.validation.constraints.DecimalMin;
+import jakarta.validation.constraints.Digits;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
@@ -13,8 +14,10 @@ import java.time.LocalDate;
  */
 public record AccountUpdateRequest(
         @NotNull @Pattern(regexp = "[YNyn]", message = "active status must be Y or N") String activeStatus,
-        @NotNull @DecimalMin(value = "0.00", message = "credit limit cannot be negative") BigDecimal creditLimit,
-        @NotNull @DecimalMin(value = "0.00", message = "cash credit limit cannot be negative") BigDecimal cashCreditLimit,
+        @NotNull @DecimalMin(value = "0.00", message = "credit limit cannot be negative")
+        @Digits(integer = 10, fraction = 2) BigDecimal creditLimit,
+        @NotNull @DecimalMin(value = "0.00", message = "cash credit limit cannot be negative")
+        @Digits(integer = 10, fraction = 2) BigDecimal cashCreditLimit,
         @NotNull LocalDate openDate,
         @NotNull LocalDate expirationDate,
         LocalDate reissueDate,

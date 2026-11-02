@@ -56,7 +56,7 @@ class CardControllerTest {
         mockMvc.perform(get("/api/v1/cards/{cardNumber}", CARD_ONE))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.cardNumber").value(CARD_ONE))
-                .andExpect(jsonPath("$.accountId").value(11111111111L))
+                .andExpect(jsonPath("$.accountId").value("11111111111"))
                 .andExpect(jsonPath("$.cvv").doesNotExist());
     }
 
@@ -80,8 +80,8 @@ class CardControllerTest {
     void resolvesCardToAccountAndCustomer() throws Exception {
         mockMvc.perform(get("/api/v1/cards/{cardNumber}/xref", CARD_ONE))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.customerId").value(100000001L))
-                .andExpect(jsonPath("$.accountId").value(11111111111L));
+                .andExpect(jsonPath("$.customerId").value("100000001"))
+                .andExpect(jsonPath("$.accountId").value("11111111111"));
 
         mockMvc.perform(get("/api/v1/card-xrefs/by-account/{accountId}", 22222222222L))
                 .andExpect(status().isOk())
