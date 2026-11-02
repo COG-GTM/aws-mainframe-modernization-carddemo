@@ -39,9 +39,12 @@ public final class DdFiles {
         }
     }
 
-    /** Writes {@code records} as the file of output DD {@code ddName} in the run's generation; returns the count. */
+    /**
+     * Writes {@code records} as the file of output DD {@code ddName} in the run's generation and returns the
+     * count. Line-sequential output is named {@code <DD>.txt} so a later job reading it back sees its organization.
+     */
     public static int write(JobRunDirectory generation, String ddName, List<CobolRecord> records, RecordFormat format) {
-        Path file = generation.dd(ddName);
+        Path file = generation.dd(format == RecordFormat.LINE_SEQUENTIAL ? ddName + ".txt" : ddName);
         try {
             RecordWriter.writeAll(file, records, format);
         } catch (IOException ex) {

@@ -23,6 +23,9 @@ import java.time.format.DateTimeFormatter;
  */
 final class BatchRecords {
 
+    /** TRAN-SOURCE of the transactions INTCALC writes. */
+    static final String SYSTEM_SOURCE = "System";
+
     static final DateTimeFormatter FILE_TIMESTAMP = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSSSSS");
 
     private BatchRecords() {
@@ -45,8 +48,15 @@ final class BatchRecords {
         return daily;
     }
 
-    /** DALYREJS: the reject's DALYTRAN record plus reason code and description. */
-    static CobolRecord toRejectRecord(TransactionReject reject, CodePage codePage) {
+    /**
+     * DALYREJS: the reject's DALYTRAN record plus reason code and description. {@code original} is the
+     * record as read from the DALYTRAN file (kept byte for byte, filler included, as CBTRN02C copies it);
+     * without it the record is rebuilt from the reject row.
+     */
+    static CobolRecord toRejectRecord(TransactionReject reject, CodePage codePage, CobolRecord original) {
+        if (original != null) {
+            return DalyrejsRecordLayout.of(original, reject.getReasonCode(), reject.getReasonDesc());
+        }
         CobolRecord daily = CobolRecord.initialized(DalytranRecordLayout.LAYOUT, codePage)
                 .set(DalytranRecordLayout.DALYTRAN_ID, reject.getTranId())
                 .set(DalytranRecordLayout.DALYTRAN_TYPE_CD, reject.getTypeCd())
@@ -65,10 +75,11 @@ final class BatchRecords {
     }
 
     /**
-     * TRANSACT / SYSTRAN. {@code origFromDalytran} is true for POSTTRAN, which copies
-     * DALYTRAN-ORIG-TS; INTCALC stamps both timestamps itself.
+     * TRANSACT / SYSTRAN. Posted transactions carry the DALYTRAN-ORIG-TS they were copied from; the
+     * {@code System} transactions INTCALC writes carry the DB2 timestamp it stamped.
      */
-    static CobolRecord toTranRecord(Transaction t, CodePage codePage, boolean origFromDalytran) {
+    static CobolRecord toTranRecord(Transaction t, CodePage codePage) {
+        boolean origFromDalytran = !SYSTEM_SOURCE.equals(t.getSource());
         return CobolRecord.initialized(TranRecordLayout.LAYOUT, codePage)
                 .set(TranRecordLayout.TRAN_ID, t.getTranId())
                 .set(TranRecordLayout.TRAN_TYPE_CD, t.getTypeCd())

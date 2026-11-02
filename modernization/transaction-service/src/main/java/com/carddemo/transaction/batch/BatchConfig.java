@@ -19,9 +19,12 @@ import java.nio.file.Path;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.JobParameters;
 import org.springframework.batch.core.Step;
@@ -127,15 +130,41 @@ public class BatchConfig {
                 .build();
     }
 
-    /** CBTRN02C. {@code RETURN-CODE} is 4 when any transaction was rejected, as the program sets it. */
+    /**
+     * CBTRN02C. {@code RETURN-CODE} is 4 when any transaction was rejected, as the program sets it.
+     * With DD DALYTRAN bound only that file's unposted records are posted, in file order; without it
+     * every pending row of {@code daily_transactions}.
+     */
     @Bean
     public Step postTransactionsStep(JobRepository jobRepository,
                                      PlatformTransactionManager transactionManager,
-                                     PostingService postingService) {
+                                     PostingService postingService,
+                                     DailyTransactionRepository dailyTransactions) {
         return new StepBuilder("postTransactionsStep", jobRepository)
                 .tasklet((contribution, chunkContext) -> {
                     jobContext(contribution).putString(STARTED_AT, Instant.now().toString());
-                    PostingService.PostingReport report = postingService.postPendingTransactions();
+                    JobParameters params = contribution.getStepExecution().getJobParameters();
+                    PostingService.PostingReport report;
+                    if (BatchJobParameters.dd(params, "DALYTRAN").isEmpty()) {
+                        report = postingService.postPendingTransactions();
+                    } else {
+                        int posted = 0;
+                        int rejected = 0;
+                        Set<String> seen = new HashSet<>();
+                        for (CobolRecord record : dalytranRecords(params)) {
+                            String id = record.getTrimmed(DalytranRecordLayout.DALYTRAN_ID);
+                            var daily = dailyTransactions.findById(id).filter(d -> !d.isProcessed());
+                            if (!seen.add(id) || daily.isEmpty()) {
+                                continue;
+                            }
+                            if (postingService.postOne(daily.get())) {
+                                posted++;
+                            } else {
+                                rejected++;
+                            }
+                        }
+                        report = new PostingService.PostingReport(posted, rejected);
+                    }
                     ExecutionContext context = contribution.getStepExecution().getExecutionContext();
                     context.putInt("posted", report.posted());
                     context.putInt("rejected", report.rejected());
@@ -161,13 +190,16 @@ public class BatchConfig {
                     CodePage codePage = BatchJobParameters.codePage(params);
                     var format = BatchJobParameters.format(params);
                     Instant startedAt = Instant.parse(jobContext(contribution).getString(STARTED_AT));
+                    Map<String, CobolRecord> originals = new HashMap<>();
+                    dalytranRecords(params).forEach(
+                            r -> originals.putIfAbsent(r.getTrimmed(DalytranRecordLayout.DALYTRAN_ID), r));
                     ExecutionContext context = contribution.getStepExecution().getExecutionContext();
                     context.putInt("DALYREJS", DdFiles.write(generation, "DALYREJS",
                             rejects.findByRejectedAtGreaterThanEqualOrderByRejectIdAsc(startedAt).stream()
-                                    .map(r -> BatchRecords.toRejectRecord(r, codePage)).toList(), format));
+                                    .map(r -> BatchRecords.toRejectRecord(r, codePage, originals.get(r.getTranId()))).toList(), format));
                     context.putInt("TRANSACT", DdFiles.write(generation, "TRANSACT",
                             transactions.findAll(Sort.by("tranId")).stream()
-                                    .map(t -> BatchRecords.toTranRecord(t, codePage, true)).toList(), format));
+                                    .map(t -> BatchRecords.toTranRecord(t, codePage)).toList(), format));
                     context.putInt("TCATBALF", DdFiles.write(generation, "TCATBALF",
                             categoryBalances.findAllByOrderByIdAcctIdAscIdTypeCdAscIdCatCdAsc().stream()
                                     .map(b -> BatchRecords.toCategoryBalanceRecord(b, codePage)).toList(), format));
@@ -223,8 +255,8 @@ public class BatchConfig {
                     LocalDateTime startedAt = LocalDateTime.parse(jobContext(contribution).getString(STARTED_AT));
                     contribution.getStepExecution().getExecutionContext().putInt("SYSTRAN", DdFiles.write(
                             BatchJobParameters.runDirectory(params), "SYSTRAN",
-                            transactions.findBySourceAndProcTsGreaterThanEqualOrderByTranIdAsc("System", startedAt)
-                                    .stream().map(t -> BatchRecords.toTranRecord(t, codePage, false)).toList(),
+                            transactions.findBySourceAndProcTsGreaterThanEqualOrderByTranIdAsc(BatchRecords.SYSTEM_SOURCE, startedAt)
+                                    .stream().map(t -> BatchRecords.toTranRecord(t, codePage)).toList(),
                             BatchJobParameters.format(params)));
                     return RepeatStatus.FINISHED;
                 }, transactionManager)
@@ -273,6 +305,12 @@ public class BatchConfig {
                 .or(() -> JobRunDirectory.latestGeneration(outputRoot, producingJob, dd))
                 .orElseThrow(() -> new IllegalStateException("SORTIN " + dd + "(0) not found: pass --dd=" + dd
                         + "=<file> or run " + producingJob + " first"));
+    }
+
+    private static List<CobolRecord> dalytranRecords(JobParameters params) {
+        return BatchJobParameters.dd(params, "DALYTRAN")
+                .map(file -> DdFiles.read(file, DalytranRecordLayout.LAYOUT, BatchJobParameters.codePage(params)))
+                .orElse(List.of());
     }
 
     private static ExecutionContext jobContext(StepContribution contribution) {

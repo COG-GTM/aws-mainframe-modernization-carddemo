@@ -30,12 +30,14 @@ class BatchArgumentsTest {
     @Test
     void parsesParmBasicDateCodePageAndFormat() {
         BatchArguments args = BatchArguments.parse("--job=INTCALC", "--parm=2022071800", "--date=20220718",
-                "--codepage=ebcdic", "--format=line").orElseThrow();
+                "--codepage=ebcdic").orElseThrow();
 
         assertThat(args.parm()).isEqualTo("2022071800");
         assertThat(args.runDate()).isEqualTo(LocalDate.of(2022, 7, 18));
         assertThat(args.codePage()).isEqualTo(CodePage.EBCDIC);
-        assertThat(args.format()).isEqualTo(RecordFormat.LINE_SEQUENTIAL);
+        assertThat(args.format()).isEqualTo(RecordFormat.FIXED);
+        assertThat(BatchArguments.parse("--job=INTCALC", "--format=line").orElseThrow().format())
+                .isEqualTo(RecordFormat.LINE_SEQUENTIAL);
     }
 
     @Test
@@ -55,5 +57,12 @@ class BatchArgumentsTest {
                 .hasMessageContaining("--codepage");
         assertThatThrownBy(() -> BatchArguments.parse("--job="))
                 .hasMessageContaining("--job");
+    }
+
+    @Test
+    void ebcdicLineSequentialIsAUsageError() {
+        org.assertj.core.api.Assertions.assertThatThrownBy(
+                () -> BatchArguments.parse("--job=POSTTRAN", "--codepage=ebcdic", "--format=line"))
+                .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("--format=fixed");
     }
 }

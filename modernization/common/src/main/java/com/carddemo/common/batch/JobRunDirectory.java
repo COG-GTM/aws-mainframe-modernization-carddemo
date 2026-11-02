@@ -61,8 +61,9 @@ public final class JobRunDirectory {
         try (Stream<Path> generations = Files.list(jobDir)) {
             return generations.filter(Files::isDirectory)
                     .sorted(Comparator.comparing((Path p) -> p.getFileName().toString()).reversed())
-                    .map(generation -> generation.resolve(ddName))
-                    .filter(Files::isRegularFile)
+                    .flatMap(generation -> Stream.of(generation.resolve(ddName), generation.resolve(ddName + ".txt"))
+                            .filter(Files::isRegularFile)
+                            .limit(1))
                     .findFirst();
         } catch (IOException ex) {
             throw new UncheckedIOException(ex);

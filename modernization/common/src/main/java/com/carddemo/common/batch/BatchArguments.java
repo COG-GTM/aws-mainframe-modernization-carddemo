@@ -40,6 +40,9 @@ public record BatchArguments(String job, LocalDate runDate, String parm, Path ou
         dd = Collections.unmodifiableMap(new LinkedHashMap<>(dd == null ? Map.of() : dd));
         codePage = codePage == null ? CodePage.ASCII : codePage;
         format = format == null ? RecordFormat.FIXED : format;
+        if (codePage == CodePage.EBCDIC && format == RecordFormat.LINE_SEQUENTIAL) {
+            throw new IllegalArgumentException("--codepage=ebcdic needs --format=fixed: line sequential files are ASCII");
+        }
     }
 
     /** Arguments for a launch that only names the job (the HTTP endpoints). */

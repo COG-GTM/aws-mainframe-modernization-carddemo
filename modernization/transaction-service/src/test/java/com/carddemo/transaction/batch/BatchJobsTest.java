@@ -154,6 +154,38 @@ class BatchJobsTest {
     }
 
     @Test
+    void aBoundDalytranPostsOnlyItsOwnRecordsAndKeepsRejectBytes() throws Exception {
+        dailyTransactions.save(BatchRecords.toDailyTransaction(dalytran("0000000000000009", CARD, "5.00")));
+        byte[] invalid = dalytran("0000000000000002", "9999999999999999", "10.00").toBytes();
+        byte[] filler = "SOURCE-FEED-00000001".getBytes(java.nio.charset.StandardCharsets.US_ASCII);
+        System.arraycopy(filler, 0, invalid, 330, 20);
+        Path dalytranFile = work.resolve("DALYTRAN");
+        Files.write(dalytranFile, invalid);
+
+        BatchRun run = run("POSTTRAN", Map.of("DALYTRAN", dalytranFile));
+
+        assertThat(run.returnCode()).isEqualTo(4);
+        assertThat(dailyTransactions.findById("0000000000000009").orElseThrow().isProcessed()).isFalse();
+        byte[] reject = Files.readAllBytes(run.outputDir().resolve("DALYREJS"));
+        assertThat(java.util.Arrays.copyOf(reject, 350)).isEqualTo(invalid);
+    }
+
+    @Test
+    void lineSequentialSystranIsReadBackByCombtran() throws Exception {
+        Path systranDir = work.resolve("out/INTCALC/20220718-000000-000");
+        Files.createDirectories(systranDir);
+        RecordWriter.writeAll(systranDir.resolve("SYSTRAN.txt"), List.of(tran("0000000000000002")),
+                RecordFormat.LINE_SEQUENTIAL);
+        Path backup = work.resolve("TRANSACT.BKUP");
+        RecordWriter.writeAll(backup, List.of(tran("0000000000000001")), RecordFormat.FIXED);
+
+        BatchRun run = run("COMBTRAN", Map.of("TRANSACT.BKUP", backup));
+
+        assertThat(run.returnCode()).isZero();
+        assertThat(Files.size(run.outputDir().resolve("TRANSACT.COMBINED"))).isEqualTo(700);
+    }
+
+    @Test
     void anUnreadableDalytranAbendsTheJobBeforePosting() throws Exception {
         Path shortFile = work.resolve("DALYTRAN");
         Files.write(shortFile, new byte[100]);

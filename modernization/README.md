@@ -222,7 +222,7 @@ CBTRN02C does), 16 when a step abends (later steps do not run, `COND=(0,NE)`), 1
 
 **Output directory.** Every run (CLI or HTTP) writes one generation directory, the Java form of a
 GDG `(+1)`: `<output-dir>/<JOB>/<yyyyMMdd-HHmmss-SSS>/` (UTC), one file per output DD named after
-the DD, fixed-width records via `RecordWriter`, plus `RETURN-CODE`:
+the DD (`<DD>.txt` with `--format=line`), fixed-width records via `RecordWriter`, plus `RETURN-CODE`:
 
 ```text
 out/POSTTRAN/20220718-000000-000/DALYREJS   430-byte rejects of this run (DALYTRAN record + reason)
