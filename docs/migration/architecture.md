@@ -42,9 +42,11 @@ These are already in the code; they are written down here so later tickets follo
 
 The REST contract in `modernization/docs/API-CONTRACT.md` replaces the 3270 maps: each CICS
 transaction is one endpoint, the BMS fields are the request/response fields, and the COMMAREA
-becomes client state. Menus (COMEN01C, COADM01C) are client routing driven by the `nextScreen` value
-of the signon response. No client (SPA or other) exists yet; whether to build one is left to the
-online-programs phase. Until then the online programs are verified at the REST level against
+becomes explicit request parameters plus (planned) a session token. Decision d-ui: REST API only;
+a web UI is an optional later phase. The API rules (resource naming, `ApiError` for `WS-MESSAGE`,
+`PageResponse` for PF7/PF8, token and admin role for the COMMAREA user id and `CDEMO-USRTYP-ADMIN`,
+`GET /api/v1/menu` for COMEN01C/COADM01C, async report jobs for CORPT00C, a batch job for statements)
+are in [`api-style.md`](api-style.md). Online programs are verified at the REST level against
 scenarios derived from the COBOL source (scope §4.2).
 
 ## 4. Status per service
