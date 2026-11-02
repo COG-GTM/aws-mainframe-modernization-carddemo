@@ -567,3 +567,26 @@ status and the CICS programs were not checked (they need the CICS translator).
 **Hypothesis:** the three failures are tolerated by Enterprise COBOL (tabs are accepted by the IBM
 compiler; the RECORD KEY issue may be masked by how the program was compiled on the mainframe) — they
 need to be confirmed against the mainframe listings before the golden set relies on these programs.
+
+## 13. Earlier `devin/*` branches (prior work on this repo)
+
+`main` contains only the mainframe source (`app/`, `diagrams/`, `samples/`, `scripts/`); there is no
+`modernization/` directory and no `docs/` on `main`. 154 remote `devin/*`/`migration/*` branches hold
+earlier, unmerged attempts (counted by the top-level directories they add over `main`):
+
+| Family (branch prefix) | Adds | What it is | Reuse for this plan? |
+|---|---|---|---|
+| `devin/unt51-*` (26 branches, 2026-10-07) | `docs/modernization/00-prior-work.md … 11-handover.md`, `modernization/` (Java 21 scaffold, codec, Postgres schema, JPA, batch jobs, React UI, golden set, CI), `Makefile`, `.github` | a complete earlier run of the same migration board pattern, with its own generated `01-inventory.md` / `02-dependency-map.md` (`build_inventory.py`, `build_dependency_map.py`) | **Candidate for reuse** of the Java scaffold and the generated dependency maps; its inventory is script-generated, this one is hand-checked against source — the two should be reconciled in the next ticket, not merged blindly |
+| `devin/UNT17-*`, `devin/1789602209-estate-discovery-dossier` | `docs/discovery/01-inventory.md … 05-government-decisions.md`, `inventory.json` | discovery dossier from an earlier board | overlapping discovery output; superseded by this document |
+| `devin/cd-10[3-9]-*` (2026-10-27) | `modernization/` | Spring Batch posting/interest slices with classified equivalence evidence | candidate for the posting/interest tickets |
+| `devin/178*-interest-sliver`, `-posting-sliver`, `-posttran-modernization`, `1789660764-carddemo-java-modernization`, `1792074256-carddemo-cloud-native-modernization` | `modernization/`, `docs/modernization/` | earlier Java slivers (CBACT04C, CBTRN02C, CBTRN03C) and a cloud-native variant | reference implementations; not reused directly |
+| `devin/*-java-*`, `devin/cbact01c-java17`, `devin/cbtrn01c-java17`, `devin/1788805718-cbact03c-java-poc` | `java/`, `java-poc/`, `test-harness/`, `golden-files/`, `TEST_STRATEGY.md` | per-program Java ports (online CO* programs via a CICS-emulation runtime, batch CB* via golden files) | reference only |
+| `devin/1792677*-ts-*`, `devin/1792678*-ts-*`, `migration/ts` | `ts/` (27 branches) | TypeScript migration (copybook codecs, VSAM store, online framework) | different target language; discard for the Java plan |
+| `devin/1792618061-cbact01c-csharp` | `dotnet/` | C# port of CBACT01C | discard |
+| `devin/sfind-*` (38 branches, 2026-10-30) | changes **inside `app/`** | security-finding fixes to the COBOL (sign-on checks, ownership checks, password echo, seed password) | not merged to `main`; the COBOL reference in this inventory is `main`, which does not have these fixes |
+| `devin/1786708098-cobol-test-foundation`, `devin/1789609454-golden-set-harness`, `devin/cobol-safety-net` | `tests/`, `docs/validation/golden-set/` | GnuCOBOL unit tests and a golden-set harness for the batch programs | candidate for the golden-set ticket (note §12: three batch programs do not pass GnuCOBOL syntax as-is) |
+| `devin/1789584353-modernization-plan`, `devin/179017*-*-business-spec`, `devin/1793293556-transform-specs-to-code`, `devin/1793297073-authfrds-specs-to-java` | `MODERNIZATION_PLAN.md`, `docs/`, `specs/` | plans and business specs for INTCALC / POSTTRAN / TRANREPT / CREASTMT | input for the business-rule tickets |
+
+**Hypothesis:** the ticket's working rules ("Java project lives under `modernization/`") describe one of
+the `devin/unt51-*` branches rather than `main`; the next ticket should decide which branch, if any,
+becomes the base for `modernization/`.
