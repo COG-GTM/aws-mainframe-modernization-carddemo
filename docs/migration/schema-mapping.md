@@ -103,7 +103,7 @@ and does not post again. Emptied with the batch outputs by `data-loader --replac
 |---|---|---|---|---|
 | *(new)* | — | `tran_id` | `VARCHAR(16)` | primary key; `DALYTRAN-ID` / `TRAN-ID` of the posting |
 | *(new)* | — | `acct_id` | `BIGINT` | foreign key to `accounts` |
-| *(new)* | — | `amount` | `NUMERIC(11,2)` | `DALYTRAN-AMT` |
+| *(new)* | — | `amount` | `NUMERIC(12,2)` | posted amount (`DALYTRAN-AMT`; the endpoint accepts 10 integer digits) |
 | *(new)* | — | `transaction_date` | `DATE` | date part of `DALYTRAN-ORIG-TS` |
 | *(new)* | — | `curr_bal` | `NUMERIC(12,2)` | `ACCT-CURR-BAL` after the posting |
 | *(new)* | — | `curr_cyc_credit` | `NUMERIC(12,2)` | `ACCT-CURR-CYC-CREDIT` after the posting |

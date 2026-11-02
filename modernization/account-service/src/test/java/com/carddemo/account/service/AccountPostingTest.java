@@ -4,11 +4,19 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.carddemo.account.domain.Account;
+import com.carddemo.account.domain.AccountPosting;
 import com.carddemo.account.repository.AccountPostingRepository;
 import com.carddemo.account.repository.AccountRepository;
 import com.carddemo.common.error.DuplicateKeyException;
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.Callable;
+import java.util.concurrent.CyclicBarrier;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -180,5 +188,81 @@ class AccountPostingTest {
         accountService.post(ACCT_ID, "0000000000000305", new BigDecimal("900.00"), TRAN_DATE);
 
         assertThat(postings.count()).isZero();
+    }
+
+    @Test
+    void postsATenDigitDebitTheEndpointAccepts() {
+        PostingOutcome outcome = accountService.post(ACCT_ID, "T000000000000090",
+                new BigDecimal("-9999999999.99"), TRAN_DATE);
+
+        assertThat(outcome.posted()).isTrue();
+        assertThat(outcome.currentBalance()).isEqualByComparingTo("-9999999899.99");
+        assertThat(postings.findById("T000000000000090")).get()
+                .extracting(AccountPosting::getAmount).isEqualTo(new BigDecimal("-9999999999.99"));
+    }
+
+    @Test
+    void concurrentPostingsOfOneTransactionApplyItOnceAndBothSeeTheResult() throws Exception {
+        List<Object> results = race(
+                () -> accountService.post(ACCT_ID, "T000000000000091", new BigDecimal("25.00"), TRAN_DATE),
+                () -> accountService.post(ACCT_ID, "T000000000000091", new BigDecimal("25.00"), TRAN_DATE));
+
+        assertThat(results).allSatisfy(result -> {
+            assertThat(result).isInstanceOf(PostingOutcome.class);
+            assertThat(((PostingOutcome) result).posted()).isTrue();
+            assertThat(((PostingOutcome) result).currentBalance()).isEqualByComparingTo("125.00");
+        });
+        assertThat(accounts.findById(ACCT_ID).orElseThrow().getCurrBal()).isEqualByComparingTo("125.00");
+        assertThat(postings.count()).isEqualTo(1);
+    }
+
+    @Test
+    void concurrentPostingsOfOneTransactionToTwoAccountsPostOnceAndRefuseTheOther() throws Exception {
+        long otherAcct = 88888888888L;
+        Account other = new Account(otherAcct);
+        other.setCurrBal(new BigDecimal("100.00"));
+        other.setCreditLimit(new BigDecimal("500.00"));
+        other.setCashCreditLimit(new BigDecimal("100.00"));
+        other.setOpenDate(LocalDate.of(2020, 1, 1));
+        other.setExpirationDate(LocalDate.of(2030, 1, 1));
+        accounts.save(other);
+
+        List<Object> results = race(
+                () -> accountService.post(ACCT_ID, "T000000000000092", new BigDecimal("25.00"), TRAN_DATE),
+                () -> accountService.post(otherAcct, "T000000000000092", new BigDecimal("25.00"), TRAN_DATE));
+
+        assertThat(results).filteredOn(PostingOutcome.class::isInstance).hasSize(1);
+        assertThat(results).filteredOn(DuplicateKeyException.class::isInstance).hasSize(1);
+        BigDecimal total = accounts.findById(ACCT_ID).orElseThrow().getCurrBal()
+                .add(accounts.findById(otherAcct).orElseThrow().getCurrBal());
+        assertThat(total).isEqualByComparingTo("225.00");
+        assertThat(postings.count()).isEqualTo(1);
+    }
+
+    /** Runs both calls at the same moment; each result is the outcome or the exception thrown. */
+    private static List<Object> race(Callable<PostingOutcome> first, Callable<PostingOutcome> second)
+            throws Exception {
+        CyclicBarrier start = new CyclicBarrier(2);
+        ExecutorService pool = Executors.newFixedThreadPool(2);
+        try {
+            List<Future<Object>> futures = new ArrayList<>();
+            for (Callable<PostingOutcome> call : List.of(first, second)) {
+                futures.add(pool.submit(() -> {
+                    start.await();
+                    try {
+                        return call.call();
+                    } catch (RuntimeException e) {
+                        return e;
+                    }
+                }));
+            }
+            List<Object> results = new ArrayList<>();
+            for (Future<Object> future : futures) {
+                results.add(future.get());
+            }
+            return results;
+        } finally {
+            pool.shutdownNow();
+        }
     }
 }

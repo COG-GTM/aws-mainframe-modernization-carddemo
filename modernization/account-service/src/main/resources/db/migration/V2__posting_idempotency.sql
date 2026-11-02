@@ -5,7 +5,7 @@
 CREATE TABLE account_postings (
     tran_id             VARCHAR(16)     NOT NULL,
     acct_id             BIGINT          NOT NULL,
-    amount              NUMERIC(11, 2)  NOT NULL,
+    amount              NUMERIC(12, 2)  NOT NULL,
     transaction_date    DATE            NOT NULL,
     curr_bal            NUMERIC(12, 2)  NOT NULL,
     curr_cyc_credit     NUMERIC(12, 2)  NOT NULL,

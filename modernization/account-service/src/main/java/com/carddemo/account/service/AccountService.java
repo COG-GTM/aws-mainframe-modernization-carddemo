@@ -11,20 +11,27 @@ import com.carddemo.common.error.NotFoundException;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionTemplate;
 
 @Service
 public class AccountService {
 
     private final AccountRepository accounts;
     private final AccountPostingRepository postings;
+    private final TransactionTemplate transaction;
 
-    public AccountService(AccountRepository accounts, AccountPostingRepository postings) {
+    public AccountService(AccountRepository accounts, AccountPostingRepository postings,
+                          PlatformTransactionManager transactionManager) {
         this.accounts = accounts;
         this.postings = postings;
+        this.transaction = new TransactionTemplate(transactionManager);
     }
 
     /** COACTVWC: read ACCTDATA by account id. */
@@ -71,10 +78,20 @@ public class AccountService {
      * Account side of CBTRN02C for one daily transaction: 1500-B-LOOKUP-ACCT (101, then 102 and
      * 103 both evaluated in that order, so 103 wins when both fail) and 2800-UPDATE-ACCOUNT-REC.
      * The posting is recorded under {@code tranId} in the same database transaction; a repeated call
-     * with the same id returns the recorded outcome without touching the account again.
+     * with the same id returns the recorded outcome without touching the account again. When a
+     * concurrent request with the same id commits first, this one fails on the account version or the
+     * ledger key, rolls back, and answers from the ledger row the winner wrote.
      */
-    @Transactional
     public PostingOutcome post(long acctId, String tranId, BigDecimal amount, LocalDate transactionDate) {
+        try {
+            return transaction.execute(status -> postOnce(acctId, tranId, amount, transactionDate));
+        } catch (DataIntegrityViolationException | OptimisticLockingFailureException conflict) {
+            AccountPosting winner = postings.findById(tranId).orElseThrow(() -> conflict);
+            return replay(winner, acctId, amount, transactionDate);
+        }
+    }
+
+    private PostingOutcome postOnce(long acctId, String tranId, BigDecimal amount, LocalDate transactionDate) {
         AccountPosting previous = postings.findById(tranId).orElse(null);
         if (previous != null) {
             return replay(previous, acctId, amount, transactionDate);
@@ -105,8 +122,8 @@ public class AccountService {
         } else {
             account.setCurrCycDebit(account.getCurrCycDebit().add(amount));
         }
-        Account saved = accounts.save(account);
-        postings.save(new AccountPosting(tranId, saved, amount, transactionDate, LocalDateTime.now()));
+        Account saved = accounts.saveAndFlush(account);
+        postings.saveAndFlush(new AccountPosting(tranId, saved, amount, transactionDate, LocalDateTime.now()));
         return PostingOutcome.posted(saved);
     }
 
