@@ -36,15 +36,15 @@ public class CardController {
 
     /**
      * CICS CCLI / COCRDLIC. {@code accountId} and {@code cardNumber} are the screen's two optional
-     * filters (2210-EDIT-ACCOUNT, 2220-EDIT-CARD; all zeros counts as blank) and intersect as in
+     * filters (2210-EDIT-ACCOUNT, 2220-EDIT-CARD; empty, spaces or all zeros count as blank) and intersect as in
      * 9500-FILTER-RECORDS. Rows come in card number order, the CARDDAT key the browse reads in.
      */
     @GetMapping
     public PageResponse<CardResponse> list(
             @RequestParam(required = false)
-            @Pattern(regexp = "(\\d{11})?", message = CardMessages.ACCOUNT_FILTER_NOT_NUMERIC) String accountId,
+            @Pattern(regexp = "\\s*|\\d{11}", message = CardMessages.ACCOUNT_FILTER_NOT_NUMERIC) String accountId,
             @RequestParam(required = false)
-            @Pattern(regexp = "(\\d{16})?", message = CardMessages.CARD_FILTER_NOT_NUMERIC) String cardNumber,
+            @Pattern(regexp = "\\s*|\\d{16}", message = CardMessages.CARD_FILTER_NOT_NUMERIC) String cardNumber,
             @RequestParam(required = false) Long customerId,
             @RequestParam(defaultValue = "0") @Min(0) int page,
             @RequestParam(defaultValue = "20") @Min(1) @Max(MAX_PAGE_SIZE) int size) {
@@ -74,11 +74,11 @@ public class CardController {
     }
 
     private static Long accountFilter(String accountId) {
-        return accountId == null || isZeros(accountId) ? null : Long.valueOf(accountId);
+        return accountId == null || isZeros(accountId.strip()) ? null : Long.valueOf(accountId);
     }
 
     private static String cardFilter(String cardNumber) {
-        return cardNumber == null || isZeros(cardNumber) ? null : cardNumber;
+        return cardNumber == null || isZeros(cardNumber.strip()) ? null : cardNumber;
     }
 
     private static boolean isZeros(String value) {

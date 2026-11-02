@@ -32,7 +32,7 @@ programs have no CICS runtime here, so each row is covered by a source-derived s
 | COBOL (fact) | Before | Now |
 |---|---|---|
 | Editable fields: `CRDNAME`, `CRDSTCD`, `EXPMON`, `EXPYEAR` (COCRDUP.bms); `EXPDAY` is dark/protected, no CVV field | full `expirationDate`, optional `cvv` | `embossedName`, `activeStatus`, `expirationMonth`, `expirationYear`, `version`; day and CVV cannot be changed |
-| 1230-EDIT-NAME: blank → `Card name not provided`; only `A-Z a-z` and spaces → `Card name can only contain alphabets and spaces` | allowed `.'-`, generic message | letters and spaces only, COBOL messages |
+| 1230-EDIT-NAME: blank → `Card name not provided`; only `A-Z a-z` and spaces → `Card name can only contain alphabets and spaces`. It runs on every update that changes anything, so COBOL makes the user retype a stored name outside that alphabet (sample card `7026637615032277`, `Lucious O'Connell`) before any other field can change | allowed `.'-`, generic message | letters and spaces only, COBOL messages, **but only when the name changes** (case-insensitive compare with the stored name): deliberate difference so the one sample card with an apostrophe stays updatable without losing its name |
 | 1240-EDIT-CARDSTATUS: `FLG-YES-NO-VALID VALUES 'Y','N'` → `Card Active Status must be Y or N` | accepted `y`/`n` | `Y` / `N` only |
 | 1250-EDIT-EXPIRY-MON: `VALID-MONTH 1 THRU 12` → `Card expiry month must be between 1 and 12` | **missing** | `@Min(1) @Max(12)` |
 | 1260-EDIT-EXPIRY-YEAR: `VALID-YEAR 1950 THRU 2099` → `Invalid card expiry year` | only year > 2099 (422) | `@Min(1950) @Max(2099)`, 400 |

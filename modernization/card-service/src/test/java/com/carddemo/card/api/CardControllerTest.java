@@ -147,6 +147,9 @@ class CardControllerTest {
         mockMvc.perform(get("/api/v1/cards").param("accountId", "00000000000").param("cardNumber", ""))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.totalElements").value(3));
+        mockMvc.perform(get("/api/v1/cards").param("accountId", "           ").param("cardNumber", "   "))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.totalElements").value(3));
     }
 
     @Test
@@ -273,6 +276,19 @@ class CardControllerTest {
         update(CARD_ONE, body("   ", "Y", 1, 2031, 0))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.fieldErrors[0].message").value(CardMessages.NAME_NOT_PROVIDED));
+    }
+
+    @Test
+    void letsAStoredNameOutsideTheScreenAlphabetStayWhileOtherFieldsChange() throws Exception {
+        cards.save(card("7026637615032277", ACCOUNT_TWO, "Lucious O'Connell", LocalDate.of(2025, 5, 20), 111));
+        update("7026637615032277", body("LUCIOUS O'CONNELL", "N", 5, 2025, 0))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.embossedName").value("LUCIOUS O'CONNELL"))
+                .andExpect(jsonPath("$.activeStatus").value("N"));
+        update("7026637615032277", body("LUCIOUS O'BRIEN", "N", 5, 2025, 1))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.fieldErrors[0].field").value("embossedName"))
+                .andExpect(jsonPath("$.fieldErrors[0].message").value(CardMessages.NAME_MUST_BE_ALPHA));
     }
 
     @Test

@@ -84,6 +84,12 @@ public class RestExceptionHandler {
         return name;
     }
 
+    @ExceptionHandler(InvalidFieldException.class)
+    public ResponseEntity<ApiError> handleInvalidField(InvalidFieldException ex) {
+        return ResponseEntity.badRequest().body(ApiError.of(400, "Bad Request", "Input validation failed",
+                List.of(new ApiError.FieldProblem(ex.getField(), ex.getMessage()))));
+    }
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ApiError> handleValidation(MethodArgumentNotValidException ex) {
         List<ApiError.FieldProblem> problems = ex.getBindingResult().getFieldErrors().stream()
