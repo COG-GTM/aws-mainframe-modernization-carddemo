@@ -94,7 +94,7 @@ Browse operations (`STARTBR` / `READNEXT` / PF7 / PF8) become page based collect
 
 | Method | Path | Legacy | Notes |
 | --- | --- | --- | --- |
-| POST | `/api/v1/batch/transaction-report?startDate=&endDate=` | `EXEC PROC=TRANREPT` (CORPT00C) / CBTRN03C | runs TRANREPT synchronously with the dates as DATEPARM; data from transaction-service and card-service; returns the run summary with `outputDir` (`TRANREPT` = the report) |
+| POST | `/api/v1/batch/transaction-report?startDate=&endDate=` | `EXEC PROC=TRANREPT` (CORPT00C) / CBTRN03C | runs TRANREPT synchronously with the dates as DATEPARM; data from transaction-service and card-service, called with the caller's bearer token; returns the run summary with `outputDir` (`TRANREPT` = the report) |
 
 ## Menus — COMEN01C (CM00, `COMEN02Y`) and COADM01C (CA00, `COADM02Y`)
 

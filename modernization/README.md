@@ -254,7 +254,8 @@ out/TRANREPT/<ts>/TRANSACT.BKUP             350-byte TRANSACT unload (STEP05R RE
 ```bash
 curl -X POST http://localhost:8084/api/v1/batch/post-transactions     # POSTTRAN / CBTRN02C
 curl -X POST http://localhost:8084/api/v1/batch/interest-calculation  # INTCALC  / CBACT04C (?date=, ?parm=)
-curl -X POST 'http://localhost:8085/api/v1/batch/transaction-report?startDate=2022-01-01&endDate=2022-07-06'  # TRANREPT / CBTRN03C
+curl -X POST -H "Authorization: Bearer $TOKEN" 'http://localhost:8085/api/v1/batch/transaction-report?startDate=2022-01-01&endDate=2022-07-06'  # TRANREPT / CBTRN03C
+# The submit forwards the caller's token to transaction-service and card-service; a --job=TRANREPT CLI launch signs as BATCH.
 ```
 
 Each call runs the job synchronously and returns `jobName`, `executionId`, `status`, `returnCode`,
