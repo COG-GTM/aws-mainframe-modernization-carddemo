@@ -125,7 +125,7 @@ public class BatchConfig {
                         }
                     }
                     int staged = stagedIds.size();
-                    jobContext(contribution).putString(STAGED_IDS, String.join(",", stagedIds));
+                    jobContext(contribution).put(STAGED_IDS, new ArrayList<>(stagedIds));
                     context.putString("dalytran", dalytran.get().toString());
                     context.putInt("dalytranRead", records.size());
                     context.putInt("staged", staged);
@@ -198,7 +198,9 @@ public class BatchConfig {
                     Instant startedAt = Instant.parse(jobContext(contribution).getString(STARTED_AT));
                     // Original DALYTRAN bytes only for records this run staged from the file; a reject of a
                     // row staged earlier is rebuilt from that row.
-                    Set<String> stagedIds = Set.of(jobContext(contribution).getString(STAGED_IDS, "").split(","));
+                    @SuppressWarnings("unchecked")
+                    Set<String> stagedIds = new HashSet<>(
+                            (List<String>) jobContext(contribution).get(STAGED_IDS, List.class, List.of()));
                     Map<String, CobolRecord> originals = new HashMap<>();
                     dalytranRecords(params).stream()
                             .filter(r -> stagedIds.contains(r.getTrimmed(DalytranRecordLayout.DALYTRAN_ID)))
