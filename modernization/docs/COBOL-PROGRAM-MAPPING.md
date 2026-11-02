@@ -15,7 +15,7 @@ Legend for the status column:
 | `CM00` | `COMEN01C` | `COMEN01` | SPA route | menu is a UI concern; the signon response returns `nextScreen` (`MAIN` or `ADMIN`) so the client picks the menu | ported |
 | `CAVW` | `COACTVWC` | `COACTVW` | account-service | `GET /api/v1/accounts/{acctId}` (card to account goes through `GET /api/v1/cards/{cardNum}/xref`) | ported |
 | `CAUP` | `COACTUPC` | `COACTUP` | account-service | `PUT /api/v1/accounts/{acctId}` | ported |
-| `CCLI` | `COCRDLIC` | `COCRDLI` | card-service | `GET /api/v1/cards?accountId=&customerId=&page=&size=` | ported |
+| `CCLI` | `COCRDLIC` | `COCRDLI` | card-service | `GET /api/v1/cards?accountId=&cardNumber=&customerId=&page=&size=` | ported |
 | `CCDL` | `COCRDSLC` | `COCRDSL` | card-service | `GET /api/v1/cards/{cardNum}` | ported |
 | `CCUP` | `COCRDUPC` | `COCRDUP` | card-service | `PUT /api/v1/cards/{cardNum}` | ported |
 | `CT00` | `COTRN00C` | `COTRN00` | transaction-service | `GET /api/v1/transactions?startTransactionId=&cardNumber=&page=&size=` | ported |

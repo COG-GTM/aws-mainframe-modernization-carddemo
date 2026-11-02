@@ -185,6 +185,8 @@ taken when the screen was shown, and reject with `'Record changed by some one el
   update DTOs must carry the version the client read; today they do not, so only concurrent
   updates inside one request window are caught. Adding the version to the update contract belongs
   to the online-program parity tickets.
+- Implemented for cards (UNT149-18): `CardResponse.version` / `CardUpdateRequest.version`, and the
+  update reads with `PESSIMISTIC_WRITE` (`CardRepository.findByCardNum`) like `READ ... UPDATE`.
 
 ## 8. `FILE STATUS` / CICS `RESP` → typed exceptions
 

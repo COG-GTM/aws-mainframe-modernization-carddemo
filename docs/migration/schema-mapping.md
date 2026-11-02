@@ -128,7 +128,8 @@ VSAM KSDS `AWS.M2.CARDDEMO.CARDDATA.VSAM.KSDS`, RECLN 150, key `KEYS(16 0)`; AIX
 | *(new)* | — | `version` | `BIGINT` | `@Version` |
 
 Access: `CardRepository.findByAcctId` (CARDAIX), `findByCardNumGreaterThanEqualOrderByCardNumAsc`
-(COCRDLIC STARTBR GTEQ + READNEXT), `findByCardNumLessThanOrderByCardNumDesc` (READPREV).
+(COCRDLIC STARTBR GTEQ + READNEXT), `findByCardNumLessThanOrderByCardNumDesc` (READPREV),
+`findByCardNum` with `PESSIMISTIC_WRITE` (COCRDUPC `READ ... UPDATE`).
 
 ## CARDXREF — `CVACT03Y` → `card.card_xref`
 
