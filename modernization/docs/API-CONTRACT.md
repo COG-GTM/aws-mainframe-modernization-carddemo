@@ -72,9 +72,9 @@ Browse operations (`STARTBR` / `READNEXT` / PF7 / PF8) become page based collect
 
 | Method | Path | Legacy | Notes |
 | --- | --- | --- | --- |
-| GET | `/api/v1/cards` | COCRDLIC | optional `accountId` filter, replacing the AIX browse on CARDDAT |
-| GET | `/api/v1/cards/{cardNumber}` | COCRDSLC | CVV is never exposed |
-| PUT | `/api/v1/cards/{cardNumber}` | COCRDUPC | |
+| GET | `/api/v1/cards` | COCRDLIC | optional `accountId` (11 digits) and `cardNumber` (16 digits) filters, intersecting; ordered by card number |
+| GET | `/api/v1/cards/{cardNumber}` | COCRDSLC | CVV is never exposed; `version` is returned for the update |
+| PUT | `/api/v1/cards/{cardNumber}` | COCRDUPC | `embossedName`, `activeStatus`, `expirationMonth`, `expirationYear`, `version`; 422 when nothing changed, 409 when the version is stale |
 | GET | `/api/v1/cards/{cardNumber}/xref` | CARDXREF read | |
 | GET | `/api/v1/card-xrefs/by-account/{accountId}` | CXACAIX alternate index | |
 
