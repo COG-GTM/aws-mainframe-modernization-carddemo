@@ -154,6 +154,18 @@ class AccountControllerTest {
     }
 
     @Test
+    void billPaymentPostingIgnoresTheCreditLimit() throws Exception {
+        mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders
+                        .post("/api/v1/accounts/{id}/postings", ACCT_ID)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"transactionId\": \"0000000000000003\", \"amount\": 5000.00, "
+                                + "\"transactionDate\": \"2024-05-01\", \"type\": \"BILL_PAYMENT\"}"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.posted").value(true))
+                .andExpect(jsonPath("$.currentBalance").value(5042.00));
+    }
+
+    @Test
     void postingWithoutATransactionIdIsABadRequest() throws Exception {
         mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders
                         .post("/api/v1/accounts/{id}/postings", ACCT_ID)

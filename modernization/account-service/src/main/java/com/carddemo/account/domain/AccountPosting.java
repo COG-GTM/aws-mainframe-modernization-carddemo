@@ -2,6 +2,8 @@ package com.carddemo.account.domain;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
 import jakarta.persistence.PostLoad;
 import jakarta.persistence.PostPersist;
@@ -45,6 +47,10 @@ public class AccountPosting implements Persistable<String> {
     @Column(name = "posted_at", nullable = false)
     private LocalDateTime postedAt;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "posting_type", nullable = false, length = 17)
+    private PostingType postingType;
+
     /** Always INSERT a new posting, so a concurrent one with the same id fails on the key instead of being merged over. */
     @Transient
     private boolean newPosting = true;
@@ -69,7 +75,7 @@ public class AccountPosting implements Persistable<String> {
     }
 
     public AccountPosting(String tranId, Account account, BigDecimal amount, LocalDate transactionDate,
-                          LocalDateTime postedAt) {
+                          LocalDateTime postedAt, PostingType postingType) {
         this.tranId = tranId;
         this.acctId = account.getAcctId();
         this.amount = amount;
@@ -78,6 +84,7 @@ public class AccountPosting implements Persistable<String> {
         this.currCycCredit = account.getCurrCycCredit();
         this.currCycDebit = account.getCurrCycDebit();
         this.postedAt = postedAt;
+        this.postingType = postingType;
     }
 
     public String getTranId() {
@@ -110,5 +117,9 @@ public class AccountPosting implements Persistable<String> {
 
     public LocalDateTime getPostedAt() {
         return postedAt;
+    }
+
+    public PostingType getPostingType() {
+        return postingType;
     }
 }

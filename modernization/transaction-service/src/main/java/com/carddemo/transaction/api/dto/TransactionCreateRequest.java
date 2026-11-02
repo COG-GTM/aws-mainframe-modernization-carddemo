@@ -1,26 +1,24 @@
 package com.carddemo.transaction.api.dto;
 
-import jakarta.validation.constraints.Digits;
-import jakarta.validation.constraints.Max;
-import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Pattern;
-import jakarta.validation.constraints.Size;
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
-
-/** COTRN02C add transaction map. */
+/**
+ * Input fields of the COTRN02C add screen (map COTRN2A). Every field is text, as on the 3270 map,
+ * so the edits of {@code VALIDATE-INPUT-KEY-FIELDS} / {@code VALIDATE-INPUT-DATA-FIELDS} can answer
+ * with the COBOL messages ({@code TransactionAddValidator}); JSON numbers are accepted too.
+ * Either {@code accountId} or {@code cardNumber} identifies the card; when both are sent the account
+ * wins, as in the COBOL {@code EVALUATE}. The request itself is the {@code Y} confirmation.
+ */
 public record TransactionCreateRequest(
-        @NotBlank @Pattern(regexp = "\\d{16}", message = "card number must be 16 digits") String cardNumber,
-        @NotBlank @Size(max = 2) String typeCode,
-        @NotNull @Min(0) @Max(9999) Integer categoryCode,
-        @Size(max = 10) String source,
-        @Size(max = 100) String description,
-        @NotNull @Digits(integer = 9, fraction = 2) BigDecimal amount,
-        @Min(0) @Max(999_999_999) Long merchantId,
-        @Size(max = 50) String merchantName,
-        @Size(max = 50) String merchantCity,
-        @Size(max = 10) String merchantZip,
-        LocalDateTime originTimestamp) {
+        String accountId,
+        String cardNumber,
+        String typeCode,
+        String categoryCode,
+        String source,
+        String description,
+        String amount,
+        String originDate,
+        String processDate,
+        String merchantId,
+        String merchantName,
+        String merchantCity,
+        String merchantZip) {
 }

@@ -16,6 +16,12 @@ public interface AccountGateway {
      */
     PostingResult post(long accountId, String transactionId, BigDecimal amount, LocalDate transactionDate);
 
+    /**
+     * Account side of COBIL00C (UPDATE-ACCTDAT-FILE): {@code amount} is added to ACCT-CURR-BAL only,
+     * without the CBTRN02C limit and expiration checks. Same endpoint and idempotency key as {@link #post}.
+     */
+    PostingResult postBillPayment(long accountId, String transactionId, BigDecimal amount, LocalDate paymentDate);
+
     /** Account break of CBACT04C. */
     void settleInterest(long accountId, BigDecimal totalInterest);
 }
