@@ -1,0 +1,18 @@
+# Overlay for the golden-set harness: the services talk to each other on the compose network and the
+# harness reaches them with `docker compose run/exec`, so no host port is published (nothing clashes
+# with a stack already running on 5432/8080-8085).
+services:
+  postgres:
+    ports: !reset []
+  auth-service:
+    ports: !reset []
+  customer-service:
+    ports: !reset []
+  account-service:
+    ports: !reset []
+  card-service:
+    ports: !reset []
+  transaction-service:
+    ports: !reset []
+  batch-service:
+    ports: !reset []

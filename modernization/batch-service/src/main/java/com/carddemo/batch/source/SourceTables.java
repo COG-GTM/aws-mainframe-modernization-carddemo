@@ -112,7 +112,7 @@ public class SourceTables {
      * The table keeps no provenance, so INTCALC rows are recognised by the full record CBACT04C writes (type 01,
      * category 05, source System, description "Int. for a/c <acct>"), not by the user-editable source alone.
      */
-    static boolean interestTransaction(String typeCd, long catCd, String source, String description) {
+    public static boolean interestTransaction(String typeCd, long catCd, String source, String description) {
         return "01".equals(typeCd) && catCd == 5 && SYSTEM_SOURCE.equals(source)
                 && description != null && description.startsWith(INTEREST_DESCRIPTION);
     }

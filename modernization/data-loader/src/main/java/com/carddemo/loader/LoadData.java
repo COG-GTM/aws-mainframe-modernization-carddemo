@@ -16,6 +16,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
  *
  * <pre>
  * java -jar data-loader.jar [--data-dir DIR] [--replace] [--report FILE] [--wait-seconds N]
+ * java -jar data-loader.jar --export DIR   (unload the tables to fixed-width files, no load)
  * </pre>
  *
  * Connection from {@code CARDDEMO_DB_URL}, {@code CARDDEMO_DB_USER}, {@code CARDDEMO_DB_PASSWORD};
@@ -40,15 +41,20 @@ public final class LoadData {
         boolean replace = false;
         Path report = null;
         int waitSeconds = 180;
+        Path export = null;
         for (int i = 0; i < args.length; i++) {
             switch (args[i]) {
                 case "--data-dir" -> dataDir = Path.of(args[++i]);
                 case "--replace" -> replace = true;
                 case "--report" -> report = Path.of(args[++i]);
                 case "--wait-seconds" -> waitSeconds = Integer.parseInt(args[++i]);
+                case "--export" -> export = Path.of(args[++i]);
                 default -> throw new IllegalArgumentException("Unknown argument " + args[i]
-                        + "; usage: [--data-dir DIR] [--replace] [--report FILE] [--wait-seconds N]");
+                        + "; usage: [--data-dir DIR] [--replace] [--report FILE] [--wait-seconds N] | --export DIR");
             }
+        }
+        if (export != null) {
+            return export(export, waitSeconds);
         }
         if (!Files.isDirectory(dataDir.resolve("ASCII")) || !Files.isDirectory(dataDir.resolve("EBCDIC"))) {
             throw new IllegalArgumentException(dataDir + " has no ASCII/ and EBCDIC/ directories (app/data expected)");
@@ -80,6 +86,21 @@ public final class LoadData {
             System.out.println(reconciliation.reconciled() ? "reconciled" : "NOT reconciled");
             return reconciliation.reconciled() ? 0 : 1;
         }
+    }
+
+    private static int export(Path dir, int waitSeconds) throws Exception {
+        try (Connection connection = connect()) {
+            awaitSchemas(connection, waitSeconds);
+            TableExport.export(connection, dir).forEach((mapping, rows) ->
+                    System.out.printf("exported %-36s %4d rows to %s%n", mapping.table(), rows,
+                            dir.resolve(mapping.dataset().name())));
+            return 0;
+        }
+    }
+
+    private static Connection connect() throws SQLException {
+        return DriverManager.getConnection(env("CARDDEMO_DB_URL", "jdbc:postgresql://localhost:5432/carddemo"),
+                required("CARDDEMO_DB_USER"), required("CARDDEMO_DB_PASSWORD"));
     }
 
     /** The services create the tables with Flyway on startup; wait for all of them. */

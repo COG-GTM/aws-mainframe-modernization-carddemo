@@ -6,12 +6,18 @@ on:
     paths:
       - "modernization/**"
       - "app/data/**"
+      - "app/cbl/**"
+      - "app/cpy/**"
+      - "scripts/migration/**"
       - "docs/migration/validation/**"
       - ".github/workflows/modernization-verify.yml"
   pull_request:
     paths:
       - "modernization/**"
       - "app/data/**"
+      - "app/cbl/**"
+      - "app/cpy/**"
+      - "scripts/migration/**"
       - "docs/migration/validation/**"
       - ".github/workflows/modernization-verify.yml"
 
@@ -76,3 +82,31 @@ jobs:
       - name: Stop
         if: always()
         run: docker compose down -v
+
+  golden-set:
+    # GnuCOBOL golden set vs the Java jobs on a freshly loaded database: POSTTRAN, INTCALC, TRANREPT,
+    # CREASTMT in Control-M order; fails on any unexplained difference (modernization/verification).
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    defaults:
+      run:
+        working-directory: modernization
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install GnuCOBOL
+        run: sudo apt-get update -q && sudo apt-get install -y -q gnucobol3 && cobc --version | head -1
+      - name: Golden set harness
+        run: verification/run.sh "$RUNNER_TEMP/golden"
+      - name: Reconciliation summary
+        if: always()
+        run: cat "$RUNNER_TEMP"/golden/reconciliation/*/reconciliation.md >> "$GITHUB_STEP_SUMMARY" || true
+      - name: Upload golden set and reconciliation
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: golden-set
+          path: ${{ runner.temp }}/golden/
+          if-no-files-found: ignore
+      - name: Stop
+        if: always()
+        run: docker compose -p carddemo-verify -f docker-compose.yml -f verification/compose.verify.yml down -v

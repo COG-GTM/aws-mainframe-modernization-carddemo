@@ -1,5 +1,7 @@
 package com.carddemo.batch.tranrept;
 
+import com.carddemo.batch.source.SourceTables;
+import com.carddemo.common.cobol.CobolValues;
 import com.carddemo.common.record.CobolRecord;
 import com.carddemo.common.record.CodePage;
 import com.carddemo.common.record.layout.TranRecordLayout;
@@ -14,9 +16,10 @@ import org.springframework.web.client.RestClient;
  * STEP05R REPROC without a TRANSACT file: unloads the TRANSACT KSDS as it is now from
  * transaction-service ({@code GET /api/v1/transactions}, in TRAN-ID order) into TRAN-RECORDs; a
  * transaction added or removed while the pages are read makes {@link ServicePages} read again.
- * Timestamps are written as {@code YYYY-MM-DD HH:MM:SS.ffffff}; a POSTTRAN dump keeps the DB2 layout
- * ({@code YYYY-MM-DD-HH.MM.SS.ffffff}) for some rows, which CBTRN03C never looks at past
- * {@code TRAN-PROC-TS(1:10)}.
+ * Timestamps follow the KSDS the COBOL leaves (as {@link SourceTables#transactions} does): TRAN-PROC-TS
+ * in the DB2 layout of {@code Z-GET-DB2-FORMAT-TIMESTAMP} ({@code YYYY-MM-DD-HH.MM.SS.ffffff}), TRAN-ORIG-TS
+ * as DALYTRAN held it ({@code YYYY-MM-DD HH:MM:SS.ffffff}) except on the interest transactions CBACT04C
+ * wrote, which carry DB2 timestamps in both.
  */
 public final class ServiceTransactionSource {
 
@@ -55,8 +58,14 @@ public final class ServiceTransactionSource {
                 .set(TranRecordLayout.TRAN_MERCHANT_CITY, t.merchantCity())
                 .set(TranRecordLayout.TRAN_MERCHANT_ZIP, t.merchantZip())
                 .set(TranRecordLayout.TRAN_CARD_NUM, t.cardNumber())
-                .set(TranRecordLayout.TRAN_ORIG_TS, timestamp(t.originTimestamp()))
-                .set(TranRecordLayout.TRAN_PROC_TS, timestamp(t.processTimestamp()));
+                .set(TranRecordLayout.TRAN_ORIG_TS, interest(t)
+                        ? CobolValues.toDb2Timestamp(t.originTimestamp()) : timestamp(t.originTimestamp()))
+                .set(TranRecordLayout.TRAN_PROC_TS, CobolValues.toDb2Timestamp(t.processTimestamp()));
+    }
+
+    private static boolean interest(TransactionView t) {
+        return SourceTables.interestTransaction(t.typeCode(), t.categoryCode() == null ? 0 : t.categoryCode(),
+                t.source(), t.description());
     }
 
     private static String timestamp(LocalDateTime value) {
