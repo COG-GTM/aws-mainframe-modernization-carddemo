@@ -8,6 +8,7 @@ import com.carddemo.common.security.AdminOnly;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.Size;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
@@ -31,6 +32,8 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/v1/users")
 public class UserController {
 
+    /** COUSR00C shows 10 users per screen (USRID01I-USRID10I). */
+    static final int SCREEN_ROWS = 10;
     private static final int MAX_PAGE_SIZE = 200;
 
     private final AuthService authService;
@@ -39,10 +42,15 @@ public class UserController {
         this.authService = authService;
     }
 
+    /**
+     * COUSR00C: 10 rows a page by default, in user-id order; {@code startUserId} is the "Search User ID"
+     * field. PF7/PF8 become {@code page - 1} / {@code page + 1}.
+     */
     @GetMapping
     public PageResponse<UserResponse> list(@RequestParam(defaultValue = "0") @Min(0) int page,
-                                           @RequestParam(defaultValue = "20") @Min(1) @Max(MAX_PAGE_SIZE) int size) {
-        return PageResponse.of(authService.list(PageRequest.of(page, size, Sort.by("userId")))
+                                           @RequestParam(defaultValue = "" + SCREEN_ROWS) @Min(1) @Max(MAX_PAGE_SIZE) int size,
+                                           @RequestParam(required = false) @Size(max = 8) String startUserId) {
+        return PageResponse.of(authService.list(startUserId, PageRequest.of(page, size, Sort.by("userId")))
                 .map(UserResponse::from));
     }
 

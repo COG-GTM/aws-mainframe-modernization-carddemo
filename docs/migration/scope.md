@@ -44,7 +44,7 @@ edit messages that endpoint has to match. The menu programs become routing in th
 | COTRN00C | CT00 | 617 | transaction-service | ported |
 | COTRN01C | CT01 | 273 | transaction-service | ported |
 | COTRN02C | CT02 | 698 | transaction-service | ported |
-| CORPT00C | CR00 | 586 | transaction-service (starts the CBTRN03C equivalent) | not built |
+| CORPT00C | CR00 | 586 | batch-service `POST /api/v1/reports/transactions` (starts TRANREPT / CBTRN03C asynchronously, architecture.md §3.2) | built |
 | COBIL00C | CB00 | 493 | transaction-service | ported |
 | COUSR00C | CU00 | 615 | auth-service | ported |
 | COUSR01C | CU01 | 238 | auth-service | ported |
