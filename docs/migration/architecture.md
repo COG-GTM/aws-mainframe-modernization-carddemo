@@ -128,9 +128,9 @@ needs the definition of done in scope §4. "Branch label" is the status the base
 | `customer-service` | partial | Read/list/update; the COACTUPC customer edits run in account-service before it calls the update (version-checked, optional SSN). |
 | `account-service` | partial | COACTVWC/COACTUPC reviewed (UNT149-17, `account-view-update.md`); posting/interest settlement follow CBTRN02C/CBACT04C. |
 | `card-service` | complete | COCRDLIC/SLC/UPC reviewed paragraph by paragraph (`card-service-review.md`). |
-| `transaction-service` | partial | Online list/view/add/bill pay and both batch jobs run; reports and statements are stubs. |
-| `batch-service` | partial | TRANREPT (CBTRN03C) and the CORPT00C report submission (§3.2). |
-| Statements, export/import, MQ replacement, client | stub | Not built (`modernization/README.md`). |
+| `transaction-service` | partial | Online list/view/add/bill pay and both batch jobs run; reports are stubs. |
+| `batch-service` | partial | TRANREPT (CBTRN03C) and the CORPT00C report submission (§3.2); CREASTMT, CBEXPORT/CBIMPORT, READACCT/CARD/CUST/XREF and WAITSTEP run (UNT149-15, golden set in [validation/batch-service-golden-set.md](validation/batch-service-golden-set.md)); those UNT149-15 jobs read the service schemas read-only over JDBC and call no other service. |
+| MQ replacement, client | stub | Not built (`modernization/README.md`). |
 
 ### 4.1 Online programs
 
@@ -161,12 +161,12 @@ needs the definition of done in scope §4. "Branch label" is the status the base
 | CBTRN02C | ported | partial | Reasons 100–103, TCATBAL upsert and the cycle-bucket sign handling are in `PostingService` / `AccountService.post`. Input and rejects are tables, not the DALYTRAN / DALYREJS files, so the golden-set harness cannot run it yet. Double posting on retry (§1). When a record is both over limit and expired, Java rejects with 102; COBOL `1500-B-LOOKUP-ACCT` runs both checks and the later 103 overwrites 102. |
 | CBACT04C | ported | partial | `InterestCalculationService` follows the account break and DISCGRP fallback; same table-only I/O gap. Differences from the COBOL: monthly interest was rounded `HALF_UP` although the COBOL `COMPUTE` (line 464) has no `ROUNDED` (fixed: now truncates, [conventions.md](conventions.md) §2); a missing account is skipped, but `1100-GET-ACCT-DATA` abends; a missing DEFAULT rate becomes zero, but `1200-A-GET-DEFAULT-INT-RATE` abends. |
 | CBTRN03C | built (UNT149-14) | verified against GnuCOBOL | batch-service `TRANREPT`: REPROC unload, SORT on the DATEPARM window, `TransactionReportProgram`. TRANREPT is byte-identical to the GnuCOBOL run on 11 cases (`batch-service/src/test/resources/tranrept`, `scripts/migration/tranrept/`), including the source's quirks: `NEXT SENTENCE` ends the report on an out-of-range record, the last card's account total is never written, the last amount is added twice to the final page total, `S9(09)V99` totals overflow by truncation. |
-| CBSTM03A / CBSTM03B | not built | stub | |
-| CBEXPORT / CBIMPORT | not built | stub | |
+| CBSTM03A / CBSTM03B | ported (UNT149-15) | complete | batch-service `CREASTMT`: `StatementWriter` + `StatementFileService` (the called subprogram as a service). Byte-identical STMTFILE/HTMLFILE on the sample data, from files and from the tables. Deviation: more than 51 cards or 10 transactions per card overflow the COBOL tables (undefined there); Java abends (RC 16). |
+| CBEXPORT / CBIMPORT | ported (UNT149-15) | complete | batch-service `CBEXPORT` / `CBIMPORT`, byte-identical to the COBOL (EXPFILE; *OUT and ERROUT incl. an unknown-type edge set). Round trip tables → EXPFILE → *OUT equals the tables except FILLER, which CBIMPORT leaves as binary zeros, as the COBOL does. CBIMPORT writes files, not tables (as the COBOL). |
 | CBTRN01C | not built | stub | |
-| CBACT01C, CBACT02C, CBACT03C, CBCUS01C | replaced by list endpoints | partial | `GET` list endpoints exist; the dump files are not produced, which scope §2.2 requires or records as a deviation. |
-| CSUTLDTC | "shared Java date check" (scope §2.2) | partial | Two minimal ports until UNT149-15 adds the shared check in `common`: transaction-service `CsutldtcDate` (the `YYYY-MM-DD` use in COTRN02C) and batch-service `ReportDates` (CORPT00C: 2517 bad month, 2508 bad day, 2513 before 1582-10-15 accepted). Otherwise there is no such check. Dates are only parsed (`CobolValues.date`, Jackson `LocalDate`); no CEEDAYS-style validation or messages. Scope §2.2 is wrong on this row. |
-| COBSWAIT | replaced | replaced | Job ordering replaces the wait. |
+| CBACT01C, CBACT02C, CBACT03C, CBCUS01C | ported (UNT149-15) | complete | batch-service `READACCT` / `READCARD` / `READXREF` / `READCUST`: SYSOUT and CBACT01C's OUTFILE/ARRYFILE/VBRCFILE byte-identical on the sample data (+ a CBACT01C edge set). `COBDATFT` replaced by `java.time`. |
+| CSUTLDTC | `DateValidation` in `common` (UNT149-15) | partial | Same severity / message number / 80-byte message as CSUTLDTC. Which input gives which CEEDAYS condition is a hypothesis from the IBM LE docs (no LE runtime to compare). Not yet called by COTRN02C / CORPT00C ports; transaction-service `CsutldtcDate` (UNT149-19, the COTRN02C `YYYY-MM-DD` check) and batch-service `ReportDates` (UNT149-20, CORPT00C: 2517 bad month, 2508 bad day, 2513 before 1582-10-15 accepted) are stopgaps that can switch to `DateValidation`. |
+| COBSWAIT | replaced | replaced | Job ordering replaces the wait; batch-service `WAITSTEP` keeps the job (`Thread.sleep` for `MVSWAIT`). |
 
 ## 5. Verified on this branch
 
