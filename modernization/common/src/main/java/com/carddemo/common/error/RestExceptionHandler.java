@@ -59,6 +59,12 @@ public class RestExceptionHandler {
                 .body(ApiError.of(422, "Unprocessable Entity", ex.getMessage()));
     }
 
+    @ExceptionHandler(FieldValidationException.class)
+    public ResponseEntity<ApiError> handleFieldValidation(FieldValidationException ex) {
+        return ResponseEntity.badRequest().body(ApiError.of(400, "Bad Request", ex.getMessage(),
+                List.of(new ApiError.FieldProblem(ex.field(), ex.getMessage()))));
+    }
+
     /** Query parameter edits, such as the page and size of a browse. */
     @ExceptionHandler(ConstraintViolationException.class)
     public ResponseEntity<ApiError> handleConstraintViolation(ConstraintViolationException ex) {

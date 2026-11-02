@@ -16,7 +16,8 @@ public final class MenuCatalog {
             new MenuOption(7, "Transaction View", "COTRN01C", false, true,
                     "GET /api/v1/transactions/{transactionId}"),
             new MenuOption(8, "Transaction Add", "COTRN02C", false, true, "POST /api/v1/transactions"),
-            new MenuOption(9, "Transaction Reports", "CORPT00C", false, false, null),
+            new MenuOption(9, "Transaction Reports", "CORPT00C", false, true,
+                    "POST /api/v1/reports/transactions"),
             new MenuOption(10, "Bill Payment", "COBIL00C", false, true, "POST /api/v1/bill-payments"),
             new MenuOption(11, "Pending Authorization View", "COPAUS0C", false, false, null));
 

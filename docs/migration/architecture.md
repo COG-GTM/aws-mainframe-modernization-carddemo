@@ -87,6 +87,31 @@ scenarios derived from the COBOL source (scope §4.2).
   service accepts the password as typed or upper-cased: USRSEC users sign on case-insensitively as in
   CICS, and mixed-case passwords set through the user API still work.
 
+### 3.2 Online → batch hand-off (CORPT00C → TRANREPT)
+
+**COBOL.** CORPT00C edits the dates, fills them into the inline TRANREPT JCL in `JOB-DATA` and
+writes it line by line to TDQ `JOBS`, the CICS internal reader (`SUBMIT-JOB-TO-INTRDR`). JES runs
+the job later; the screen only says `<type> report submitted for printing ...` and never sees the
+result, which is the `TRANREPT` report data set.
+
+**Java (decision d-report-trigger: in-process async job with polling).**
+
+1. `POST /api/v1/reports/transactions` (batch-service, any signed-on user, menu option 9) runs the
+   CORPT00C edits (`ReportDates`) and records the request in `batch.transaction_report_request`
+   (status `SUBMITTED`, submitter, dates). That row is the job card and the JES job status.
+2. The request is queued on one worker thread in the same JVM (one initiator, so runs never overlap)
+   and the caller gets `202` + `Location: /api/v1/reports/transactions/{reportId}` at once.
+3. The worker runs the same TRANREPT job as `POST /api/v1/batch/transaction-report` and the CLI
+   (`TranreptJobConfig.arguments(start, end)` → `BatchJobLauncher`), calling card-service and
+   transaction-service with the **submitter's** bearer token (captured on the request,
+   `CallerTokenForwarder.onBehalfOf`); it never signs as `BATCH`.
+4. The row moves to `RUNNING`, then `COMPLETED` (with job execution id, return code and output
+   generation) or `FAILED`. `GET .../{reportId}` polls it (submitter or admin) and gives `reportPath`;
+   `GET .../{reportId}/content` returns the `TRANREPT` file.
+5. The queue lives in memory: requests a stopped batch-service had not finished are marked `FAILED`
+   (`Interrupted: ...`) at the next start-up. A message queue (what the internal reader models) is
+   the production-grade replacement and would change only step 2.
+
 ## 4. Status per service
 
 Status labels: **complete** – does what its COBOL does as far as code reading shows; **partial** –
@@ -98,12 +123,13 @@ needs the definition of done in scope §4. "Branch label" is the status the base
 | Module | Status | Notes |
 |---|---|---|
 | `common` | complete | Error envelope, pagination, `CobolValues` (PIC X trim, date/timestamp parsing). |
-| `auth-service` | partial | Signon issues the bearer token (§3.1), user CRUD is admin-only, `GET /api/v1/menu` serves COMEN01C/COADM01C. |
+| `auth-service` | partial | Signon issues the bearer token (§3.1), user CRUD is admin-only and follows COUSR00C–03C (§4.1), `GET /api/v1/menu` serves COMEN01C/COADM01C. |
 | `customer-service` | partial | Read/list/update with no field edits; the customer edits of COACTUPC are not here. |
 | `account-service` | partial | View works; update covers account fields only; posting/interest settlement follow CBTRN02C/CBACT04C. |
 | `card-service` | partial | List/view/update work; COCRDUPC date edits incomplete. |
 | `transaction-service` | partial | Online list/view/add/bill pay and both batch jobs run; reports and statements are stubs. |
-| Reports, statements, export/import, MQ replacement, client | stub | Not built (`modernization/README.md`). |
+| `batch-service` | partial | TRANREPT (CBTRN03C) and the CORPT00C report submission (§3.2). |
+| Statements, export/import, MQ replacement, client | stub | Not built (`modernization/README.md`). |
 
 ### 4.1 Online programs
 
@@ -120,12 +146,12 @@ needs the definition of done in scope §4. "Branch label" is the status the base
 | COTRN00C | ported | partial | COBOL browses TRANSACT from a typed transaction id; Java filters by card number. |
 | COTRN01C | ported | complete | `GET /api/v1/transactions/{id}`. |
 | COTRN02C | ported | partial | COBOL accepts account id or card number, validates dates through CSUTLDTC, and sets TRAN-ID = last id + 1 (READPREV, lines 446–451). Java accepts card number only, has no date edit, and uses a random 16-char id. |
-| CORPT00C | not built | stub | No endpoint. |
+| CORPT00C | not built | complete | batch-service `POST /api/v1/reports/transactions` (§3.2): the CORPT00C edits in COBOL order and text, monthly/yearly dates computed, TRANREPT run asynchronously in-process, polled by report id. Confirmation is the POST itself. |
 | COBIL00C | ported | partial | Type 02 / cat 2 / "BILL PAYMENT - ONLINE" / merchant 999999999 and the "nothing to pay" check match. TRAN-ID is random instead of last + 1. Java posts through account-service's CBTRN02C rules, so an expired account rejects the payment (reason 103); COBOL COBIL00C rewrites the balance without that check. |
-| COUSR00C | ported | complete | `GET /api/v1/users`, page number instead of STARTBR key. |
-| COUSR01C | ported | complete | Duplicate key rejected; password stored as BCrypt (deliberate deviation). |
-| COUSR02C | ported | complete | `PUT /api/v1/users/{id}`. |
-| COUSR03C | ported | complete | `DELETE /api/v1/users/{id}`. |
+| COUSR00C | ported | complete | `GET /api/v1/users`: 10 rows a page in user-id order (USRID01–10), `startUserId` = the "Search User ID" STARTBR key, page number for PF7/PF8. Row selection `U`/`D` is the client calling PUT/DELETE. |
+| COUSR01C | ported | complete | All five fields required, checked in COUSR01C order (first name, last name, user id, password, type) with its texts (`First Name can NOT be empty...`); duplicate → 409 `User ID already exist...`. Deliberate deviations: password BCrypt-hashed, min 8 chars; type must be `A`/`U` (COBOL stores any non-blank character, but only `A` is ever admin); user id upper-cased (COSGN00C upper-cases at sign-on, so a lower-case id could never sign on). |
+| COUSR02C | ported | complete | `PUT /api/v1/users/{id}`: fields checked in COUSR02C order; unknown id → 404 `User ID NOT found...`; nothing changed → 422 `Please modify to update ...`; READ UPDATE/REWRITE → JPA `@Version` (409 on a concurrent change). |
+| COUSR03C | ported | complete | `DELETE /api/v1/users/{id}`: unknown id → 404 `User ID NOT found...`; READ UPDATE/DELETE in one transaction. |
 
 ### 4.2 Batch programs and utilities
 
@@ -138,7 +164,7 @@ needs the definition of done in scope §4. "Branch label" is the status the base
 | CBEXPORT / CBIMPORT | not built | stub | |
 | CBTRN01C | not built | stub | |
 | CBACT01C, CBACT02C, CBACT03C, CBCUS01C | replaced by list endpoints | partial | `GET` list endpoints exist; the dump files are not produced, which scope §2.2 requires or records as a deviation. |
-| CSUTLDTC | "shared Java date check" (scope §2.2) | stub | There is no such check. Dates are only parsed (`CobolValues.date`, Jackson `LocalDate`); no CEEDAYS-style validation or messages. Scope §2.2 is wrong on this row. |
+| CSUTLDTC | "shared Java date check" (scope §2.2) | partial | CORPT00C uses a minimal port with CEEDAYS's `YYYY-MM-DD` feedback (`ReportDates.Csutldtc` in batch-service: 2517 bad month, 2508 bad day, 2513 before 1582-10-15); to be replaced by `common.date.DateValidation` from the statements ticket once merged. Elsewhere there is no such check. Dates are only parsed (`CobolValues.date`, Jackson `LocalDate`); no CEEDAYS-style validation or messages. Scope §2.2 is wrong on this row. |
 | COBSWAIT | replaced | replaced | Job ordering replaces the wait. |
 
 ## 5. Verified on this branch

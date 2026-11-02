@@ -180,20 +180,26 @@ stream and writes it line by line to TDQ `JOBS` (the internal reader); the scree
 was submitted. The batch side (TRANREPT → `CBTRN03C`) filters `TRAN-PROC-TS` (first 10 characters)
 between start and end date inclusive and writes the report file `TRANREPT`.
 
-**Planned (UNT149-20, decision d-report-trigger: in-process async job with polling).**
+**Built (decision d-report-trigger: in-process async job with polling), batch-service, port 8085.**
+See architecture.md §3.2 for the hand-off.
 
 | Endpoint | Meaning |
 |---|---|
-| `POST /api/v1/reports/transactions` body `{"reportType": "MONTHLY" \| "YEARLY" \| "CUSTOM", "startDate", "endDate"}` | Validates like CORPT00C (dates only for `CUSTOM`; server computes them for the other two), starts the job, returns `202` with `{"reportId", "status": "SUBMITTED", "startDate", "endDate"}` and a `Location` header |
-| `GET /api/v1/reports/transactions/{reportId}` | Status `SUBMITTED` / `RUNNING` / `COMPLETED` / `FAILED` and the date range |
-| `GET /api/v1/reports/transactions/{reportId}/content` | The produced report, `text/plain`, same layout as `CBTRN03C` writes |
+| `POST /api/v1/reports/transactions` body `{"reportType": "MONTHLY" \| "YEARLY" \| "CUSTOM", "startMonth", "startDay", "startYear", "endMonth", "endDay", "endYear"}` | Validates like CORPT00C (the six date fields only for `CUSTOM`; server computes them for the other two), queues TRANREPT, returns `202` with the report status (`reportId`, `status: SUBMITTED`, `startDate`, `endDate`, ...) and a `Location` header |
+| `GET /api/v1/reports/transactions/{reportId}` | Status `SUBMITTED` / `RUNNING` / `COMPLETED` / `FAILED`, date range, `returnCode`, `reportPath` once completed; submitter or admin (403 otherwise) |
+| `GET /api/v1/reports/transactions/{reportId}/content` | The produced `TRANREPT` file, `text/plain`, same layout as `CBTRN03C` writes; 404 `Report is not available yet...` before `COMPLETED` |
 
-The confirmation flag is not part of the request (§1). Date errors use the CORPT00C message text, for
-example `Start Date - Not a valid date...`, with `fieldErrors[].field` = `startDate` / `endDate`.
-The ticket text places this in a "batch-service"; this branch has no batch-service and runs Spring
-Batch jobs in transaction-service (architecture.md §2). **Hypothesis:** the endpoint lives in
-transaction-service unless phase 4 introduces a separate batch service; the path does not change
-either way.
+The date parts are separate text fields, as on the map (SDTMM/SDTDD/SDTYYYY, EDTMM/EDTDD/EDTYYYY),
+instead of the `startDate`/`endDate` planned earlier: CORPT00C's messages are per part
+(`Start Date - Month can NOT be empty...`, `End Date - Not a valid Day...`) and it normalises each part
+with `NUMVAL-C` before the checks, which an ISO date cannot express. The edits run in COBOL order and
+the first failure is the only error (SEND-TRNRPT-SCREEN ends the task): no report type →
+`Select a report type to print report...`; empty part; month > 12 / day > 31; then CSUTLDTC on each
+full date (`Start Date - Not a valid date...`, `fieldErrors[0].field` = `startMonth` / `endMonth`, where
+the COBOL puts the cursor). COBOL facts kept: CSUTLDTC message 2513 (a date before 1582-10-15) is
+accepted; a start after the end is not an error; non-numeric text becomes 0 through `NUMVAL-C`
+(GnuCOBOL behaviour, checked with cobc; **hypothesis** for Enterprise COBOL, where an invalid
+argument is undefined). The confirmation flag is not part of the request (§1).
 
 ## 8. Statements (CBSTM03A / CBSTM03B)
 

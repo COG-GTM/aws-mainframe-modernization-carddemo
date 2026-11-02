@@ -102,6 +102,74 @@ class TranreptServicesTest {
         assertThat(FORWARDED).containsExactly(request.getHeaders().getFirst(HttpHeaders.AUTHORIZATION));
     }
 
+    /**
+     * CORPT00C: POST /api/v1/reports/transactions answers 202 at once with a report id; polling it
+     * shows the TRANREPT run finish, and its content is the same report as the COBOL one.
+     */
+    @Test
+    @SuppressWarnings("unchecked")
+    void reportSubmittedThroughCorpt00cRunsAsyncAndCanBePolled() throws Exception {
+        FORWARDED.clear();
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(tokens.issue("USER0001", "U").token());
+        headers.setContentType(org.springframework.http.MediaType.APPLICATION_JSON);
+        String body = """
+                {"reportType":"CUSTOM","startMonth":"01","startDay":"01","startYear":"2022",
+                 "endMonth":"07","endDay":"06","endYear":"2022"}""";
+        ResponseEntity<Map> accepted = http.postForEntity("/api/v1/reports/transactions",
+                new HttpEntity<>(body, headers), Map.class);
+
+        assertThat(accepted.getStatusCode()).isEqualTo(HttpStatus.ACCEPTED);
+        String reportId = (String) accepted.getBody().get("reportId");
+        assertThat(accepted.getHeaders().getLocation()).hasToString("/api/v1/reports/transactions/" + reportId);
+        assertThat(accepted.getBody()).containsEntry("status", "SUBMITTED")
+                .containsEntry("startDate", "2022-01-01").containsEntry("endDate", "2022-07-06");
+
+        HttpEntity<Void> poll = new HttpEntity<>(headers);
+        Map<String, Object> status = Map.of();
+        for (int i = 0; i < 300; i++) {
+            status = http.exchange("/api/v1/reports/transactions/" + reportId,
+                    org.springframework.http.HttpMethod.GET, poll, Map.class).getBody();
+            if (List.of("COMPLETED", "FAILED").contains(status.get("status"))) {
+                break;
+            }
+            Thread.sleep(100);
+        }
+        assertThat(status).containsEntry("status", "COMPLETED").containsEntry("returnCode", 0)
+                .containsEntry("submittedBy", "USER0001");
+        assertThat((String) status.get("reportPath")).endsWith("TRANREPT");
+
+        ResponseEntity<byte[]> content = http.exchange("/api/v1/reports/transactions/" + reportId + "/content",
+                org.springframework.http.HttpMethod.GET, poll, byte[].class);
+        assertThat(content.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(new String(content.getBody(), StandardCharsets.ISO_8859_1))
+                .isEqualTo(new String(SAMPLE.expectedReport().orElseThrow(), StandardCharsets.ISO_8859_1));
+        // The job ran on a worker thread, still as the submitter.
+        assertThat(FORWARDED).containsExactly(headers.getFirst(HttpHeaders.AUTHORIZATION));
+
+        // Another plain user cannot read it; an admin can.
+        HttpHeaders other = new HttpHeaders();
+        other.setBearerAuth(tokens.issue("USER0002", "U").token());
+        assertThat(http.exchange("/api/v1/reports/transactions/" + reportId, org.springframework.http.HttpMethod.GET,
+                new HttpEntity<>(other), String.class).getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
+        assertThat(http.exchange("/api/v1/reports/transactions/" + reportId, org.springframework.http.HttpMethod.GET,
+                signedOn(), String.class).getStatusCode()).isEqualTo(HttpStatus.OK);
+    }
+
+    @Test
+    void reportRequestWithAnInvalidDateIsRejectedWithTheCorpt00cMessage() {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(tokens.issue("USER0001", "U").token());
+        headers.setContentType(org.springframework.http.MediaType.APPLICATION_JSON);
+        ResponseEntity<Map> response = http.postForEntity("/api/v1/reports/transactions", new HttpEntity<>("""
+                {"reportType":"CUSTOM","startMonth":"02","startDay":"30","startYear":"2022",
+                 "endMonth":"07","endDay":"06","endYear":"2022"}""", headers), Map.class);
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        assertThat(response.getBody()).containsEntry("message", "Start Date - Not a valid date...");
+        assertThat(http.exchange("/api/v1/reports/transactions/no-such-report", org.springframework.http.HttpMethod.GET,
+                new HttpEntity<>(headers), Map.class).getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+    }
+
     @Test
     void submitNeedsABearerToken() throws Exception {
         // java.net.http: TestRestTemplate's JDK client cannot read a 401 on a streamed POST.

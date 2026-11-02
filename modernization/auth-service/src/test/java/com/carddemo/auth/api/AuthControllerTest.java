@@ -66,9 +66,11 @@ class AuthControllerTest {
         mockMvc.perform(post("/api/v1/users")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
-                                {"userId": "ADMIN001", "password": "Password1", "userType": "A"}
+                                {"userId": "ADMIN001", "firstName": "Dup", "lastName": "User",
+                                 "password": "Password1", "userType": "A"}
                                 """))
-                .andExpect(status().isConflict());
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.message").value("User ID already exist..."));
     }
 
     @Test
