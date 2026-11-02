@@ -101,6 +101,6 @@ class ReportDatesTest {
         assertThatThrownBy(() -> ReportDates.resolve(request, TODAY))
                 .isInstanceOf(FieldValidationException.class)
                 .hasMessage(message)
-                .satisfies(ex -> assertThat(((FieldValidationException) ex).field()).isEqualTo(field));
+                .satisfies(ex -> assertThat(((FieldValidationException) ex).problems().get(0).field()).isEqualTo(field));
     }
 }
