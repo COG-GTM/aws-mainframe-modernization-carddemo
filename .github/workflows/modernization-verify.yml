@@ -11,9 +11,14 @@ on:
       - "modernization/**"
       - ".github/workflows/modernization-verify.yml"
 
+concurrency:
+  group: modernization-verify-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   verify:
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     defaults:
       run:
         working-directory: modernization
@@ -24,4 +29,33 @@ jobs:
           distribution: temurin
           java-version: "21"
           cache: maven
+      # Testcontainers (PostgreSQL) needs a Docker daemon; fail fast if the runner has none.
+      - name: Docker available for Testcontainers
+        run: docker info --format 'Docker {{.ServerVersion}}'
       - run: mvn -B verify
+      - name: Upload test reports
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: surefire-reports
+          path: modernization/**/target/surefire-reports/
+          if-no-files-found: ignore
+
+  compose-smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    defaults:
+      run:
+        working-directory: modernization
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build and start PostgreSQL plus the five services
+        run: docker compose up -d --build --wait --wait-timeout 300
+      - name: Smoke test (health, Swagger, signon, batch jobs)
+        run: ./scripts/smoke.sh
+      - name: Service logs
+        if: always()
+        run: docker compose logs --no-color
+      - name: Stop
+        if: always()
+        run: docker compose down -v
