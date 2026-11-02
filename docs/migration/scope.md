@@ -61,7 +61,7 @@ output (prior-work §1). Every row still has to meet the definition of done in �
 |---|---|---|---|---|
 | CBTRN02C | POSTTRAN | 672 | OK | ported (Spring Batch) |
 | CBACT04C | INTCALC | 599 | OK | ported (Spring Batch) |
-| CBTRN03C | TRANREPT | 596 | OK | not built |
+| CBTRN03C | TRANREPT | 596 | OK | built (batch-service, UNT149-14) |
 | CBSTM03A | CREASTMT | 874 | compile shim (§5) | not built |
 | CBSTM03B | subroutine of CBSTM03A | 204 | OK | not built |
 | CBEXPORT | CBEXPORT | 491 | compile shim (§5) | not built |

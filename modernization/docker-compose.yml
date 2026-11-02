@@ -96,8 +96,8 @@ services:
       postgres:
         condition: service_healthy
 
-  # Batch programs the transaction-service jobs do not cover (reports, statements, export/import);
-  # empty until those jobs land. CLI launch: `docker compose run --rm batch-service --job=<JCL member>`.
+  # Batch programs the transaction-service jobs do not cover: TRANREPT (CBTRN03C) today; statements and
+  # export/import land here too. CLI launch: `docker compose run --rm batch-service --job=<JCL member>`.
   batch-service:
     build:
       context: .
@@ -108,6 +108,8 @@ services:
       BATCH_DB_URL: jdbc:postgresql://postgres:5432/carddemo
       BATCH_DB_USER: ${POSTGRES_USER:-carddemo}
       BATCH_DB_PASSWORD: ${POSTGRES_PASSWORD:-carddemo}
+      CARD_SERVICE_URL: http://card-service:8083
+      TRANSACTION_SERVICE_URL: http://transaction-service:8084
     ports:
       - "8085:8085"
     depends_on:

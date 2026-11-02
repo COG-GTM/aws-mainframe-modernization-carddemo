@@ -84,6 +84,14 @@ Browse operations (`STARTBR` / `READNEXT` / PF7 / PF8) become page based collect
 | POST | `/api/v1/bill-payments` | COBIL00C | pays the full current balance; the amount comes from account-service, not the caller |
 | POST | `/api/v1/batch/post-transactions` | JCL POSTTRAN / CBTRN02C | launches the Spring Batch job, returns posted and rejected counts |
 | POST | `/api/v1/batch/interest-calculation` | JCL INTCALC / CBACT04C | returns accounts settled and total interest |
+| GET | `/api/v1/transaction-types` | TRANTYPE (CVTRA03Y) | paged, by type code; read by batch-service TRANREPT |
+| GET | `/api/v1/transaction-categories` | TRANCATG (CVTRA04Y) | paged, by type and category code; read by batch-service TRANREPT |
+
+## batch-service (port 8085) — CBTRN03C
+
+| Method | Path | Legacy | Notes |
+| --- | --- | --- | --- |
+| POST | `/api/v1/batch/transaction-report?startDate=&endDate=` | `EXEC PROC=TRANREPT` (CORPT00C) / CBTRN03C | runs TRANREPT synchronously with the dates as DATEPARM; data from transaction-service and card-service; returns the run summary with `outputDir` (`TRANREPT` = the report) |
 
 ## Menus — COMEN01C (CM00, `COMEN02Y`) and COADM01C (CA00, `COADM02Y`)
 
@@ -139,6 +147,6 @@ statement per card cross-reference record (as CBSTM03A), text and HTML output. R
 | --- | --- | --- |
 | COSGN00C token, all `CDEMO-USRTYP-ADMIN` checks | bearer token + `common` auth filter | not built (UNT149-16) |
 | COMEN01C / COADM01C menus | `GET /api/v1/menu` | only `nextScreen` today (UNT149-16) |
-| CORPT00C, CBTRN03C | `POST /api/v1/reports/transactions` | not built (UNT149-20) |
+| CORPT00C | `POST /api/v1/reports/transactions` | not built (UNT149-20); the CBTRN03C job it submits is built (batch-service `TRANREPT`) |
 | CBSTM03A / CBSTM03B | `POST /api/v1/batch/statements` | not built |
 | CDRD / CDRA MQ pairs | SQS request queue + SNS event topic | designed in COBOL-PROGRAM-MAPPING.md, not built |

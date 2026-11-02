@@ -4,3 +4,7 @@ spring:
     driver-class-name: org.testcontainers.jdbc.ContainerDatabaseDriver
     username: test
     password: test
+
+carddemo:
+  batch:
+    output-dir: target/batch-out
