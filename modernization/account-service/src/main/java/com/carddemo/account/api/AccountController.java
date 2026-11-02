@@ -2,10 +2,12 @@ package com.carddemo.account.api;
 
 import com.carddemo.account.api.dto.AccountResponse;
 import com.carddemo.account.api.dto.AccountUpdateRequest;
+import com.carddemo.account.api.dto.AccountViewResponse;
 import com.carddemo.account.api.dto.InterestSettlementRequest;
 import com.carddemo.account.api.dto.PostingRequest;
 import com.carddemo.account.api.dto.PostingResponse;
 import com.carddemo.account.service.AccountService;
+import com.carddemo.account.service.AccountViewService;
 import com.carddemo.common.api.PageResponse;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Max;
@@ -31,12 +33,14 @@ public class AccountController {
     private static final int MAX_PAGE_SIZE = 200;
 
     private final AccountService accountService;
+    private final AccountViewService accountViewService;
 
-    public AccountController(AccountService accountService) {
+    public AccountController(AccountService accountService, AccountViewService accountViewService) {
         this.accountService = accountService;
+        this.accountViewService = accountViewService;
     }
 
-    /** CICS CAVW / COACTVWC. */
+    /** The ACCTDAT record alone, read by transaction-service and the batch jobs. */
     @GetMapping("/{accountId}")
     public AccountResponse get(@PathVariable long accountId) {
         return AccountResponse.from(accountService.get(accountId));
@@ -50,10 +54,17 @@ public class AccountController {
                 .map(AccountResponse::from));
     }
 
-    /** CICS CAUP / COACTUPC. */
+    /** CICS CAVW / COACTVWC: account, cross reference and customer as one screen. */
+    @GetMapping("/{accountId}/view")
+    public AccountViewResponse view(@PathVariable String accountId) {
+        return accountViewService.view(accountId);
+    }
+
+    /** CICS CAUP / COACTUPC: edits, then rewrites the account and its customer. */
     @PutMapping("/{accountId}")
-    public AccountResponse update(@PathVariable long accountId, @Valid @RequestBody AccountUpdateRequest request) {
-        return AccountResponse.from(accountService.update(accountId, request));
+    public AccountViewResponse update(@PathVariable String accountId,
+                                      @Valid @RequestBody AccountUpdateRequest request) {
+        return accountViewService.update(accountId, request);
     }
 
     /**

@@ -13,8 +13,8 @@ Legend for the status column:
 |---|---|---|---|---|---|
 | `CC00` | `COSGN00C` | `COSGN00` | auth-service | `POST /api/v1/auth/signon` | ported |
 | `CM00` | `COMEN01C` | `COMEN01` | SPA route | menu is a UI concern; the signon response returns `nextScreen` (`MAIN` or `ADMIN`) so the client picks the menu | ported |
-| `CAVW` | `COACTVWC` | `COACTVW` | account-service | `GET /api/v1/accounts/{acctId}` (card to account goes through `GET /api/v1/cards/{cardNum}/xref`) | ported |
-| `CAUP` | `COACTUPC` | `COACTUP` | account-service | `PUT /api/v1/accounts/{acctId}` | ported |
+| `CAVW` | `COACTVWC` | `COACTVW` | account-service | `GET /api/v1/accounts/{acctId}/view` (reads the CXACAIX xref from card-service and the customer from customer-service) | ported |
+| `CAUP` | `COACTUPC` | `COACTUP` | account-service | `PUT /api/v1/accounts/{acctId}` (edits in `AccountUpdateValidator`, customer rewrite through customer-service) | ported |
 | `CCLI` | `COCRDLIC` | `COCRDLI` | card-service | `GET /api/v1/cards?accountId=&cardNumber=&customerId=&page=&size=` | ported |
 | `CCDL` | `COCRDSLC` | `COCRDSL` | card-service | `GET /api/v1/cards/{cardNum}` | ported |
 | `CCUP` | `COCRDUPC` | `COCRDUP` | card-service | `PUT /api/v1/cards/{cardNum}` | ported |

@@ -274,7 +274,7 @@ TOKEN=$(curl -s -X POST http://localhost:8080/api/v1/auth/signon \
 AUTH="Authorization: Bearer $TOKEN"
 curl -s -H "$AUTH" http://localhost:8080/api/v1/menu
 curl -s -H "$AUTH" http://localhost:8081/api/v1/customers
-curl -s -H "$AUTH" http://localhost:8082/api/v1/accounts/00000000001
+curl -s -H "$AUTH" http://localhost:8082/api/v1/accounts/00000000001/view
 curl -s -H "$AUTH" 'http://localhost:8083/api/v1/cards?accountId=00000000001'
 curl -s -H "$AUTH" 'http://localhost:8084/api/v1/transactions?cardNumber=9680294154603697'
 ```

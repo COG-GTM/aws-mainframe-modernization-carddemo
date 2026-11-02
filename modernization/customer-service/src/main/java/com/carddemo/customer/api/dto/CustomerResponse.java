@@ -6,7 +6,7 @@ import java.time.LocalDate;
 
 /**
  * Customer fields of the COACTVW screen. The SSN is masked: the 3270 screen showed it in full,
- * the modern API does not return it.
+ * the modern API does not return it. {@code version} is what a COACTUPC update sends back.
  */
 public record CustomerResponse(
         @PicId(digits = 9) Long customerId,
@@ -26,7 +26,8 @@ public record CustomerResponse(
         LocalDate dateOfBirth,
         String eftAccountId,
         String primaryCardHolderIndicator,
-        Integer ficoScore) {
+        Integer ficoScore,
+        long version) {
 
     public static CustomerResponse from(Customer customer) {
         return new CustomerResponse(
@@ -47,7 +48,8 @@ public record CustomerResponse(
                 customer.getDateOfBirth(),
                 customer.getEftAccountId(),
                 customer.getPriCardHolderInd(),
-                customer.getFicoCreditScore());
+                customer.getFicoCreditScore(),
+                customer.getVersion());
     }
 
     private static String last4(Long ssn) {

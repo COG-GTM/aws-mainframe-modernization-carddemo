@@ -1,12 +1,10 @@
 package com.carddemo.account.service;
 
-import com.carddemo.account.api.dto.AccountUpdateRequest;
 import com.carddemo.account.domain.Account;
 import com.carddemo.account.domain.AccountPosting;
 import com.carddemo.account.domain.PostingType;
 import com.carddemo.account.repository.AccountPostingRepository;
 import com.carddemo.account.repository.AccountRepository;
-import com.carddemo.common.error.BusinessRuleException;
 import com.carddemo.common.error.DuplicateKeyException;
 import com.carddemo.common.error.NotFoundException;
 import java.math.BigDecimal;
@@ -45,34 +43,6 @@ public class AccountService {
     @Transactional(readOnly = true)
     public Page<Account> list(Pageable pageable) {
         return accounts.findAll(pageable);
-    }
-
-    /**
-     * COACTUPC: read for update, apply the screen edits, rewrite. The record level edits that the
-     * COBOL performs after reading the stored record live here; the field level edits are bean
-     * validation on {@link AccountUpdateRequest}.
-     */
-    @Transactional
-    public Account update(long acctId, AccountUpdateRequest request) {
-        Account account = get(acctId);
-        if (request.expirationDate().isBefore(request.openDate())) {
-            throw new BusinessRuleException("Expiration date cannot be before the open date");
-        }
-        if (request.reissueDate() != null && request.reissueDate().isBefore(request.openDate())) {
-            throw new BusinessRuleException("Reissue date cannot be before the open date");
-        }
-        if (request.cashCreditLimit().compareTo(request.creditLimit()) > 0) {
-            throw new BusinessRuleException("Cash credit limit cannot exceed the credit limit");
-        }
-        account.setActiveStatus(request.activeStatus().toUpperCase());
-        account.setCreditLimit(request.creditLimit());
-        account.setCashCreditLimit(request.cashCreditLimit());
-        account.setOpenDate(request.openDate());
-        account.setExpirationDate(request.expirationDate());
-        account.setReissueDate(request.reissueDate());
-        account.setAddrZip(request.addressZip());
-        account.setGroupId(request.groupId());
-        return accounts.save(account);
     }
 
     /**

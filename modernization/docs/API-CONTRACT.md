@@ -55,15 +55,16 @@ Browse operations (`STARTBR` / `READNEXT` / PF7 / PF8) become page based collect
 | --- | --- | --- | --- |
 | GET | `/api/v1/customers` | CUSTDAT browse | |
 | GET | `/api/v1/customers/{customerId}` | CUSTDAT read | SSN is returned as last four digits only |
-| PUT | `/api/v1/customers/{customerId}` | CUSTDAT rewrite | |
+| PUT | `/api/v1/customers/{customerId}` | CUSTDAT rewrite | optional `ssn` (null keeps it) and `version` (409 when stale); called by the COACTUPC update |
 
 ## account-service (port 8082) — CVACT01Y, COACTVWC, COACTUPC, account side of CBTRN02C/CBACT04C
 
 | Method | Path | Legacy | Notes |
 | --- | --- | --- | --- |
-| GET | `/api/v1/accounts/{accountId}` | COACTVWC | |
+| GET | `/api/v1/accounts/{accountId}` | ACCTDAT read | the account record alone (transaction-service, batch) |
+| GET | `/api/v1/accounts/{accountId}/view` | COACTVWC | account id → card-xref (card-service) → account → customer (customer-service), one DTO with the COACTVW fields and both record versions; SSN masked |
 | GET | `/api/v1/accounts` | ACCTDAT browse | |
-| PUT | `/api/v1/accounts/{accountId}` | COACTUPC | optimistic locking replaces the CICS READ for UPDATE lock |
+| PUT | `/api/v1/accounts/{accountId}` | COACTUPC | account and customer fields of the COACTUP map plus `accountVersion`/`customerVersion` from the view; COBOL edit messages (400), `No change detected with respect to values fetched.` (422), stale version 409; see `docs/migration/account-view-update.md` |
 | POST | `/api/v1/accounts/{accountId}/postings` | CBTRN02C 1500-VALIDATE-TRAN + 2700-UPDATE-ACCOUNT-REC | body `transactionId` (idempotency key, max 16), `amount`, `transactionDate`, optional `type` (`DAILY_TRANSACTION` default, or `BILL_PAYMENT` = COBIL00C: balance only, no 102/103); 200 when posted (a repeat of the same `transactionId` returns the first result without posting again), 422 with `reasonCode` 101/102/103 when rejected, 409 when the `transactionId` was already posted with another account, amount, date or type |
 | POST | `/api/v1/accounts/{accountId}/interest-settlements` | CBACT04C account break | adds the accumulated interest and resets the cycle totals |
 
@@ -110,7 +111,7 @@ Main menu (user type `U`; every option is flagged `U` in `COMEN02Y`, none is adm
 
 | # | Option | Program | Endpoint |
 | --- | --- | --- | --- |
-| 1 | Account View | COACTVWC | `GET /api/v1/accounts/{accountId}` |
+| 1 | Account View | COACTVWC | `GET /api/v1/accounts/{accountId}/view` |
 | 2 | Account Update | COACTUPC | `PUT /api/v1/accounts/{accountId}` |
 | 3 | Credit Card List | COCRDLIC | `GET /api/v1/cards` |
 | 4 | Credit Card View | COCRDSLC | `GET /api/v1/cards/{cardNumber}` |

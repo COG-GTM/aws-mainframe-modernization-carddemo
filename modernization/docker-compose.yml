@@ -59,6 +59,8 @@ services:
       ACCOUNT_DB_URL: jdbc:postgresql://postgres:5432/carddemo
       ACCOUNT_DB_USER: ${POSTGRES_USER:-carddemo}
       ACCOUNT_DB_PASSWORD: ${POSTGRES_PASSWORD:-carddemo}
+      CARD_SERVICE_URL: http://card-service:8083
+      CUSTOMER_SERVICE_URL: http://customer-service:8081
     ports:
       - "8082:8082"
     depends_on:

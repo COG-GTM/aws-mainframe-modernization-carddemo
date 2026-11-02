@@ -1,6 +1,7 @@
 package com.carddemo.customer.service;
 
 import com.carddemo.common.error.NotFoundException;
+import com.carddemo.common.error.RecordChangedException;
 import com.carddemo.customer.api.dto.CustomerUpdateRequest;
 import com.carddemo.customer.domain.Customer;
 import com.carddemo.customer.repository.CustomerRepository;
@@ -32,6 +33,9 @@ public class CustomerService {
     @Transactional
     public Customer update(long custId, CustomerUpdateRequest request) {
         Customer customer = get(custId);
+        if (request.version() != null && request.version() != customer.getVersion()) {
+            throw new RecordChangedException();
+        }
         customer.setFirstName(request.firstName());
         customer.setMiddleName(request.middleName());
         customer.setLastName(request.lastName());
@@ -48,6 +52,9 @@ public class CustomerService {
         customer.setEftAccountId(request.eftAccountId());
         customer.setPriCardHolderInd(request.primaryCardHolderIndicator());
         customer.setFicoCreditScore(request.ficoScore());
-        return customers.save(customer);
+        if (request.ssn() != null) {
+            customer.setSsn(request.ssn());
+        }
+        return customers.saveAndFlush(customer);
     }
 }
