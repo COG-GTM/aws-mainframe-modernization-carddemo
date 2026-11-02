@@ -1,0 +1,27 @@
+server:
+  port: 8083
+
+spring:
+  application:
+    name: card-service
+  datasource:
+    url: ${CARD_DB_URL:jdbc:postgresql://localhost:5432/carddemo}
+    username: ${CARD_DB_USER}
+    password: ${CARD_DB_PASSWORD}
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        default_schema: card
+  flyway:
+    schemas: card
+    default-schema: card
+    create-schemas: true
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics

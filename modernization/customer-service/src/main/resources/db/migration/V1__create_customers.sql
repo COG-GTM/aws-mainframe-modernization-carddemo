@@ -1,0 +1,26 @@
+-- CUSTDATA VSAM KSDS (copybook CVCUS01Y, record length 500), key CUST-ID.
+CREATE TABLE customers (
+    cust_id             BIGINT          NOT NULL,
+    first_name          VARCHAR(25),
+    middle_name         VARCHAR(25),
+    last_name           VARCHAR(25),
+    addr_line_1         VARCHAR(50),
+    addr_line_2         VARCHAR(50),
+    addr_line_3         VARCHAR(50),
+    addr_state_cd       VARCHAR(2),
+    addr_country_cd     VARCHAR(3),
+    addr_zip            VARCHAR(10),
+    phone_num_1         VARCHAR(15),
+    phone_num_2         VARCHAR(15),
+    ssn                 BIGINT,
+    govt_issued_id      VARCHAR(20),
+    date_of_birth       DATE,
+    eft_account_id      VARCHAR(10),
+    pri_card_holder_ind VARCHAR(1),
+    fico_credit_score   INTEGER,
+    version             BIGINT          NOT NULL DEFAULT 0,
+    CONSTRAINT pk_customers PRIMARY KEY (cust_id),
+    CONSTRAINT ck_customers_cust_id CHECK (cust_id BETWEEN 0 AND 999999999),
+    CONSTRAINT ck_customers_ssn CHECK (ssn IS NULL OR ssn BETWEEN 0 AND 999999999),
+    CONSTRAINT ck_customers_fico CHECK (fico_credit_score IS NULL OR fico_credit_score BETWEEN 300 AND 850)
+);
