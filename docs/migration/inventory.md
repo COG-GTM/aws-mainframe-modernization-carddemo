@@ -570,6 +570,9 @@ need to be confirmed against the mainframe listings before the golden set relies
 
 ## 13. Earlier `devin/*` branches (prior work on this repo)
 
+A fuller branch-by-branch assessment is being written as `docs/migration/prior-work.md` (PR #156, same
+board); this section is the summary needed to read the inventory.
+
 `main` contains only the mainframe source (`app/`, `diagrams/`, `samples/`, `scripts/`); there is no
 `modernization/` directory and no `docs/` on `main`. 154 remote `devin/*`/`migration/*` branches hold
 earlier, unmerged attempts (counted by the top-level directories they add over `main`):
