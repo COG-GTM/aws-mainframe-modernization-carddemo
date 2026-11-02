@@ -245,7 +245,7 @@ out/POSTTRAN/20220718-000000-000/DALYREJS   430-byte rejects of this run (DALYTR
                                  TRANSACT   350-byte TRANFILE after the run, by TRAN-ID
                                  TCATBALF   50-byte category balances after the run
                                  RETURN-CODE
-out/INTCALC/<ts>/SYSTRAN                    350-byte interest transactions of this run
+out/INTCALC/<ts>/SYSTRAN                    350-byte interest transactions of this run (TRAN-ID = PARM + 000001..)
 out/COMBTRAN/<ts>/TRANSACT.COMBINED         TRANSACT.BKUP(0) + SYSTRAN(0) sorted by TRAN-ID
 out/TRANREPT/<ts>/TRANSACT.BKUP             350-byte TRANSACT unload (STEP05R REPROC)
                   TRANSACT.DALY             the DATEPARM window, sorted by card number (STEP05R SORT)
