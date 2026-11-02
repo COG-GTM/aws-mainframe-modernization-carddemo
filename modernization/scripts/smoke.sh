@@ -70,12 +70,17 @@ declare -A PROBE=(
   [card-service]="/api/v1/cards?size=1"
   [transaction-service]="/api/v1/transactions?size=1"
 )
-for svc in "${SERVICES[@]}"; do
+for svc in "${!PROBE[@]}"; do
   url="http://${HOST}:${PORTS[$svc]}${PROBE[$svc]}"
   code=$(code_of "$url"); [[ "$code" == "401" ]] || fail "$svc $url without token -> $code, want 401"
   code=$(code_of "${BEARER[@]}" "$url"); [[ "$code" == "200" ]] || fail "$svc $url with token -> $code, want 200"
   echo "ok  $svc 401 without token, 200 with token  ${PROBE[$svc]}"
 done
+# batch-service has no endpoints yet; the filter still guards its /api/** (401 without, 404 with a token).
+url="http://${HOST}:${PORTS[batch-service]}/api/v1/batch"
+code=$(code_of "$url"); [[ "$code" == "401" ]] || fail "batch-service $url without token -> $code, want 401"
+code=$(code_of "${BEARER[@]}" "$url"); [[ "$code" == "404" ]] || fail "batch-service $url with token -> $code, want 404"
+echo "ok  batch-service 401 without token, 404 with token (no endpoints yet)"
 
 menu=$(curl -fsS "${BEARER[@]}" "$AUTH/api/v1/menu") || fail "menu ADMIN001"
 echo "$menu" | grep -q '"menu":"ADMIN"' || fail "menu ADMIN001 returned $menu"

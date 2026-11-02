@@ -1,10 +1,13 @@
 package com.carddemo.common.security;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.header;
-import static org.springframework.test.web.client.match.MockRestRequestMatchers.headerDoesNotExist;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo;
 import static org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess;
 
+import java.time.Clock;
+import java.time.Duration;
+import java.util.List;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpHeaders;
@@ -16,8 +19,11 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 
 class CallerTokenForwarderTest {
 
+    private final TokenService tokens = new TokenService(
+            new SecurityProperties("test-only-token-secret-0123456789abcdef", Duration.ofHours(8), "carddemo-auth-service", List.of()),
+            Clock.systemUTC());
     private final RestClient.Builder builder = RestClient.builder().baseUrl("http://account-service")
-            .requestInterceptor(new CallerTokenForwarder());
+            .requestInterceptor(new CallerTokenForwarder(tokens));
     private final MockRestServiceServer server = MockRestServiceServer.bindTo(builder).build();
     private final RestClient client = builder.build();
 
@@ -40,9 +46,14 @@ class CallerTokenForwarderTest {
     }
 
     @Test
-    void sendsNoTokenOutsideARequest() {
+    void sendsABatchUserTokenOutsideARequest() {
         server.expect(requestTo("http://account-service/api/v1/accounts/1"))
-                .andExpect(headerDoesNotExist(HttpHeaders.AUTHORIZATION))
+                .andExpect(request -> {
+                    String authorization = request.getHeaders().getFirst(HttpHeaders.AUTHORIZATION);
+                    assertThat(authorization).startsWith("Bearer ");
+                    CallerIdentity caller = tokens.verify(authorization.substring("Bearer ".length()));
+                    assertThat(caller).isEqualTo(new CallerIdentity("BATCH", "U"));
+                })
                 .andRespond(withSuccess());
 
         client.get().uri("/api/v1/accounts/1").retrieve().toBodilessEntity();

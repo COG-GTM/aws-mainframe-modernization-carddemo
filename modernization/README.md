@@ -204,7 +204,9 @@ java -jar transaction-service/target/transaction-service-*.jar --job=POSTTRAN \
 ```
 
 The CLI needs the same database settings as the service (`TRANSACTION_DB_URL`, `TRANSACTION_DB_USER`,
-`TRANSACTION_DB_PASSWORD`, and `ACCOUNT_SERVICE_URL` / `CARD_SERVICE_URL` for POSTTRAN). Against the
+`TRANSACTION_DB_PASSWORD`, and `ACCOUNT_SERVICE_URL` / `CARD_SERVICE_URL` for POSTTRAN) plus
+`CARDDEMO_TOKEN_SECRET`: with no caller to forward, the account/card calls carry a token minted for
+user `BATCH` (type `U`). Against the
 compose stack: `docker compose run --rm -v "$PWD/batch-out:/batch-out" -e BATCH_OUTPUT_DIR=/batch-out
 transaction-service --job=POSTTRAN --date=2022-07-18`.
 

@@ -18,6 +18,7 @@ import com.carddemo.common.record.layout.DalyrejsRecordLayout;
 import com.carddemo.common.record.layout.DalytranRecordLayout;
 import com.carddemo.common.record.layout.TranCatBalRecordLayout;
 import com.carddemo.common.record.layout.TranRecordLayout;
+import com.carddemo.common.security.TokenService;
 import com.carddemo.transaction.repository.CategoryBalanceRepository;
 import com.carddemo.transaction.repository.DailyTransactionRepository;
 import com.carddemo.transaction.repository.TransactionRejectRepository;
@@ -37,6 +38,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
+import org.springframework.http.HttpHeaders;
 import org.springframework.test.web.servlet.MockMvc;
 
 /** The file adapters and launch semantics of POSTTRAN, INTCALC and COMBTRAN (not business parity). */
@@ -56,6 +58,9 @@ class BatchJobsTest {
 
     @Autowired
     private MockMvc mvc;
+
+    @Autowired
+    private TokenService tokens;
 
     @Autowired
     private DailyTransactionRepository dailyTransactions;
@@ -228,14 +233,16 @@ class BatchJobsTest {
 
     @Test
     void httpLaunchStillWorksAndReportsTheOutputDirectory() throws Exception {
-        mvc.perform(post("/api/v1/batch/post-transactions"))
+        String bearer = "Bearer " + tokens.issue("ADMIN001", "A").token();
+        mvc.perform(post("/api/v1/batch/post-transactions").header(HttpHeaders.AUTHORIZATION, bearer))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.status").value("COMPLETED"))
                 .andExpect(jsonPath("$.jobName").value(BatchConfig.POST_TRANSACTIONS_JOB))
                 .andExpect(jsonPath("$.returnCode").value(0))
                 .andExpect(jsonPath("$.results.posted").value(0))
                 .andExpect(jsonPath("$.outputDir").exists());
-        mvc.perform(post("/api/v1/batch/interest-calculation").param("parm", "2022071800"))
+        mvc.perform(post("/api/v1/batch/interest-calculation").param("parm", "2022071800")
+                        .header(HttpHeaders.AUTHORIZATION, bearer))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.status").value("COMPLETED"))
                 .andExpect(jsonPath("$.results.parm").value("2022071800"));

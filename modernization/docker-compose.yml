@@ -113,6 +113,7 @@ services:
       BATCH_DB_URL: jdbc:postgresql://postgres:5432/carddemo
       BATCH_DB_USER: ${POSTGRES_USER:-carddemo}
       BATCH_DB_PASSWORD: ${POSTGRES_PASSWORD:-carddemo}
+      CARDDEMO_TOKEN_SECRET: ${CARDDEMO_TOKEN_SECRET:-local-dev-only-carddemo-token-secret-not-for-prod}
     ports:
       - "8085:8085"
     depends_on:

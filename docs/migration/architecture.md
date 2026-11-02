@@ -54,7 +54,7 @@ scenarios derived from the COBOL source (scope §4.2).
 - **Token.** `POST /api/v1/auth/signon` returns `token` (a JWT signed with HS256, `nimbus-jose-jwt`),
   `tokenType: Bearer` and `expiresAt`. Claims: `sub` = `CDEMO-USER-ID`, `userType` = `CDEMO-USER-TYPE`
   (`A`/`U`), `iss` = `carddemo-auth-service`, `iat`, `exp`, `jti`. HS256 was chosen over RS256 because
-  all five services are one trust domain deployed together; one shared key keeps the setup to a single
+  all services are one trust domain deployed together; one shared key keeps the setup to a single
   variable. Moving to RS256/JWKS later only touches `common/security/TokenService`.
 - **Key and lifetime.** `CARDDEMO_TOKEN_SECRET` (`carddemo.security.token-secret`, at least 32 bytes)
   must be the same on every service; the services refuse to start without it. `docker-compose.yml`
@@ -75,8 +75,12 @@ scenarios derived from the COBOL source (scope §4.2).
   later tickets (UNT149-17/18/19) read it there instead of adding parameters.
 - **Gateways.** transaction-service's account/card `RestClient`s carry `CallerTokenForwarder`, which
   copies the inbound `Authorization` header, so account/card-service authorise the original caller. The
-  batch triggers run in the request thread and forward the caller's token the same way; a job started
-  without a request (no scheduler exists today) would get 401 from account/card-service.
+  HTTP batch triggers run in the request thread and forward the caller's token the same way. A job
+  launched from the command line (`--job=`, the scheduler path) has no caller, so the forwarder mints a
+  token with the shared key for `sub` = `BATCH`, `userType` = `U` (no admin rights; the account/card
+  endpoints the jobs call are not admin-only).
+- **batch-service** scans `com.carddemo.common` like the others, so the same filter guards its `/api/**`
+  (it has no endpoints yet) and it needs `CARDDEMO_TOKEN_SECRET` too, also for CLI launches.
 - **Password case (COBOL fact, adapted).** COSGN00C upper-cases the typed password before comparing,
   so only upper-case stored passwords can ever match in CICS (COUSR01C stores what was typed). The
   service accepts the password as typed or upper-cased: USRSEC users sign on case-insensitively as in
