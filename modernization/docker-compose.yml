@@ -96,6 +96,24 @@ services:
       postgres:
         condition: service_healthy
 
+  # Batch programs the transaction-service jobs do not cover (reports, statements, export/import);
+  # empty until those jobs land. CLI launch: `docker compose run --rm batch-service --job=<JCL member>`.
+  batch-service:
+    build:
+      context: .
+      args:
+        MODULE: batch-service
+        MAVEN_MIRROR_URL: ${MAVEN_MIRROR_URL:-}
+    environment:
+      BATCH_DB_URL: jdbc:postgresql://postgres:5432/carddemo
+      BATCH_DB_USER: ${POSTGRES_USER:-carddemo}
+      BATCH_DB_PASSWORD: ${POSTGRES_PASSWORD:-carddemo}
+    ports:
+      - "8085:8085"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
   # One-shot loader for the app/data sample datasets: `docker compose run --rm data-loader` once the
   # services are up (they create the schemas with Flyway). Not started by `docker compose up`.
   data-loader:

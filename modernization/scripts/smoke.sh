@@ -20,8 +20,9 @@ declare -A PORTS=(
   [account-service]="${ACCOUNT_PORT:-8082}"
   [card-service]="${CARD_PORT:-8083}"
   [transaction-service]="${TRANSACTION_PORT:-8084}"
+  [batch-service]="${BATCH_PORT:-8085}"
 )
-SERVICES=(auth-service customer-service account-service card-service transaction-service)
+SERVICES=(auth-service customer-service account-service card-service transaction-service batch-service)
 
 fail() { echo "FAIL: $*" >&2; exit 1; }
 

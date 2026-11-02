@@ -1,0 +1,4 @@
+
+# Batch job output generations (CLI/HTTP launches)
+out/
+batch-out/

@@ -16,6 +16,7 @@ COPY customer-service/pom.xml customer-service/pom.xml
 COPY account-service/pom.xml account-service/pom.xml
 COPY card-service/pom.xml card-service/pom.xml
 COPY transaction-service/pom.xml transaction-service/pom.xml
+COPY batch-service/pom.xml batch-service/pom.xml
 COPY data-loader/pom.xml data-loader/pom.xml
 RUN mvn -B -pl common,${MODULE} -am dependency:go-offline
 COPY . .

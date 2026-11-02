@@ -1,0 +1,32 @@
+server:
+  port: 8085
+
+spring:
+  application:
+    name: batch-service
+  datasource:
+    url: ${BATCH_DB_URL:jdbc:postgresql://localhost:5432/carddemo}
+    username: ${BATCH_DB_USER}
+    password: ${BATCH_DB_PASSWORD}
+  flyway:
+    schemas: batch
+    default-schema: batch
+    create-schemas: true
+  batch:
+    jdbc:
+      # Created by Flyway (V1) inside the batch schema, as transaction-service does for its own.
+      initialize-schema: never
+      table-prefix: batch.BATCH_
+    job:
+      enabled: false
+
+carddemo:
+  batch:
+    # Root of the job output generations: <output-dir>/<JOB>/<yyyyMMdd-HHmmss-SSS>/<DD>.
+    output-dir: ${BATCH_OUTPUT_DIR:out}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
