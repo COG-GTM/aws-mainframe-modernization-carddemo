@@ -1,5 +1,6 @@
 package com.carddemo.customer.api.dto;
 
+import com.carddemo.common.api.PicId;
 import com.carddemo.customer.domain.Customer;
 import java.time.LocalDate;
 
@@ -8,7 +9,7 @@ import java.time.LocalDate;
  * the modern API does not return it.
  */
 public record CustomerResponse(
-        Long customerId,
+        @PicId(digits = 9) Long customerId,
         String firstName,
         String middleName,
         String lastName,

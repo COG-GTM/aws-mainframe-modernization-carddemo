@@ -1,5 +1,6 @@
 package com.carddemo.transaction.api.dto;
 
+import com.carddemo.common.api.PicId;
 import com.carddemo.transaction.domain.Transaction;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -13,7 +14,7 @@ public record TransactionResponse(
         String source,
         String description,
         BigDecimal amount,
-        Long merchantId,
+        @PicId(digits = 9) Long merchantId,
         String merchantName,
         String merchantCity,
         String merchantZip,

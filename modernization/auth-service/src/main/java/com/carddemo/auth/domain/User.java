@@ -4,6 +4,7 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import jakarta.persistence.Version;
 
 /**
  * USRSEC record, copybook CSUSR01Y. SEC-USR-PWD held an eight byte clear text password; the
@@ -29,6 +30,11 @@ public class User {
     /** SEC-USR-TYPE: 'A' admin (COADM01C menu), 'U' regular user (COMEN01C menu). */
     @Column(name = "user_type", length = 1, nullable = false)
     private String userType;
+
+    /** Replaces the CICS lock of READ ... UPDATE in COUSR02C / COUSR03C. */
+    @Version
+    @Column(name = "version", nullable = false)
+    private long version;
 
     protected User() {
     }

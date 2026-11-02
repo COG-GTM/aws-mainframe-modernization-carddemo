@@ -46,7 +46,7 @@ class AccountControllerTest {
     void returnsTheAccountViewScreenFields() throws Exception {
         mockMvc.perform(get("/api/v1/accounts/{id}", ACCT_ID))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.accountId").value(ACCT_ID))
+                .andExpect(jsonPath("$.accountId").value("12345678901"))
                 .andExpect(jsonPath("$.currentBalance").value(42.00))
                 .andExpect(jsonPath("$.groupId").value("DEFAULT"));
     }

@@ -29,7 +29,7 @@ These are already in the code; they are written down here so later tickets follo
 | Layout | `modernization/<service>/src/main/java/com/carddemo/<service>/{api,api/dto,domain,repository,service}`; shared code only in `common` (error envelope, `PageResponse`, `CobolValues`). |
 | Ports | auth 8080, customer 8081, account 8082, card 8083, transaction 8084 (container and default host port). |
 | Data | One schema per service (`auth`, `customer`, `account`, `card`, `transaction`) in one PostgreSQL. Foreign keys only inside a schema; cross-service references are ids. VSAM keys become primary keys, alternate indexes become secondary indexes or lookup endpoints. |
-| Schema changes | Flyway `V<n>__<name>.sql` per service. Tests run on H2 with Flyway off and Hibernate DDL, so Flyway SQL is only exercised by `docker compose up`. |
+| Schema changes | Flyway `V<n>__<name>.sql` per service. Tests run on PostgreSQL 16 (Testcontainers) with Flyway on and `ddl-auto: validate`; see [conventions.md](conventions.md) §9. |
 | Money | `S9(n)V99` → `NUMERIC(n+2,2)` / `BigDecimal`; no floating point. |
 | Locking | CICS READ UPDATE → JPA `@Version` optimistic locking. |
 | Cross-service calls | transaction-service → account/card over HTTP through `AccountGateway` / `CardGateway`. |
@@ -92,7 +92,7 @@ needs the definition of done in scope §4. "Branch label" is the status the base
 | Program | Branch label | Verified status | What the code shows |
 |---|---|---|---|
 | CBTRN02C | ported | partial | Reasons 100–103, TCATBAL upsert and the cycle-bucket sign handling are in `PostingService` / `AccountService.post`. Input and rejects are tables, not the DALYTRAN / DALYREJS files, so the golden-set harness cannot run it yet. Double posting on retry (§1). When a record is both over limit and expired, Java rejects with 102; COBOL `1500-B-LOOKUP-ACCT` runs both checks and the later 103 overwrites 102. |
-| CBACT04C | ported | partial | `InterestCalculationService` follows the account break and DISCGRP fallback; same table-only I/O gap. Three differences from the COBOL: monthly interest is rounded `HALF_UP`, but the COBOL `COMPUTE` (line 464) has no `ROUNDED`, so it truncates into `PIC S9(09)V99`; a missing account is skipped, but `1100-GET-ACCT-DATA` abends; a missing DEFAULT rate becomes zero, but `1200-A-GET-DEFAULT-INT-RATE` abends. |
+| CBACT04C | ported | partial | `InterestCalculationService` follows the account break and DISCGRP fallback; same table-only I/O gap. Differences from the COBOL: monthly interest was rounded `HALF_UP` although the COBOL `COMPUTE` (line 464) has no `ROUNDED` (fixed: now truncates, [conventions.md](conventions.md) §2); a missing account is skipped, but `1100-GET-ACCT-DATA` abends; a missing DEFAULT rate becomes zero, but `1200-A-GET-DEFAULT-INT-RATE` abends. |
 | CBTRN03C | not built | stub | |
 | CBSTM03A / CBSTM03B | not built | stub | |
 | CBEXPORT / CBIMPORT | not built | stub | |

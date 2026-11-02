@@ -1,12 +1,13 @@
 package com.carddemo.account.api.dto;
 
+import com.carddemo.common.api.PicId;
 import com.carddemo.account.domain.Account;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
 /** Screen fields of COACTVW, as JSON. */
 public record AccountResponse(
-        Long accountId,
+        @PicId(digits = 11) Long accountId,
         String activeStatus,
         BigDecimal currentBalance,
         BigDecimal creditLimit,

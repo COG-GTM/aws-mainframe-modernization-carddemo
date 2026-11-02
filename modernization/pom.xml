@@ -32,6 +32,8 @@
         <maven.compiler.release>21</maven.compiler.release>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <springdoc.version>2.6.0</springdoc.version>
+        <!-- Boot 3.3.4 pins 1.19.8, whose Docker client API (1.32) Docker Engine 29 rejects. -->
+        <testcontainers.version>1.21.4</testcontainers.version>
     </properties>
 
     <dependencyManagement>
