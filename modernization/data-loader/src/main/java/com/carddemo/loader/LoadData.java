@@ -57,6 +57,14 @@ public final class LoadData {
         String user = required("CARDDEMO_DB_USER");
         String password = required("CARDDEMO_DB_PASSWORD");
         PasswordEncoder encoder = new BCryptPasswordEncoder();
+        if (report != null) {
+            // Fail before loading, not after the load has committed.
+            Path parent = report.toAbsolutePath().getParent();
+            Files.createDirectories(parent);
+            if (!Files.isWritable(parent) || Files.isDirectory(report)) {
+                throw new IllegalArgumentException("Cannot write report " + report);
+            }
+        }
 
         try (Connection connection = DriverManager.getConnection(url, user, password)) {
             awaitSchemas(connection, waitSeconds);

@@ -173,7 +173,8 @@ command before the smoke test.
 | `auth.users` | 10: `ADMIN001`-`ADMIN005` (admin), `USER0001`-`USER0005`; password `PASSWORD` |
 
 - The loader refuses to load into tables that already have rows. `docker compose run --rm data-loader --replace`
-  empties the ten target tables and loads again (posted `transactions` and `transaction_rejects` are kept).
+  empties the ten target tables plus the batch outputs `transaction.transactions` and
+  `transaction.transaction_rejects` (so reloaded daily transactions are not posted twice) and loads again.
 - `--report FILE` writes the reconciliation report; the committed one is
   `docs/migration/validation/sample-data-reconciliation.md`, regenerated and checked by
   `SampleDataReconciliationTest` in `mvn verify`.

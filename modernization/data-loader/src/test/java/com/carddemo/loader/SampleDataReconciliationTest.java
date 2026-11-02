@@ -83,6 +83,17 @@ class SampleDataReconciliationTest {
     }
 
     @Test
+    void refusesToLoadWhenBatchOutputExists() throws Exception {
+        try (Connection connection = connect(); Statement statement = connection.createStatement()) {
+            statement.execute("INSERT INTO transaction.transaction_rejects (tran_id, reason_code) VALUES ('X', 102)");
+            assertThatThrownBy(() -> new SampleDataLoader(DATA_DIR, encoder).load(connection, false))
+                    .isInstanceOf(IllegalStateException.class)
+                    .hasMessageContaining("transaction.transaction_rejects (1 rows)");
+            assertThat(SampleDataLoader.rowCounts(connection).values()).containsOnly(0L);
+        }
+    }
+
+    @Test
     void loadsEveryDatasetAndRoundTripsWithoutDifferences() throws Exception {
         try (Connection connection = connect()) {
             Map<TableMapping, Integer> inserted = new SampleDataLoader(DATA_DIR, encoder).load(connection, false);
@@ -123,8 +134,21 @@ class SampleDataReconciliationTest {
                     .hasMessageContaining("not empty");
             assertThat(SampleDataLoader.rowCounts(connection)).containsEntry(TableMapping.ACCOUNTS, 50L);
 
+            try (Statement statement = connection.createStatement()) {
+                statement.execute("INSERT INTO transaction.transactions (tran_id, type_cd, cat_cd, amount, card_num)"
+                        + " VALUES ('0000000000000001', '01', 1, 10.00, '0500024453765740')");
+                statement.execute("INSERT INTO transaction.transaction_rejects (tran_id, reason_code)"
+                        + " VALUES ('0000000000000002', 102)");
+            }
             loader.load(connection, true);
             assertThat(SampleDataLoader.rowCounts(connection)).containsEntry(TableMapping.DAILY_TRANSACTIONS, 300L);
+            for (String table : SampleDataLoader.DERIVED_TABLES) {
+                try (Statement statement = connection.createStatement();
+                     var rs = statement.executeQuery("SELECT count(*) FROM " + table)) {
+                    rs.next();
+                    assertThat(rs.getLong(1)).as(table + " after --replace").isZero();
+                }
+            }
             assertThat(Reconciliation.run(connection, DATA_DIR, encoder).reconciled()).isTrue();
         }
     }

@@ -15,6 +15,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 /**
@@ -22,6 +23,13 @@ import org.springframework.security.crypto.password.PasswordEncoder;
  * created, in {@link TableMapping} order and in one database transaction.
  */
 public final class SampleDataLoader {
+
+    /**
+     * Tables the batch jobs and online API fill from the loaded data (POSTTRAN output, DALYREJS, interest
+     * transactions). They must be empty to load, and {@code replace} empties them with the target tables:
+     * otherwise reloaded daily transactions (processed = false) would be posted or rejected a second time.
+     */
+    public static final List<String> DERIVED_TABLES = List.of("transaction.transactions", "transaction.transaction_rejects");
 
     private final Path dataDir;
     private final PasswordEncoder passwordEncoder;
@@ -32,8 +40,9 @@ public final class SampleDataLoader {
     }
 
     /**
-     * Loads all datasets and returns the rows inserted per table. Refuses to run when a target table
-     * already has rows unless {@code replace} is set, which empties the target tables first.
+     * Loads all datasets and returns the rows inserted per table. Refuses to run when a target table or
+     * one of the {@link #DERIVED_TABLES} already has rows unless {@code replace} is set, which empties
+     * all of them first.
      */
     public Map<TableMapping, Integer> load(Connection connection, boolean replace) throws SQLException, IOException {
         Map<TableMapping, SourceFile> sources = new LinkedHashMap<>();
@@ -94,10 +103,22 @@ public final class SampleDataLoader {
     }
 
     private static void requireEmpty(Connection connection) throws SQLException {
-        List<String> loaded = rowCounts(connection).entrySet().stream()
-                .filter(e -> e.getValue() > 0)
-                .map(e -> e.getKey().table() + " (" + e.getValue() + " rows)")
-                .toList();
+        List<String> loaded = new ArrayList<>();
+        rowCounts(connection).forEach((mapping, rows) -> {
+            if (rows > 0) {
+                loaded.add(mapping.table() + " (" + rows + " rows)");
+            }
+        });
+        try (Statement statement = connection.createStatement()) {
+            for (String table : DERIVED_TABLES) {
+                try (ResultSet rs = statement.executeQuery("SELECT count(*) FROM " + table)) {
+                    rs.next();
+                    if (rs.getLong(1) > 0) {
+                        loaded.add(table + " (" + rs.getLong(1) + " rows)");
+                    }
+                }
+            }
+        }
         if (!loaded.isEmpty()) {
             throw new IllegalStateException("Target tables are not empty: " + String.join(", ", loaded)
                     + ". Use --replace to empty them first, or recreate the database (docker compose down -v).");
@@ -105,7 +126,8 @@ public final class SampleDataLoader {
     }
 
     private static void truncate(Connection connection) throws SQLException {
-        String tables = Arrays.stream(TableMapping.values()).map(TableMapping::table).collect(Collectors.joining(", "));
+        String tables = Stream.concat(Arrays.stream(TableMapping.values()).map(TableMapping::table), DERIVED_TABLES.stream())
+                .collect(Collectors.joining(", "));
         try (Statement statement = connection.createStatement()) {
             statement.execute("TRUNCATE " + tables);
         }
