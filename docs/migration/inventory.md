@@ -27,7 +27,7 @@ The COBOL under `app/` is the read-only reference for the migration; this docume
 | Copybooks | `app/cpy` | 30 | 15 record/data layouts, 15 working-storage / procedure / menu copybooks |
 | BMS symbolic-map copybooks | `app/cpy-bms` | 17 | one per mapset in `app/bms` |
 | BMS mapsets | `app/bms` | 17 | one map per mapset |
-| JCL jobs | `app/jcl` | 38 | 12 run application COBOL programs; the rest are IDCAMS/utility jobs |
+| JCL jobs | `app/jcl` | 38 | 11 run application COBOL programs (CBEXPORT CBIMPORT CREASTMT INTCALC POSTTRAN READACCT READCARD READCUST READXREF TRANREPT WAITSTEP); the rest are IDCAMS/SDSF/utility jobs |
 | Procedures | `app/proc` | 2 | `REPROC`, `TRANREPT` |
 | IDCAMS control | `app/ctl` | 1 | `REPROCT.ctl` (`REPRO INFILE(FILEIN) OUTFILE(FILEOUT)`) |
 | Assembler | `app/asm`, `app/maclib` | 2 + 2 | `COBDATFT.asm`/`COCDATFT.mac`, `MVSWAIT.asm`/`ASMWAIT.mac` |
@@ -83,7 +83,7 @@ tranid) COMMAREA(CARDDEMO-COMMAREA)` (pseudo-conversational). The commarea is `C
 | CBCUS01C | READCUST STEP05 | CVCUS01Y | CUSTFILE = CUSTDATA.VSAM.KSDS (INPUT, KSDS sequential) | — |
 | CBEXPORT | CBEXPORT STEP02 | CVACT01Y CVACT02Y CVACT03Y CVCUS01Y CVEXPORT CVTRA05Y | CUSTFILE, ACCTFILE, XREFFILE, TRANSACT, CARDFILE = the five master KSDS (INPUT, sequential); EXPFILE = EXPORT.DATA (OUTPUT, KSDS keyed on `EXPORT-SEQUENCE-NUM`) | — |
 | CBIMPORT | CBIMPORT STEP01 | CVACT01Y CVACT02Y CVACT03Y CVCUS01Y CVEXPORT CVTRA05Y | EXPFILE = EXPORT.DATA (INPUT, KSDS); CUSTOUT = CUSTDATA.IMPORT, ACCTOUT = ACCTDATA.IMPORT, XREFOUT = CARDXREF.IMPORT, TRNXOUT = TRANSACT.IMPORT, ERROUT = IMPORT.ERRORS (OUTPUT, seq); CARDOUT (OUTPUT, seq) — **no `CARDOUT` DD in `CBIMPORT.jcl`** | — |
-| CBSTM03A | CREASTMT STEP040 | COSTM01 CUSTREC CVACT01Y CVACT03Y | STMTFILE = STATEMNT.PS (OUTPUT, seq); HTMLFILE = STATEMNT.HTML (OUTPUT, seq); reads TRNXFILE/XREFFILE/CUSTFILE/ACCTFILE only through CBSTM03B | CALL `CBSTM03B` (3 call sites: open, read, close, dispatched on `WS-M03B-AREA`) |
+| CBSTM03A | CREASTMT STEP040 | COSTM01 CUSTREC CVACT01Y CVACT03Y | STMTFILE = STATEMNT.PS (OUTPUT, seq); HTMLFILE = STATEMNT.HTML (OUTPUT, seq); reads TRNXFILE/XREFFILE/CUSTFILE/ACCTFILE only through CBSTM03B | CALL `CBSTM03B` (13 call sites; each passes `WS-M03B-AREA` with the DD name and an open/read/keyed-read/close operation code) |
 | CBSTM03B | subroutine of CBSTM03A | none | TRNXFILE = TRXFL.VSAM.KSDS (INPUT, sequential, key card+tran id 32); XREFFILE = CARDXREF.VSAM.KSDS (INPUT, sequential); CUSTFILE = CUSTDATA.VSAM.KSDS (INPUT, RANDOM); ACCTFILE = ACCTDATA.VSAM.KSDS (INPUT, RANDOM) | — |
 | CBTRN01C | **no JCL in `app/jcl` runs it** | CVACT01Y CVACT02Y CVACT03Y CVCUS01Y CVTRA05Y CVTRA06Y | DALYTRAN (INPUT, seq); CUSTFILE, XREFFILE, CARDFILE, ACCTFILE, TRANFILE (INPUT, RANDOM KSDS) — DD names only; datasets by analogy with POSTTRAN (**Hypothesis**) | — |
 | CBTRN02C | POSTTRAN STEP15 | CVACT01Y CVACT03Y CVTRA01Y CVTRA05Y CVTRA06Y | DALYTRAN = DALYTRAN.PS (INPUT, seq); XREFFILE = CARDXREF.VSAM.KSDS (INPUT, RANDOM); TRANFILE = TRANSACT.VSAM.KSDS (OUTPUT, RANDOM); DALYREJS = DALYREJS(+1) (OUTPUT, seq); ACCTFILE = ACCTDATA.VSAM.KSDS (I-O, RANDOM); TCATBALF = TCATBALF.VSAM.KSDS (I-O, RANDOM) | — |
