@@ -91,8 +91,8 @@ needs the definition of done in scope §4. "Branch label" is the status the base
 
 | Program | Branch label | Verified status | What the code shows |
 |---|---|---|---|
-| CBTRN02C | ported | partial | Reasons 100–103, TCATBAL upsert and the cycle-bucket sign handling are in `PostingService` / `AccountService.post`. Input and rejects are tables, not the DALYTRAN / DALYREJS files, so the golden-set harness cannot run it yet. Double posting on retry (§1). |
-| CBACT04C | ported | partial | `InterestCalculationService` follows the account break and DISCGRP fallback; same table-only I/O gap. |
+| CBTRN02C | ported | partial | Reasons 100–103, TCATBAL upsert and the cycle-bucket sign handling are in `PostingService` / `AccountService.post`. Input and rejects are tables, not the DALYTRAN / DALYREJS files, so the golden-set harness cannot run it yet. Double posting on retry (§1). When a record is both over limit and expired, Java rejects with 102; COBOL `1500-B-LOOKUP-ACCT` runs both checks and the later 103 overwrites 102. |
+| CBACT04C | ported | partial | `InterestCalculationService` follows the account break and DISCGRP fallback; same table-only I/O gap. Three differences from the COBOL: monthly interest is rounded `HALF_UP`, but the COBOL `COMPUTE` (line 464) has no `ROUNDED`, so it truncates into `PIC S9(09)V99`; a missing account is skipped, but `1100-GET-ACCT-DATA` abends; a missing DEFAULT rate becomes zero, but `1200-A-GET-DEFAULT-INT-RATE` abends. |
 | CBTRN03C | not built | stub | |
 | CBSTM03A / CBSTM03B | not built | stub | |
 | CBEXPORT / CBIMPORT | not built | stub | |
@@ -108,3 +108,15 @@ needs the definition of done in scope §4. "Branch label" is the status the base
   `Started ...Application` lines, `/actuator/health` UP on 8080–8083 and 8094.
 
 Command output is in the PR that added this file.
+
+## 6. Open review findings not fixed here
+
+This PR changes no business logic, so these findings stay open for the phases that close gaps:
+
+- The CBTRN02C and CBACT04C differences listed in §4.2.
+- Running interest calculation again charges unchanged category balances again. The COBOL behaves the
+  same way, because CBACT04C opens TCATBAL as input only. Guarding against a second run per period is
+  a scheduling and idempotency decision for the batch phase, not a parity fix.
+- Security, carried over from the base branch: no token or role checks on any endpoint, a seeded
+  `ADMIN001` / `Password1` user, `carddemo` / `carddemo` default database credentials, and Compose
+  publishing the service ports on every host interface. These are acceptable for a local demo only.
