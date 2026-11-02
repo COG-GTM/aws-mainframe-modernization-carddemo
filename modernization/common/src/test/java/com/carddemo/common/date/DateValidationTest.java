@@ -24,6 +24,10 @@ class DateValidationTest {
             "2022-00-10, INVALID_MONTH",
             "20AB-07-18, NON_NUMERIC_DATA",
             "2022-07, INSUFFICIENT_DATA",
+            "20220718, INSUFFICIENT_DATA",
+            "2022-7-18, INSUFFICIENT_DATA",
+            "2022-07-1, INSUFFICIENT_DATA",
+            "2022-07-18T10:15, VALID",
             "1582-10-14, UNSUPPORTED_RANGE",
             "0000-01-01, UNSUPPORTED_RANGE",
     })

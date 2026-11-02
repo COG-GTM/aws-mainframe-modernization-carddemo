@@ -136,10 +136,10 @@ final class StatementWriter {
                 LTRS, "<td colspan=\"3\" style=\"padding:0px 5px;background-color:#FFAF33;\">",
                 "<p style=\"font-size:16px\">Bank of XYZ</p>", "<p>410 Terry Ave N</p>", "<p>Seattle WA 99999</p>",
                 LTDE, LTRE, LTRS, L22_35));
-        html.add("<p style=\"font-size:16px\">" + upTo(name.substring(0, 50), "  ") + "  </p>");
-        html.add("<p>" + upTo(add1, "  ") + "  </p>");
-        html.add("<p>" + upTo(add2, "  ") + "  </p>");
-        html.add("<p>" + upTo(add3, "  ") + "  </p>");
+        html.add("<p style=\"font-size:16px\">" + escape(upTo(name.substring(0, 50), "  ")) + "  </p>");
+        html.add("<p>" + escape(upTo(add1, "  ")) + "  </p>");
+        html.add("<p>" + escape(upTo(add2, "  ")) + "  </p>");
+        html.add("<p>" + escape(upTo(add3, "  ")) + "  </p>");
         html.addAll(List.of(LTDE, LTRE, LTRS, L30_42, "<p style=\"font-size:16px\">Basic Details</p>", LTDE, LTRE,
                 LTRS, L22_35));
         html.add("<p>Account ID         : " + upTo(acctId, "*") + "</p>");
@@ -173,8 +173,8 @@ final class StatementWriter {
         String details = t.get(TrnxRecordLayout.TRNX_DESC).substring(0, 49);
         String amount = zEdit(t.get(TrnxRecordLayout.TRNX_AMT));
         stmt.add(id + " " + details + "$" + amount);
-        html.addAll(List.of(LTRS, td(25, "#f2f2f2", "left"), "<p>" + upTo(id, "*") + "</p>", LTDE,
-                td(55, "#f2f2f2", "left"), "<p>" + upTo(details, "*") + "</p>", LTDE,
+        html.addAll(List.of(LTRS, td(25, "#f2f2f2", "left"), "<p>" + escape(upTo(id, "*")) + "</p>", LTDE,
+                td(55, "#f2f2f2", "left"), "<p>" + escape(upTo(details, "*")) + "</p>", LTDE,
                 td(20, "#f2f2f2", "right"), "<p>" + upTo(amount, "*") + "</p>", LTDE, LTRE));
     }
 
@@ -197,6 +197,24 @@ final class StatementWriter {
     }
 
     /** {@code STRING x DELIMITED BY d}: the text before the first {@code d}, or all of it. */
+    /**
+     * Deviation from CBSTM03A, which copies customer and transaction text into the HTML as is: markup characters are
+     * escaped so stored data cannot inject script. Quotes stay as is: the text is element content, never an attribute,
+     * and merchant names such as O'Keefe keep the golden output byte-identical.
+     */
+    static String escape(String text) {
+        StringBuilder out = new StringBuilder(text.length());
+        for (char ch : text.toCharArray()) {
+            switch (ch) {
+                case '&' -> out.append("&amp;");
+                case '<' -> out.append("&lt;");
+                case '>' -> out.append("&gt;");
+                default -> out.append(ch);
+            }
+        }
+        return out.toString();
+    }
+
     static String upTo(String value, String delimiter) {
         int at = value.indexOf(delimiter);
         return at < 0 ? value : value.substring(0, at);

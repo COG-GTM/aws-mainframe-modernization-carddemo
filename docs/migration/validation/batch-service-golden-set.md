@@ -49,6 +49,17 @@ the exported data, rows inserted from the sample files; `transaction.transaction
 `AbendTest`: a duplicate KSDS key, a card with more than 10 transactions (CBSTM03A's table
 `OCCURS 10`, an overflow the COBOL does not check) and CBIMPORT with no EXPFILE each end with RC 16.
 
+## Accepted deviations
+
+- HTMLFILE escapes `&`, `<` and `>` in customer name/address and transaction ID/description; CBSTM03A
+  copies them as is, so stored data could inject markup. Quotes are left alone (element content only), and
+  the sample data has none of the three, so the golden HTMLFILE bytes are unchanged.
+- Table-backed TRANSACT unload: `transaction.transactions` keeps no provenance and stores `orig_ts` as a
+  timestamp, so a row gets the DB2 `YYYY-MM-DD-HH.MM.SS.NNNNNN` origin format only when it has the full
+  record shape CBACT04C writes (type `01`, category `05`, source `System`, description `Int. for a/c …`);
+  every other row gets the file format. An online add that copies all four would still be rendered as
+  interest; telling them apart needs a provenance column in transaction-service.
+
 ## Not covered
 
 - "Five schemas": `auth` has no CVEXPORT record type, so the round trip covers the five record types

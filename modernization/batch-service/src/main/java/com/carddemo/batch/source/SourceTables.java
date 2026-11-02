@@ -32,6 +32,7 @@ public class SourceTables {
 
     /** TRAN-SOURCE of the interest transactions INTCALC writes, which carry DB2 timestamps throughout. */
     static final String SYSTEM_SOURCE = "System";
+    static final String INTEREST_DESCRIPTION = "Int. for a/c ";
     static final DateTimeFormatter FILE_TIMESTAMP = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSSSSS");
 
     private final JdbcTemplate jdbc;
@@ -107,11 +108,20 @@ public class SourceTables {
      * DB2-format processing timestamp; INTCALC's ({@code source = 'System'}) carry DB2 timestamps in both,
      * as transaction-service writes them to its TRANSACT DD.
      */
+    /**
+     * The table keeps no provenance, so INTCALC rows are recognised by the full record CBACT04C writes (type 01,
+     * category 05, source System, description "Int. for a/c <acct>"), not by the user-editable source alone.
+     */
+    static boolean interestTransaction(String typeCd, long catCd, String source, String description) {
+        return "01".equals(typeCd) && catCd == 5 && SYSTEM_SOURCE.equals(source)
+                && description != null && description.startsWith(INTEREST_DESCRIPTION);
+    }
+
     public List<CobolRecord> transactions(CodePage codePage) {
         return jdbc.query("SELECT tran_id, type_cd, cat_cd, source, description, amount, merchant_id, merchant_name,"
                 + " merchant_city, merchant_zip, card_num, orig_ts, proc_ts"
                 + " FROM transaction.transactions ORDER BY tran_id COLLATE \"C\"", (rs, n) -> {
-                    boolean system = SYSTEM_SOURCE.equals(rs.getString(4));
+                    boolean system = interestTransaction(rs.getString(2), rs.getLong(3), rs.getString(4), rs.getString(5));
                     LocalDateTime orig = rs.getObject(12, LocalDateTime.class);
                     LocalDateTime proc = rs.getObject(13, LocalDateTime.class);
                     return CobolRecord.initialized(TranRecordLayout.LAYOUT, codePage)
