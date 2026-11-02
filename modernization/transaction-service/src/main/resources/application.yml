@@ -29,6 +29,10 @@ spring:
       enabled: false
 
 carddemo:
+  security:
+    # HS256 key shared by all five services; no default here, compose supplies a dev-only value.
+    token-secret: ${CARDDEMO_TOKEN_SECRET:}
+    token-ttl: ${CARDDEMO_TOKEN_TTL:PT8H}
   services:
     account-url: ${ACCOUNT_SERVICE_URL:http://localhost:8082}
     card-url: ${CARD_SERVICE_URL:http://localhost:8083}

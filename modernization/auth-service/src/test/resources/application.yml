@@ -17,3 +17,9 @@ spring:
     schemas: auth
     default-schema: auth
     create-schemas: true
+
+carddemo:
+  security:
+    token-secret: test-only-token-secret-0123456789abcdef
+    public-paths:
+      - /api/v1/auth/signon

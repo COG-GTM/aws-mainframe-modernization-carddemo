@@ -36,6 +36,7 @@
         <springdoc.version>2.6.0</springdoc.version>
         <!-- Boot 3.3.4 pins 1.19.8, whose Docker client API (1.32) Docker Engine 29 rejects. -->
         <testcontainers.version>1.21.4</testcontainers.version>
+        <nimbus-jose-jwt.version>10.4.2</nimbus-jose-jwt.version>
     </properties>
 
     <dependencyManagement>
@@ -49,6 +50,11 @@
                 <groupId>org.springdoc</groupId>
                 <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
                 <version>${springdoc.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.nimbusds</groupId>
+                <artifactId>nimbus-jose-jwt</artifactId>
+                <version>${nimbus-jose-jwt.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
