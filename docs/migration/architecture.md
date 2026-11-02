@@ -42,12 +42,45 @@ These are already in the code; they are written down here so later tickets follo
 
 The REST contract in `modernization/docs/API-CONTRACT.md` replaces the 3270 maps: each CICS
 transaction is one endpoint, the BMS fields are the request/response fields, and the COMMAREA
-becomes explicit request parameters plus (planned) a session token. Decision d-ui: REST API only;
+becomes explicit request parameters plus a signed session token (§3.1). Decision d-ui: REST API only;
 a web UI is an optional later phase. The API rules (resource naming, `ApiError` for `WS-MESSAGE`,
 `PageResponse` for PF7/PF8, token and admin role for the COMMAREA user id and `CDEMO-USRTYP-ADMIN`,
 `GET /api/v1/menu` for COMEN01C/COADM01C, async report jobs for CORPT00C, a batch job for statements)
 are in [`api-style.md`](api-style.md). Online programs are verified at the REST level against
 scenarios derived from the COBOL source (scope §4.2).
+
+### 3.1 Authentication: the token replaces the COMMAREA user fields
+
+- **Token.** `POST /api/v1/auth/signon` returns `token` (a JWT signed with HS256, `nimbus-jose-jwt`),
+  `tokenType: Bearer` and `expiresAt`. Claims: `sub` = `CDEMO-USER-ID`, `userType` = `CDEMO-USER-TYPE`
+  (`A`/`U`), `iss` = `carddemo-auth-service`, `iat`, `exp`, `jti`. HS256 was chosen over RS256 because
+  all five services are one trust domain deployed together; one shared key keeps the setup to a single
+  variable. Moving to RS256/JWKS later only touches `common/security/TokenService`.
+- **Key and lifetime.** `CARDDEMO_TOKEN_SECRET` (`carddemo.security.token-secret`, at least 32 bytes)
+  must be the same on every service; the services refuse to start without it. `docker-compose.yml`
+  supplies a dev-only default, nothing else does. Lifetime `CARDDEMO_TOKEN_TTL`, default `PT8H`
+  (one working shift, the closest analogue of a CICS terminal session); there is no refresh or
+  revocation, sign-off (PF3) is the client dropping the token.
+- **Filter.** `common/security/SecurityConfig` (picked up by every service's `com.carddemo.common`
+  scan) registers `AuthenticationFilter` on `/api/*`: missing token → 401 `Authentication required.
+  Sign on first ...`, bad signature/expired/unknown `userType` → 401 `Session token is invalid or
+  expired. Sign on again ...`, both as `ApiError` with `WWW-Authenticate: Bearer`. Public:
+  `/actuator/**`, `/v3/api-docs/**`, Swagger UI (all outside `/api/`) and `carddemo.security.public-paths`
+  (only `/api/v1/auth/signon`, set in auth-service).
+- **Roles.** `@AdminOnly` on a controller or method → 403 `ApiError` `No access - Admin Only option... `
+  (COMEN01C's text) for a `U` token. Applied to `UserController` (`/api/v1/users/**`). No other endpoint
+  is role-restricted and there are no per-user data checks, because the COBOL has none (`CSUSR01Y`
+  carries no account or customer id).
+- **Caller in code.** `CallerIdentity.from(request)` / `CallerIdentity.current()` give user id and type;
+  later tickets (UNT149-17/18/19) read it there instead of adding parameters.
+- **Gateways.** transaction-service's account/card `RestClient`s carry `CallerTokenForwarder`, which
+  copies the inbound `Authorization` header, so account/card-service authorise the original caller. The
+  batch triggers run in the request thread and forward the caller's token the same way; a job started
+  without a request (no scheduler exists today) would get 401 from account/card-service.
+- **Password case (COBOL fact, adapted).** COSGN00C upper-cases the typed password before comparing,
+  so only upper-case stored passwords can ever match in CICS (COUSR01C stores what was typed). The
+  service accepts the password as typed or upper-cased: USRSEC users sign on case-insensitively as in
+  CICS, and mixed-case passwords set through the user API still work.
 
 ## 4. Status per service
 
@@ -60,7 +93,7 @@ needs the definition of done in scope §4. "Branch label" is the status the base
 | Module | Status | Notes |
 |---|---|---|
 | `common` | complete | Error envelope, pagination, `CobolValues` (PIC X trim, date/timestamp parsing). |
-| `auth-service` | partial | Signon and user CRUD work. Signon issues no token and no endpoint checks roles. |
+| `auth-service` | partial | Signon issues the bearer token (§3.1), user CRUD is admin-only, `GET /api/v1/menu` serves COMEN01C/COADM01C. |
 | `customer-service` | partial | Read/list/update with no field edits; the customer edits of COACTUPC are not here. |
 | `account-service` | partial | View works; update covers account fields only; posting/interest settlement follow CBTRN02C/CBACT04C. |
 | `card-service` | partial | List/view/update work; COCRDUPC date edits incomplete. |
@@ -71,9 +104,9 @@ needs the definition of done in scope §4. "Branch label" is the status the base
 
 | Program | Branch label | Verified status | What the code shows |
 |---|---|---|---|
-| COSGN00C | ported | partial | `AuthService.signon` checks a BCrypt hash and returns `nextScreen`. One message for both failures instead of COBOL's "Wrong Password" / "User not found" (deliberate deviation). No token, so the COMMAREA user id/type has no replacement. |
-| COMEN01C | ported | stub | Only `nextScreen=MAIN` exists; the option list is not anywhere in the code. |
-| COADM01C | ported | stub | Only `nextScreen=ADMIN` exists; same as above. |
+| COSGN00C | ported | complete | `AuthService.signon`: BCrypt check, COBOL messages (`Wrong Password. Try again ...`, `User not found. Try again ...`, `Please enter User ID ...`, `Please enter Password ...`), `nextScreen` routing, HS256 token replacing `CDEMO-USER-ID`/`CDEMO-USER-TYPE` (§3.1). |
+| COMEN01C | ported | complete | `GET /api/v1/menu` for a `U` token (COMEN02Y, 11 options in order); `GET /api/v1/menu/options/{n}` keeps the range check, the admin-only check (unreachable with the shipped table) and `This option ... is not installed...`. |
+| COADM01C | ported | complete | `GET /api/v1/menu` for an `A` token (COADM02Y, 6 options); options 5–6 (Db2) `available: false`, `This option is not installed ...`. |
 | COACTVWC | ported | complete | `GET /api/v1/accounts/{id}`; card → account through `GET /api/v1/cards/{n}/xref`. |
 | COACTUPC | ported | partial | COBOL rewrites both ACCTDATA and CUSTDATA (lines 4066, 4086) and edits phone, SSN, state, ZIP, FICO (`1260`–`1280-EDIT-*`). Java `AccountService.update` writes account fields only, with three record-level checks; `CustomerService.update` has no edits. |
 | COCRDLIC | ported | complete | `GET /api/v1/cards?accountId=&customerId=` with both filters intersecting. Paging is by page number, not STARTBR key. |
@@ -119,6 +152,6 @@ This PR changes no business logic, so these findings stay open for the phases th
 - Running interest calculation again charges unchanged category balances again. The COBOL behaves the
   same way, because CBACT04C opens TCATBAL as input only. Guarding against a second run per period is
   a scheduling and idempotency decision for the batch phase, not a parity fix.
-- Security, carried over from the base branch: no token or role checks on any endpoint, the USRSEC
+- Security, carried over from the base branch: no TLS between services, the USRSEC
   sample users loaded by `data-loader` (`ADMIN001` … `USER0005`, password `PASSWORD`), `carddemo` / `carddemo` default database credentials, and Compose
   publishing the service ports on every host interface. These are acceptable for a local demo only.

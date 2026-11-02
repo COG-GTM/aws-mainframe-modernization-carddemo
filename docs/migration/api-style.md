@@ -22,7 +22,7 @@ way. "Current" means on `migration/carddemo-java` today; "planned" means a later
 | BMS output fields | Response DTO fields |
 | `WS-MESSAGE` / `ERRMSG` line, cursor on the bad field (`MOVE -1 TO xxxL`) | `ApiError.message`, `ApiError.fieldErrors[].field`, see §3 |
 | COMMAREA (`CARDDEMO-COMMAREA`, `COCOM01Y`) | Split: user id and type → session token (§5); `CDEMO-ACCT-ID`, `CDEMO-CARD-NUM`, selected row → path or query parameters; `CDEMO-FROM-PROGRAM` / `CDEMO-TO-PROGRAM` → dropped (client navigation) |
-| Menu option number + XCTL | `GET /api/v1/menu` (planned), see §6 |
+| Menu option number + XCTL | `GET /api/v1/menu`, see §6 |
 | JCL written to TDQ `JOBS` (CORPT00C) | Asynchronous job resource, `202 Accepted` + poll, see §7 |
 
 ## 2. Resource naming
@@ -67,7 +67,7 @@ the offending field. Every service returns errors as `com.carddemo.common.api.Ap
 | `RESP NOTFND` ("... NOT found...") | `NotFoundException` | 404 |
 | `RESP DUPKEY` / `DUPREC` ("... already exist...") | `DuplicateKeyException` | 409 |
 | Field edit failed (empty, not numeric, bad date), cursor on field | Bean Validation or `fieldErrors` | 400 |
-| Business rejection after the edits pass (wrong password, over limit, "No access - Admin Only option...") | `BusinessRuleException` | 422 (403 once tokens exist, for the admin-only case) |
+| Business rejection after the edits pass (wrong password, over limit, "No access - Admin Only option...") | `BusinessRuleException` | 422 (`ForbiddenException` 403 for the admin-only case) |
 | Other `RESP` / abend ("Unable to ...") | unhandled exception | 500 |
 | Optimistic lock lost (CICS READ UPDATE then record changed) | `@Version` conflict | 409 (target) |
 
@@ -83,9 +83,9 @@ Rules:
   both COBOL cases `User not found. Try again ...` and `Wrong Password. Try again ...`.
   architecture.md §4 records this as a deliberate deviation; UNT149-16 now requires the COBOL text, so
   it is treated as a gap here and UNT149-16 restores it.
-- **Current gap:** `RestExceptionHandler` has no handler for optimistic-lock failures or for
-  unexpected exceptions, so those return Spring Boot's default error body, not `ApiError`. Adding
-  both (409 and 500) belongs to the first ticket that touches `common/error`.
+- `RestExceptionHandler` maps optimistic-lock failures to 409, `ForbiddenException` to 403, malformed
+  bodies/parameters to 400, Spring MVC errors to their own status, and anything unexpected to 500
+  `Unexpected error. Try again later ...` (logged, no internals in the body), all as `ApiError`.
 
 ## 4. Paging: `PageResponse` replaces PF7 / PF8
 
@@ -127,12 +127,8 @@ only the COMMAREA account's cards, but the code does not branch on user type: th
 optional for everyone (`2210-EDIT-ACCOUNT`) and the program sets `CDEMO-USRTYP-USER` itself. The security record (`CSUSR01Y`) has no account or customer id, so the
 COBOL has **no per-user data ownership**: a regular user can view any account by typing its number.
 
-**Current (this branch).** `POST /api/v1/auth/signon` checks the BCrypt hash and returns
-`userId`, `firstName`, `lastName`, `userType` and `nextScreen` (`ADMIN` / `MAIN`). It issues **no
-token**, and no service checks who is calling: `GET /api/v1/users` answers 200 without credentials.
-Only `spring-security-crypto` is on the classpath.
-
-**Target (UNT149-16).**
+**Implemented (UNT149-16).** Mechanism, key, lifetime and gateway details are in
+`architecture.md` §3.1.
 
 - Sign-on returns a signed bearer token (`Authorization: Bearer <token>`) whose claims are the two
   COMMAREA fields: `sub` = user id, `userType` = `A` / `U`. The response keeps `userType` and
@@ -148,13 +144,14 @@ Only `spring-security-crypto` is on the classpath.
   If the COCRDLIC header comment's admin/user rule is wanted anyway, it is new behavior and needs a
   decision, not a parity fix.
 - Sign-off (PF3 on the menu, `CICS RETURN` without TRANSID) needs no endpoint; the client drops the
-  token. Token lifetime is a UNT149-16 decision.
+  token. Lifetime: `CARDDEMO_TOKEN_TTL`, default 8 hours.
 
 ## 6. Menus (COMEN01C / COADM01C)
 
 The menus contain no business logic beyond the option table and the admin check, so they become one
-read endpoint the client renders. Planned (UNT149-16): `GET /api/v1/menu`, answered by auth-service
-from the caller's token.
+read endpoint the client renders: `GET /api/v1/menu`, answered by auth-service from the caller's
+token, plus `GET /api/v1/menu/options/{number}` for the COBOL selection checks (range, admin-only,
+not installed).
 
 ```json
 {"menu": "MAIN", "options": [

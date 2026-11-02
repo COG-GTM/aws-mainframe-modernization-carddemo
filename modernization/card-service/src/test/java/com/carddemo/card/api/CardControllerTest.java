@@ -1,5 +1,7 @@
 package com.carddemo.card.api;
 
+import com.carddemo.testsupport.AdminCaller;
+import org.springframework.context.annotation.Import;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -20,6 +22,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 @SpringBootTest
 @AutoConfigureMockMvc
+@Import(AdminCaller.class)
 class CardControllerTest {
 
     private static final String CARD_ONE = "4111111111111111";

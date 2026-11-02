@@ -1,5 +1,6 @@
 package com.carddemo.transaction.config;
 
+import com.carddemo.common.security.CallerTokenForwarder;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -12,12 +13,14 @@ public class GatewayConfig {
     @Bean
     public RestClient accountRestClient(RestClient.Builder builder,
                                         @Value("${carddemo.services.account-url}") String baseUrl) {
-        return builder.baseUrl(baseUrl).defaultHeader("Accept", MediaType.APPLICATION_JSON_VALUE).build();
+        return builder.baseUrl(baseUrl).defaultHeader("Accept", MediaType.APPLICATION_JSON_VALUE)
+                .requestInterceptor(new CallerTokenForwarder()).build();
     }
 
     @Bean
     public RestClient cardRestClient(RestClient.Builder builder,
                                      @Value("${carddemo.services.card-url}") String baseUrl) {
-        return builder.baseUrl(baseUrl).defaultHeader("Accept", MediaType.APPLICATION_JSON_VALUE).build();
+        return builder.baseUrl(baseUrl).defaultHeader("Accept", MediaType.APPLICATION_JSON_VALUE)
+                .requestInterceptor(new CallerTokenForwarder()).build();
     }
 }

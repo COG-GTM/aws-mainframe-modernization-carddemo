@@ -4,6 +4,7 @@ import com.carddemo.auth.api.dto.UserRequest;
 import com.carddemo.auth.api.dto.UserResponse;
 import com.carddemo.auth.service.AuthService;
 import com.carddemo.common.api.PageResponse;
+import com.carddemo.common.security.AdminOnly;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
@@ -23,7 +24,8 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.RestController;
 
-/** CICS CU00-CU03 / COUSR00C-COUSR03C. */
+/** CICS CU00-CU03 / COUSR00C-COUSR03C; COADM01C options 1-4, so admin-only. */
+@AdminOnly
 @RestController
 @Validated
 @RequestMapping("/api/v1/users")

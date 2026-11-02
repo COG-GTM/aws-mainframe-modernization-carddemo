@@ -25,6 +25,8 @@ spring:
       enabled: false
 
 carddemo:
+  security:
+    token-secret: test-only-token-secret-0123456789abcdef
   services:
     account-url: http://localhost:18082
     card-url: http://localhost:18083
