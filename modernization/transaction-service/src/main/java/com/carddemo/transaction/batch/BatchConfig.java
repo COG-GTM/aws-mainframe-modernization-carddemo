@@ -62,6 +62,8 @@ public class BatchConfig {
     public static final String COMBTRAN = "COMBTRAN";
 
     private static final String STARTED_AT = "batch.startedAt";
+    /** The PARM interestCalculationStep resolved; SYSTRAN must select by that value, not re-resolve "today". */
+    private static final String INTCALC_PARM = "intcalc.parm";
     private static final String STAGED_IDS = "batch.stagedIds";
 
     @Bean
@@ -249,6 +251,7 @@ public class BatchConfig {
                     ExecutionContext context = contribution.getStepExecution().getExecutionContext();
                     String parm = BatchJobParameters.parm(params, clock);
                     context.putString("parm", parm);
+                    jobContext(contribution).putString(INTCALC_PARM, parm);
                     InterestCalculationService.InterestReport report =
                             interestCalculationService.calculateInterest(parm);
                     context.putInt("accountsSettled", report.accountsSettled());
@@ -263,12 +266,12 @@ public class BatchConfig {
     /** SYSTRAN(+1): the interest transactions this run wrote (TRAN-ID = PARM-DATE + suffix), by TRAN-ID. */
     @Bean
     public Step writeSystemTransactionsStep(JobRepository jobRepository, PlatformTransactionManager transactionManager,
-                                            TransactionRepository transactions, Clock clock) {
+                                            TransactionRepository transactions) {
         return new StepBuilder("writeSystemTransactionsStep", jobRepository)
                 .tasklet((contribution, chunkContext) -> {
                     JobParameters params = contribution.getStepExecution().getJobParameters();
                     CodePage codePage = BatchJobParameters.codePage(params);
-                    String parmDate = CobolValues.padRight(BatchJobParameters.parm(params, clock), 10);
+                    String parmDate = CobolValues.padRight(jobContext(contribution).getString(INTCALC_PARM), 10);
                     contribution.getStepExecution().getExecutionContext().putInt("SYSTRAN", DdFiles.write(
                             BatchJobParameters.runDirectory(params), "SYSTRAN",
                             transactions.findBySourceAndTranIdStartingWithOrderByTranIdAsc(BatchRecords.SYSTEM_SOURCE, parmDate)
