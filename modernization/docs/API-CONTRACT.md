@@ -65,7 +65,7 @@ Browse operations (`STARTBR` / `READNEXT` / PF7 / PF8) become page based collect
 | GET | `/api/v1/accounts/{accountId}/view` | COACTVWC | account id → card-xref (card-service) → account → customer (customer-service), one DTO with the COACTVW fields and both record versions; SSN masked |
 | GET | `/api/v1/accounts` | ACCTDAT browse | |
 | PUT | `/api/v1/accounts/{accountId}` | COACTUPC | account and customer fields of the COACTUP map plus `accountVersion`/`customerVersion` from the view; COBOL edit messages (400), `No change detected with respect to values fetched.` (422), stale version 409; see `docs/migration/account-view-update.md` |
-| POST | `/api/v1/accounts/{accountId}/postings` | CBTRN02C 1500-VALIDATE-TRAN + 2700-UPDATE-ACCOUNT-REC | body `transactionId` (idempotency key, max 16), `amount`, `transactionDate`; 200 when posted (a repeat of the same `transactionId` returns the first result without posting again), 422 with `reasonCode` 101/102/103 when rejected, 409 when the `transactionId` was already posted with another account, amount or date |
+| POST | `/api/v1/accounts/{accountId}/postings` | CBTRN02C 1500-VALIDATE-TRAN + 2700-UPDATE-ACCOUNT-REC | body `transactionId` (idempotency key, max 16), `amount`, `transactionDate`, optional `type` (`DAILY_TRANSACTION` default, or `BILL_PAYMENT` = COBIL00C: balance only, no 102/103); 200 when posted (a repeat of the same `transactionId` returns the first result without posting again), 422 with `reasonCode` 101/102/103 when rejected, 409 when the `transactionId` was already posted with another account, amount, date or type |
 | POST | `/api/v1/accounts/{accountId}/interest-settlements` | CBACT04C account break | adds the accumulated interest and resets the cycle totals |
 
 ## card-service (port 8083) — CVACT02Y, CVACT03Y, COCRDLIC, COCRDSLC, COCRDUPC
@@ -82,10 +82,10 @@ Browse operations (`STARTBR` / `READNEXT` / PF7 / PF8) become page based collect
 
 | Method | Path | Legacy | Notes |
 | --- | --- | --- | --- |
-| GET | `/api/v1/transactions` | COTRN00C | optional `cardNumber` filter |
+| GET | `/api/v1/transactions` | COTRN00C | TRAN-ID order; optional `startTransactionId` (TRNIDIN start key) and `cardNumber` filter |
 | GET | `/api/v1/transactions/{transactionId}` | COTRN01C | |
-| POST | `/api/v1/transactions` | COTRN02C | card must resolve through CARDXREF |
-| POST | `/api/v1/bill-payments` | COBIL00C | pays the full current balance; the amount comes from account-service, not the caller |
+| POST | `/api/v1/transactions` | COTRN02C | `accountId` or `cardNumber`, `typeCode`, `categoryCode`, `source`, `description`, `amount`, `originDate`, `processDate` (`YYYY-MM-DD`), `merchantId`, `merchantName`, `merchantCity`, `merchantZip`, all required, COBOL messages; numeric TRAN-ID = last + 1 |
+| POST | `/api/v1/bill-payments` | COBIL00C | `{"accountId"}`; pays the full current balance; the amount comes from account-service, not the caller; posts with `type: BILL_PAYMENT` keyed by the new TRAN-ID |
 | POST | `/api/v1/batch/post-transactions` | JCL POSTTRAN / CBTRN02C | launches the Spring Batch job, returns posted and rejected counts |
 | POST | `/api/v1/batch/interest-calculation` | JCL INTCALC / CBACT04C | returns accounts settled and total interest |
 | GET | `/api/v1/transaction-types` | TRANTYPE (CVTRA03Y) | paged, by type code; read by batch-service TRANREPT |

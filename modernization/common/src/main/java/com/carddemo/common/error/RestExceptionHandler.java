@@ -59,7 +59,6 @@ public class RestExceptionHandler {
                 .body(ApiError.of(422, "Unprocessable Entity", ex.getMessage()));
     }
 
-    /** Screen edits checked in service code: the first problem is the message the COBOL would show. */
     @ExceptionHandler(FieldValidationException.class)
     public ResponseEntity<ApiError> handleFieldValidation(FieldValidationException ex) {
         return ResponseEntity.badRequest()

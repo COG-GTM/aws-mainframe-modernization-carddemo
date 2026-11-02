@@ -18,7 +18,7 @@ Legend for the status column:
 | `CCLI` | `COCRDLIC` | `COCRDLI` | card-service | `GET /api/v1/cards?accountId=&customerId=&page=&size=` | ported |
 | `CCDL` | `COCRDSLC` | `COCRDSL` | card-service | `GET /api/v1/cards/{cardNum}` | ported |
 | `CCUP` | `COCRDUPC` | `COCRDUP` | card-service | `PUT /api/v1/cards/{cardNum}` | ported |
-| `CT00` | `COTRN00C` | `COTRN00` | transaction-service | `GET /api/v1/transactions?cardNumber=&page=&size=` | ported |
+| `CT00` | `COTRN00C` | `COTRN00` | transaction-service | `GET /api/v1/transactions?startTransactionId=&cardNumber=&page=&size=` | ported |
 | `CT01` | `COTRN01C` | `COTRN01` | transaction-service | `GET /api/v1/transactions/{tranId}` | ported |
 | `CT02` | `COTRN02C` | `COTRN02` | transaction-service | `POST /api/v1/transactions` | ported |
 | `CR00` | `CORPT00C` | `CORPT00` | transaction-service | `POST /api/v1/reports/transactions` (submits the `CBTRN03C` equivalent) | not built |
