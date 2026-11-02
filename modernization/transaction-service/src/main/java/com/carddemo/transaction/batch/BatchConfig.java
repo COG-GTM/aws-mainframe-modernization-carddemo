@@ -19,6 +19,7 @@ import java.nio.file.Path;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -61,6 +62,7 @@ public class BatchConfig {
     public static final String COMBTRAN = "COMBTRAN";
 
     private static final String STARTED_AT = "batch.startedAt";
+    private static final String STAGED_IDS = "batch.stagedIds";
 
     @Bean
     public BatchJobRegistry batchJobRegistry(@Qualifier(POST_TRANSACTIONS_JOB) Job postTransactionsJob,
@@ -111,16 +113,19 @@ public class BatchConfig {
                     }
                     List<CobolRecord> records = DdFiles.read(dalytran.get(), DalytranRecordLayout.LAYOUT,
                             BatchJobParameters.codePage(params));
-                    int staged = 0;
+                    List<String> stagedIds = new ArrayList<>();
                     int alreadyStaged = 0;
                     for (CobolRecord record : records) {
-                        if (dailyTransactions.existsById(record.getTrimmed(DalytranRecordLayout.DALYTRAN_ID))) {
+                        String id = record.getTrimmed(DalytranRecordLayout.DALYTRAN_ID);
+                        if (stagedIds.contains(id) || dailyTransactions.existsById(id)) {
                             alreadyStaged++;
                         } else {
                             dailyTransactions.save(BatchRecords.toDailyTransaction(record));
-                            staged++;
+                            stagedIds.add(id);
                         }
                     }
+                    int staged = stagedIds.size();
+                    jobContext(contribution).putString(STAGED_IDS, String.join(",", stagedIds));
                     context.putString("dalytran", dalytran.get().toString());
                     context.putInt("dalytranRead", records.size());
                     context.putInt("staged", staged);
@@ -182,7 +187,8 @@ public class BatchConfig {
     @Bean
     public Step writePostingOutputsStep(JobRepository jobRepository, PlatformTransactionManager transactionManager,
                                         TransactionRejectRepository rejects, TransactionRepository transactions,
-                                        CategoryBalanceRepository categoryBalances) {
+                                        CategoryBalanceRepository categoryBalances,
+                                        DailyTransactionRepository dailyTransactions) {
         return new StepBuilder("writePostingOutputsStep", jobRepository)
                 .tasklet((contribution, chunkContext) -> {
                     JobParameters params = contribution.getStepExecution().getJobParameters();
@@ -190,16 +196,23 @@ public class BatchConfig {
                     CodePage codePage = BatchJobParameters.codePage(params);
                     var format = BatchJobParameters.format(params);
                     Instant startedAt = Instant.parse(jobContext(contribution).getString(STARTED_AT));
+                    // Original DALYTRAN bytes only for records this run staged from the file; a reject of a
+                    // row staged earlier is rebuilt from that row.
+                    Set<String> stagedIds = Set.of(jobContext(contribution).getString(STAGED_IDS, "").split(","));
                     Map<String, CobolRecord> originals = new HashMap<>();
-                    dalytranRecords(params).forEach(
-                            r -> originals.putIfAbsent(r.getTrimmed(DalytranRecordLayout.DALYTRAN_ID), r));
+                    dalytranRecords(params).stream()
+                            .filter(r -> stagedIds.contains(r.getTrimmed(DalytranRecordLayout.DALYTRAN_ID)))
+                            .forEach(r -> originals.putIfAbsent(r.getTrimmed(DalytranRecordLayout.DALYTRAN_ID), r));
+                    Set<String> postedIds = new HashSet<>();
+                    dailyTransactions.findAll().forEach(d -> postedIds.add(d.getTranId()));
                     ExecutionContext context = contribution.getStepExecution().getExecutionContext();
                     context.putInt("DALYREJS", DdFiles.write(generation, "DALYREJS",
                             rejects.findByRejectedAtGreaterThanEqualOrderByRejectIdAsc(startedAt).stream()
                                     .map(r -> BatchRecords.toRejectRecord(r, codePage, originals.get(r.getTranId()))).toList(), format));
                     context.putInt("TRANSACT", DdFiles.write(generation, "TRANSACT",
                             transactions.findAll(Sort.by("tranId")).stream()
-                                    .map(t -> BatchRecords.toTranRecord(t, codePage)).toList(), format));
+                                    .map(t -> BatchRecords.toTranRecord(t, codePage, BatchRecords.SYSTEM_SOURCE.equals(t.getSource())
+                                            && !postedIds.contains(t.getTranId()))).toList(), format));
                     context.putInt("TCATBALF", DdFiles.write(generation, "TCATBALF",
                             categoryBalances.findAllByOrderByIdAcctIdAscIdTypeCdAscIdCatCdAsc().stream()
                                     .map(b -> BatchRecords.toCategoryBalanceRecord(b, codePage)).toList(), format));
@@ -256,7 +269,7 @@ public class BatchConfig {
                     contribution.getStepExecution().getExecutionContext().putInt("SYSTRAN", DdFiles.write(
                             BatchJobParameters.runDirectory(params), "SYSTRAN",
                             transactions.findBySourceAndProcTsGreaterThanEqualOrderByTranIdAsc(BatchRecords.SYSTEM_SOURCE, startedAt)
-                                    .stream().map(t -> BatchRecords.toTranRecord(t, codePage)).toList(),
+                                    .stream().map(t -> BatchRecords.toTranRecord(t, codePage, true)).toList(),
                             BatchJobParameters.format(params)));
                     return RepeatStatus.FINISHED;
                 }, transactionManager)

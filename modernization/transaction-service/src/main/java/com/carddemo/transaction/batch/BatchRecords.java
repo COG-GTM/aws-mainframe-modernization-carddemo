@@ -75,11 +75,11 @@ final class BatchRecords {
     }
 
     /**
-     * TRANSACT / SYSTRAN. Posted transactions carry the DALYTRAN-ORIG-TS they were copied from; the
-     * {@code System} transactions INTCALC writes carry the DB2 timestamp it stamped.
+     * TRANSACT / SYSTRAN. Posted transactions carry the DALYTRAN-ORIG-TS they were copied from;
+     * {@code interest} marks a transaction INTCALC wrote, which carries the DB2 timestamp it stamped.
      */
-    static CobolRecord toTranRecord(Transaction t, CodePage codePage) {
-        boolean origFromDalytran = !SYSTEM_SOURCE.equals(t.getSource());
+    static CobolRecord toTranRecord(Transaction t, CodePage codePage, boolean interest) {
+        boolean origFromDalytran = !interest;
         return CobolRecord.initialized(TranRecordLayout.LAYOUT, codePage)
                 .set(TranRecordLayout.TRAN_ID, t.getTranId())
                 .set(TranRecordLayout.TRAN_TYPE_CD, t.getTypeCd())
