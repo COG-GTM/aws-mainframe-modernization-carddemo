@@ -1,5 +1,9 @@
 # Copybook to relational schema mapping
 
+> Superseded by [`docs/migration/schema-mapping.md`](../../docs/migration/schema-mapping.md), the
+> field-by-field mapping checked by the schema tests. Kept for history; where they differ, that file
+> and the Flyway migrations are current.
+
 Source of truth: the copybooks in `app/cpy/` and the `SELECT` statements (VSAM keys and alternate
 indexes) in the COBOL programs in `app/cbl/`. Target: Amazon Aurora PostgreSQL (PostgreSQL 15
 compatible). Every table below is created by a Flyway migration inside the owning service.
