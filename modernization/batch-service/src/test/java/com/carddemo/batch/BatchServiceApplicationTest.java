@@ -32,10 +32,10 @@ class BatchServiceApplicationTest {
     private TokenService tokens;
 
     @Test
-    void startsWithHealthAndNoJobsYet() {
+    void startsWithHealthAndTheTranreptJob() {
         assertThat(http.getForObject("/actuator/health", String.class)).contains("\"status\":\"UP\"");
-        assertThat(launcher.registry().names()).isEmpty();
-        assertThatThrownBy(() -> launcher.launch(BatchArguments.of("TRANREPT", null, null)))
+        assertThat(launcher.registry().names()).containsExactly("TRANREPT");
+        assertThatThrownBy(() -> launcher.launch(BatchArguments.of("CREASTMT", null, null)))
                 .isInstanceOf(BatchJobRegistry.UnknownJobException.class);
     }
 
