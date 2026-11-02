@@ -167,4 +167,13 @@ class AuthenticationAndMenuTest extends AbstractAuthenticationTest {
                 .andExpect(status().isUnprocessableEntity())
                 .andExpect(jsonPath("$.message").value("This option is not installed ..."));
     }
+
+    @Test
+    void openApiMarksSignonPublicAndEverythingElseBearer() throws Exception {
+        mockMvc.perform(get("/v3/api-docs"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.paths['/api/v1/auth/signon'].post.security").isEmpty())
+                .andExpect(jsonPath("$.paths['/api/v1/menu'].get.security").doesNotExist())
+                .andExpect(jsonPath("$.security[0].bearerAuth").exists());
+    }
 }
