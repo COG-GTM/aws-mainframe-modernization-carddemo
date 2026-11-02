@@ -66,7 +66,7 @@ output (prior-work §1). Every row still has to meet the definition of done in �
 | CBSTM03B | subroutine of CBSTM03A | 204 | OK | not built |
 | CBEXPORT | CBEXPORT | 491 | compile shim (§5) | not built |
 | CBIMPORT | CBIMPORT | 413 | compile shim (§5) | not built |
-| CBTRN01C | none (no JCL in `app/jcl` runs it) | 449 | OK | not built |
+| CBTRN01C | none (no JCL in `app/jcl` runs it) | 449 | OK | built: transaction-service job `CBTRN01C` (UNT149-12) |
 | CBACT01C | READACCT | 379 | OK | replaced by list endpoints |
 | CBACT02C | READCARD | 144 | OK | replaced by list endpoints |
 | CBACT03C | READXREF | 145 | OK | replaced by list endpoints |
