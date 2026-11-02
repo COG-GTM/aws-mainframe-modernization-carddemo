@@ -7,6 +7,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.util.Arrays;
 
 /**
  * Conversions between the fixed width representations used in the VSAM records and Java types.
@@ -186,5 +187,52 @@ public final class CobolValues {
     public static BigDecimal decodeBinary(byte[] field, boolean signed, int scale) {
         BigInteger unscaled = signed ? new BigInteger(field) : new BigInteger(1, field);
         return new BigDecimal(unscaled, scale);
+    }
+
+    /**
+     * Encodes a {@code COMP-3} field of {@code length} bytes: sign nibble {@code C}/{@code D} when signed,
+     * {@code F} when unsigned; excess decimals are dropped toward zero.
+     */
+    public static byte[] encodePacked(BigDecimal value, int scale, int length, boolean signed) {
+        BigDecimal truncated = truncate(value, scale);
+        if (!signed && truncated.signum() < 0) {
+            throw new IllegalArgumentException(value + " is negative, field is unsigned");
+        }
+        String digits = truncated.unscaledValue().abs().toString();
+        int capacity = length * 2 - 1;
+        if (digits.length() > capacity) {
+            throw new IllegalArgumentException(value + " does not fit " + length + " packed bytes");
+        }
+        digits = "0".repeat(capacity - digits.length()) + digits;
+        int sign = !signed ? 0x0F : truncated.signum() < 0 ? 0x0D : 0x0C;
+        byte[] field = new byte[length];
+        for (int i = 0; i < length; i++) {
+            int high = digits.charAt(2 * i) - '0';
+            int low = i == length - 1 ? sign : digits.charAt(2 * i + 1) - '0';
+            field[i] = (byte) ((high << 4) | low);
+        }
+        return field;
+    }
+
+    /**
+     * Encodes a {@code COMP} / {@code BINARY} field of {@code length} bytes, big-endian, two's complement
+     * when signed; excess decimals are dropped toward zero.
+     */
+    public static byte[] encodeBinary(BigDecimal value, int scale, int length, boolean signed) {
+        BigInteger unscaled = truncate(value, scale).unscaledValue();
+        if (!signed && unscaled.signum() < 0) {
+            throw new IllegalArgumentException(value + " is negative, field is unsigned");
+        }
+        int maxBits = signed ? length * 8 - 1 : length * 8;
+        if (unscaled.bitLength() > maxBits) {
+            throw new IllegalArgumentException(value + " does not fit " + length + " binary bytes");
+        }
+        byte[] minimal = unscaled.toByteArray();
+        byte[] field = new byte[length];
+        byte fill = (byte) (unscaled.signum() < 0 ? 0xFF : 0x00);
+        Arrays.fill(field, fill);
+        int copy = Math.min(minimal.length, length);
+        System.arraycopy(minimal, minimal.length - copy, field, length - copy, copy);
+        return field;
     }
 }
