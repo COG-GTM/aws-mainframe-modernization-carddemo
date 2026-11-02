@@ -57,11 +57,17 @@ public final class CobolEdits {
 
     /**
      * The three parts of a phone number: either the stored CUSTDAT form {@code (999)999-9999}, read by
-     * position like {@code ACUP-OLD-CUST-PHONE-NUM-1A/B/C}, or {@code 999-999-9999}.
+     * position like {@code ACUP-OLD-CUST-PHONE-NUM-1A/B/C}, or {@code 999-999-9999}. Input whose
+     * separators are not at those positions is returned whole as the area code, so the area-code edit
+     * rejects it instead of a different number being stored.
      */
     public static String[] phoneParts(String value) {
         String normalized = normalize(value);
         if (normalized != null && normalized.startsWith("(")) {
+            if (normalized.length() > 13 || normalized.indexOf(')') != 4
+                    || (normalized.length() > 8 && normalized.charAt(8) != '-')) {
+                return new String[] {normalized, null, null};
+            }
             String padded = (normalized + " ".repeat(15)).substring(0, 15);
             return new String[] {normalize(padded.substring(1, 4)), normalize(padded.substring(5, 8)),
                     normalize(padded.substring(9, 13))};

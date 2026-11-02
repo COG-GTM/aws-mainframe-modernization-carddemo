@@ -144,4 +144,14 @@ class CobolEditsTest {
         assertThat(CobolEdits.ficoRange("299")).isEqualTo("FICO Score: should be between 300 and 850");
         assertThat(CobolEdits.ficoRange("850")).isNull();
     }
+
+    @Test
+    void malformedParenthesizedPhonesAreRejectedNotReformatted() {
+        assertThat(CobolEdits.usPhone("Phone Number 1", "(201X555-0100")).isNotNull();
+        assertThat(CobolEdits.usPhone("Phone Number 1", "(201)555X0100")).isNotNull();
+        assertThat(CobolEdits.usPhone("Phone Number 1", "(201)555-0100999")).isNotNull();
+        assertThat(CobolEdits.usPhone("Phone Number 1", "(201)555-0100")).isNull();
+        assertThat(CobolEdits.usPhone("Phone Number 1", "201-555-0100-9")).isNotNull();
+    }
+
 }
