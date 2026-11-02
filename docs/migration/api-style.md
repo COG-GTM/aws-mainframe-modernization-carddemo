@@ -110,8 +110,8 @@ Collections return `com.carddemo.common.api.PageResponse`:
 - Filters and start keys: COCRDLIC has two optional filters, account and card number. The API has the
   `accountId` query filter today; a `cardNumber` filter on `GET /api/v1/cards` is missing (gap for the
   card-service review ticket). COTRN00C starts the browse at a typed transaction id
-  (`TRNIDIN` → `STARTBR` on `TRAN-ID`); `GET /api/v1/transactions` has no start-key parameter today,
-  a gap for the transaction-service review ticket.
+  (`TRNIDIN` → `STARTBR` on `TRAN-ID`); `GET /api/v1/transactions?startTransactionId=` does the same
+  (1–16 digits, zero padded; `Tran ID must be Numeric ...`).
   **Hypothesis:** offset paging gives the same rows as a key browse because the data does not change
   between screens in the parity scenarios; if concurrent inserts matter, switch to a key cursor
   (`?after=<key>`) without changing `PageResponse`.

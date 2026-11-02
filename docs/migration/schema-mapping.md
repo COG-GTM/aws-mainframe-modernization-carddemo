@@ -169,8 +169,10 @@ VSAM KSDS `AWS.M2.CARDDEMO.TRANSACT.VSAM.KSDS`, RECLN 350, key `KEYS(16 0)`; AIX
 
 Access: `TransactionRepository.findByCardNum`,
 `findByTranIdGreaterThanEqualOrderByTranIdAsc` / `findByTranIdLessThanOrderByTranIdDesc`
-(COTRN00C browse), `findTopByOrderByTranIdDesc` (COBIL00C/COTRN02C STARTBR HIGH-VALUES +
-READPREV for the next id), `findByProcTsGreaterThanEqualAndProcTsLessThanOrderByCardNumAscTranIdAsc`
+(COTRN00C browse), `findByTranIdGreaterThanEqual` / `findByCardNumAndTranIdGreaterThanEqual`
+(COTRN00C paged browse from the start key), `findTopByOrderByTranIdDesc`; the next online TRAN-ID
+(COBIL00C/COTRN02C STARTBR HIGH-VALUES + READPREV + 1) comes from sequence `tran_id_seq`
+(`V6__transaction_id_sequence.sql`) via `TransactionIdGenerator`, `findByProcTsGreaterThanEqualAndProcTsLessThanOrderByCardNumAscTranIdAsc`
 (TRANREPT date range, sorted by card number).
 
 ## DALYTRAN — `CVTRA06Y` → `transaction.daily_transactions`

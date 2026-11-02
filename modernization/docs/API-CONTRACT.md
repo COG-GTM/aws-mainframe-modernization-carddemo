@@ -81,10 +81,10 @@ Browse operations (`STARTBR` / `READNEXT` / PF7 / PF8) become page based collect
 
 | Method | Path | Legacy | Notes |
 | --- | --- | --- | --- |
-| GET | `/api/v1/transactions` | COTRN00C | optional `cardNumber` filter |
+| GET | `/api/v1/transactions` | COTRN00C | TRAN-ID order; optional `startTransactionId` (TRNIDIN start key) and `cardNumber` filter |
 | GET | `/api/v1/transactions/{transactionId}` | COTRN01C | |
-| POST | `/api/v1/transactions` | COTRN02C | card must resolve through CARDXREF |
-| POST | `/api/v1/bill-payments` | COBIL00C | pays the full current balance; the amount comes from account-service, not the caller |
+| POST | `/api/v1/transactions` | COTRN02C | `accountId` or `cardNumber`, `typeCode`, `categoryCode`, `source`, `description`, `amount`, `originDate`, `processDate` (`YYYY-MM-DD`), `merchantId`, `merchantName`, `merchantCity`, `merchantZip`, all required, COBOL messages; numeric TRAN-ID = last + 1 |
+| POST | `/api/v1/bill-payments` | COBIL00C | `{"accountId"}`; pays the full current balance; the amount comes from account-service, not the caller; posts with `type: BILL_PAYMENT` keyed by the new TRAN-ID |
 | POST | `/api/v1/batch/post-transactions` | JCL POSTTRAN / CBTRN02C | launches the Spring Batch job, returns posted and rejected counts |
 | POST | `/api/v1/batch/interest-calculation` | JCL INTCALC / CBACT04C | returns accounts settled and total interest |
 | GET | `/api/v1/transaction-types` | TRANTYPE (CVTRA03Y) | paged, by type code; read by batch-service TRANREPT |

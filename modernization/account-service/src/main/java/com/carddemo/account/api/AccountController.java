@@ -66,7 +66,7 @@ public class AccountController {
                                                 @Valid @RequestBody PostingRequest request) {
         PostingResponse response = PostingResponse.from(
                 accountService.post(accountId, request.transactionId(), request.amount(),
-                        request.transactionDate()));
+                        request.transactionDate(), request.typeOrDefault()));
         return response.posted()
                 ? ResponseEntity.ok(response)
                 : ResponseEntity.unprocessableEntity().body(response);

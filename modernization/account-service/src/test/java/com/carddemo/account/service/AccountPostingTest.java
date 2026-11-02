@@ -52,6 +52,37 @@ class AccountPostingTest {
     }
 
     @Test
+    void billPaymentLowersOnlyTheBalanceAndSkipsTheCbtrn02cChecksLikeCobil00c() {
+        Account account = accounts.findById(ACCT_ID).orElseThrow();
+        account.setExpirationDate(LocalDate.of(2020, 6, 1));
+        account.setCurrCycCredit(new BigDecimal("900.00"));
+        accounts.save(account);
+
+        PostingOutcome outcome = accountService.post(ACCT_ID, "0000000000000101", new BigDecimal("-100.00"),
+                TRAN_DATE, PostingType.BILL_PAYMENT);
+
+        assertThat(outcome.posted()).isTrue();
+        assertThat(outcome.currentBalance()).isEqualByComparingTo("0.00");
+        assertThat(outcome.currentCycleCredit()).isEqualByComparingTo("900.00");
+        assertThat(outcome.currentCycleDebit()).isEqualByComparingTo("0.00");
+
+        PostingOutcome replay = accountService.post(ACCT_ID, "0000000000000101", new BigDecimal("-100.00"),
+                TRAN_DATE, PostingType.BILL_PAYMENT);
+        assertThat(replay.currentBalance()).isEqualByComparingTo("0.00");
+        assertThat(accounts.findById(ACCT_ID).orElseThrow().getCurrBal()).isEqualByComparingTo("0.00");
+        assertThat(postings.count()).isEqualTo(1);
+    }
+
+    @Test
+    void billPaymentForAMissingAccountIsRejectedWith101() {
+        PostingOutcome outcome = accountService.post(12345678901L, "0000000000000102", new BigDecimal("-1.00"),
+                TRAN_DATE, PostingType.BILL_PAYMENT);
+
+        assertThat(outcome.posted()).isFalse();
+        assertThat(outcome.reasonCode()).isEqualTo(101);
+    }
+
+    @Test
     void postsCreditAmountToBalanceAndCycleCredit() {
         PostingOutcome outcome = accountService.post(ACCT_ID, "T000000000000001", new BigDecimal("50.00"), TRAN_DATE);
 

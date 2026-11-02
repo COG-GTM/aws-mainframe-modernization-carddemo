@@ -8,6 +8,7 @@ import com.carddemo.transaction.service.TransactionQueryService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.Pattern;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
@@ -21,7 +22,10 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.RestController;
 
-/** CICS CT00/CT01/CT02 / COTRN00C, COTRN01C, COTRN02C. */
+/**
+ * CICS CT00/CT01/CT02 / COTRN00C, COTRN01C, COTRN02C. The list is in TRAN-ID order from
+ * {@code startTransactionId} (the TRNIDIN start key); PF7/PF8 are {@code page}, the screen shows 10 rows.
+ */
 @RestController
 @Validated
 @RequestMapping("/api/v1/transactions")
@@ -39,11 +43,14 @@ public class TransactionController {
     }
 
     @GetMapping
-    public PageResponse<TransactionResponse> list(@RequestParam(required = false) String cardNumber,
+    public PageResponse<TransactionResponse> list(@RequestParam(required = false)
+                                                  @Pattern(regexp = "\\d{1,16}", message = "Tran ID must be Numeric ...")
+                                                  String startTransactionId,
+                                                  @RequestParam(required = false) String cardNumber,
                                                   @RequestParam(defaultValue = "0") @Min(0) int page,
                                                   @RequestParam(defaultValue = "20") @Min(1) @Max(MAX_PAGE_SIZE) int size) {
         return PageResponse.of(queryService
-                .list(cardNumber, PageRequest.of(page, size, Sort.by("tranId")))
+                .list(startTransactionId, cardNumber, PageRequest.of(page, size, Sort.by("tranId")))
                 .map(TransactionResponse::from));
     }
 
