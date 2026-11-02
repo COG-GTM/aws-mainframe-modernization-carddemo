@@ -68,6 +68,11 @@ public final class RecordLayout {
         return view;
     }
 
+    /** Whether any item of the record is redefined by a view. */
+    public boolean hasRedefines() {
+        return !views.isEmpty();
+    }
+
     public Field field(String name) {
         return allFields.stream()
                 .filter(f -> f.name().equals(name))

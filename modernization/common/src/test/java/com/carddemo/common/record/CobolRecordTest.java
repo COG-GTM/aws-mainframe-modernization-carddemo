@@ -84,6 +84,23 @@ class CobolRecordTest {
     }
 
     @Test
+    void binaryAndPackedValuesBeyondThePictureAreNotNumeric() {
+        RecordLayout.Builder b = RecordLayout.builder("TESTWIDE", "WIDE-RECORD");
+        NumericField cvv = b.numeric("CVV", "9(03) COMP");
+        NumericField code = b.numeric("CODE", "9(04) COMP-3");
+        RecordLayout layout = b.build(5);
+        CobolRecord record = CobolRecord.of(layout, CodePage.EBCDIC, HexFormat.of().parseHex("03e710000f"));
+        assertThat(record.isNumeric(cvv)).isTrue();
+        assertThat(record.getInt(cvv)).isEqualTo(999);
+        assertThat(record.isNumeric(code)).isFalse();
+        assertThatThrownBy(() -> record.get(code)).hasMessageContaining("exceeds the picture's 4 digits");
+
+        CobolRecord oversized = CobolRecord.of(layout, CodePage.EBCDIC, HexFormat.of().parseHex("03e800001f"));
+        assertThat(oversized.isNumeric(cvv)).isFalse();
+        assertThat(oversized.getInt(code)).isEqualTo(1);
+    }
+
+    @Test
     void moveRulesForNumericFields() {
         CobolRecord record = CobolRecord.initialized(SIGNED, CodePage.ASCII);
         record.set(numeric("ZONED"), new BigDecimal("1.239"));

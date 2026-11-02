@@ -76,17 +76,21 @@ public final class CobolRecord {
     public BigDecimal get(NumericField field) {
         check(field);
         try {
-            return switch (field.usage()) {
+            BigDecimal value = switch (field.usage()) {
                 case DISPLAY -> codePage.decodeZoned(data, field.offset(), field);
                 case PACKED -> {
-                    BigDecimal value = CobolValues.decodePacked(slice(field), field.scale());
-                    if (!field.signed() && value.signum() < 0) {
+                    BigDecimal packed = CobolValues.decodePacked(slice(field), field.scale());
+                    if (!field.signed() && packed.signum() < 0) {
                         throw new IllegalArgumentException("negative sign in unsigned field");
                     }
-                    yield value;
+                    yield packed;
                 }
                 case BINARY -> CobolValues.decodeBinary(slice(field), field.signed(), field.scale());
             };
+            if (value.unscaledValue().abs().toString().length() > field.digits()) {
+                throw new IllegalArgumentException(value + " exceeds the picture's " + field.digits() + " digits");
+            }
+            return value;
         } catch (IllegalArgumentException ex) {
             throw new IllegalArgumentException(describe(field) + ": " + ex.getMessage(), ex);
         }
@@ -104,7 +108,10 @@ public final class CobolRecord {
         return Math.toIntExact(getLong(field));
     }
 
-    /** COBOL {@code IF field IS NUMERIC}: the bytes decode as a valid value of the field's picture. */
+    /**
+     * COBOL {@code IF field IS NUMERIC}: the bytes decode as a valid value of the field's picture, including
+     * binary and packed values whose storage could hold more digits than the picture allows.
+     */
     public boolean isNumeric(NumericField field) {
         try {
             get(field);
@@ -168,8 +175,14 @@ public final class CobolRecord {
         return Collections.unmodifiableMap(values);
     }
 
-    /** The same record in another code page, translating the primary storage map field by field. */
+    /**
+     * The same record in another code page, translating the primary storage map field by field. Layouts
+     * with REDEFINES views need {@link #withCodePage(CodePage, List)}: which bytes are text depends on the view.
+     */
     public CobolRecord withCodePage(CodePage target) {
+        if (layout.hasRedefines()) {
+            throw new IllegalStateException(layout + " has REDEFINES views; pass the storage map of the view in use");
+        }
         return withCodePage(target, layout.fields());
     }
 

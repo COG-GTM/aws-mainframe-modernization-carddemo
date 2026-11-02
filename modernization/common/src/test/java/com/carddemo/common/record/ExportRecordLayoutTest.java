@@ -2,6 +2,7 @@ package com.carddemo.common.record;
 
 import static com.carddemo.common.record.layout.ExportRecordLayout.*;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.carddemo.common.record.layout.ExportRecordLayout;
 import com.carddemo.common.record.layout.SampleDataset;
@@ -116,5 +117,6 @@ class ExportRecordLayoutTest {
         assertThat(ascii.get(EXP_CUST_FICO_CREDIT_SCORE)).isEqualTo(ebcdic.get(EXP_CUST_FICO_CREDIT_SCORE));
         assertThat(ascii.withCodePage(CodePage.EBCDIC, ExportRecordLayout.storageFor("C")).toBytes())
                 .isEqualTo(ebcdic.toBytes());
+        assertThatThrownBy(() -> ebcdic.withCodePage(CodePage.ASCII)).hasMessageContaining("REDEFINES");
     }
 }
