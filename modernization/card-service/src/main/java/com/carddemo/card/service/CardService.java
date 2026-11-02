@@ -7,9 +7,15 @@ import com.carddemo.card.repository.CardRepository;
 import com.carddemo.card.repository.CardXrefRepository;
 import com.carddemo.common.error.BusinessRuleException;
 import com.carddemo.common.error.NotFoundException;
+import com.carddemo.common.error.RecordChangedException;
+import java.time.LocalDate;
+import java.time.YearMonth;
 import java.util.List;
+import java.util.Locale;
+import java.util.Objects;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,20 +30,27 @@ public class CardService {
         this.xrefs = xrefs;
     }
 
-    /** COCRDSLC: read CARDDATA by card number. */
+    /** COCRDSLC 9100-GETCARD-BYACCTCARD: read CARDDAT by card number; NOTFND has the screen message. */
     @Transactional(readOnly = true)
     public Card get(String cardNumber) {
-        return cards.findById(cardNumber)
-                .orElseThrow(() -> new NotFoundException("Card " + cardNumber + " not found"));
+        return cards.findById(cardNumber).orElseThrow(() -> new NotFoundException(CardMessages.NOT_FOUND));
     }
 
     /**
-     * COCRDLIC. The screen browses CARDDATA, optionally filtered by account id through the CARDAIX
-     * alternate index; filtering by customer goes through CARDXREF first, as the COBOL does.
-     * The screen applies both filters together when both are typed in, so they intersect here.
+     * COCRDLIC browses CARDDAT in key order and 9500-FILTER-RECORDS drops records whose account id or
+     * card number differ from the filters that were typed in, so the two filters intersect. The
+     * program does not branch on the user type: admin and user see the same rows. {@code customerId}
+     * is not on the screen; it goes through CARDXREF and intersects with the other two.
      */
     @Transactional(readOnly = true)
-    public Page<Card> list(Long accountId, Long customerId, Pageable pageable) {
+    public Page<Card> list(Long accountId, String cardNumber, Long customerId, Pageable pageable) {
+        Specification<Card> filter = Specification.where(null);
+        if (accountId != null) {
+            filter = filter.and((card, query, cb) -> cb.equal(card.get("acctId"), accountId));
+        }
+        if (cardNumber != null) {
+            filter = filter.and((card, query, cb) -> cb.equal(card.get("cardNum"), cardNumber));
+        }
         if (customerId != null) {
             List<String> cardNumbers = xrefs.findByCustId(customerId).stream()
                     .map(CardXref::getCardNum)
@@ -45,30 +58,57 @@ public class CardService {
             if (cardNumbers.isEmpty()) {
                 return Page.empty(pageable);
             }
-            return accountId == null
-                    ? cards.findByCardNumIn(cardNumbers, pageable)
-                    : cards.findByCardNumInAndAcctId(cardNumbers, accountId, pageable);
+            filter = filter.and((card, query, cb) -> card.get("cardNum").in(cardNumbers));
         }
-        if (accountId != null) {
-            return cards.findByAcctId(accountId, pageable);
-        }
-        return cards.findAll(pageable);
+        return cards.findAll(filter, pageable);
     }
 
-    /** COCRDUPC: read for update, apply the edits, rewrite. */
+    /**
+     * COCRDUPC. The edits (1230-1260) run as request validation. 9200-WRITE-PROCESSING reads the
+     * record with {@code UPDATE} and 9300-CHECK-CHANGE-IN-REC rejects the rewrite when it differs from
+     * the copy the user edited (here: the version the client read). 1200-EDIT-MAP-INPUTS compares the
+     * new values with that copy in upper case and writes nothing when they are equal. The rewrite
+     * keeps the expiry day, CVV and account id of the stored record.
+     */
     @Transactional
     public Card update(String cardNumber, CardUpdateRequest request) {
-        Card card = get(cardNumber);
-        if (request.expirationDate().getYear() > 2099) {
-            throw new BusinessRuleException("Expiration year must be 2099 or earlier");
+        Card card = cards.findByCardNum(cardNumber)
+                .orElseThrow(() -> new NotFoundException(CardMessages.NOT_FOUND));
+        if (card.getVersion() != request.version()) {
+            throw new RecordChangedException();
         }
-        card.setEmbossedName(request.embossedName().toUpperCase());
-        card.setExpirationDate(request.expirationDate());
-        card.setActiveStatus(request.activeStatus().toUpperCase());
-        if (request.cvv() != null) {
-            card.setCvvCd(request.cvv());
+        String newName = request.embossedName().stripTrailing();
+        LocalDate newExpiry = expiry(card.getExpirationDate(), request.expirationYear(), request.expirationMonth());
+        if (sameIgnoringCase(newName, card.getEmbossedName())
+                && sameIgnoringCase(request.activeStatus(), card.getActiveStatus())
+                && card.getExpirationDate() != null
+                && YearMonth.from(card.getExpirationDate()).equals(YearMonth.from(newExpiry))) {
+            throw new BusinessRuleException(CardMessages.NO_CHANGES_DETECTED);
         }
-        return cards.save(card);
+        card.setEmbossedName(newName);
+        card.setExpirationDate(newExpiry);
+        card.setActiveStatus(request.activeStatus());
+        return cards.saveAndFlush(card);
+    }
+
+    /**
+     * The new expiry is the typed year and month with the stored day (CCUP-NEW-EXPDAY comes from the
+     * hidden EXPDAY field). Hypothesis: when that day does not exist in the new month, the COBOL would
+     * write an invalid date string; here it becomes the last day of the month. A card with no stored
+     * expiry also gets the last day of the month.
+     */
+    static LocalDate expiry(LocalDate stored, int year, int month) {
+        YearMonth yearMonth = YearMonth.of(year, month);
+        int day = stored == null ? yearMonth.lengthOfMonth() : Math.min(stored.getDayOfMonth(), yearMonth.lengthOfMonth());
+        return yearMonth.atDay(day);
+    }
+
+    private static boolean sameIgnoringCase(String typed, String stored) {
+        return Objects.equals(upper(typed), upper(stored));
+    }
+
+    private static String upper(String value) {
+        return value == null ? "" : value.stripTrailing().toUpperCase(Locale.ROOT);
     }
 
     /** CARDXREF read by card number, paragraph 1500-A-LOOKUP-XREF of CBTRN02C. */

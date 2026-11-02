@@ -101,7 +101,7 @@ needs the definition of done in scope §4. "Branch label" is the status the base
 | `auth-service` | partial | Signon issues the bearer token (§3.1), user CRUD is admin-only, `GET /api/v1/menu` serves COMEN01C/COADM01C. |
 | `customer-service` | partial | Read/list/update with no field edits; the customer edits of COACTUPC are not here. |
 | `account-service` | partial | View works; update covers account fields only; posting/interest settlement follow CBTRN02C/CBACT04C. |
-| `card-service` | partial | List/view/update work; COCRDUPC date edits incomplete. |
+| `card-service` | complete | COCRDLIC/SLC/UPC reviewed paragraph by paragraph (`card-service-review.md`). |
 | `transaction-service` | partial | Online list/view/add/bill pay and both batch jobs run; reports and statements are stubs. |
 | Reports, statements, export/import, MQ replacement, client | stub | Not built (`modernization/README.md`). |
 
@@ -114,9 +114,9 @@ needs the definition of done in scope §4. "Branch label" is the status the base
 | COADM01C | ported | complete | `GET /api/v1/menu` for an `A` token (COADM02Y, 6 options); options 5–6 (Db2) `available: false`, `This option is not installed ...`. |
 | COACTVWC | ported | complete | `GET /api/v1/accounts/{id}`; card → account through `GET /api/v1/cards/{n}/xref`. |
 | COACTUPC | ported | partial | COBOL rewrites both ACCTDATA and CUSTDATA (lines 4066, 4086) and edits phone, SSN, state, ZIP, FICO (`1260`–`1280-EDIT-*`). Java `AccountService.update` writes account fields only, with three record-level checks; `CustomerService.update` has no edits. |
-| COCRDLIC | ported | complete | `GET /api/v1/cards?accountId=&customerId=` with both filters intersecting. Paging is by page number, not STARTBR key. |
-| COCRDSLC | ported | complete | `GET /api/v1/cards/{n}`. |
-| COCRDUPC | ported | partial | COBOL requires month 1–12 and year 1950–2099 (`VALID-MONTH`, `VALID-YEAR`); Java only rejects year > 2099. |
+| COCRDLIC | ported | complete | `GET /api/v1/cards?accountId=&cardNumber=&customerId=`, all filters intersecting, COBOL filter messages, no user-type filter (none in the code). Paging is by page number, not STARTBR key. |
+| COCRDSLC | ported | complete | `GET /api/v1/cards/{n}`, 2220-EDIT-CARD messages, NOTFND `Did not find cards for this search condition`. |
+| COCRDUPC | ported | complete | `PUT /api/v1/cards/{n}` with name/status/month/year edits and messages, upper-case no-change check, `READ UPDATE` lock + client `version` → 409; day, CVV and account kept (`card-service-review.md`). |
 | COTRN00C | ported | complete | `GET /api/v1/transactions?startTransactionId=&page=&size=10`: TRAN-ID order from the typed start id (zero padded to 16 digits; COBOL `STARTBR` at `TRNIDIN`), `Tran ID must be Numeric ...`; the `cardNumber` filter is an extra. Paging is by page number, not READNEXT/READPREV keys (api-style §4). |
 | COTRN01C | ported | complete | `GET /api/v1/transactions/{id}`, `Transaction ID NOT found...`. The COBOL `READ ... UPDATE` is never followed by a REWRITE, so it is a plain read. |
 | COTRN02C | ported | complete | `TransactionAddValidator`: account id (via CXACAIX) or card number (via CCXREF), every empty/numeric/amount (`-99999999.99`)/date-format edit with the COBOL message, dates through `CsutldtcDate` (CEEDAYS; msg 2513 ignored as in COBOL). TRAN-ID from `TransactionIdGenerator` (database sequence lifted past the highest numeric id = last id + 1, d-tran-id). Differences: all failing fields are reported (first = the COBOL cursor field); the XREF lookup runs after the field edits, COBOL looks up first; PF5 "copy last transaction" is client-side (`GET` the last row). |
@@ -168,6 +168,10 @@ This PR changes no business logic, so these findings stay open for the phases th
 - Online TRAN-IDs come from `transaction.tran_id_seq`, lifted past the highest numeric TRAN-ID
   already stored on each allocation. A DALYTRAN id loaded later that equals an id already handed out
   makes POSTTRAN abend on the duplicate. COBOL has the same collision.
+- Card update keeps COCRDUPC 1230-EDIT-NAME exactly (letters and spaces only, on every update), so 1
+  of the 50 sample cards (`7026637615032277`, `Lucious O'Connell`) cannot change status or expiry
+  without changing its name, as on the mainframe. Relaxing the edit for unchanged names is a product
+  decision (UNT149-18, `card-service-review.md`).
 - Security, carried over from the base branch: no TLS between services, the USRSEC
   sample users loaded by `data-loader` (`ADMIN001` … `USER0005`, password `PASSWORD`), `carddemo` / `carddemo` default database credentials, and Compose
   publishing the service ports on every host interface. These are acceptable for a local demo only.

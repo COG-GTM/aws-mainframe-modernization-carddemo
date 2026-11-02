@@ -107,9 +107,9 @@ Collections return `com.carddemo.common.api.PageResponse`:
 - COTRN00C / COUSR00C's `You are already at the top of the page...` / `...at the bottom of the
   page...` have no error equivalent: a page before 0 is a 400 with `fieldErrors[0].field = page`, a
   page past the end returns empty `content`, and the client uses `totalPages` to disable the keys.
-- Filters and start keys: COCRDLIC has two optional filters, account and card number. The API has the
-  `accountId` query filter today; a `cardNumber` filter on `GET /api/v1/cards` is missing (gap for the
-  card-service review ticket). COTRN00C starts the browse at a typed transaction id
+- Filters and start keys: COCRDLIC has two optional filters, account and card number:
+  `GET /api/v1/cards?accountId=&cardNumber=` (11 / 16 digits, empty, spaces or all zeros = not supplied,
+  intersecting; UNT149-18, `card-service-review.md`). COTRN00C starts the browse at a typed transaction id
   (`TRNIDIN` → `STARTBR` on `TRAN-ID`); `GET /api/v1/transactions?startTransactionId=` does the same
   (1–16 digits, zero padded; `Tran ID must be Numeric ...`).
   **Hypothesis:** offset paging gives the same rows as a key browse because the data does not change
@@ -143,6 +143,8 @@ COBOL has **no per-user data ownership**: a regular user can view any account by
   because the COBOL code has none (`accountId` stays optional on `GET /api/v1/cards` for both types).
   If the COCRDLIC header comment's admin/user rule is wanted anyway, it is new behavior and needs a
   decision, not a parity fix.
+  UNT149-18 re-checked COCRDLIC paragraph by paragraph and confirmed this; card-service has a test
+  that a `U` token sees the same cards as an `A` token.
 - Sign-off (PF3 on the menu, `CICS RETURN` without TRANSID) needs no endpoint; the client drops the
   token. Lifetime: `CARDDEMO_TOKEN_TTL`, default 8 hours.
 
