@@ -29,7 +29,8 @@ public final class SampleDataLoader {
      * transactions). They must be empty to load, and {@code replace} empties them with the target tables:
      * otherwise reloaded daily transactions (processed = false) would be posted or rejected a second time.
      */
-    public static final List<String> DERIVED_TABLES = List.of("transaction.transactions", "transaction.transaction_rejects");
+    public static final List<String> DERIVED_TABLES = List.of("transaction.transactions", "transaction.transaction_rejects",
+            "account.account_postings");
 
     private final Path dataDir;
     private final PasswordEncoder passwordEncoder;

@@ -61,6 +61,7 @@ public class StubGateways {
         private final Map<Long, PostingResult> forcedResults = new HashMap<>();
         private final List<BigDecimal> settlements = new ArrayList<>();
         private final List<BigDecimal> postings = new ArrayList<>();
+        private final List<String> postingKeys = new ArrayList<>();
 
         public void register(long accountId, String groupId, BigDecimal balance) {
             accounts.put(accountId, new AccountView(accountId, "Y", balance, groupId));
@@ -78,11 +79,16 @@ public class StubGateways {
             return postings;
         }
 
+        public List<String> postingKeys() {
+            return postingKeys;
+        }
+
         public void clear() {
             accounts.clear();
             forcedResults.clear();
             settlements.clear();
             postings.clear();
+            postingKeys.clear();
         }
 
         @Override
@@ -91,8 +97,10 @@ public class StubGateways {
         }
 
         @Override
-        public PostingResult post(long accountId, BigDecimal amount, LocalDate transactionDate) {
+        public PostingResult post(long accountId, String transactionId, BigDecimal amount,
+                                  LocalDate transactionDate) {
             postings.add(amount);
+            postingKeys.add(transactionId);
             if (forcedResults.containsKey(accountId)) {
                 return forcedResults.get(accountId);
             }

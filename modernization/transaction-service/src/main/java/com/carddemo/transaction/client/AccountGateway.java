@@ -9,8 +9,12 @@ public interface AccountGateway {
 
     Optional<AccountView> find(long accountId);
 
-    /** Account side of CBTRN02C: balance and cycle update, or a reject reason code. */
-    PostingResult post(long accountId, BigDecimal amount, LocalDate transactionDate);
+    /**
+     * Account side of CBTRN02C: balance and cycle update, or a reject reason code. Idempotent per
+     * {@code transactionId}: calling again with the same id after the update committed returns the
+     * first result and does not post the amount twice.
+     */
+    PostingResult post(long accountId, String transactionId, BigDecimal amount, LocalDate transactionDate);
 
     /** Account break of CBACT04C. */
     void settleInterest(long accountId, BigDecimal totalInterest);
