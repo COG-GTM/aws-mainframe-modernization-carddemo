@@ -98,7 +98,7 @@ public class AccountViewService {
     static long parseAccountId(String raw, String message) {
         String value = raw == null ? "" : raw.strip();
         if (!value.matches("\\d{1,11}") || Long.parseLong(value) == 0) {
-            throw new FieldValidationException("accountId", message);
+            throw new FieldValidationException(List.of(new FieldProblem("accountId", message)));
         }
         return Long.parseLong(value);
     }

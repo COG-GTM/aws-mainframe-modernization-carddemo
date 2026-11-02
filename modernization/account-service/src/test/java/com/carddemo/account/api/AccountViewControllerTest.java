@@ -17,6 +17,7 @@ import com.carddemo.account.client.CustomerClient;
 import com.carddemo.account.client.CustomerUpdate;
 import com.carddemo.account.client.CustomerView;
 import com.carddemo.account.domain.Account;
+import com.carddemo.account.repository.AccountPostingRepository;
 import com.carddemo.account.repository.AccountRepository;
 import com.carddemo.common.error.RecordChangedException;
 import com.carddemo.testsupport.AdminCaller;
@@ -49,6 +50,9 @@ class AccountViewControllerTest {
     @Autowired
     private AccountRepository accounts;
 
+    @Autowired
+    private AccountPostingRepository postings;
+
     @MockBean
     private CardXrefClient xrefs;
 
@@ -59,6 +63,7 @@ class AccountViewControllerTest {
 
     @BeforeEach
     void setUp() {
+        postings.deleteAll();
         accounts.deleteAll();
         Account account = new Account(ACCT_ID);
         account.setCurrBal(new BigDecimal("194.00"));
