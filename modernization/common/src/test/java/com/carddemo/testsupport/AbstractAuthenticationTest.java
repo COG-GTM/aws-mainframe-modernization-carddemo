@@ -61,6 +61,9 @@ public abstract class AbstractAuthenticationTest {
     @Test
     void leavesHealthAndApiDocsOpen() throws Exception {
         mockMvc.perform(get("/actuator/health")).andExpect(status().isOk());
-        mockMvc.perform(get("/v3/api-docs")).andExpect(status().isOk());
+        mockMvc.perform(get("/v3/api-docs"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.components.securitySchemes.bearerAuth.scheme").value("bearer"))
+                .andExpect(jsonPath("$.security[0].bearerAuth").exists());
     }
 }
