@@ -12,7 +12,8 @@ import org.springframework.web.client.RestClient;
 
 /**
  * STEP05R REPROC without a TRANSACT file: unloads the TRANSACT KSDS as it is now from
- * transaction-service ({@code GET /api/v1/transactions}, in TRAN-ID order) into TRAN-RECORDs.
+ * transaction-service ({@code GET /api/v1/transactions}, in TRAN-ID order) into TRAN-RECORDs; a
+ * transaction added or removed while the pages are read makes {@link ServicePages} read again.
  * Timestamps are written as {@code YYYY-MM-DD HH:MM:SS.ffffff}; a POSTTRAN dump keeps the DB2 layout
  * ({@code YYYY-MM-DD-HH.MM.SS.ffffff}) for some rows, which CBTRN03C never looks at past
  * {@code TRAN-PROC-TS(1:10)}.
@@ -35,7 +36,8 @@ public final class ServiceTransactionSource {
 
     public List<CobolRecord> unload(CodePage codePage) {
         return ServicePages.all(transactions, "/api/v1/transactions",
-                        new ParameterizedTypeReference<ServicePages.Page<TransactionView>>() { })
+                        new ParameterizedTypeReference<ServicePages.Page<TransactionView>>() { },
+                        TransactionView::transactionId)
                 .stream().map(t -> toRecord(t, codePage)).toList();
     }
 

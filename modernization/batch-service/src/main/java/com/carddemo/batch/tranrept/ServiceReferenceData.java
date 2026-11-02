@@ -63,7 +63,7 @@ public final class ServiceReferenceData implements ReferenceData {
         if (types == null) {
             types = new HashMap<>();
             for (TypeView type : all("/api/v1/transaction-types",
-                    new ParameterizedTypeReference<ServicePages.Page<TypeView>>() { })) {
+                    new ParameterizedTypeReference<ServicePages.Page<TypeView>>() { }, TypeView::typeCode)) {
                 types.put(type.typeCode(), nullToEmpty(type.description()));
             }
         }
@@ -75,15 +75,17 @@ public final class ServiceReferenceData implements ReferenceData {
         if (categories == null) {
             categories = new HashMap<>();
             for (CategoryView category : all("/api/v1/transaction-categories",
-                    new ParameterizedTypeReference<ServicePages.Page<CategoryView>>() { })) {
+                    new ParameterizedTypeReference<ServicePages.Page<CategoryView>>() { },
+                    c -> key(c.typeCode(), c.categoryCode()))) {
                 categories.put(key(category.typeCode(), category.categoryCode()), nullToEmpty(category.description()));
             }
         }
         return Optional.ofNullable(categories.get(key(typeCode, categoryCode)));
     }
 
-    private <T> List<T> all(String path, ParameterizedTypeReference<ServicePages.Page<T>> type) {
-        return ServicePages.all(transactions, path, type);
+    private <T> List<T> all(String path, ParameterizedTypeReference<ServicePages.Page<T>> type,
+                            java.util.function.Function<T, ?> key) {
+        return ServicePages.all(transactions, path, type, key);
     }
 
     private static String key(String typeCode, int categoryCode) {
