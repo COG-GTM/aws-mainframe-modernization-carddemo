@@ -1,5 +1,6 @@
 package com.carddemo.transaction.batch;
 
+import com.carddemo.common.cobol.CobolValues;
 import com.carddemo.common.batch.BatchJobLauncher;
 import com.carddemo.common.batch.BatchJobParameters;
 import com.carddemo.common.batch.BatchJobRegistry;
@@ -19,7 +20,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Clock;
 import java.time.Instant;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -69,6 +69,8 @@ public class BatchConfig {
     private static final Logger LOG = LoggerFactory.getLogger(BatchConfig.class);
 
     private static final String STARTED_AT = "batch.startedAt";
+    /** The PARM interestCalculationStep resolved; SYSTRAN must select by that value, not re-resolve "today". */
+    private static final String INTCALC_PARM = "intcalc.parm";
     private static final String STAGED_IDS = "batch.stagedIds";
 
     @Bean
@@ -244,8 +246,8 @@ public class BatchConfig {
     }
 
     /**
-     * CBACT04C. The PARM (default {@code yyyyMMdd00} of {@code --date}) is recorded for the run;
-     * the service does not read it yet (the TRAN-ID it builds from PARM-DATE is UNT149-13's parity work).
+     * CBACT04C. The PARM (default {@code yyyyMMdd00} of {@code --date}) is PARM-DATE, the prefix of
+     * every TRAN-ID the run generates.
      */
     @Bean
     public Step interestCalculationStep(JobRepository jobRepository,
@@ -255,12 +257,14 @@ public class BatchConfig {
         return new StepBuilder("interestCalculationStep", jobRepository)
                 .tasklet((contribution, chunkContext) -> {
                     JobParameters params = contribution.getStepExecution().getJobParameters();
-                    jobContext(contribution).putString(STARTED_AT, LocalDateTime.now(clock).toString());
                     ExecutionContext context = contribution.getStepExecution().getExecutionContext();
-                    context.putString("parm", BatchJobParameters.parm(params, clock));
+                    String parm = BatchJobParameters.parm(params, clock);
+                    context.putString("parm", parm);
+                    jobContext(contribution).putString(INTCALC_PARM, parm);
                     InterestCalculationService.InterestReport report =
-                            interestCalculationService.calculateInterest();
+                            interestCalculationService.calculateInterest(parm);
                     context.putInt("accountsSettled", report.accountsSettled());
+                    context.putInt("transactionsWritten", report.transactionsWritten());
                     context.putString("totalInterest", report.totalInterest().toPlainString());
                     ReturnCodes.set(contribution, 0);
                     return RepeatStatus.FINISHED;
@@ -268,7 +272,7 @@ public class BatchConfig {
                 .build();
     }
 
-    /** SYSTRAN(+1): the interest transactions this run wrote, by TRAN-ID. */
+    /** SYSTRAN(+1): the interest transactions this run wrote (TRAN-ID = PARM-DATE + suffix), by TRAN-ID. */
     @Bean
     public Step writeSystemTransactionsStep(JobRepository jobRepository, PlatformTransactionManager transactionManager,
                                             TransactionRepository transactions) {
@@ -276,10 +280,10 @@ public class BatchConfig {
                 .tasklet((contribution, chunkContext) -> {
                     JobParameters params = contribution.getStepExecution().getJobParameters();
                     CodePage codePage = BatchJobParameters.codePage(params);
-                    LocalDateTime startedAt = LocalDateTime.parse(jobContext(contribution).getString(STARTED_AT));
+                    String parmDate = CobolValues.padRight(jobContext(contribution).getString(INTCALC_PARM), 10);
                     contribution.getStepExecution().getExecutionContext().putInt("SYSTRAN", DdFiles.write(
                             BatchJobParameters.runDirectory(params), "SYSTRAN",
-                            transactions.findBySourceAndProcTsGreaterThanEqualOrderByTranIdAsc(BatchRecords.SYSTEM_SOURCE, startedAt)
+                            transactions.findBySourceAndTranIdStartingWithOrderByTranIdAsc(BatchRecords.SYSTEM_SOURCE, parmDate)
                                     .stream().map(t -> BatchRecords.toTranRecord(t, codePage, true)).toList(),
                             BatchJobParameters.format(params)));
                     return RepeatStatus.FINISHED;

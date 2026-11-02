@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.carddemo.account.domain.Account;
 import com.carddemo.account.domain.AccountPosting;
+import com.carddemo.account.domain.PostingType;
 import com.carddemo.account.repository.AccountPostingRepository;
 import com.carddemo.account.repository.AccountRepository;
 import com.carddemo.common.error.DuplicateKeyException;
@@ -49,6 +50,49 @@ class AccountPostingTest {
         account.setOpenDate(LocalDate.of(2020, 1, 1));
         account.setExpirationDate(LocalDate.of(2030, 1, 1));
         accounts.save(account);
+    }
+
+    @Test
+    void billPaymentLowersOnlyTheBalanceAndSkipsTheCbtrn02cChecksLikeCobil00c() {
+        Account account = accounts.findById(ACCT_ID).orElseThrow();
+        account.setExpirationDate(LocalDate.of(2020, 6, 1));
+        account.setCurrCycCredit(new BigDecimal("900.00"));
+        accounts.save(account);
+
+        PostingOutcome outcome = accountService.post(ACCT_ID, "0000000000000101", new BigDecimal("-100.00"),
+                TRAN_DATE, PostingType.BILL_PAYMENT);
+
+        assertThat(outcome.posted()).isTrue();
+        assertThat(outcome.currentBalance()).isEqualByComparingTo("0.00");
+        assertThat(outcome.currentCycleCredit()).isEqualByComparingTo("900.00");
+        assertThat(outcome.currentCycleDebit()).isEqualByComparingTo("0.00");
+
+        PostingOutcome replay = accountService.post(ACCT_ID, "0000000000000101", new BigDecimal("-100.00"),
+                TRAN_DATE, PostingType.BILL_PAYMENT);
+        assertThat(replay.currentBalance()).isEqualByComparingTo("0.00");
+        assertThat(accounts.findById(ACCT_ID).orElseThrow().getCurrBal()).isEqualByComparingTo("0.00");
+        assertThat(postings.count()).isEqualTo(1);
+    }
+
+    @Test
+    void aBillPaymentReusingADailyPostingIdIsAConflictNotAReplay() {
+        accountService.post(ACCT_ID, "0000000000000103", new BigDecimal("-10.00"), TRAN_DATE);
+
+        assertThatThrownBy(() -> accountService.post(ACCT_ID, "0000000000000103", new BigDecimal("-10.00"),
+                TRAN_DATE, PostingType.BILL_PAYMENT))
+                .isInstanceOf(DuplicateKeyException.class);
+        assertThat(accounts.findById(ACCT_ID).orElseThrow().getCurrBal()).isEqualByComparingTo("90.00");
+        assertThat(postings.findById("0000000000000103").orElseThrow().getPostingType())
+                .isEqualTo(PostingType.DAILY_TRANSACTION);
+    }
+
+    @Test
+    void billPaymentForAMissingAccountIsRejectedWith101() {
+        PostingOutcome outcome = accountService.post(12345678901L, "0000000000000102", new BigDecimal("-1.00"),
+                TRAN_DATE, PostingType.BILL_PAYMENT);
+
+        assertThat(outcome.posted()).isFalse();
+        assertThat(outcome.reasonCode()).isEqualTo(101);
     }
 
     @Test

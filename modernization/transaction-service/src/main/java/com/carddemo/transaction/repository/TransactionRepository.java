@@ -13,6 +13,12 @@ public interface TransactionRepository extends JpaRepository<Transaction, String
     /** COTRN00C browses TRANSACT; the card filter replaces the 3270 browse start key. */
     Page<Transaction> findByCardNum(String cardNum, Pageable pageable);
 
+    /** COTRN00C STARTBR on TRAN-ID at the typed start key, READNEXT forward; paged. */
+    Page<Transaction> findByTranIdGreaterThanEqual(String startKey, Pageable pageable);
+
+    /** As {@link #findByTranIdGreaterThanEqual}, restricted to one card. */
+    Page<Transaction> findByCardNumAndTranIdGreaterThanEqual(String cardNum, String startKey, Pageable pageable);
+
     /** COTRN00C STARTBR on TRAN-ID + READNEXT: records from the start key forward, in key order. */
     List<Transaction> findByTranIdGreaterThanEqualOrderByTranIdAsc(String startKey, Pageable pageable);
 
@@ -29,6 +35,8 @@ public interface TransactionRepository extends JpaRepository<Transaction, String
     List<Transaction> findByProcTsGreaterThanEqualAndProcTsLessThanOrderByCardNumAscTranIdAsc(
             LocalDateTime from, LocalDateTime toExclusive);
 
-    /** System-generated transactions written since {@code since} (the SYSTRAN records of an INTCALC run). */
-    List<Transaction> findBySourceAndProcTsGreaterThanEqualOrderByTranIdAsc(String source, LocalDateTime since);
+    /** The SYSTRAN records of an INTCALC run: CBACT04C TRAN-IDs start with the run's PARM-DATE. */
+    List<Transaction> findBySourceAndTranIdStartingWithOrderByTranIdAsc(String source, String tranIdPrefix);
+
+    boolean existsByTranIdStartingWith(String tranIdPrefix);
 }

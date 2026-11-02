@@ -143,11 +143,11 @@ needs the definition of done in scope §4. "Branch label" is the status the base
 | COCRDLIC | ported | complete | `GET /api/v1/cards?accountId=&customerId=` with both filters intersecting. Paging is by page number, not STARTBR key. |
 | COCRDSLC | ported | complete | `GET /api/v1/cards/{n}`. |
 | COCRDUPC | ported | partial | COBOL requires month 1–12 and year 1950–2099 (`VALID-MONTH`, `VALID-YEAR`); Java only rejects year > 2099. |
-| COTRN00C | ported | partial | COBOL browses TRANSACT from a typed transaction id; Java filters by card number. |
-| COTRN01C | ported | complete | `GET /api/v1/transactions/{id}`. |
-| COTRN02C | ported | partial | COBOL accepts account id or card number, validates dates through CSUTLDTC, and sets TRAN-ID = last id + 1 (READPREV, lines 446–451). Java accepts card number only, has no date edit, and uses a random 16-char id. |
+| COTRN00C | ported | complete | `GET /api/v1/transactions?startTransactionId=&page=&size=10`: TRAN-ID order from the typed start id (zero padded to 16 digits; COBOL `STARTBR` at `TRNIDIN`), `Tran ID must be Numeric ...`; the `cardNumber` filter is an extra. Paging is by page number, not READNEXT/READPREV keys (api-style §4). |
+| COTRN01C | ported | complete | `GET /api/v1/transactions/{id}`, `Transaction ID NOT found...`. The COBOL `READ ... UPDATE` is never followed by a REWRITE, so it is a plain read. |
+| COTRN02C | ported | complete | `TransactionAddValidator`: account id (via CXACAIX) or card number (via CCXREF), every empty/numeric/amount (`-99999999.99`)/date-format edit with the COBOL message, dates through `CsutldtcDate` (CEEDAYS; msg 2513 ignored as in COBOL). TRAN-ID from `TransactionIdGenerator` (database sequence lifted past the highest numeric id = last id + 1, d-tran-id). Differences: all failing fields are reported (first = the COBOL cursor field); the XREF lookup runs after the field edits, COBOL looks up first; PF5 "copy last transaction" is client-side (`GET` the last row). |
 | CORPT00C | not built | complete | batch-service `POST /api/v1/reports/transactions` (§3.2): the CORPT00C edits in COBOL order and text, monthly/yearly dates computed, TRANREPT run asynchronously in-process, polled by report id. Confirmation is the POST itself. |
-| COBIL00C | ported | partial | Type 02 / cat 2 / "BILL PAYMENT - ONLINE" / merchant 999999999 and the "nothing to pay" check match. TRAN-ID is random instead of last + 1. Java posts through account-service's CBTRN02C rules, so an expired account rejects the payment (reason 103); COBOL COBIL00C rewrites the balance without that check. |
+| COBIL00C | ported | complete | Type 02 / cat 2 / `POS TERM` / "BILL PAYMENT - ONLINE" / merchant 999999999 / N/A, full `ACCT-CURR-BAL`, `You have nothing to pay...`, `Account ID NOT found...`, `Acct ID can NOT be empty...`. TRAN-ID as COTRN02C. The balance update is the account-service posting endpoint with `type: BILL_PAYMENT` (balance only, no CBTRN02C 102/103 rejects, cycle buckets untouched, like COBIL00C), keyed by the TRAN-ID (PR #168 ledger). Residual risk in §6. |
 | COUSR00C | ported | complete | `GET /api/v1/users`: 10 rows a page in user-id order (USRID01–10), `startUserId` = the "Search User ID" STARTBR key, page number for PF7/PF8. Row selection `U`/`D` is the client calling PUT/DELETE. |
 | COUSR01C | ported | complete | All five fields required, checked in COUSR01C order (first name, last name, user id, password, type) with its texts (`First Name can NOT be empty...`); duplicate → 409 `User ID already exist...`. Deliberate deviations: password BCrypt-hashed, min 8 chars; type must be `A`/`U` (COBOL stores any non-blank character, but only `A` is ever admin); user id upper-cased (COSGN00C upper-cases at sign-on, so a lower-case id could never sign on). |
 | COUSR02C | ported | complete | `PUT /api/v1/users/{id}`: fields checked in COUSR02C order; unknown id → 404 `User ID NOT found...`; nothing changed → 422 `Please modify to update ...`; READ UPDATE/REWRITE → JPA `@Version` (409 on a concurrent change). |
@@ -164,7 +164,7 @@ needs the definition of done in scope §4. "Branch label" is the status the base
 | CBEXPORT / CBIMPORT | not built | stub | |
 | CBTRN01C | not built | stub | |
 | CBACT01C, CBACT02C, CBACT03C, CBCUS01C | replaced by list endpoints | partial | `GET` list endpoints exist; the dump files are not produced, which scope §2.2 requires or records as a deviation. |
-| CSUTLDTC | "shared Java date check" (scope §2.2) | partial | CORPT00C uses a minimal port with CEEDAYS's `YYYY-MM-DD` feedback (`ReportDates.Csutldtc` in batch-service: 2517 bad month, 2508 bad day, 2513 before 1582-10-15); to be replaced by `common.date.DateValidation` from the statements ticket once merged. Elsewhere there is no such check. Dates are only parsed (`CobolValues.date`, Jackson `LocalDate`); no CEEDAYS-style validation or messages. Scope §2.2 is wrong on this row. |
+| CSUTLDTC | "shared Java date check" (scope §2.2) | partial | Two minimal ports until UNT149-15 adds the shared check in `common`: transaction-service `CsutldtcDate` (the `YYYY-MM-DD` use in COTRN02C) and batch-service `ReportDates` (CORPT00C: 2517 bad month, 2508 bad day, 2513 before 1582-10-15 accepted). Otherwise there is no such check. Dates are only parsed (`CobolValues.date`, Jackson `LocalDate`); no CEEDAYS-style validation or messages. Scope §2.2 is wrong on this row. |
 | COBSWAIT | replaced | replaced | Job ordering replaces the wait. |
 
 ## 5. Verified on this branch
@@ -183,6 +183,17 @@ This PR changes no business logic, so these findings stay open for the phases th
 - Running interest calculation again charges unchanged category balances again. The COBOL behaves the
   same way, because CBACT04C opens TCATBAL as input only. Guarding against a second run per period is
   a scheduling and idempotency decision for the batch phase, not a parity fix.
+- COBIL00C across two services (UNT149-19). COBOL holds ACCTDAT with READ UPDATE and CICS backs out
+  the TRANSACT WRITE if the REWRITE fails. Java takes a per-account advisory lock, writes and flushes
+  the TRANSACT row, posts `-balance` with the TRAN-ID as idempotency key (retried up to 3 times when
+  the outcome is unknown), and rolls the row back if the posting is rejected or never answered.
+  Remaining window: account-service applied the posting but every answer was lost, or the local
+  commit fails after a successful posting. Then the account is debited with no TRANSACT row.
+  Detection: an `account.account_postings` row whose `tran_id` is missing from
+  `transaction.transactions`. There is no automatic repair.
+- Online TRAN-IDs come from `transaction.tran_id_seq`, lifted past the highest numeric TRAN-ID
+  already stored on each allocation. A DALYTRAN id loaded later that equals an id already handed out
+  makes POSTTRAN abend on the duplicate. COBOL has the same collision.
 - Security, carried over from the base branch: no TLS between services, the USRSEC
   sample users loaded by `data-loader` (`ADMIN001` … `USER0005`, password `PASSWORD`), `carddemo` / `carddemo` default database credentials, and Compose
   publishing the service ports on every host interface. These are acceptable for a local demo only.

@@ -1,21 +1,28 @@
 package com.carddemo.common.error;
 
+import com.carddemo.common.api.ApiError;
+import java.util.List;
+
 /**
- * A screen edit that failed on one field: the COBOL programs check the fields in a fixed order, move
- * the first failure's text to the message line, put the cursor on that field and send the screen back.
- * Answered with 400, the COBOL text as {@code message} and the field as the single {@code fieldErrors}
- * entry.
+ * Screen-level field edits done in code rather than by Bean Validation, because their order and text
+ * come from the COBOL program. The first problem is the field the COBOL would have put the cursor on
+ * ({@code MOVE -1 TO xxxL}); its message becomes {@code ApiError.message}.
  */
 public class FieldValidationException extends RuntimeException {
 
-    private final String field;
+    private final List<ApiError.FieldProblem> problems;
 
-    public FieldValidationException(String field, String message) {
-        super(message);
-        this.field = field;
+    public FieldValidationException(List<ApiError.FieldProblem> problems) {
+        super(problems.get(0).message());
+        this.problems = List.copyOf(problems);
     }
 
-    public String field() {
-        return field;
+    /** The single-field case: COBOL screens that stop at the first failing field. */
+    public FieldValidationException(String field, String message) {
+        this(List.of(new ApiError.FieldProblem(field, message)));
+    }
+
+    public List<ApiError.FieldProblem> problems() {
+        return problems;
     }
 }

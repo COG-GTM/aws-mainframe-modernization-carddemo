@@ -61,8 +61,8 @@ public class RestExceptionHandler {
 
     @ExceptionHandler(FieldValidationException.class)
     public ResponseEntity<ApiError> handleFieldValidation(FieldValidationException ex) {
-        return ResponseEntity.badRequest().body(ApiError.of(400, "Bad Request", ex.getMessage(),
-                List.of(new ApiError.FieldProblem(ex.field(), ex.getMessage()))));
+        return ResponseEntity.badRequest()
+                .body(ApiError.of(400, "Bad Request", ex.getMessage(), ex.problems()));
     }
 
     /** Query parameter edits, such as the page and size of a browse. */
