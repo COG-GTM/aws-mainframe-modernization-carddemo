@@ -128,9 +128,9 @@ needs the definition of done in scope §4. "Branch label" is the status the base
 | `customer-service` | partial | Read/list/update with no field edits; the customer edits of COACTUPC are not here. |
 | `account-service` | partial | View works; update covers account fields only; posting/interest settlement follow CBTRN02C/CBACT04C. |
 | `card-service` | complete | COCRDLIC/SLC/UPC reviewed paragraph by paragraph (`card-service-review.md`). |
-| `transaction-service` | partial | Online list/view/add/bill pay and both batch jobs run; reports and statements are stubs. |
-| `batch-service` | partial | TRANREPT (CBTRN03C) and the CORPT00C report submission (§3.2). |
-| Statements, export/import, MQ replacement, client | stub | Not built (`modernization/README.md`). |
+| `transaction-service` | partial | Online list/view/add/bill pay and both batch jobs run; reports are stubs. |
+| `batch-service` | partial | TRANREPT (CBTRN03C) and the CORPT00C report submission (§3.2); CREASTMT, CBEXPORT/CBIMPORT, READACCT/CARD/CUST/XREF and WAITSTEP run (UNT149-15, golden set in [validation/batch-service-golden-set.md](validation/batch-service-golden-set.md)); those UNT149-15 jobs read the service schemas read-only over JDBC and call no other service. |
+| MQ replacement, client | stub | Not built (`modernization/README.md`). |
 
 ### 4.1 Online programs
 

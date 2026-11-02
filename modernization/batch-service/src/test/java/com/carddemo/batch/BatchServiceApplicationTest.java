@@ -60,4 +60,19 @@ class BatchServiceApplicationTest {
 
         assertThat(http.getForEntity("/v3/api-docs", String.class).getBody()).contains("\"bearerAuth\"");
     }
+
+    @Test
+    void batchProgramEndpointsNeedTheBearerToken() {
+        for (String job : new String[] {"statements", "export", "import"}) {
+            // GET: the JDK client cannot read a 401 on a streamed POST; the filter answers before method dispatch.
+            assertThat(http.getForEntity("/api/v1/batch/" + job, String.class).getStatusCode())
+                    .as(job).isEqualTo(HttpStatus.UNAUTHORIZED);
+        }
+        HttpHeaders bearer = new HttpHeaders();
+        bearer.setBearerAuth(tokens.issue("ADMIN001", "A").token());
+        ResponseEntity<String> run = http.exchange("/api/v1/batch/statements", HttpMethod.POST,
+                new HttpEntity<>(bearer), String.class);
+        assertThat(run.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(run.getBody()).contains("\"returnCode\"", "CREASTMT");
+    }
 }

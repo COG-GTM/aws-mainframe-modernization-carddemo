@@ -276,7 +276,8 @@ curl -X POST -H "Authorization: Bearer $TOKEN" http://localhost:8085/api/v1/batc
 ```
 
 Each call runs the job synchronously and returns `jobName`, `executionId`, `status`, `returnCode`,
-`outputDir`, the step list and the step counters. Rejected postings also stay in
+`outputDir`, the step list and the step counters (every `/api/**` call needs the bearer token, `$AUTH`
+as in §6). Rejected postings also stay in
 `transaction.transaction_rejects`.
 
 ### 6. Call the services
