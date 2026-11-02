@@ -118,5 +118,6 @@ class ExportRecordLayoutTest {
         assertThat(ascii.withCodePage(CodePage.EBCDIC, ExportRecordLayout.storageFor("C")).toBytes())
                 .isEqualTo(ebcdic.toBytes());
         assertThatThrownBy(() -> ebcdic.withCodePage(CodePage.ASCII)).hasMessageContaining("REDEFINES");
+        assertThat(ebcdic.withCodePage(CodePage.EBCDIC)).isEqualTo(ebcdic);
     }
 }

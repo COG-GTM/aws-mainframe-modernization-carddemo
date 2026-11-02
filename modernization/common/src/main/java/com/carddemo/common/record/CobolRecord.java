@@ -180,7 +180,7 @@ public final class CobolRecord {
      * with REDEFINES views need {@link #withCodePage(CodePage, List)}: which bytes are text depends on the view.
      */
     public CobolRecord withCodePage(CodePage target) {
-        if (layout.hasRedefines()) {
+        if (target != codePage && layout.hasRedefines()) {
             throw new IllegalStateException(layout + " has REDEFINES views; pass the storage map of the view in use");
         }
         return withCodePage(target, layout.fields());
