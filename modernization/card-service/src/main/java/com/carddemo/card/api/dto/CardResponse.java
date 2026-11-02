@@ -1,12 +1,13 @@
 package com.carddemo.card.api.dto;
 
+import com.carddemo.common.api.PicId;
 import com.carddemo.card.domain.Card;
 import java.time.LocalDate;
 
 /** Screen fields of COCRDSL / COCRDLI. The CVV is never returned; it left the mainframe screen too. */
 public record CardResponse(
         String cardNumber,
-        Long accountId,
+        @PicId(digits = 11) Long accountId,
         String embossedName,
         LocalDate expirationDate,
         String activeStatus) {

@@ -87,8 +87,8 @@ Each service also serves its OpenAPI document at `/v3/api-docs`.
 JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64 mvn -B verify   # JAVA_HOME only where the default JDK is not 21
 ```
 
-Tests currently run on in-memory H2 with Flyway disabled. Moving them to Testcontainers PostgreSQL is
-in progress (conventions ticket); once it lands `mvn -B verify` needs a running Docker daemon.
+Tests run against PostgreSQL 16 in a Testcontainers container (Testcontainers 1.21.4) with the Flyway
+migrations applied and Hibernate in `validate` mode, so `mvn -B verify` needs a running Docker daemon.
 
 CI (`.github/workflows/modernization-verify.yml`) runs on every PR touching `modernization/**`:
 

@@ -1,5 +1,6 @@
 package com.carddemo.transaction.batch;
 
+import com.carddemo.common.cobol.CobolValues;
 import com.carddemo.transaction.client.AccountGateway;
 import com.carddemo.transaction.client.AccountView;
 import com.carddemo.transaction.client.CardGateway;
@@ -13,7 +14,6 @@ import com.carddemo.transaction.repository.DisclosureGroupRepository;
 import com.carddemo.transaction.repository.TransactionRepository;
 import com.carddemo.transaction.service.TransactionIdGenerator;
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.time.Clock;
 import java.time.LocalDateTime;
 import java.util.LinkedHashMap;
@@ -85,9 +85,9 @@ public class InterestCalculationService {
             if (rate.signum() == 0) {
                 continue;
             }
-            BigDecimal monthlyInterest = balance.getBalance()
-                    .multiply(rate)
-                    .divide(MONTHS_TIMES_PERCENT, 2, RoundingMode.HALF_UP);
+            // No ROUNDED on the COMPUTE (line 464): the quotient is truncated into PIC S9(09)V99.
+            BigDecimal monthlyInterest = CobolValues.divide(
+                    balance.getBalance().multiply(rate), MONTHS_TIMES_PERCENT, 2);
             writeInterestTransaction(accountId, monthlyInterest);
             interestByAccount.merge(accountId, monthlyInterest, BigDecimal::add);
         }
