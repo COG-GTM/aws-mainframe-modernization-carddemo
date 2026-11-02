@@ -8,3 +8,5 @@ spring:
 carddemo:
   batch:
     output-dir: target/batch-out
+  security:
+    token-secret: test-only-token-secret-0123456789abcdef

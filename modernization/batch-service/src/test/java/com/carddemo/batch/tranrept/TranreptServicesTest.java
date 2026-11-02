@@ -29,6 +29,9 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
+import com.carddemo.common.security.TokenService;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.DynamicPropertyRegistry;
@@ -50,6 +53,18 @@ class TranreptServicesTest {
     @Autowired
     private TestRestTemplate http;
 
+    @Autowired
+    private TokenService tokens;
+
+    /** Every call the job made to the stand-in services carried this Authorization header. */
+    private static final java.util.Set<String> FORWARDED = java.util.concurrent.ConcurrentHashMap.newKeySet();
+
+    private HttpEntity<Void> signedOn() {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(tokens.issue("ADMIN001", "A").token());
+        return new HttpEntity<>(headers);
+    }
+
     @DynamicPropertySource
     static void serviceUrls(DynamicPropertyRegistry registry) {
         String url = "http://localhost:" + SERVICES.getAddress().getPort();
@@ -65,8 +80,10 @@ class TranreptServicesTest {
     @Test
     void reportFromTheServicesEqualsTheCobolReport() throws IOException {
         XREF_CALLS.set(0);
+        FORWARDED.clear();
+        HttpEntity<Void> request = signedOn();
         ResponseEntity<Map> response = http.postForEntity(
-                "/api/v1/batch/transaction-report?startDate=2022-01-01&endDate=2022-07-06", null, Map.class);
+                "/api/v1/batch/transaction-report?startDate=2022-01-01&endDate=2022-07-06", request, Map.class);
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         @SuppressWarnings("unchecked")
@@ -81,12 +98,25 @@ class TranreptServicesTest {
                 .isEqualTo(new String(SAMPLE.expectedReport().orElseThrow(), StandardCharsets.ISO_8859_1));
         // CARDXREF is read on a card change only: 50 cards, sorted.
         assertThat(XREF_CALLS.get()).isEqualTo(50);
+        // The caller's token went on to card-service and transaction-service.
+        assertThat(FORWARDED).containsExactly(request.getHeaders().getFirst(HttpHeaders.AUTHORIZATION));
+    }
+
+    @Test
+    void submitNeedsABearerToken() throws Exception {
+        // java.net.http: TestRestTemplate's JDK client cannot read a 401 on a streamed POST.
+        java.net.http.HttpResponse<String> response = java.net.http.HttpClient.newHttpClient().send(
+                java.net.http.HttpRequest.newBuilder(java.net.URI.create(http.getRootUri()
+                                + "/api/v1/batch/transaction-report?startDate=2022-01-01&endDate=2022-07-06"))
+                        .POST(java.net.http.HttpRequest.BodyPublishers.noBody()).build(),
+                java.net.http.HttpResponse.BodyHandlers.ofString());
+        assertThat(response.statusCode()).isEqualTo(401);
     }
 
     @Test
     void bothDatesAreRequired() {
         ResponseEntity<String> response = http.postForEntity(
-                "/api/v1/batch/transaction-report?startDate=2022-01-01", null, String.class);
+                "/api/v1/batch/transaction-report?startDate=2022-01-01", signedOn(), String.class);
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
     }
 
@@ -171,6 +201,7 @@ class TranreptServicesTest {
     }
 
     private static void send(HttpExchange exchange, int status, Object body) throws IOException {
+        FORWARDED.add(String.valueOf(exchange.getRequestHeaders().getFirst("Authorization")));
         byte[] bytes = JSON.writeValueAsBytes(body);
         exchange.getResponseHeaders().add("Content-Type", "application/json");
         exchange.sendResponseHeaders(status, bytes.length);

@@ -10,6 +10,7 @@ import com.carddemo.transaction.domain.TransactionType;
 import com.carddemo.transaction.repository.TransactionCategoryTypeRepository;
 import com.carddemo.transaction.repository.TransactionTypeRepository;
 import com.carddemo.transaction.support.StubGateways;
+import com.carddemo.testsupport.AdminCaller;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,7 +21,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 @SpringBootTest
 @AutoConfigureMockMvc
-@Import(StubGateways.class)
+@Import({StubGateways.class, AdminCaller.class})
 class TransactionReferenceControllerTest {
 
     @Autowired

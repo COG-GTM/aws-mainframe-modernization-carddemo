@@ -8,6 +8,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.carddemo.transaction.client.PostingResult;
 import com.carddemo.transaction.repository.TransactionRepository;
+import com.carddemo.testsupport.AdminCaller;
 import com.carddemo.transaction.support.StubGateways;
 import java.math.BigDecimal;
 import org.junit.jupiter.api.BeforeEach;
@@ -21,7 +22,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 @SpringBootTest
 @AutoConfigureMockMvc
-@Import(StubGateways.class)
+@Import({StubGateways.class, AdminCaller.class})
 class TransactionControllerTest {
 
     private static final String CARD = "4111111111111111";

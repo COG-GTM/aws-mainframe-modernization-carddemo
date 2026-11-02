@@ -26,6 +26,10 @@ carddemo:
     # when those DDs are not given as files (--dd=).
     card-url: ${CARD_SERVICE_URL:http://localhost:8083}
     transaction-url: ${TRANSACTION_SERVICE_URL:http://localhost:8084}
+  security:
+    # HS256 key shared by all services; no default here, compose supplies a dev-only value.
+    token-secret: ${CARDDEMO_TOKEN_SECRET:}
+    token-ttl: ${CARDDEMO_TOKEN_TTL:PT8H}
   batch:
     # Root of the job output generations: <output-dir>/<JOB>/<yyyyMMdd-HHmmss-SSS>/<DD>.
     output-dir: ${BATCH_OUTPUT_DIR:out}

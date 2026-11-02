@@ -29,7 +29,11 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import com.carddemo.common.security.CallerTokenForwarder;
+import com.carddemo.common.security.TokenService;
+import org.springframework.context.ApplicationContext;
 import org.springframework.http.MediaType;
+import org.springframework.web.context.WebApplicationContext;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.web.client.RestClient;
 
@@ -70,16 +74,29 @@ public class TranreptJobConfig {
         return BatchArguments.of(TRANREPT, null, DateParm.text(startDate, endDate));
     }
 
+    /**
+     * The HTTP submit forwards its caller's token to card-service and transaction-service; a
+     * {@code --job=} launch (non-web context) signs as BATCH (architecture.md §3.1).
+     */
     @Bean
-    public RestClient cardRestClient(RestClient.Builder builder,
-                                     @Value("${carddemo.services.card-url:http://localhost:8083}") String baseUrl) {
-        return builder.baseUrl(baseUrl).defaultHeader("Accept", MediaType.APPLICATION_JSON_VALUE).build();
+    public CallerTokenForwarder callerTokenForwarder(ApplicationContext context, TokenService tokens) {
+        return context instanceof WebApplicationContext
+                ? CallerTokenForwarder.forCallers()
+                : CallerTokenForwarder.forBatchProcess(tokens);
     }
 
     @Bean
-    public RestClient transactionRestClient(RestClient.Builder builder,
+    public RestClient cardRestClient(RestClient.Builder builder, CallerTokenForwarder forwarder,
+                                     @Value("${carddemo.services.card-url:http://localhost:8083}") String baseUrl) {
+        return builder.baseUrl(baseUrl).defaultHeader("Accept", MediaType.APPLICATION_JSON_VALUE)
+                .requestInterceptor(forwarder).build();
+    }
+
+    @Bean
+    public RestClient transactionRestClient(RestClient.Builder builder, CallerTokenForwarder forwarder,
                                             @Value("${carddemo.services.transaction-url:http://localhost:8084}") String baseUrl) {
-        return builder.baseUrl(baseUrl).defaultHeader("Accept", MediaType.APPLICATION_JSON_VALUE).build();
+        return builder.baseUrl(baseUrl).defaultHeader("Accept", MediaType.APPLICATION_JSON_VALUE)
+                .requestInterceptor(forwarder).build();
     }
 
     @Bean

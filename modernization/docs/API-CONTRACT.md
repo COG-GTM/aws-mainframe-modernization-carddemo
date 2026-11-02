@@ -4,10 +4,11 @@ REST replacement for the BMS 3270 screens. Each service also publishes a live Op
 `/v3/api-docs` and Swagger UI at `/swagger-ui.html`. The rules behind this contract (naming, errors,
 paging, authentication, async jobs) are in `docs/migration/api-style.md`.
 
-**Authentication (current):** sign-on verifies the password but issues no token, and no endpoint
-checks the caller. Target (UNT149-16): bearer token carrying user id and type, 401 without it, 403 for
-a `U` user on admin-only endpoints (`/api/v1/users/**`, `/api/v1/menu` returns the admin menu only to
-`A`).
+**Authentication:** every `/api/**` endpoint except sign-on needs `Authorization: Bearer <token>`
+from `POST /api/v1/auth/signon` (claims `sub` = user id, `userType` = `A`/`U`). Missing or invalid
+token → 401, a `U` token on admin-only endpoints (`/api/v1/users/**`) → 403, both as the error
+envelope below. `/actuator/health`, `/v3/api-docs` and Swagger UI stay open. Design:
+`docs/migration/architecture.md` §3.1.
 
 Media type is `application/json`. Errors use the shared envelope:
 
@@ -39,8 +40,10 @@ Browse operations (`STARTBR` / `READNEXT` / PF7 / PF8) become page based collect
 
 | Method | Path | Legacy | Notes |
 | --- | --- | --- | --- |
-| POST | `/api/v1/auth/signon` | COSGN00C | returns `nextScreen` = `ADMIN` or `MAIN`, mirroring the admin/user routing of COMEN01C vs COADM01C |
-| GET | `/api/v1/users` | COUSR00C | paged user list |
+| POST | `/api/v1/auth/signon` | COSGN00C | public; returns `token`, `tokenType`, `expiresAt` and `nextScreen` = `ADMIN` or `MAIN` (COADM01C vs COMEN01C routing); 422 `Wrong Password. Try again ...` / `User not found. Try again ...` |
+| GET | `/api/v1/menu` | COMEN01C / COADM01C | menu for the caller's user type, see "Menus" |
+| GET | `/api/v1/menu/options/{number}` | COMEN01C / COADM01C PROCESS-ENTER-KEY | the selected option; 400 `Please enter a valid option number...`, 403 admin-only, 422 not installed |
+| GET | `/api/v1/users` | COUSR00C | paged user list; all `/api/v1/users/**` operations are admin-only (403 for `U`) |
 | GET | `/api/v1/users/{userId}` | COUSR03C | |
 | POST | `/api/v1/users` | COUSR01C | password is hashed with BCrypt, never stored or returned in clear |
 | PUT | `/api/v1/users/{userId}` | COUSR02C | |
@@ -95,8 +98,10 @@ Browse operations (`STARTBR` / `READNEXT` / PF7 / PF8) become page based collect
 
 ## Menus — COMEN01C (CM00, `COMEN02Y`) and COADM01C (CA00, `COADM02Y`)
 
-Planned (UNT149-16): `GET /api/v1/menu` in auth-service returns the menu for the caller's user type.
-Today the only menu support is `nextScreen` (`MAIN` / `ADMIN`) in the sign-on response.
+`GET /api/v1/menu` in auth-service returns the menu for the caller's user type: `menu` (`MAIN`/`ADMIN`),
+`transactionId` (`CM00`/`CA00`), `program`, `title` and `options[]` with `number`, `name`, `program`,
+`adminOnly`, `available`, `endpoint`. Unavailable options (`available: false`, `endpoint: null`):
+9 Transaction Reports (CORPT00C endpoint not built yet), 11 Pending Authorization View, admin 5–6.
 
 Main menu (user type `U`; every option is flagged `U` in `COMEN02Y`, none is admin-only):
 
