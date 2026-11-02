@@ -106,6 +106,33 @@ class BatchJobsTest {
     }
 
     @Test
+    void cbtrn01cPrintsEachRecordAndItsLookupsAndChangesNothing() throws Exception {
+        cards.register("4222222222222222", 100000002L, 22222222222L);
+        Path dalytranFile = work.resolve("DALYTRAN");
+        CobolRecord first = dalytran("0000000000000001", CARD, "25.00");
+        RecordWriter.writeAll(dalytranFile, List.of(first, dalytran("0000000000000002", "9999999999999999", "10.00"),
+                dalytran("0000000000000003", "4222222222222222", "5.00")), RecordFormat.FIXED);
+
+        BatchRun run = run("CBTRN01C", Map.of("DALYTRAN", dalytranFile));
+
+        assertThat(run.returnCode()).isZero();
+        List<String> sysout = Files.readAllLines(run.outputDir().resolve("SYSOUT"));
+        assertThat(sysout.get(0)).isEqualTo("START OF EXECUTION OF PROGRAM CBTRN01C");
+        assertThat(sysout.get(1)).isEqualTo(new String(first.toBytes())).hasSize(350);
+        assertThat(sysout.subList(2, 7)).containsExactly("SUCCESSFUL READ OF XREF", "CARD NUMBER: " + CARD,
+                "ACCOUNT ID : 11111111111", "CUSTOMER ID: 100000001", "SUCCESSFUL READ OF ACCOUNT FILE");
+        assertThat(sysout.subList(8, 10)).containsExactly("INVALID CARD NUMBER FOR XREF",
+                "CARD NUMBER 9999999999999999 COULD NOT BE VERIFIED. SKIPPING TRANSACTION ID-0000000000000002");
+        assertThat(sysout.subList(15, 17)).containsExactly("INVALID ACCOUNT NUMBER FOUND", "ACCOUNT 22222222222 NOT FOUND");
+        // The end-of-file read leaves the last record in place and MAIN-PARA looks it up once more.
+        assertThat(sysout.subList(17, 24)).containsExactly("SUCCESSFUL READ OF XREF", "CARD NUMBER: 4222222222222222",
+                "ACCOUNT ID : 22222222222", "CUSTOMER ID: 100000002", "INVALID ACCOUNT NUMBER FOUND",
+                "ACCOUNT 22222222222 NOT FOUND", "END OF EXECUTION OF PROGRAM CBTRN01C");
+        assertThat(accounts.postings()).isEmpty();
+        assertThat(dailyTransactions.count()).isZero();
+    }
+
+    @Test
     void posttranReadsDalytranFromAFileAndWritesTheOutputDds() throws Exception {
         Path dalytranFile = work.resolve("DALYTRAN");
         RecordWriter.writeAll(dalytranFile, List.of(dalytran("0000000000000001", CARD, "25.00"),

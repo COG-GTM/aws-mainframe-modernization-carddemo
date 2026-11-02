@@ -42,10 +42,12 @@ public class RestAccountGateway implements AccountGateway {
      * read as a posting result.
      */
     @Override
-    public PostingResult post(long accountId, BigDecimal amount, LocalDate transactionDate) {
+    public PostingResult post(long accountId, String transactionId, BigDecimal amount,
+                              LocalDate transactionDate) {
         PostingResult result = restClient.post()
                 .uri("/api/v1/accounts/{id}/postings", accountId)
-                .body(Map.of("amount", amount, "transactionDate", transactionDate.toString()))
+                .body(Map.of("transactionId", transactionId, "amount", amount,
+                        "transactionDate", transactionDate.toString()))
                 .retrieve()
                 .onStatus(status -> status == HttpStatus.UNPROCESSABLE_ENTITY, (request, response) -> {
                 })
