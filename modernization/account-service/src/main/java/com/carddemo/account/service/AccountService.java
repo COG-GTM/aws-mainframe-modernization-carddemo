@@ -3,6 +3,7 @@ package com.carddemo.account.service;
 import com.carddemo.account.api.dto.AccountUpdateRequest;
 import com.carddemo.account.domain.Account;
 import com.carddemo.account.domain.AccountPosting;
+import com.carddemo.account.domain.PostingType;
 import com.carddemo.account.repository.AccountPostingRepository;
 import com.carddemo.account.repository.AccountRepository;
 import com.carddemo.common.error.BusinessRuleException;
@@ -93,7 +94,7 @@ public class AccountService {
             return transaction.execute(status -> postOnce(acctId, tranId, amount, transactionDate, type));
         } catch (DataIntegrityViolationException | OptimisticLockingFailureException conflict) {
             AccountPosting winner = postings.findById(tranId).orElseThrow(() -> conflict);
-            return replay(winner, acctId, amount, transactionDate);
+            return replay(winner, acctId, amount, transactionDate, type);
         }
     }
 
@@ -101,7 +102,7 @@ public class AccountService {
                                     PostingType type) {
         AccountPosting previous = postings.findById(tranId).orElse(null);
         if (previous != null) {
-            return replay(previous, acctId, amount, transactionDate);
+            return replay(previous, acctId, amount, transactionDate, type);
         }
         Account account = accounts.findById(acctId).orElse(null);
         if (account == null) {
@@ -110,7 +111,7 @@ public class AccountService {
         if (type == PostingType.BILL_PAYMENT) {
             account.setCurrBal(account.getCurrBal().add(amount));
             Account saved = accounts.saveAndFlush(account);
-            postings.saveAndFlush(new AccountPosting(tranId, saved, amount, transactionDate, LocalDateTime.now()));
+            postings.saveAndFlush(new AccountPosting(tranId, saved, amount, transactionDate, LocalDateTime.now(), type));
             return PostingOutcome.posted(saved);
         }
         Integer reasonCode = null;
@@ -136,17 +137,18 @@ public class AccountService {
             account.setCurrCycDebit(account.getCurrCycDebit().add(amount));
         }
         Account saved = accounts.saveAndFlush(account);
-        postings.saveAndFlush(new AccountPosting(tranId, saved, amount, transactionDate, LocalDateTime.now()));
+        postings.saveAndFlush(new AccountPosting(tranId, saved, amount, transactionDate, LocalDateTime.now(), type));
         return PostingOutcome.posted(saved);
     }
 
     private static PostingOutcome replay(AccountPosting previous, long acctId, BigDecimal amount,
-                                         LocalDate transactionDate) {
+                                         LocalDate transactionDate, PostingType type) {
         if (previous.getAcctId() != acctId || previous.getAmount().compareTo(amount) != 0
-                || !previous.getTransactionDate().equals(transactionDate)) {
+                || !previous.getTransactionDate().equals(transactionDate) || previous.getPostingType() != type) {
             throw new DuplicateKeyException("Transaction " + previous.getTranId()
                     + " was already posted to account " + previous.getAcctId() + " with amount "
-                    + previous.getAmount() + " on " + previous.getTransactionDate());
+                    + previous.getAmount() + " on " + previous.getTransactionDate() + " as "
+                    + previous.getPostingType());
         }
         return new PostingOutcome(true, null, null, previous.getCurrBal(), previous.getCurrCycCredit(),
                 previous.getCurrCycDebit());

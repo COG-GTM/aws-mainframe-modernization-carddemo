@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.carddemo.account.domain.Account;
 import com.carddemo.account.domain.AccountPosting;
+import com.carddemo.account.domain.PostingType;
 import com.carddemo.account.repository.AccountPostingRepository;
 import com.carddemo.account.repository.AccountRepository;
 import com.carddemo.common.error.DuplicateKeyException;
@@ -71,6 +72,18 @@ class AccountPostingTest {
         assertThat(replay.currentBalance()).isEqualByComparingTo("0.00");
         assertThat(accounts.findById(ACCT_ID).orElseThrow().getCurrBal()).isEqualByComparingTo("0.00");
         assertThat(postings.count()).isEqualTo(1);
+    }
+
+    @Test
+    void aBillPaymentReusingADailyPostingIdIsAConflictNotAReplay() {
+        accountService.post(ACCT_ID, "0000000000000103", new BigDecimal("-10.00"), TRAN_DATE);
+
+        assertThatThrownBy(() -> accountService.post(ACCT_ID, "0000000000000103", new BigDecimal("-10.00"),
+                TRAN_DATE, PostingType.BILL_PAYMENT))
+                .isInstanceOf(DuplicateKeyException.class);
+        assertThat(accounts.findById(ACCT_ID).orElseThrow().getCurrBal()).isEqualByComparingTo("90.00");
+        assertThat(postings.findById("0000000000000103").orElseThrow().getPostingType())
+                .isEqualTo(PostingType.DAILY_TRANSACTION);
     }
 
     @Test

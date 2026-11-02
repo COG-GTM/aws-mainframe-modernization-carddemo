@@ -109,6 +109,7 @@ and does not post again. Emptied with the batch outputs by `data-loader --replac
 | *(new)* | — | `curr_cyc_credit` | `NUMERIC(12,2)` | `ACCT-CURR-CYC-CREDIT` after the posting |
 | *(new)* | — | `curr_cyc_debit` | `NUMERIC(12,2)` | `ACCT-CURR-CYC-DEBIT` after the posting |
 | *(new)* | — | `posted_at` | `TIMESTAMP` | time the posting was applied |
+| *(new)* | — | `posting_type` | `VARCHAR(17)` | `DAILY_TRANSACTION` (CBTRN02C) or `BILL_PAYMENT` (COBIL00C), `V3__posting_type.sql`; part of the replay comparison |
 
 ## CARDDATA — `CVACT02Y` → `card.cards`
 

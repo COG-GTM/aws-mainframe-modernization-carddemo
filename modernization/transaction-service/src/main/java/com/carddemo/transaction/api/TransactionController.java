@@ -44,7 +44,7 @@ public class TransactionController {
 
     @GetMapping
     public PageResponse<TransactionResponse> list(@RequestParam(required = false)
-                                                  @Pattern(regexp = "\\d{1,16}", message = "Tran ID must be Numeric ...")
+                                                  @Pattern(regexp = "|\\d{1,16}", message = "Tran ID must be Numeric ...")
                                                   String startTransactionId,
                                                   @RequestParam(required = false) String cardNumber,
                                                   @RequestParam(defaultValue = "0") @Min(0) int page,

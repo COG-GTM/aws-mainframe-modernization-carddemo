@@ -1,6 +1,6 @@
 package com.carddemo.account.api.dto;
 
-import com.carddemo.account.service.PostingType;
+import com.carddemo.account.domain.PostingType;
 import jakarta.validation.constraints.Digits;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;

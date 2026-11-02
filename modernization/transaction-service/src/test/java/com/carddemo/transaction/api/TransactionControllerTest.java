@@ -260,6 +260,10 @@ class TransactionControllerTest {
                 .andExpect(jsonPath("$.content[0].transactionId").value("0000000000000020"))
                 .andExpect(jsonPath("$.content[1].transactionId").value("0000000000000030"));
 
+        mockMvc.perform(get("/api/v1/transactions").param("startTransactionId", "").param("size", "10"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.totalElements").value(3));
+
         mockMvc.perform(get("/api/v1/transactions").param("size", "2").param("page", "1"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.content[0].transactionId").value("0000000000000030"));

@@ -1,4 +1,4 @@
-package com.carddemo.account.service;
+package com.carddemo.account.domain;
 
 /** Which COBOL paragraph a posting follows. Both share the idempotency ledger keyed by TRAN-ID. */
 public enum PostingType {
