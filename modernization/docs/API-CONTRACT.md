@@ -129,8 +129,8 @@ Planned (UNT149-20), asynchronous job with polling:
 
 ## Statements — CREASTMT / CBSTM03A / CBSTM03B
 
-Batch only (no CICS screen). Planned: `POST /api/v1/batch/statements` runs statement generation for
-all accounts, text and HTML output. Renamed from the earlier `POST /api/v1/statements` to follow the
+Batch only (no CICS screen). Planned: `POST /api/v1/batch/statements` runs statement generation, one
+statement per card cross-reference record (as CBSTM03A), text and HTML output. Renamed from the earlier `POST /api/v1/statements` to follow the
 `/batch` convention.
 
 ## Not yet implemented

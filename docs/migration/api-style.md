@@ -107,8 +107,9 @@ Collections return `com.carddemo.common.api.PageResponse`:
 - COTRN00C / COUSR00C's `You are already at the top of the page...` / `...at the bottom of the
   page...` have no error equivalent: a page before 0 is a 400 with `fieldErrors[0].field = page`, a
   page past the end returns empty `content`, and the client uses `totalPages` to disable the keys.
-- Filters and start keys: COCRDLIC filters by account and card number, which the API expresses as
-  query filters (`accountId`, `cardNumber`). COTRN00C starts the browse at a typed transaction id
+- Filters and start keys: COCRDLIC has two optional filters, account and card number. The API has the
+  `accountId` query filter today; a `cardNumber` filter on `GET /api/v1/cards` is missing (gap for the
+  card-service review ticket). COTRN00C starts the browse at a typed transaction id
   (`TRNIDIN` → `STARTBR` on `TRAN-ID`); `GET /api/v1/transactions` has no start-key parameter today,
   a gap for the transaction-service review ticket.
   **Hypothesis:** offset paging gives the same rows as a key browse because the data does not change
@@ -121,8 +122,9 @@ Collections return `com.carddemo.common.api.PageResponse`:
 `SEC-USR-TYPE` into the COMMAREA (`CDEMO-USER-ID`, `CDEMO-USER-TYPE`). Every later program trusts the
 COMMAREA. Two checks use the type: COSGN00C routes `CDEMO-USRTYP-ADMIN` ('A') to COADM01C and
 everyone else to COMEN01C; COMEN01C refuses a main-menu option flagged `'A'` to a `'U'` user with
-`No access - Admin Only option...`. COCRDLIC lists all cards for an admin and only the COMMAREA
-account's cards for a user. The security record (`CSUSR01Y`) has no account or customer id, so the
+`No access - Admin Only option...`. COCRDLIC's header comment says an admin sees all cards and a user
+only the COMMAREA account's cards, but the code does not branch on user type: the account filter is
+optional for everyone (`2210-EDIT-ACCOUNT`) and the program sets `CDEMO-USRTYP-USER` itself. The security record (`CSUSR01Y`) has no account or customer id, so the
 COBOL has **no per-user data ownership**: a regular user can view any account by typing its number.
 
 **Current (this branch).** `POST /api/v1/auth/signon` checks the BCrypt hash and returns
@@ -141,10 +143,10 @@ Only `spring-security-crypto` is on the classpath.
 - `CDEMO-USRTYP-ADMIN` checks become a role check: `userType = A` → role `ADMIN`. Admin-only
   endpoints answer 403 `ApiError` to a `U` token. Admin-only today in COBOL: the admin menu and
   everything behind it (`/api/v1/users/**`, the user CRUD of COUSR00C–03C).
-- No ownership checks are added on accounts, cards or transactions, because the COBOL has none.
-  COCRDLIC's "user sees only the COMMAREA account" becomes the required `accountId` filter for a `U`
-  caller; **Hypothesis:** that is the whole rule (the COBOL does not stop the user from entering
-  another account number).
+- No ownership checks or role-dependent filters are added on accounts, cards or transactions,
+  because the COBOL code has none (`accountId` stays optional on `GET /api/v1/cards` for both types).
+  If the COCRDLIC header comment's admin/user rule is wanted anyway, it is new behavior and needs a
+  decision, not a parity fix.
 - Sign-off (PF3 on the menu, `CICS RETURN` without TRANSID) needs no endpoint; the client drops the
   token. Token lifetime is a UNT149-16 decision.
 
@@ -205,7 +207,7 @@ batch job, not an online resource:
 
 | Endpoint | Meaning |
 |---|---|
-| `POST /api/v1/batch/statements` | Runs the CREASTMT equivalent for all accounts; same response shape as the other `/batch` jobs |
+| `POST /api/v1/batch/statements` | Runs the CREASTMT equivalent: one statement per card cross-reference record, so an account with two cards gets two statements, as in the COBOL; same response shape as the other `/batch` jobs |
 | **Hypothesis**, optional: `GET /api/v1/accounts/{accountId}/statements/latest` (`text/plain` or `text/html`) | Read one produced statement. The COBOL has no reader, so this is new behavior and not part of parity |
 
 `API-CONTRACT.md` previously listed `POST /api/v1/statements`; it is renamed to follow the batch
