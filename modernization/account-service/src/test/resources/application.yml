@@ -1,6 +1,7 @@
 spring:
   # Tests run against PostgreSQL in a Testcontainers container (the image docker-compose uses) with
-  # the real Flyway migrations, so NUMERIC, CHECK constraints and the seed data behave as in production.
+  # the real Flyway migrations, so NUMERIC and CHECK constraints behave as in production. The
+  # migrations leave the tables empty; each test inserts the rows it needs.
   datasource:
     url: jdbc:tc:postgresql:16:///carddemo
     driver-class-name: org.testcontainers.jdbc.ContainerDatabaseDriver

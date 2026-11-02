@@ -95,3 +95,23 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+
+  # One-shot loader for the app/data sample datasets: `docker compose run --rm data-loader` once the
+  # services are up (they create the schemas with Flyway). Not started by `docker compose up`.
+  data-loader:
+    profiles: ["tools"]
+    build:
+      context: .
+      args:
+        MODULE: data-loader
+        MAVEN_MIRROR_URL: ${MAVEN_MIRROR_URL:-}
+    environment:
+      CARDDEMO_DB_URL: jdbc:postgresql://postgres:5432/carddemo
+      CARDDEMO_DB_USER: ${POSTGRES_USER:-carddemo}
+      CARDDEMO_DB_PASSWORD: ${POSTGRES_PASSWORD:-carddemo}
+      CARDDEMO_DATA_DIR: /data
+    volumes:
+      - ../app/data:/data:ro
+    depends_on:
+      postgres:
+        condition: service_healthy

@@ -14,6 +14,7 @@ migration validation.
 | `account-service` | 8082 | CVACT01Y, COACTVWC, COACTUPC, account side of CBTRN02C and CBACT04C | reference vertical slice |
 | `card-service` | 8083 | CVACT02Y, CVACT03Y, COCRDLIC/SLC/UPC | reference vertical slice |
 | `transaction-service` | 8084 | CVTRA01Y-06Y, COTRN00C/01C/02C, COBIL00C, CBTRN02C, CBACT04C | online API + both batch ports |
+| `data-loader` | - | the `app/data` sample datasets (nine ASCII extracts + EBCDIC USRSEC) | `load-data` command + reconciliation |
 
 Not built (documented, deliberately left as stubs): reports (CORPT00C, CBTRN03C), statements
 (CBSTM03A/B), the MQ replacement wiring, and a SPA front end. See `docs/API-CONTRACT.md`.
@@ -38,8 +39,9 @@ Not built (documented, deliberately left as stubs): reports (CORPT00C, CBTRN03C)
 - The transaction service calls account-service and card-service over HTTP through the
   `AccountGateway` and `CardGateway` seams, which is where a saga or outbox belongs when the
   posting flow moves to events.
-- Legacy plaintext `SEC-USR-PWD` is not carried over: passwords are BCrypt hashes. The seeded
-  demo hash is a throwaway local value and must be replaced before any real deployment.
+- Legacy plaintext `SEC-USR-PWD` is not carried over: passwords are BCrypt hashes. The loader
+  hashes the USRSEC sample passwords (all `PASSWORD`); they are demo values and must not reach any
+  real deployment.
 - `TRAN-ID` came from a counter in the transaction file. A counter cannot be shared by several
   service replicas, so ids are 16 random base 36 characters (about 2^82.7 values).
 
@@ -104,7 +106,12 @@ docker compose logs -f   # wait for five "Started ...Application" lines
 ```
 
 PostgreSQL starts first (health-checked); each service then runs its Flyway migrations into its own
-schema (`auth`, `customer`, `account`, `card`, `transaction`) and seeds demo rows.
+schema (`auth`, `customer`, `account`, `card`, `transaction`). The migrations create empty tables;
+load the sample data next (section 4).
+
+Databases created before the `V2__seed_*` migrations were removed still record version 2 in
+`flyway_schema_history`, and Flyway validation stops the services ("applied migration not resolved
+locally"). Recreate such a database once: `docker compose down -v`.
 
 - Maven Central blocked (for example on a Devin VM): `export MAVEN_MIRROR_URL=https://<mirror>/maven2/`
   before `docker compose up --build`; the image build uses it as the `central` mirror.
@@ -124,7 +131,7 @@ Without Docker for the services, start PostgreSQL yourself and run one service w
 `mvn -pl account-service -am spring-boot:run`, setting that service's `*_DB_URL`, `*_DB_USER` and
 `*_DB_PASSWORD` (see `docker-compose.yml`).
 
-Stop with `docker compose down` (add `-v` to drop the database volume and re-seed next time).
+Stop with `docker compose down` (add `-v` to drop the database volume; reload the sample data after the next start).
 
 ### 3. Smoke test
 
@@ -133,29 +140,46 @@ Stop with `docker compose down` (add `-v` to drop the database volume and re-see
 ```
 
 Waits for every `/actuator/health` to be `UP`, fetches each `/v3/api-docs` and `/swagger-ui.html`
-and signs on as `ADMIN001`; this changes no data. `RUN_BATCH=1 ./scripts/smoke.sh` also runs both
+and signs on as `ADMIN001` / `PASSWORD` (a USRSEC user, so load the sample data first); this changes
+no data. `RUN_BATCH=1 ./scripts/smoke.sh` also runs both
 batch jobs, which do change data (pending daily transactions are posted, and interest is charged
 again on the current category balances each run), so use it only on a fresh database
 (`docker compose down -v` first), as CI does.
 
 ### 4. Load sample data
 
-Placeholder until the data migration phase. Today the only data is what the Flyway `V2__seed_*`
-migrations insert: users `ADMIN001` / `USER0001` (password `Password1`, local demo only), accounts
-`11111111111`, `22222222222`, `33333333333`, their customers, cards and cross-references, and the
-transaction type, category and disclosure group reference rows. The loader for the EBCDIC VSAM
-extracts under `app/data/EBCDIC` is not built yet.
-
-To give the posting job something to do, insert a daily transaction (the DALYTRAN input of
-CBTRN02C) directly:
-
 ```bash
-docker compose exec -T postgres psql -U carddemo -d carddemo -c "
-INSERT INTO transaction.daily_transactions
-  (tran_id, type_cd, cat_cd, source, description, amount, card_num, orig_ts)
-VALUES ('RUNBOOK000000001', '01', 1, 'POS TERM', 'Runbook purchase', 25.00,
-        '4111111111111111', now());"
+docker compose up -d --build --wait      # services create the empty schemas with Flyway
+docker compose run --rm data-loader      # load app/data, then reconcile
 ```
+
+`data-loader` (profile `tools`, not started by `up`) mounts `../app/data` read-only and loads, in one
+transaction and in dependency order: customers, accounts, cards and cross references, transaction
+types, categories and disclosure groups, category balances, daily transactions, users. Sources are
+the ASCII extracts in `app/data/ASCII` (DALYTRAN from `dailytran.txt`); users come from the EBCDIC
+`AWS.M2.CARDDEMO.USRSEC.PS`, which has no ASCII copy, with `SEC-USR-PWD` stored only as a BCrypt hash.
+It then writes every row back as a fixed-width record, compares it field by field with the source and
+prints the counts; the exit status is non-zero on any difference. CI's `compose-smoke` job runs the same
+command before the smoke test.
+
+| Table | Rows |
+| --- | --- |
+| `customer.customers` | 50 |
+| `account.accounts` | 50 |
+| `card.cards`, `card.card_xref` | 50, 50 |
+| `transaction.transaction_types`, `transaction_categories`, `disclosure_groups` | 7, 18, 51 |
+| `transaction.category_balances` | 50 |
+| `transaction.daily_transactions` | 300 (pending, for the posting job) |
+| `auth.users` | 10: `ADMIN001`-`ADMIN005` (admin), `USER0001`-`USER0005`; password `PASSWORD` |
+
+- The loader refuses to load into tables that already have rows. `docker compose run --rm data-loader --replace`
+  empties the ten target tables plus the batch outputs `transaction.transactions` and
+  `transaction.transaction_rejects` (so reloaded daily transactions are not posted twice) and loads again.
+- `--report FILE` writes the reconciliation report; the committed one is
+  `docs/migration/validation/sample-data-reconciliation.md`, regenerated and checked by
+  `SampleDataReconciliationTest` in `mvn verify`.
+- Outside Compose: `java -jar data-loader/target/data-loader-*.jar --data-dir ../app/data` with
+  `CARDDEMO_DB_URL`, `CARDDEMO_DB_USER` and `CARDDEMO_DB_PASSWORD` set.
 
 ### 5. Run a batch job
 
@@ -174,11 +198,11 @@ counters. Rejected postings land in `transaction.transaction_rejects` (DALYREJS)
 
 ```bash
 curl -s -X POST http://localhost:8080/api/v1/auth/signon \
-  -H 'Content-Type: application/json' -d '{"userId":"ADMIN001","password":"Password1"}'
+  -H 'Content-Type: application/json' -d '{"userId":"ADMIN001","password":"PASSWORD"}'
 curl -s http://localhost:8081/api/v1/customers
-curl -s http://localhost:8082/api/v1/accounts/11111111111
-curl -s 'http://localhost:8083/api/v1/cards?accountId=11111111111'
-curl -s 'http://localhost:8084/api/v1/transactions?cardNumber=4111111111111111'
+curl -s http://localhost:8082/api/v1/accounts/00000000001
+curl -s 'http://localhost:8083/api/v1/cards?accountId=00000000001'
+curl -s 'http://localhost:8084/api/v1/transactions?cardNumber=9680294154603697'
 ```
 
 The full contract is in `docs/API-CONTRACT.md` and in each service's Swagger UI.
