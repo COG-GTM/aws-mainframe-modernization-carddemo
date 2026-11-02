@@ -8,16 +8,18 @@ migration validation.
 
 | Module | Port | Legacy origin | Status |
 | --- | --- | --- | --- |
-| `common` | - | shared error envelope, pagination, COBOL value helpers | complete |
+| `common` | - | shared error envelope, pagination, COBOL value helpers, record I/O, batch launch framework (`com.carddemo.common.batch`) | complete |
 | `auth-service` | 8080 | CSUSR01Y, COSGN00C, COUSR00C-03C | complete for signon + user CRUD |
 | `customer-service` | 8081 | CVCUS01Y | baseline read/update |
 | `account-service` | 8082 | CVACT01Y, COACTVWC, COACTUPC, account side of CBTRN02C and CBACT04C | reference vertical slice |
 | `card-service` | 8083 | CVACT02Y, CVACT03Y, COCRDLIC/SLC/UPC | reference vertical slice |
-| `transaction-service` | 8084 | CVTRA01Y-06Y, COTRN00C/01C/02C, COBIL00C, CBTRN02C, CBACT04C | online API + both batch ports |
+| `transaction-service` | 8084 | CVTRA01Y-06Y, COTRN00C/01C/02C, COBIL00C, CBTRN02C, CBACT04C | online API + POSTTRAN, INTCALC, COMBTRAN jobs |
+| `batch-service` | 8085 | CBTRN03C, CBSTM03A/B, CBEXPORT/CBIMPORT, CBACT01C-03C, CBCUS01C | empty: the jobs land here (UNT149-14/15) |
 | `data-loader` | - | the `app/data` sample datasets (nine ASCII extracts + EBCDIC USRSEC) | `load-data` command + reconciliation |
 
-Not built (documented, deliberately left as stubs): reports (CORPT00C, CBTRN03C), statements
-(CBSTM03A/B), the MQ replacement wiring, and a SPA front end. See `docs/API-CONTRACT.md`.
+Not built yet: the reports (CORPT00C online; CBTRN03C batch), statements (CBSTM03A/B), export/import and reader
+utilities go into `batch-service` (UNT149-14/15); the MQ replacement wiring and a SPA front end are
+not built. See `docs/API-CONTRACT.md` and `docs/migration/jcl-mapping.md`.
 
 ## Documentation
 
@@ -79,6 +81,7 @@ Everything below runs from `modernization/`. Prerequisites: JDK 21, Maven 3.9, D
 | account-service | 8082 | `http://localhost:8082/actuator/health` | `http://localhost:8082/swagger-ui.html` |
 | card-service | 8083 | `http://localhost:8083/actuator/health` | `http://localhost:8083/swagger-ui.html` |
 | transaction-service | 8084 | `http://localhost:8084/actuator/health` | `http://localhost:8084/swagger-ui.html` |
+| batch-service | 8085 | `http://localhost:8085/actuator/health` | `http://localhost:8085/swagger-ui.html` |
 | PostgreSQL 16 | 5432 (127.0.0.1 only) | `pg_isready` | - |
 
 Each service also serves its OpenAPI document at `/v3/api-docs`.
@@ -95,8 +98,8 @@ migrations applied and Hibernate in `validate` mode, so `mvn -B verify` needs a 
 CI (`.github/workflows/modernization-verify.yml`) runs on every PR touching `modernization/**`:
 
 - `verify`: `mvn -B verify` on JDK 21, with Docker available for Testcontainers.
-- `compose-smoke`: `docker compose up -d --build --wait` on a fresh database, then
-  `RUN_BATCH=1 scripts/smoke.sh`.
+- `compose-smoke`: `docker compose up -d --build --wait` on a fresh database, the data-loader,
+  a CLI launch of POSTTRAN (exit code 4) and INTCALC (0), then `RUN_BATCH=1 scripts/smoke.sh`.
 
 ### 2. Start the stack
 
@@ -183,16 +186,63 @@ command before the smoke test.
 
 ### 5. Run a batch job
 
-The JCL jobs are Spring Batch jobs in transaction-service, started over HTTP so an external
-scheduler (EventBridge, Airflow, Control-M) keeps the mainframe cadence:
+Each JCL job is a Spring Batch job registered under its JCL member name; the full JCL → Java
+mapping and the Control-M order are in `docs/migration/jcl-mapping.md`. transaction-service runs
+POSTTRAN (CBTRN02C), INTCALC (CBACT04C) and COMBTRAN (sort); batch-service has no jobs yet.
+
+**Command line** (what a scheduler or the golden-set harness calls; the process exits with the
+job's return code):
+
+```bash
+java -jar transaction-service/target/transaction-service-*.jar --job=POSTTRAN --date=2022-07-18
+java -jar transaction-service/target/transaction-service-*.jar --job=INTCALC --date=2022-07-18   # PARM defaults to 2022071800
+java -jar transaction-service/target/transaction-service-*.jar --job=INTCALC --parm=2022071800
+java -jar transaction-service/target/transaction-service-*.jar --job=COMBTRAN \
+    --dd=TRANSACT.BKUP=/path/to/backup                                               # SYSTRAN(0) = latest INTCALC run
+java -jar transaction-service/target/transaction-service-*.jar --job=POSTTRAN \
+    --dd=DALYTRAN=../app/data/ASCII/dailytran.txt                                    # DALYTRAN from a file
+```
+
+The CLI needs the same database settings as the service (`TRANSACTION_DB_URL`, `TRANSACTION_DB_USER`,
+`TRANSACTION_DB_PASSWORD`, and `ACCOUNT_SERVICE_URL` / `CARD_SERVICE_URL` for POSTTRAN). Against the
+compose stack: `docker compose run --rm -v "$PWD/batch-out:/batch-out" -e BATCH_OUTPUT_DIR=/batch-out
+transaction-service --job=POSTTRAN --date=2022-07-18`.
+
+| Option | Meaning |
+| --- | --- |
+| `--job=NAME` | JCL member (required): POSTTRAN, INTCALC, COMBTRAN |
+| `--date=YYYY-MM-DD` | run date (also `YYYYMMDD`); default today |
+| `--parm=VALUE` | the `EXEC PARM=` value; default `<date as yyyyMMdd>00` |
+| `--dd=DDNAME=path` | input file for a DD, repeatable (`*.txt` = line sequential, else fixed-length records) |
+| `--output-dir=path` | root of the output generations; default `carddemo.batch.output-dir` (`BATCH_OUTPUT_DIR`, else `out`) |
+| `--codepage=ascii\|ebcdic`, `--format=fixed\|line` | encoding and organization of the files written (default ASCII, fixed) |
+
+Exit codes: the job's RC (highest step RC; POSTTRAN returns 4 when it rejected transactions, as
+CBTRN02C does), 16 when a step abends (later steps do not run, `COND=(0,NE)`), 12 for a usage error.
+
+**Output directory.** Every run (CLI or HTTP) writes one generation directory, the Java form of a
+GDG `(+1)`: `<output-dir>/<JOB>/<yyyyMMdd-HHmmss-SSS>/` (UTC), one file per output DD named after
+the DD (`<DD>.txt` with `--format=line`), fixed-width records via `RecordWriter`, plus `RETURN-CODE`:
+
+```text
+out/POSTTRAN/20220718-000000-000/DALYREJS   430-byte rejects of this run (DALYTRAN record + reason)
+                                 TRANSACT   350-byte TRANFILE after the run, by TRAN-ID
+                                 TCATBALF   50-byte category balances after the run
+                                 RETURN-CODE
+out/INTCALC/<ts>/SYSTRAN                    350-byte interest transactions of this run
+out/COMBTRAN/<ts>/TRANSACT.COMBINED         TRANSACT.BKUP(0) + SYSTRAN(0) sorted by TRAN-ID
+```
+
+**HTTP** (unchanged endpoints; same job, same output directory, reported as `outputDir`):
 
 ```bash
 curl -X POST http://localhost:8084/api/v1/batch/post-transactions     # POSTTRAN / CBTRN02C
-curl -X POST http://localhost:8084/api/v1/batch/interest-calculation  # INTCALC  / CBACT04C
+curl -X POST http://localhost:8084/api/v1/batch/interest-calculation  # INTCALC  / CBACT04C (?date=, ?parm=)
 ```
 
-Each call runs the job synchronously and returns `jobName`, `executionId`, `status` and the step
-counters. Rejected postings land in `transaction.transaction_rejects` (DALYREJS).
+Each call runs the job synchronously and returns `jobName`, `executionId`, `status`, `returnCode`,
+`outputDir`, the step list and the step counters. Rejected postings also stay in
+`transaction.transaction_rejects`.
 
 ### 6. Call the services
 

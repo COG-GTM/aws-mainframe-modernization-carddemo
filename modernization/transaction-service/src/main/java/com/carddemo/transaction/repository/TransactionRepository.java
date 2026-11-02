@@ -28,4 +28,7 @@ public interface TransactionRepository extends JpaRepository<Transaction, String
      */
     List<Transaction> findByProcTsGreaterThanEqualAndProcTsLessThanOrderByCardNumAscTranIdAsc(
             LocalDateTime from, LocalDateTime toExclusive);
+
+    /** System-generated transactions written since {@code since} (the SYSTRAN records of an INTCALC run). */
+    List<Transaction> findBySourceAndProcTsGreaterThanEqualOrderByTranIdAsc(String source, LocalDateTime since);
 }

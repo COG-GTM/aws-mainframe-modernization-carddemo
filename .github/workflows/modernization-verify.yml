@@ -53,10 +53,21 @@ jobs:
         working-directory: modernization
     steps:
       - uses: actions/checkout@v4
-      - name: Build and start PostgreSQL plus the five services
+      - name: Build and start PostgreSQL plus the services
         run: docker compose up -d --build --wait --wait-timeout 300
       - name: Load app/data and reconcile (data-loader)
         run: docker compose run --rm --build data-loader
+      - name: CLI batch launch against the loaded data (POSTTRAN RC 4 on rejects, INTCALC RC 0)
+        run: |
+          mkdir -p batch-out
+          cli() { docker compose run --rm -T -v "$PWD/batch-out:/batch-out" -e BATCH_OUTPUT_DIR=/batch-out transaction-service "$@"; }
+          set +e
+          cli --job=POSTTRAN --date=2022-07-18; rc=$?
+          set -e
+          echo "POSTTRAN exit code $rc"; test "$rc" -eq 4
+          cli --job=INTCALC --date=2022-07-18
+          ls -l batch-out/*/*/
+          test -s batch-out/POSTTRAN/*/DALYREJS && test -s batch-out/INTCALC/*/SYSTRAN
       - name: Smoke test (health, Swagger, signon, batch jobs)
         run: RUN_BATCH=1 ./scripts/smoke.sh
       - name: Service logs

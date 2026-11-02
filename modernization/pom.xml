@@ -25,6 +25,7 @@
         <module>account-service</module>
         <module>card-service</module>
         <module>transaction-service</module>
+        <module>batch-service</module>
         <module>data-loader</module>
     </modules>
 

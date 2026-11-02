@@ -32,6 +32,10 @@ carddemo:
   services:
     account-url: ${ACCOUNT_SERVICE_URL:http://localhost:8082}
     card-url: ${CARD_SERVICE_URL:http://localhost:8083}
+  batch:
+    # Root of the job output generations: <output-dir>/<JOB>/<yyyyMMdd-HHmmss-SSS>/<DD>.
+    # A CLI launch can override it with --output-dir=.
+    output-dir: ${BATCH_OUTPUT_DIR:out}
 
 management:
   endpoints:

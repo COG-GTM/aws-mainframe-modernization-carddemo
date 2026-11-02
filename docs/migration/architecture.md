@@ -27,13 +27,13 @@ These are already in the code; they are written down here so later tickets follo
 | Topic | Convention |
 |---|---|
 | Layout | `modernization/<service>/src/main/java/com/carddemo/<service>/{api,api/dto,domain,repository,service}`; shared code only in `common` (error envelope, `PageResponse`, `CobolValues`). |
-| Ports | auth 8080, customer 8081, account 8082, card 8083, transaction 8084 (container and default host port). |
+| Ports | auth 8080, customer 8081, account 8082, card 8083, transaction 8084, batch 8085 (container and default host port). |
 | Data | One schema per service (`auth`, `customer`, `account`, `card`, `transaction`) in one PostgreSQL. Foreign keys only inside a schema; cross-service references are ids. VSAM keys become primary keys, alternate indexes become secondary indexes or lookup endpoints. |
 | Schema changes | Flyway `V<n>__<name>.sql` per service. Tests run on PostgreSQL 16 (Testcontainers) with Flyway on and `ddl-auto: validate`; see [conventions.md](conventions.md) §9. |
 | Money | `S9(n)V99` → `NUMERIC(n+2,2)` / `BigDecimal`; no floating point. |
 | Locking | CICS READ UPDATE → JPA `@Version` optimistic locking. |
 | Cross-service calls | transaction-service → account/card over HTTP through `AccountGateway` / `CardGateway`. |
-| Batch | Spring Batch jobs in transaction-service, started by `POST /api/v1/batch/...`; an external scheduler replaces the JCL submit. |
+| Batch | Spring Batch jobs registered by JCL member name (`com.carddemo.common.batch`), in transaction-service (POSTTRAN, INTCALC, COMBTRAN) and batch-service (the rest, see `jcl-mapping.md`); launched by `java -jar <service>.jar --job=<JCL member>` or `POST /api/v1/batch/...`; output DDs are files in `<output-dir>/<JOB>/<timestamp>/<DD>`; an external scheduler replaces the JCL submit. |
 | Errors | Business rule failures → `BusinessRuleException`, missing keys → `NotFoundException`, DUPKEY → `DuplicateKeyException`, rendered by `RestExceptionHandler` as `ApiError`. |
 | Build | `cd modernization && JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64 mvn -B verify`; CI runs the same in `.github/workflows/modernization-verify.yml`. |
 | Local run | `docker compose up -d --build`. Where Maven Central is blocked set `MAVEN_MIRROR_URL`; if host port 8084 is taken, remap it with an override file (`ports: !override`), not by editing `docker-compose.yml`. |

@@ -1,58 +1,43 @@
 package com.carddemo.transaction.api;
 
+import com.carddemo.common.batch.BatchArguments;
+import com.carddemo.common.batch.BatchJobLauncher;
 import com.carddemo.transaction.batch.BatchConfig;
+import java.time.LocalDate;
 import java.util.Map;
-import org.springframework.batch.core.Job;
-import org.springframework.batch.core.JobExecution;
-import org.springframework.batch.core.JobParameters;
-import org.springframework.batch.core.JobParametersBuilder;
-import org.springframework.batch.core.launch.JobLauncher;
-import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
  * Replaces the JCL submit of POSTTRAN and INTCALC. A scheduler (EventBridge, Airflow, Control-M)
- * calls these endpoints on the same cadence the mainframe batch window used.
+ * calls these endpoints on the same cadence the mainframe batch window used. The run is the same
+ * as a command-line launch ({@code --job=POSTTRAN}): output files go to a new generation directory
+ * under {@code carddemo.batch.output-dir}, reported as {@code outputDir}.
  */
 @RestController
 @RequestMapping("/api/v1/batch")
 public class BatchJobController {
 
-    private final JobLauncher jobLauncher;
-    private final Job postTransactionsJob;
-    private final Job interestCalculationJob;
+    private final BatchJobLauncher launcher;
 
-    public BatchJobController(JobLauncher jobLauncher,
-                              @Qualifier(BatchConfig.POST_TRANSACTIONS_JOB) Job postTransactionsJob,
-                              @Qualifier(BatchConfig.INTEREST_CALCULATION_JOB) Job interestCalculationJob) {
-        this.jobLauncher = jobLauncher;
-        this.postTransactionsJob = postTransactionsJob;
-        this.interestCalculationJob = interestCalculationJob;
+    public BatchJobController(BatchJobLauncher launcher) {
+        this.launcher = launcher;
     }
 
     @PostMapping("/post-transactions")
-    public Map<String, Object> postTransactions() throws Exception {
-        return summarize(jobLauncher.run(postTransactionsJob, runParameters()));
+    public Map<String, Object> postTransactions(
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date)
+            throws Exception {
+        return launcher.launch(BatchArguments.of(BatchConfig.POSTTRAN, date, null)).summary();
     }
 
     @PostMapping("/interest-calculation")
-    public Map<String, Object> interestCalculation() throws Exception {
-        return summarize(jobLauncher.run(interestCalculationJob, runParameters()));
-    }
-
-    private JobParameters runParameters() {
-        return new JobParametersBuilder().addLong("runAt", System.currentTimeMillis()).toJobParameters();
-    }
-
-    private Map<String, Object> summarize(JobExecution execution) {
-        return Map.of(
-                "jobName", execution.getJobInstance().getJobName(),
-                "executionId", execution.getId(),
-                "status", execution.getStatus().name(),
-                "results", execution.getStepExecutions().stream()
-                        .flatMap(step -> step.getExecutionContext().entrySet().stream())
-                        .collect(java.util.stream.Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)));
+    public Map<String, Object> interestCalculation(
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
+            @RequestParam(required = false) String parm) throws Exception {
+        return launcher.launch(BatchArguments.of(BatchConfig.INTCALC, date, parm)).summary();
     }
 }
