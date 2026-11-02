@@ -2,6 +2,7 @@ package com.carddemo.common.security;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.header;
+import static org.springframework.test.web.client.match.MockRestRequestMatchers.headerDoesNotExist;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo;
 import static org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess;
 
@@ -23,7 +24,7 @@ class CallerTokenForwarderTest {
             new SecurityProperties("test-only-token-secret-0123456789abcdef", Duration.ofHours(8), "carddemo-auth-service", List.of()),
             Clock.systemUTC());
     private final RestClient.Builder builder = RestClient.builder().baseUrl("http://account-service")
-            .requestInterceptor(new CallerTokenForwarder(tokens));
+            .requestInterceptor(CallerTokenForwarder.forCallers());
     private final MockRestServiceServer server = MockRestServiceServer.bindTo(builder).build();
     private final RestClient client = builder.build();
 
@@ -46,7 +47,21 @@ class CallerTokenForwarderTest {
     }
 
     @Test
-    void sendsABatchUserTokenOutsideARequest() {
+    void sendsNoTokenOutsideARequestInAWebService() {
+        server.expect(requestTo("http://account-service/api/v1/accounts/1"))
+                .andExpect(headerDoesNotExist(HttpHeaders.AUTHORIZATION))
+                .andRespond(withSuccess());
+
+        client.get().uri("/api/v1/accounts/1").retrieve().toBodilessEntity();
+        server.verify();
+    }
+
+    @Test
+    void signsAsTheBatchUserInABatchProcess() {
+        RestClient.Builder batchBuilder = RestClient.builder().baseUrl("http://account-service")
+                .requestInterceptor(CallerTokenForwarder.forBatchProcess(tokens));
+        MockRestServiceServer server = MockRestServiceServer.bindTo(batchBuilder).build();
+        RestClient client = batchBuilder.build();
         server.expect(requestTo("http://account-service/api/v1/accounts/1"))
                 .andExpect(request -> {
                     String authorization = request.getHeaders().getFirst(HttpHeaders.AUTHORIZATION);

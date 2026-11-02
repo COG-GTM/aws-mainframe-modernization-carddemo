@@ -76,9 +76,10 @@ scenarios derived from the COBOL source (scope §4.2).
 - **Gateways.** transaction-service's account/card `RestClient`s carry `CallerTokenForwarder`, which
   copies the inbound `Authorization` header, so account/card-service authorise the original caller. The
   HTTP batch triggers run in the request thread and forward the caller's token the same way. A job
-  launched from the command line (`--job=`, the scheduler path) has no caller, so the forwarder mints a
-  token with the shared key for `sub` = `BATCH`, `userType` = `U` (no admin rights; the account/card
-  endpoints the jobs call are not admin-only).
+  launched from the command line (`--job=`, the scheduler path) runs in a non-web context with no
+  caller, so there (and only there) the forwarder signs with the shared key as `sub` = `BATCH`,
+  `userType` = `U` (no admin rights; the account/card endpoints the jobs call are not admin-only).
+  Inside the web service a call with no request bound still goes out without a token and gets 401.
 - **batch-service** scans `com.carddemo.common` like the others, so the same filter guards its `/api/**`
   (it has no endpoints yet) and it needs `CARDDEMO_TOKEN_SECRET` too, also for CLI launches.
 - **Password case (COBOL fact, adapted).** COSGN00C upper-cases the typed password before comparing,

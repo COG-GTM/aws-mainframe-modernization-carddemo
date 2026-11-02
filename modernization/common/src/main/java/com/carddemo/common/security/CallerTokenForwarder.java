@@ -12,8 +12,9 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 /**
  * Copies the {@code Authorization} header of the inbound request bound to the current thread onto an
  * outbound service-to-service call, so account/card services see the original caller. Calls made
- * outside a request (a batch job started from the command line) carry a token minted for
- * {@link #BATCH_USER_ID} with user type {@code U}, the identity a scheduler-submitted job runs under.
+ * outside a request are sent without a token (and get 401), except in a command-line batch process
+ * ({@link #forBatchProcess}), which has no caller and signs as {@link #BATCH_USER_ID} with user type
+ * {@code U}, the identity a scheduler-submitted job runs under.
  */
 public class CallerTokenForwarder implements ClientHttpRequestInterceptor {
 
@@ -21,8 +22,18 @@ public class CallerTokenForwarder implements ClientHttpRequestInterceptor {
 
     private final TokenService tokens;
 
-    public CallerTokenForwarder(TokenService tokens) {
+    private CallerTokenForwarder(TokenService tokens) {
         this.tokens = tokens;
+    }
+
+    /** For a web service: forwards the caller's token, never invents one. */
+    public static CallerTokenForwarder forCallers() {
+        return new CallerTokenForwarder(null);
+    }
+
+    /** For a {@code --job=} process (no web server, so no callers): every call carries the batch identity. */
+    public static CallerTokenForwarder forBatchProcess(TokenService tokens) {
+        return new CallerTokenForwarder(tokens);
     }
 
     @Override
@@ -31,7 +42,7 @@ public class CallerTokenForwarder implements ClientHttpRequestInterceptor {
         if (!request.getHeaders().containsKey(HttpHeaders.AUTHORIZATION)) {
             String authorization = RequestContextHolder.getRequestAttributes() instanceof ServletRequestAttributes attributes
                     ? attributes.getRequest().getHeader(HttpHeaders.AUTHORIZATION)
-                    : "Bearer " + tokens.issue(BATCH_USER_ID, CallerIdentity.USER).token();
+                    : tokens != null ? "Bearer " + tokens.issue(BATCH_USER_ID, CallerIdentity.USER).token() : null;
             if (authorization != null) {
                 request.getHeaders().set(HttpHeaders.AUTHORIZATION, authorization);
             }
