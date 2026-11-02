@@ -101,7 +101,7 @@ class AuthenticationAndMenuTest extends AbstractAuthenticationTest {
                 .andExpect(jsonPath("$.message").value("No access - Admin Only option... "));
         mockMvc.perform(post("/api/v1/users").header(HttpHeaders.AUTHORIZATION, tokenOf("USER0001"))
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"userId\": \"HACKER01\", \"password\": \"PASSWORD\", \"userType\": \"A\"}"))
+                        .content("{\"userId\": \"HACKER01\", \"firstName\": \"H\", \"lastName\": \"X\", \"password\": \"PASSWORD\", \"userType\": \"A\"}"))
                 .andExpect(status().isForbidden());
         assertThat(users.existsById("HACKER01")).isFalse();
         mockMvc.perform(get("/api/v1/users").header(HttpHeaders.AUTHORIZATION, tokenOf("ADMIN001")))
@@ -129,6 +129,8 @@ class AuthenticationAndMenuTest extends AbstractAuthenticationTest {
                 .andExpect(jsonPath("$.options[0].number").value(1))
                 .andExpect(jsonPath("$.options[*].adminOnly").value(org.hamcrest.Matchers.everyItem(
                         org.hamcrest.Matchers.is(false))))
+                .andExpect(jsonPath("$.options[8].available").value(true))
+                .andExpect(jsonPath("$.options[8].endpoint").value("POST /api/v1/reports/transactions"))
                 .andExpect(jsonPath("$.options[10].available").value(false));
     }
 

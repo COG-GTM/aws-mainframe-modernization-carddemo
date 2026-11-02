@@ -17,6 +17,11 @@ public class FieldValidationException extends RuntimeException {
         this.problems = List.copyOf(problems);
     }
 
+    /** The single-field case: COBOL screens that stop at the first failing field. */
+    public FieldValidationException(String field, String message) {
+        this(List.of(new ApiError.FieldProblem(field, message)));
+    }
+
     public List<ApiError.FieldProblem> problems() {
         return problems;
     }

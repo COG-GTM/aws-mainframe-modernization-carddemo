@@ -17,7 +17,7 @@ migration validation.
 | `batch-service` | 8085 | CBTRN03C, CBSTM03A/B, CBEXPORT/CBIMPORT, CBACT01C-03C, CBCUS01C | empty: the jobs land here (UNT149-14/15) |
 | `data-loader` | - | the `app/data` sample datasets (nine ASCII extracts + EBCDIC USRSEC) | `load-data` command + reconciliation |
 
-Not built yet: the reports (CORPT00C online; CBTRN03C batch), statements (CBSTM03A/B), export/import and reader
+Not built yet: statements (CBSTM03A/B), export/import and reader
 utilities go into `batch-service` (UNT149-14/15); the MQ replacement wiring and a SPA front end are
 not built. See `docs/API-CONTRACT.md` and `docs/migration/jcl-mapping.md`.
 

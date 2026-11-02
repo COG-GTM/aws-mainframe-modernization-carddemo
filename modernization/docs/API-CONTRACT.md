@@ -43,11 +43,11 @@ Browse operations (`STARTBR` / `READNEXT` / PF7 / PF8) become page based collect
 | POST | `/api/v1/auth/signon` | COSGN00C | public; returns `token`, `tokenType`, `expiresAt` and `nextScreen` = `ADMIN` or `MAIN` (COADM01C vs COMEN01C routing); 422 `Wrong Password. Try again ...` / `User not found. Try again ...` |
 | GET | `/api/v1/menu` | COMEN01C / COADM01C | menu for the caller's user type, see "Menus" |
 | GET | `/api/v1/menu/options/{number}` | COMEN01C / COADM01C PROCESS-ENTER-KEY | the selected option; 400 `Please enter a valid option number...`, 403 admin-only, 422 not installed |
-| GET | `/api/v1/users` | COUSR00C | paged user list; all `/api/v1/users/**` operations are admin-only (403 for `U`) |
+| GET | `/api/v1/users?page=&size=&startUserId=` | COUSR00C | 10 users a page (default `size`) in user-id order, from `startUserId` if given; all `/api/v1/users/**` operations are admin-only (403 for `U`) |
 | GET | `/api/v1/users/{userId}` | COUSR03C | |
-| POST | `/api/v1/users` | COUSR01C | password is hashed with BCrypt, never stored or returned in clear |
-| PUT | `/api/v1/users/{userId}` | COUSR02C | |
-| DELETE | `/api/v1/users/{userId}` | COUSR03C | |
+| POST | `/api/v1/users` | COUSR01C | `firstName`, `lastName`, `userId`, `password`, `userType` all required, checked in that order with the COBOL texts (400, e.g. `First Name can NOT be empty...`); type `A`/`U`; duplicate → 409 `User ID already exist...`; password is hashed with BCrypt, never stored or returned in clear |
+| PUT | `/api/v1/users/{userId}` | COUSR02C | same fields (`userId` in the body optional, must match the path); unknown → 404 `User ID NOT found...`; no change → 422 `Please modify to update ...` |
+| DELETE | `/api/v1/users/{userId}` | COUSR03C | unknown → 404 `User ID NOT found...` |
 
 ## customer-service (port 8081) — CVCUS01Y
 
@@ -97,12 +97,15 @@ Browse operations (`STARTBR` / `READNEXT` / PF7 / PF8) become page based collect
 | --- | --- | --- | --- |
 | POST | `/api/v1/batch/transaction-report?startDate=&endDate=` | `EXEC PROC=TRANREPT` (CORPT00C) / CBTRN03C | runs TRANREPT synchronously with the dates as DATEPARM; data from transaction-service and card-service, called with the caller's bearer token; returns the run summary with `outputDir` (`TRANREPT` = the report) |
 
+| POST | `/api/v1/reports/transactions` | CORPT00C | async TRANREPT submission, see Reports below |
+| GET | `/api/v1/reports/transactions/{reportId}` and `/content` | CORPT00C | poll status, read the report |
+
 ## Menus — COMEN01C (CM00, `COMEN02Y`) and COADM01C (CA00, `COADM02Y`)
 
 `GET /api/v1/menu` in auth-service returns the menu for the caller's user type: `menu` (`MAIN`/`ADMIN`),
 `transactionId` (`CM00`/`CA00`), `program`, `title` and `options[]` with `number`, `name`, `program`,
 `adminOnly`, `available`, `endpoint`. Unavailable options (`available: false`, `endpoint: null`):
-9 Transaction Reports (CORPT00C endpoint not built yet), 11 Pending Authorization View, admin 5–6.
+11 Pending Authorization View, admin 5–6.
 
 Main menu (user type `U`; every option is flagged `U` in `COMEN02Y`, none is admin-only):
 
@@ -116,7 +119,7 @@ Main menu (user type `U`; every option is flagged `U` in `COMEN02Y`, none is adm
 | 6 | Transaction List | COTRN00C | `GET /api/v1/transactions` |
 | 7 | Transaction View | COTRN01C | `GET /api/v1/transactions/{transactionId}` |
 | 8 | Transaction Add | COTRN02C | `POST /api/v1/transactions` |
-| 9 | Transaction Reports | CORPT00C | `POST /api/v1/reports/transactions` (planned) |
+| 9 | Transaction Reports | CORPT00C | `POST /api/v1/reports/transactions` (batch-service, port 8085) |
 | 10 | Bill Payment | COBIL00C | `POST /api/v1/bill-payments` |
 | 11 | Pending Authorization View | COPAUS0C | not available (IMS/MQ extension, excluded by d-scope) |
 
@@ -133,13 +136,13 @@ Admin menu (user type `A`):
 
 ## Reports — CORPT00C (CR00) → TRANREPT / CBTRN03C
 
-Planned (UNT149-20), asynchronous job with polling:
+batch-service (port 8085), asynchronous job with polling (docs/migration/architecture.md §3.2):
 
 | Method | Path | Notes |
 | --- | --- | --- |
-| POST | `/api/v1/reports/transactions` | body `{"reportType": "MONTHLY"\|"YEARLY"\|"CUSTOM", "startDate", "endDate"}`; dates only for `CUSTOM`; 202 + `{"reportId", "status", "startDate", "endDate"}` |
-| GET | `/api/v1/reports/transactions/{reportId}` | `SUBMITTED` / `RUNNING` / `COMPLETED` / `FAILED` |
-| GET | `/api/v1/reports/transactions/{reportId}/content` | `text/plain` report as CBTRN03C writes it |
+| POST | `/api/v1/reports/transactions` | body `{"reportType": "MONTHLY"\|"YEARLY"\|"CUSTOM", "startMonth", "startDay", "startYear", "endMonth", "endDay", "endYear"}`; date parts only for `CUSTOM`, validated as CORPT00C (400 with its message); 202 + `Location` + `{"reportId", "status": "SUBMITTED", "startDate", "endDate", ...}` |
+| GET | `/api/v1/reports/transactions/{reportId}` | `SUBMITTED` / `RUNNING` / `COMPLETED` / `FAILED`, `returnCode`, `reportPath` (the `TRANREPT` file); submitter or admin |
+| GET | `/api/v1/reports/transactions/{reportId}/content` | `text/plain` report as CBTRN03C writes it; 404 until `COMPLETED` |
 
 ## Statements — CREASTMT / CBSTM03A / CBSTM03B
 
@@ -153,6 +156,5 @@ statement per card cross-reference record (as CBSTM03A), text and HTML output. R
 | --- | --- | --- |
 | COSGN00C token, all `CDEMO-USRTYP-ADMIN` checks | bearer token + `common` auth filter | not built (UNT149-16) |
 | COMEN01C / COADM01C menus | `GET /api/v1/menu` | only `nextScreen` today (UNT149-16) |
-| CORPT00C | `POST /api/v1/reports/transactions` | not built (UNT149-20); the CBTRN03C job it submits is built (batch-service `TRANREPT`) |
 | CBSTM03A / CBSTM03B | `POST /api/v1/batch/statements` | not built |
 | CDRD / CDRA MQ pairs | SQS request queue + SNS event topic | designed in COBOL-PROGRAM-MAPPING.md, not built |
