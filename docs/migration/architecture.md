@@ -133,7 +133,7 @@ needs the definition of done in scope §4. "Branch label" is the status the base
 |---|---|---|---|
 | CBTRN02C | ported | partial | Reasons 100–103, TCATBAL upsert and the cycle-bucket sign handling are in `PostingService` / `AccountService.post`. Input and rejects are tables, not the DALYTRAN / DALYREJS files, so the golden-set harness cannot run it yet. Double posting on retry (§1). When a record is both over limit and expired, Java rejects with 102; COBOL `1500-B-LOOKUP-ACCT` runs both checks and the later 103 overwrites 102. |
 | CBACT04C | ported | partial | `InterestCalculationService` follows the account break and DISCGRP fallback; same table-only I/O gap. Differences from the COBOL: monthly interest was rounded `HALF_UP` although the COBOL `COMPUTE` (line 464) has no `ROUNDED` (fixed: now truncates, [conventions.md](conventions.md) §2); a missing account is skipped, but `1100-GET-ACCT-DATA` abends; a missing DEFAULT rate becomes zero, but `1200-A-GET-DEFAULT-INT-RATE` abends. |
-| CBTRN03C | not built | stub | |
+| CBTRN03C | built (UNT149-14) | verified against GnuCOBOL | batch-service `TRANREPT`: REPROC unload, SORT on the DATEPARM window, `TransactionReportProgram`. TRANREPT is byte-identical to the GnuCOBOL run on 11 cases (`batch-service/src/test/resources/tranrept`, `scripts/migration/tranrept/`), including the source's quirks: `NEXT SENTENCE` ends the report on an out-of-range record, the last card's account total is never written, the last amount is added twice to the final page total, `S9(09)V99` totals overflow by truncation. |
 | CBSTM03A / CBSTM03B | not built | stub | |
 | CBEXPORT / CBIMPORT | not built | stub | |
 | CBTRN01C | not built | stub | |

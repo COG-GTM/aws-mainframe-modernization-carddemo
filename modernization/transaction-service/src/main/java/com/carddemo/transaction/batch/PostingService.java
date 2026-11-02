@@ -1,5 +1,6 @@
 package com.carddemo.transaction.batch;
 
+import com.carddemo.common.error.DuplicateKeyException;
 import com.carddemo.transaction.client.AccountGateway;
 import com.carddemo.transaction.client.CardGateway;
 import com.carddemo.transaction.client.CardXrefView;
@@ -32,7 +33,13 @@ import org.springframework.transaction.annotation.Transactional;
  * </ul>
  *
  * Reasons 101 to 103 are decided by account-service, which owns the balance; reason 100 is the
- * cross reference lookup done here.
+ * cross reference lookup done here. CBTRN02C also sets 109 (ACCOUNT RECORD NOT FOUND) when the
+ * account REWRITE in 2800-UPDATE-ACCOUNT-REC fails, but that happens after the reject decision, so
+ * the transaction is still written and no 109 reject is ever produced; there is no Java equivalent.
+ *
+ * <p>The account update is a remote call that commits on its own. It is keyed by {@code DALYTRAN-ID},
+ * so when the local writes fail after it and the transaction is posted again, account-service
+ * returns the first result instead of applying the amount a second time.
  */
 @Service
 public class PostingService {
@@ -82,7 +89,12 @@ public class PostingService {
             return reject(daily, 100, "INVALID CARD NUMBER FOUND");
         }
 
-        PostingResult result = accounts.post(xref.get().accountId(), daily.getAmount(),
+        if (transactions.existsById(daily.getTranId())) {
+            // 2600-WRITE-TRANSACTION-FILE: WRITE ... INVALID KEY (status 22) abends the program.
+            // Checked before the remote account update so the abend leaves nothing half posted.
+            throw new DuplicateKeyException("TRANSACT already holds transaction " + daily.getTranId());
+        }
+        PostingResult result = accounts.post(xref.get().accountId(), daily.getTranId(), daily.getAmount(),
                 daily.getOrigTs().toLocalDate());
         if (result == null) {
             return reject(daily, 101, "ACCOUNT RECORD NOT FOUND");

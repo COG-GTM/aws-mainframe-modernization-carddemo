@@ -1,5 +1,6 @@
 package com.carddemo.transaction.batch;
 
+import com.carddemo.common.cobol.CobolValues;
 import com.carddemo.common.batch.BatchJobLauncher;
 import com.carddemo.common.batch.BatchJobParameters;
 import com.carddemo.common.batch.BatchJobRegistry;
@@ -15,10 +16,10 @@ import com.carddemo.transaction.repository.CategoryBalanceRepository;
 import com.carddemo.transaction.repository.DailyTransactionRepository;
 import com.carddemo.transaction.repository.TransactionRejectRepository;
 import com.carddemo.transaction.repository.TransactionRepository;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Clock;
 import java.time.Instant;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -26,6 +27,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.JobParameters;
 import org.springframework.batch.core.Step;
@@ -45,7 +48,7 @@ import org.springframework.transaction.PlatformTransactionManager;
 
 /**
  * The transaction-service jobs, keyed by their JCL member: POSTTRAN (CBTRN02C), INTCALC (CBACT04C)
- * and COMBTRAN (DFSORT). Each job reads its input DDs from files when given ({@code --dd=}) and
+ * and COMBTRAN (DFSORT), plus CBTRN01C, which no JCL member runs and is keyed by its program name. Each job reads its input DDs from files when given ({@code --dd=}) and
  * writes its output DDs as fixed-width files into the run's generation directory
  * ({@code <output-dir>/<JOB>/<timestamp>/<DD>}); the business logic stays in {@link PostingService}
  * and {@link InterestCalculationService}.
@@ -56,22 +59,30 @@ public class BatchConfig {
     public static final String POST_TRANSACTIONS_JOB = "postTransactionsJob";
     public static final String INTEREST_CALCULATION_JOB = "interestCalculationJob";
     public static final String COMBINE_TRANSACTIONS_JOB = "combineTransactionsJob";
+    public static final String VERIFY_TRANSACTIONS_JOB = "verifyTransactionsJob";
 
     public static final String POSTTRAN = "POSTTRAN";
     public static final String INTCALC = "INTCALC";
     public static final String COMBTRAN = "COMBTRAN";
+    public static final String CBTRN01C = "CBTRN01C";
+
+    private static final Logger LOG = LoggerFactory.getLogger(BatchConfig.class);
 
     private static final String STARTED_AT = "batch.startedAt";
+    /** The PARM interestCalculationStep resolved; SYSTRAN must select by that value, not re-resolve "today". */
+    private static final String INTCALC_PARM = "intcalc.parm";
     private static final String STAGED_IDS = "batch.stagedIds";
 
     @Bean
     public BatchJobRegistry batchJobRegistry(@Qualifier(POST_TRANSACTIONS_JOB) Job postTransactionsJob,
                                              @Qualifier(INTEREST_CALCULATION_JOB) Job interestCalculationJob,
-                                             @Qualifier(COMBINE_TRANSACTIONS_JOB) Job combineTransactionsJob) {
+                                             @Qualifier(COMBINE_TRANSACTIONS_JOB) Job combineTransactionsJob,
+                                             @Qualifier(VERIFY_TRANSACTIONS_JOB) Job verifyTransactionsJob) {
         Map<String, Job> jobs = new LinkedHashMap<>();
         jobs.put(POSTTRAN, postTransactionsJob);
         jobs.put(INTCALC, interestCalculationJob);
         jobs.put(COMBTRAN, combineTransactionsJob);
+        jobs.put(CBTRN01C, verifyTransactionsJob);
         return new BatchJobRegistry(jobs);
     }
 
@@ -235,8 +246,8 @@ public class BatchConfig {
     }
 
     /**
-     * CBACT04C. The PARM (default {@code yyyyMMdd00} of {@code --date}) is recorded for the run;
-     * the service does not read it yet (the TRAN-ID it builds from PARM-DATE is UNT149-13's parity work).
+     * CBACT04C. The PARM (default {@code yyyyMMdd00} of {@code --date}) is PARM-DATE, the prefix of
+     * every TRAN-ID the run generates.
      */
     @Bean
     public Step interestCalculationStep(JobRepository jobRepository,
@@ -246,12 +257,14 @@ public class BatchConfig {
         return new StepBuilder("interestCalculationStep", jobRepository)
                 .tasklet((contribution, chunkContext) -> {
                     JobParameters params = contribution.getStepExecution().getJobParameters();
-                    jobContext(contribution).putString(STARTED_AT, LocalDateTime.now(clock).toString());
                     ExecutionContext context = contribution.getStepExecution().getExecutionContext();
-                    context.putString("parm", BatchJobParameters.parm(params, clock));
+                    String parm = BatchJobParameters.parm(params, clock);
+                    context.putString("parm", parm);
+                    jobContext(contribution).putString(INTCALC_PARM, parm);
                     InterestCalculationService.InterestReport report =
-                            interestCalculationService.calculateInterest();
+                            interestCalculationService.calculateInterest(parm);
                     context.putInt("accountsSettled", report.accountsSettled());
+                    context.putInt("transactionsWritten", report.transactionsWritten());
                     context.putString("totalInterest", report.totalInterest().toPlainString());
                     ReturnCodes.set(contribution, 0);
                     return RepeatStatus.FINISHED;
@@ -259,7 +272,7 @@ public class BatchConfig {
                 .build();
     }
 
-    /** SYSTRAN(+1): the interest transactions this run wrote, by TRAN-ID. */
+    /** SYSTRAN(+1): the interest transactions this run wrote (TRAN-ID = PARM-DATE + suffix), by TRAN-ID. */
     @Bean
     public Step writeSystemTransactionsStep(JobRepository jobRepository, PlatformTransactionManager transactionManager,
                                             TransactionRepository transactions) {
@@ -267,10 +280,10 @@ public class BatchConfig {
                 .tasklet((contribution, chunkContext) -> {
                     JobParameters params = contribution.getStepExecution().getJobParameters();
                     CodePage codePage = BatchJobParameters.codePage(params);
-                    LocalDateTime startedAt = LocalDateTime.parse(jobContext(contribution).getString(STARTED_AT));
+                    String parmDate = CobolValues.padRight(jobContext(contribution).getString(INTCALC_PARM), 10);
                     contribution.getStepExecution().getExecutionContext().putInt("SYSTRAN", DdFiles.write(
                             BatchJobParameters.runDirectory(params), "SYSTRAN",
-                            transactions.findBySourceAndProcTsGreaterThanEqualOrderByTranIdAsc(BatchRecords.SYSTEM_SOURCE, startedAt)
+                            transactions.findBySourceAndTranIdStartingWithOrderByTranIdAsc(BatchRecords.SYSTEM_SOURCE, parmDate)
                                     .stream().map(t -> BatchRecords.toTranRecord(t, codePage, true)).toList(),
                             BatchJobParameters.format(params)));
                     return RepeatStatus.FINISHED;
@@ -320,6 +333,41 @@ public class BatchConfig {
                 .or(() -> JobRunDirectory.latestGeneration(outputRoot, producingJob, dd))
                 .orElseThrow(() -> new IllegalStateException("SORTIN " + dd + "(0) not found: pass --dd=" + dd
                         + "=<file> or run " + producingJob + " first"));
+    }
+
+    // ---- CBTRN01C: DALYTRAN in, XREFFILE and ACCTFILE looked up; SYSOUT only ---------------------
+
+    @Bean
+    public Job verifyTransactionsJob(JobRepository jobRepository, Step verifyDailyTransactionsStep) {
+        return new JobBuilder(VERIFY_TRANSACTIONS_JOB, jobRepository)
+                .start(verifyDailyTransactionsStep)
+                .build();
+    }
+
+    /**
+     * CBTRN01C. DD DALYTRAN is required (the program reads only the file); the display lines go to
+     * the {@code SYSOUT} file of the generation and to the log. Nothing is updated, RC 0.
+     */
+    @Bean
+    public Step verifyDailyTransactionsStep(JobRepository jobRepository, PlatformTransactionManager transactionManager,
+                                            TransactionVerificationService verificationService) {
+        return new StepBuilder("verifyDailyTransactionsStep", jobRepository)
+                .tasklet((contribution, chunkContext) -> {
+                    JobParameters params = contribution.getStepExecution().getJobParameters();
+                    Path dalytran = BatchJobParameters.dd(params, "DALYTRAN").orElseThrow(() ->
+                            new IllegalArgumentException("CBTRN01C reads DD DALYTRAN: pass --dd=DALYTRAN=<file>"));
+                    List<String> sysout = verificationService.verify(
+                            DdFiles.read(dalytran, DalytranRecordLayout.LAYOUT, BatchJobParameters.codePage(params)));
+                    JobRunDirectory generation = BatchJobParameters.runDirectory(params);
+                    Files.write(generation.dd("SYSOUT"), sysout, BatchJobParameters.codePage(params).charset());
+                    sysout.forEach(LOG::info);
+                    ExecutionContext context = contribution.getStepExecution().getExecutionContext();
+                    context.putString("dalytran", dalytran.toString());
+                    context.putInt("SYSOUT", sysout.size());
+                    ReturnCodes.set(contribution, 0);
+                    return RepeatStatus.FINISHED;
+                }, transactionManager)
+                .build();
     }
 
     private static List<CobolRecord> dalytranRecords(JobParameters params) {

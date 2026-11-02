@@ -1,7 +1,9 @@
 package com.carddemo.transaction.batch;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import com.carddemo.common.error.DuplicateKeyException;
 import com.carddemo.transaction.client.PostingResult;
 import com.carddemo.transaction.domain.CategoryBalanceId;
 import com.carddemo.transaction.domain.DailyTransaction;
@@ -118,5 +120,28 @@ class PostingServiceTest {
 
         assertThat(categoryBalances.findById(new CategoryBalanceId(ACCOUNT, "01", 1)).orElseThrow()
                 .getBalance()).isEqualByComparingTo("15.00");
+    }
+
+    @Test
+    void sendsTheDailyTransactionIdAsTheIdempotencyKeyOfTheAccountPosting() {
+        daily("0000000000000011", CARD, "25.00");
+
+        postingService.postPendingTransactions();
+
+        assertThat(accounts.postingKeys()).containsExactly("0000000000000011");
+    }
+
+    @Test
+    void transactionAlreadyInTransactAbendsBeforeTheAccountIsPosted() {
+        daily("0000000000000012", CARD, "25.00");
+        postingService.postPendingTransactions();
+        DailyTransaction again = dailyTransactions.findById("0000000000000012").orElseThrow();
+        again.setProcessed(false);
+        dailyTransactions.save(again);
+        accounts.postings().clear();
+
+        assertThatThrownBy(() -> postingService.postPendingTransactions())
+                .isInstanceOf(DuplicateKeyException.class);
+        assertThat(accounts.postings()).isEmpty();
     }
 }

@@ -13,7 +13,7 @@ migration validation.
 | `customer-service` | 8081 | CVCUS01Y | baseline read/update |
 | `account-service` | 8082 | CVACT01Y, COACTVWC, COACTUPC, account side of CBTRN02C and CBACT04C | reference vertical slice |
 | `card-service` | 8083 | CVACT02Y, CVACT03Y, COCRDLIC/SLC/UPC | reference vertical slice |
-| `transaction-service` | 8084 | CVTRA01Y-06Y, COTRN00C/01C/02C, COBIL00C, CBTRN02C, CBACT04C | online API + POSTTRAN, INTCALC, COMBTRAN jobs |
+| `transaction-service` | 8084 | CVTRA01Y-06Y, COTRN00C/01C/02C, COBIL00C, CBTRN02C, CBACT04C | online API + POSTTRAN, INTCALC, COMBTRAN, CBTRN01C jobs |
 | `batch-service` | 8085 | CBTRN03C, CBSTM03A/B, CBEXPORT/CBIMPORT, CBACT01C-03C, CBCUS01C | empty: the jobs land here (UNT149-14/15) |
 | `data-loader` | - | the `app/data` sample datasets (nine ASCII extracts + EBCDIC USRSEC) | `load-data` command + reconciliation |
 
@@ -61,12 +61,15 @@ non-local use it needs:
   environment with no fallback; `docker-compose.yml` fills them with `carddemo`/`carddemo` for the
   local demo only and publishes PostgreSQL on `127.0.0.1` alone.
 
-## Known limitation: cross service batch retries
+## Cross service batch retries
 
-Transaction posting updates account-service over HTTP and then writes its own rows. If the local
-write fails after the remote update committed, a retry posts the amount twice. Making this safe
-needs an idempotency key on the posting endpoint plus an outbox or saga; the `AccountGateway` seam
-is where that belongs.
+Transaction posting updates account-service over HTTP and then writes its own rows. The posting
+endpoint is idempotent per transaction id (`DALYTRAN-ID`, recorded in `account.account_postings` in
+the same database transaction as the account update): if the local write fails after the remote
+update committed, posting the same transaction again returns the first result instead of applying
+the amount twice. The same id with another account, amount or date is refused with 409. What is
+still not automatic is the retry itself: a failed POSTTRAN leaves the transaction unprocessed and
+the next run posts it.
 
 ## Runbook
 
@@ -188,7 +191,7 @@ command before the smoke test.
 
 Each JCL job is a Spring Batch job registered under its JCL member name; the full JCL → Java
 mapping and the Control-M order are in `docs/migration/jcl-mapping.md`. transaction-service runs
-POSTTRAN (CBTRN02C), INTCALC (CBACT04C) and COMBTRAN (sort); batch-service has no jobs yet.
+POSTTRAN (CBTRN02C), INTCALC (CBACT04C) and COMBTRAN (sort); batch-service runs TRANREPT (CBTRN03C).
 
 **Command line** (what a scheduler or the golden-set harness calls; the process exits with the
 job's return code):
@@ -201,7 +204,18 @@ java -jar transaction-service/target/transaction-service-*.jar --job=COMBTRAN \
     --dd=TRANSACT.BKUP=/path/to/backup                                               # SYSTRAN(0) = latest INTCALC run
 java -jar transaction-service/target/transaction-service-*.jar --job=POSTTRAN \
     --dd=DALYTRAN=../app/data/ASCII/dailytran.txt                                    # DALYTRAN from a file
+java -jar batch-service/target/batch-service-*.jar --job=TRANREPT \
+    --dd=TRANSACT=out/POSTTRAN/<ts>/TRANSACT --parm='2022-01-01 2022-07-06' \
+    --dd=CARDXREF=../app/data/ASCII/cardxref.txt --dd=TRANTYPE=../app/data/ASCII/trantype.txt \
+    --dd=TRANCATG=../app/data/ASCII/trancatg.txt                                     # every DD a file
+java -jar batch-service/target/batch-service-*.jar --job=TRANREPT --dd=DATEPARM=dateparm.txt   # data from the services
 ```
+
+TRANREPT takes DATEPARM as `--dd=DATEPARM=<file>` (its first record, `YYYY-MM-DD YYYY-MM-DD`) or as
+`--parm='YYYY-MM-DD YYYY-MM-DD'` (the record text). TRANSACT, CARDXREF, TRANTYPE and TRANCATG are
+read from `--dd=` files when given, otherwise from transaction-service and card-service
+(`TRANSACTION_SERVICE_URL`, `CARD_SERVICE_URL`). The CLI needs `BATCH_DB_URL` / `BATCH_DB_USER` /
+`BATCH_DB_PASSWORD` for the job repository.
 
 The CLI needs the same database settings as the service (`TRANSACTION_DB_URL`, `TRANSACTION_DB_USER`,
 `TRANSACTION_DB_PASSWORD`, and `ACCOUNT_SERVICE_URL` / `CARD_SERVICE_URL` for POSTTRAN) plus
@@ -212,7 +226,7 @@ transaction-service --job=POSTTRAN --date=2022-07-18`.
 
 | Option | Meaning |
 | --- | --- |
-| `--job=NAME` | JCL member (required): POSTTRAN, INTCALC, COMBTRAN |
+| `--job=NAME` | JCL member (required): POSTTRAN, INTCALC, COMBTRAN (transaction-service); TRANREPT (batch-service); or CBTRN01C (no JCL member; needs `--dd=DALYTRAN=`, writes `SYSOUT`) |
 | `--date=YYYY-MM-DD` | run date (also `YYYYMMDD`); default today |
 | `--parm=VALUE` | the `EXEC PARM=` value; default `<date as yyyyMMdd>00` |
 | `--dd=DDNAME=path` | input file for a DD, repeatable (`*.txt` = line sequential, else fixed-length records) |
@@ -231,8 +245,11 @@ out/POSTTRAN/20220718-000000-000/DALYREJS   430-byte rejects of this run (DALYTR
                                  TRANSACT   350-byte TRANFILE after the run, by TRAN-ID
                                  TCATBALF   50-byte category balances after the run
                                  RETURN-CODE
-out/INTCALC/<ts>/SYSTRAN                    350-byte interest transactions of this run
+out/INTCALC/<ts>/SYSTRAN                    350-byte interest transactions of this run (TRAN-ID = PARM + 000001..)
 out/COMBTRAN/<ts>/TRANSACT.COMBINED         TRANSACT.BKUP(0) + SYSTRAN(0) sorted by TRAN-ID
+out/TRANREPT/<ts>/TRANSACT.BKUP             350-byte TRANSACT unload (STEP05R REPROC)
+                  TRANSACT.DALY             the DATEPARM window, sorted by card number (STEP05R SORT)
+                  TRANREPT                  133-byte report records (STEP10R CBTRN03C); absent when it abends
 ```
 
 **HTTP** (unchanged endpoints; same job, same output directory, reported as `outputDir`):
@@ -240,6 +257,8 @@ out/COMBTRAN/<ts>/TRANSACT.COMBINED         TRANSACT.BKUP(0) + SYSTRAN(0) sorted
 ```bash
 curl -X POST http://localhost:8084/api/v1/batch/post-transactions     # POSTTRAN / CBTRN02C
 curl -X POST http://localhost:8084/api/v1/batch/interest-calculation  # INTCALC  / CBACT04C (?date=, ?parm=)
+curl -X POST -H "Authorization: Bearer $TOKEN" 'http://localhost:8085/api/v1/batch/transaction-report?startDate=2022-01-01&endDate=2022-07-06'  # TRANREPT / CBTRN03C
+# The submit forwards the caller's token to transaction-service and card-service; a --job=TRANREPT CLI launch signs as BATCH.
 ```
 
 Each call runs the job synchronously and returns `jobName`, `executionId`, `status`, `returnCode`,

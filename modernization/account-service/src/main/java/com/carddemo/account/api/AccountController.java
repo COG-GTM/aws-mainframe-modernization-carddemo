@@ -67,12 +67,17 @@ public class AccountController {
         return accountViewService.update(accountId, request);
     }
 
-    /** Account side of CBTRN02C, called by the posting batch job of transaction-service. */
+    /**
+     * Account side of CBTRN02C, called by the posting batch job of transaction-service. Idempotent
+     * per {@code transactionId}: a retry returns the first result; the same id with a different
+     * account, amount or date is 409.
+     */
     @PostMapping("/{accountId}/postings")
     public ResponseEntity<PostingResponse> post(@PathVariable long accountId,
                                                 @Valid @RequestBody PostingRequest request) {
         PostingResponse response = PostingResponse.from(
-                accountService.post(accountId, request.amount(), request.transactionDate()));
+                accountService.post(accountId, request.transactionId(), request.amount(),
+                        request.transactionDate()));
         return response.posted()
                 ? ResponseEntity.ok(response)
                 : ResponseEntity.unprocessableEntity().body(response);

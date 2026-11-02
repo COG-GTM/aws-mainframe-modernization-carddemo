@@ -9,6 +9,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -60,7 +61,9 @@ public class StubGateways {
         private final Map<Long, AccountView> accounts = new HashMap<>();
         private final Map<Long, PostingResult> forcedResults = new HashMap<>();
         private final List<BigDecimal> settlements = new ArrayList<>();
+        private final Map<Long, BigDecimal> settledByAccount = new LinkedHashMap<>();
         private final List<BigDecimal> postings = new ArrayList<>();
+        private final List<String> postingKeys = new ArrayList<>();
 
         public void register(long accountId, String groupId, BigDecimal balance) {
             accounts.put(accountId, new AccountView(accountId, "Y", balance, groupId));
@@ -74,15 +77,25 @@ public class StubGateways {
             return settlements;
         }
 
+        public Map<Long, BigDecimal> settledByAccount() {
+            return settledByAccount;
+        }
+
         public List<BigDecimal> postings() {
             return postings;
+        }
+
+        public List<String> postingKeys() {
+            return postingKeys;
         }
 
         public void clear() {
             accounts.clear();
             forcedResults.clear();
             settlements.clear();
+            settledByAccount.clear();
             postings.clear();
+            postingKeys.clear();
         }
 
         @Override
@@ -91,8 +104,10 @@ public class StubGateways {
         }
 
         @Override
-        public PostingResult post(long accountId, BigDecimal amount, LocalDate transactionDate) {
+        public PostingResult post(long accountId, String transactionId, BigDecimal amount,
+                                  LocalDate transactionDate) {
             postings.add(amount);
+            postingKeys.add(transactionId);
             if (forcedResults.containsKey(accountId)) {
                 return forcedResults.get(accountId);
             }
@@ -109,6 +124,7 @@ public class StubGateways {
         @Override
         public void settleInterest(long accountId, BigDecimal totalInterest) {
             settlements.add(totalInterest);
+            settledByAccount.put(accountId, totalInterest);
         }
     }
 }

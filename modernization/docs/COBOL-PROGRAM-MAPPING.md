@@ -46,7 +46,7 @@ signon token instead of `CDEMO-USER-ID`/`CDEMO-USER-TYPE`.
 |---|---|---|---|---|
 | `POSTTRAN.jcl` | `CBTRN02C` | transaction-service | Spring Batch `postTransactionsJob` | ported |
 | `INTCALC.jcl` | `CBACT04C` | transaction-service | Spring Batch `interestCalculationJob` | ported |
-| `TRANREPT.jcl` | `CBTRN03C` | transaction-service | `POST /api/v1/reports/transactions` | not built |
+| `TRANREPT.jcl` | `CBTRN03C` | batch-service | Spring Batch `transactionReportJob` (`--job=TRANREPT`, `POST /api/v1/batch/transaction-report`) | ported; report byte-identical to GnuCOBOL on the TRANREPT cases |
 | `CREASTMT.JCL` | `CBSTM03A`/`CBSTM03B` | transaction-service | statement generation | not built |
 | `READACCT/READCARD/READCUST/READXREF` | `CBACT01C`, `CBACT02C`, `CBCUS01C`, `CBACT03C` | - | pure file dumps; replaced by `GET` list endpoints | ported |
 

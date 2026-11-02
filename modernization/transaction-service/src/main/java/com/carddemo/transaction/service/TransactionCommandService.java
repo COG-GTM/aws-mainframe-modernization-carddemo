@@ -76,7 +76,8 @@ public class TransactionCommandService {
         CardXrefView xref = cards.xrefByAccount(accountId)
                 .orElseThrow(() -> new NotFoundException("No card cross reference for account " + accountId));
 
-        PostingResult posting = accounts.post(accountId, balance.negate(),
+        String tranId = idGenerator.next();
+        PostingResult posting = accounts.post(accountId, tranId, balance.negate(),
                 LocalDateTime.now(clock).toLocalDate());
         if (!posting.posted()) {
             throw new BusinessRuleException("Payment for account " + accountId + " rejected with reason "
@@ -84,7 +85,7 @@ public class TransactionCommandService {
         }
 
         LocalDateTime now = LocalDateTime.now(clock);
-        Transaction transaction = new Transaction(idGenerator.next(), xref.cardNumber(),
+        Transaction transaction = new Transaction(tranId, xref.cardNumber(),
                 BILL_PAYMENT_TYPE_CD, BILL_PAYMENT_CAT_CD, balance);
         transaction.setSource("POS TERM");
         transaction.setDescription("BILL PAYMENT - ONLINE");

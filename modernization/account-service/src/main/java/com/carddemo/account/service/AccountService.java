@@ -1,22 +1,37 @@
 package com.carddemo.account.service;
 
+import com.carddemo.account.api.dto.AccountUpdateRequest;
 import com.carddemo.account.domain.Account;
+import com.carddemo.account.domain.AccountPosting;
+import com.carddemo.account.repository.AccountPostingRepository;
 import com.carddemo.account.repository.AccountRepository;
+import com.carddemo.common.error.BusinessRuleException;
+import com.carddemo.common.error.DuplicateKeyException;
 import com.carddemo.common.error.NotFoundException;
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionTemplate;
 
 @Service
 public class AccountService {
 
     private final AccountRepository accounts;
+    private final AccountPostingRepository postings;
+    private final TransactionTemplate transaction;
 
-    public AccountService(AccountRepository accounts) {
+    public AccountService(AccountRepository accounts, AccountPostingRepository postings,
+                          PlatformTransactionManager transactionManager) {
         this.accounts = accounts;
+        this.postings = postings;
+        this.transaction = new TransactionTemplate(transactionManager);
     }
 
     /** COACTVWC: read ACCTDATA by account id. */
@@ -32,31 +47,74 @@ public class AccountService {
     }
 
     /**
-     * CBTRN02C paragraphs 1500-B-LOOKUP-ACCT (validation) and 2800-UPDATE-ACCOUNT-REC (update).
-     *
-     * <pre>
-     * COMPUTE WS-TEMP-BAL = ACCT-CURR-CYC-CREDIT - ACCT-CURR-CYC-DEBIT + DALYTRAN-AMT
-     * IF ACCT-CREDIT-LIMIT &lt; WS-TEMP-BAL            -&gt; reason 102 overlimit
-     * IF ACCT-EXPIRAION-DATE &lt; DALYTRAN-ORIG-TS(1:10) -&gt; reason 103 expired
-     * ADD DALYTRAN-AMT TO ACCT-CURR-BAL
-     * IF DALYTRAN-AMT &gt;= 0 ADD TO ACCT-CURR-CYC-CREDIT ELSE ADD TO ACCT-CURR-CYC-DEBIT
-     * </pre>
-     *
-     * The sign handling of the cycle buckets is kept exactly as in the COBOL: a negative amount is
-     * added to (not subtracted from) the debit bucket.
+     * COACTUPC: read for update, apply the screen edits, rewrite. The record level edits that the
+     * COBOL performs after reading the stored record live here; the field level edits are bean
+     * validation on {@link AccountUpdateRequest}.
      */
     @Transactional
-    public PostingOutcome post(long acctId, BigDecimal amount, LocalDate transactionDate) {
+    public Account update(long acctId, AccountUpdateRequest request) {
+        Account account = get(acctId);
+        if (request.expirationDate().isBefore(request.openDate())) {
+            throw new BusinessRuleException("Expiration date cannot be before the open date");
+        }
+        if (request.reissueDate() != null && request.reissueDate().isBefore(request.openDate())) {
+            throw new BusinessRuleException("Reissue date cannot be before the open date");
+        }
+        if (request.cashCreditLimit().compareTo(request.creditLimit()) > 0) {
+            throw new BusinessRuleException("Cash credit limit cannot exceed the credit limit");
+        }
+        account.setActiveStatus(request.activeStatus().toUpperCase());
+        account.setCreditLimit(request.creditLimit());
+        account.setCashCreditLimit(request.cashCreditLimit());
+        account.setOpenDate(request.openDate());
+        account.setExpirationDate(request.expirationDate());
+        account.setReissueDate(request.reissueDate());
+        account.setAddrZip(request.addressZip());
+        account.setGroupId(request.groupId());
+        return accounts.save(account);
+    }
+
+    /**
+     * Account side of CBTRN02C for one daily transaction: 1500-B-LOOKUP-ACCT (101, then 102 and
+     * 103 both evaluated in that order, so 103 wins when both fail) and 2800-UPDATE-ACCOUNT-REC.
+     * The posting is recorded under {@code tranId} in the same database transaction; a repeated call
+     * with the same id returns the recorded outcome without touching the account again. When a
+     * concurrent request with the same id commits first, this one fails on the account version or the
+     * ledger key, rolls back, and answers from the ledger row the winner wrote.
+     */
+    public PostingOutcome post(long acctId, String tranId, BigDecimal amount, LocalDate transactionDate) {
+        try {
+            return transaction.execute(status -> postOnce(acctId, tranId, amount, transactionDate));
+        } catch (DataIntegrityViolationException | OptimisticLockingFailureException conflict) {
+            AccountPosting winner = postings.findById(tranId).orElseThrow(() -> conflict);
+            return replay(winner, acctId, amount, transactionDate);
+        }
+    }
+
+    private PostingOutcome postOnce(long acctId, String tranId, BigDecimal amount, LocalDate transactionDate) {
+        AccountPosting previous = postings.findById(tranId).orElse(null);
+        if (previous != null) {
+            return replay(previous, acctId, amount, transactionDate);
+        }
         Account account = accounts.findById(acctId).orElse(null);
         if (account == null) {
             return new PostingOutcome(false, 101, "ACCOUNT RECORD NOT FOUND", null, null, null);
         }
+        Integer reasonCode = null;
+        String reasonDescription = null;
+        // COMPUTE WS-TEMP-BAL = ACCT-CURR-CYC-CREDIT - ACCT-CURR-CYC-DEBIT + DALYTRAN-AMT
         BigDecimal projected = account.cycleBalance().add(amount);
         if (account.getCreditLimit().compareTo(projected) < 0) {
-            return PostingOutcome.rejected(account, 102, "OVERLIMIT TRANSACTION");
+            reasonCode = 102;
+            reasonDescription = "OVERLIMIT TRANSACTION";
         }
-        if (account.getExpirationDate() != null && account.getExpirationDate().isBefore(transactionDate)) {
-            return PostingOutcome.rejected(account, 103, "TRANSACTION RECEIVED AFTER ACCT EXPIRATION");
+        // IF ACCT-EXPIRAION-DATE >= DALYTRAN-ORIG-TS (1:10): a blank expiration date compares low.
+        if (account.getExpirationDate() == null || account.getExpirationDate().isBefore(transactionDate)) {
+            reasonCode = 103;
+            reasonDescription = "TRANSACTION RECEIVED AFTER ACCT EXPIRATION";
+        }
+        if (reasonCode != null) {
+            return PostingOutcome.rejected(account, reasonCode, reasonDescription);
         }
         account.setCurrBal(account.getCurrBal().add(amount));
         if (amount.signum() >= 0) {
@@ -64,7 +122,21 @@ public class AccountService {
         } else {
             account.setCurrCycDebit(account.getCurrCycDebit().add(amount));
         }
-        return PostingOutcome.posted(accounts.save(account));
+        Account saved = accounts.saveAndFlush(account);
+        postings.saveAndFlush(new AccountPosting(tranId, saved, amount, transactionDate, LocalDateTime.now()));
+        return PostingOutcome.posted(saved);
+    }
+
+    private static PostingOutcome replay(AccountPosting previous, long acctId, BigDecimal amount,
+                                         LocalDate transactionDate) {
+        if (previous.getAcctId() != acctId || previous.getAmount().compareTo(amount) != 0
+                || !previous.getTransactionDate().equals(transactionDate)) {
+            throw new DuplicateKeyException("Transaction " + previous.getTranId()
+                    + " was already posted to account " + previous.getAcctId() + " with amount "
+                    + previous.getAmount() + " on " + previous.getTransactionDate());
+        }
+        return new PostingOutcome(true, null, null, previous.getCurrBal(), previous.getCurrCycCredit(),
+                previous.getCurrCycDebit());
     }
 
     /** CBACT04C paragraph 1050-UPDATE-ACCOUNT, run once per account at the cycle break. */
