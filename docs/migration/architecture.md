@@ -119,6 +119,6 @@ This PR changes no business logic, so these findings stay open for the phases th
 - Running interest calculation again charges unchanged category balances again. The COBOL behaves the
   same way, because CBACT04C opens TCATBAL as input only. Guarding against a second run per period is
   a scheduling and idempotency decision for the batch phase, not a parity fix.
-- Security, carried over from the base branch: no token or role checks on any endpoint, a seeded
-  `ADMIN001` / `Password1` user, `carddemo` / `carddemo` default database credentials, and Compose
+- Security, carried over from the base branch: no token or role checks on any endpoint, the USRSEC
+  sample users loaded by `data-loader` (`ADMIN001` … `USER0005`, password `PASSWORD`), `carddemo` / `carddemo` default database credentials, and Compose
   publishing the service ports on every host interface. These are acceptable for a local demo only.

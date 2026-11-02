@@ -209,8 +209,10 @@ All five services' test profiles (`src/test/resources/application.yml`) use the 
 JDBC URL `jdbc:tc:postgresql:16:///carddemo` (the image docker-compose runs), Flyway enabled on
 the service schema, and `ddl-auto: validate`. Consequences:
 
-- The Flyway SQL, seed data, `CHECK` constraints and `NUMERIC` precision are exercised by
-  `mvn verify`, not only by `docker compose up`.
+- The Flyway SQL, `CHECK` constraints and `NUMERIC` precision are exercised by `mvn verify`, not
+  only by `docker compose up`. The migrations create empty tables (no seed rows); tests insert what
+  they need, and the `data-loader` module's `SampleDataReconciliationTest` loads all of `app/data`
+  into the five schemas and checks the result (`docs/migration/validation/`).
 - Hibernate mappings are validated against the migrated schema.
 - Docker is required to run the tests (GitHub-hosted runners have it). `testcontainers.version`
   is pinned to 1.21.4 in the root POM because the 1.19.8 managed by Spring Boot 3.3.4 uses a Docker

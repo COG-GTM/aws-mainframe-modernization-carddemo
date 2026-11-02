@@ -5,10 +5,14 @@ on:
     branches: [main, migration/carddemo-java]
     paths:
       - "modernization/**"
+      - "app/data/**"
+      - "docs/migration/validation/**"
       - ".github/workflows/modernization-verify.yml"
   pull_request:
     paths:
       - "modernization/**"
+      - "app/data/**"
+      - "docs/migration/validation/**"
       - ".github/workflows/modernization-verify.yml"
 
 concurrency:
@@ -51,6 +55,8 @@ jobs:
       - uses: actions/checkout@v4
       - name: Build and start PostgreSQL plus the five services
         run: docker compose up -d --build --wait --wait-timeout 300
+      - name: Load app/data and reconcile (data-loader)
+        run: docker compose run --rm --build data-loader
       - name: Smoke test (health, Swagger, signon, batch jobs)
         run: RUN_BATCH=1 ./scripts/smoke.sh
       - name: Service logs

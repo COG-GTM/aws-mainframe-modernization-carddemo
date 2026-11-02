@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 # Smoke test for a running stack (docker compose up, or services started by hand).
 # Waits for every service's /actuator/health to report UP, checks each OpenAPI document and
-# Swagger UI and signs on with the seeded demo user. Read-only by default.
+# Swagger UI and signs on as ADMIN001, a USRSEC sample user, so load the sample data first
+# (docker compose run --rm data-loader). Read-only by default.
 # RUN_BATCH=1 also runs both batch jobs. They change data: pending daily transactions are posted and
 # interest is charged again on the current category balances on every run (CBACT04C does not clear
 # TCATBAL either), so use it only against a disposable database, e.g. right after
@@ -42,7 +43,7 @@ for svc in "${SERVICES[@]}"; do
 done
 
 signon=$(curl -fsS -X POST "http://${HOST}:${PORTS[auth-service]}/api/v1/auth/signon" \
-  -H 'Content-Type: application/json' -d '{"userId":"ADMIN001","password":"Password1"}') \
+  -H 'Content-Type: application/json' -d '{"userId":"ADMIN001","password":"PASSWORD"}') \
   || fail "signon ADMIN001"
 echo "$signon" | grep -q '"nextScreen":"ADMIN"' || fail "signon returned $signon"
 echo "ok  signon ADMIN001 -> $signon"
