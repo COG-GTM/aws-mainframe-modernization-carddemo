@@ -161,4 +161,14 @@ class UserAdministrationTest {
         mockMvc.perform(delete("/api/v1/users/USER0012")).andExpect(status().isNoContent());
         assertThat(users.existsById("USER0012")).isFalse();
     }
+
+    /** A password that already signs on (COSGN00C upper-cases it) is not a change and keeps the stored hash. */
+    @Test
+    void nameOnlyUpdateWithTheLowerCasePasswordKeepsTheStoredHash() throws Exception {
+        String before = users.findById("USER0001").orElseThrow().getPasswordHash();
+        mockMvc.perform(put("/api/v1/users/USER0001").contentType(MediaType.APPLICATION_JSON).content("""
+                        {"firstName":"Renamed","lastName":"Last1","password":"password","userType":"U"}"""))
+                .andExpect(status().isOk());
+        assertThat(users.findById("USER0001").orElseThrow().getPasswordHash()).isEqualTo(before);
+    }
 }

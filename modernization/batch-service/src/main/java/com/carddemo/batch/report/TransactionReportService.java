@@ -10,6 +10,7 @@ import com.carddemo.common.security.CallerTokenForwarder;
 import jakarta.annotation.PreDestroy;
 import java.time.Clock;
 import java.time.LocalDate;
+import java.util.Arrays;
 import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -89,9 +90,16 @@ public class TransactionReportService {
         }
     }
 
-    /** Work queued in memory dies with the JVM; a restart reports it rather than leaving it RUNNING. */
+    /**
+     * Work queued in memory dies with the JVM; a restart of the web service reports it rather than leaving
+     * it RUNNING. A CLI launch ({@code --job=...}) is a separate process that never owns these requests,
+     * so it leaves them alone.
+     */
     @EventListener(ApplicationReadyEvent.class)
-    public void failInterruptedRequests() {
+    public void failInterruptedRequests(ApplicationReadyEvent event) {
+        if (Arrays.stream(event.getArgs()).anyMatch(arg -> arg.startsWith("--job"))) {
+            return;
+        }
         int count = reports.failUnfinished(clock.instant(), INTERRUPTED);
         if (count > 0) {
             log.warn("Marked {} unfinished transaction report request(s) FAILED after restart", count);

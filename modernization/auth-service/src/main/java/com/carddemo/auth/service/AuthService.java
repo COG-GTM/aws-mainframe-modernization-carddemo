@@ -100,17 +100,21 @@ public class AuthService {
     public User update(String userId, UserRequest request) {
         UserEdits.forUpdate(userId, request);
         User user = get(userId);
+        // Same equivalence as sign-on, so a password that already signs on keeps its stored hash.
+        boolean passwordChanged = !passwordMatches(request.password(), user.getPasswordHash());
         boolean modified = !request.firstName().equals(user.getFirstName())
                 || !request.lastName().equals(user.getLastName())
                 || !request.userType().equals(user.getUserType())
-                || !passwordEncoder.matches(request.password(), user.getPasswordHash());
+                || passwordChanged;
         if (!modified) {
             throw new BusinessRuleException(NOTHING_MODIFIED);
         }
         user.setFirstName(request.firstName());
         user.setLastName(request.lastName());
         user.setUserType(request.userType());
-        user.setPasswordHash(passwordEncoder.encode(request.password()));
+        if (passwordChanged) {
+            user.setPasswordHash(passwordEncoder.encode(request.password()));
+        }
         return users.save(user);
     }
 
