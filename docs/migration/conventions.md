@@ -149,7 +149,7 @@ not code-page converted.
 |---|---|---|---|
 | CARDDATA AIX, CICS file `CARDAIX` (`CARDFILE.jcl`, `KEYS(11 16)`: `CARD-ACCT-ID`, non-unique) | account id | `ix_cards_acct_id` on `card.cards(acct_id)` | `GET /api/v1/cards?accountId=` |
 | CARDXREF AIX, CICS file `CXACAIX` (`XREFFILE.jcl`, `KEYS(11,25)`: `XREF-ACCT-ID`, non-unique) | account id | `ix_card_xref_acct_id` on `card.card_xref(acct_id)` | `GET /api/v1/card-xrefs/by-account/{accountId}` |
-| TRANSACT AIX (`TRANIDX.jcl`, `KEYS(26 304)`: `TRAN-PROC-TS`, non-unique) | processed timestamp | *(not yet indexed)* | report date range, later ticket |
+| TRANSACT AIX (`TRANIDX.jcl`, `KEYS(26 304)`: `TRAN-PROC-TS`, non-unique) | processed timestamp | `ix_transactions_proc_ts` | report date range (TRANREPT selects by `TRAN-PROC-TS` date) |
 
 Rules: a non-unique AIX becomes a non-unique B-tree index plus a repository finder returning a
 list; a browse (`STARTBR`/`READNEXT`) over an AIX becomes a paged, ordered query on the same index.

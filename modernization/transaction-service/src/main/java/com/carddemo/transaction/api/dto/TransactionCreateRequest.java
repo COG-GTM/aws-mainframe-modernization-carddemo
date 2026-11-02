@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 public record TransactionCreateRequest(
         @NotBlank @Pattern(regexp = "\\d{16}", message = "card number must be 16 digits") String cardNumber,
         @NotBlank @Size(max = 2) String typeCode,
-        @NotNull Integer categoryCode,
+        @NotNull @Min(0) @Max(9999) Integer categoryCode,
         @Size(max = 10) String source,
         @Size(max = 100) String description,
         @NotNull @Digits(integer = 9, fraction = 2) BigDecimal amount,

@@ -96,6 +96,18 @@ class TransactionControllerTest {
     }
 
     @Test
+    void rejectsACategoryCodeWiderThanItsPicture() throws Exception {
+        mockMvc.perform(post("/api/v1/transactions")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {"cardNumber": "4111111111111111", "typeCode": "01", "categoryCode": 10000,
+                                 "amount": 1.00}
+                                """))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.fieldErrors[0].field").value("categoryCode"));
+    }
+
+    @Test
     void rejectsAMerchantIdWiderThanItsPicture() throws Exception {
         mockMvc.perform(post("/api/v1/transactions")
                         .contentType(MediaType.APPLICATION_JSON)

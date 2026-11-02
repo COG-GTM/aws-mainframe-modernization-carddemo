@@ -125,8 +125,7 @@ public class PostingService {
 
     /** Paragraph 2500-WRITE-REJECT-REC. */
     private boolean reject(DailyTransaction daily, int reasonCode, String reasonDescription) {
-        rejects.save(new TransactionReject(daily.getTranId(), daily.getCardNum(), reasonCode,
-                reasonDescription));
+        rejects.save(TransactionReject.of(daily, reasonCode, reasonDescription));
         daily.setProcessed(true);
         daily.setProcTs(LocalDateTime.now(clock));
         dailyTransactions.save(daily);
