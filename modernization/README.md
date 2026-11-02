@@ -93,7 +93,8 @@ in progress (conventions ticket); once it lands `mvn -B verify` needs a running 
 CI (`.github/workflows/modernization-verify.yml`) runs on every PR touching `modernization/**`:
 
 - `verify`: `mvn -B verify` on JDK 21, with Docker available for Testcontainers.
-- `compose-smoke`: `docker compose up -d --build --wait`, then `scripts/smoke.sh`.
+- `compose-smoke`: `docker compose up -d --build --wait` on a fresh database, then
+  `RUN_BATCH=1 scripts/smoke.sh`.
 
 ### 2. Start the stack
 
@@ -131,8 +132,11 @@ Stop with `docker compose down` (add `-v` to drop the database volume and re-see
 ./scripts/smoke.sh                      # TRANSACTION_PORT=8094 ./scripts/smoke.sh after a remap
 ```
 
-Waits for every `/actuator/health` to be `UP`, fetches each `/v3/api-docs` and `/swagger-ui.html`,
-signs on as `ADMIN001`, and runs both batch jobs. `RUN_BATCH=0` skips the jobs.
+Waits for every `/actuator/health` to be `UP`, fetches each `/v3/api-docs` and `/swagger-ui.html`
+and signs on as `ADMIN001`; this changes no data. `RUN_BATCH=1 ./scripts/smoke.sh` also runs both
+batch jobs, which do change data (pending daily transactions are posted, and interest is charged
+again on the current category balances each run), so use it only on a fresh database
+(`docker compose down -v` first), as CI does.
 
 ### 4. Load sample data
 

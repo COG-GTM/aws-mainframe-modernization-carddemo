@@ -1,13 +1,17 @@
 #!/usr/bin/env bash
 # Smoke test for a running stack (docker compose up, or services started by hand).
 # Waits for every service's /actuator/health to report UP, checks each OpenAPI document and
-# Swagger UI, signs on with the seeded demo user and runs both batch jobs.
+# Swagger UI and signs on with the seeded demo user. Read-only by default.
+# RUN_BATCH=1 also runs both batch jobs. They change data: pending daily transactions are posted and
+# interest is charged again on the current category balances on every run (CBACT04C does not clear
+# TCATBAL either), so use it only against a disposable database, e.g. right after
+# `docker compose down -v && docker compose up -d --build` (what CI does).
 # Ports default to docker-compose.yml; override with AUTH_PORT ... TRANSACTION_PORT.
 set -euo pipefail
 
 HOST="${HOST:-localhost}"
 WAIT_SECONDS="${WAIT_SECONDS:-180}"
-RUN_BATCH="${RUN_BATCH:-1}"
+RUN_BATCH="${RUN_BATCH:-0}"
 
 declare -A PORTS=(
   [auth-service]="${AUTH_PORT:-8080}"

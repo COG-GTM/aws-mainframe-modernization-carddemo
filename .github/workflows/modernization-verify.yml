@@ -52,7 +52,7 @@ jobs:
       - name: Build and start PostgreSQL plus the five services
         run: docker compose up -d --build --wait --wait-timeout 300
       - name: Smoke test (health, Swagger, signon, batch jobs)
-        run: ./scripts/smoke.sh
+        run: RUN_BATCH=1 ./scripts/smoke.sh
       - name: Service logs
         if: always()
         run: docker compose logs --no-color
