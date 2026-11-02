@@ -12,4 +12,11 @@ class StatementWriterEscapeTest {
                 .isEqualTo("&lt;script&gt;alert('x')&lt;/script&gt; &amp; \"q\"");
         assertThat(StatementWriter.escape("Purchase at Zulauf-O'Keefe")).isEqualTo("Purchase at Zulauf-O'Keefe");
     }
+
+    @Test
+    void escapedLineStillFitsTheRecordWithItsClosingTag() {
+        String line = StatementWriter.htmlLine("<p>", "&".repeat(50), "  </p>");
+        assertThat(line).hasSizeLessThanOrEqualTo(StatementWriter.HTML_LRECL).endsWith("&amp;  </p>");
+        assertThat(StatementWriter.htmlLine("<p>", "1588 Nienow Cape", "  </p>")).isEqualTo("<p>1588 Nienow Cape  </p>");
+    }
 }

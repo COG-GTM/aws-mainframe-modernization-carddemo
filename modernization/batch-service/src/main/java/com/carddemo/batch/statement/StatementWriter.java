@@ -27,6 +27,8 @@ import java.util.List;
  */
 final class StatementWriter {
 
+    static final int HTML_LRECL = 100;
+
     static final int MAX_CARDS = 51;
     static final int MAX_TRANSACTIONS = 10;
 
@@ -136,10 +138,10 @@ final class StatementWriter {
                 LTRS, "<td colspan=\"3\" style=\"padding:0px 5px;background-color:#FFAF33;\">",
                 "<p style=\"font-size:16px\">Bank of XYZ</p>", "<p>410 Terry Ave N</p>", "<p>Seattle WA 99999</p>",
                 LTDE, LTRE, LTRS, L22_35));
-        html.add("<p style=\"font-size:16px\">" + escape(upTo(name.substring(0, 50), "  ")) + "  </p>");
-        html.add("<p>" + escape(upTo(add1, "  ")) + "  </p>");
-        html.add("<p>" + escape(upTo(add2, "  ")) + "  </p>");
-        html.add("<p>" + escape(upTo(add3, "  ")) + "  </p>");
+        html.add(htmlLine("<p style=\"font-size:16px\">", upTo(name.substring(0, 50), "  "), "  </p>"));
+        html.add(htmlLine("<p>", upTo(add1, "  "), "  </p>"));
+        html.add(htmlLine("<p>", upTo(add2, "  "), "  </p>"));
+        html.add(htmlLine("<p>", upTo(add3, "  "), "  </p>"));
         html.addAll(List.of(LTDE, LTRE, LTRS, L30_42, "<p style=\"font-size:16px\">Basic Details</p>", LTDE, LTRE,
                 LTRS, L22_35));
         html.add("<p>Account ID         : " + upTo(acctId, "*") + "</p>");
@@ -173,8 +175,8 @@ final class StatementWriter {
         String details = t.get(TrnxRecordLayout.TRNX_DESC).substring(0, 49);
         String amount = zEdit(t.get(TrnxRecordLayout.TRNX_AMT));
         stmt.add(id + " " + details + "$" + amount);
-        html.addAll(List.of(LTRS, td(25, "#f2f2f2", "left"), "<p>" + escape(upTo(id, "*")) + "</p>", LTDE,
-                td(55, "#f2f2f2", "left"), "<p>" + escape(upTo(details, "*")) + "</p>", LTDE,
+        html.addAll(List.of(LTRS, td(25, "#f2f2f2", "left"), htmlLine("<p>", upTo(id, "*"), "</p>"), LTDE,
+                td(55, "#f2f2f2", "left"), htmlLine("<p>", upTo(details, "*"), "</p>"), LTDE,
                 td(20, "#f2f2f2", "right"), "<p>" + upTo(amount, "*") + "</p>", LTDE, LTRE));
     }
 
@@ -213,6 +215,17 @@ final class StatementWriter {
             }
         }
         return out.toString();
+    }
+
+    /** One HTMLFILE record: escaped text, shortened by whole characters if needed so the closing tag fits. */
+    static String htmlLine(String prefix, String text, String suffix) {
+        int room = HTML_LRECL - prefix.length() - suffix.length();
+        String body = escape(text);
+        while (body.length() > room) {
+            text = text.substring(0, text.length() - 1);
+            body = escape(text);
+        }
+        return prefix + body + suffix;
     }
 
     static String upTo(String value, String delimiter) {

@@ -53,7 +53,8 @@ the exported data, rows inserted from the sample files; `transaction.transaction
 
 - HTMLFILE escapes `&`, `<` and `>` in customer name/address and transaction ID/description; CBSTM03A
   copies them as is, so stored data could inject markup. Quotes are left alone (element content only), and
-  the sample data has none of the three, so the golden HTMLFILE bytes are unchanged.
+  the sample data has none of the three, so the golden HTMLFILE bytes are unchanged. If escaping
+  would push a line past the 100-byte record, the text is shortened by whole characters so the closing tag stays.
 - Table-backed TRANSACT unload: `transaction.transactions` keeps no provenance and stores `orig_ts` as a
   timestamp, so a row gets the DB2 `YYYY-MM-DD-HH.MM.SS.NNNNNN` origin format only when it has the full
   record shape CBACT04C writes (type `01`, category `05`, source `System`, description `Int. for a/c …`);
