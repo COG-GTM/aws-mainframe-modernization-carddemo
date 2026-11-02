@@ -16,7 +16,7 @@ marked **Hypothesis**. The helpers named below live in
 | COBOL | Java | PostgreSQL | JSON | Rule |
 |---|---|---|---|---|
 | `PIC S9(n)V99` (money) | `BigDecimal`, scale 2 | `NUMERIC(n+2,2)` | number | Results stored into a 2-decimal field are **truncated** (`CobolValues.truncate` / `CobolValues.divide`, `RoundingMode.DOWN`) unless the COBOL statement says `ROUNDED`. Never `double`. API inputs carry `@Digits(integer = n, fraction = 2)`. |
-| `PIC 9(n)` id (account, customer, merchant) | `Long` | `BIGINT` + `CHECK (x BETWEEN 0 AND 10^n-1)` | **string, zero-padded to n** (`@PicId(digits = n)`) | Leading zeros are a display property, never lost: `CobolValues.zeroPad`. |
+| `PIC 9(n)` id (account, customer, merchant) | `Long`, requests `@Min(0) @Max(10^n-1)` | `BIGINT` + `CHECK (x BETWEEN 0 AND 10^n-1)` | **string, zero-padded to n** (`@PicId(digits = n)`) | Leading zeros are a display property, never lost: `CobolValues.zeroPad`. |
 | `PIC 9(n)` code (category, FICO) | `Integer` | `INTEGER` / `SMALLINT` | number | Not an id, no padding. |
 | `PIC X(n)` | `String` | `VARCHAR(n)` (keys too) | string | Trimmed on load (`CobolValues.trim`, all blanks → `null`), right-padded on fixed-width output (`CobolValues.padRight`). |
 | `PIC X(10)` date | `LocalDate` | `DATE` | `YYYY-MM-DD` | Only where the COBOL compares or validates the field as a calendar date (§4). Otherwise it stays `String`. |
@@ -51,7 +51,13 @@ computation (`grep -n ROUNDED app/cbl/*.cbl` returns nothing).
 - Inputs: the online programs accept amounts through edited screen fields. REST requests now reject
   values that do not fit the target picture (`@Digits`, HTTP 400) rather than truncating them
   silently, because a REST client never sees the screen echo that would reveal the truncation.
-  This is a deliberate deviation.
+  This is a deliberate deviation. The limit is the picture of the field the value lands in: a
+  posting to an account (`PostingRequest`) is `ACCT-CURR-BAL`-sized, `@Digits(integer = 10)`;
+  a transaction amount is `TRAN-AMT`-sized, `@Digits(integer = 9)`.
+- Fact: `COBIL00C` 224 moves the full `ACCT-CURR-BAL` (`S9(10)V99`) into `TRAN-AMT` (`S9(09)V99`),
+  which silently drops the high-order digit for a balance of 1,000,000,000.00 or more. The port does
+  not reproduce that: such a payment fails on the `NUMERIC(11,2)` transaction column instead.
+  **Hypothesis:** no account reaches that balance; the gap is left to the bill-payment parity ticket.
 
 Testing note: tests run against PostgreSQL 16 through Testcontainers with the real Flyway
 migrations (§9), so `NUMERIC` scale, overflow and `CHECK` constraints behave as in production.
@@ -72,6 +78,9 @@ The branch stored them as `BIGINT` / `Long` and serialized them as JSON numbers,
 - The width is restored at every boundary that shows the value: JSON responses use
   `@PicId(digits = n)` (account 11, customer 9, merchant 9), which writes
   `"accountId": "00000000001"`; fixed-width output uses `CobolValues.zeroPad(value, n)`.
+- Every input path is range-checked to the picture (`@Min`/`@Max` on request DTOs, a `CHECK` on the
+  column, e.g. `transaction` `V4__merchant_id_range.sql`), so `@PicId` never meets a value it cannot
+  render.
 - Request bodies and path variables accept either form (`"00000000001"` or `1`) because Jackson and
   Spring parse both into `Long`.
 - `PIC 9(n)` fields that are codes rather than identifiers (`TRAN-CAT-CD PIC 9(04)`,

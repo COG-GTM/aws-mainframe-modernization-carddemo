@@ -10,5 +10,5 @@ import java.time.LocalDate;
  * 2800-UPDATE-ACCOUNT-REC of CBTRN02C. {@code transactionDate} is the date part of
  * {@code DALYTRAN-ORIG-TS} and is compared against the account expiration date.
  */
-public record PostingRequest(@NotNull @Digits(integer = 9, fraction = 2) BigDecimal amount, @NotNull LocalDate transactionDate) {
+public record PostingRequest(@NotNull @Digits(integer = 10, fraction = 2) BigDecimal amount, @NotNull LocalDate transactionDate) {
 }

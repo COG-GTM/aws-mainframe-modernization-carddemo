@@ -1,6 +1,8 @@
 package com.carddemo.transaction.api.dto;
 
 import jakarta.validation.constraints.Digits;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
@@ -16,7 +18,7 @@ public record TransactionCreateRequest(
         @Size(max = 10) String source,
         @Size(max = 100) String description,
         @NotNull @Digits(integer = 9, fraction = 2) BigDecimal amount,
-        Long merchantId,
+        @Min(0) @Max(999_999_999) Long merchantId,
         @Size(max = 50) String merchantName,
         @Size(max = 50) String merchantCity,
         @Size(max = 10) String merchantZip,
