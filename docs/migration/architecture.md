@@ -168,6 +168,10 @@ This PR changes no business logic, so these findings stay open for the phases th
 - Online TRAN-IDs come from `transaction.tran_id_seq`, lifted past the highest numeric TRAN-ID
   already stored on each allocation. A DALYTRAN id loaded later that equals an id already handed out
   makes POSTTRAN abend on the duplicate. COBOL has the same collision.
+- Card update keeps COCRDUPC 1230-EDIT-NAME exactly (letters and spaces only, on every update), so 1
+  of the 50 sample cards (`7026637615032277`, `Lucious O'Connell`) cannot change status or expiry
+  without changing its name, as on the mainframe. Relaxing the edit for unchanged names is a product
+  decision (UNT149-18, `card-service-review.md`).
 - Security, carried over from the base branch: no TLS between services, the USRSEC
   sample users loaded by `data-loader` (`ADMIN001` … `USER0005`, password `PASSWORD`), `carddemo` / `carddemo` default database credentials, and Compose
   publishing the service ports on every host interface. These are acceptable for a local demo only.

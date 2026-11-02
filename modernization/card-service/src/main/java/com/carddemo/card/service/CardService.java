@@ -6,7 +6,6 @@ import com.carddemo.card.domain.CardXref;
 import com.carddemo.card.repository.CardRepository;
 import com.carddemo.card.repository.CardXrefRepository;
 import com.carddemo.common.error.BusinessRuleException;
-import com.carddemo.common.error.InvalidFieldException;
 import com.carddemo.common.error.NotFoundException;
 import com.carddemo.common.error.RecordChangedException;
 import java.time.LocalDate;
@@ -14,7 +13,6 @@ import java.time.YearMonth;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
-import java.util.regex.Pattern;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -23,9 +21,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class CardService {
-
-    /** 1230-EDIT-NAME: LIT-ALL-ALPHA-FROM converted to spaces must leave nothing. */
-    private static final Pattern CARD_NAME = Pattern.compile("[A-Za-z ]*");
 
     private final CardRepository cards;
     private final CardXrefRepository xrefs;
@@ -73,10 +68,7 @@ public class CardService {
      * record with {@code UPDATE} and 9300-CHECK-CHANGE-IN-REC rejects the rewrite when it differs from
      * the copy the user edited (here: the version the client read). 1200-EDIT-MAP-INPUTS compares the
      * new values with that copy in upper case and writes nothing when they are equal. The rewrite
-     * keeps the expiry day, CVV and account id of the stored record. Deliberate difference: the
-     * letters-and-spaces edit applies only to a changed name, so a stored name outside that alphabet
-     * (sample card 7026637615032277, {@code Lucious O'Connell}) does not block a status or expiry
-     * change; COBOL would make the user retype it.
+     * keeps the expiry day, CVV and account id of the stored record.
      */
     @Transactional
     public Card update(String cardNumber, CardUpdateRequest request) {
@@ -86,9 +78,6 @@ public class CardService {
             throw new RecordChangedException();
         }
         String newName = request.embossedName().stripTrailing();
-        if (!sameIgnoringCase(newName, card.getEmbossedName()) && !CARD_NAME.matcher(newName).matches()) {
-            throw new InvalidFieldException("embossedName", CardMessages.NAME_MUST_BE_ALPHA);
-        }
         LocalDate newExpiry = expiry(card.getExpirationDate(), request.expirationYear(), request.expirationMonth());
         if (sameIgnoringCase(newName, card.getEmbossedName())
                 && sameIgnoringCase(request.activeStatus(), card.getActiveStatus())

@@ -279,16 +279,17 @@ class CardControllerTest {
     }
 
     @Test
-    void letsAStoredNameOutsideTheScreenAlphabetStayWhileOtherFieldsChange() throws Exception {
+    void keepsCobolParityAStoredNameWithAnApostropheMustBeRetypedBeforeAnyOtherChange() throws Exception {
+        // 1230-EDIT-NAME runs on every update that changes anything and allows only A-Z, a-z and spaces,
+        // so sample card 7026637615032277 cannot change status without a new name (residual risk).
         cards.save(card("7026637615032277", ACCOUNT_TWO, "Lucious O'Connell", LocalDate.of(2025, 5, 20), 111));
-        update("7026637615032277", body("LUCIOUS O'CONNELL", "N", 5, 2025, 0))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.embossedName").value("LUCIOUS O'CONNELL"))
-                .andExpect(jsonPath("$.activeStatus").value("N"));
-        update("7026637615032277", body("LUCIOUS O'BRIEN", "N", 5, 2025, 1))
+        update("7026637615032277", body("Lucious O'Connell", "N", 5, 2025, 0))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.fieldErrors[0].field").value("embossedName"))
                 .andExpect(jsonPath("$.fieldErrors[0].message").value(CardMessages.NAME_MUST_BE_ALPHA));
+        update("7026637615032277", body("Lucious OConnell", "N", 5, 2025, 0))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.activeStatus").value("N"));
     }
 
     @Test
