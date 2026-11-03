@@ -14,7 +14,7 @@ migration validation.
 | `account-service` | 8082 | CVACT01Y, COACTVWC, COACTUPC, account side of CBTRN02C and CBACT04C | reference vertical slice |
 | `card-service` | 8083 | CVACT02Y, CVACT03Y, COCRDLIC/SLC/UPC | reference vertical slice |
 | `transaction-service` | 8084 | CVTRA01Y-06Y, COTRN00C/01C/02C, COBIL00C, CBTRN02C, CBACT04C | online API + POSTTRAN, INTCALC, COMBTRAN, CBTRN01C jobs |
-| `batch-service` | 8085 | CBTRN03C, CBSTM03A/B, CBEXPORT/CBIMPORT, CBACT01C-03C, CBCUS01C, COBSWAIT | CREASTMT, CBEXPORT, CBIMPORT, READACCT/CARD/CUST/XREF, WAITSTEP jobs (TRANREPT: UNT149-14) |
+| `batch-service` | 8085 | CBTRN03C, CBSTM03A/B, CBEXPORT/CBIMPORT, CBACT01C-03C, CBCUS01C, COBSWAIT | CREASTMT, CBEXPORT, CBIMPORT, READACCT/CARD/CUST/XREF, WAITSTEP, TRANREPT jobs |
 | `data-loader` | - | the `app/data` sample datasets (nine ASCII extracts + EBCDIC USRSEC) | `load-data` command + reconciliation |
 
 The MQ replacement wiring and a SPA front end are
@@ -27,6 +27,9 @@ not built. See `docs/API-CONTRACT.md` and `docs/migration/jcl-mapping.md`.
 - `docs/COBOL-PROGRAM-MAPPING.md` — CICS transaction and batch program to service mapping, the
   preserved business rules, and the Amazon MQ / SQS / SNS design.
 - `docs/API-CONTRACT.md` — the REST contract that replaces the BMS screens.
+- `docs/migration/coverage-matrix.md` — every COBOL program and JCL job with its Java counterpart,
+  verification method and status.
+- `docs/migration/residual-risks.md` — accepted deviations, open decisions and what is not verified.
 
 ## Design notes
 
@@ -43,8 +46,9 @@ not built. See `docs/API-CONTRACT.md` and `docs/migration/jcl-mapping.md`.
 - Legacy plaintext `SEC-USR-PWD` is not carried over: passwords are BCrypt hashes. The loader
   hashes the USRSEC sample passwords (all `PASSWORD`); they are demo values and must not reach any
   real deployment.
-- `TRAN-ID` came from a counter in the transaction file. A counter cannot be shared by several
-  service replicas, so ids are 16 random base 36 characters (about 2^82.7 values).
+- `TRAN-ID` came from the highest key + 1 in the transaction file (COTRN02C, COBIL00C). Java takes it
+  from the database sequence `transaction.tran_id_seq` (decision d-tran-id), zero-padded to 16 digits,
+  so several replicas never hand out the same id; ids are not gap-free.
 
 ## Security boundary of this checkout
 
@@ -266,8 +270,8 @@ out/READACCT/<ts>/OUTFILE ARRYFILE VBRCFILE SYSOUT   (READCARD/CUST/XREF: SYSOUT
 **HTTP** (unchanged endpoints; same job, same output directory, reported as `outputDir`):
 
 ```bash
-curl -X POST http://localhost:8084/api/v1/batch/post-transactions     # POSTTRAN / CBTRN02C
-curl -X POST http://localhost:8084/api/v1/batch/interest-calculation  # INTCALC  / CBACT04C (?date=, ?parm=)
+curl -X POST -H "$AUTH" http://localhost:8084/api/v1/batch/post-transactions     # POSTTRAN / CBTRN02C
+curl -X POST -H "$AUTH" http://localhost:8084/api/v1/batch/interest-calculation  # INTCALC  / CBACT04C (?date=, ?parm=)
 curl -X POST -H "Authorization: Bearer $TOKEN" 'http://localhost:8085/api/v1/batch/transaction-report?startDate=2022-01-01&endDate=2022-07-06'  # TRANREPT / CBTRN03C
 # The submit forwards the caller's token to transaction-service and card-service; a --job=TRANREPT CLI launch signs as BATCH.
 curl -X POST -H "Authorization: Bearer $TOKEN" http://localhost:8085/api/v1/batch/statements            # CREASTMT / CBSTM03A+B
@@ -295,3 +299,30 @@ curl -s -H "$AUTH" 'http://localhost:8084/api/v1/transactions?cardNumber=9680294
 ```
 
 The full contract is in `docs/API-CONTRACT.md` and in each service's Swagger UI.
+
+### 7. Run the verification suites
+
+All three run in CI (`.github/workflows/modernization-verify.yml`) on every PR that touches
+`modernization/`, the COBOL sources/data, `scripts/migration/`, `docs/migration/validation/` or
+`docs/migration/coverage-matrix.md` (see the workflow's `paths`; other docs-only changes do not trigger it).
+
+```bash
+# Unit, integration and online flow tests (Testcontainers PostgreSQL; needs Docker)
+JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64 mvn -B verify
+
+# Only the online flow tests derived from the BMS screens (@CobolFlow), one module or all
+JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64 mvn -B -am -pl card-service verify -Dtest='*FlowTest' -Dsurefire.failIfNoSpecifiedTests=false
+JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64 mvn -B verify -Dtest='*FlowTest,*FlowCoverageTest' -Dsurefire.failIfNoSpecifiedTests=false
+
+# Golden set: COBOL under GnuCOBOL vs the Java jobs, POSTTRAN -> INTCALC -> TRANREPT -> CREASTMT
+# (needs cobc, Docker Compose and python3; set MAVEN_MIRROR_URL where Maven Central is blocked)
+verification/run.sh /tmp/golden
+
+# The online section of docs/migration/coverage-matrix.md is generated from the @CobolFlow tests
+python3 ../scripts/migration/coverage-matrix.py --check   # or without --check to regenerate
+```
+
+`mvn -B verify` also runs the module golden sets (`GoldenSetTest`, `BranchRoundTripTest`,
+`IntcalcCobolParityTest`) against committed COBOL outputs. What each suite proves, and per-program status,
+is in `docs/migration/coverage-matrix.md`; accepted differences are in `docs/migration/residual-risks.md`
+and `verification/README.md`.
