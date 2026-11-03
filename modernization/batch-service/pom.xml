@@ -27,6 +27,14 @@
             <scope>test</scope>
         </dependency>
         <dependency>
+            <!-- Online flow tests load app/data with the data-loader (SampleDataLoader). -->
+            <groupId>com.carddemo</groupId>
+            <artifactId>data-loader</artifactId>
+            <version>${project.version}</version>
+            <classifier>lib</classifier>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>

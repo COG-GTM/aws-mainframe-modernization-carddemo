@@ -47,7 +47,8 @@ a web UI is an optional later phase. The API rules (resource naming, `ApiError` 
 `PageResponse` for PF7/PF8, token and admin role for the COMMAREA user id and `CDEMO-USRTYP-ADMIN`,
 `GET /api/v1/menu` for COMEN01C/COADM01C, async report jobs for CORPT00C, a batch job for statements)
 are in [`api-style.md`](api-style.md). Online programs are verified at the REST level against
-scenarios derived from the COBOL source (scope §4.2).
+scenarios derived from the COBOL source (scope §4.2); the screen-flow tests are described in
+[`validation/online-flow-tests.md`](validation/online-flow-tests.md).
 
 ### 3.1 Authentication: the token replaces the COMMAREA user fields
 
