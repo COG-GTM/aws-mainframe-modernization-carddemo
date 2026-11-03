@@ -132,7 +132,11 @@ public final class ServiceStandIn implements AutoCloseable {
             calls.add(new Call(method + " " + path, authorization));
             String body = new String(exchange.getRequestBody().readAllBytes(), StandardCharsets.UTF_8);
             Response response = null;
-            for (Route route : routes) {
+            if (authorization == null || !authorization.startsWith("Bearer ")) {
+                // The real services sit behind the same JWT filter: a call without a forwarded token fails.
+                response = new Response(401, Map.of("status", 401, "message", "Missing bearer token"));
+            }
+            for (Route route : response == null ? routes : List.<Route>of()) {
                 Matcher m = route.path().matcher(path);
                 if (route.method().equals(method) && m.matches()) {
                     try {

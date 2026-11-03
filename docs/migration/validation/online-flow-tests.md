@@ -23,6 +23,8 @@ wrong module.
 Messages are enumerated from the COBOL: `CobolMessages` reads the `MOVE '...' TO WS-MESSAGE` lines of a
 program, and the coverage tests fail when a literal is neither asserted by a flow test nor listed as
 not produced by the API with a reason (Y/N confirmation steps, page-edge texts, CICS I/O errors).
+This check is textual (a quoted literal in the test source); the assertions that run are what prove the
+message, so a literal left in a comment or an unused case would pass the check.
 COACTUPC builds its texts with `STRING`, so its test checks every message of the 25
 `AccountUpdateValidator.RULES` and that each suffix is a COACTUPC/CSUTLDPY literal. Card update messages
 are checked against `CardMessages`; CORPT00C's two-line MOVEs are listed in its test.
@@ -40,7 +42,7 @@ are checked against `CardMessages`; CORPT00C's two-line MOVEs are listed in its 
 Account view/update, transaction add, bill payment and report submission call other services. The
 tests do not start those services. A `ServiceStandIn` (JDK `HttpServer`) answers the remote endpoints
 from the other schemas of the same flow database, so the real REST clients, JSON mapping and token
-forwarding run:
+forwarding run. The stand-in answers 401 to a call without a bearer token, like the real services:
 
 - account-service: card-service `GET /api/v1/card-xrefs/by-account/{id}`, customer-service
   `GET`/`PUT /api/v1/customers/{id}` (with the version check).
