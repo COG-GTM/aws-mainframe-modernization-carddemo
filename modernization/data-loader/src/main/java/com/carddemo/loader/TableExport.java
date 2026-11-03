@@ -19,7 +19,8 @@ import java.util.stream.Collectors;
 
 /**
  * Unloads the mapped tables back to fixed-width files (no record terminator, ASCII), one file per
- * dataset named after it ({@code ACCTDATA}, {@code TCATBALF}, ...), in record-key order: the VSAM
+ * dataset named after it ({@code ACCTDATA}, {@code TCATBALF}, ...), in record-key byte order (text keys
+ * {@code COLLATE "C"}, as a KSDS sorts them): the VSAM
  * after-image of each table, written with {@link RecordWriter}. Fields without a column (FILLER) are
  * blank. {@code auth.users} is skipped: it holds password hashes, not the source passwords.
  */
@@ -36,7 +37,9 @@ final class TableExport {
                 continue;
             }
             List<CobolRecord> records = new ArrayList<>();
-            String order = mapping.keyColumns().stream().map(Column::name).collect(Collectors.joining(", "));
+            String order = mapping.keyColumns().stream()
+                    .map(c -> c.kind() == Column.Kind.TEXT ? c.name() + " COLLATE \"C\"" : c.name())
+                    .collect(Collectors.joining(", "));
             try (Statement statement = connection.createStatement();
                  ResultSet rs = statement.executeQuery(mapping.selectSql() + " ORDER BY " + order)) {
                 while (rs.next()) {

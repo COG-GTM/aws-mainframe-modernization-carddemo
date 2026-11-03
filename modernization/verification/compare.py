@@ -121,6 +121,10 @@ def compare_file(f: File):
             if la != lb:
                 unexplained += 1
                 diffs.append(f"`{f.name}` line {n + 1}: COBOL `{la.rstrip()}` Java `{lb.rstrip()}` **unexplained**")
+        if not identical and not unexplained:
+            unexplained += 1
+            diffs.append(f"`{f.name}`: same lines, different bytes (line terminators or trailing bytes; "
+                         f"COBOL {len(a)} bytes, Java {len(b)}) **unexplained**")
         count = (len(ra), len(rb))
     else:
         lrecl, fields = f.lay

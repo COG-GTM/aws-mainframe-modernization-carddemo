@@ -37,7 +37,7 @@ trap cleanup EXIT
 rm -rf "$OUT"; mkdir -p "$OUT/gen"; chmod 777 "$OUT/gen"
 dc --profile tools down -v --remove-orphans >/dev/null 2>&1 || true
 dc up -d --build --wait --wait-timeout 300
-dc --profile tools run --rm -T data-loader | tee "$OUT/data-loader.log" | tail -3
+dc --profile tools run --rm -T --build data-loader | tee "$OUT/data-loader.log" | tail -3
 
 # A CLI launch: one more container of the service's image with the job arguments, output on the host.
 cli() {
