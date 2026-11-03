@@ -1,0 +1,116 @@
+name: modernization-verify
+
+on:
+  push:
+    branches: [main, migration/carddemo-java]
+    paths:
+      - "modernization/**"
+      - "app/data/**"
+      - "app/cbl/**"
+      - "app/cpy/**"
+      - "scripts/migration/**"
+      - "docs/migration/validation/**"
+      - "docs/migration/coverage-matrix.md"
+      - ".github/workflows/modernization-verify.yml"
+  pull_request:
+    paths:
+      - "modernization/**"
+      - "app/data/**"
+      - "app/cbl/**"
+      - "app/cpy/**"
+      - "scripts/migration/**"
+      - "docs/migration/validation/**"
+      - "docs/migration/coverage-matrix.md"
+      - ".github/workflows/modernization-verify.yml"
+
+concurrency:
+  group: modernization-verify-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    defaults:
+      run:
+        working-directory: modernization
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+          cache: maven
+      # Testcontainers (PostgreSQL) needs a Docker daemon; fail fast if the runner has none.
+      - name: Docker available for Testcontainers
+        run: docker info --format 'Docker {{.ServerVersion}}'
+      - name: Coverage matrix online section matches the @CobolFlow tests
+        run: python3 ../scripts/migration/coverage-matrix.py --check
+      - run: mvn -B verify
+      - name: Upload test reports
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: surefire-reports
+          path: modernization/**/target/surefire-reports/
+          if-no-files-found: ignore
+
+  compose-smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    defaults:
+      run:
+        working-directory: modernization
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build and start PostgreSQL plus the services
+        run: docker compose up -d --build --wait --wait-timeout 300
+      - name: Load app/data and reconcile (data-loader)
+        run: docker compose run --rm --build data-loader
+      - name: CLI batch launch against the loaded data (POSTTRAN RC 4 on rejects, INTCALC RC 0)
+        run: |
+          mkdir -p batch-out
+          cli() { docker compose run --rm -T -v "$PWD/batch-out:/batch-out" -e BATCH_OUTPUT_DIR=/batch-out transaction-service "$@"; }
+          set +e
+          cli --job=POSTTRAN --date=2022-07-18; rc=$?
+          set -e
+          echo "POSTTRAN exit code $rc"; test "$rc" -eq 4
+          cli --job=INTCALC --date=2022-07-18
+          ls -l batch-out/*/*/
+          test -s batch-out/POSTTRAN/*/DALYREJS && test -s batch-out/INTCALC/*/SYSTRAN
+      - name: Smoke test (health, Swagger, signon, batch jobs)
+        run: RUN_BATCH=1 ./scripts/smoke.sh
+      - name: Service logs
+        if: always()
+        run: docker compose logs --no-color
+      - name: Stop
+        if: always()
+        run: docker compose down -v
+
+  golden-set:
+    # GnuCOBOL golden set vs the Java jobs on a freshly loaded database: POSTTRAN, INTCALC, TRANREPT,
+    # CREASTMT in Control-M order; fails on any unexplained difference (modernization/verification).
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    defaults:
+      run:
+        working-directory: modernization
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install GnuCOBOL
+        run: sudo apt-get update -q && sudo apt-get install -y -q gnucobol3 && cobc --version | head -1
+      - name: Golden set harness
+        run: verification/run.sh "$RUNNER_TEMP/golden"
+      - name: Reconciliation summary
+        if: always()
+        run: cat "$RUNNER_TEMP"/golden/reconciliation/*/reconciliation.md >> "$GITHUB_STEP_SUMMARY" || true
+      - name: Upload golden set and reconciliation
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: golden-set
+          path: ${{ runner.temp }}/golden/
+          if-no-files-found: ignore
+      - name: Stop
+        if: always()
+        run: docker compose -p carddemo-verify -f docker-compose.yml -f verification/compose.verify.yml down -v

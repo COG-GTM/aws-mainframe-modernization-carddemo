@@ -6,3 +6,9 @@ batch-app/markers/*
 /.idea/
 .DS_Store
 **/.DS_Store
+
+# Java build output for the modernization stack
+modernization/**/target/
+# Local-only compose overrides (port remaps etc.)
+modernization/docker-compose.override.yml
+__pycache__/

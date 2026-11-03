@@ -1,0 +1,26 @@
+spring:
+  # Tests run against PostgreSQL in a Testcontainers container (the image docker-compose uses) with
+  # the real Flyway migrations, so NUMERIC and CHECK constraints behave as in production. The
+  # migrations leave the tables empty; each test inserts the rows it needs.
+  datasource:
+    url: jdbc:tc:postgresql:16:///carddemo
+    driver-class-name: org.testcontainers.jdbc.ContainerDatabaseDriver
+    username: test
+    password: test
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        default_schema: account
+  flyway:
+    schemas: account
+    default-schema: account
+    create-schemas: true
+
+carddemo:
+  security:
+    token-secret: test-only-token-secret-0123456789abcdef
+  services:
+    card-url: http://card-service.test
+    customer-url: http://customer-service.test

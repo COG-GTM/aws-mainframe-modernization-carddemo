@@ -1,0 +1,36 @@
+server:
+  port: 8082
+
+spring:
+  application:
+    name: account-service
+  datasource:
+    url: ${ACCOUNT_DB_URL:jdbc:postgresql://localhost:5432/carddemo}
+    username: ${ACCOUNT_DB_USER}
+    password: ${ACCOUNT_DB_PASSWORD}
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        default_schema: account
+  flyway:
+    schemas: account
+    default-schema: account
+    create-schemas: true
+
+carddemo:
+  security:
+    # HS256 key shared by all five services; no default here, compose supplies a dev-only value.
+    token-secret: ${CARDDEMO_TOKEN_SECRET:}
+    token-ttl: ${CARDDEMO_TOKEN_TTL:PT8H}
+  services:
+    card-url: ${CARD_SERVICE_URL:http://localhost:8083}
+    customer-url: ${CUSTOMER_SERVICE_URL:http://localhost:8081}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics

@@ -1,0 +1,35 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: auth-service
+  datasource:
+    url: ${AUTH_DB_URL:jdbc:postgresql://localhost:5432/carddemo}
+    username: ${AUTH_DB_USER}
+    password: ${AUTH_DB_PASSWORD}
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        default_schema: auth
+  flyway:
+    schemas: auth
+    default-schema: auth
+    create-schemas: true
+
+carddemo:
+  security:
+    # HS256 key shared by all five services; no default here, compose supplies a dev-only value.
+    token-secret: ${CARDDEMO_TOKEN_SECRET:}
+    token-ttl: ${CARDDEMO_TOKEN_TTL:PT8H}
+    public-paths:
+      - /api/v1/auth/signon
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics

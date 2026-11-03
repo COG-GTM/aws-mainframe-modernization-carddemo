@@ -1,0 +1,146 @@
+services:
+  postgres:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: carddemo
+      POSTGRES_USER: ${POSTGRES_USER:-carddemo}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-carddemo}
+    # Local only: the demo database is never published on a routable interface.
+    ports:
+      - "127.0.0.1:5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-carddemo}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  auth-service:
+    build:
+      context: .
+      args:
+        MODULE: auth-service
+        MAVEN_MIRROR_URL: ${MAVEN_MIRROR_URL:-}
+    environment:
+      CARDDEMO_TOKEN_SECRET: ${CARDDEMO_TOKEN_SECRET:-local-dev-only-carddemo-token-secret-not-for-prod}
+      AUTH_DB_URL: jdbc:postgresql://postgres:5432/carddemo
+      AUTH_DB_USER: ${POSTGRES_USER:-carddemo}
+      AUTH_DB_PASSWORD: ${POSTGRES_PASSWORD:-carddemo}
+    ports:
+      - "8080:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  customer-service:
+    build:
+      context: .
+      args:
+        MODULE: customer-service
+        MAVEN_MIRROR_URL: ${MAVEN_MIRROR_URL:-}
+    environment:
+      CARDDEMO_TOKEN_SECRET: ${CARDDEMO_TOKEN_SECRET:-local-dev-only-carddemo-token-secret-not-for-prod}
+      CUSTOMER_DB_URL: jdbc:postgresql://postgres:5432/carddemo
+      CUSTOMER_DB_USER: ${POSTGRES_USER:-carddemo}
+      CUSTOMER_DB_PASSWORD: ${POSTGRES_PASSWORD:-carddemo}
+    ports:
+      - "8081:8081"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  account-service:
+    build:
+      context: .
+      args:
+        MODULE: account-service
+        MAVEN_MIRROR_URL: ${MAVEN_MIRROR_URL:-}
+    environment:
+      CARDDEMO_TOKEN_SECRET: ${CARDDEMO_TOKEN_SECRET:-local-dev-only-carddemo-token-secret-not-for-prod}
+      ACCOUNT_DB_URL: jdbc:postgresql://postgres:5432/carddemo
+      ACCOUNT_DB_USER: ${POSTGRES_USER:-carddemo}
+      ACCOUNT_DB_PASSWORD: ${POSTGRES_PASSWORD:-carddemo}
+      CARD_SERVICE_URL: http://card-service:8083
+      CUSTOMER_SERVICE_URL: http://customer-service:8081
+    ports:
+      - "8082:8082"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  card-service:
+    build:
+      context: .
+      args:
+        MODULE: card-service
+        MAVEN_MIRROR_URL: ${MAVEN_MIRROR_URL:-}
+    environment:
+      CARDDEMO_TOKEN_SECRET: ${CARDDEMO_TOKEN_SECRET:-local-dev-only-carddemo-token-secret-not-for-prod}
+      CARD_DB_URL: jdbc:postgresql://postgres:5432/carddemo
+      CARD_DB_USER: ${POSTGRES_USER:-carddemo}
+      CARD_DB_PASSWORD: ${POSTGRES_PASSWORD:-carddemo}
+    ports:
+      - "8083:8083"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  transaction-service:
+    build:
+      context: .
+      args:
+        MODULE: transaction-service
+        MAVEN_MIRROR_URL: ${MAVEN_MIRROR_URL:-}
+    environment:
+      CARDDEMO_TOKEN_SECRET: ${CARDDEMO_TOKEN_SECRET:-local-dev-only-carddemo-token-secret-not-for-prod}
+      TRANSACTION_DB_URL: jdbc:postgresql://postgres:5432/carddemo
+      TRANSACTION_DB_USER: ${POSTGRES_USER:-carddemo}
+      TRANSACTION_DB_PASSWORD: ${POSTGRES_PASSWORD:-carddemo}
+      ACCOUNT_SERVICE_URL: http://account-service:8082
+      CARD_SERVICE_URL: http://card-service:8083
+    ports:
+      - "8084:8084"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  # Batch programs the transaction-service jobs do not cover: TRANREPT (CBTRN03C), statements, export/import
+  # and reader dumps. Reads the service schemas read-only. CLI launch:
+  # `docker compose run --rm batch-service --job=<JCL member>`.
+  batch-service:
+    build:
+      context: .
+      args:
+        MODULE: batch-service
+        MAVEN_MIRROR_URL: ${MAVEN_MIRROR_URL:-}
+    environment:
+      BATCH_DB_URL: jdbc:postgresql://postgres:5432/carddemo
+      BATCH_DB_USER: ${POSTGRES_USER:-carddemo}
+      BATCH_DB_PASSWORD: ${POSTGRES_PASSWORD:-carddemo}
+      CARD_SERVICE_URL: http://card-service:8083
+      TRANSACTION_SERVICE_URL: http://transaction-service:8084
+      CARDDEMO_TOKEN_SECRET: ${CARDDEMO_TOKEN_SECRET:-local-dev-only-carddemo-token-secret-not-for-prod}
+    ports:
+      - "8085:8085"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  # One-shot loader for the app/data sample datasets: `docker compose run --rm data-loader` once the
+  # services are up (they create the schemas with Flyway). Not started by `docker compose up`.
+  data-loader:
+    profiles: ["tools"]
+    build:
+      context: .
+      args:
+        MODULE: data-loader
+        MAVEN_MIRROR_URL: ${MAVEN_MIRROR_URL:-}
+    environment:
+      CARDDEMO_DB_URL: jdbc:postgresql://postgres:5432/carddemo
+      CARDDEMO_DB_USER: ${POSTGRES_USER:-carddemo}
+      CARDDEMO_DB_PASSWORD: ${POSTGRES_PASSWORD:-carddemo}
+      CARDDEMO_DATA_DIR: /data
+    volumes:
+      - ../app/data:/data:ro
+    depends_on:
+      postgres:
+        condition: service_healthy
