@@ -10,6 +10,7 @@ on:
       - "app/cpy/**"
       - "scripts/migration/**"
       - "docs/migration/validation/**"
+      - "docs/migration/coverage-matrix.md"
       - ".github/workflows/modernization-verify.yml"
   pull_request:
     paths:
@@ -19,6 +20,7 @@ on:
       - "app/cpy/**"
       - "scripts/migration/**"
       - "docs/migration/validation/**"
+      - "docs/migration/coverage-matrix.md"
       - ".github/workflows/modernization-verify.yml"
 
 concurrency:
@@ -42,6 +44,8 @@ jobs:
       # Testcontainers (PostgreSQL) needs a Docker daemon; fail fast if the runner has none.
       - name: Docker available for Testcontainers
         run: docker info --format 'Docker {{.ServerVersion}}'
+      - name: Coverage matrix online section matches the @CobolFlow tests
+        run: python3 ../scripts/migration/coverage-matrix.py --check
       - run: mvn -B verify
       - name: Upload test reports
         if: failure()
