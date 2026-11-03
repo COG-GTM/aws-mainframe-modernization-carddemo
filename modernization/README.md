@@ -303,7 +303,8 @@ The full contract is in `docs/API-CONTRACT.md` and in each service's Swagger UI.
 ### 7. Run the verification suites
 
 All three run in CI (`.github/workflows/modernization-verify.yml`) on every PR that touches
-`modernization/`, the COBOL sources/data, `scripts/migration/` or `docs/migration/`.
+`modernization/`, the COBOL sources/data, `scripts/migration/`, `docs/migration/validation/` or
+`docs/migration/coverage-matrix.md` (see the workflow's `paths`; other docs-only changes do not trigger it).
 
 ```bash
 # Unit, integration and online flow tests (Testcontainers PostgreSQL; needs Docker)
