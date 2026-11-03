@@ -52,6 +52,25 @@
     <build>
         <plugins>
             <plugin>
+                <!-- Plain jar of the loader classes (classifier "lib") for the services' online flow tests, which
+                     load app/data with SampleDataLoader. Written to target/lib so target/*.jar stays the one
+                     executable jar the Dockerfile copies. -->
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>lib</id>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                        <configuration>
+                            <classifier>lib</classifier>
+                            <outputDirectory>${project.build.directory}/lib</outputDirectory>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <configuration>
