@@ -25,9 +25,8 @@ import java.util.List;
  */
 public class CopybookRecordItemWriter<T extends Record> implements ItemStreamWriter<T> {
 
-    static final String POSITION_KEY = "copybook.writer.position";
-
     private final Path dataset;
+    private final String positionKey;
     private final RecordFormat format;
     private final RecordCodec<T> codec;
     private final List<byte[]> pending = new ArrayList<>();
@@ -37,15 +36,21 @@ public class CopybookRecordItemWriter<T extends Record> implements ItemStreamWri
 
     public CopybookRecordItemWriter(Path dataset, RecordFormat format, RecordCodec<T> codec) {
         this.dataset = dataset;
+        this.positionKey = positionKey(dataset);
         this.format = format;
         this.codec = codec;
+    }
+
+    /** Execution-context key holding the committed length of {@code dataset}; unique per output file in a step. */
+    static String positionKey(Path dataset) {
+        return "copybook.writer." + dataset.getFileName() + ".position";
     }
 
     @Override
     public void open(ExecutionContext context) {
         try {
             channel = FileChannel.open(dataset, StandardOpenOption.CREATE, StandardOpenOption.WRITE);
-            long position = context.containsKey(POSITION_KEY) ? context.getLong(POSITION_KEY) : 0;
+            long position = context.containsKey(positionKey) ? context.getLong(positionKey) : 0;
             channel.truncate(position);
             channel.position(position);
         } catch (IOException e) {
@@ -80,7 +85,7 @@ public class CopybookRecordItemWriter<T extends Record> implements ItemStreamWri
         }
         flushPending();
         try {
-            context.putLong(POSITION_KEY, channel.position());
+            context.putLong(positionKey, channel.position());
         } catch (IOException e) {
             throw new ItemStreamException("Cannot read position of " + dataset, e);
         }

@@ -105,4 +105,10 @@ class CopybookRecordItemReaderWriterTest {
         System.arraycopy(all, 5 * lrecl, expected, 2 * lrecl, lrecl);
         assertThat(Files.readAllBytes(output)).isEqualTo(expected);
     }
+
+    @Test
+    void writersInOneStepKeepSeparatePositions() {
+        assertThat(CopybookRecordItemWriter.positionKey(dir.resolve("A.out")))
+                .isNotEqualTo(CopybookRecordItemWriter.positionKey(dir.resolve("B.out")));
+    }
 }
