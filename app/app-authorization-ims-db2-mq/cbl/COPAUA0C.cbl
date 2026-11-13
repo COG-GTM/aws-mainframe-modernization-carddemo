@@ -42,6 +42,8 @@
          05 WS-MSG-PROCESSED           PIC S9(4)  COMP VALUE ZERO.              
          05 WS-REQUEST-QNAME           PIC X(48).                               
          05 WS-REPLY-QNAME             PIC X(48).                               
+         05 WS-AUTH-REPLY-QNAME        PIC X(48)
+                  VALUE 'AWS.M2.CARDDEMO.PAUTH.REPLY'.
          05 WS-SAVE-CORRELID           PIC X(24).                               
          05 WS-RESP-LENGTH             PIC S9(4)  VALUE 1.                      
          05 WS-RESP-CD                 PIC S9(09) COMP VALUE ZEROS.             
@@ -168,6 +170,9 @@
               88 ACCOUNT-CLOSED        VALUE 'C'.                               
               88 CARD-FRAUD            VALUE 'F'.                               
               88 MERCHANT-FRAUD        VALUE 'M'.                               
+           05 WS-REPLY-QUEUE-FLG       PIC X(1).
+              88 REPLY-QUEUE-ALLOWED   VALUE 'Y'.
+              88 REPLY-QUEUE-REJECTED  VALUE 'N'.
            05 WS-CARD-MASTER-READ-FLG  PIC X(1).
               88 FOUND-CARD-IN-MSTR    VALUE 'Y'.
               88 NFOUND-CARD-IN-MSTR   VALUE 'N'.
@@ -274,6 +279,10 @@
            IF EIBRESP = DFHRESP(NORMAL)                                         
               MOVE MQTM-QNAME              TO WS-REQUEST-QNAME                  
               MOVE MQTM-TRIGGERDATA        TO WS-TRIGGER-DATA                   
+      *-      Process USERDATA can override the fixed reply queue
+              IF WS-TRIGGER-DATA(1:48) NOT = SPACES
+                 MOVE WS-TRIGGER-DATA(1:48) TO WS-AUTH-REPLY-QNAME
+              END-IF
            END-IF                                                               
                                                                                 
            MOVE 5000                       TO WS-WAIT-INTERVAL                  
@@ -364,7 +373,12 @@
                                                                                 
              PERFORM 2100-EXTRACT-REQUEST-MSG THRU 2100-EXIT                    
                                                                                 
-             PERFORM 5000-PROCESS-AUTH        THRU 5000-EXIT                    
+             IF REPLY-QUEUE-ALLOWED
+                PERFORM 5000-PROCESS-AUTH  THRU 5000-EXIT
+             ELSE
+                PERFORM 5900-REJECT-REPLY-QUEUE
+                        THRU 5900-EXIT
+             END-IF
                                                                                 
              ADD 1                            TO WS-MSG-PROCESSED               
                                                                                 
@@ -549,8 +563,12 @@
            IF WS-COMPCODE = MQCC-OK                                             
               MOVE MQMD-CORRELID OF MQM-MD-REQUEST                              
                                            TO WS-SAVE-CORRELID                  
-              MOVE MQMD-REPLYTOQ OF MQM-MD-REQUEST                              
-                                           TO WS-REPLY-QNAME                    
+              MOVE WS-AUTH-REPLY-QNAME     TO WS-REPLY-QNAME
+              IF MQMD-REPLYTOQ OF MQM-MD-REQUEST = WS-AUTH-REPLY-QNAME
+                 SET REPLY-QUEUE-ALLOWED   TO TRUE
+              ELSE
+                 SET REPLY-QUEUE-REJECTED  TO TRUE
+              END-IF
            ELSE                                                                 
               IF WS-REASON = MQRC-NO-MSG-AVAILABLE                              
                  SET NO-MORE-MSG-AVAILABLE TO TRUE                              
@@ -614,6 +632,28 @@
       *                                                                         
        5000-EXIT.                                                               
            EXIT.                                                                
+      *
+      * ------------------------------------------------------------- *
+      *  REQUESTS MUST NAME THE CONFIGURED REPLY QUEUE. ANYTHING ELSE
+      *  IS LOGGED AND DISCARDED: NO DECISION, NO REPLY, NO IMS UPDATE.
+      * ------------------------------------------------------------- *
+       5900-REJECT-REPLY-QUEUE.
+      *
+           MOVE 'A006'                 TO ERR-LOCATION
+           SET  ERR-WARNING            TO TRUE
+           SET  ERR-APP                TO TRUE
+           MOVE MQMD-REPLYTOQ OF MQM-MD-REQUEST(1:9)
+                                       TO ERR-CODE-1
+           MOVE MQMD-REPLYTOQ OF MQM-MD-REQUEST(10:9)
+                                       TO ERR-CODE-2
+           MOVE 'REPLYTOQ NOT ALLOWED - REQUEST DISCARDED'
+                                       TO ERR-MESSAGE
+           MOVE PA-RQ-CARD-NUM         TO ERR-EVENT-KEY
+           PERFORM 9500-LOG-ERROR
+           .
+      *
+       5900-EXIT.
+           EXIT.
       *                                                                         
       * ------------------------------------------------------------- *         
        5100-READ-XREF-RECORD.                                                   
@@ -781,7 +821,7 @@
                WHEN DFHRESP(NOTFND)
                   SET NFOUND-CARD-IN-MSTR    TO TRUE
 
-                  MOVE 'A004'                TO ERR-LOCATION
+                  MOVE 'A005'                TO ERR-LOCATION
                   SET  ERR-WARNING           TO TRUE
                   SET  ERR-APP               TO TRUE
                   MOVE 'CARD NOT FOUND IN CARDDAT'
