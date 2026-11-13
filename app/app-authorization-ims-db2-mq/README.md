@@ -277,6 +277,18 @@ All components for the Credit Card Authorizations extension are located in the `
 |:-----------|:------------|
 | AWS.M2.CARDDEMO.PAUTH.REQUEST | Input queue for authorization requests |
 | AWS.M2.CARDDEMO.PAUTH.REPLY | Output queue for authorization responses |
+
+`COPAUA0C` always replies on `AWS.M2.CARDDEMO.PAUTH.REPLY`, or on the queue named in the first 48 bytes of the
+`TRIGDATA` attribute of `AWS.M2.CARDDEMO.PAUTH.REQUEST` (passed in `MQTM-TRIGGERDATA`) if set. The sender's `ReplyToQ` must name that queue; requests with any other `ReplyToQ`
+are logged to `CSSL` (location `A006`) and discarded: no decision, no reply, no IMS update.
+
+The program does not authenticate the sender, so lock the request queue down in MQ:
+
+- Allow only the authorization network's channels and user IDs to connect (`SET CHLAUTH` with `ADDRESSMAP`/`USERMAP`,
+  `BLOCKUSER` for everyone else, `CONNAUTH` on client connections).
+- Grant `+put` on `AWS.M2.CARDDEMO.PAUTH.REQUEST` and `+get` on `AWS.M2.CARDDEMO.PAUTH.REPLY` only to those IDs
+  (`SET AUTHREC` / `setmqaut`, or RACF `MQQUEUE` profiles on z/OS).
+- Grant `+get` on the request queue and `+put` on the reply queue only to the CICS region user ID.
 ## Data Models
 
 ### MQ Message Formats
@@ -304,6 +316,12 @@ MERCHANT-STATE
 MERCHANT-ZIP          
 TRANSACTION-ID
 ```
+
+A request is declined with reason `3200` and nothing is written to IMS if it does not have exactly 18 fields, or if
+`TRANSACTION-AMT` is not an unsigned decimal (up to 9 integer digits and 2 decimal places) greater than zero.
+A valid request is declined if the card is not found (`3100`), the card is inactive or expired or `CARD-EXPIRY-DATE`
+(MMYY) does not match the card file (`4200`), the account is closed (`4300`), the card has confirmed fraud (`5100`),
+or the amount exceeds the available credit (`4100`).
 
 #### Output Response Message Format
 Authorization responses are sent as comma-separated values in the following order:
