@@ -92,6 +92,10 @@
                PERFORM RETURN-TO-PREV-SCREEN
            ELSE
                MOVE DFHCOMMAREA(1:EIBCALEN) TO CARDDEMO-COMMAREA
+               IF NOT CDEMO-USRTYP-ADMIN
+                  OR CDEMO-USER-ID = SPACES OR LOW-VALUES
+                   PERFORM REJECT-NON-ADMIN-USER
+               END-IF
                IF NOT CDEMO-PGM-REENTER
                    SET CDEMO-PGM-REENTER    TO TRUE
                    MOVE LOW-VALUES          TO COUSR3AO
@@ -190,6 +194,20 @@
                PERFORM READ-USER-SEC-FILE
                PERFORM DELETE-USER-SEC-FILE
            END-IF.
+
+      *----------------------------------------------------------------*
+      *                      REJECT-NON-ADMIN-USER
+      *----------------------------------------------------------------*
+       REJECT-NON-ADMIN-USER.
+
+           EXEC CICS
+               XCTL PROGRAM('COSGN00C')
+               RESP(WS-RESP-CD)
+           END-EXEC
+
+           EXEC CICS
+               RETURN
+           END-EXEC.
 
       *----------------------------------------------------------------*
       *                      RETURN-TO-PREV-SCREEN
