@@ -134,7 +134,7 @@ COACCT01 handles requests of the form `INQA` followed by an 11-digit account num
 - The requester is the `UserIdentifier` from the request's MQMD. The queue manager sets this field from the identity of the application that put the message.
 - That identity must be an 8-character CardDemo user ID in the `USRSEC` file with user type `A` (admin). Blank, unknown, non-admin, or longer IDs are rejected before the account file is read.
 - Unauthorized requests, malformed requests (bad function or non-numeric key), and account numbers that don't exist all get the same reply, `INVALID REQUEST`. The account number is not echoed back, so replies can't be used to work out which accounts exist.
-- Each rejection is written to `CARD.DEMO.ERROR` as `REJECTED <user id>` for audit.
+- Each rejection is written to `CARD.DEMO.ERROR` as `REJECTED <user id>` for audit. If that put fails (e.g. the queue is full), the line goes to the CICS log instead and the `INVALID REQUEST` reply is still sent.
 
 To register a producer application, add its MQ user ID to `USRSEC` as an admin user (for example with the CardDemo user add screen, `CU01`).
 

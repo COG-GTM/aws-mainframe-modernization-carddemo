@@ -145,6 +145,9 @@
           05 WS-AUTH-FLAG                   PIC X(01) VALUE 'N'.
              88 REQUESTER-AUTHORIZED                  VALUE 'Y'.
              88 REQUESTER-NOT-AUTHORIZED              VALUE 'N'.
+           05 WS-AUDIT-MODE                  PIC X(01) VALUE 'N'.
+             88 AUDIT-PUT-BEST-EFFORT                 VALUE 'Y'.
+             88 AUDIT-PUT-FATAL                       VALUE 'N'.
       *USER SECURITY RECORD LAYOUT
        COPY CSUSR01Y.
 
@@ -525,7 +528,14 @@
            MOVE ZEROES                    TO MQ-APPL-CONDITION-CODE
                                              MQ-APPL-REASON-CODE
            MOVE INPUT-QUEUE-NAME          TO MQ-APPL-QUEUE-NAME
+      * THE AUDIT PUT IS BEST EFFORT: IF IT FAILS, WRITE THE AUDIT LINE
+      * TO THE CICS LOG AND STILL REPLY, SO THE REQUEST IS NOT LOST.
+           SET AUDIT-PUT-BEST-EFFORT      TO TRUE
            PERFORM 9000-ERROR
+           SET AUDIT-PUT-FATAL            TO TRUE
+           IF MQ-CONDITION-CODE NOT = MQCC-OK
+              DISPLAY ERROR-MESSAGE(1:80)
+           END-IF
            INITIALIZE MQ-ERR-DISPLAY
 
            MOVE LIT-REJECT-REPLY          TO REPLY-MESSAGE
@@ -605,7 +615,9 @@
 044600              MOVE ERROR-QUEUE-NAME  TO MQ-APPL-QUEUE-NAME        04640000
 044700              MOVE 'MQPUT ERR'       TO MQ-APPL-RETURN-MESSAGE    04650000
 044800              DISPLAY MQ-ERR-DISPLAY                              04660000
-044900              PERFORM 8000-TERMINATION                            04670007
+              IF AUDIT-PUT-FATAL
+044900           PERFORM 8000-TERMINATION                               04670007
+              END-IF
 045000     END-EVALUATE.                                                04680000
 045100     .                                                            04690000
 045200 8000-TERMINATION.                                                04700007
