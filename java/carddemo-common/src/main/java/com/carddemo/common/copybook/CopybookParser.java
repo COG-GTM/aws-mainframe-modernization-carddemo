@@ -232,9 +232,7 @@ public final class CopybookParser {
                 childStart = target.offset();
             }
             layout(child, childStart);
-            if (child.redefines() == null) {
-                cursor = childStart + child.totalLength();
-            }
+            cursor = Math.max(cursor, childStart + child.totalLength());
             end = Math.max(end, childStart + child.totalLength());
         }
         field.position(start, end - start);
