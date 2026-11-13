@@ -279,7 +279,7 @@ All components for the Credit Card Authorizations extension are located in the `
 | AWS.M2.CARDDEMO.PAUTH.REPLY | Output queue for authorization responses |
 
 `COPAUA0C` always replies on `AWS.M2.CARDDEMO.PAUTH.REPLY`, or on the queue named in the first 48 bytes of the
-trigger process `USERDATA` if set. The sender's `ReplyToQ` must name that queue; requests with any other `ReplyToQ`
+`TRIGDATA` attribute of `AWS.M2.CARDDEMO.PAUTH.REQUEST` (passed in `MQTM-TRIGGERDATA`) if set. The sender's `ReplyToQ` must name that queue; requests with any other `ReplyToQ`
 are logged to `CSSL` (location `A006`) and discarded: no decision, no reply, no IMS update.
 
 The program does not authenticate the sender, so lock the request queue down in MQ:

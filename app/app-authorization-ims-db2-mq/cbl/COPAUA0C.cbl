@@ -279,7 +279,7 @@
            IF EIBRESP = DFHRESP(NORMAL)                                         
               MOVE MQTM-QNAME              TO WS-REQUEST-QNAME                  
               MOVE MQTM-TRIGGERDATA        TO WS-TRIGGER-DATA                   
-      *-      Process USERDATA can override the fixed reply queue
+      *-      Request queue TRIGDATA can override the fixed reply queue
               IF WS-TRIGGER-DATA(1:48) NOT = SPACES
                  MOVE WS-TRIGGER-DATA(1:48) TO WS-AUTH-REPLY-QNAME
               END-IF
