@@ -103,6 +103,10 @@ public final class RecordView {
 
     /** COBOL class test {@code IF field IS NUMERIC}. */
     public boolean isNumeric(CopybookField field, int... indices) {
+        if (!field.pic().isNumeric() && !field.pic().isEdited()) {
+            String text = getString(field, indices);
+            return !text.isEmpty() && text.chars().allMatch(ch -> ch >= '0' && ch <= '9');
+        }
         try {
             getDecimal(field, indices);
             return true;
