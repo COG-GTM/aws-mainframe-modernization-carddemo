@@ -81,6 +81,10 @@
 008100 77  LIT-ALPHANUM-SPACES-TO PIC X(62) VALUE SPACES.
 008200 77  LIT-NUM-SPACES-TO      PIC X(10) VALUE SPACES.
 008300
+008310 01  WS-SIGNED-ON-USER.
+008320     05 WS-SIGNED-ON-USER-ID    PIC X(08) VALUE SPACES.
+008330     05 WS-SIGNED-ON-USER-TYPE  PIC X(01) VALUE SPACES.
+008340
 008400 01  WS-MISC-STORAGE.
 008500******************************************************************
 008600* General CICS related
@@ -517,7 +521,6 @@
 051700                   WS-THIS-PROGCOMMAREA
 051800        MOVE LIT-THISTRANID        TO CDEMO-FROM-TRANID
 051900        MOVE LIT-THISPGM           TO CDEMO-FROM-PROGRAM
-052000        SET CDEMO-USRTYP-ADMIN     TO TRUE
 052100        SET CDEMO-PGM-ENTER        TO TRUE
 052200        MOVE LIT-THISMAP           TO CDEMO-LAST-MAP
 052300        MOVE LIT-THISMAPSET        TO CDEMO-LAST-MAPSET
@@ -530,6 +533,15 @@
 053000                         LENGTH OF WS-THIS-PROGCOMMAREA )TO
 053100                          WS-THIS-PROGCOMMAREA
 053200     END-IF
+053210
+053220*****************************************************************
+053230* Only a signed-on administrator may use this screen            *
+053240*****************************************************************
+053250     IF EIBCALEN = 0
+053260     OR NOT CDEMO-USRTYP-ADMIN
+053270        PERFORM 9800-REJECT-NON-ADMIN
+053280           THRU 9800-REJECT-NON-ADMIN-EXIT
+053290     END-IF
 053300
 053400******************************************************************
 053500* Remap PFkeys as needed.
@@ -631,7 +643,6 @@
 063100     AND CDEMO-FROM-PROGRAM  EQUAL LIT-THISPGM)
 063200        MOVE LIT-THISTRANID   TO CDEMO-FROM-TRANID
 063300        MOVE LIT-THISPGM      TO CDEMO-FROM-PROGRAM
-063400        SET  CDEMO-USRTYP-USER TO TRUE
 063500        SET  CDEMO-PGM-ENTER  TO TRUE
 063600        MOVE LIT-THISMAPSET   TO CDEMO-LAST-MAPSET
 063700        MOVE LIT-THISMAP      TO CDEMO-LAST-MAP
@@ -824,9 +835,13 @@
 082400                 THRU 2000-SEND-MAP-EXIT
 082500
 082600              IF FLG-DELETED-YES
+082610                 MOVE CDEMO-USER-ID   TO WS-SIGNED-ON-USER-ID
+082620                 MOVE CDEMO-USER-TYPE TO WS-SIGNED-ON-USER-TYPE
 082700                 INITIALIZE CARDDEMO-COMMAREA
 082800                         WS-THIS-PROGCOMMAREA
 082900                         WS-MISC-STORAGE
+082910                 MOVE WS-SIGNED-ON-USER-ID   TO CDEMO-USER-ID
+082920                 MOVE WS-SIGNED-ON-USER-TYPE TO CDEMO-USER-TYPE
 083000                 SET CDEMO-PGM-ENTER      TO TRUE
 083100                 SET CA-FIRST-PAGE        TO TRUE
 083200                 SET CA-LAST-PAGE-NOT-SHOWN TO TRUE
@@ -2096,3 +2111,18 @@
 210000 SEND-LONG-TEXT-EXIT.
 210100     EXIT
 210200     .
+210300*****************************************************************
+210400* Send callers without an admin session back to sign-on        *
+210500*****************************************************************
+210600 9800-REJECT-NON-ADMIN.
+210700     EXEC CICS XCTL
+210800          PROGRAM ('COSGN00C')
+210900          RESP(WS-RESP-CD)
+211000     END-EXEC
+211100
+211200     EXEC CICS RETURN
+211300     END-EXEC
+211400     .
+211500 9800-REJECT-NON-ADMIN-EXIT.
+211600     EXIT
+211700     .

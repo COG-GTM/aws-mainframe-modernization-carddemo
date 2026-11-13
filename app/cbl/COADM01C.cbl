@@ -88,6 +88,9 @@
                PERFORM RETURN-TO-SIGNON-SCREEN                                  
            ELSE                                                                 
                MOVE DFHCOMMAREA(1:EIBCALEN) TO CARDDEMO-COMMAREA                
+               IF NOT CDEMO-USRTYP-ADMIN
+                   PERFORM REJECT-NON-ADMIN-USER
+               END-IF
                IF NOT CDEMO-PGM-REENTER                                         
                    SET CDEMO-PGM-REENTER    TO TRUE                             
                    MOVE LOW-VALUES          TO COADM1AO                         
@@ -157,6 +160,20 @@
                PERFORM SEND-MENU-SCREEN                                         
            END-IF.                                                              
                                                                                 
+      *----------------------------------------------------------------*
+      *                      REJECT-NON-ADMIN-USER
+      *----------------------------------------------------------------*
+       REJECT-NON-ADMIN-USER.
+
+           EXEC CICS
+               XCTL PROGRAM('COSGN00C')
+               RESP(WS-RESP-CD)
+           END-EXEC
+
+           EXEC CICS
+               RETURN
+           END-EXEC.
+
       *----------------------------------------------------------------*        
       *                      RETURN-TO-SIGNON-SCREEN                            
       *----------------------------------------------------------------*        
