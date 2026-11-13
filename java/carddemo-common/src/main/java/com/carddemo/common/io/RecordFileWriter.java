@@ -58,6 +58,14 @@ public final class RecordFileWriter implements Closeable {
         }
     }
 
+    public void flush() {
+        try {
+            out.flush();
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
     @Override
     public void close() {
         try {

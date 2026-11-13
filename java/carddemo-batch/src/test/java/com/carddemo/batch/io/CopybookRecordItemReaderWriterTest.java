@@ -12,6 +12,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.springframework.batch.item.Chunk;
 import org.springframework.batch.item.ExecutionContext;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -56,5 +58,51 @@ class CopybookRecordItemReaderWriterTest {
         assertThat(reader.read()).isEqualTo(items.get(299));
         assertThat(reader.read()).isNull();
         reader.close();
+    }
+
+    @Test
+    void writerDiscardsRolledBackChunkAndTruncatesUncommittedTailOnRestart(MainframeSources sources) throws Exception {
+        Path input = sources.ebcdicData(CardDemoDataset.DALYTRAN.ebcdicFile());
+        RecordCodec<DailyTransactionRecord> codec = CardDemoFile.DAILY_TRANSACTION.codec(DataEncoding.EBCDIC);
+        List<DailyTransactionRecord> items = new ArrayList<>();
+        CopybookRecordItemReader<DailyTransactionRecord> reader = new CopybookRecordItemReader<>(input, RecordFormat.FIXED, codec);
+        reader.open(new ExecutionContext());
+        for (DailyTransactionRecord r; (r = reader.read()) != null; ) {
+            items.add(r);
+        }
+        reader.close();
+        int lrecl = codec.layout().length();
+        Path output = dir.resolve("POSTED.out");
+
+        CopybookRecordItemWriter<DailyTransactionRecord> writer = new CopybookRecordItemWriter<>(output, RecordFormat.FIXED, codec);
+        ExecutionContext context = new ExecutionContext();
+        writer.open(context);
+        writer.write(new Chunk<>(items.subList(0, 2)));
+        writer.update(context);
+        ExecutionContext committed = new ExecutionContext(context);
+
+        TransactionSynchronizationManager.initSynchronization();
+        try {
+            writer.write(new Chunk<>(items.subList(2, 4)));
+            TransactionSynchronizationManager.getSynchronizations()
+                    .forEach(s -> s.afterCompletion(TransactionSynchronization.STATUS_ROLLED_BACK));
+        } finally {
+            TransactionSynchronizationManager.clearSynchronization();
+        }
+        writer.write(new Chunk<>(items.subList(4, 5)));
+        writer.update(context);
+        writer.close();
+        assertThat(Files.size(output)).isEqualTo(3L * lrecl);
+
+        CopybookRecordItemWriter<DailyTransactionRecord> restarted = new CopybookRecordItemWriter<>(output, RecordFormat.FIXED, codec);
+        restarted.open(committed);
+        restarted.write(new Chunk<>(items.subList(5, 6)));
+        restarted.update(committed);
+        restarted.close();
+        byte[] expected = new byte[3 * lrecl];
+        byte[] all = Files.readAllBytes(input);
+        System.arraycopy(all, 0, expected, 0, 2 * lrecl);
+        System.arraycopy(all, 5 * lrecl, expected, 2 * lrecl, lrecl);
+        assertThat(Files.readAllBytes(output)).isEqualTo(expected);
     }
 }
