@@ -731,6 +731,9 @@
 
       *----------------------------------------------------------------*
       *  CHAR-TO-ASCII: WS-CH -> ASCII code in WS-BYTE
+      *  Printable ASCII maps to 32-126. The other 161 native codes map
+      *  one-to-one, in code order, onto 0-31 and 127-255, so distinct
+      *  passwords never share a key (identity on an ASCII host).
       *----------------------------------------------------------------*
        CHAR-TO-ASCII.
            MOVE 0 TO WS-FOUND
@@ -744,6 +747,15 @@
                COMPUTE WS-BYTE = WS-FOUND + 31
            ELSE
                COMPUTE WS-BYTE = FUNCTION ORD(WS-CH) - 1
+               PERFORM VARYING WS-N FROM 1 BY 1 UNTIL WS-N > 95
+                   IF FUNCTION ORD(WS-ASCII-CHAR(WS-N)) - 1 < WS-BYTE
+                       ADD 1 TO WS-FOUND
+                   END-IF
+               END-PERFORM
+               SUBTRACT WS-FOUND FROM WS-BYTE
+               IF WS-BYTE > 31
+                   ADD 95 TO WS-BYTE
+               END-IF
            END-IF.
 
       *----------------------------------------------------------------*
