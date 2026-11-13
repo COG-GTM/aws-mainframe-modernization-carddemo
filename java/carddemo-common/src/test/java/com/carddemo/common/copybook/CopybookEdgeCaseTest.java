@@ -22,6 +22,9 @@ class CopybookEdgeCaseTest {
         PicClause pic = PicClause.parse("99099");
         assertThat(NumericEdited.format(new BigDecimal("1234"), pic)).isEqualTo("12034");
         assertThat(NumericEdited.parse("12034", pic)).isEqualByComparingTo("1234");
+        PicClause signed = PicClause.parse("--099");
+        String text = NumericEdited.format(new BigDecimal("-12"), signed);
+        assertThat(NumericEdited.parse(text, signed)).isEqualByComparingTo("-12");
     }
 
     @Test
@@ -34,6 +37,8 @@ class CopybookEdgeCaseTest {
         RecordView mixed = RecordView.wrap(r, DataEncoding.ASCII, "12A4".getBytes());
         assertThat(digits.isNumeric(r.field("WS-CODE"))).isTrue();
         assertThat(mixed.isNumeric(r.field("WS-CODE"))).isFalse();
+        assertThat(digits.isNumeric(r.field("WS-REC"))).isTrue();
+        assertThat(mixed.isNumeric(r.field("WS-REC"))).isFalse();
     }
 
     @Test
