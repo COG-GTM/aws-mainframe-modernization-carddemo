@@ -45,6 +45,14 @@
          05 WS-USR-MODIFIED            PIC X(01) VALUE 'N'.
            88 USR-MODIFIED-YES                   VALUE 'Y'.
            88 USR-MODIFIED-NO                    VALUE 'N'.
+         05 WS-ABS-TIME                PIC S9(15) COMP-3 VALUE ZEROS.
+         05 WS-PWH-ENTROPY.
+           10 WS-ENT-USER-ID           PIC X(08).
+           10 WS-ENT-ABS-TIME          PIC 9(15).
+           10 WS-ENT-TASKN             PIC 9(07).
+           10 WS-ENT-TERMID            PIC X(04).
+           10 WS-ENT-DATE              PIC 9(07).
+           10 WS-ENT-TIME              PIC 9(07).
 
        COPY COCOM01Y.
           05 CDEMO-CU02-INFO.
@@ -63,6 +71,7 @@
        COPY CSDAT01Y.
        COPY CSMSG01Y.
        COPY CSUSR01Y.
+       COPY CSPWH01Y.
 
        COPY DFHAID.
        COPY DFHBMSCA.
@@ -166,8 +175,16 @@
            IF NOT ERR-FLG-ON
                MOVE SEC-USR-FNAME      TO FNAMEI    OF COUSR2AI
                MOVE SEC-USR-LNAME      TO LNAMEI    OF COUSR2AI
-               MOVE SEC-USR-PWD        TO PASSWDI   OF COUSR2AI
+               MOVE SPACES             TO PASSWDI   OF COUSR2AI
                MOVE SEC-USR-TYPE       TO USRTYPEI  OF COUSR2AI
+               EVALUATE TRUE
+                   WHEN SEC-USR-PWD-SCHEME = SPACES OR LOW-VALUES
+                       MOVE 'No password set. Enter one, press PF5 ...'
+                         TO WS-MESSAGE
+                   WHEN SEC-USR-LOCKED
+                       MOVE 'Locked after failed sign-ons. PF5 unlocks.'
+                         TO WS-MESSAGE
+               END-EVALUATE
                PERFORM SEND-USRUPD-SCREEN
            END-IF.
 
@@ -195,17 +212,18 @@
                                    WS-MESSAGE
                    MOVE -1       TO LNAMEL OF COUSR2AI
                    PERFORM SEND-USRUPD-SCREEN
-               WHEN PASSWDI OF COUSR2AI = SPACES OR LOW-VALUES
-                   MOVE 'Y'     TO WS-ERR-FLG
-                   MOVE 'Password can NOT be empty...' TO
-                                   WS-MESSAGE
-                   MOVE -1       TO PASSWDL OF COUSR2AI
-                   PERFORM SEND-USRUPD-SCREEN
                WHEN USRTYPEI OF COUSR2AI = SPACES OR LOW-VALUES
                    MOVE 'Y'     TO WS-ERR-FLG
                    MOVE 'User Type can NOT be empty...' TO
                                    WS-MESSAGE
                    MOVE -1       TO USRTYPEL OF COUSR2AI
+                   PERFORM SEND-USRUPD-SCREEN
+               WHEN FUNCTION UPPER-CASE(PASSWDI OF COUSR2AI)
+                    = 'PASSWORD'
+                   MOVE 'Y'     TO WS-ERR-FLG
+                   MOVE 'Password can NOT be the default...' TO
+                                   WS-MESSAGE
+                   MOVE -1       TO PASSWDL OF COUSR2AI
                    PERFORM SEND-USRUPD-SCREEN
                WHEN OTHER
                    MOVE -1       TO FNAMEL OF COUSR2AI
@@ -224,15 +242,35 @@
                    MOVE LNAMEI   OF COUSR2AI TO SEC-USR-LNAME
                    SET USR-MODIFIED-YES TO TRUE
                END-IF
-               IF PASSWDI  OF COUSR2AI NOT = SEC-USR-PWD
-                   MOVE PASSWDI  OF COUSR2AI TO SEC-USR-PWD
+      *        Blank password = keep the current password hash
+               IF PASSWDI  OF COUSR2AI NOT = SPACES AND LOW-VALUES
+                   PERFORM HASH-NEW-PASSWORD
                    SET USR-MODIFIED-YES TO TRUE
+               END-IF
+               IF NOT ERR-FLG-ON AND
+                  (SEC-USR-PWD-SCHEME = SPACES OR LOW-VALUES)
+                   MOVE 'Y'     TO WS-ERR-FLG
+                   MOVE 'Password is required for this user...' TO
+                                   WS-MESSAGE
+                   MOVE -1       TO PASSWDL OF COUSR2AI
+                   PERFORM SEND-USRUPD-SCREEN
                END-IF
                IF USRTYPEI  OF COUSR2AI NOT = SEC-USR-TYPE
                    MOVE USRTYPEI OF COUSR2AI TO SEC-USR-TYPE
                    SET USR-MODIFIED-YES TO TRUE
                END-IF
+               IF SEC-USR-FAIL-CNT NOT NUMERIC
+                   MOVE ZEROS TO SEC-USR-FAIL-CNT
+               END-IF
+               IF SEC-USR-LOCKED OR SEC-USR-FAIL-CNT > ZEROS
+                   MOVE ZEROS TO SEC-USR-FAIL-CNT
+                   SET SEC-USR-UNLOCKED TO TRUE
+                   SET USR-MODIFIED-YES TO TRUE
+               END-IF
 
+               IF ERR-FLG-ON
+                   CONTINUE
+               ELSE
                IF USR-MODIFIED-YES
                    PERFORM UPDATE-USER-SEC-FILE
                ELSE
@@ -241,7 +279,47 @@
                    MOVE DFHRED       TO ERRMSGC  OF COUSR2AO
                    PERFORM SEND-USRUPD-SCREEN
                END-IF
+               END-IF
 
+           END-IF.
+
+      *----------------------------------------------------------------*
+      *                      HASH-NEW-PASSWORD
+      *----------------------------------------------------------------*
+       HASH-NEW-PASSWORD.
+
+           EXEC CICS ASKTIME
+                ABSTIME(WS-ABS-TIME)
+           END-EXEC
+
+           MOVE SEC-USR-ID   TO WS-ENT-USER-ID
+           MOVE WS-ABS-TIME  TO WS-ENT-ABS-TIME
+           MOVE EIBTASKN     TO WS-ENT-TASKN
+           MOVE EIBTRMID     TO WS-ENT-TERMID
+           MOVE EIBDATE      TO WS-ENT-DATE
+           MOVE EIBTIME      TO WS-ENT-TIME
+
+           INITIALIZE PWH-PARMS
+           SET PWH-FUNC-NEW  TO TRUE
+           MOVE PASSWDI OF COUSR2AI TO PWH-PASSWORD
+           MOVE WS-PWH-ENTROPY TO PWH-ENTROPY
+           CALL 'CSPWHASH' USING PWH-PARMS
+           MOVE SPACES       TO PWH-PASSWORD
+                                PASSWDI OF COUSR2AI
+
+           IF PWH-RC-OK
+               MOVE SPACES         TO SEC-USR-PWD-RSVD
+                                      SEC-USR-FILLER2
+               MOVE PWH-SCHEME     TO SEC-USR-PWD-SCHEME
+               MOVE PWH-ITERATIONS TO SEC-USR-PWD-ITERATIONS
+               MOVE PWH-SALT       TO SEC-USR-PWD-SALT
+               MOVE PWH-HASH       TO SEC-USR-PWD-DIGEST
+           ELSE
+               MOVE 'Y'     TO WS-ERR-FLG
+               MOVE 'Unable to secure password...' TO
+                               WS-MESSAGE
+               MOVE -1       TO PASSWDL OF COUSR2AI
+               PERFORM SEND-USRUPD-SCREEN
            END-IF.
 
       *----------------------------------------------------------------*

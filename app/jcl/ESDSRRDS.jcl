@@ -27,25 +27,31 @@
 //            DISP=(MOD,DELETE,DELETE)
 //*
 //*-------------------------------------------------------------------*
-//* CREATE USER SECURITY FILE (PS) FROM IN-STREAM DATA
+//* LOAD IN-STREAM INITIAL USERS (LEGACY 80-BYTE LAYOUT, INITIAL
+//* PASSWORD IN COLUMNS 49-56) INTO A TEMPORARY DATASET. THE PASSWORD
+//* IS NEVER STORED: STEP1A REPLACES IT WITH A SALTED HASH.
+//* NO PASSWORD IS SHIPPED. BEFORE SUBMITTING, TYPE AN INITIAL
+//* PASSWORD (CASE-SENSITIVE, NOT 'PASSWORD') IN COLUMNS 49-56 FOR
+//* AT LEAST ONE ADMIN USER. USERS LEFT BLANK ARE LOADED LOCKED
+//* UNTIL AN ADMIN SETS THEIR PASSWORD IN UPDATE USER (CU02).
 //*-------------------------------------------------------------------*
 //*
 //STEP01  EXEC PGM=IEBGENER
 //*
 //SYSUT1   DD *
-ADMIN001MARGARET            GOLD                PASSWORDA
-ADMIN002RUSSELL             RUSSELL             PASSWORDA
-ADMIN003RAYMOND             WHITMORE            PASSWORDA
-ADMIN004EMMANUEL            CASGRAIN            PASSWORDA
-ADMIN005GRANVILLE           LACHAPELLE          PASSWORDA
-USER0001LAWRENCE            THOMAS              PASSWORDU
-USER0002AJITH               KUMAR               PASSWORDU
-USER0003LAURITZ             ALME                PASSWORDU
-USER0004AVERARDO            MAZZI               PASSWORDU
-USER0005LEE                 TING                PASSWORDU
+ADMIN001MARGARET            GOLD                        A
+ADMIN002RUSSELL             RUSSELL                     A
+ADMIN003RAYMOND             WHITMORE                    A
+ADMIN004EMMANUEL            CASGRAIN                    A
+ADMIN005GRANVILLE           LACHAPELLE                  A
+USER0001LAWRENCE            THOMAS                      U
+USER0002AJITH               KUMAR                       U
+USER0003LAURITZ             ALME                        U
+USER0004AVERARDO            MAZZI                       U
+USER0005LEE                 TING                        U
 /*
-//SYSUT2   DD DSN=AWS.M2.CARDDEMO.ESDSRRDS.PS,
-//            DISP=(NEW,CATLG,DELETE),
+//SYSUT2   DD DSN=&&USRIN,
+//            DISP=(NEW,PASS,DELETE),
 //            DCB=(LRECL=80,RECFM=FB,DSORG=PS,BLKSIZE=0),
 //            UNIT=SYSAD,SPACE=(TRK,(10,5),RLSE)
 //*
@@ -53,17 +59,33 @@ USER0005LEE                 TING                PASSWORDU
 //SYSIN    DD DUMMY
 //*
 //*-------------------------------------------------------------------*
+//* CREATE USER SECURITY FILE (PS, 200-BYTE CSUSR01Y LAYOUT) WITH
+//* SALTED PBKDF2-HMAC-SHA256 PASSWORD HASHES (PROGRAM CSPWHASH)
+//*-------------------------------------------------------------------*
+//*
+//STEP1A  EXEC PGM=CBUSR01C
+//STEPLIB  DD DISP=SHR,
+//         DSN=AWS.M2.CARDDEMO.LOADLIB
+//USRIN    DD DSN=&&USRIN,DISP=(OLD,DELETE,DELETE)
+//USROUT   DD DSN=AWS.M2.CARDDEMO.ESDSRRDS.PS,
+//            DISP=(NEW,CATLG,DELETE),
+//            DCB=(LRECL=200,RECFM=FB,DSORG=PS,BLKSIZE=0),
+//            UNIT=SYSAD,SPACE=(TRK,(10,5),RLSE)
+//SYSOUT   DD SYSOUT=*
+//SYSPRINT DD SYSOUT=*
+//*
+//*-------------------------------------------------------------------*
 //* DEFINE VSAM FILE FOR USER SECURITY (ESDS)
 //*-------------------------------------------------------------------*
 //*
-//STEP02  EXEC PGM=IDCAMS
+//STEP02  EXEC PGM=IDCAMS,COND=((0,NE,STEP01),(0,NE,STEP1A))
 //*
 //SYSPRINT DD  SYSOUT=*
 //SYSIN    DD  *
  DELETE                  AWS.M2.CARDDEMO.USRSEC.VSAM.ESDS
  SET       MAXCC = 0
  DEFINE    CLUSTER (NAME(AWS.M2.CARDDEMO.USRSEC.VSAM.ESDS)    -
-                    RECORDSIZE(80,80)                         -
+                    RECORDSIZE(200,200)                       -
                     REUSE                                     -
                     NONINDEXED                                -
                     TRACKS(45,15)                             -
@@ -76,7 +98,7 @@ USER0005LEE                 TING                PASSWORDU
 //* COPY USER SECURITY DATA FROM PS TO VSAM FILE(ESDS)
 //*-------------------------------------------------------------------*
 //*
-//STEP03  EXEC PGM=IDCAMS
+//STEP03  EXEC PGM=IDCAMS,COND=((0,NE,STEP01),(0,NE,STEP1A))
 //*
 //IN       DD  DSN=AWS.M2.CARDDEMO.ESDSRRDS.PS,DISP=SHR
 //OUT      DD  DSN=AWS.M2.CARDDEMO.USRSEC.VSAM.ESDS,DISP=SHR
@@ -90,14 +112,14 @@ USER0005LEE                 TING                PASSWORDU
 //* DEFINE VSAM FILE FOR USER SECURITY (RRDS)
 //*-------------------------------------------------------------------*
 //*
-//STEP04  EXEC PGM=IDCAMS
+//STEP04  EXEC PGM=IDCAMS,COND=((0,NE,STEP01),(0,NE,STEP1A))
 //*
 //SYSPRINT DD  SYSOUT=*
 //SYSIN    DD  *
  DELETE                  AWS.M2.CARDDEMO.USRSEC.VSAM.RRDS
  SET       MAXCC = 0
  DEFINE    CLUSTER (NAME(AWS.M2.CARDDEMO.USRSEC.VSAM.RRDS)    -
-                    RECORDSIZE(80,80)                         -
+                    RECORDSIZE(200,200)                       -
                     REUSE                                     -
                     NUMBERED                                  -
                     TRACKS(45,15)                             -
@@ -110,7 +132,7 @@ USER0005LEE                 TING                PASSWORDU
 //* COPY USER SECURITY DATA FROM PS TO VSAM FILE(ESDS)
 //*-------------------------------------------------------------------*
 //*
-//STEP05  EXEC PGM=IDCAMS
+//STEP05  EXEC PGM=IDCAMS,COND=((0,NE,STEP01),(0,NE,STEP1A))
 //*
 //IN       DD  DSN=AWS.M2.CARDDEMO.ESDSRRDS.PS,DISP=SHR
 //OUT      DD  DSN=AWS.M2.CARDDEMO.USRSEC.VSAM.RRDS,DISP=SHR

@@ -130,7 +130,7 @@ CardDemo includes several optional modules that extend the base functionality:
 
      | Dataset name                      | Description                                  | Copybook     | Format | Length |
      | :---------------------------------| :------------------------------------------- | :----------- | :----- | -----: |
-     | AWS.M2.CARDDEMO.USRSEC.PS         | User Security file                           | CSUSR01Y     | FB     |     80 |
+     | AWS.M2.CARDDEMO.USRSEC.PS         | User Security file (salted password hashes)  | CSUSR01Y     | FB     |    200 |
      | AWS.M2.CARDDEMO.ACCTDATA.PS       | Account Data                                 | CVACT01Y     | FB     |    300 |
      | AWS.M2.CARDDEMO.CARDDATA.PS       | Card Data                                    | CVACT02Y     | FB     |    150 |
      | AWS.M2.CARDDEMO.CUSTDATA.PS       | Customer Data                                | CVCUS01Y     | FB     |    500 |
@@ -178,8 +178,27 @@ CardDemo includes several optional modules that extend the base functionality:
      DEF PROGRAM(COCRDLIC) GROUP(CARDDEMO)
      DEF MAPSET(COCRDLI) GROUP(CARDDEMO)
      DEFINE PROGRAM(COSGN00C) GROUP(CARDDEMO) DA(ANY) TRANSID(CC00) DESCRIPTION(LOGIN)
+     DEFINE PROGRAM(CSPWHASH) GROUP(CARDDEMO) DA(ANY) DESCRIPTION(PASSWORD HASH)
      DEFINE TRANSACTION(CC00) GROUP(CARDDEMO) PROGRAM(COSGN00C) TASKDATAL(ANY)
      ```
+
+   - **Password storage:** USRSEC never holds passwords. `CSUSR01Y` stores a salted
+     PBKDF2-HMAC-SHA256 hash (scheme `P1`, per-record salt and iteration count) that is
+     created and checked by the called subprogram `CSPWHASH` (parameter block `CSPWH01Y`).
+     `CSPWHASH` must be in the load library and defined to CICS (CSD entry provided). Sign-on
+     (`COSGN00C`), add user (`COUSR01C`) and update user (`COUSR02C`) call it; the update
+     screen no longer shows the current password and a blank password keeps the existing one.
+     Passwords are case-sensitive and the sample value `PASSWORD` is rejected.
+   - **Sign-on lockout:** `COSGN00C` shows one message ("Invalid User ID or Password")
+     for unknown IDs, wrong passwords and locked IDs. Three consecutive failures lock the
+     user (`SEC-USR-FAIL-CNT` / `SEC-USR-LOCK-FLG`, columns 78-80); an admin unlocks it
+     by pressing PF5 in Update User (CU02). A successful sign-on resets the count.
+   - **No shipped passwords:** `DUSRSECJ` / `ESDSRRDS` (and `USRSECMG`) load any user whose
+     password is blank or `PASSWORD` as locked with no hash. Before the first load, type a
+     case-sensitive initial password in columns 49-56 of at least one admin row.
+     Existing 80-byte USRSEC files must be converted once with `USRSECMG`;
+     after sign-on is verified, run `USRSECCL` to delete the legacy
+     clear-text cluster.
 
 8. **Install and Load Resources**
    - Install the resources in your CICS region:
@@ -200,8 +219,8 @@ CardDemo includes several optional modules that extend the base functionality:
 
 ### Accessing the Application
 - **Online Functions**: Start the CardDemo application using the CC00 transaction
-  - Admin access: Use userid ADMIN001 with password PASSWORD
-  - User access: Use userid USER0001 with password PASSWORD
+  - Admin access: Use an admin userid (e.g. ADMIN001) with the initial password set in `DUSRSECJ`
+  - User access: An admin sets each user's password in Update User (CU02), then the user signs on
 - **Batch Functions**: See the "Running Batch Jobs" section below
 
 ## Running Batch Jobs
@@ -297,7 +316,9 @@ Admin users can perform the following functions:
 
 | Job      | Program  | Function                                             | Optional Module |
 |:---------|:---------|:-----------------------------------------------------|:---------------|
-| DUSRSECJ | IEBGENER | Initial Load of User security file                   |                |
+| DUSRSECJ | CBUSR01C | Initial Load of User security file (hashes passwords)|                |
+| USRSECMG | CBUSR01C | Migrate an existing 80-byte USRSEC file to hashes     |                |
+| USRSECCL | IDCAMS   | Delete legacy USRSEC copy after verifying migration   |                |
 | DEFGDGB  | IDCAMS   | Setup GDG Bases                                      |                |
 | DEFGDGD  | IDCAMS   | Setup more GDG Bases for Db2                         |                |
 | ACCTFILE | IDCAMS   | Refresh Account Master                               |                |
