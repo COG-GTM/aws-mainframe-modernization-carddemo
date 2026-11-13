@@ -135,6 +135,8 @@ public final class NumericEdited {
 
     /** De-edits a formatted value back to a number (blank -> zero). */
     public static BigDecimal parse(String text, PicClause pic) {
+        String original = text.trim();
+        boolean negative = original.contains("-") || original.endsWith("CR") || original.endsWith("DB");
         String positions = pic.expanded().replace("V", "");
         if (text.length() == positions.length() && positions.indexOf('0') >= 0) {
             StringBuilder kept = new StringBuilder();
@@ -146,7 +148,6 @@ public final class NumericEdited {
             text = kept.toString();
         }
         String trimmed = text.trim();
-        boolean negative = trimmed.contains("-") || trimmed.endsWith("CR") || trimmed.endsWith("DB");
         String digits = trimmed.replaceAll("[^0-9]", "");
         if (digits.isEmpty()) {
             return BigDecimal.ZERO.setScale(pic.scale());
