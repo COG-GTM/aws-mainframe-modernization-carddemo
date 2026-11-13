@@ -20,8 +20,8 @@ public final class RecordTranscoder {
             return out;
         }
         boolean[] binary = new boolean[record.length];
-        for (CopybookField f : layout.primaryElementaryFields()) {
-            if (f.usage() != Usage.DISPLAY) {
+        for (CopybookField f : layout.allFields()) {
+            if (!f.isGroup() && !f.isAlternateView() && f.usage() != Usage.DISPLAY) {
                 for (int offset : RecordView.offsets(f)) {
                     for (int i = offset; i < Math.min(offset + f.length(), record.length); i++) {
                         binary[i] = true;
