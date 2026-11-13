@@ -177,6 +177,14 @@
                MOVE SEC-USR-LNAME      TO LNAMEI    OF COUSR2AI
                MOVE SPACES             TO PASSWDI   OF COUSR2AI
                MOVE SEC-USR-TYPE       TO USRTYPEI  OF COUSR2AI
+               EVALUATE TRUE
+                   WHEN SEC-USR-PWD-SCHEME = SPACES OR LOW-VALUES
+                       MOVE 'No password set. Enter one, press PF5 ...'
+                         TO WS-MESSAGE
+                   WHEN SEC-USR-LOCKED
+                       MOVE 'Locked after failed sign-ons. PF5 unlocks.'
+                         TO WS-MESSAGE
+               END-EVALUATE
                PERFORM SEND-USRUPD-SCREEN
            END-IF.
 
@@ -210,6 +218,13 @@
                                    WS-MESSAGE
                    MOVE -1       TO USRTYPEL OF COUSR2AI
                    PERFORM SEND-USRUPD-SCREEN
+               WHEN FUNCTION UPPER-CASE(PASSWDI OF COUSR2AI)
+                    = 'PASSWORD'
+                   MOVE 'Y'     TO WS-ERR-FLG
+                   MOVE 'Password can NOT be the default...' TO
+                                   WS-MESSAGE
+                   MOVE -1       TO PASSWDL OF COUSR2AI
+                   PERFORM SEND-USRUPD-SCREEN
                WHEN OTHER
                    MOVE -1       TO FNAMEL OF COUSR2AI
                    CONTINUE
@@ -232,8 +247,24 @@
                    PERFORM HASH-NEW-PASSWORD
                    SET USR-MODIFIED-YES TO TRUE
                END-IF
+               IF NOT ERR-FLG-ON AND
+                  (SEC-USR-PWD-SCHEME = SPACES OR LOW-VALUES)
+                   MOVE 'Y'     TO WS-ERR-FLG
+                   MOVE 'Password is required for this user...' TO
+                                   WS-MESSAGE
+                   MOVE -1       TO PASSWDL OF COUSR2AI
+                   PERFORM SEND-USRUPD-SCREEN
+               END-IF
                IF USRTYPEI  OF COUSR2AI NOT = SEC-USR-TYPE
                    MOVE USRTYPEI OF COUSR2AI TO SEC-USR-TYPE
+                   SET USR-MODIFIED-YES TO TRUE
+               END-IF
+               IF SEC-USR-FAIL-CNT NOT NUMERIC
+                   MOVE ZEROS TO SEC-USR-FAIL-CNT
+               END-IF
+               IF SEC-USR-LOCKED OR SEC-USR-FAIL-CNT > ZEROS
+                   MOVE ZEROS TO SEC-USR-FAIL-CNT
+                   SET SEC-USR-UNLOCKED TO TRUE
                    SET USR-MODIFIED-YES TO TRUE
                END-IF
 
@@ -270,8 +301,7 @@
 
            INITIALIZE PWH-PARMS
            SET PWH-FUNC-NEW  TO TRUE
-           MOVE FUNCTION UPPER-CASE(PASSWDI OF COUSR2AI)
-                             TO PWH-PASSWORD
+           MOVE PASSWDI OF COUSR2AI TO PWH-PASSWORD
            MOVE WS-PWH-ENTROPY TO PWH-ENTROPY
            CALL 'CSPWHASH' USING PWH-PARMS
            MOVE SPACES       TO PWH-PASSWORD

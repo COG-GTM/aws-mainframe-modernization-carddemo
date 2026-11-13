@@ -3,7 +3,7 @@
       * Application : CardDemo
       * Type        : BATCH COBOL Program
       * Function    : Convert legacy 80-byte user security records
-      *               (clear-text password in columns 57-64) into the
+      *               (clear-text password in columns 49-56) into the
       *               200-byte USRSEC layout (CSUSR01Y) holding a
       *               salted password hash from CSPWHASH. Used by
       *               DUSRSECJ (initial load) and USRSECMG (migration
@@ -64,6 +64,7 @@
        01  WS-COUNTS.
          05 WS-READ-CNT                PIC 9(07) VALUE 0.
          05 WS-HASHED-CNT              PIC 9(07) VALUE 0.
+         05 WS-LOCKED-CNT              PIC 9(07) VALUE 0.
        01  WS-RANDOM                   PIC 9V9(9).
        01  WS-SEED                     PIC 9(09).
        01  WS-ENTROPY.
@@ -111,6 +112,7 @@
 
            DISPLAY 'RECORDS READ    : ' WS-READ-CNT
            DISPLAY 'PASSWORDS HASHED: ' WS-HASHED-CNT
+           DISPLAY 'USERS LOCKED    : ' WS-LOCKED-CNT
            DISPLAY 'END OF EXECUTION OF PROGRAM CBUSR01C'
            GOBACK.
 
@@ -120,10 +122,24 @@
            MOVE IN-USR-FNAME   TO SEC-USR-FNAME
            MOVE IN-USR-LNAME   TO SEC-USR-LNAME
            MOVE IN-USR-TYPE    TO SEC-USR-TYPE
-           MOVE IN-USR-FILLER  TO SEC-USR-FILLER
+           MOVE IN-USR-FILLER(1:20) TO SEC-USR-FILLER
+           MOVE ZEROS          TO SEC-USR-FAIL-CNT
+           SET SEC-USR-UNLOCKED TO TRUE
 
-           PERFORM HASH-LEGACY-PASSWORD
-           ADD 1 TO WS-HASHED-CNT
+      *    A user without a password, or with the published sample
+      *    password, is loaded locked and cannot sign on until an
+      *    admin sets a password in Update User (CU02).
+           IF IN-USR-PWD = SPACES OR LOW-VALUES
+              OR FUNCTION UPPER-CASE(IN-USR-PWD) = 'PASSWORD'
+               DISPLAY 'USER ' IN-USR-ID
+                       ' HAS NO OR DEFAULT PASSWORD - LOADED LOCKED'
+               MOVE SPACES TO IN-USR-PWD
+               SET SEC-USR-LOCKED TO TRUE
+               ADD 1 TO WS-LOCKED-CNT
+           ELSE
+               PERFORM HASH-LEGACY-PASSWORD
+               ADD 1 TO WS-HASHED-CNT
+           END-IF
 
            WRITE USROUT-REC FROM SEC-USER-DATA
            IF USROUT-STATUS NOT = '00'
@@ -132,11 +148,6 @@
            END-IF.
 
        HASH-LEGACY-PASSWORD.
-           IF IN-USR-PWD = SPACES OR LOW-VALUES
-               DISPLAY 'USER ' IN-USR-ID ' HAS NO PASSWORD'
-               PERFORM ABEND-PROGRAM
-           END-IF
-
            COMPUTE WS-RANDOM = FUNCTION RANDOM
            MOVE IN-USR-ID             TO WS-ENT-USER-ID
            MOVE FUNCTION CURRENT-DATE TO WS-ENT-TIMESTAMP
@@ -145,7 +156,7 @@
 
            INITIALIZE PWH-PARMS
            SET PWH-FUNC-NEW TO TRUE
-           MOVE FUNCTION UPPER-CASE(IN-USR-PWD) TO PWH-PASSWORD
+           MOVE IN-USR-PWD TO PWH-PASSWORD
            MOVE WS-ENTROPY TO PWH-ENTROPY
            CALL 'CSPWHASH' USING PWH-PARMS
            MOVE SPACES TO PWH-PASSWORD

@@ -19,13 +19,19 @@
       * copybook CSPWH01Y). The original 8-byte password slot is kept
       * as SEC-USR-PWD-RSVD (always spaces) so that bytes 1-80 keep
       * their legacy offsets. Record length is 200 (USRSEC KSDS/PS).
+      * SEC-USR-FAIL-CNT / SEC-USR-LOCK-FLG (cols 78-80) hold the
+      * consecutive failed sign-on count and lockout kept by COSGN00C.
        01 SEC-USER-DATA.
          05 SEC-USR-ID                 PIC X(08).
          05 SEC-USR-FNAME              PIC X(20).
          05 SEC-USR-LNAME              PIC X(20).
          05 SEC-USR-PWD-RSVD           PIC X(08).
          05 SEC-USR-TYPE               PIC X(01).
-         05 SEC-USR-FILLER             PIC X(23).
+         05 SEC-USR-FILLER             PIC X(20).
+         05 SEC-USR-FAIL-CNT           PIC 9(02).
+         05 SEC-USR-LOCK-FLG           PIC X(01).
+           88 SEC-USR-LOCKED                     VALUE 'Y'.
+           88 SEC-USR-UNLOCKED                   VALUE 'N' ' '.
          05 SEC-USR-PWD-HASH.
            10 SEC-USR-PWD-SCHEME       PIC X(02).
            10 SEC-USR-PWD-ITERATIONS   PIC 9(06).
