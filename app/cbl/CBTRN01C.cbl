@@ -149,6 +149,9 @@
        01  WS-MISC-VARIABLES.
            05 WS-XREF-READ-STATUS  PIC 9(04).
            05 WS-ACCT-READ-STATUS  PIC 9(04).
+       01  WS-MASKED-CARD-NUM.
+           05 WS-MASKED-CARD-PREFIX PIC X(12) VALUE ALL '*'.
+           05 WS-MASKED-CARD-LAST4  PIC X(04).
 
       *****************************************************************
        PROCEDURE DIVISION.
@@ -165,7 +168,7 @@
                IF  END-OF-DAILY-TRANS-FILE = 'N'
                    PERFORM 1000-DALYTRAN-GET-NEXT
                    IF  END-OF-DAILY-TRANS-FILE = 'N'
-                       DISPLAY DALYTRAN-RECORD
+                       DISPLAY 'PROCESSING TRANSACTION ID-' DALYTRAN-ID
                    END-IF
                    MOVE 0                 TO WS-XREF-READ-STATUS
                    MOVE DALYTRAN-CARD-NUM TO XREF-CARD-NUM
@@ -178,7 +181,9 @@
                          DISPLAY 'ACCOUNT ' ACCT-ID ' NOT FOUND'
                      END-IF
                    ELSE
-                     DISPLAY 'CARD NUMBER ' DALYTRAN-CARD-NUM
+                     MOVE DALYTRAN-CARD-NUM(13:4)
+                                       TO WS-MASKED-CARD-LAST4
+                     DISPLAY 'CARD NUMBER ' WS-MASKED-CARD-NUM
                      ' COULD NOT BE VERIFIED. SKIPPING TRANSACTION ID-'
                      DALYTRAN-ID
                    END-IF
@@ -233,9 +238,8 @@
                   MOVE 4 TO WS-XREF-READ-STATUS
                 NOT INVALID KEY
                   DISPLAY 'SUCCESSFUL READ OF XREF'
-                  DISPLAY 'CARD NUMBER: ' XREF-CARD-NUM
-                  DISPLAY 'ACCOUNT ID : ' XREF-ACCT-ID
-                  DISPLAY 'CUSTOMER ID: ' XREF-CUST-ID
+                  MOVE XREF-CARD-NUM(13:4) TO WS-MASKED-CARD-LAST4
+                  DISPLAY 'CARD NUMBER: ' WS-MASKED-CARD-NUM
            END-READ.
       *---------------------------------------------------------------*
        3000-READ-ACCOUNT.
