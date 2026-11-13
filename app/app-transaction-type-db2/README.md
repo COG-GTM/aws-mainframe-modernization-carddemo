@@ -80,10 +80,21 @@ This extension provides the following capabilities:
      DEFINE TRANSACTION(CTLI) GROUP(CARDDEMO) PROGRAM(COTRTLIC)
      ```
 
-4. **Extract Initial Data**
+4. **Protect the Transactions**
+   - COTRTUPC (CTTU) and COTRTLIC (CTLI) only serve a session whose COMMAREA carries a signed-on administrator (`CDEMO-USER-ID` set and `CDEMO-USER-TYPE = 'A'`, written by COSGN00C). Starting either transaction directly from a terminal, or as a non-admin user, transfers to the signon program COSGN00C.
+   - Also restrict who can attach the admin transactions with CICS transaction security (SIT `SEC=YES`, `XTRAN=YES`). For example, with RACF:
+     ```
+     RDEFINE TCICSTRN (CTTU CTLI CA00 CU00 CU01 CU02 CU03) UACC(NONE)
+     PERMIT CTTU CLASS(TCICSTRN) ID(CDADMIN) ACCESS(READ)
+     PERMIT CTLI CLASS(TCICSTRN) ID(CDADMIN) ACCESS(READ)
+     SETROPTS RACLIST(TCICSTRN) REFRESH
+     ```
+     Replace `CDADMIN` with the RACF group of your CardDemo administrators and repeat the `PERMIT` for each transaction.
+
+5. **Extract Initial Data**
    - Run the TRANEXTR job to extract transaction type data from DB2
 
-5. **Enable Admin Menu Options**
+6. **Enable Admin Menu Options**
    - The Transaction Type Management options (5 and 6) will now be available in the Admin Menu (CA00)
    - Option 5: Transaction Type list/update/delete (CTLI)
    - Option 6: Transaction Type add/edit (CTTU)
