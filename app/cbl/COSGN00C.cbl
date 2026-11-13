@@ -50,8 +50,8 @@
          05 WS-MAX-SIGNON-FAILS        PIC 9(02) VALUE 3.
          05 WS-SIGNON-FAILED-MSG       PIC X(50) VALUE
             'Invalid User ID or Password. Try again ...'.
-      * Verified when the user ID is unknown so that every failed
-      * sign-on costs one hash and takes about the same time.
+      * Verified when the user ID is unknown or has no hash so that
+      * every failed sign-on costs one hash and takes the same time.
          05 WS-DUMMY-PWD-HASH.
            10 FILLER                   PIC X(02) VALUE 'P1'.
            10 FILLER                   PIC 9(06) VALUE 001000.
@@ -61,6 +61,11 @@
               'c2e8a4f1067d93b5e2a1f8c4d7b06e93'.
            10 FILLER                   PIC X(32) VALUE
               '1a9d5c7e3f2b8046d1e7a3c9f5b2084e'.
+         05 WS-VERIFY-PWD-HASH.
+           10 WS-VFY-SCHEME            PIC X(02).
+           10 WS-VFY-ITERATIONS        PIC 9(06).
+           10 WS-VFY-SALT              PIC X(32).
+           10 WS-VFY-DIGEST            PIC X(64).
 
        COPY COCOM01Y.
 
@@ -258,7 +263,7 @@
                            PERFORM SIGNON-FAILED
                    END-EVALUATE
                WHEN 13
-                   MOVE WS-DUMMY-PWD-HASH TO SEC-USR-PWD-HASH
+                   MOVE SPACES TO SEC-USR-PWD-HASH
                    PERFORM VERIFY-USER-PASSWORD
                    PERFORM SIGNON-FAILED
                WHEN OTHER
@@ -370,15 +375,23 @@
            INITIALIZE PWH-PARMS
            SET PWH-FUNC-VERIFY        TO TRUE
            MOVE WS-USER-PWD           TO PWH-PASSWORD
-           MOVE SEC-USR-PWD-SCHEME    TO PWH-SCHEME
-           MOVE SEC-USR-PWD-ITERATIONS TO PWH-ITERATIONS
-           MOVE SEC-USR-PWD-SALT      TO PWH-SALT
-           MOVE SEC-USR-PWD-DIGEST    TO PWH-HASH
+      *    Unknown IDs and IDs without a hash run one full PBKDF2 on
+      *    the dummy hash, so their timing matches a wrong password.
+           IF SEC-USR-PWD-SCHEME = SPACES OR LOW-VALUES
+               MOVE WS-DUMMY-PWD-HASH TO WS-VERIFY-PWD-HASH
+           ELSE
+               MOVE SEC-USR-PWD-HASH  TO WS-VERIFY-PWD-HASH
+           END-IF
+           MOVE WS-VFY-SCHEME         TO PWH-SCHEME
+           MOVE WS-VFY-ITERATIONS     TO PWH-ITERATIONS
+           MOVE WS-VFY-SALT           TO PWH-SALT
+           MOVE WS-VFY-DIGEST         TO PWH-HASH
            CALL 'CSPWHASH' USING PWH-PARMS
            MOVE SPACES                TO PWH-PASSWORD
                                          WS-USER-PWD
 
            IF PWH-RC-OK
+              AND SEC-USR-PWD-SCHEME NOT = SPACES AND LOW-VALUES
                SET PWD-MATCH-YES TO TRUE
            END-IF.
       *
