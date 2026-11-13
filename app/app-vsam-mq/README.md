@@ -127,6 +127,25 @@ The CDRA transaction demonstrates how to retrieve account information via MQ:
    05 ACCOUNT-DATA        PIC X(300).
 ```
 
+### Account Inquiry Authorization (CDRA)
+
+COACCT01 handles requests of the form `INQA` followed by an 11-digit account number (bytes 1-15 of the message). It replies with account data only when the requester is authorized:
+
+- The requester is the `UserIdentifier` from the request's MQMD. The queue manager sets this field from the identity of the application that put the message.
+- That identity must be an 8-character CardDemo user ID in the `USRSEC` file with user type `A` (admin). Blank, unknown, non-admin, or longer IDs are rejected before the account file is read.
+- Unauthorized requests, malformed requests (bad function or non-numeric key), and account numbers that don't exist all get the same reply, `INVALID REQUEST`. The account number is not echoed back, so replies can't be used to work out which accounts exist.
+- Each rejection is written to `CARD.DEMO.ERROR` as `REJECTED <user id>` for audit.
+
+To register a producer application, add its MQ user ID to `USRSEC` as an admin user (for example with the CardDemo user add screen, `CU01`).
+
+The check depends on `UserIdentifier` being accurate. Configure the queue manager so that:
+
+- Only known applications have put authority on `CARDDEMO.REQUEST.QUEUE` (RACF `MQQUEUE` profiles on z/OS, or `SET AUTHREC` on distributed MQ).
+- Those applications do not have set-identity or set-all context authority, so they can't forge `UserIdentifier`.
+- Client and server channels map inbound connections to a fixed `MCAUSER` with `CHLAUTH` rules.
+- Get authority on the shared reply queue `CARD.DEMO.REPLY.ACCT` is limited to trusted consumers.
+- The request queue is never reachable from partner or customer-facing channels.
+
 ### Integration Patterns
 
 This extension demonstrates several MQ integration patterns:

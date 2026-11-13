@@ -127,6 +127,27 @@
            10  WS-CARD-RID-ACCT-ID-X REDEFINES                          01257000
                   WS-CARD-RID-ACCT-ID              PIC X(11).           01258000
                                                                         01259000
+      *----------------------------------------------------------------*
+      * REQUESTER AUTHORIZATION                                        *
+      * THE REQUESTER IS THE MQMD USERIDENTIFIER OF THE REQUEST, SET   *
+      * BY THE QUEUE MANAGER FROM THE PUTTING APPLICATION'S IDENTITY.  *
+      * ONLY CARDDEMO ADMIN USERS (USRSEC TYPE 'A') MAY INQUIRE.       *
+      *----------------------------------------------------------------*
+       01 WS-AUTH-VARIABLES.
+          05 LIT-USRSECFILENAME             PIC X(08) VALUE 'USRSEC  '.
+          05 LIT-AUTHORIZED-USR-TYPE        PIC X(01) VALUE 'A'.
+          05 LIT-REJECT-REPLY               PIC X(15)
+                                            VALUE 'INVALID REQUEST'.
+          05 WS-REQUESTER-ID                PIC X(12) VALUE SPACES.
+          05 WS-REQUESTER-ID-PARTS REDEFINES WS-REQUESTER-ID.
+             10 WS-REQUESTER-USR-ID         PIC X(08).
+             10 WS-REQUESTER-ID-REST        PIC X(04).
+          05 WS-AUTH-FLAG                   PIC X(01) VALUE 'N'.
+             88 REQUESTER-AUTHORIZED                  VALUE 'Y'.
+             88 REQUESTER-NOT-AUTHORIZED              VALUE 'N'.
+      *USER SECURITY RECORD LAYOUT
+       COPY CSUSR01Y.
+
        01 WS-ACCT-RESPONSE.                                             01259107
                                                                         01259207
            05  WS-ACCT-LBL                       PIC X(13) VALUE        01259307
@@ -368,6 +389,7 @@
 033800        MOVE MQ-REASON-CODE    TO MQ-APPL-REASON-CODE             03450000
 033900        MOVE MQ-BUFFER         TO REQUEST-MESSAGE                 03460000
 034000        MOVE MQ-CORRELID       TO SAVE-CORELID                    03470000
+              MOVE MQMD-USERIDENTIFIER TO WS-REQUESTER-ID
 034100        MOVE MQ-QUEUE-REPLY    TO SAVE-REPLY2Q                    03480000
 034200        MOVE MQ-MSG-ID         TO SAVE-MSGID                      03490000
 034300        MOVE REQUEST-MESSAGE   TO REQUEST-MSG-COPY                03500000
@@ -390,7 +412,11 @@
 036000 4000-PROCESS-REQUEST-REPLY.                                      03670010
 036100     MOVE SPACES TO REPLY-MESSAGE                                 03680000
 036100     INITIALIZE WS-DATE-TIME REPLACING NUMERIC BY ZEROES          03690000
-036100     IF WS-FUNC = 'INQA' AND WS-KEY > ZEROES                      03700000
+           PERFORM 4050-AUTHORIZE-REQUESTER
+           IF REQUESTER-AUTHORIZED
+              AND WS-FUNC = 'INQA'
+              AND WS-KEY IS NUMERIC
+              AND WS-KEY > ZEROES
               MOVE WS-KEY       TO  WS-CARD-RID-ACCT-ID                 03700106
                                                                         03700206
            EXEC CICS READ                                               03700306
@@ -426,13 +452,7 @@
                     MOVE WS-ACCT-RESPONSE TO REPLY-MESSAGE              03703510
                     PERFORM 4100-PUT-REPLY                              03703610
                WHEN DFHRESP(NOTFND)                                     03703710
-                    STRING 'INVALID REQUEST PARAMETERS '                03703810
-                           'ACCT ID : 'WS-KEY                           03703910
-                           DELIMITED BY SIZE                            03704010
-                           INTO                                         03704110
-                           REPLY-MESSAGE                                03704210
-                    END-STRING                                          03704310
-                    PERFORM 4100-PUT-REPLY                              03704410
+                    PERFORM 4200-REJECT-REQUEST
       *                                                                 03704510
                WHEN OTHER                                               03704610
 017200                                                                  03704800
@@ -446,19 +466,72 @@
       *           PERFORM SEND-LONG-TEXT                                03705603
            END-EVALUATE                                                 03705703
            ELSE                                                         03705805
-                    STRING 'INVALID REQUEST PARAMETERS '                03705905
-                           'ACCT ID : 'WS-KEY                           03706005
-                           'FUNCTION : 'WS-FUNC                         03706105
-                           DELIMITED BY SIZE                            03706205
-                           INTO                                         03706305
-                           REPLY-MESSAGE                                03706405
-                    END-STRING                                          03706505
-                    PERFORM 4100-PUT-REPLY                              03706610
+                    PERFORM 4200-REJECT-REQUEST
 036100     END-IF                                                       03706705
 036100                                                                  03707005
 036100                                                                  03780000
 036800     .                                                            03860000
 036900                                                                  03870000
+       4050-AUTHORIZE-REQUESTER.
+      * THE REQUESTER MUST BE A CARDDEMO USER (8-CHAR ID) IN USRSEC
+      * WITH ADMIN TYPE. ANY OTHER IDENTITY IS NOT AUTHORIZED.
+           SET REQUESTER-NOT-AUTHORIZED TO TRUE
+           IF WS-REQUESTER-USR-ID NOT = SPACES
+              AND WS-REQUESTER-USR-ID NOT = LOW-VALUES
+              AND WS-REQUESTER-ID-REST = SPACES
+              PERFORM 4060-READ-USRSEC
+           END-IF
+           .
+
+       4060-READ-USRSEC.
+           EXEC CICS READ
+                DATASET   (LIT-USRSECFILENAME)
+                RIDFLD    (WS-REQUESTER-USR-ID)
+                KEYLENGTH (LENGTH OF WS-REQUESTER-USR-ID)
+                INTO      (SEC-USER-DATA)
+                LENGTH    (LENGTH OF SEC-USER-DATA)
+                RESP      (WS-RESP-CD)
+                RESP2     (WS-REAS-CD)
+           END-EXEC
+
+           EVALUATE WS-RESP-CD
+               WHEN DFHRESP(NORMAL)
+                    IF SEC-USR-TYPE = LIT-AUTHORIZED-USR-TYPE
+                       SET REQUESTER-AUTHORIZED TO TRUE
+                    END-IF
+               WHEN DFHRESP(NOTFND)
+                    CONTINUE
+               WHEN OTHER
+                    MOVE WS-RESP-CD        TO MQ-APPL-CONDITION-CODE
+                    MOVE WS-REAS-CD        TO MQ-APPL-REASON-CODE
+                    MOVE INPUT-QUEUE-NAME  TO MQ-APPL-QUEUE-NAME
+                    MOVE 'ERROR WHILE READING USRSEC'
+                                           TO MQ-APPL-RETURN-MESSAGE
+                    PERFORM 9000-ERROR
+                    PERFORM 8000-TERMINATION
+           END-EVALUATE
+           .
+
+       4200-REJECT-REQUEST.
+      * ONE GENERIC REPLY FOR UNAUTHORIZED, MALFORMED AND NOT-FOUND
+      * REQUESTS, SO THE REPLY DOES NOT REVEAL WHICH ACCOUNTS EXIST.
+      * THE REQUESTER IS RECORDED ON THE ERROR QUEUE FOR AUDIT.
+           MOVE '4200-REJECT-REQUEST'     TO MQ-ERROR-PARA
+           MOVE SPACES                    TO MQ-APPL-RETURN-MESSAGE
+           STRING 'REJECTED ' WS-REQUESTER-ID
+                  DELIMITED BY SIZE
+                  INTO MQ-APPL-RETURN-MESSAGE
+           END-STRING
+           MOVE ZEROES                    TO MQ-APPL-CONDITION-CODE
+                                             MQ-APPL-REASON-CODE
+           MOVE INPUT-QUEUE-NAME          TO MQ-APPL-QUEUE-NAME
+           PERFORM 9000-ERROR
+           INITIALIZE MQ-ERR-DISPLAY
+
+           MOVE LIT-REJECT-REPLY          TO REPLY-MESSAGE
+           PERFORM 4100-PUT-REPLY
+           .
+
 037000 4100-PUT-REPLY.                                                  03880010
 037100                                                                  03890000
 037200* PUT WILL PUT A MESSAGE ON THE QUEUE AND CONVERT IT TO A STRING  03900000
