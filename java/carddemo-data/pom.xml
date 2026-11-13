@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>com.carddemo</groupId>
+        <artifactId>carddemo-parent</artifactId>
+        <version>0.1.0-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>carddemo-data</artifactId>
+    <name>CardDemo :: Data</name>
+    <description>JPA entities, Spring Data repositories, Flyway schema and copybook record codecs for the
+        CardDemo VSAM/IMS datasets.</description>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.carddemo</groupId>
+            <artifactId>carddemo-common</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-jpa</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.flywaydb</groupId>
+            <artifactId>flyway-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.flywaydb</groupId>
+            <artifactId>flyway-database-postgresql</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.mapstruct</groupId>
+            <artifactId>mapstruct</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.carddemo</groupId>
+            <artifactId>carddemo-common</artifactId>
+            <type>test-jar</type>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-testcontainers</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>postgresql</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+            </resource>
+            <!-- Copybooks are the single source of truth for record layouts: ship them on the classpath. -->
+            <resource>
+                <directory>${project.basedir}/../../app/cpy</directory>
+                <targetPath>copybooks</targetPath>
+                <includes>
+                    <include>CVACT01Y.cpy</include>
+                    <include>CVACT02Y.cpy</include>
+                    <include>CVACT03Y.cpy</include>
+                    <include>CVCUS01Y.cpy</include>
+                    <include>CVTRA01Y.cpy</include>
+                    <include>CVTRA02Y.cpy</include>
+                    <include>CVTRA03Y.cpy</include>
+                    <include>CVTRA04Y.cpy</include>
+                    <include>CVTRA05Y.cpy</include>
+                    <include>CVTRA06Y.cpy</include>
+                    <include>CSUSR01Y.cpy</include>
+                </includes>
+            </resource>
+            <resource>
+                <directory>${project.basedir}/../../app/app-authorization-ims-db2-mq/cpy</directory>
+                <targetPath>copybooks</targetPath>
+                <includes>
+                    <include>CIPAUSMY.cpy</include>
+                    <include>CIPAUDTY.cpy</include>
+                </includes>
+            </resource>
+        </resources>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <annotationProcessorPaths>
+                        <path>
+                            <groupId>org.mapstruct</groupId>
+                            <artifactId>mapstruct-processor</artifactId>
+                            <version>${mapstruct.version}</version>
+                        </path>
+                    </annotationProcessorPaths>
+                    <compilerArgs>
+                        <arg>-Amapstruct.defaultComponentModel=spring</arg>
+                        <arg>-Amapstruct.unmappedTargetPolicy=ERROR</arg>
+                    </compilerArgs>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </build>
+</project>
