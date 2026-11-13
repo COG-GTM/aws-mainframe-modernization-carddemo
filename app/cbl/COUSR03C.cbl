@@ -272,6 +272,8 @@
            MOVE 'COSGN00C' TO CDEMO-TO-PROGRAM
            EXEC CICS
                XCTL PROGRAM(CDEMO-TO-PROGRAM)
+           END-EXEC
+           EXEC CICS RETURN
            END-EXEC.
 
       *----------------------------------------------------------------*
