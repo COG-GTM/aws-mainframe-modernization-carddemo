@@ -178,6 +178,8 @@
                                                    VALUE 'CCRDSLA'.             
           05 LIT-MENUPGM                           PIC X(8)                     
                                                    VALUE 'COMEN01C'.            
+          05 LIT-SIGNONPGM                         PIC X(8)                     
+                                                   VALUE 'COSGN00C'.            
           05 LIT-MENUTRANID                        PIC X(4)                     
                                                    VALUE 'CM00'.                
           05 LIT-MENUMAPSET                        PIC X(7)                     
@@ -263,16 +265,34 @@
       *****************************************************************         
            SET WS-RETURN-MSG-OFF  TO TRUE                                       
       *****************************************************************         
-      * Store passed data if  any                *                              
+      * Only a CardDemo session that went through sign-on may use               
+      * this transaction. Starting CCDL from a blank screen (no                 
+      * commarea) or with a commarea that carries no signed-on user             
+      * sends the terminal to the sign-on program.                              
       *****************************************************************         
-           IF EIBCALEN IS EQUAL TO 0                                            
-               OR (CDEMO-FROM-PROGRAM = LIT-MENUPGM
-               AND NOT CDEMO-PGM-REENTER)                               
-              INITIALIZE CARDDEMO-COMMAREA                                      
+           IF EIBCALEN < LENGTH OF CARDDEMO-COMMAREA                            
+              PERFORM 0100-XCTL-TO-SIGNON                                       
+           END-IF                                                               
+                                                                                
+           MOVE DFHCOMMAREA (1:LENGTH OF CARDDEMO-COMMAREA)  TO                 
+                             CARDDEMO-COMMAREA                                  
+                                                                                
+           IF CDEMO-USER-ID EQUAL SPACES OR LOW-VALUES                          
+           OR NOT (CDEMO-USRTYP-ADMIN OR CDEMO-USRTYP-USER)                     
+              PERFORM 0100-XCTL-TO-SIGNON                                       
+           END-IF                                                               
+      *****************************************************************         
+      * Store passed data if  any                *                              
+      * Entry from the menu starts a new lookup but keeps the                   
+      * signed-on user in the commarea.                                         
+      *****************************************************************         
+           IF CDEMO-FROM-PROGRAM = LIT-MENUPGM                                  
+              AND NOT CDEMO-PGM-REENTER                                         
+              INITIALIZE CDEMO-CUSTOMER-INFO                                    
+                         CDEMO-ACCOUNT-INFO                                     
+                         CDEMO-CARD-INFO                                        
                          WS-THIS-PROGCOMMAREA                                   
            ELSE                                                                 
-              MOVE DFHCOMMAREA (1:LENGTH OF CARDDEMO-COMMAREA)  TO              
-                                CARDDEMO-COMMAREA                               
               MOVE DFHCOMMAREA(LENGTH OF CARDDEMO-COMMAREA + 1:                 
                                LENGTH OF WS-THIS-PROGCOMMAREA ) TO              
                                 WS-THIS-PROGCOMMAREA                            
@@ -323,7 +343,6 @@
                    MOVE LIT-THISTRANID     TO CDEMO-FROM-TRANID                 
                    MOVE LIT-THISPGM        TO CDEMO-FROM-PROGRAM                
                                                                                 
-                   SET  CDEMO-USRTYP-USER  TO TRUE                              
                    SET  CDEMO-PGM-ENTER    TO TRUE                              
                    MOVE LIT-THISMAPSET     TO CDEMO-LAST-MAPSET                 
                    MOVE LIT-THISMAP        TO CDEMO-LAST-MAP                    
@@ -406,6 +425,15 @@
            END-EXEC                                                             
            .                                                                    
        0000-MAIN-EXIT.                                                          
+           EXIT                                                                 
+           .                                                                    
+                                                                                
+       0100-XCTL-TO-SIGNON.                                                     
+           EXEC CICS XCTL                                                       
+                PROGRAM (LIT-SIGNONPGM)                                         
+           END-EXEC                                                             
+           .                                                                    
+       0100-XCTL-TO-SIGNON-EXIT.                                                
            EXIT                                                                 
            .                                                                    
                                                                                 
