@@ -32,7 +32,16 @@ public final class RecordFileReader implements Iterator<byte[]>, Closeable {
         this.format = format;
         this.lrecl = lrecl;
         this.pad = encoding.space();
-        this.next = read();
+        try {
+            this.next = read();
+        } catch (RuntimeException e) {
+            try {
+                this.in.close();
+            } catch (IOException suppressed) {
+                e.addSuppressed(suppressed);
+            }
+            throw e;
+        }
     }
 
     public static RecordFileReader open(Path path, RecordFormat format, int lrecl, DataEncoding encoding) {
