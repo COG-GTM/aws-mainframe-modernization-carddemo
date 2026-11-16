@@ -18,8 +18,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.PlatformTransactionManager;
 
 /**
- * {@code sampleDataLoadJob}: reloads every table from the sample files. The {@code dataDir} job parameter (default
- * {@code carddemo.sample-data.dir}) points at the {@code app/data} directory.
+ * {@code sampleDataLoadJob}: reloads every table from the sample files. The {@code dataDir} job parameter, or else
+ * {@code BANK_CARDDEMO_SAMPLE_DATA_DIR}, points at the repository's {@code app/data} directory.
  */
 @Configuration(proxyBeanMethods = false)
 public class SampleDataLoadJobConfiguration {
@@ -42,11 +42,15 @@ public class SampleDataLoadJobConfiguration {
 
     @Bean
     Step loadSampleDataStep(JobRepository jobRepository, PlatformTransactionManager transactionManager,
-            SampleDataLoader loader, @Value("${carddemo.sample-data.dir:app/data}") String defaultDataDir) {
+            SampleDataLoader loader, @Value("${BANK_CARDDEMO_SAMPLE_DATA_DIR:}") String defaultDataDir) {
         return new StepBuilder("loadSampleData", jobRepository)
                 .tasklet((contribution, chunkContext) -> {
                     String dataDir = contribution.getStepExecution().getJobParameters()
                             .getString(DATA_DIR_PARAMETER, defaultDataDir);
+                    if (dataDir == null || dataDir.isBlank()) {
+                        throw new IllegalStateException("Set the " + DATA_DIR_PARAMETER
+                                + " job parameter or BANK_CARDDEMO_SAMPLE_DATA_DIR to the app/data directory");
+                    }
                     Map<String, Integer> counts = loader.replaceAll(Path.of(dataDir));
                     counts.forEach((table, count) -> log.info("Loaded {} records into {}", count, table));
                     contribution.incrementWriteCount(counts.values().stream().mapToInt(Integer::intValue).sum());
