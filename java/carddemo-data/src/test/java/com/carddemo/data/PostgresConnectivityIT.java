@@ -31,4 +31,13 @@ class PostgresConnectivityIT {
                 .extracting(Object::toString)
                 .containsExactly("classpath:db/migration");
     }
+
+    @Test
+    void flywayCreatesTheSpringBatchSchema() {
+        assertThat(flyway.info().applied())
+                .extracting(m -> m.getVersion().getVersion())
+                .contains("0.1");
+        Integer jobInstances = jdbcTemplate.queryForObject("select count(*) from batch_job_instance", Integer.class);
+        assertThat(jobInstances).isZero();
+    }
 }
