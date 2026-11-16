@@ -43,7 +43,7 @@ public final class RecordCodec {
                 storedNumbers[i] = Arrays.copyOfRange(data, field.offset(), field.offset() + field.length());
             }
         }
-        return new Record(layout, values, storedNumbers);
+        return new Record(layout, values, storedNumbers, encoding);
     }
 
     public byte[] encode(Record record) {
@@ -51,7 +51,7 @@ public final class RecordCodec {
         byte[] data = new byte[layout.length()];
         List<FieldDefinition> fields = layout.fields();
         for (int i = 0; i < fields.size(); i++) {
-            byte[] stored = record.storedNumber(i);
+            byte[] stored = record.storedNumber(i, encoding);
             if (stored != null) {
                 System.arraycopy(stored, 0, data, fields.get(i).offset(), stored.length);
             } else {

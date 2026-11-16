@@ -12,7 +12,7 @@ import java.util.Map;
  * Field values of one record. Alphanumeric and numeric-edited fields hold a {@link String} of exactly the field's
  * length (trailing spaces kept); numeric fields hold a {@link BigDecimal} with the picture's scale, or an
  * {@link InvalidValue} when the stored bytes are not a valid number. A numeric field that has not been set since it
- * was decoded is encoded back to its original bytes, so equivalent representations (a plain last digit in a signed
+ * was decoded is encoded back to its original bytes when written in the same encoding, so equivalent representations (a plain last digit in a signed
  * zoned field, sign nibble F in a signed packed field) survive a round trip unchanged.
  */
 public final class Record {
@@ -20,20 +20,25 @@ public final class Record {
     private final RecordLayout layout;
     private final Object[] values;
     private final byte[][] storedNumbers;
+    private final LegacyEncoding storedEncoding;
 
     Record(RecordLayout layout, Object[] values) {
-        this(layout, values, new byte[values.length][]);
+        this(layout, values, new byte[values.length][], null);
     }
 
-    Record(RecordLayout layout, Object[] values, byte[][] storedNumbers) {
+    Record(RecordLayout layout, Object[] values, byte[][] storedNumbers, LegacyEncoding storedEncoding) {
         this.layout = layout;
         this.values = values;
         this.storedNumbers = storedNumbers;
+        this.storedEncoding = storedEncoding;
     }
 
-    /** Bytes a numeric field was decoded from, while it has not been set since; null otherwise. */
-    byte[] storedNumber(int index) {
-        return storedNumbers[index];
+    /**
+     * Bytes a numeric field was decoded from in {@code encoding}, while it has not been set since; null otherwise or
+     * when the record was decoded from another encoding.
+     */
+    byte[] storedNumber(int index, LegacyEncoding encoding) {
+        return encoding == storedEncoding ? storedNumbers[index] : null;
     }
 
     /** A record initialized like COBOL {@code INITIALIZE}: spaces in text fields, zero in numeric fields. */

@@ -113,6 +113,19 @@ class RecordCodecTest {
     }
 
     @Test
+    void untouchedNumbersAreReencodedWhenWrittenInAnotherEncoding() {
+        RecordCodec ascii = new RecordCodec(LegacyEncoding.ASCII);
+        RecordCodec ebcdic = new RecordCodec(LegacyEncoding.EBCDIC);
+        Record original = Record.initialized(NUMBERS).set("ZONED-SIGNED", new BigDecimal("-12.34"));
+        Record fromEbcdic = ebcdic.decode(NUMBERS, ebcdic.encode(original));
+
+        byte[] asAscii = ascii.encode(fromEbcdic);
+
+        assertThat(asAscii).isEqualTo(ascii.encode(original));
+        assertThat(ascii.decode(NUMBERS, asAscii).invalidFields()).isEmpty();
+    }
+
+    @Test
     void setRejectsValuesThatDoNotFit() {
         Record record = Record.initialized(NUMBERS);
         assertThatThrownBy(() -> record.set("ZONED-SIGNED", new BigDecimal("12345.00")))
