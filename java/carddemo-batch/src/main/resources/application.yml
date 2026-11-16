@@ -1,0 +1,14 @@
+spring:
+  application:
+    name: carddemo-batch
+  datasource:
+    url: ${BANK_CARDDEMO_DB_URL:jdbc:postgresql://localhost:5432/carddemo}
+    username: ${BANK_CARDDEMO_DB_USER}
+    password: ${BANK_CARDDEMO_DB_PASSWORD}
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate
+  batch:
+    jdbc:
+      initialize-schema: never
