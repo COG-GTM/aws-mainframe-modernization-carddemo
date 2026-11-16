@@ -100,6 +100,19 @@ class RecordCodecTest {
     }
 
     @Test
+    void untouchedSignedFieldsKeepTheirOriginalSignRepresentation() {
+        RecordCodec codec = new RecordCodec(LegacyEncoding.ASCII);
+        byte[] bytes = codec.encode(Record.initialized(NUMBERS));
+        System.arraycopy("001234".getBytes(StandardCharsets.ISO_8859_1), 0, bytes, 0, 6);
+        Record decoded = codec.decode(NUMBERS, bytes);
+        assertThat(decoded.getDecimal("ZONED-SIGNED")).isEqualByComparingTo("12.34");
+        assertThat(codec.encode(decoded)).isEqualTo(bytes);
+
+        decoded.set("ZONED-SIGNED", new BigDecimal("12.34"));
+        assertThat(new String(codec.encode(decoded), 0, 6, StandardCharsets.ISO_8859_1)).isEqualTo("00123D");
+    }
+
+    @Test
     void setRejectsValuesThatDoNotFit() {
         Record record = Record.initialized(NUMBERS);
         assertThatThrownBy(() -> record.set("ZONED-SIGNED", new BigDecimal("12345.00")))

@@ -35,10 +35,15 @@ public final class RecordCodec {
         }
         List<FieldDefinition> fields = layout.fields();
         Object[] values = new Object[fields.size()];
+        byte[][] storedNumbers = new byte[fields.size()][];
         for (int i = 0; i < values.length; i++) {
-            values[i] = decodeField(fields.get(i), data);
+            FieldDefinition field = fields.get(i);
+            values[i] = decodeField(field, data);
+            if (field.isNumeric()) {
+                storedNumbers[i] = Arrays.copyOfRange(data, field.offset(), field.offset() + field.length());
+            }
         }
-        return new Record(layout, values);
+        return new Record(layout, values, storedNumbers);
     }
 
     public byte[] encode(Record record) {
@@ -46,7 +51,12 @@ public final class RecordCodec {
         byte[] data = new byte[layout.length()];
         List<FieldDefinition> fields = layout.fields();
         for (int i = 0; i < fields.size(); i++) {
-            encodeField(fields.get(i), record.get(i), data);
+            byte[] stored = record.storedNumber(i);
+            if (stored != null) {
+                System.arraycopy(stored, 0, data, fields.get(i).offset(), stored.length);
+            } else {
+                encodeField(fields.get(i), record.get(i), data);
+            }
         }
         return data;
     }
