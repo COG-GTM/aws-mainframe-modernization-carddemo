@@ -58,6 +58,17 @@ class IntcalcParityTest {
     @Qualifier(IntcalcJobConfig.JOB_NAME)
     Job intcalcJob;
 
+    @org.junit.jupiter.api.Test
+    void failsWhenAccountFileCannotBeWritten(@TempDir Path out) throws Exception {
+        Files.createDirectories(out.resolve("acctdata.txt"));
+        JobExecution execution = jobLauncher.run(intcalcJob, new JobParametersBuilder()
+                .addString("inputDir", REPO.resolve("app/data/ASCII").toString())
+                .addString("outputDir", out.toString())
+                .addLong("run", System.nanoTime())
+                .toJobParameters());
+        assertThat(execution.getStatus()).isEqualTo(BatchStatus.FAILED);
+    }
+
     @ParameterizedTest(name = "{0}")
     @CsvSource({"base, app/data/ASCII", "edge, java-batch/parity/intcalc/datasets/edge"})
     void matchesCobolGoldenOutput(String dataset, String inputDir, @TempDir Path out) throws Exception {

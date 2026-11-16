@@ -7,6 +7,7 @@ import com.carddemo.batch.model.TransactionRecord;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.batch.core.BatchStatus;
 import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.StepExecutionListener;
@@ -41,8 +42,14 @@ public class IntcalcItemProcessor implements ItemProcessor<TranCatBalRecord, Tra
     @Override
     public ExitStatus afterStep(StepExecution stepExecution) {
         if (!stepExecution.getStatus().isUnsuccessful()) {
-            calculator.finish();
-            accounts.save(accountOutput);
+            try {
+                calculator.finish();
+                accounts.save(accountOutput);
+            } catch (RuntimeException e) {
+                stepExecution.setStatus(BatchStatus.FAILED);
+                stepExecution.addFailureException(e);
+                return ExitStatus.FAILED.addExitDescription(e);
+            }
             log.info("CBACT04C: {} balance records, {} interest transactions, ACCTFILE written to {}",
                     calculator.recordCount(), calculator.transactionCount(), accountOutput);
         }
