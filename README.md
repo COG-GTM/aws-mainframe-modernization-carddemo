@@ -236,6 +236,19 @@ Execute the following JCLs in sequence to run the full batch process:
 
 CardDemo is a comprehensive credit card management application built primarily using COBOL. It provides functionality for managing accounts, credit cards, transactions, and bill payments.
 
+### Architecture Diagrams
+
+Editable draw.io sources sit next to each image in `diagrams/` (open them in draw.io / diagrams.net and re-export the PNG after a change).
+
+![System Architecture](./diagrams/CardDemo-System-Architecture.png "System Architecture")
+
+![Batch Flows](./diagrams/CardDemo-Batch-Flow.png "Batch Flows")
+
+Data model (`diagrams/CARDDEMO-DataModel.drawio`, one page per store):
+- [VSAM files](./diagrams/CARDDEMO-DataModel-VSAM.png)
+- [Db2 tables (optional modules)](./diagrams/CARDDEMO-DataModel-Db2.png)
+- [IMS pending authorization databases (optional module)](./diagrams/CARDDEMO-DataModel-IMS.png)
+
 ### User Types
 
 The application supports two user roles:
