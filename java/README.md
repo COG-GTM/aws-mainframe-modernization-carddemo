@@ -30,6 +30,6 @@ Integration tests in any module get a database by importing
 
 ## Running
 
-`carddemo-api` and `carddemo-batch` read the database from `CARDDEMO_DB_URL` (default
-`jdbc:postgresql://localhost:5432/carddemo`), `CARDDEMO_DB_USER` and `CARDDEMO_DB_PASSWORD`; the credentials have no
+`carddemo-api` and `carddemo-batch` read the database from `BANK_CARDDEMO_DB_URL` (default
+`jdbc:postgresql://localhost:5432/carddemo`), `BANK_CARDDEMO_DB_USER` and `BANK_CARDDEMO_DB_PASSWORD`; the credentials have no
 defaults and must be set. Only `/actuator/health` is exposed until Spring Security is added.

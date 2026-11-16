@@ -2,9 +2,9 @@ spring:
   application:
     name: carddemo-api
   datasource:
-    url: ${CARDDEMO_DB_URL:jdbc:postgresql://localhost:5432/carddemo}
-    username: ${CARDDEMO_DB_USER}
-    password: ${CARDDEMO_DB_PASSWORD}
+    url: ${BANK_CARDDEMO_DB_URL:jdbc:postgresql://localhost:5432/carddemo}
+    username: ${BANK_CARDDEMO_DB_USER}
+    password: ${BANK_CARDDEMO_DB_PASSWORD}
   jpa:
     open-in-view: false
     hibernate:
