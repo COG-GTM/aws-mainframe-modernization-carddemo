@@ -47,7 +47,7 @@ public class IntcalcJobConfig {
 
     @Bean
     public Job intcalcJob(JobRepository jobRepository, Step intcalcStep) {
-        return new JobBuilder(JOB_NAME, jobRepository).start(intcalcStep).build();
+        return new JobBuilder(JOB_NAME, jobRepository).preventRestart().start(intcalcStep).build();
     }
 
     @Bean

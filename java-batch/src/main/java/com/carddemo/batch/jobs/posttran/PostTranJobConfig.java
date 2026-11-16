@@ -53,6 +53,7 @@ public class PostTranJobConfig {
     @Bean
     public Job posttranJob(JobRepository jobRepository, Step posttranPostStep, Step posttranCloseStep) {
         return new JobBuilder(JOB_NAME, jobRepository)
+                .preventRestart()
                 .start(posttranPostStep)
                 .next(posttranCloseStep)
                 .build();
