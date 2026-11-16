@@ -1,0 +1,59 @@
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. @PGM@.
+      * Golden-master helper: IDCAMS REPRO equivalent.
+      *   MODE=LOAD   : fixed-length sequential -> indexed (KSDS)
+      *   MODE=UNLOAD : indexed (KSDS) -> fixed-length sequential, key order
+       ENVIRONMENT DIVISION.
+       INPUT-OUTPUT SECTION.
+       FILE-CONTROL.
+           SELECT SEQ-FILE ASSIGN TO SEQFILE
+                  ORGANIZATION IS SEQUENTIAL
+                  FILE STATUS IS SEQ-STATUS.
+           SELECT KSDS-FILE ASSIGN TO KSDSFILE
+                  ORGANIZATION IS INDEXED
+                  ACCESS MODE IS SEQUENTIAL
+                  RECORD KEY IS KSDS-KEY
+                  FILE STATUS IS KSDS-STATUS.
+       DATA DIVISION.
+       FILE SECTION.
+       FD  SEQ-FILE.
+       01  SEQ-REC                 PIC X(@LEN@).
+       FD  KSDS-FILE.
+       01  KSDS-REC.
+           05 KSDS-KEY             PIC X(@KEYLEN@).
+           05 FILLER               PIC X(@DATALEN@).
+       WORKING-STORAGE SECTION.
+       01  SEQ-STATUS              PIC XX.
+       01  KSDS-STATUS             PIC XX.
+       01  WS-MODE                 PIC X(6).
+       01  WS-COUNT                PIC 9(9) VALUE 0.
+       PROCEDURE DIVISION.
+           ACCEPT WS-MODE FROM ENVIRONMENT 'MODE'
+           IF WS-MODE = 'LOAD'
+              OPEN INPUT SEQ-FILE OUTPUT KSDS-FILE
+              PERFORM UNTIL SEQ-STATUS NOT = '00'
+                 READ SEQ-FILE
+                   AT END CONTINUE
+                   NOT AT END
+                     WRITE KSDS-REC FROM SEQ-REC
+                     IF KSDS-STATUS NOT = '00'
+                        DISPLAY 'LOAD ERROR ' KSDS-STATUS
+                        STOP RUN RETURNING 12
+                     END-IF
+                     ADD 1 TO WS-COUNT
+                 END-READ
+              END-PERFORM
+           ELSE
+              OPEN INPUT KSDS-FILE OUTPUT SEQ-FILE
+              PERFORM UNTIL KSDS-STATUS NOT = '00'
+                 READ KSDS-FILE NEXT
+                   AT END CONTINUE
+                   NOT AT END
+                     WRITE SEQ-REC FROM KSDS-REC
+                     ADD 1 TO WS-COUNT
+                 END-READ
+              END-PERFORM
+           END-IF
+           CLOSE SEQ-FILE KSDS-FILE
+           DISPLAY '@PGM@ ' WS-MODE ' RECORDS: ' WS-COUNT
+           STOP RUN.
