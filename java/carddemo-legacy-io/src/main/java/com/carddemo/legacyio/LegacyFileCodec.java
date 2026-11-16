@@ -101,6 +101,9 @@ public final class LegacyFileCodec {
             if (framing == Framing.FIXED && (stored != bytes.length || fileRecord.ending() != LineEnding.NONE)) {
                 throw new IllegalArgumentException("fixed-length records are stored whole and unterminated");
             }
+            if (framing == Framing.LINE_SEQUENTIAL) {
+                checkLineContent(fileRecord, bytes, stored);
+            }
             out.write(bytes, 0, stored);
             out.writeBytes(fileRecord.ending().bytes());
         }
@@ -124,6 +127,18 @@ public final class LegacyFileCodec {
                     .formatted(index + 1, layout, recordLength));
         }
         return codec.decode(layout, bytes);
+    }
+
+    private static void checkLineContent(FileRecord fileRecord, byte[] bytes, int stored) {
+        int newline = indexOf(bytes, (byte) '\n', 0);
+        if (newline >= 0 && newline < stored) {
+            throw new IllegalArgumentException("record " + fileRecord.record().layout().name()
+                    + " has a newline byte at offset " + newline + " and cannot be written line sequential");
+        }
+        if (stored > 0 && bytes[stored - 1] == '\r' && fileRecord.ending() == LineEnding.LF) {
+            throw new IllegalArgumentException("record " + fileRecord.record().layout().name()
+                    + " ends in a carriage return that would read back as a CRLF ending");
+        }
     }
 
     private static int indexOf(byte[] data, byte value, int from) {

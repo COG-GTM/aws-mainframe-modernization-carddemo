@@ -1,6 +1,7 @@
 package com.carddemo.legacyio;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -193,6 +194,18 @@ class SampleDataRoundTripTest {
         assertThat(ebcdic).hasSize(80);
         assertThat(LegacyFileCodec.ebcdic().read(ebcdic, CardDemoLayouts.USER_SECURITY).getFirst().record())
                 .isEqualTo(user);
+    }
+
+    @Test
+    void refusesLineSequentialRecordsContainingANewlineByte() {
+        RecordLayout layout = Copybook.parse("BIN", """
+                       01  BIN.
+                           05  N               PIC 9(4) COMP.
+                """).layout();
+        Record record = Record.initialized(layout).set("N", 10);
+        assertThatThrownBy(() -> LegacyFileCodec.ascii().writeRecords(List.of(record)))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("newline");
     }
 
     private static Record copy(Record source) {
