@@ -16,6 +16,8 @@ The COBOL stays untouched as the reference; everything in this port is additive 
 
 `golden-master/` (GnuCOBOL reference outputs for the batch jobs) is a separate harness, not a Maven module.
 
+Architecture decisions are recorded in [`docs/adr/`](docs/adr/).
+
 ## Build
 
 Requires JDK 21 and Docker: integration tests start PostgreSQL 16 with Testcontainers.

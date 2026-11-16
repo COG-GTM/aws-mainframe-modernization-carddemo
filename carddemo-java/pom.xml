@@ -34,6 +34,8 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <postgres.image>postgres:16-alpine</postgres.image>
+        <!-- GHSA-mqg3-r7h5-24x4: Boot 3.5.16 manages 10.1.55; drop once Boot ships >= 10.1.56. -->
+        <tomcat.version>10.1.56</tomcat.version>
     </properties>
 
     <dependencyManagement>
