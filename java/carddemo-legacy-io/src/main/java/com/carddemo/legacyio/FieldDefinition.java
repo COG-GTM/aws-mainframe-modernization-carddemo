@@ -14,6 +14,6 @@ public record FieldDefinition(String name, int offset, int length, Picture pictu
     }
 
     public boolean isFiller() {
-        return name.equals("FILLER");
+        return name.equals("FILLER") || name.startsWith("FILLER(");
     }
 }

@@ -86,6 +86,20 @@ class CopybookParserTest {
     }
 
     @Test
+    void fillerInsideOccursIsStillFiller() {
+        String source = """
+                       01  REC.
+                           05  ITEMS OCCURS 2 TIMES.
+                               10  ITEM        PIC X(2).
+                               10  FILLER      PIC X(1).
+                """;
+        RecordLayout layout = Copybook.parse("REC", source).layout();
+        assertThat(layout.fields().get(1).name()).isEqualTo("FILLER(1)");
+        assertThat(layout.fields().get(1).isFiller()).isTrue();
+        assertThat(Record.initialized(layout).toMap()).containsOnlyKeys("ITEM(1)", "ITEM(2)");
+    }
+
+    @Test
     void rejectsOccursDependingOn() {
         String source = """
                        01  REC.
