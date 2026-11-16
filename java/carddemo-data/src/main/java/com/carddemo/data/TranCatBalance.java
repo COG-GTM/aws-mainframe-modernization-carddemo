@@ -28,6 +28,7 @@ public class TranCatBalance {
     public void setId(TranCatBalanceId id) {
         this.id = id;
     }
+
     public BigDecimal getBalance() {
         return balance;
     }
@@ -38,7 +39,7 @@ public class TranCatBalance {
 
     @Override
     public boolean equals(Object other) {
-        return other instanceof TranCatBalance that && id != null && id.equals(that.id);
+        return this == other || other instanceof TranCatBalance that && id != null && id.equals(that.id);
     }
 
     @Override

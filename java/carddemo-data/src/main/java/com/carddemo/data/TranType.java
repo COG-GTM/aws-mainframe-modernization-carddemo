@@ -28,6 +28,7 @@ public class TranType {
     public void setTypeCd(String typeCd) {
         this.typeCd = typeCd;
     }
+
     public String getDescription() {
         return description;
     }
@@ -38,7 +39,7 @@ public class TranType {
 
     @Override
     public boolean equals(Object other) {
-        return other instanceof TranType that && typeCd != null && typeCd.equals(that.typeCd);
+        return this == other || other instanceof TranType that && typeCd != null && typeCd.equals(that.typeCd);
     }
 
     @Override

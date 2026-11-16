@@ -77,6 +77,7 @@ public class Customer {
     public void setCustId(Long custId) {
         this.custId = custId;
     }
+
     public String getFirstName() {
         return firstName;
     }
@@ -84,6 +85,7 @@ public class Customer {
     public void setFirstName(String firstName) {
         this.firstName = firstName;
     }
+
     public String getMiddleName() {
         return middleName;
     }
@@ -91,6 +93,7 @@ public class Customer {
     public void setMiddleName(String middleName) {
         this.middleName = middleName;
     }
+
     public String getLastName() {
         return lastName;
     }
@@ -98,6 +101,7 @@ public class Customer {
     public void setLastName(String lastName) {
         this.lastName = lastName;
     }
+
     public String getAddrLine1() {
         return addrLine1;
     }
@@ -105,6 +109,7 @@ public class Customer {
     public void setAddrLine1(String addrLine1) {
         this.addrLine1 = addrLine1;
     }
+
     public String getAddrLine2() {
         return addrLine2;
     }
@@ -112,6 +117,7 @@ public class Customer {
     public void setAddrLine2(String addrLine2) {
         this.addrLine2 = addrLine2;
     }
+
     public String getAddrLine3() {
         return addrLine3;
     }
@@ -119,6 +125,7 @@ public class Customer {
     public void setAddrLine3(String addrLine3) {
         this.addrLine3 = addrLine3;
     }
+
     public String getAddrStateCd() {
         return addrStateCd;
     }
@@ -126,6 +133,7 @@ public class Customer {
     public void setAddrStateCd(String addrStateCd) {
         this.addrStateCd = addrStateCd;
     }
+
     public String getAddrCountryCd() {
         return addrCountryCd;
     }
@@ -133,6 +141,7 @@ public class Customer {
     public void setAddrCountryCd(String addrCountryCd) {
         this.addrCountryCd = addrCountryCd;
     }
+
     public String getAddrZip() {
         return addrZip;
     }
@@ -140,6 +149,7 @@ public class Customer {
     public void setAddrZip(String addrZip) {
         this.addrZip = addrZip;
     }
+
     public String getPhoneNum1() {
         return phoneNum1;
     }
@@ -147,6 +157,7 @@ public class Customer {
     public void setPhoneNum1(String phoneNum1) {
         this.phoneNum1 = phoneNum1;
     }
+
     public String getPhoneNum2() {
         return phoneNum2;
     }
@@ -154,6 +165,7 @@ public class Customer {
     public void setPhoneNum2(String phoneNum2) {
         this.phoneNum2 = phoneNum2;
     }
+
     public Integer getSsn() {
         return ssn;
     }
@@ -161,6 +173,7 @@ public class Customer {
     public void setSsn(Integer ssn) {
         this.ssn = ssn;
     }
+
     public String getGovtIssuedId() {
         return govtIssuedId;
     }
@@ -168,6 +181,7 @@ public class Customer {
     public void setGovtIssuedId(String govtIssuedId) {
         this.govtIssuedId = govtIssuedId;
     }
+
     public LocalDate getDob() {
         return dob;
     }
@@ -175,6 +189,7 @@ public class Customer {
     public void setDob(LocalDate dob) {
         this.dob = dob;
     }
+
     public String getEftAccountId() {
         return eftAccountId;
     }
@@ -182,6 +197,7 @@ public class Customer {
     public void setEftAccountId(String eftAccountId) {
         this.eftAccountId = eftAccountId;
     }
+
     public String getPriCardHolderInd() {
         return priCardHolderInd;
     }
@@ -189,6 +205,7 @@ public class Customer {
     public void setPriCardHolderInd(String priCardHolderInd) {
         this.priCardHolderInd = priCardHolderInd;
     }
+
     public Integer getFicoCreditScore() {
         return ficoCreditScore;
     }
@@ -199,7 +216,7 @@ public class Customer {
 
     @Override
     public boolean equals(Object other) {
-        return other instanceof Customer that && custId != null && custId.equals(that.custId);
+        return this == other || other instanceof Customer that && custId != null && custId.equals(that.custId);
     }
 
     @Override

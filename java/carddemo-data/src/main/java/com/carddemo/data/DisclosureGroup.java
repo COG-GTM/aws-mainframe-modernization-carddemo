@@ -28,6 +28,7 @@ public class DisclosureGroup {
     public void setId(DisclosureGroupId id) {
         this.id = id;
     }
+
     public BigDecimal getIntRate() {
         return intRate;
     }
@@ -38,7 +39,7 @@ public class DisclosureGroup {
 
     @Override
     public boolean equals(Object other) {
-        return other instanceof DisclosureGroup that && id != null && id.equals(that.id);
+        return this == other || other instanceof DisclosureGroup that && id != null && id.equals(that.id);
     }
 
     @Override

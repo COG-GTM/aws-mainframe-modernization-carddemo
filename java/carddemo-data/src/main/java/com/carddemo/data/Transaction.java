@@ -63,6 +63,7 @@ public class Transaction {
     public void setTranId(String tranId) {
         this.tranId = tranId;
     }
+
     public String getTypeCd() {
         return typeCd;
     }
@@ -70,6 +71,7 @@ public class Transaction {
     public void setTypeCd(String typeCd) {
         this.typeCd = typeCd;
     }
+
     public Integer getCatCd() {
         return catCd;
     }
@@ -77,6 +79,7 @@ public class Transaction {
     public void setCatCd(Integer catCd) {
         this.catCd = catCd;
     }
+
     public String getSource() {
         return source;
     }
@@ -84,6 +87,7 @@ public class Transaction {
     public void setSource(String source) {
         this.source = source;
     }
+
     public String getDescription() {
         return description;
     }
@@ -91,6 +95,7 @@ public class Transaction {
     public void setDescription(String description) {
         this.description = description;
     }
+
     public BigDecimal getAmount() {
         return amount;
     }
@@ -98,6 +103,7 @@ public class Transaction {
     public void setAmount(BigDecimal amount) {
         this.amount = amount;
     }
+
     public Long getMerchantId() {
         return merchantId;
     }
@@ -105,6 +111,7 @@ public class Transaction {
     public void setMerchantId(Long merchantId) {
         this.merchantId = merchantId;
     }
+
     public String getMerchantName() {
         return merchantName;
     }
@@ -112,6 +119,7 @@ public class Transaction {
     public void setMerchantName(String merchantName) {
         this.merchantName = merchantName;
     }
+
     public String getMerchantCity() {
         return merchantCity;
     }
@@ -119,6 +127,7 @@ public class Transaction {
     public void setMerchantCity(String merchantCity) {
         this.merchantCity = merchantCity;
     }
+
     public String getMerchantZip() {
         return merchantZip;
     }
@@ -126,6 +135,7 @@ public class Transaction {
     public void setMerchantZip(String merchantZip) {
         this.merchantZip = merchantZip;
     }
+
     public String getCardNum() {
         return cardNum;
     }
@@ -133,6 +143,7 @@ public class Transaction {
     public void setCardNum(String cardNum) {
         this.cardNum = cardNum;
     }
+
     public LocalDateTime getOrigTs() {
         return origTs;
     }
@@ -140,6 +151,7 @@ public class Transaction {
     public void setOrigTs(LocalDateTime origTs) {
         this.origTs = origTs;
     }
+
     public LocalDateTime getProcTs() {
         return procTs;
     }
@@ -150,7 +162,7 @@ public class Transaction {
 
     @Override
     public boolean equals(Object other) {
-        return other instanceof Transaction that && tranId != null && tranId.equals(that.tranId);
+        return this == other || other instanceof Transaction that && tranId != null && tranId.equals(that.tranId);
     }
 
     @Override

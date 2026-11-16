@@ -66,6 +66,7 @@ public class DailyTransaction {
     public void setRecordSeq(Integer recordSeq) {
         this.recordSeq = recordSeq;
     }
+
     public String getTranId() {
         return tranId;
     }
@@ -73,6 +74,7 @@ public class DailyTransaction {
     public void setTranId(String tranId) {
         this.tranId = tranId;
     }
+
     public String getTypeCd() {
         return typeCd;
     }
@@ -80,6 +82,7 @@ public class DailyTransaction {
     public void setTypeCd(String typeCd) {
         this.typeCd = typeCd;
     }
+
     public Integer getCatCd() {
         return catCd;
     }
@@ -87,6 +90,7 @@ public class DailyTransaction {
     public void setCatCd(Integer catCd) {
         this.catCd = catCd;
     }
+
     public String getSource() {
         return source;
     }
@@ -94,6 +98,7 @@ public class DailyTransaction {
     public void setSource(String source) {
         this.source = source;
     }
+
     public String getDescription() {
         return description;
     }
@@ -101,6 +106,7 @@ public class DailyTransaction {
     public void setDescription(String description) {
         this.description = description;
     }
+
     public BigDecimal getAmount() {
         return amount;
     }
@@ -108,6 +114,7 @@ public class DailyTransaction {
     public void setAmount(BigDecimal amount) {
         this.amount = amount;
     }
+
     public Long getMerchantId() {
         return merchantId;
     }
@@ -115,6 +122,7 @@ public class DailyTransaction {
     public void setMerchantId(Long merchantId) {
         this.merchantId = merchantId;
     }
+
     public String getMerchantName() {
         return merchantName;
     }
@@ -122,6 +130,7 @@ public class DailyTransaction {
     public void setMerchantName(String merchantName) {
         this.merchantName = merchantName;
     }
+
     public String getMerchantCity() {
         return merchantCity;
     }
@@ -129,6 +138,7 @@ public class DailyTransaction {
     public void setMerchantCity(String merchantCity) {
         this.merchantCity = merchantCity;
     }
+
     public String getMerchantZip() {
         return merchantZip;
     }
@@ -136,6 +146,7 @@ public class DailyTransaction {
     public void setMerchantZip(String merchantZip) {
         this.merchantZip = merchantZip;
     }
+
     public String getCardNum() {
         return cardNum;
     }
@@ -143,6 +154,7 @@ public class DailyTransaction {
     public void setCardNum(String cardNum) {
         this.cardNum = cardNum;
     }
+
     public LocalDateTime getOrigTs() {
         return origTs;
     }
@@ -150,6 +162,7 @@ public class DailyTransaction {
     public void setOrigTs(LocalDateTime origTs) {
         this.origTs = origTs;
     }
+
     public LocalDateTime getProcTs() {
         return procTs;
     }
@@ -160,7 +173,7 @@ public class DailyTransaction {
 
     @Override
     public boolean equals(Object other) {
-        return other instanceof DailyTransaction that && recordSeq != null && recordSeq.equals(that.recordSeq);
+        return this == other || other instanceof DailyTransaction that && recordSeq != null && recordSeq.equals(that.recordSeq);
     }
 
     @Override

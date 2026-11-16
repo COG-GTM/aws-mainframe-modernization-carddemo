@@ -31,6 +31,7 @@ public class CardXref {
     public void setCardNum(String cardNum) {
         this.cardNum = cardNum;
     }
+
     public Long getCustId() {
         return custId;
     }
@@ -38,6 +39,7 @@ public class CardXref {
     public void setCustId(Long custId) {
         this.custId = custId;
     }
+
     public Long getAcctId() {
         return acctId;
     }
@@ -48,7 +50,7 @@ public class CardXref {
 
     @Override
     public boolean equals(Object other) {
-        return other instanceof CardXref that && cardNum != null && cardNum.equals(that.cardNum);
+        return this == other || other instanceof CardXref that && cardNum != null && cardNum.equals(that.cardNum);
     }
 
     @Override

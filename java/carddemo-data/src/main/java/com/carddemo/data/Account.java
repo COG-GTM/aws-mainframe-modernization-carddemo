@@ -60,6 +60,7 @@ public class Account {
     public void setAcctId(Long acctId) {
         this.acctId = acctId;
     }
+
     public String getActiveStatus() {
         return activeStatus;
     }
@@ -67,6 +68,7 @@ public class Account {
     public void setActiveStatus(String activeStatus) {
         this.activeStatus = activeStatus;
     }
+
     public BigDecimal getCurrBal() {
         return currBal;
     }
@@ -74,6 +76,7 @@ public class Account {
     public void setCurrBal(BigDecimal currBal) {
         this.currBal = currBal;
     }
+
     public BigDecimal getCreditLimit() {
         return creditLimit;
     }
@@ -81,6 +84,7 @@ public class Account {
     public void setCreditLimit(BigDecimal creditLimit) {
         this.creditLimit = creditLimit;
     }
+
     public BigDecimal getCashCreditLimit() {
         return cashCreditLimit;
     }
@@ -88,6 +92,7 @@ public class Account {
     public void setCashCreditLimit(BigDecimal cashCreditLimit) {
         this.cashCreditLimit = cashCreditLimit;
     }
+
     public LocalDate getOpenDate() {
         return openDate;
     }
@@ -95,6 +100,7 @@ public class Account {
     public void setOpenDate(LocalDate openDate) {
         this.openDate = openDate;
     }
+
     public LocalDate getExpirationDate() {
         return expirationDate;
     }
@@ -102,6 +108,7 @@ public class Account {
     public void setExpirationDate(LocalDate expirationDate) {
         this.expirationDate = expirationDate;
     }
+
     public LocalDate getReissueDate() {
         return reissueDate;
     }
@@ -109,6 +116,7 @@ public class Account {
     public void setReissueDate(LocalDate reissueDate) {
         this.reissueDate = reissueDate;
     }
+
     public BigDecimal getCurrCycCredit() {
         return currCycCredit;
     }
@@ -116,6 +124,7 @@ public class Account {
     public void setCurrCycCredit(BigDecimal currCycCredit) {
         this.currCycCredit = currCycCredit;
     }
+
     public BigDecimal getCurrCycDebit() {
         return currCycDebit;
     }
@@ -123,6 +132,7 @@ public class Account {
     public void setCurrCycDebit(BigDecimal currCycDebit) {
         this.currCycDebit = currCycDebit;
     }
+
     public String getAddrZip() {
         return addrZip;
     }
@@ -130,6 +140,7 @@ public class Account {
     public void setAddrZip(String addrZip) {
         this.addrZip = addrZip;
     }
+
     public String getGroupId() {
         return groupId;
     }
@@ -140,7 +151,7 @@ public class Account {
 
     @Override
     public boolean equals(Object other) {
-        return other instanceof Account that && acctId != null && acctId.equals(that.acctId);
+        return this == other || other instanceof Account that && acctId != null && acctId.equals(that.acctId);
     }
 
     @Override

@@ -27,6 +27,7 @@ public class TranCategory {
     public void setId(TranCategoryId id) {
         this.id = id;
     }
+
     public String getDescription() {
         return description;
     }
@@ -37,7 +38,7 @@ public class TranCategory {
 
     @Override
     public boolean equals(Object other) {
-        return other instanceof TranCategory that && id != null && id.equals(that.id);
+        return this == other || other instanceof TranCategory that && id != null && id.equals(that.id);
     }
 
     @Override

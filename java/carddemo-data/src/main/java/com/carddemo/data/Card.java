@@ -41,6 +41,7 @@ public class Card {
     public void setCardNum(String cardNum) {
         this.cardNum = cardNum;
     }
+
     public Long getAcctId() {
         return acctId;
     }
@@ -48,6 +49,7 @@ public class Card {
     public void setAcctId(Long acctId) {
         this.acctId = acctId;
     }
+
     public Integer getCvvCd() {
         return cvvCd;
     }
@@ -55,6 +57,7 @@ public class Card {
     public void setCvvCd(Integer cvvCd) {
         this.cvvCd = cvvCd;
     }
+
     public String getEmbossedName() {
         return embossedName;
     }
@@ -62,6 +65,7 @@ public class Card {
     public void setEmbossedName(String embossedName) {
         this.embossedName = embossedName;
     }
+
     public LocalDate getExpirationDate() {
         return expirationDate;
     }
@@ -69,6 +73,7 @@ public class Card {
     public void setExpirationDate(LocalDate expirationDate) {
         this.expirationDate = expirationDate;
     }
+
     public String getActiveStatus() {
         return activeStatus;
     }
@@ -79,7 +84,7 @@ public class Card {
 
     @Override
     public boolean equals(Object other) {
-        return other instanceof Card that && cardNum != null && cardNum.equals(that.cardNum);
+        return this == other || other instanceof Card that && cardNum != null && cardNum.equals(that.cardNum);
     }
 
     @Override

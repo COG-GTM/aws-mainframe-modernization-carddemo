@@ -37,6 +37,7 @@ public class UserSecurity {
     public void setUserId(String userId) {
         this.userId = userId;
     }
+
     public String getFirstName() {
         return firstName;
     }
@@ -44,6 +45,7 @@ public class UserSecurity {
     public void setFirstName(String firstName) {
         this.firstName = firstName;
     }
+
     public String getLastName() {
         return lastName;
     }
@@ -51,6 +53,7 @@ public class UserSecurity {
     public void setLastName(String lastName) {
         this.lastName = lastName;
     }
+
     public String getPasswordHash() {
         return passwordHash;
     }
@@ -58,6 +61,7 @@ public class UserSecurity {
     public void setPasswordHash(String passwordHash) {
         this.passwordHash = passwordHash;
     }
+
     public String getUserType() {
         return userType;
     }
@@ -68,7 +72,7 @@ public class UserSecurity {
 
     @Override
     public boolean equals(Object other) {
-        return other instanceof UserSecurity that && userId != null && userId.equals(that.userId);
+        return this == other || other instanceof UserSecurity that && userId != null && userId.equals(that.userId);
     }
 
     @Override
