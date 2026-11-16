@@ -24,4 +24,20 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
+
+    <build>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+            </resource>
+            <resource>
+                <directory>${project.basedir}/../../app/cpy</directory>
+                <targetPath>copybooks</targetPath>
+                <includes>
+                    <include>*.cpy</include>
+                    <include>*.CPY</include>
+                </includes>
+            </resource>
+        </resources>
+    </build>
 </project>
