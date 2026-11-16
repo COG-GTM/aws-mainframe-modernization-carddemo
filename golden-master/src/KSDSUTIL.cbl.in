@@ -1,0 +1,95 @@
+      *****************************************************************
+      * KSDS load/unload utility for the golden-master harness.       *
+      * Template: run.sh substitutes @PGM@, @RECLEN@, @KEYLEN@,       *
+      * @RESTLEN@, @ALTPOS@ and @ALTLEN@, and drops lines tagged       *
+      * *>ALTKEY for files without an alternate key.                 *
+      *   LOAD   : SEQFILE (fixed records) -> KSDSFILE (indexed)       *
+      *   UNLOAD : KSDSFILE (key order)    -> SEQFILE (fixed records)  *
+      * Mirrors IDCAMS REPRO in the CardDemo JCL.                     *
+      *****************************************************************
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. @PGM@.
+       ENVIRONMENT DIVISION.
+       INPUT-OUTPUT SECTION.
+       FILE-CONTROL.
+           SELECT SEQ-FILE ASSIGN TO SEQFILE
+                  ORGANIZATION IS SEQUENTIAL
+                  FILE STATUS  IS SEQ-STATUS.
+           SELECT KSDS-FILE ASSIGN TO KSDSFILE
+                  ORGANIZATION IS INDEXED
+                  ACCESS MODE  IS DYNAMIC
+                  RECORD KEY   IS KS-KEY
+                  ALTERNATE RECORD KEY IS KS-ALT-KEY *>ALTKEY
+                  FILE STATUS  IS KSDS-STATUS.
+       DATA DIVISION.
+       FILE SECTION.
+       FD  SEQ-FILE.
+       01  SEQ-REC                     PIC X(@RECLEN@).
+       FD  KSDS-FILE.
+       01  KS-REC.
+           05  KS-KEY                  PIC X(@KEYLEN@).
+           05  KS-REST                 PIC X(@RESTLEN@).
+       01  KS-ALT-VIEW. *>ALTKEY
+           05  FILLER                  PIC X(@ALTPOS@). *>ALTKEY
+           05  KS-ALT-KEY              PIC X(@ALTLEN@). *>ALTKEY
+       WORKING-STORAGE SECTION.
+       01  SEQ-STATUS                  PIC XX.
+       01  KSDS-STATUS                 PIC XX.
+       01  WS-MODE                     PIC X(8).
+       01  WS-EOF                      PIC X VALUE 'N'.
+       01  WS-COUNT                    PIC 9(9) VALUE 0.
+       PROCEDURE DIVISION.
+           ACCEPT WS-MODE FROM ARGUMENT-VALUE
+           EVALUATE WS-MODE
+             WHEN 'LOAD'
+               PERFORM 1000-LOAD
+             WHEN 'UNLOAD'
+               PERFORM 2000-UNLOAD
+             WHEN OTHER
+               DISPLAY '@PGM@: MODE MUST BE LOAD OR UNLOAD'
+               MOVE 16 TO RETURN-CODE
+           END-EVALUATE
+           GOBACK.
+
+       1000-LOAD.
+           OPEN INPUT SEQ-FILE
+           OPEN OUTPUT KSDS-FILE
+           PERFORM 9000-CHECK-OPEN
+           PERFORM UNTIL WS-EOF = 'Y'
+               READ SEQ-FILE
+                   AT END MOVE 'Y' TO WS-EOF
+                   NOT AT END
+                       MOVE SEQ-REC TO KS-REC
+                       WRITE KS-REC
+                           INVALID KEY
+                               DISPLAY '@PGM@: WRITE FAILED, STATUS '
+                                       KSDS-STATUS ' KEY ' KS-KEY
+                               MOVE 12 TO RETURN-CODE
+                               GOBACK
+                       END-WRITE
+                       ADD 1 TO WS-COUNT
+               END-READ
+           END-PERFORM
+           CLOSE SEQ-FILE KSDS-FILE.
+
+       2000-UNLOAD.
+           OPEN INPUT KSDS-FILE
+           OPEN OUTPUT SEQ-FILE
+           PERFORM 9000-CHECK-OPEN
+           PERFORM UNTIL WS-EOF = 'Y'
+               READ KSDS-FILE NEXT RECORD
+                   AT END MOVE 'Y' TO WS-EOF
+                   NOT AT END
+                       WRITE SEQ-REC FROM KS-REC
+                       ADD 1 TO WS-COUNT
+               END-READ
+           END-PERFORM
+           CLOSE SEQ-FILE KSDS-FILE.
+
+       9000-CHECK-OPEN.
+           IF SEQ-STATUS NOT = '00' OR KSDS-STATUS NOT = '00'
+               DISPLAY '@PGM@: OPEN FAILED, SEQ ' SEQ-STATUS
+                       ' KSDS ' KSDS-STATUS
+               MOVE 12 TO RETURN-CODE
+               GOBACK
+           END-IF.

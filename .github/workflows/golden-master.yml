@@ -1,0 +1,27 @@
+name: Batch golden master
+
+on:
+  pull_request:
+    paths:
+      - "app/cbl/**"
+      - "app/cpy/**"
+      - "app/data/ASCII/**"
+      - "golden-master/**"
+      - ".github/workflows/golden-master.yml"
+  push:
+    branches: [main]
+    paths:
+      - "app/cbl/**"
+      - "app/cpy/**"
+      - "app/data/ASCII/**"
+      - "golden-master/**"
+
+jobs:
+  check:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install GnuCOBOL
+        run: sudo apt-get update && sudo apt-get install -y gnucobol3
+      - name: Rerun batch jobs and compare with baselines
+        run: golden-master/run.sh --check
