@@ -1,0 +1,93 @@
+      *****************************************************************
+      * IDCAMS REPRO stand-in for one VSAM KSDS layout, emulated with *
+      * a GnuCOBOL indexed file. golden_master.py fills in the        *
+      * @...@ placeholders and drops the lines marked ALTKEY when the *
+      * layout has no alternate index.                                *
+      *   LOAD   : SEQIN (fixed-length records) -> KSDS               *
+      *   UNLOAD : KSDS (primary key order)     -> SEQOUT             *
+      *****************************************************************
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. @PROGRAM@.
+       ENVIRONMENT DIVISION.
+       INPUT-OUTPUT SECTION.
+       FILE-CONTROL.
+           SELECT SEQ-FILE ASSIGN TO SEQFILE
+                  ORGANIZATION IS SEQUENTIAL
+                  FILE STATUS  IS WS-SEQ-STATUS.
+           SELECT KSDS-FILE ASSIGN TO KSDSFILE
+                  ORGANIZATION IS INDEXED
+                  ACCESS MODE  IS SEQUENTIAL
+                  RECORD KEY   IS KSDS-KEY
+                  ALTERNATE RECORD KEY IS KSDS-ALT-KEY                  ALTKEY
+                  FILE STATUS  IS WS-KSDS-STATUS.
+       DATA DIVISION.
+       FILE SECTION.
+       FD  SEQ-FILE.
+       01  SEQ-RECORD                  PIC X(@RECLEN@).
+       FD  KSDS-FILE.
+       01  KSDS-RECORD.
+           05  KSDS-KEY                PIC X(@KEYLEN@).
+           05  FILLER                  PIC X(@RESTLEN@).
+       01  KSDS-ALT-VIEW.                                               ALTKEY
+           05  FILLER                  PIC X(@ALTOFFSET@).              ALTKEY
+           05  KSDS-ALT-KEY            PIC X(@ALTLEN@).                 ALTKEY
+       WORKING-STORAGE SECTION.
+       01  WS-SEQ-STATUS               PIC XX.
+       01  WS-KSDS-STATUS              PIC XX.
+       01  WS-FUNCTION                 PIC X(8).
+       01  WS-RECORDS                  PIC 9(9) VALUE 0.
+       01  WS-EOF                      PIC X VALUE 'N'.
+           88  END-OF-INPUT            VALUE 'Y'.
+       PROCEDURE DIVISION.
+           ACCEPT WS-FUNCTION FROM ARGUMENT-VALUE
+           EVALUATE WS-FUNCTION
+               WHEN 'LOAD'   PERFORM LOAD-KSDS
+               WHEN 'UNLOAD' PERFORM UNLOAD-KSDS
+               WHEN OTHER
+                   DISPLAY '@PROGRAM@: USAGE @PROGRAM@ LOAD|UNLOAD'
+                   MOVE 12 TO RETURN-CODE
+           END-EVALUATE
+           GOBACK.
+
+       LOAD-KSDS.
+           OPEN INPUT SEQ-FILE
+           OPEN OUTPUT KSDS-FILE
+           PERFORM CHECK-OPEN
+           PERFORM UNTIL END-OF-INPUT
+               READ SEQ-FILE
+                   AT END SET END-OF-INPUT TO TRUE
+                   NOT AT END
+                       WRITE KSDS-RECORD FROM SEQ-RECORD
+                       IF WS-KSDS-STATUS NOT = '00'
+                           DISPLAY '@PROGRAM@: WRITE STATUS '
+                                   WS-KSDS-STATUS ' KEY ' KSDS-KEY
+                           MOVE 12 TO RETURN-CODE
+                           SET END-OF-INPUT TO TRUE
+                       ELSE
+                           ADD 1 TO WS-RECORDS
+                       END-IF
+               END-READ
+           END-PERFORM
+           CLOSE SEQ-FILE KSDS-FILE.
+
+       UNLOAD-KSDS.
+           OPEN INPUT KSDS-FILE
+           OPEN OUTPUT SEQ-FILE
+           PERFORM CHECK-OPEN
+           PERFORM UNTIL END-OF-INPUT
+               READ KSDS-FILE NEXT RECORD
+                   AT END SET END-OF-INPUT TO TRUE
+                   NOT AT END
+                       WRITE SEQ-RECORD FROM KSDS-RECORD
+                       ADD 1 TO WS-RECORDS
+               END-READ
+           END-PERFORM
+           CLOSE SEQ-FILE KSDS-FILE.
+
+       CHECK-OPEN.
+           IF WS-SEQ-STATUS NOT = '00' OR WS-KSDS-STATUS NOT = '00'
+               DISPLAY '@PROGRAM@: OPEN STATUS SEQ ' WS-SEQ-STATUS
+                       ' KSDS ' WS-KSDS-STATUS
+               MOVE 12 TO RETURN-CODE
+               GOBACK
+           END-IF.
