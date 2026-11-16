@@ -6,3 +6,6 @@ batch-app/markers/*
 /.idea/
 .DS_Store
 **/.DS_Store
+java/**/target/
+java/.idea/
+*.iml
