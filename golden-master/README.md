@@ -54,6 +54,12 @@ The COBOL sources in `app/` are compiled unchanged except for two build-copy fix
   names. Those blocks do not exist here, so that diagnostic block is removed from
   the build copy. The statement logic is untouched.
 
+Input masking: the sample customers in `custdata.txt` are synthetic but look like
+real people, and the statements print their names and addresses. Before the
+CREASTMT load, the harness replaces name and address lines 1-3 with placeholders
+keyed on CUST-ID (`F000000050 FIRST`, `000000050 MAIN STREET`, ...). The Java
+parity run must use the same masked input.
+
 Harness programs in `src/`:
 
 - `KSDSUTIL.cbl.in`: KSDS load/unload utility (IDCAMS REPRO), one build per record layout.

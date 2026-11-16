@@ -8,8 +8,8 @@ TRANREPT    0
 CREASTMT    0
 # file                                   records  sha256
 COMBTRAN/transact.txt                        312  f87e22dad990cae4cda840e60ce6162cf77fe36cb435e9302a74f22c75a2ac19
-CREASTMT/statemnt.html                      6632  b995f692cbe55009d2cb181728e438e2affbe3d6f4b288c5f636950147061ffb
-CREASTMT/statemnt.txt                       1262  c325b9f596014395c2c9cfa1d6b3a7dd05142dc2e75f3adcf99941c66a5dcbe5
+CREASTMT/statemnt.html                      6632  f92ce75966dda6563bc0b2863a8f127c0c3a8a531d2811ad525657d78cb2c427
+CREASTMT/statemnt.txt                       1262  7a79c18cc1ea5256d62d99c6ef1dcdc42c1a2afc3c469f9cf7e2b82a283df11a
 CREASTMT/sysout.txt                            0  e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
 CREASTMT/trxfl.txt                           312  02ce751c0b8f83714c363163c36ebe017d395c63f48cdf01cb7bfb55ac2ee02b
 INTCALC/acctdata.txt                          50  9c705f086d1440f2768048bbe0a8c267fa8449808f3a49d1e829f992174408f5

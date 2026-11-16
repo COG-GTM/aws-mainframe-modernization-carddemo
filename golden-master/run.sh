@@ -206,7 +206,16 @@ awk '{ printf "%-350s\n", substr($0, 263, 16) substr($0, 1, 262) substr($0, 279,
 load KSTRXFL 350 "$WORK/trxfl.txt"         trxfl.ksds
 load KSXREF   50 "$DATA/cardxref.txt"      xref.ksds
 load KSACCT  300 "$STATE/acctdata.txt"     acct.ksds
-load KSCUST  500 "$DATA/custdata.txt"      cust.ksds
+# The statements print customer names and addresses. The sample customers are
+# synthetic but look like real people, so the harness replaces those fields with
+# placeholders keyed on CUST-ID before the load. Each placeholder keeps an
+# inner space, so the statement STRING ... DELIMITED BY ' ' truncation still applies.
+awk '{ sub(/\r$/, ""); id = substr($0, 1, 9)
+       printf "%-500s\n", id sprintf("%-25s%-25s%-25s%-50s%-50s%-50s",
+         "F" id " FIRST", "M" id " MIDDLE", "L" id " LAST",
+         id " MAIN STREET", "UNIT " id, "C" id " CITY") substr($0, 235) }' \
+  "$DATA/custdata.txt" > "$WORK/custdata-masked.txt"
+load KSCUST  500 "$WORK/custdata-masked.txt" cust.ksds
 DD_TRNXFILE="$RUN/trxfl.ksds" DD_XREFFILE="$RUN/xref.ksds" DD_ACCTFILE="$RUN/acct.ksds" \
 DD_CUSTFILE="$RUN/cust.ksds" DD_STMTFILE="$RUN/statemnt.seq" DD_HTMLFILE="$RUN/statemnt.html.seq" \
   run_step $J CBSTM03A
