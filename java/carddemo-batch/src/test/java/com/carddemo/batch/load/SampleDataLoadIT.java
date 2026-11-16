@@ -4,7 +4,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.carddemo.data.Account;
 import com.carddemo.data.AccountRepository;
-import com.carddemo.data.Card;
 import com.carddemo.data.CardRepository;
 import com.carddemo.data.CardXrefRepository;
 import com.carddemo.data.Customer;
@@ -22,6 +21,11 @@ import com.carddemo.data.TranTypeRepository;
 import com.carddemo.data.TransactionRepository;
 import com.carddemo.data.UserSecurity;
 import com.carddemo.data.UserSecurityRepository;
+import com.carddemo.legacyio.CardDemoLayouts;
+import com.carddemo.legacyio.LegacyFileCodec;
+import com.carddemo.legacyio.Record;
+import com.carddemo.legacyio.RecordLayout;
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.nio.file.Path;
 import java.time.LocalDate;
@@ -146,41 +150,41 @@ class SampleDataLoadIT {
     }
 
     @Test
-    void customerMatchesCustdata() {
-        Customer customer = customers.findById(1L).orElseThrow();
-        assertThat(customer.getFirstName()).isEqualTo("Immanuel");
-        assertThat(customer.getMiddleName()).isEqualTo("Madeline");
-        assertThat(customer.getLastName()).isEqualTo("Kessler");
-        assertThat(customer.getAddrLine1()).isEqualTo("618 Deshaun Route");
-        assertThat(customer.getAddrLine2()).isEqualTo("Apt. 802");
-        assertThat(customer.getAddrLine3()).isEqualTo("Altenwerthshire");
-        assertThat(customer.getAddrStateCd()).isEqualTo("NC");
+    void customerMatchesCustdata() throws IOException {
+        Record source = firstRecord("custdata.txt", CardDemoLayouts.CUSTOMER);
+        Customer customer = customers.findById(source.getLong("CUST-ID")).orElseThrow();
+        assertThat(customer.getFirstName()).isEqualTo(source.getString("CUST-FIRST-NAME").stripTrailing());
+        assertThat(customer.getLastName()).isEqualTo(source.getString("CUST-LAST-NAME").stripTrailing());
+        assertThat(customer.getAddrLine1()).isEqualTo(source.getString("CUST-ADDR-LINE-1").stripTrailing());
+        assertThat(customer.getAddrStateCd()).isEqualTo(source.getString("CUST-ADDR-STATE-CD"));
         assertThat(customer.getAddrCountryCd()).isEqualTo("USA");
-        assertThat(customer.getAddrZip()).isEqualTo("12546");
-        assertThat(customer.getPhoneNum1()).isEqualTo("(908)119-8310");
-        assertThat(customer.getSsn()).isEqualTo(20973888);
-        assertThat(customer.getGovtIssuedId()).isEqualTo("00000000000049368437");
-        assertThat(customer.getDob()).isEqualTo(LocalDate.of(1961, 6, 8));
-        assertThat(customer.getEftAccountId()).isEqualTo("0053581756");
+        assertThat(customer.getSsn()).isEqualTo(source.getDecimal("CUST-SSN").intValueExact());
+        assertThat(customer.getGovtIssuedId()).isEqualTo(source.getString("CUST-GOVT-ISSUED-ID").stripTrailing());
+        assertThat(customer.getDob()).isEqualTo(LocalDate.parse(source.getString("CUST-DOB-YYYY-MM-DD")));
+        assertThat(customer.getEftAccountId()).isEqualTo(source.getString("CUST-EFT-ACCOUNT-ID").stripTrailing());
         assertThat(customer.getPriCardHolderInd()).isEqualTo("Y");
-        assertThat(customer.getFicoCreditScore()).isEqualTo(274);
+        assertThat(customer.getFicoCreditScore()).isEqualTo(source.getDecimal("CUST-FICO-CREDIT-SCORE").intValueExact());
     }
 
     @Test
-    void cardAndCrossReferenceMatchCarddataAndCardxref() {
-        Card card = cards.findById("0500024453765740").orElseThrow();
-        assertThat(card.getAcctId()).isEqualTo(50L);
-        assertThat(card.getCvvCd()).isEqualTo(747);
-        assertThat(card.getEmbossedName()).isEqualTo("Aniya Von");
-        assertThat(card.getExpirationDate()).isEqualTo(LocalDate.of(2023, 3, 9));
-        assertThat(card.getActiveStatus()).isEqualTo("Y");
-        assertThat(cards.findByAcctIdOrderByCardNum(50L)).containsExactly(card);
-
-        assertThat(xrefs.findById("0500024453765740")).hasValueSatisfying(xref -> {
-            assertThat(xref.getCustId()).isEqualTo(50L);
-            assertThat(xref.getAcctId()).isEqualTo(50L);
+    void cardAndCrossReferenceMatchCarddataAndCardxref() throws IOException {
+        Record source = firstRecord("carddata.txt", CardDemoLayouts.CARD);
+        long acctId = source.getLong("CARD-ACCT-ID");
+        assertThat(cards.findByAcctIdOrderByCardNum(acctId)).singleElement().satisfies(card -> {
+            assertThat(card.getCardNum()).isEqualTo(source.getString("CARD-NUM"));
+            assertThat(card.getCvvCd()).isEqualTo(source.getDecimal("CARD-CVV-CD").intValueExact());
+            assertThat(card.getEmbossedName()).isEqualTo(source.getString("CARD-EMBOSSED-NAME").stripTrailing());
+            assertThat(card.getExpirationDate()).isEqualTo(LocalDate.parse(source.getString("CARD-EXPIRAION-DATE")));
+            assertThat(card.getActiveStatus()).isEqualTo("Y");
+            assertThat(xrefs.findById(card.getCardNum())).hasValueSatisfying(xref -> {
+                assertThat(xref.getCustId()).isEqualTo(50L);
+                assertThat(xref.getAcctId()).isEqualTo(acctId);
+            });
         });
-        assertThat(xrefs.findByAcctIdOrderByCardNum(50L)).hasSize(1);
+        assertThat(acctId).isEqualTo(50L);
+        assertThat(xrefs.findByAcctIdOrderByCardNum(acctId)).hasSize(1);
+        assertThat(jdbc.queryForObject("select count(*) from cards c join accounts a on a.acct_id = c.acct_id",
+                Integer.class)).isEqualTo(50);
     }
 
     @Test
@@ -249,6 +253,10 @@ class SampleDataLoadIT {
                 .containsEntry("users", 10);
         assertThat(accounts.count()).isEqualTo(50);
         assertThat(dailyTransactions.count()).isEqualTo(300);
+    }
+
+    private static Record firstRecord(String asciiFile, RecordLayout layout) throws IOException {
+        return LegacyFileCodec.ascii().read(DATA.resolve("ASCII").resolve(asciiFile), layout).getFirst().record();
     }
 
     private BigDecimal sum(String sql) {
