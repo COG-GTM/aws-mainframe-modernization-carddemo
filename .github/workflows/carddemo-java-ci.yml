@@ -1,0 +1,53 @@
+name: carddemo-java CI
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "carddemo-java/**"
+      - "!carddemo-java/golden-master/**"
+      - ".github/workflows/carddemo-java-ci.yml"
+  pull_request:
+    paths:
+      - "carddemo-java/**"
+      - "!carddemo-java/golden-master/**"
+      - ".github/workflows/carddemo-java-ci.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: carddemo-java-ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    name: mvnw verify (Java 21, Testcontainers Postgres 16)
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    defaults:
+      run:
+        working-directory: carddemo-java
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+          cache: maven
+          cache-dependency-path: carddemo-java/**/pom.xml
+
+      - name: Build, unit tests and integration tests
+        run: ./mvnw -B -ntp verify
+
+      - name: Upload test reports
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: carddemo-java-test-reports
+          path: |
+            carddemo-java/**/target/surefire-reports/
+            carddemo-java/**/target/failsafe-reports/
+          if-no-files-found: ignore

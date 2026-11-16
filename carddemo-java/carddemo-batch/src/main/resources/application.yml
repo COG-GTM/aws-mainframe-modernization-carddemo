@@ -1,0 +1,19 @@
+spring:
+  application:
+    name: carddemo-batch
+  main:
+    web-application-type: none
+  datasource:
+    url: ${CARDDEMO_DB_URL:jdbc:postgresql://localhost:5432/carddemo}
+    username: ${CARDDEMO_DB_USER:carddemo}
+    password: ${CARDDEMO_DB_PASSWORD:}
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate
+  batch:
+    jdbc:
+      initialize-schema: always
+    job:
+      # Pick the job on the command line, e.g. --spring.batch.job.name=POSTTRAN
+      name: ${CARDDEMO_JOB:}
