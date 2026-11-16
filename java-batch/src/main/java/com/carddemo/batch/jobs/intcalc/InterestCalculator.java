@@ -14,6 +14,7 @@ import java.time.Clock;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 
@@ -119,10 +120,10 @@ public class InterestCalculator {
     /** 1300-B-WRITE-TX. */
     private TransactionRecord interestTransaction(BigDecimal monthly) {
         tranIdSuffix++;
-        String tranId = parmDate + String.format("%06d", tranIdSuffix % 1_000_000);
+        String tranId = parmDate + String.format(Locale.ROOT, "%06d", tranIdSuffix % 1_000_000);
         String ts = db2Timestamp();
         return new TransactionRecord(tranId, "01", 5, "System",
-                "Int. for a/c " + String.format("%011d", account.acctId()), monthly, 0L, "", "", "",
+                "Int. for a/c " + String.format(Locale.ROOT, "%011d", account.acctId()), monthly, 0L, "", "", "",
                 xref.xrefCardNum(), ts, ts, "");
     }
 

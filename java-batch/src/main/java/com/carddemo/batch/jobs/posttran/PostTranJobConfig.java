@@ -16,6 +16,7 @@ import java.nio.file.Path;
 import java.time.Clock;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
@@ -168,8 +169,8 @@ public class PostTranJobConfig {
             List<String> sysout = new ArrayList<>();
             sysout.add("START OF EXECUTION OF PROGRAM CBTRN02C");
             sysout.addAll(engine.sysout());
-            sysout.add(String.format("TRANSACTIONS PROCESSED :%09d", engine.transactionCount()));
-            sysout.add(String.format("TRANSACTIONS REJECTED  :%09d", engine.rejectCount()));
+            sysout.add(String.format(Locale.ROOT, "TRANSACTIONS PROCESSED :%09d", engine.transactionCount()));
+            sysout.add(String.format(Locale.ROOT, "TRANSACTIONS REJECTED  :%09d", engine.rejectCount()));
             sysout.add("END OF EXECUTION OF PROGRAM CBTRN02C");
             Files.write(output(SYSOUT), sysout, StandardCharsets.US_ASCII);
         }

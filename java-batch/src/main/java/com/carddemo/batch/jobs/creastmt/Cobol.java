@@ -2,6 +2,7 @@ package com.carddemo.batch.jobs.creastmt;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.util.Locale;
 
 /** COBOL MOVE / STRING semantics used by the CBSTM03A port. */
 final class Cobol {
@@ -19,7 +20,7 @@ final class Cobol {
 
     /** Unsigned {@code PIC 9(n)} DISPLAY rendering. */
     static String digits(long value, int len) {
-        return String.format("%0" + len + "d", value);
+        return String.format(Locale.ROOT, "%0" + len + "d", value);
     }
 
     /**

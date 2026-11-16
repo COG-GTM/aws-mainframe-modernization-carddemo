@@ -14,6 +14,7 @@ import java.time.Clock;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 
 /**
@@ -129,7 +130,7 @@ public class PostingEngine {
     /** Z-GET-DB2-FORMAT-TIMESTAMP: CURRENT-DATE as YYYY-MM-DD-HH.MM.SS.hh0000. */
     String db2Timestamp() {
         LocalDateTime now = LocalDateTime.now(clock);
-        return String.format("%04d-%02d-%02d-%02d.%02d.%02d.%02d0000",
+        return String.format(Locale.ROOT, "%04d-%02d-%02d-%02d.%02d.%02d.%02d0000",
                 now.getYear(), now.getMonthValue(), now.getDayOfMonth(),
                 now.getHour(), now.getMinute(), now.getSecond(), now.getNano() / 10_000_000);
     }
