@@ -77,7 +77,10 @@ final class CopybookParser {
         return out.toString();
     }
 
-    /** Splits on separator periods (a period followed by a space or the end), outside literals. */
+    /**
+     * Splits on separator periods, outside literals. Periods, commas and semicolons are separators only when followed
+     * by a space or the end, so pictures such as {@code -ZZZ,ZZZ,ZZZ.ZZ} stay one token.
+     */
     private static List<List<String>> statements(String code) {
         List<List<String>> statements = new ArrayList<>();
         List<String> tokens = new ArrayList<>();
@@ -93,13 +96,13 @@ final class CopybookParser {
             } else if (c == '\'' || c == '"') {
                 quote = c;
                 token.append(c);
-            } else if (c == '.' && (i + 1 == code.length() || Character.isWhitespace(code.charAt(i + 1)))) {
+            } else if (c == '.' && separatorAt(code, i)) {
                 flush(token, tokens);
                 if (!tokens.isEmpty()) {
                     statements.add(tokens);
                 }
                 tokens = new ArrayList<>();
-            } else if (Character.isWhitespace(c) || c == ',' || c == ';') {
+            } else if (Character.isWhitespace(c) || ((c == ',' || c == ';') && separatorAt(code, i))) {
                 flush(token, tokens);
             } else {
                 token.append(c);
@@ -110,6 +113,10 @@ final class CopybookParser {
             statements.add(tokens);
         }
         return statements;
+    }
+
+    private static boolean separatorAt(String code, int i) {
+        return i + 1 == code.length() || Character.isWhitespace(code.charAt(i + 1));
     }
 
     private static void flush(StringBuilder token, List<String> tokens) {
@@ -266,9 +273,7 @@ final class CopybookParser {
             children.add(item);
             offsets.put(item.name(), childOffset);
             int childEnd = childOffset + item.totalLength();
-            if (child.redefines == null) {
-                cursor = childEnd;
-            }
+            cursor = child.redefines == null ? childEnd : Math.max(cursor, childEnd);
             end = Math.max(end, childEnd);
         }
         return new CopybookItem(entry.level, entry.name, null, usage, entry.occurs, entry.redefines, offset,

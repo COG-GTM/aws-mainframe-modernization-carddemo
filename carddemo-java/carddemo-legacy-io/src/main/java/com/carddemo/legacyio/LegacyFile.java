@@ -86,11 +86,15 @@ public final class LegacyFile {
 
     /**
      * Writes records. In line-sequential format a record keeps the line length and ending it was read with, as long
-     * as the bytes past that length are still spaces; other records are written in full and end with LF.
+     * as the bytes past that length are still spaces; other records are written in full and end with LF. Only the
+     * last record may be left without a line ending. A record whose bytes contain LF, or end in CR before a line
+     * ending, cannot be read back line by line and is rejected; write such records (e.g. binary export fields) in
+     * {@link RecordFormat#FIXED}.
      */
     public static void write(OutputStream out, List<Record> records, Encoding encoding, RecordFormat format)
             throws IOException {
-        for (Record record : records) {
+        for (int index = 0; index < records.size(); index++) {
+            Record record = records.get(index);
             byte[] bytes = new RecordCodec(record.layout(), encoding).encode(record);
             if (format == RecordFormat.FIXED) {
                 out.write(bytes);
@@ -100,10 +104,22 @@ public final class LegacyFile {
             int length = bytes.length;
             byte[] terminator = LineFraming.Terminator.LF.bytes();
             if (framing != null) {
-                terminator = framing.terminator().bytes();
+                boolean last = index == records.size() - 1;
+                if (framing.terminator() != LineFraming.Terminator.NONE || last) {
+                    terminator = framing.terminator().bytes();
+                }
                 if (framing.length() <= bytes.length && allSpaces(bytes, framing.length(), encoding.space())) {
                     length = framing.length();
                 }
+            }
+            int lineFeed = indexOf(bytes, (byte) '\n', 0);
+            if (lineFeed >= 0 && lineFeed < length) {
+                throw new IllegalArgumentException("Record " + (index + 1) + " (" + record.layout().name()
+                        + ") has a line-feed byte at offset " + lineFeed + "; write it in FIXED format");
+            }
+            if (terminator.length > 0 && length > 0 && bytes[length - 1] == '\r') {
+                throw new IllegalArgumentException("Record " + (index + 1) + " (" + record.layout().name()
+                        + ") ends in a carriage-return byte; write it in FIXED format");
             }
             out.write(bytes, 0, length);
             out.write(terminator);

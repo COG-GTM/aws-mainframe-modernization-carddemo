@@ -1,5 +1,8 @@
 package com.carddemo.legacyio;
 
+import java.math.BigDecimal;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -28,10 +31,15 @@ public final class RecordCodec {
                     + bytes.length);
         }
         Map<String, Object> values = new LinkedHashMap<>();
+        Map<String, byte[]> sourceBytes = new HashMap<>();
         for (FieldDefinition field : layout.fields()) {
-            values.put(field.name(), FieldCodec.decode(field, encoding, bytes, 0));
+            Object value = FieldCodec.decode(field, encoding, bytes, 0);
+            values.put(field.name(), value);
+            if (value instanceof BigDecimal) {
+                sourceBytes.put(field.name(), Arrays.copyOfRange(bytes, field.offset(), field.end()));
+            }
         }
-        return Record.decoded(layout, values);
+        return Record.decoded(layout, values, encoding, sourceBytes);
     }
 
     public byte[] encode(Record record) {
@@ -41,7 +49,12 @@ public final class RecordCodec {
         }
         byte[] bytes = new byte[layout.length()];
         for (FieldDefinition field : layout.fields()) {
-            FieldCodec.encode(field, encoding, record.get(field.name()), bytes, 0);
+            byte[] source = record.sourceBytes(field.name(), encoding);
+            if (source != null) {
+                System.arraycopy(source, 0, bytes, field.offset(), source.length);
+            } else {
+                FieldCodec.encode(field, encoding, record.get(field.name()), bytes, 0);
+            }
         }
         return bytes;
     }

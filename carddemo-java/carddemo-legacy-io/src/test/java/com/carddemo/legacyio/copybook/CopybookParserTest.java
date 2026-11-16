@@ -74,4 +74,26 @@ class CopybookParserTest {
     void reportsMissingCopybook() {
         assertThatThrownBy(() -> Copybook.load("NOSUCHMEMBER")).isInstanceOf(NoSuchElementException.class);
     }
+    @Test
+    void parsesCommaEditedReportPictures() {
+        Copybook copybook = Copybook.load("CVTRA07Y");
+
+        CopybookItem amount = copybook.record("TRANSACTION-DETAIL-REPORT").find("TRAN-REPORT-AMT").orElseThrow();
+        assertThat(amount.picture().source()).isEqualTo("-ZZZ,ZZZ,ZZZ.ZZ");
+        assertThat(amount.length()).isEqualTo(15);
+        assertThat(copybook.record("TRANSACTION-HEADER-2").length()).isEqualTo(133);
+    }
+
+    @Test
+    void placesItemsAfterTheLargestRedefinition() {
+        Copybook copybook = Copybook.parse("R", String.join("\n",
+                "       01  R-REC.",
+                "           05  A  PIC X(2).",
+                "           05  B  REDEFINES A PIC X(4).",
+                "           05  C  PIC X."));
+
+        CopybookItem record = copybook.record();
+        assertThat(record.find("C").orElseThrow().offset()).isEqualTo(4);
+        assertThat(record.length()).isEqualTo(5);
+    }
 }

@@ -136,4 +136,80 @@ class RecordCodecTest {
 
         assertThat(codec.encode(codec.decode(bytes))).isEqualTo(bytes);
     }
+    @ParameterizedTest
+    @CsvSource({
+        "ASCII,  313233",
+        "ASCII,  30307d",
+        "EBCDIC, f1f2f3",
+        "EBCDIC, f0f0d0"
+    })
+    void keepsTheStoredSignOfUnchangedZonedFields(Encoding encoding, String hex) {
+        RecordLayout layout = RecordLayout.of(Copybook.parse("S", "       01  S-REC.\n           05  N  PIC S9(3)."));
+        RecordCodec codec = new RecordCodec(layout, encoding);
+        byte[] bytes = HexFormat.of().parseHex(hex);
+
+        Record record = codec.decode(bytes);
+
+        assertThat(record.invalidFields()).isEmpty();
+        assertThat(codec.encode(record)).isEqualTo(bytes);
+    }
+
+    @ParameterizedTest
+    @CsvSource({"12345f, 12345.67", "12345a, 12345.67", "12345e, 12345.67", "12345b, -12345.67"})
+    void keepsAlternatePackedSignNibbles(String signByte, BigDecimal ignored) {
+        RecordLayout layout = RecordLayout.of(Copybook.parse("P",
+                "       01  P-REC.\n           05  N  PIC S9(5) COMP-3."));
+        RecordCodec codec = new RecordCodec(layout, Encoding.EBCDIC);
+        byte[] bytes = HexFormat.of().parseHex(signByte);
+
+        Record record = codec.decode(bytes);
+
+        assertThat(record.getDecimal("N").abs()).isEqualByComparingTo("12345");
+        assertThat(codec.encode(record)).isEqualTo(bytes);
+    }
+
+    @Test
+    void setFieldsAndOtherEncodingsUseThePreferredSign() {
+        RecordLayout layout = RecordLayout.of(Copybook.parse("S", "       01  S-REC.\n           05  N  PIC S9(3)."));
+        Record record = new RecordCodec(layout, Encoding.ASCII).decode("123".getBytes(StandardCharsets.ISO_8859_1));
+
+        assertThat(new RecordCodec(layout, Encoding.EBCDIC).encode(record)).containsExactly(0xf1, 0xf2, 0xc3);
+        record.set("N", new BigDecimal("123"));
+        assertThat(new String(new RecordCodec(layout, Encoding.ASCII).encode(record), StandardCharsets.ISO_8859_1))
+                .isEqualTo("12C");
+    }
+
+    @Test
+    void numericGettersAcceptEverySupportedInputType() {
+        Record record = Record.blank(LAYOUT)
+                .set("COUNT", 42)
+                .set("HALF", (short) -2)
+                .set("FULL", 123456789L)
+                .set("PACKED", java.math.BigInteger.TEN);
+
+        assertThat(record.getLong("COUNT")).isEqualTo(42);
+        assertThat(record.getLong("HALF")).isEqualTo(-2);
+        assertThat(record.getLong("FULL")).isEqualTo(123456789);
+        assertThat(record.getDecimal("PACKED")).isEqualTo(new BigDecimal("10.00"));
+        assertThatThrownBy(() -> Record.blank(LAYOUT).set("COUNT", "42").getDecimal("COUNT"))
+                .isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @ParameterizedTest
+    @CsvSource({
+        "PIC S9(2) COMP-3, 123c",
+        "PIC 9(3) COMP,    ffff",
+        "PIC S9(4) COMP,   7fff"
+    })
+    void keepsNumbersTooLargeForThePictureAsInvalidData(String clause, String hex) {
+        RecordLayout layout = RecordLayout.of(Copybook.parse("O",
+                "       01  O-REC.\n           05  N  " + clause + "."));
+        RecordCodec codec = new RecordCodec(layout, Encoding.EBCDIC);
+        byte[] bytes = HexFormat.of().parseHex(hex);
+
+        Record record = codec.decode(bytes);
+
+        assertThat(record.invalidFields()).containsExactly("N");
+        assertThat(codec.encode(record)).isEqualTo(bytes);
+    }
 }

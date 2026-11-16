@@ -28,7 +28,22 @@ final class FieldCodec {
             case PACKED_DECIMAL -> decodePacked(bytes, field.picture());
             case BINARY -> field.picture().signed() ? new BigInteger(bytes) : new BigInteger(1, bytes);
         };
-        return unscaled == null ? new InvalidFieldData(bytes) : new BigDecimal(unscaled, field.picture().scale());
+        if (unscaled == null || unscaled.abs().toString().length() > field.picture().digits()) {
+            return new InvalidFieldData(bytes);
+        }
+        return new BigDecimal(unscaled, field.picture().scale());
+    }
+
+    /** The numeric value of a field value as set on a record, or {@code null} for a non-numeric type. */
+    static BigDecimal toDecimal(Object value) {
+        return switch (value) {
+            case BigDecimal d -> d;
+            case BigInteger i -> new BigDecimal(i);
+            case Long l -> BigDecimal.valueOf(l);
+            case Integer i -> BigDecimal.valueOf(i);
+            case Short s -> BigDecimal.valueOf(s);
+            case null, default -> null;
+        };
     }
 
     static void encode(FieldDefinition field, Encoding encoding, Object value, byte[] record, int base) {
@@ -70,15 +85,11 @@ final class FieldCodec {
 
     private static BigInteger unscaled(FieldDefinition field, Object value) {
         Picture picture = field.picture();
-        BigDecimal decimal = switch (value) {
-            case BigDecimal d -> d;
-            case BigInteger i -> new BigDecimal(i);
-            case Long l -> BigDecimal.valueOf(l);
-            case Integer i -> BigDecimal.valueOf(i);
-            case Short s -> BigDecimal.valueOf(s);
-            case null, default -> throw new IllegalArgumentException(field.name() + " is numeric; expected a "
-                    + "BigDecimal, BigInteger, Long or Integer, got " + typeOf(value));
-        };
+        BigDecimal decimal = toDecimal(value);
+        if (decimal == null) {
+            throw new IllegalArgumentException(field.name() + " is numeric; expected a BigDecimal, BigInteger, Long, "
+                    + "Integer or Short, got " + typeOf(value));
+        }
         BigDecimal scaled;
         try {
             scaled = decimal.setScale(picture.scale(), RoundingMode.UNNECESSARY);

@@ -2,7 +2,9 @@ package com.carddemo.legacyio;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.math.RoundingMode;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -16,12 +18,16 @@ public final class Record {
 
     private final RecordLayout layout;
     private final Map<String, Object> values;
+    private final Encoding sourceEncoding;
+    private final Map<String, byte[]> sourceBytes;
     private LineFraming framing;
 
-    private Record(RecordLayout layout, Map<String, Object> values, LineFraming framing) {
+    private Record(RecordLayout layout, Map<String, Object> values, Encoding sourceEncoding,
+            Map<String, byte[]> sourceBytes) {
         this.layout = layout;
         this.values = values;
-        this.framing = framing;
+        this.sourceEncoding = sourceEncoding;
+        this.sourceBytes = sourceBytes;
     }
 
     /** A new record with alphanumeric fields set to spaces and numeric fields to zero. */
@@ -32,11 +38,22 @@ public final class Record {
                     ? BigDecimal.ZERO.setScale(field.picture().scale())
                     : " ".repeat(field.length()));
         }
-        return new Record(layout, values, null);
+        return new Record(layout, values, null, new HashMap<>());
     }
 
-    static Record decoded(RecordLayout layout, Map<String, Object> values) {
-        return new Record(layout, values, null);
+    /**
+     * A decoded record. {@code sourceBytes} holds the stored bytes of numeric fields, written back unchanged in the
+     * same encoding until the field is set, so non-preferred signs (unsigned zone, {@code F}/{@code A}/{@code E}/
+     * {@code B} nibbles, negative zero) survive a round trip.
+     */
+    static Record decoded(RecordLayout layout, Map<String, Object> values, Encoding encoding,
+            Map<String, byte[]> sourceBytes) {
+        return new Record(layout, values, encoding, sourceBytes);
+    }
+
+    /** The bytes a numeric field was decoded from, if it has not been set since and the encoding matches. */
+    byte[] sourceBytes(String field, Encoding encoding) {
+        return encoding == sourceEncoding ? sourceBytes.get(field) : null;
     }
 
     public RecordLayout layout() {
@@ -60,13 +77,18 @@ public final class Record {
     /** A numeric field's value; throws {@link InvalidFieldDataException} when its bytes are not a valid number. */
     public BigDecimal getDecimal(String field) {
         Object value = get(field);
-        if (value instanceof BigDecimal d) {
-            return d;
-        }
         if (value instanceof InvalidFieldData invalid) {
             throw new InvalidFieldDataException(layout.name() + "." + field + " holds invalid numeric data " + invalid);
         }
-        throw new IllegalArgumentException(field + " is not numeric");
+        BigDecimal decimal = FieldCodec.toDecimal(value);
+        if (decimal == null) {
+            throw new IllegalArgumentException(field + " is not numeric");
+        }
+        try {
+            return decimal.setScale(layout.field(field).picture().scale(), RoundingMode.UNNECESSARY);
+        } catch (ArithmeticException e) {
+            return decimal;
+        }
     }
 
     public long getLong(String field) {
@@ -77,6 +99,7 @@ public final class Record {
     public Record set(String field, Object value) {
         layout.field(field);
         values.put(field, Objects.requireNonNull(value, field));
+        sourceBytes.remove(field);
         return this;
     }
 
