@@ -9,7 +9,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
-/** Records shaped like the rows in {@code app/data/ASCII}. */
+/** Record layouts as in {@code app/data/ASCII}, with obviously fake personal data. */
 final class Fixtures {
 
     private Fixtures() {
@@ -37,7 +37,7 @@ final class Fixtures {
         c.setCardNum(cardNum);
         c.setAcctId(acctId);
         c.setCvvCd((short) 747);
-        c.setEmbossedName("Aniya Von");
+        c.setEmbossedName("TEST CARDHOLDER");
         c.setExpirationDate(LocalDate.of(2023, 3, 9));
         c.setActiveStatus("Y");
         return c;
@@ -57,13 +57,13 @@ final class Fixtures {
         t.setTypeCd("01");
         t.setCatCd((short) 1);
         t.setSource("POS TERM");
-        t.setDescription("Purchase at Abshire-Lowe");
+        t.setDescription("Purchase at TEST MERCHANT");
         t.setAmt(new BigDecimal("50.47"));
         t.setMerchantId(800000000);
-        t.setMerchantName("Abshire-Lowe");
-        t.setMerchantCity("North Enoshaven");
-        t.setMerchantZip("72112");
-        t.setCardNum("4859452612877065");
+        t.setMerchantName("TEST MERCHANT");
+        t.setMerchantCity("TESTVILLE");
+        t.setMerchantZip("00000");
+        t.setCardNum("4000000000000999");
         t.setOrigTs(LocalDateTime.of(2022, 6, 10, 19, 27, 53));
         t.setProcTs(procTs);
         return t;
@@ -75,13 +75,13 @@ final class Fixtures {
         t.setTypeCd("01");
         t.setCatCd((short) 1);
         t.setSource("POS TERM");
-        t.setDescription("Purchase at Abshire-Lowe");
+        t.setDescription("Purchase at TEST MERCHANT");
         t.setAmt(amt);
         t.setMerchantId(800000000);
-        t.setMerchantName("Abshire-Lowe");
-        t.setMerchantCity("North Enoshaven");
-        t.setMerchantZip("72112");
-        t.setCardNum("4859452612877065");
+        t.setMerchantName("TEST MERCHANT");
+        t.setMerchantCity("TESTVILLE");
+        t.setMerchantZip("00000");
+        t.setCardNum("4000000000000999");
         t.setOrigTs(LocalDateTime.of(2022, 6, 10, 19, 27, 53));
         return t;
     }

@@ -13,18 +13,18 @@ class CardXrefRepositoryIT extends RepositoryIT {
 
     @Test
     void readsByCardNumAndByAccountThroughCxacaix() {
-        xrefs.save(Fixtures.xref("0500024453765740", 50, 50L));
-        xrefs.save(Fixtures.xref("0500024453765739", 51, 50L));
-        xrefs.save(Fixtures.xref("0683586198171516", 27, 27L));
+        xrefs.save(Fixtures.xref("4000000000000202", 50, 50L));
+        xrefs.save(Fixtures.xref("4000000000000201", 51, 50L));
+        xrefs.save(Fixtures.xref("4000000000000101", 27, 27L));
         flushAndClear();
 
-        var xref = xrefs.findById("0500024453765740").orElseThrow();
+        var xref = xrefs.findById("4000000000000202").orElseThrow();
         assertThat(xref.getCustId()).isEqualTo(50);
         assertThat(xref.getAcctId()).isEqualTo(50L);
         assertThat(xrefs.findByAcctIdOrderByCardNum(50L))
                 .extracting(CardXref::getCardNum, CardXref::getCustId)
                 .containsExactly(
-                        org.assertj.core.groups.Tuple.tuple("0500024453765739", 51),
-                        org.assertj.core.groups.Tuple.tuple("0500024453765740", 50));
+                        org.assertj.core.groups.Tuple.tuple("4000000000000201", 51),
+                        org.assertj.core.groups.Tuple.tuple("4000000000000202", 50));
     }
 }

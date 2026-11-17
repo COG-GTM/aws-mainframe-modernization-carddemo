@@ -15,8 +15,8 @@ class AppUserRepositoryIT extends RepositoryIT {
     void readsUpdatesAndDeletesByUserId() {
         var admin = new AppUser();
         admin.setUserId("ADMIN001");
-        admin.setFirstName("MARGARET");
-        admin.setLastName("GOLD");
+        admin.setFirstName("TEST");
+        admin.setLastName("ADMIN");
         admin.setPasswordHash("{noop}not-a-real-hash");
         admin.setUserType("A");
         users.save(admin);
@@ -24,9 +24,9 @@ class AppUserRepositoryIT extends RepositoryIT {
 
         var read = users.findById("ADMIN001").orElseThrow();
         assertThat(read.getUserType()).isEqualTo("A");
-        read.setLastName("SILVER");
+        read.setLastName("RENAMED");
         flushAndClear();
-        assertThat(users.findById("ADMIN001").orElseThrow().getLastName()).isEqualTo("SILVER");
+        assertThat(users.findById("ADMIN001").orElseThrow().getLastName()).isEqualTo("RENAMED");
 
         users.deleteById("ADMIN001");
         flushAndClear();

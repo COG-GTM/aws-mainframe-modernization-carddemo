@@ -14,15 +14,15 @@ class CardRepositoryIT extends RepositoryIT {
 
     @Test
     void readsByCardNumAndByAccountThroughCardaix() {
-        cards.save(Fixtures.card("0683586198171516", 27L));
-        cards.save(Fixtures.card("0500024453765740", 50L));
-        cards.save(Fixtures.card("0500024453765739", 50L));
+        cards.save(Fixtures.card("4000000000000101", 27L));
+        cards.save(Fixtures.card("4000000000000202", 50L));
+        cards.save(Fixtures.card("4000000000000201", 50L));
         flushAndClear();
 
-        assertThat(cards.findById("0683586198171516")).get().extracting(Card::getAcctId).isEqualTo(27L);
+        assertThat(cards.findById("4000000000000101")).get().extracting(Card::getAcctId).isEqualTo(27L);
         assertThat(cards.findByAcctIdOrderByCardNum(50L))
                 .extracting(Card::getCardNum)
-                .containsExactly("0500024453765739", "0500024453765740");
+                .containsExactly("4000000000000201", "4000000000000202");
         assertThat(cards.findByAcctIdOrderByCardNum(99L)).isEmpty();
     }
 
