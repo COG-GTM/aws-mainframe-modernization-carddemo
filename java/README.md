@@ -32,4 +32,6 @@ Integration tests in any module get a database by importing
 
 `carddemo-api` and `carddemo-batch` read the database from `BANK_CARDDEMO_DB_URL` (default
 `jdbc:postgresql://localhost:5432/carddemo`), `BANK_CARDDEMO_DB_USER` and `BANK_CARDDEMO_DB_PASSWORD`; the credentials have no
-defaults and must be set. Only `/actuator/health` is exposed until Spring Security is added.
+defaults and must be set. `sampleDataLoadJob` reloads every table from the repository's `app/data` sample files,
+found through the `dataDir` job parameter or `BANK_CARDDEMO_SAMPLE_DATA_DIR`. Because the sample users have public
+passwords, it only runs under the `dev` or `test` profile or with `BANK_CARDDEMO_SAMPLE_DATA_ENABLED=true`. Only `/actuator/health` is exposed until Spring Security is added.
