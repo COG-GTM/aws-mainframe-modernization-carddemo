@@ -44,9 +44,11 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.test.context.ActiveProfiles;
 
 /** Runs {@code sampleDataLoadJob} against PostgreSQL and checks the tables against the sample files in app/data. */
 @SpringBootTest(properties = "spring.batch.job.enabled=false")
+@ActiveProfiles("test")
 @Import(PostgresTestcontainersConfiguration.class)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class SampleDataLoadIT {
