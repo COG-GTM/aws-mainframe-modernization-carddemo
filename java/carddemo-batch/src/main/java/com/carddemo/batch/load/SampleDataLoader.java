@@ -47,6 +47,9 @@ public class SampleDataLoader {
 
     static final DateTimeFormatter TIMESTAMP = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSSSSS");
 
+    /** The DB2 {@code CURRENT TIMESTAMP} layout POSTTRAN (CBTRN02C) and INTCALC (CBACT04C) write to TRANSACT. */
+    static final DateTimeFormatter DB2_TIMESTAMP = DateTimeFormatter.ofPattern("yyyy-MM-dd-HH.mm.ss.SSSSSS");
+
     private static final List<Class<?>> DELETE_ORDER = List.of(
             CardXref.class, Card.class, Customer.class, Account.class, Transaction.class, DailyTransaction.class,
             TranCatBalance.class, DisclosureGroup.class, TranCategory.class, TranType.class, UserSecurity.class);
@@ -286,7 +289,13 @@ public class SampleDataLoader {
     }
 
     private static LocalDateTime timestamp(Record r, String field) {
-        String value = r.getString(field).strip();
-        return value.isEmpty() ? null : LocalDateTime.parse(value, TIMESTAMP);
+        return timestamp(r.getString(field).strip());
+    }
+
+    static LocalDateTime timestamp(String value) {
+        if (value.isEmpty()) {
+            return null;
+        }
+        return LocalDateTime.parse(value, value.length() > 10 && value.charAt(10) == '-' ? DB2_TIMESTAMP : TIMESTAMP);
     }
 }
