@@ -16,7 +16,7 @@ Produced by `!mf_stream_migration_plan` on 2026-11-19 (session devin-c4fce2ffab2
 |---|---|---|
 | Shape | modular monolith (D-001) | packages `com.carddemo.transaction.batch` (job), `.service` (validation, posting), `com.carddemo.account`, `com.carddemo.card`, `com.carddemo.reference` (repositories/entities); shared code in `com.carddemo.common.{cobol,record,batch,error}` |
 | Job/step | one Job per JCL member, one step per EXEC, chunk-oriented | `Job POSTTRAN` -> `Step step15Cbtrn02c`: `DailyTransactionReader` -> `DailyTransactionProcessor` (calls `TransactionValidationService`, CBTRN02C 1500) -> `PostingItemWriter` (calls `PostingService`, 2000/2700/2800/2900, and `RejectFileWriter`, 2500) |
-| Unit of work | one record = one DB transaction (D-009) | see D-011 (commit interval) |
+| Unit of work | one record = one DB transaction (D-009) | `chunk(1)` pinned for `step15Cbtrn02c` (D-011); the target-state default of 100 applies to other jobs only |
 | Restart | restart from last committed chunk (D-002); rerun guard (D-008) | `RerunGuard` step listener before the first read: any input TRAN-ID already in `transaction.transaction` -> RC 16, no writes |
 | Return code | max step RC; 4 rejects; 16 abend; 12 usage | `PostingRunListener` sets 4 when rejects > 0; `BatchCli` maps FAILED -> 16, bad args -> 12 |
 | Datasets | DALYTRAN/DALYREJS files, KSDS -> tables (D-003) | §4 |
@@ -93,7 +93,7 @@ Single repo: each step is one PR. Phase 3 (UI testing) is skipped: no screens.
 
 | Id | Question | Proposed | Why |
 |---|---|---|---|
-| D-011 | Commit interval | **1 record per chunk** for POSTTRAN (configurable) | FR-16/GC-4: COBOL keeps every record posted before an abend; a 100-record chunk would roll back up to 99 earlier records on an abend. The target state's default of 100 would change abend-path table state. Volume is small (300/day in the sample) |
+| D-011 | Commit interval | **1 record per chunk** for POSTTRAN (the job-level property exists for other jobs; POSTTRAN is pinned to 1, a larger value needs a new decision entry) | FR-16/GC-4: COBOL keeps every record posted before an abend; a 100-record chunk would roll back up to 99 earlier records on an abend. The target state's default of 100 would change abend-path table state. Volume is small (300/day in the sample) |
 | D-012 | DALYREJS on abend (OQ-6) | write to a temp file, publish only on RC 0/4; abend-path parity compares RC + tables, not DALYREJS | `POSTTRAN.jcl:34` `DISP=(NEW,CATLG,DELETE)` deletes the generation on abend; amends the DALYREJS half of D-009's abend rule |
 | D-013 | INFERRED types | `orig_ts`/`proc_ts` TIMESTAMP(6) with per-field formatters (`yyyy-MM-dd HH:mm:ss.SSSSSS` / `yyyy-MM-dd-HH.mm.ss.SS0000`); an unparseable ORIG-TS abends RC 16 (COBOL would copy the bytes: deviation on malformed input only). `expiration_date` DATE, compared as ISO text-equivalent | CORE type mapping; sample data is ISO throughout |
 | D-014 | `WS-TEMP-BAL` truncation | reproduce (truncate to S9(9)V99 before the limit compare) | drift rule 5: quirks are not fixed without a decision |

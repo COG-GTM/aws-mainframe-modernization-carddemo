@@ -32,7 +32,7 @@ Authoritative document: [`functional/CARDDEMO/CardDemo_target_state.md`](../func
 - Launch: `java -jar carddemo-app.jar --job=POSTTRAN [--dd=DALYTRAN=<file>] [--output-dir=<dir>]`; exit code = JCL condition code; optional `POST /api/v1/batch/jobs/POSTTRAN`.
 - RC: 0 clean; **4** when any reject was written; **16** abend; 12 usage error.
 - Datasets: DALYTRAN stays a **file** (CVTRA06Y, ASCII or EBCDIC); TRANSACT, ACCTDATA, CARDXREF, TCATBALF -> PostgreSQL tables; DALYREJS(+1) -> file `<output-dir>/POSTTRAN/<yyyyMMdd-HHmmss-SSS>/DALYREJS` (430-byte fixed records) + SYSOUT in the same generation dir.
-- Unit of work: one daily record = one DB transaction across TRANSACT, ACCOUNT, TCATBAL; chunk commit interval default 100.
+- Unit of work: one daily record = one DB transaction across TRANSACT, ACCOUNT, TCATBAL; chunk commit interval default 100 for other jobs, **pinned to 1 for POSTTRAN** (D-011).
 - Restart from last committed chunk; **full rerun of an already-posted file abends RC 16 on duplicate TRAN-ID** (see open question OQ-1 in `06_decisions.md`: the COBOL opens TRANSACT `OUTPUT`).
 - External scheduler replaces CA-7 (`CLOSEFIL -> CBPAUP0J -> POSTTRAN -> WAITSTEP -> OPENFIL`); CLOSEFIL/OPENFIL/WAITSTEP drop out.
 - Drift rules (reject the PR if): output differs from the golden master; RC differs; an abend becomes a skip; business rules in reader/writer; a COBOL quirk "fixed" without a decision entry; floating point in the money path.
