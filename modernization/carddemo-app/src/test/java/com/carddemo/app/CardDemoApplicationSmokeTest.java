@@ -46,6 +46,7 @@ class CardDemoApplicationSmokeTest extends PostgresContainerSupport {
     void cliRelaunchOfCompletedRunIdExits12() {
         assertThat(cli("--job=NOOP", "--run-id=SMOKE-DONE")).isEqualTo(ReturnCode.OK);
         assertThat(cli("--job=NOOP", "--run-id=SMOKE-DONE")).isEqualTo(ReturnCode.JCL_ERROR);
+        assertThat(cli("--job=NOOP", "--run-id=SMOKE-DONE", "--dd=OTHER=/elsewhere")).isEqualTo(ReturnCode.JCL_ERROR);
     }
 
     private static int cli(String... args) {

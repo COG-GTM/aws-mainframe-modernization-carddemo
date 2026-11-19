@@ -53,7 +53,7 @@ public class JclJobLauncher {
         }
         String runId = arguments.runId() != null ? arguments.runId() : LocalDateTime.now(clock).format(RUN_ID_FORMAT);
         JobParametersBuilder parameters = new JobParametersBuilder().addString(RUN_ID, runId);
-        arguments.dds().forEach((dd, path) -> parameters.addString(DD_PREFIX + dd, path));
+        arguments.dds().forEach((dd, path) -> parameters.addString(DD_PREFIX + dd, path, false));
         JobExecution execution = launch(job, parameters.toJobParameters());
         int rc = JclExitCodeMapper.map(execution);
         log.info("Job {} run.id={} execution={} status={} RC={}", job.getName(), runId, execution.getId(),

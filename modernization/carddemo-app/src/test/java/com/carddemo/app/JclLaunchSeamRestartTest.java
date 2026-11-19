@@ -49,11 +49,14 @@ class JclLaunchSeamRestartTest extends PostgresContainerSupport {
     @Test
     void failedRunIsRestartedFromLastCommitWithSameRunId() {
         FAIL_ON.set(3);
-        assertThat(launcher.run(BatchArguments.parse("--job=SEAMTEST", "--run-id=R-RESTART"))).isEqualTo(ReturnCode.ABEND);
+        assertThat(launcher.run(BatchArguments.parse("--job=SEAMTEST", "--run-id=R-RESTART", "--dd=IN=/a")))
+                .isEqualTo(ReturnCode.ABEND);
         assertThat(WRITTEN).containsExactly(1, 2);
 
         FAIL_ON.set(0);
-        assertThat(launcher.run(BatchArguments.parse("--job=SEAMTEST", "--run-id=R-RESTART"))).isEqualTo(ReturnCode.OK);
+        // DDs are not identifying (D-032): a changed DD path still restarts the same FAILED instance
+        assertThat(launcher.run(BatchArguments.parse("--job=SEAMTEST", "--run-id=R-RESTART", "--dd=IN=/b")))
+                .isEqualTo(ReturnCode.OK);
         assertThat(WRITTEN).containsExactly(1, 2, 3, 4, 5);
         assertThat(RESTART_FLAGS).containsExactly(false, true);
     }
