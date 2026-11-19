@@ -67,7 +67,7 @@ export function mapView(root, params) {
         <div style="position:relative"><input type="search" id="q" placeholder="Find a program, job, file, screen…" style="width:300px" autocomplete="off" aria-label="Find a component"><div class="suggest" hidden></div></div>
         <div class="seg" id="dir" role="group" aria-label="Trace direction"><button class="btn" data-v="up">Upstream</button><button class="btn" data-v="both">Both</button><button class="btn" data-v="down">Downstream</button></div>
         <div class="seg" id="depth" role="group" aria-label="Trace depth"><button class="btn" data-v="1">1 hop</button><button class="btn" data-v="2">2</button><button class="btn" data-v="3">3</button><button class="btn" data-v="99">All</button></div>
-        <button class="btn" id="fit">Fit</button><button class="btn" id="replay" hidden>Replay trace</button><button class="btn" id="clear" hidden>Clear</button>
+        <span class="hint" id="hint">Select a component to trace it</span><button class="btn" id="fit">Fit</button><button class="btn" id="replay" hidden>Replay trace</button><button class="btn" id="clear" hidden>Clear</button>
       </div>
       <div class="title"><span class="eyebrow">CardDemo estate</span><h1>${nodes.length} components, ${links.length} connections</h1><p>Parsed from the source: COPY, CALL, EXEC CICS, EXEC SQL, JCL DD and Control-M conditions. Click anything to trace it.</p></div>
       <div class="legend" aria-label="Legend and filters"></div>
@@ -146,11 +146,14 @@ export function mapView(root, params) {
   function syncButtons() {
     el.querySelectorAll('#dir .btn').forEach((b) => b.classList.toggle('on', b.dataset.v === st.dir));
     el.querySelectorAll('#depth .btn').forEach((b) => b.classList.toggle('on', +b.dataset.v === st.depth));
+    // direction and depth describe a trace, so they only apply once something is selected
+    el.querySelectorAll('#dir .btn, #depth .btn').forEach((b) => { b.disabled = !st.sel; b.title = st.sel ? '' : 'Select a component first'; });
+    el.querySelector('#hint').hidden = !!st.sel;
   }
   el.querySelector('#dir').addEventListener('click', (ev) => { const b = ev.target.closest('button'); if (b) { st.dir = b.dataset.v; select(st.sel); } });
   el.querySelector('#depth').addEventListener('click', (ev) => { const b = ev.target.closest('button'); if (b) { st.depth = +b.dataset.v; select(st.sel); } });
   el.querySelector('#fit').addEventListener('click', () => fit(st.trace ? st.trace.level.keys() : null));
-  el.querySelector('#clear').addEventListener('click', () => select(null));
+  el.querySelector('#clear').addEventListener('click', () => { st.dir = 'both'; st.depth = 1; select(null); });
   el.querySelector('#replay').addEventListener('click', () => { st.t0 = performance.now(); });
 
   // ---- search ----
@@ -183,7 +186,7 @@ export function mapView(root, params) {
       tip.innerHTML = `${esc(d.n.label)}<small>${esc(TYPES[d.n.type].label)}${d.n.sub ? ' · ' + esc(d.n.sub) : ''} · ${d.n.in} in / ${d.n.out} out</small>`; }
   });
   canvas.addEventListener('mouseleave', () => { st.hover = null; tip.hidden = true; });
-  canvas.addEventListener('click', (ev) => { const d = pick(ev); if (d) select(d.id, { keepCamera: ev.shiftKey }); else if (st.sel) select(null); });
+  canvas.addEventListener('click', (ev) => { const d = pick(ev); if (d) select(d.id, { keepCamera: ev.shiftKey }); else if (st.sel) { st.dir = 'both'; st.depth = 1; select(null); } });
 
   // ---- draw ----
   function draw(now) {

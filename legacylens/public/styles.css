@@ -147,3 +147,5 @@ tr.click { cursor: pointer; } tr.click:hover td { background: var(--card); } tr.
   #nav a { padding: 16px 8px; }
 }
 .two > *, .three > *, .split > * { min-width: 0; } .tablewrap { overflow-x: auto; }
+.btn:disabled { opacity: .4; cursor: not-allowed; border-color: var(--border); } .btn.on:disabled { background: var(--surface); color: var(--text); }
+.map .hint { align-self: center; font-size: 12px; color: var(--text-muted); background: rgba(252,252,252,.9); padding: 2px 4px; }
