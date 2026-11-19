@@ -45,6 +45,8 @@ class BinaryIntegerTest {
                 .isInstanceOf(NumericDataException.class);
         assertThatThrownBy(() -> BinaryInteger.decode(new byte[] {0, 1, 2}, 4, 0, false))
                 .isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> BinaryInteger.decode(new byte[] {1}, 0, 2, 4, 0, true))
+                .isInstanceOf(IndexOutOfBoundsException.class);
     }
 
     @Test

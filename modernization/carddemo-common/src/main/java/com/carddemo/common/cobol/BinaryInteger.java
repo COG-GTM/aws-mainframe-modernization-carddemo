@@ -26,6 +26,7 @@ public final class BinaryInteger {
         if (length != byteLength(digits)) {
             throw new IllegalArgumentException("PIC 9(" + digits + ") COMP is " + byteLength(digits) + " bytes, got " + length);
         }
+        java.util.Objects.checkFromIndexSize(offset, length, bytes.length);
         byte[] slice = java.util.Arrays.copyOfRange(bytes, offset, offset + length);
         BigInteger unscaled = signed ? new BigInteger(slice) : new BigInteger(1, slice);
         if (unscaled.abs().compareTo(BigInteger.TEN.pow(digits)) >= 0) {
