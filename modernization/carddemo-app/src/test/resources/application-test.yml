@@ -1,0 +1,5 @@
+# Datasource comes from the Testcontainers postgres:16 container (@DynamicPropertySource in the smoke test).
+spring:
+  jpa:
+    hibernate:
+      ddl-auto: validate

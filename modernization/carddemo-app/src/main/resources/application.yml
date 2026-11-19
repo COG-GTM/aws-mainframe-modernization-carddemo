@@ -1,0 +1,35 @@
+spring:
+  application:
+    name: carddemo-app
+  main:
+    banner-mode: off
+  datasource:
+    url: ${CARDDEMO_DB_URL:jdbc:postgresql://localhost:5432/carddemo}
+    username: ${CARDDEMO_DB_USER:postgres}
+    password: ${CARDDEMO_DB_PASSWORD:}
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+  batch:
+    job:
+      # Jobs are launched only through the CLI seam (--job=<NAME>), never at context start.
+      enabled: false
+    jdbc:
+      # Flyway owns every table; Phase 1 V2 creates the JobRepository tables in schema batch.
+      initialize-schema: never
+      table-prefix: batch.BATCH_
+
+---
+spring:
+  config:
+    activate:
+      on-profile: local
+  # Docker postgres:16, see .migration/07_runbook.md N-03.
+  datasource:
+    url: ${CARDDEMO_DB_URL:jdbc:postgresql://localhost:5432/carddemo}
+    username: ${CARDDEMO_DB_USER:postgres}
+    password: ${CARDDEMO_DB_PASSWORD:postgres}

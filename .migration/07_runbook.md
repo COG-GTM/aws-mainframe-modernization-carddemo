@@ -1,6 +1,6 @@
 # 07 - Runbook (build, test, run)
 
-Rule: **every command marked VERIFIED was executed successfully in session devin-c4fce2ffab2c4abaac2aa02e217e00e4 on 2026-11-19** (Ubuntu VM, repo root = cwd). Commands that cannot run yet are marked **NOT YET RUNNABLE** with the reason; they are the Phase 0 targets, not facts.
+Rule: **every command marked VERIFIED was executed successfully in session devin-c4fce2ffab2c4abaac2aa02e217e00e4 on 2026-11-19** (or in the session named in the section heading) (Ubuntu VM, repo root = cwd). Commands that cannot run yet are marked **NOT YET RUNNABLE** with the reason; they are the Phase 0 targets, not facts.
 
 ## Toolchain (VERIFIED)
 
@@ -34,14 +34,20 @@ How the script works (read it before changing it): compiles a `CEE3ABD` stub (`c
 | R-09 | `python3 functional/CARDDEMO/inventory/coverage.py . functional/CARDDEMO/inventory` | exit 0; `CHECK 46 = 37 + 8 + 1 -> True`, `CHECK-A` 41 declared / 40 roots (1 cited exception), `CHECK-B` 0 unattributed, `CHECK-C` CBTRN01C clean, `CHECK-D` 19 unresolved / 0 without resolution / 0 inconsistent, `INDEPENDENT CHECKS PASS` |
 | R-10 | `cd functional/CARDDEMO/inventory && <mermaid-cli>/mmdc -p <puppeteer.json> -i module_flow.mmd -o module_flow.png` with `@mermaid-js/mermaid-cli@10.9.1` installed under `~/work/mmd` (`PUPPETEER_SKIP_DOWNLOAD=1 npm i @mermaid-js/mermaid-cli@10.9.1`) and `puppeteer.json` = `{"executablePath":"/opt/.devin/chrome/chrome/linux-137.0.7118.2/chrome-linux64/chrome","args":["--no-sandbox"]}` | PNG rendered |
 
-## Java build, test, run (NOT YET RUNNABLE - `modernization/` does not exist on `main`; Phase 0 creates it)
+## Java build, test, run (VERIFIED in Phase 0, session devin-8bcaa62b3adc402888e545635bcac91b, 2026-11-19)
+
+| ID | Command | Observed |
+|---|---|---|
+| R-15 (was N-01) | `(cd modernization && JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64 mvn -B verify)` | `BUILD SUCCESS`; carddemo-common 70 tests, carddemo-app 4 tests (Testcontainers `postgres:16`, ~16 s), 0 failures. Builds `modernization/carddemo-app/target/carddemo-app.jar`. Becomes the golden-master gate once N-05 lands |
+| R-16 (was N-03) | `docker run --rm -d --name carddemo-pg -e POSTGRES_DB=carddemo -e POSTGRES_PASSWORD=postgres -p 5432:5432 postgres:16` ; `java -jar modernization/carddemo-app/target/carddemo-app.jar --spring.profiles.active=local` (Java 21; `local` defaults: `jdbc:postgresql://localhost:5432/carddemo`, user/password `postgres`, override with `CARDDEMO_DB_URL` / `CARDDEMO_DB_USER` / `CARDDEMO_DB_PASSWORD`) ; `docker exec carddemo-pg psql -U postgres -d carddemo -Atc "select version,success from flyway_schema_history"` | exit 0, `Started CardDemoApplication`; Flyway history `0\|t` (`V0__baseline.sql` only), `flyway_schema_history` is the only table in `public` |
+| R-17 (was N-02, launch seam only) | with R-16's container up: `java -jar modernization/carddemo-app/target/carddemo-app.jar --job=POSTTRAN --dd=DALYTRAN=app/data/ASCII/dailytran.txt --output-dir=<dir> --spring.profiles.active=local` ; and without `--job` value: `java -jar ... --job=` | exit **12** with `Unknown job POSTTRAN; registered: []` (Phase 0 registers no job); `--job=` exits **12** with `--job is required` + usage line. The real POSTTRAN run (RC 0/4/16 + generation dir) is N-02 below |
+| R-18 (was N-04) | CI: `.github/workflows/modernization-verify.yml` (Temurin 21, `docker info` check, `mvn -B verify` in `modernization/`, surefire reports uploaded) on pull requests touching `modernization/**`, `app/data/**` or the workflow | see PR CI run (Phase 0 PR) |
+
+## Java build, test, run (NOT YET RUNNABLE)
 
 | ID | Command | Status / reason |
 |---|---|---|
-| N-01 | `(cd modernization && JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64 mvn -B verify)` | **NOT YET RUNNABLE**: executed, fails with `cd: modernization: No such file or directory`. Becomes the unit + Testcontainers + golden-master gate |
-| N-02 | `java -jar modernization/carddemo-app/target/carddemo-app.jar --job=POSTTRAN --dd=DALYTRAN=app/data/ASCII/dailytran.txt --output-dir=<dir>` | **NOT YET RUNNABLE**: no jar. Contract from target state BATCH profile (exit code = JCL RC) |
-| N-03 | local DB profile: `docker run --rm -d --name carddemo-pg -e POSTGRES_DB=carddemo -e POSTGRES_PASSWORD=<local> -p 5432:5432 postgres:16` + Flyway on app start | **NOT YET RUNNABLE** as a profile (no app, no Flyway scripts); only the image pull (R-03) is verified |
-| N-04 | CI: `.github/workflows/modernization-verify.yml` (Temurin 21, Docker check, `mvn -B verify`) | **NOT YET RUNNABLE**: workflow not created yet (Phase 0) |
+| N-02 | `java -jar modernization/carddemo-app/target/carddemo-app.jar --job=POSTTRAN --dd=DALYTRAN=app/data/ASCII/dailytran.txt --output-dir=<dir>` producing DALYREJS, SYSOUT, RETURN-CODE | **NOT YET RUNNABLE**: the jar and launch seam exist (R-17) but no POSTTRAN job is registered; Wave 1 owns it |
 | N-05 | golden-master comparison in Java tests against R-04 outputs | **NOT YET RUNNABLE**: Phase 1/2 |
 
 ## Not usable on this VM
