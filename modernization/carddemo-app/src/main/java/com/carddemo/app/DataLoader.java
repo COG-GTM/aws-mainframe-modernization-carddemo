@@ -8,18 +8,22 @@ import com.carddemo.common.batch.BatchArguments;
 import com.carddemo.common.batch.BatchUsageException;
 import com.carddemo.common.batch.ReturnCode;
 import com.carddemo.common.cobol.CodePage;
+import com.carddemo.common.error.AbendException;
 import com.carddemo.common.record.CobolRecord;
 import com.carddemo.common.record.RecordFormat;
 import com.carddemo.common.record.RecordLayout;
 import com.carddemo.common.record.RecordReader;
 import com.carddemo.reference.batch.TranCatBalanceRecordLayout;
 import com.carddemo.reference.domain.TranCatBalance;
+import org.springframework.dao.DataAccessException;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.support.TransactionTemplate;
 
 import java.io.PrintStream;
 import java.nio.file.Path;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -101,7 +105,14 @@ public class DataLoader implements BatchJobLauncher.CardDemoJob {
                 rows.add(table.columns().apply(table.mapper().apply(r.get())));
             }
         }
-        jdbc.batchUpdate(table.sql(), rows);
+        try {
+            jdbc.batchUpdate(table.sql(), rows);
+        } catch (DataAccessException ex) {
+            // The driver message echoes the key (a full card number for CARDXREF): report only the SQLSTATE.
+            String sqlState = ex.getMostSpecificCause() instanceof SQLException sql ? sql.getSQLState() : "unknown";
+            throw new AbendException("LOAD " + dd + " insert failed, SQLSTATE " + sqlState
+                    + (ex instanceof DuplicateKeyException ? " (duplicate key)" : ""));
+        }
         return rows.size();
     }
 }

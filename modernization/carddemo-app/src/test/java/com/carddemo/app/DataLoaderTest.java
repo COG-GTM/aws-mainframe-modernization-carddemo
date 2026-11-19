@@ -114,12 +114,23 @@ class DataLoaderTest extends PostgresTestBase {
         assertThat(accounts.existsById(99L)).isFalse();
     }
 
+    /** TCATBALF is loaded last, so its conflict proves ACCTDATA and CARDXREF are rolled back with it. */
     @Test
     void aKeyAlreadyLoadedAbendsAndLoadsNothing() {
-        assertThat(load("--job=LOAD", ASCII)).isEqualTo(ReturnCode.OK);
+        assertThat(load("--job=LOAD", "--dd=TCATBALF=" + DATA.resolve("ASCII/tcatbal.txt"))).isEqualTo(ReturnCode.OK);
         assertThat(loadSample("ASCII", "acctdata.txt", "cardxref.txt", "tcatbal.txt", "ASCII")).isEqualTo(ReturnCode.ABEND);
+        assertThat(accounts.count()).isZero();
         assertThat(xrefs.count()).isZero();
-        assertThat(accounts.count()).isEqualTo(50);
+        assertThat(balances.count()).isEqualTo(50);
+        assertThat(err.toString(StandardCharsets.UTF_8)).contains("LOAD TCATBALF insert failed, SQLSTATE 23505 (duplicate key)");
+    }
+
+    @Test
+    void aDuplicateCardIsReportedWithoutThePan() {
+        String xref = "--dd=CARDXREF=" + DATA.resolve("ASCII/cardxref.txt");
+        assertThat(load("--job=LOAD", xref)).isEqualTo(ReturnCode.OK);
+        assertThat(load("--job=LOAD", xref)).isEqualTo(ReturnCode.ABEND);
+        assertThat(err.toString(StandardCharsets.UTF_8)).contains("SQLSTATE 23505").doesNotContain("0500024453765740");
     }
 
     @Test
