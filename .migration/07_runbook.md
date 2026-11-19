@@ -42,6 +42,8 @@ Executed from the repo root on the Devin VM (Maven 3.9.9, Docker Engine 29.7.2).
 | R-13 | `(cd modernization && JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64 mvn -B verify)` | BUILD SUCCESS; carddemo-common 6 tests, carddemo-app 6 tests (Testcontainers `postgres:16`), 0 failures |
 | R-14 | `(cd modernization && CARDDEMO_DB_PORT=55432 docker compose up -d --build && CARDDEMO_DB_PORT=55432 docker compose run --rm app --job=NOOP; echo $?; CARDDEMO_DB_PORT=55432 docker compose run --rm app --job=NOSUCH; echo $?; CARDDEMO_DB_PORT=55432 docker compose down -v)` (needs R-13 jar) | `app` service exits 0 (`Job NOOP ... status=COMPLETED RC=0`); `--job=NOOP` exit 0; `--job=NOSUCH` exit 12 |
 | R-15 | `(cd modernization && JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64 mvn -B verify -Dtestcontainers.version=1.19.8)` | BUILD FAILURE on purpose (D-030 evidence): `client version 1.32 is too old. Minimum supported API version is 1.40` → `Could not find a valid Docker environment` |
+| R-16 | `.migration/tools/posttran_golden_cases.sh ~/work/golden` | writes `modernization/carddemo-app/src/test/resources/golden/posttran/`: `baseline` RC 4 / 38 rejects, `syn-all` RC 4 / 3, `syn-ok` RC 0 / 0, `empty` RC 0 / 0, `cp037` RC 4 / 38, `acct-missing` RC 4 / 2 (`0101 ACCOUNT RECORD NOT FOUND`, account 00000000007 dropped), `dup-id` RC 231 / 0; baseline sha256 equal to R-04 |
+| R-17 | `(cd modernization && JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64 mvn -B verify)` (Phase 1) | BUILD SUCCESS; carddemo-common 14 tests, carddemo-app 26 tests (incl. `KsdsDataServiceTest` on `postgres:16`, `ParityHarnessTest`, `DailyTransactionReaderTest`, `DailyRejectWriterTest`), 0 failures |
 
 ## Gotchas (verified)
 - Sample ASCII files use EBCDIC-style overpunch: compile with `-fsign=EBCDIC`.
