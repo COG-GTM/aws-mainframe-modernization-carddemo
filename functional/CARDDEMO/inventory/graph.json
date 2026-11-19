@@ -903,6 +903,13 @@
    "STEP=STEP01"
   ],
   [
+   "JOB:CBPAUP0J",
+   "CBPAUP0C",
+   "JCL-IMS-PARM",
+   "app/app-authorization-ims-db2-mq/jcl/CBPAUP0J.jcl:25",
+   "DFSRRC00 PARM"
+  ],
+  [
    "JOB:DBPAUTP0",
    "IEFBR14",
    "JCL-UTILITY",
@@ -924,11 +931,25 @@
    "STEP=STEP01"
   ],
   [
+   "JOB:LOADPADB",
+   "PAUDBLOD",
+   "JCL-IMS-PARM",
+   "app/app-authorization-ims-db2-mq/jcl/LOADPADB.JCL:27",
+   "DFSRRC00 PARM"
+  ],
+  [
    "JOB:UNLDGSAM",
    "DFSRRC00",
    "JCL-UTILITY",
    "app/app-authorization-ims-db2-mq/jcl/UNLDGSAM.JCL:26",
    "STEP=STEP01"
+  ],
+  [
+   "JOB:UNLDGSAM",
+   "DBUNLDGS",
+   "JCL-IMS-PARM",
+   "app/app-authorization-ims-db2-mq/jcl/UNLDGSAM.JCL:27",
+   "DFSRRC00 PARM"
   ],
   [
    "JOB:UNLDPADB",
@@ -943,6 +964,13 @@
    "JCL-UTILITY",
    "app/app-authorization-ims-db2-mq/jcl/UNLDPADB.JCL:38",
    "STEP=STEP01"
+  ],
+  [
+   "JOB:UNLDPADB",
+   "PAUDBUNL",
+   "JCL-IMS-PARM",
+   "app/app-authorization-ims-db2-mq/jcl/UNLDPADB.JCL:39",
+   "DFSRRC00 PARM"
   ],
   [
    "JOB:CREADB21",

@@ -82,5 +82,49 @@ print(f'exclusive (exactly 1 stream): {len(exclusive)}  shared (>1 stream): {len
 print(f'CHECK {len(progs)} = {len(exclusive)} + {len(shared)} + {len(unreach)} -> {len(progs) == len(exclusive) + len(shared) + len(unreach)}')
 print('absent (referenced by an entry point, not in repo):', absent)
 print('unreachable:', unreach)
+# Independent checks (the bucket sum above balances by construction; these do not).
+roots = {r for *_, rs in S for r in rs}
+declared = collections.defaultdict(list)
+for caller, callee, kind, c, res in G['edges']:
+    if kind in ('CSD-TRANSACTION', 'JCL-EXEC', 'JCL-TSO-RUN', 'JCL-IMS-PARM'):
+        declared[callee].append(c)
+fails = 0
+# A. every runtime declaration of a module program is a stream root, and every root is declared
+undeclared_roots = sorted(r for r in roots if r not in declared)
+# declared trancodes that are not separately selectable streams, each with its proof
+DECL_NOT_ROOT = {
+ 'COPAUS1C': 'CPVD is the pseudo-conversational re-entry of COPAUS1C (WS-CICS-TRANID VALUE CPVD '
+             'app/app-authorization-ims-db2-mq/cbl/COPAUS1C.cbl:36, RETURN TRANSID :203); a cold start '
+             '(EIBCALEN = 0, :165-169) XCTLs to COPAUS0C, so it runs inside ONL-M11',
+}
+unrooted_decls = sorted(d for d in declared if (d in progs or d in absent) and d not in roots and d not in DECL_NOT_ROOT)
+for d, why in DECL_NOT_ROOT.items(): print('CHECK-A exception', d, '-', why)
+print(f'CHECK-A declarations: {len(declared)} declared targets, {len(roots)} stream roots; '
+      f'roots without declaration {undeclared_roots}; declared programs not a root {unrooted_decls}')
+fails += bool(undeclared_roots or unrooted_decls)
+# B. every program-to-program edge in edges.tsv is attributed to the stream(s) of its caller
+def targets(callee, kind, res):
+    if kind.endswith('-TRANSID') or kind.endswith('-TRANSID-DYNAMIC') or kind == 'CALL-RUNTIME': return []
+    if 'DYNAMIC' in kind: return [t for t in re.findall(r'([A-Z0-9#@$]{1,8})@', res) if t in progs]
+    return [callee] if callee in progs else []
+unattributed = []
+for caller, callee, kind, c, res in G['edges']:
+    if caller not in progs: continue
+    for t in targets(callee, kind, res):
+        if t == caller or t in MENU: continue
+        for sid in where[caller]:
+            if t not in members[sid]: unattributed.append((sid, caller, t, c))
+print(f'CHECK-B edge attribution: {len(unattributed)} program-to-program edges outside their caller\'s stream', unattributed[:10])
+fails += bool(unattributed)
+# C. an unreachable program has no inbound edge and no runtime declaration
+inbound = collections.defaultdict(list)
+for caller, callee, kind, c, res in G['edges']:
+    for t in (targets(callee, kind, res) if caller in progs else ([callee] if callee in progs else [])):
+        if t != caller: inbound[t].append(c)
+bad_unreach = [(p, inbound[p], declared.get(p)) for p in unreach if inbound[p] or declared.get(p)]
+print(f'CHECK-C unreachable: {len(unreach)} unreachable, with inbound edge or declaration: {bad_unreach}')
+fails += bool(bad_unreach)
+print('INDEPENDENT CHECKS', 'PASS' if not fails else f'FAIL ({fails})')
 for p in shared: print('SHARED', p, where[p])
 for s in out['streams']: print(s['id'], '|', s['programs'])
+sys.exit(1 if fails else 0)

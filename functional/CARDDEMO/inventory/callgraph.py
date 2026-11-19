@@ -116,6 +116,9 @@ for path in sorted(glob.glob('app/**/*.jcl', recursive=True) + glob.glob('app/**
         m = re.match(r'//(\S+)\s+EXEC\s+(?:PROC=)?([A-Z0-9#@$]+)\s*,?', l)
         if m and 'PGM=' not in l:
             edges.append(('JOB:' + job, 'PROC:' + m.group(2), 'JCL-PROC', f'{path}:{i}', 'STEP=' + m.group(1)))
+        m = re.search(r"PARM='(?:BMP|DLI),([A-Z0-9#@$]+),", l)
+        if m:
+            edges.append(('JOB:' + job, m.group(1), 'JCL-IMS-PARM', f'{path}:{i}', 'DFSRRC00 PARM'))
         m = re.search(r'RUN PROGRAM\((\w+)\)', l)
         if m:
             edges.append(('JOB:' + job, m.group(1), 'JCL-UTILITY' if m.group(1) in RUNTIME else 'JCL-TSO-RUN', f'{path}:{i}', 'IKJEFT01/DSN'))

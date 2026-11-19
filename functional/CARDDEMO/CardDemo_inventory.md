@@ -23,11 +23,11 @@ Bounded mechanically as every COBOL and Assembler source under `app/**` (prefix 
 
 `inventory/callgraph.py` scans every source line, skipping column-7 comments, and emits `caller -> callee` with `<file>:<line>`: static `CALL '<lit>'`, dynamic `CALL <var>` (resolving MOVEd/VALUE literals per call site: the MOVEs between the previous dispatch on the same variable, or the paragraph start, and the site; when that region only defaults an empty variable, the MOVEs in other paragraphs that are not consumed locally are added and tagged `[SITE+INBOUND]`; `[PROGRAM-WIDE]` marks the fallback), `EXEC CICS XCTL/LINK/START/RETURN TRANSID` (multi-line), CALLs inside COPY/`EXEC SQL INCLUDE` members (attributed to the including program), JCL `EXEC PGM=`/`EXEC PROC=`/TSO `RUN PROGRAM`, and CSD `DEFINE TRANSACTION ... PROGRAM(...)`. LE/MQ/IMS/DB2 runtime modules (`CEE3ABD CEEDAYS MQ* CBLTDLI DSNTIAC`) and system utilities (`IDCAMS SORT IEBGENER IEFBR14 SDSF DFSRRC00 IKJEFT01/1B FTP DFHCSDUP`) are tagged, not followed.
 
-Edge counts (`inventory/edges.tsv`): CALL 19, CALL-VIA-COPYBOOK 1, CALL-DYNAMIC-VIA-COPYBOOK 1, CALL-RUNTIME 43, CICS-XCTL 2, CICS-XCTL-DYNAMIC 30, CICS-LINK-DYNAMIC 1, CICS-RETURN-TRANSID-DYNAMIC 24, CSD-TRANSACTION 25, JCL-EXEC 12, JCL-PROC 4, JCL-TSO-RUN 1, JCL-UTILITY 109 = **272**. IMS programs started by `DFSRRC00 PARM='BMP|DLI,<pgm>,...'` are added from the PARM cites in §3.
+Edge counts (`inventory/edges.tsv`): CALL 19, CALL-VIA-COPYBOOK 1, CALL-DYNAMIC-VIA-COPYBOOK 1, CALL-RUNTIME 43, CICS-XCTL 2, CICS-XCTL-DYNAMIC 30, CICS-LINK-DYNAMIC 1, CICS-RETURN-TRANSID-DYNAMIC 24, CSD-TRANSACTION 25, JCL-EXEC 12, JCL-IMS-PARM 4 (IMS programs started by `DFSRRC00 PARM='BMP|DLI,<pgm>,...'`), JCL-PROC 4, JCL-TSO-RUN 1, JCL-UTILITY 109 = **276** (272 before the 2026-11-19 review fix that made the IMS PARM declarations explicit edges).
 
 ### 2.1 Unresolved / dynamic edges (headline risk)
 
-No dynamic edge is left unresolved. (2026-11-19 review fix: per-site resolution replaced program-wide literal lists, which had attributed every MOVEd target to every dispatch in a program, e.g. `COUSR00C.cbl:197` also listed COUSR03C. The program-level graph, stream membership, shared map and the 46 = 37 + 8 + 1 arithmetic are unchanged; the edge count stays 272.) 19 edges were not auto-resolved by the script (literal sits in a `VALUE` on a continuation line, or the target is the caller's caller); each is resolved by hand:
+No dynamic edge is left unresolved. (2026-11-19 review fix: per-site resolution replaced program-wide literal lists, which had attributed every MOVEd target to every dispatch in a program, e.g. `COUSR00C.cbl:197` also listed COUSR03C. The program-level graph, stream membership, shared map and the 46 = 37 + 8 + 1 arithmetic are unchanged.) 19 edges were not auto-resolved by the script (literal sits in a `VALUE` on a continuation line, or the target is the caller's caller); each is resolved by hand:
 
 | Call site | Variable | Resolution |
 |---|---|---|
@@ -141,6 +141,14 @@ Job dependency conditions (scheduler):
 - **Absent (outside the denominator, referenced by an entry point):** COCRDSEC (CDV1); stale CBADMCDJ definitions (§3).
 
 Every program appears in `inventory/coverage.json` with its bucket and stream list.
+
+The bucket sum balances by construction (each program lands in a bucket by how many streams reach it), so it is **not** proof on its own. `coverage.py` also runs three independent checks and exits non-zero if any fails (2026-11-19 review fix):
+
+- **CHECK-A declarations:** every runtime declaration of a module program (CSD `DEFINE TRANSACTION`, JCL `EXEC PGM=`, TSO `RUN PROGRAM`, IMS `DFSRRC00 PARM`) is a stream root, and every stream root is declared. 41 declared targets, 40 roots. One cited exception: CPVD -> COPAUS1C is the pseudo-conversational re-entry of COPAUS1C (`app/app-authorization-ims-db2-mq/cbl/COPAUS1C.cbl:36,203`); a cold start XCTLs to COPAUS0C (`:165-169`), so it runs inside ONL-M11. Result: pass.
+- **CHECK-B edge attribution:** every program-to-program edge in `edges.tsv` (static or resolved dynamic) lands in every stream of its caller, except B5 returns to the navigation hub. Result: 0 unattributed.
+- **CHECK-C unreachable:** an unreachable program has no inbound edge and no declaration. Result: CBTRN01C has neither.
+- Mutation test: deleting the INTCALC stream from the catalog makes CHECK-A and CHECK-C fail (CBACT04C declared but not a root; CBACT04C unreachable with a declaration).
+- Limits: declarations are only the four sources above (a program started by an operator outside JCL/CSD, or defined only in the stale `CBADMCDJ.jcl` SYSIN, is not seen); dynamic targets are resolved from literal MOVE/VALUE only (the 19 hand-resolved edges in §2.1 are covered by the menu tables and the `MANUAL` list in `coverage.py`).
 
 ## 7. Shared-program (choke point) map
 
