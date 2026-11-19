@@ -102,7 +102,13 @@ public class DataLoader implements BatchJobLauncher.CardDemoJob {
         List<Object[]> rows = new ArrayList<>();
         try (RecordReader reader = RecordReader.open(file, dd, table.layout(), codePage, format)) {
             for (var r = reader.read(); r.isPresent(); r = reader.read()) {
-                rows.add(table.columns().apply(table.mapper().apply(r.get())));
+                try {
+                    rows.add(table.columns().apply(table.mapper().apply(r.get())));
+                } catch (RuntimeException ex) {
+                    // Conversion messages echo the field bytes (control characters, PANs): report the position only.
+                    throw new AbendException("LOAD " + dd + " record " + reader.recordsRead() + ": invalid field data ("
+                            + ex.getClass().getSimpleName() + ")");
+                }
             }
         }
         try {
