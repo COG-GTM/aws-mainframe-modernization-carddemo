@@ -1,0 +1,68 @@
+ Network modernization_default Creating 
+ Network modernization_default Creating 
+ Network modernization_default Created 
+ Network modernization_default Created 
+ Container modernization-postgres-1 Creating 
+ Container modernization-postgres-1 Created 
+ Container modernization-postgres-1 Starting 
+ Container modernization-postgres-1 Started 
+ Container modernization-postgres-1 Waiting 
+ Container modernization-postgres-1 Healthy 
+ Image modernization-app Building 
+ Image modernization-app Built 
+== 01-baseline (run-id E2E-BASE): RC 4
+  PASS RC (oracle 4, java 4)
+  PASS DALYREJS (16340 bytes, 38 records)
+  PASS SYSOUT (54 lines)
+  PASS ACCTDATA (50 rows expected, 50 actual)
+  PASS TCATBALF (100 rows expected, 100 actual)
+  PASS TRANSACT (262 rows expected, 262 actual)
+== 02-relaunch-completed (run-id E2E-BASE): RC 12
+  PASS RC 12 (expected 12)
+  PASS tables unchanged vs 01-baseline
+== 03-rerun (run-id E2E-RERUN): RC 4
+  PASS RC (oracle 4, java 4)
+  PASS DALYREJS (48590 bytes, 113 records)
+  PASS SYSOUT (4 lines)
+  PASS ACCTDATA (50 rows expected, 50 actual)
+  PASS TCATBALF (100 rows expected, 100 actual)
+  PASS TRANSACT (187 rows expected, 187 actual)
+== 04-dalyrejs-exists (run-id E2E-EXISTS): RC 12
+  PASS RC 12 (expected 12)
+  PASS tables unchanged vs 03-rerun
+  PASS existing DALYREJS untouched
+== 05-empty (run-id E2E-EMPTY): RC 0
+  PASS RC (oracle 0, java 0)
+  PASS DALYREJS (0 bytes, 0 records)
+  PASS SYSOUT (4 lines)
+  PASS ACCTDATA (50 rows expected, 50 actual)
+  PASS TCATBALF (50 rows expected, 50 actual)
+  PASS TRANSACT (0 rows expected, 0 actual)
+== 06-restart-leg1 (run-id E2E-RESTART): RC 16
+  PASS RC (oracle 231, java 16)
+  PASS DALYREJS (4300 bytes, 10 records)
+  PASS SYSOUT (28 lines)
+  PASS ACCTDATA (50 rows expected, 50 actual)
+  PASS TCATBALF (74 rows expected, 74 actual)
+  PASS TRANSACT (140 rows expected, 140 actual)
+== 06-restart-leg2 (run-id E2E-RESTART): RC 4
+  PASS RC (oracle 4, java 4)
+  PASS DALYREJS (16340 bytes, 38 records)
+  PASS SYSOUT (3 lines, tail)
+  PASS ACCTDATA (50 rows expected, 50 actual)
+  PASS TCATBALF (100 rows expected, 100 actual)
+  PASS TRANSACT (262 rows expected, 262 actual)
+== 07-abend-dalytran-missing (run-id E2E-ABEND): RC 16
+  PASS RC (oracle 231, java 16)
+  PASS DALYREJS (oracle did not create it)
+  PASS SYSOUT (4 lines)
+  PASS tables unchanged vs 06-restart-leg2
+== 08-cp037 (run-id E2E-CP037): RC 4
+  PASS RC (oracle 4, java 4)
+  PASS DALYREJS (16340 bytes, 38 records)
+  PASS SYSOUT (54 lines)
+  PASS ACCTDATA (50 rows expected, 50 actual)
+  PASS TCATBALF (100 rows expected, 100 actual)
+  PASS TRANSACT (262 rows expected, 262 actual)
+== NFR-04: PASS 0 job-log lines carry a full card number
+== e2e FAILS=0

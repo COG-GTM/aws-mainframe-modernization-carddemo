@@ -1,0 +1,26 @@
+# NFR-02 static check (money never double/float), e3dff6f5
+$ grep -rnwE "double|float|Double|Float" --include=*.java carddemo-common/src/main carddemo-app/src/main
+matches: 0
+
+$ grep -rnE "NUMERIC|DOUBLE|REAL|FLOAT" carddemo-app/src/main/resources/db/migration (money columns)
+carddemo-app/src/main/resources/db/migration/V2__posttran_tables.sql:2:-- FILLER not stored (D-020). PIC 9(n) -> BIGINT/INTEGER with range CHECK; PIC S9(i)V99 -> NUMERIC(i+2,2); PIC X(n) ->
+carddemo-app/src/main/resources/db/migration/V2__posttran_tables.sql:10:    curr_bal           NUMERIC(12,2) NOT NULL,
+carddemo-app/src/main/resources/db/migration/V2__posttran_tables.sql:11:    credit_limit       NUMERIC(12,2) NOT NULL,
+carddemo-app/src/main/resources/db/migration/V2__posttran_tables.sql:12:    cash_credit_limit  NUMERIC(12,2) NOT NULL,
+carddemo-app/src/main/resources/db/migration/V2__posttran_tables.sql:16:    curr_cyc_credit    NUMERIC(12,2) NOT NULL,
+carddemo-app/src/main/resources/db/migration/V2__posttran_tables.sql:17:    curr_cyc_debit     NUMERIC(12,2) NOT NULL,
+carddemo-app/src/main/resources/db/migration/V2__posttran_tables.sql:35:    balance  NUMERIC(11,2) NOT NULL,
+carddemo-app/src/main/resources/db/migration/V2__posttran_tables.sql:48:    amount         NUMERIC(11,2) NOT NULL,
+carddemo-app/src/main/resources/db/migration/V3__negative_zero_signs.sql:1:-- Wave 1 (D-052): PostgreSQL NUMERIC has no negative zero, but a COBOL signed DISPLAY field does (overpunch '}' on a zero
+
+$ grep -rln "BigDecimal" --include=*.java carddemo-common/src/main carddemo-app/src/main
+carddemo-common/src/main/java/com/carddemo/common/cobol/CobolDecimal.java
+carddemo-common/src/main/java/com/carddemo/common/cobol/ZonedDecimal.java
+carddemo-common/src/main/java/com/carddemo/common/record/RecordLayout.java
+carddemo-common/src/main/java/com/carddemo/common/record/FixedRecord.java
+carddemo-app/src/main/java/com/carddemo/account/domain/Account.java
+carddemo-app/src/main/java/com/carddemo/reference/domain/TranCatBalance.java
+carddemo-app/src/main/java/com/carddemo/transaction/domain/Transaction.java
+carddemo-app/src/main/java/com/carddemo/transaction/domain/DailyTransaction.java
+carddemo-app/src/main/java/com/carddemo/transaction/service/DailyTransactionValidator.java
+carddemo-app/src/main/java/com/carddemo/transaction/service/DailyTransactionPostingService.java

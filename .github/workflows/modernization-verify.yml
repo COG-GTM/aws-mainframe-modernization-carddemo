@@ -7,11 +7,17 @@ on:
       - "modernization/**"
       - "app/data/**"
       - ".github/workflows/modernization-verify.yml"
+      - ".migration/tools/posttran_e2e*"
+      - ".migration/tools/PosttranE2eData.java"
+      - "functional/CARDDEMO/POSTTRAN/evidence/oracle/**"
   pull_request:
     paths:
       - "modernization/**"
       - "app/data/**"
       - ".github/workflows/modernization-verify.yml"
+      - ".migration/tools/posttran_e2e*"
+      - ".migration/tools/PosttranE2eData.java"
+      - "functional/CARDDEMO/POSTTRAN/evidence/oracle/**"
   workflow_dispatch:
 
 concurrency:
@@ -41,4 +47,31 @@ jobs:
         with:
           name: surefire-reports
           path: modernization/**/target/surefire-reports/
+          if-no-files-found: ignore
+
+  posttran-e2e-compose:
+    # POSTTRAN end to end on docker compose (postgres:16 + app image) vs the committed GnuCOBOL oracle outputs (D-054)
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+          cache: maven
+      - name: Build jar
+        working-directory: modernization
+        run: mvn -B -DskipTests package
+      - name: POSTTRAN e2e (baseline, relaunch, rerun, existing DALYREJS, empty, restart, abend, CP037)
+        run: .migration/tools/posttran_e2e.sh "$RUNNER_TEMP/posttran-e2e"
+      - name: Stop compose stack
+        if: always()
+        run: docker compose -f modernization/docker-compose.yml down -v
+      - name: Upload e2e outputs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: posttran-e2e
+          path: ${{ runner.temp }}/posttran-e2e/
           if-no-files-found: ignore
