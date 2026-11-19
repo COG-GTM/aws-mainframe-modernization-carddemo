@@ -56,7 +56,7 @@ Shared programs ported on behalf of the module: **none**. Module-level assets th
 
 Type mapping: the field dictionary in `POSTTRAN_analysis.md` §4.2 (CORE rules). Two INFERRED mappings need a decision (D-013): timestamps and the expiration date. FKs across schemas (e.g. `card_xref.acct_id -> account.acct_id`) are allowed by the DATA profile but **not added** for this stream, because the COBOL tolerates a cross-reference to a missing account (reason 101, FR-07).
 
-Seeding: `--load=<TABLE>=<file>` loader (ASCII line-sequential with the sample quirks in `02_conventions.md`: pad CARDXREF to 50, strip CR from TCATBALF; or EBCDIC CP037 FB). Golden cases load the same files as the oracle.
+Seeding: `--job=LOAD --dd=<ACCTDATA|CARDXREF|TCATBALF>=<file> [--dd-encoding=CP037]` loader (D-016) (ASCII line-sequential with the sample quirks in `02_conventions.md`: pad CARDXREF to 50, strip CR from TCATBALF; or EBCDIC CP037 FB). Golden cases load the same files as the oracle.
 
 ## 5. Phase 0 scaffolding deltas (main has no `modernization/`; everything is new)
 
