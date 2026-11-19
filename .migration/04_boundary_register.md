@@ -44,3 +44,12 @@ A boundary is anything POSTTRAN touches that it does not own alone. Rows are nev
 | B-03 | 2026-11-19 | PARITY-VERIFIED (re-run after D-052) | SHARED_DATA | TRANSACT TRAN-AMT -0.00 kept: DV-01 RESOLVED | out | case negative-zero | as registered |
 | B-04 | 2026-11-19 | PARITY-VERIFIED (re-run after D-052) | SHARED_DATA | ACCTDATA CURR-BAL / CYC-DEBIT truncated to -0 keep `}`, exact-zero ADDs `{` | in/out | case negative-zero-balances | as registered |
 | B-06 | 2026-11-19 | PARITY-VERIFIED (re-run after D-052) | SHARED_DATA | TCATBALF overflow to -0.00 kept: DV-02 RESOLVED; exact-zero ADD `{` | in/out | cases ovf-tcatbal, negative-zero-balances | as registered |
+| B-01 | 2026-11-19 | VERIFIED (stream sign-off, e2e on compose) | DATASET_IN | DALYTRAN ASCII + CP037 sample, empty, missing file | in | `POSTTRAN/evidence/e2e` L01, L05, L07, L08 | - |
+| B-02 | 2026-11-19 | VERIFIED (stream sign-off, e2e on compose) | DATASET_OUT | DALYREJS byte-equal; restart appends; existing file refused (exit 12) | out | L01, L03, L04, L06 | - |
+| B-03 | 2026-11-19 | VERIFIED (stream sign-off, e2e on compose) | SHARED_DATA | TRANSACT reset on new instance, kept on restart and on DALYTRAN open failure | out | L01, L03, L06, L07 | as registered (stay on VSAM until their streams migrate) |
+| B-04 | 2026-11-19 | VERIFIED (stream sign-off, e2e on compose) | SHARED_DATA | ACCTDATA rows equal oracle | in/out | L01, L03, L06, L08 | as registered |
+| B-05 | 2026-11-19 | VERIFIED (stream sign-off, e2e on compose) | SHARED_DATA | CARDXREF read-only | in | L01 | as registered |
+| B-06 | 2026-11-19 | VERIFIED (stream sign-off, e2e on compose) | SHARED_DATA | TCATBALF rows + creation lines equal oracle | in/out | L01, L03, L06 | as registered |
+| B-07 | 2026-11-19 | VERIFIED (stream sign-off, e2e on compose) | RUNTIME_SERVICE | abend → exit 16 (oracle 231, D-039 open for the user) | out | L06a, L07 | - |
+| B-08 | 2026-11-19 | VERIFIED (stream sign-off, exit codes) | SCHEDULER | exit 0 / 4 / 12 / 16 observed on the CLI; CA-7 switch + ops dry run = open track (sign-off §11) | in/out | L01-L08 | operations |
+| B-09 | 2026-11-19 | VERIFIED (stream sign-off, no code) | ONLINE_COEXISTENCE | CLOSEFIL / OPENFIL untouched; online streams out of scope | context | sign-off §6 | CICS |
