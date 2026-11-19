@@ -2,7 +2,9 @@
 # GnuCOBOL golden-master run of POSTTRAN (app/jcl/POSTTRAN.jcl STEP15 -> CBTRN02C).
 # Reads app/** only (never modifies it). Writes everything under $OUT (default ${TMPDIR:-/tmp}/carddemo-posttran-oracle),
 # which must not exist or be empty: the script never deletes anything.
-# Usage: .migration/tools/posttran_gnucobol_oracle.sh [OUT_DIR] [DALYTRAN_ASCII_FILE]
+# Usage: .migration/tools/posttran_gnucobol_oracle.sh [OUT_DIR] [DALYTRAN_FILE]
+# Env:   DALYTRAN_ENCODING  ASCII (default: line-sequential text, padded to 350) or CP037 (RECFM=FB 350-byte EBCDIC
+#        records, e.g. app/data/EBCDIC/AWS.M2.CARDDEMO.DALYTRAN.PS), converted record by record to ISO-8859-1 for GnuCOBOL.
 # Env:   ORACLE_NOW  clock pinned via GnuCOBOL COB_CURRENT_DATE for CBTRN02C's TRAN-PROC-TS
 #        (FUNCTION CURRENT-DATE, CBTRN02C.cbl:693); default '2022/07/18 10:30:45'; empty = real clock.
 set -euo pipefail
@@ -10,6 +12,7 @@ REPO=$(cd "$(dirname "$0")/../.." && pwd)
 OUT=${1:-${TMPDIR:-/tmp}/carddemo-posttran-oracle}
 DALY=${2:-$REPO/app/data/ASCII/dailytran.txt}
 ORACLE_NOW=${ORACLE_NOW-2022/07/18 10:30:45}
+DALYTRAN_ENCODING=${DALYTRAN_ENCODING:-ASCII}
 # resolve before the cd below so relative arguments work from any directory
 OUT=$(realpath -m -- "$OUT")
 DALY=$(realpath -e -- "$DALY")
@@ -98,7 +101,18 @@ pad "$REPO/app/data/ASCII/acctdata.txt" 300 > "$OUT/data/acctdata.lseq"
 pad "$REPO/app/data/ASCII/cardxref.txt" 50  > "$OUT/data/cardxref.lseq"
 pad "$REPO/app/data/ASCII/tcatbal.txt"  50  > "$OUT/data/tcatbal.lseq"
 # DALYTRAN is RECFM=FB LRECL=350 sequential: fixed records, no newline
-pad "$DALY" 350 | tr -d '\n' > "$OUT/data/DALYTRAN"
+case "$DALYTRAN_ENCODING" in
+  ASCII) pad "$DALY" 350 | tr -d '\n' > "$OUT/data/DALYTRAN" ;;
+  CP037) python3 - "$DALY" "$OUT/data/DALYTRAN" <<'PY'
+import sys
+raw = open(sys.argv[1], 'rb').read()
+if len(raw) % 350: sys.exit(f'CP037 DALYTRAN length {len(raw)} is not a multiple of 350')
+# record by record, byte for byte: CP037 -> ISO-8859-1 keeps zoned overpunch (X'C0'-X'D9' -> '{','A'-'I','}','J'-'R')
+open(sys.argv[2], 'wb').write(b''.join(raw[i:i + 350].decode('cp037').encode('latin-1') for i in range(0, len(raw), 350)))
+PY
+  ;;
+  *) echo "DALYTRAN_ENCODING must be ASCII or CP037" >&2; exit 2 ;;
+esac
 
 load() { INFILE=$2 OUTFILE=$3 ./"$1"; }
 load LDACCT "$OUT/data/acctdata.lseq" "$OUT/data/ACCTDATA"

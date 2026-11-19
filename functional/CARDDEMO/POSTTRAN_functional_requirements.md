@@ -104,6 +104,7 @@ Golden cases (GnuCOBOL oracle, runbook R-04/R-06/R-11/R-12; parity bar D-004 wit
 - **GC-3** synthetic `syn_ok` (2 records): RC 0; credit +504.77, debit -504.70.
 - **GC-4** in-file duplicate (3 records, third repeats the first): Java RC 16 (oracle 231); tables equal to the oracle run on the 2-record valid prefix (R-13), not to the oracle abend run (D-009); no DALYREJS published (D-012); no counter comparison (COBOL ends before its count DISPLAYs).
 - **GC-5** empty input: RC 0, 0/0, empty DALYREJS.
+- **GC-7** CP037 input (EBCDIC sample, R-14): Java reads CP037 directly; outputs equal GC-1, DALYREJS in CP037 equal to the oracle DALYREJS converted to CP037.
 - **GC-6** (to build in Phase 1): CARDXREF fixture whose account is missing -> 0101. Needs an oracle option for a custom CARDXREF.
 Java-only: **JT-1** rerun guard on a new instance (D-008); **JT-2** atomic rollback of the failing record (D-009); **JT-3** reason 101 unit test; **JT-4** restart of a failed instance skips the guard and resumes from its checkpoint, final outputs equal GC-1 (D-002, D-011; plan §7).
 
@@ -135,7 +136,7 @@ Given/When/Then:
 | FR-09 | CBTRN02C | `:414-419` | GC-2 | DALYREJS byte compare |
 | FR-10 | CBTRN02C | `:407-420` | GC-2 | DALYREJS byte compare |
 | FR-11 | CBTRN02C | `:371-376` | GC-2 | DALYREJS byte compare |
-| FR-12 | CBTRN02C | `:446-451` | GC-1, GC-2 | DALYREJS sha256 |
+| FR-12 | CBTRN02C | `:446-451` | GC-1, GC-2, GC-7 | DALYREJS sha256 (GC-7: in CP037) |
 | FR-13 | CBTRN02C | `:227-228` | GC-1..5 | SYSOUT count lines |
 | FR-14 | CBTRN02C | `:229-231` | GC-1, GC-3 | process exit code |
 | FR-15 | CBTRN02C | `:202-219` | GC-5 | all outputs |

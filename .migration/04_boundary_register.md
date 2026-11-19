@@ -362,3 +362,8 @@ Clarifications of DECIDED entries; no decision changed. Detail in `functional/CA
 - **Clarification:** production cutover (scheduler switch) is gated on every downstream consumer of TRANSACT/ACCTDATA/TCATBALF/CARDXREF (INTCALC, TRANBKP, COMBTRAN, TRANIDX, TRANREPT, CREASTMT, CBEXPORT, online readers) being migrated or fed a verified hand-off of the PostgreSQL state; there is no production cutover in this stream. Consistent with the BND-009 deferral and the DATA profile ("no strangler routing").
 - **Status:** DECIDED (unchanged)
 - **History:** 2026-11-19 clarified after review REVIEWER_0003
+
+### BND-002 / BND-003 clarification (CP037 parity case)
+- **Clarification:** CP037 input gets its own golden case (GC-7, runbook R-14): the oracle converts the RECFM=FB EBCDIC file record by record (`DALYTRAN_ENCODING=CP037`), and DALYREJS is written in the input encoding because the reject image is the input record unchanged (FR-12). The production sample required by the BND-002 cutover condition is run the same way. Byte contract unchanged.
+- **Status:** DECIDED (unchanged)
+- **History:** 2026-11-19 clarified after review round 2 REVIEWER_0003

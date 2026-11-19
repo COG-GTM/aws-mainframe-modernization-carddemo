@@ -79,7 +79,7 @@ Phase 1 (data): Flyway V1-V7, entities and repositories for the 4 tables, the lo
 | 2 | Phase 0 child | scaffolding (§5) | target state | 1 PR -> main | -> 3 |
 | 3 | Phase 1 child | data layer + codec layouts + loader + golden harness (§4, §5) | field dictionary, BND-004..007 decisions | 1 PR -> main | -> 4 |
 | 4 | **Wave 1** child, `!mf_program_migration` | CBTRN02C -> `POSTTRAN` job: `TransactionValidationService` (1500), `PostingService` (2000/2700/2800/2900), `RejectStore` + `RejectFileWriter` (2500, staged rejects published at job end), `PostingRunListener` (counts, RC), `ProcessingTimestampProvider`, `RerunGuard` (D-008), `BatchCli` wiring | CBTRN02C FR doc, BND-001..009 decisions, D-008/009/011..014 | 1 PR -> main | -> 5 |
-| 5 | `!mf_program_parity_test` (Wave 1) | GC-1..GC-6 + JT-1..JT-4 | oracle outputs | `functional/CARDDEMO/POSTTRAN_parity/wave-1.md` | STOP D (notify) |
+| 5 | `!mf_program_parity_test` (Wave 1) | GC-1..GC-7 + JT-1..JT-4 | oracle outputs | `functional/CARDDEMO/POSTTRAN_parity/wave-1.md` | STOP D (notify) |
 | 6 | `!mf_stream_signoff` + independent audit session | end-to-end, CI gate, evidence | all | `POSTTRAN_signoff.md`, `POSTTRAN_audit.md` | STOP E |
 
 Single repo: each step is one PR. Phase 3 (UI testing) is skipped: no screens.
@@ -87,9 +87,9 @@ Single repo: each step is one PR. Phase 3 (UI testing) is skipped: no screens.
 ## 7. Testing and verification
 
 - Parity per golden case (output-evidence mode, no recordings), two modes:
-  - **Normal-end cases (GC-1, GC-2, GC-3, GC-5, GC-6):** DALYREJS sha256; TRANSACT/ACCTDATA/TCATBALF unloads equal to the oracle run on the same input (TRANSACT bytes 325-326 masked, D-007); exit code equal; SYSOUT count lines equal.
+  - **Normal-end cases (GC-1, GC-2, GC-3, GC-5, GC-6, GC-7):** DALYREJS sha256; TRANSACT/ACCTDATA/TCATBALF unloads equal to the oracle run on the same input (TRANSACT bytes 325-326 masked, D-007); exit code equal; SYSOUT count lines equal.
   - **Abend cases (GC-4):** Java exit code 16 (oracle 231); tables equal to the oracle run on the **valid prefix** (the records before the failing one, runbook R-13), not to the oracle's abend run, because COBOL leaves the failing record's account and category updates applied and Java rolls them back (D-009); assert that **no DALYREJS was published** in the generation dir (D-012); no counter comparison (COBOL never reaches its count DISPLAYs, `CBTRN02C.cbl:221-234`).
-- GC-1 sample 300, GC-2 `syn_all`, GC-3 `syn_ok`, GC-4 in-file duplicate, GC-5 empty, GC-6 missing account (to build). Java-only JT-1 rerun guard, JT-2 atomic rollback of the failing record, JT-3 reason 101 unit test.
+- GC-1 sample 300, GC-2 `syn_all`, GC-3 `syn_ok`, GC-4 in-file duplicate, GC-5 empty, GC-6 missing account (to build), **GC-7 CP037 input**: Java reads `app/data/EBCDIC/AWS.M2.CARDDEMO.DALYTRAN.PS` with `--dd-encoding=CP037`; the oracle runs on the same file with `DALYTRAN_ENCODING=CP037` (explicit record-by-record CP037 -> ISO-8859-1 conversion, R-14); tables compare as GC-1; Java's DALYREJS is written in the input encoding (the reject image is the input record unchanged, FR-12), so it must equal the oracle DALYREJS converted latin-1 -> CP037 byte for byte (R-14 shows the reject images round-trip). A production DALYTRAN sample (LR-1) is run the same way before any cutover. Java-only JT-1 rerun guard, JT-2 atomic rollback of the failing record, JT-3 reason 101 unit test.
 - **JT-4 restart after a transient failure** (CI): run GC-1 with a fault injected after record 150 is committed (e.g. the test datasource fails the next commit) -> exit 16, 150 records committed, no DALYREJS published; then `--restart` the same JobInstance -> the guard is skipped, the reader resumes at record 151, final exit 4, tables, DALYREJS sha256 and SYSOUT counts (300 / 38) equal the GC-1 oracle run. A second test starts a **new** instance on the same file after completion and expects RC 16 from the guard.
 - Every FR maps to at least one case (FR traceability matrix §9).
 - CI gate: `modernization-verify.yml` runs all of the above with Testcontainers `postgres:16`.
