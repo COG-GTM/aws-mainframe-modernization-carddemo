@@ -48,6 +48,12 @@ public final class FixedRecord {
         }
     }
 
+    /** True when a signed numeric field holds zero with a negative sign (D-052). */
+    public boolean negativeZero(String field) {
+        Field f = layout.field(field);
+        return f.kind() == Kind.SIGNED && ZonedDecimal.isNegativeZero(raw(field), true);
+    }
+
     /** Right-pads with spaces; refuses values longer than the field. */
     public FixedRecord set(String field, String value) {
         Field f = layout.field(field);
@@ -67,11 +73,16 @@ public final class FixedRecord {
     }
 
     public FixedRecord set(String field, BigDecimal value) {
+        return set(field, value, false);
+    }
+
+    /** Numeric value; {@code negativeZero} keeps the negative sign of a zero value in a signed field (D-052). */
+    public FixedRecord set(String field, BigDecimal value, boolean negativeZero) {
         Field f = layout.field(field);
         if (f.kind() != Kind.UNSIGNED && f.kind() != Kind.SIGNED) {
             throw new IllegalArgumentException(layout.name() + "." + field + " is not numeric");
         }
-        text.replace(f.offset(), f.end(), ZonedDecimal.encode(value, f.length(), f.scale(), f.kind() == Kind.SIGNED));
+        text.replace(f.offset(), f.end(), ZonedDecimal.encode(value, f.length(), f.scale(), f.kind() == Kind.SIGNED, negativeZero));
         return this;
     }
 

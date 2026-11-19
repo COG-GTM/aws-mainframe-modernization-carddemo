@@ -33,4 +33,10 @@ public final class DailyTransactions {
     public static DailyTransaction of(String id, String cardNum, String amount) {
         return of(id, cardNum, amount, "2022-06-10 19:27:53.000000");
     }
+
+    /** {@code t} with DALYTRAN-AMT replaced by the raw zoned text (e.g. {@code 0000000000}} = -0.00). */
+    public static DailyTransaction withRawAmount(DailyTransaction t, String zoned) {
+        int from = Copybooks.CVTRA06Y.field("DALYTRAN-AMT").offset();
+        return new DailyTransaction(t.record().substring(0, from) + zoned + t.record().substring(from + zoned.length()));
+    }
 }

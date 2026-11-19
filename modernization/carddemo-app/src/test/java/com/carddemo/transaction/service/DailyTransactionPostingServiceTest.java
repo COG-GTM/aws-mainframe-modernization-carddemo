@@ -145,4 +145,55 @@ class DailyTransactionPostingServiceTest extends PostgresContainerSupport {
     void cardNumbersAreMaskedInTechnicalLogs() {
         assertThat(DailyTransactionPostingService.maskCard("9680294154603697")).isEqualTo("************3697");
     }
+
+    static final String NEGATIVE_ZERO_9V2 = "0000000000}";
+
+    String unloadedField(Ksds ksds, long key, String field) {
+        return data.unload(ksds).stream().map(ksds.layout()::parse)
+                .filter(r -> r.number(ksds == Ksds.TCATBALF ? "TRANCAT-ACCT-ID" : "ACCT-ID") == key)
+                .findFirst().orElseThrow().raw(field);
+    }
+
+    @Test
+    void PR_CBTRN02C_09_DV_01_negativeZeroAmountIsCopiedToTheTransactionWithItsSign() {
+        var daily = DailyTransactions.withRawAmount(DailyTransactions.of("TID-NZ", CARD_OF_ACCOUNT_1, "0.00"), NEGATIVE_ZERO_9V2);
+        assertThat(daily.record().substring(132, 143)).isEqualTo(NEGATIVE_ZERO_9V2);
+        posting.post(daily, 1L, PROC_TS, sysout);
+        assertThat(transactions.findById("TID-NZ").orElseThrow().isAmountNegativeZero()).isTrue();
+        // MOVE DALYTRAN-AMT TO TRAN-AMT keeps the sign (cbl:430)
+        assertThat(data.unload(Ksds.TRANSACT).get(0).substring(132, 143)).isEqualTo(NEGATIVE_ZERO_9V2);
+        // ADD -0 to 0.00 / 194.00 are arithmetic results: positive (cbl:527,547-549); -0 >= 0 takes the credit branch
+        assertThat(unloadedField(Ksds.TCATBALF, 1L, "TRAN-CAT-BAL")).isEqualTo("0000000000{");
+        assertThat(unloadedField(Ksds.ACCTDATA, 1L, "ACCT-CURR-BAL")).isEqualTo("00000001940{");
+        assertThat(unloadedField(Ksds.ACCTDATA, 1L, "ACCT-CURR-CYC-CREDIT")).isEqualTo("00000000000{");
+        assertThat(unloadedField(Ksds.ACCTDATA, 1L, "ACCT-CURR-CYC-DEBIT")).isEqualTo("00000000000{");
+    }
+
+    @Test
+    void PR_CBTRN02C_10_DV_02_categoryBalanceTruncatedToZeroFromANegativeSumKeepsTheNegativeSign() {
+        var balance = balances.findById(new TranCatBalanceId(1L, "01", 1)).orElseThrow();
+        balance.setBalance(new BigDecimal("-999999999.99"));
+        balances.saveAndFlush(balance);
+        posting.post(DailyTransactions.of("TID-1", CARD_OF_ACCOUNT_1, "-0.01"), 1L, PROC_TS, sysout);
+        assertThat(unloadedField(Ksds.TCATBALF, 1L, "TRAN-CAT-BAL")).isEqualTo(NEGATIVE_ZERO_9V2);
+        // a later arithmetic zero result is positive again (ADD -0 TO -0 → '{'), a non-zero result clears the flag
+        posting.post(DailyTransactions.of("TID-2", CARD_OF_ACCOUNT_1, "0.00"), 1L, PROC_TS, sysout);
+        assertThat(unloadedField(Ksds.TCATBALF, 1L, "TRAN-CAT-BAL")).isEqualTo("0000000000{");
+        posting.post(DailyTransactions.of("TID-3", CARD_OF_ACCOUNT_1, "1.00"), 1L, PROC_TS, sysout);
+        assertThat(unloadedField(Ksds.TCATBALF, 1L, "TRAN-CAT-BAL")).isEqualTo("0000000010{");
+    }
+
+    @Test
+    void PR_CBTRN02C_11_DV_02_accountBalancesTruncatedToZeroFromANegativeSumKeepTheNegativeSign() {
+        Account a = accounts.findById(1L).orElseThrow();
+        a.setCurrBal(new BigDecimal("-9999999999.99"));
+        a.setCurrCycDebit(new BigDecimal("-9999999999.99"));
+        accounts.saveAndFlush(a);
+        posting.post(DailyTransactions.of("TID-1", CARD_OF_ACCOUNT_1, "-0.01"), 1L, PROC_TS, sysout);
+        assertThat(unloadedField(Ksds.ACCTDATA, 1L, "ACCT-CURR-BAL")).isEqualTo("00000000000}");
+        assertThat(unloadedField(Ksds.ACCTDATA, 1L, "ACCT-CURR-CYC-DEBIT")).isEqualTo("00000000000}");
+        assertThat(unloadedField(Ksds.ACCTDATA, 1L, "ACCT-CURR-CYC-CREDIT")).isEqualTo("00000000000{");
+        posting.post(DailyTransactions.of("TID-2", CARD_OF_ACCOUNT_1, "2.50"), 1L, PROC_TS, sysout);
+        assertThat(unloadedField(Ksds.ACCTDATA, 1L, "ACCT-CURR-BAL")).isEqualTo("00000000025{");
+    }
 }
