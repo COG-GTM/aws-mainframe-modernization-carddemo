@@ -119,7 +119,7 @@ Single repo: each step is one PR. Phase 3 (UI testing) is skipped: no screens.
 | TRANSACT shared with INTCALC/COMBTRAN interest rows, whose ORIG-TS uses the DB2 format (`app/cbl/CBACT04C.cbl:496-498,613-624`; `app/jcl/COMBTRAN.jcl:22-48`): D-013's single ORIG-TS format cannot hold both; the same holds for PROC-TS, which COBIL00C writes as `yyyy-MM-dd HH:mm:ss.SSSSSS` (`app/cbl/COBIL00C.cbl:230-232`, `app/cpy/CSDAT01Y.cpy:42-55`) and CBEXPORT exports (`app/cbl/CBEXPORT.cbl:481-482`) | **OPEN, NEEDS USER (OQ-7)**: proposed D-015 keeps the original 26-byte text of both ORIG-TS and PROC-TS next to the TIMESTAMPs; decide before Phase 1 writes `V6__transaction.sql` |
 | Downstream batch and online consumers still read VSAM | production cutover gated on their migration or a verified hand-off (BND-004/008); no production cutover in this stream |
 
-No blocker for Phase 0, Phase 1 or Wave 1 once STOP C approves.
+Sequencing against the open OQ-7: **Phase 0** has no blocker. **Phase 1** can start everything except the TRANSACT timestamp mapping: Flyway V1-V5 and V7, the account/card/reference entities and repositories, the loader, the DALYTRAN reader, the DALYREJS writer and reject staging, the golden harness and the GC-6 oracle extension. `V6__transaction.sql`, the TRANSACT entity and its record codec (ORIG-TS/PROC-TS columns and formatters) **wait for the OQ-7 decision** (D-013 as approved, or proposed D-015). **Wave 1** starts after Phase 1 is complete, so it also waits for OQ-7.
 
 ## 10. Effort and sequencing
 
