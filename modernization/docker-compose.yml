@@ -1,0 +1,26 @@
+# Local stack: PostgreSQL 16 + the batch CLI (plan Phase 0). Build the jar first: mvn -B -DskipTests package
+# Run a job: docker compose run --rm app --job=NOOP
+services:
+  postgres:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: carddemo
+      POSTGRES_USER: carddemo
+      POSTGRES_PASSWORD: carddemo
+    ports:
+      - "${CARDDEMO_DB_PORT:-5432}:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U carddemo -d carddemo"]
+      interval: 2s
+      timeout: 2s
+      retries: 30
+  app:
+    build: .
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      CARDDEMO_DB_URL: jdbc:postgresql://postgres:5432/carddemo
+      CARDDEMO_DB_USER: carddemo
+      CARDDEMO_DB_PASSWORD: carddemo
+    command: ["--job=NOOP"]

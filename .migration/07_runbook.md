@@ -33,11 +33,18 @@ R-04 note, full sha256 of the baseline: DALYREJS `b6ef92c07bee6372a6046bc0f65c7e
 | R-11 | `python3 functional/CARDDEMO/inventory/coverage.py .` | exit 0, coverage identity holds (see inventory §3) |
 | R-12 | `npx -p @mermaid-js/mermaid-cli@10.9.1 mmdc -i functional/CARDDEMO/diagrams/posttran_module_flow.mmd -o functional/CARDDEMO/diagrams/posttran_module_flow.png` | PNG rendered |
 
-## Java build / run (not runnable yet)
+## Java build / run
 
-`modernization/` does not exist on `main`; Phase 0 creates it. Planned commands (repo blueprint): `(cd modernization && JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64 mvn -B verify)` and `(cd modernization && docker compose up -d --build)`. They will be executed and recorded here by the Phase 0 PR.
+Executed from the repo root on the Devin VM (Maven 3.9.9, Docker Engine 29.7.2). Plain `mvn` picks Java 17 on this VM: always set `JAVA_HOME`.
+
+| Id | Command | Observed |
+|---|---|---|
+| R-13 | `(cd modernization && JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64 mvn -B verify)` | BUILD SUCCESS; carddemo-common 6 tests, carddemo-app 6 tests (Testcontainers `postgres:16`), 0 failures |
+| R-14 | `(cd modernization && CARDDEMO_DB_PORT=55432 docker compose up -d --build && CARDDEMO_DB_PORT=55432 docker compose run --rm app --job=NOOP; echo $?; CARDDEMO_DB_PORT=55432 docker compose run --rm app --job=NOSUCH; echo $?; CARDDEMO_DB_PORT=55432 docker compose down -v)` (needs R-13 jar) | `app` service exits 0 (`Job NOOP ... status=COMPLETED RC=0`); `--job=NOOP` exit 0; `--job=NOSUCH` exit 12 |
+| R-15 | `(cd modernization && JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64 mvn -B verify -Dtestcontainers.version=1.19.8)` | BUILD FAILURE on purpose (D-030 evidence): `client version 1.32 is too old. Minimum supported API version is 1.40` → `Could not find a valid Docker environment` |
 
 ## Gotchas (verified)
 - Sample ASCII files use EBCDIC-style overpunch: compile with `-fsign=EBCDIC`.
 - `COB_CURRENT_DATE` pins to the second only.
+- Testcontainers 1.19.x (Boot 3.3.4 default) fails against Docker Engine 29; the parent POM pins 1.21.4 (D-030).
 - CBTRN02C opens TRANSACT `OUTPUT` (`app/cbl/CBTRN02C.cbl:256`): a rerun on the same files recreates TRANSACT but reposts ACCTDATA/TCATBALF. Always run the oracle in a fresh OUT.

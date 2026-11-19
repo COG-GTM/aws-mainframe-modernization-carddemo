@@ -13,3 +13,4 @@
 | 2026-11-19 | STOP | Plan pushed; waiting for "sigue" | - |
 | 2026-11-19 | "sigue" received | Step 5 started | - |
 | 2026-11-19 | `!mf_program_fr_generation` | DONE: PR-CBTRN02C-01..17, each mapped to FR-POSTTRAN and source | `functional/CARDDEMO/programs/CBTRN02C_functional_requirement.md` |
+| 2026-11-19 | Phase 0 – scaffolding | DONE: Maven parent + `carddemo-common`/`carddemo-app`, Boot 3.3.4, Batch 5.1.2, Flyway V1 (schemas + JobRepository), launch seam, `NOOP` job, docker compose, CI; `mvn -B verify` green locally (R-13, 12 tests), `docker compose` NOOP RC 0 (R-14); D-030..D-035 | `modernization/`, `.github/workflows/modernization-verify.yml` |

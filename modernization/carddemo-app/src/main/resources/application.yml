@@ -1,0 +1,25 @@
+spring:
+  application:
+    name: carddemo-app
+  main:
+    banner-mode: off
+    web-application-type: none
+  datasource:
+    url: ${CARDDEMO_DB_URL:jdbc:postgresql://localhost:5432/carddemo}
+    username: ${CARDDEMO_DB_USER:carddemo}
+    password: ${CARDDEMO_DB_PASSWORD:carddemo}
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+  batch:
+    job:
+      # Jobs run only through the CLI seam (--job=<JCL member>), never at context start.
+      enabled: false
+    jdbc:
+      # Flyway owns every table, including the JobRepository in schema batch (D-010).
+      initialize-schema: never
+      table-prefix: batch.BATCH_
