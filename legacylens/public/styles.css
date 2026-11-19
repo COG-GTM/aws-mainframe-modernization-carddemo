@@ -146,3 +146,4 @@ tr.click { cursor: pointer; } tr.click:hover td { background: var(--card); } tr.
   .toolbar select, .toolbar input { max-width: 100%; }
   #nav a { padding: 16px 8px; }
 }
+.two > *, .three > *, .split > * { min-width: 0; } .tablewrap { overflow-x: auto; }
