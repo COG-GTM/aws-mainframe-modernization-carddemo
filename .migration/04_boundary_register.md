@@ -13,3 +13,12 @@ A boundary is anything POSTTRAN touches that it does not own alone. Rows are nev
 | B-07 | 2026-11-19 | REGISTERED | RUNTIME_SERVICE | `CALL 'CEE3ABD'` (LE abend U999) | out | `CBTRN02C.cbl:707-711` | IBM LE runtime |
 | B-08 | 2026-11-19 | REGISTERED | SCHEDULER | CA-7 chain CLOSEFIL → CBPAUP0J → POSTTRAN → WAITSTEP; RC 0/4 | in/out | `CardDemo.ca7:70,73,97`; `CBTRN02C.cbl:229-231` | Operations scheduler |
 | B-09 | 2026-11-19 | REGISTERED | ONLINE_COEXISTENCE | CICS files TRANSACT/CCXREF/ACCTDAT/CXACAIX closed by CLOSEFIL before and reopened by OPENFIL after the batch window | context | `CLOSEFIL.jcl:26-30`; `OPENFIL.jcl:26-30` | CICS region CICSAWSA (online streams, out of scope) |
+| B-01 | 2026-11-19 | DECIDED | DATASET_IN | DALYTRAN kept as file `--dd=DALYTRAN` | in | `POSTTRAN_migration_plan.md` §4 | - |
+| B-02 | 2026-11-19 | DECIDED | DATASET_OUT | DALYREJS kept as file, new per run (D-016), restart truncate (D-012) | out | plan §4 | - |
+| B-03 | 2026-11-19 | DECIDED | SHARED_DATA | `transaction.transactions`; reset at new instance (D-024) | out | plan §4 | as registered |
+| B-04 | 2026-11-19 | DECIDED | SHARED_DATA | `account.accounts` + `@Version` | in/out | plan §4 | as registered |
+| B-05 | 2026-11-19 | DECIDED | SHARED_DATA | `card.card_xref` read-only | in | plan §4 | as registered |
+| B-06 | 2026-11-19 | DECIDED | SHARED_DATA | `reference.tran_cat_balances` + `@Version` | in/out | plan §4 | as registered |
+| B-07 | 2026-11-19 | DECIDED | RUNTIME_SERVICE | Exception → exit 16 | out | plan §4 | - |
+| B-08 | 2026-11-19 | DECIDED | SCHEDULER | Exit-code contract 0/4/12/16 | in/out | plan §4 | operations |
+| B-09 | 2026-11-19 | DECIDED | ONLINE_COEXISTENCE | Same batch window; online untouched | context | plan §4 | CICS |

@@ -27,3 +27,9 @@ Format: id, date, status, decision, evidence. AUTO-APPLIED (revisable) = Devin d
 | D-021 | 2026-11-19 | AUTO-APPLIED (revisable) | Loader from `app/data/ASCII` fixed-width files | oracle uses the same inputs (R-04) |
 | D-022 | 2026-11-19 | AUTO-APPLIED (revisable) | No production strangler routing; parity proven offline against the oracle | USER parity rule |
 | D-023 | 2026-11-19 | AUTO-APPLIED (revisable) | Oracle and synthetic-case scripts adapted from PRIOR (evidence) and re-executed in this run; results in 07_runbook R-04..R-09 | runbook |
+| D-024 | 2026-11-19 | AUTO-APPLIED (revisable) | **Supersedes D-013.** A new POSTTRAN job instance empties `transaction.transactions` before the first record (parity with `OPEN OUTPUT TRANSACT`); a restart of a FAILED instance never empties it. A duplicate TRAN-ID inside one run still fails with exit 16 | `CBTRN02C.cbl:256`; R-06; analysis Q-01; FR-POSTTRAN-11 |
+| D-025 | 2026-11-19 | AUTO-APPLIED (revisable) | One wave (W1 = CBTRN02C) | inventory §3 STREAM 1, SHARED 0 |
+| D-026 | 2026-11-19 | AUTO-APPLIED (revisable) | Posting is atomic per record (improves Q-04 partial updates); parity cases unaffected | analysis Q-04; D-011 |
+| D-027 | 2026-11-19 | AUTO-APPLIED (revisable) | Q-03 (reason 109 on account REWRITE INVALID KEY) → log warning, no reject, no RC change | `CBTRN02C.cbl:555-558` |
+| D-028 | 2026-11-19 | AUTO-APPLIED (revisable) | Boundary decisions B-01..B-09 as in plan §4; lead-time requests: none needed (no external party or credential) | plan §4 |
+| D-029 | 2026-11-19 | AUTO-APPLIED (revisable) | New golden cases `acct-missing` (FR-03) and `dup-id` (FR-13) generated with the oracle in Phase 1 | FR table |
