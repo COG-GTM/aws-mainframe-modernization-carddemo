@@ -164,7 +164,7 @@
     <h3>4.1 Cadena de JCL <span class="badge batch">Solo batch</span></h3>
     <p><b>Cadena en CA7</b> (SCHID 030, según los bloques <i>TRIGGERED JOBS</i> de <code>CardDemo.ca7</code>):</p>
     <div class="flow">
-      <div class="node ext"><b>CLOSEFIL</b>IEFBR14 · cierra VSAM en CICS</div>
+      <div class="node ext"><b>CLOSEFIL</b>SDSF · CEMT SET FIL(...) CLO</div>
       <div class="arrow">&rarr;</div>
       <div class="node ext"><b>CBPAUP0J</b>CBPAUP0C · purga autorizaciones</div>
       <div class="arrow">&rarr;</div>
@@ -172,7 +172,7 @@
       <div class="arrow">&rarr;</div>
       <div class="node ext"><b>WAITSTEP</b>COBSWAIT</div>
       <div class="arrow">&rarr;</div>
-      <div class="node ext"><b>OPENFIL</b>IEFBR14 · abre VSAM en CICS</div>
+      <div class="node ext"><b>OPENFIL</b>SDSF · CEMT SET FIL(...) OPE</div>
     </div>
     <p><b>Secuencia del batch completo</b> (tabla "Running Batch Jobs" del README y <code>scripts/run_full_batch.sh</code>):</p>
     <div class="flow">
@@ -284,7 +284,7 @@
     <tr><th>Utilidad / rutina</th><th>Tipo</th><th>Uso en el stream</th><th>Equivalente propuesto en destino</th></tr>
     <tr><td>CEE3ABD</td><td>Language Environment</td><td>ABEND U999 ante cualquier error de E/S</td><td>Excepción no recuperable → job FAILED</td></tr>
     <tr><td>FUNCTION CURRENT-DATE</td><td>Intrínseca COBOL</td><td>Timestamp de proceso en formato Db2 (<code>AAAA-MM-DD-HH.MM.SS.cc0000</code>)</td><td>Reloj del sistema con zona horaria explícita</td></tr>
-    <tr><td>IDCAMS (TRANBKP, TRANIDX), IEFBR14 (CLOSEFIL/OPENFIL), COBSWAIT (WAITSTEP)</td><td>Utilidades IBM / CardDemo</td><td>En jobs vecinos, no dentro de POSTTRAN</td><td>Pasos de preparación y cierre del job destino</td></tr>
+    <tr><td>IDCAMS (TRANBKP, TRANIDX), SDSF con comandos CEMT a la región CICSAWSA (CLOSEFIL/OPENFIL: TRANSACT, CCXREF, ACCTDAT, CXACAIX, USRSEC), COBSWAIT (WAITSTEP)</td><td>Utilidades IBM / CardDemo</td><td>En jobs vecinos, no dentro de POSTTRAN</td><td>Pasos de preparación y cierre del job destino</td></tr>
   </table>
   <h3>6.3 Otras aplicaciones e interfaces</h3>
   <table>
@@ -428,7 +428,7 @@
     <tr><th>Unidad de trabajo</th><td>Registro a registro, sin commit ni rollback: cada WRITE/REWRITE VSAM es definitivo.</td></tr>
     <tr><th>Frecuencia de commit</th><td>N/A en el legado. En destino: definir el tamaño de chunk y la atomicidad por transacción (TCATBAL + ACCT + TRANSACT en la misma transacción de BD).</td></tr>
     <tr><th>Orden de actualizaciones</th><td>TCATBALF → ACCTDATA → TRANSACT. Un ABEND entre pasos deja la transacción a medio aplicar.</td></tr>
-    <tr><th>Acceso concurrente / bloqueos</th><td>Acceso exclusivo garantizado por la planificación: CLOSEFIL cierra los ficheros en CICS antes y OPENFIL los reabre después. TRANSACT se define con SHAREOPTIONS(2 3).</td></tr>
+    <tr><th>Acceso concurrente / bloqueos</th><td>Acceso exclusivo garantizado por la planificación: CLOSEFIL cierra en CICS TRANSACT, CCXREF, ACCTDAT, CXACAIX y USRSEC antes, y OPENFIL los reabre después. TCATBALF no está en esa lista. TRANSACT se define con SHAREOPTIONS(2 3).</td></tr>
   </table>
 </section>
 
