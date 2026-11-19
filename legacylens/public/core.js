@@ -60,15 +60,15 @@ export function evidenceStage(n) {
   if (rules.length) ev[1].push({ t: `${rules.length} business rules catalogued on branch ${rules[0].branch}, awaiting SME approval`, passed: false });
   for (const p of S.prByNode.get(n.id) || []) {
     if (p.state === 'CLOSED') continue;  // closed without merging: not evidence
-    const t = p.title;
-    const tag = { t: `PR #${p.number} (${p.state.toLowerCase()})`, passed: p.state === 'MERGED' };
+    const t = (p.about && p.about[n.id]) || p.title;
+    const tag = { t: `PR #${p.number} (${p.state === 'MERGED' ? 'merged into ' + p.base : 'open'})`, passed: p.state === 'MERGED' };
     if (/sfind/i.test(t + ' ' + p.branch)) ev[0].push({ ...tag, t: tag.t + ' fixes a finding in the COBOL' });
     else if (/parity|golden|gnucobol|equivalen|e2e|sign-off|audit/i.test(t)) ev[3].push(tag);
     else if (/^docs|requisitos|rules|inventory|diagram/i.test(t)) ev[1].push(tag);
     else if (/sfind|^bug|fix bug|\bmask\b|\brequire/i.test(t + ' ' + p.branch)) ev[0].push({ ...tag, t: tag.t + ' fixes a finding in the COBOL' });
     else ev[2].push(tag);
   }
-  // a stage counts only when its human gate has been passed (a merged PR); open work is "in review"
+  // a stage counts only when a PR for it was reviewed and merged (into a migration branch; none is on main); open work is "in review"
   let stage = 0, review = 0;
   for (let i = 0; i < 5; i++) { if (ev[i].some((x) => x.passed)) stage = i; if (ev[i].length) review = i; }
   return { stage, review, ev };

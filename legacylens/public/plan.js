@@ -63,7 +63,7 @@ export function approachView(root) {
 export function trackerView(root, params) {
   const el = h(`<div class="page">
     <span class="eyebrow">Migration tracker</span><h1>Where each program stands, and what happens next</h1>
-    <p class="lede">Stages follow the delivery gates. A stage counts once its human gate is passed: here, a merged pull request naming the program. Open pull requests and the unapproved rules catalog show as work in review (lighter bar). Change any row when you know better. Edits are saved for everyone using this app.</p>
+    <p class="lede">Stages follow the delivery gates. A stage counts once a pull request naming the program has been reviewed and merged. Those merges went into migration branches (<span class="mono">migration/carddemo-java</span>, <span class="mono">migration/ts</span>), not <span class="mono">main</span>, so nothing here is in production. Open pull requests and the unapproved rules catalog show as work in review (lighter bar). Change any row when you know better. Edits are saved for everyone using this app.</p>
     <div class="gates" id="gates"></div>
     <div class="toolbar"><input type="search" id="q" placeholder="Filter programs…" aria-label="Filter programs"><select id="fs" aria-label="Stage"><option value="">Any stage</option>${STAGES.map((s, i) => `<option value="${i}">${s.label}</option>`).join('')}</select>
       <span class="muted" id="sum"></span></div>
@@ -97,7 +97,7 @@ export function trackerView(root, params) {
       <div style="display:flex;justify-content:space-between;align-items:start;gap:10px"><div><span class="eyebrow">${esc(n.sub)} program</span><h2 style="font-size:24px">${esc(n.label)}</h2></div><button class="btn" id="x">Close</button></div>
       <p><a href="${nodeHref(n.id)}">Trace in estate map</a> · <a href="${href('decompose', { n: n.id })}">Decomposition</a> · <a href="${srcHref(n.file)}">Source</a></p>
       <h3>Stage</h3><div class="seg" id="stg">${STAGES.map((s, i) => `<button class="btn sm${i === st.stage ? ' on' : ''}" data-v="${s.id}">${s.label}</button>`).join('')}</div>
-      <p class="muted" style="font-size:12px">${st.manual ? `Set by hand${st.updated ? ' on ' + new Date(st.updated).toLocaleString() : ''}. Evidence alone supports "${STAGES[st.derived].label}". <a href="#" id="reset">Return to evidence</a>` : 'Derived from evidence: the highest stage with a merged pull request. Pick a stage to override it.'}</p>
+      <p class="muted" style="font-size:12px">${st.manual ? `Set by hand${st.updated ? ' on ' + new Date(st.updated).toLocaleString() : ''}. Evidence alone supports "${STAGES[st.derived].label}". <a href="#" id="reset">Return to evidence</a>` : 'Derived from evidence: the highest stage with a pull request merged into a migration branch. Pick a stage to override it.'}</p>
       <div class="two"><label>Owner<br><input type="text" id="owner" value="${esc(st.owner)}" placeholder="Name or team" style="width:100%"></label><span></span></div>
       <label style="display:block;margin-top:8px">Note<br><textarea id="note" rows="2" style="width:100%" placeholder="Decisions, blockers, SME answers">${esc(st.note)}</textarea></label>
       <button class="btn" id="save" style="margin-top:6px">Save owner and note</button>
@@ -106,6 +106,7 @@ export function trackerView(root, params) {
       ${prs.length ? `<h3>Pull requests naming ${esc(n.label)} <span class="muted">(${prs.length})</span></h3><ul class="conn">${prs.map((p) => `<li><a href="${esc(p.url)}" target="_blank" rel="noopener" class="mono">#${p.number}</a><span style="font-size:13px">${esc(p.title)}</span><span class="ref tag ${p.state === 'MERGED' ? 'green' : ''}">${p.state.toLowerCase()}</span></li>`).join('')}</ul>` : ''}
     </aside>`);
     document.body.append(drawer);
+    drawer.querySelector('#x').focus();
     const refresh = () => { if (!el.isConnected) return; paint(); if (drawer?.isConnected) open(id); };
     drawer.querySelector('#x').addEventListener('click', () => { drawer.remove(); drawer = null; history.replaceState(null, '', href('tracker')); params = {}; paint(); });
     drawer.querySelector('#stg').addEventListener('click', async (ev) => { const b = ev.target.closest('button'); if (!b) return; try { await saveTracker(id, { stage: b.dataset.v }); toast('Stage saved'); refresh(); } catch { toast('Could not save. Try again.'); } });
@@ -160,7 +161,8 @@ export function complianceView(root, params) {
     for (const s of f.snippets) b.append(h(`<div><h3 class="mono">${esc(s.loc)}</h3>${s.commentary ? `<p class="muted" style="font-size:13px;margin:0">${esc(s.commentary)}</p>` : ''}<pre class="prompt" style="white-space:pre;overflow:auto">${esc(s.code)}</pre></div>`));
     if (f.note) b.append(h('<h3>Triage note</h3>'), md(f.note));
     document.body.append(drawer);
-    drawer.querySelector('#x').addEventListener('click', () => { drawer.remove(); drawer = null; });
+    drawer.querySelector('#x').focus();
+    drawer.querySelector('#x').addEventListener('click', () => { drawer.remove(); drawer = null; rows.querySelector(`tr[data-id="${id}"]`)?.focus(); });
   }
   rows.addEventListener('click', (ev) => { const r = ev.target.closest('tr.click'); if (r) open_(r.dataset.id); });
   rows.addEventListener('keydown', (ev) => { if (ev.key === 'Enter' || ev.key === ' ') { const r = ev.target.closest('tr.click'); if (r) { ev.preventDefault(); open_(r.dataset.id); } } });
@@ -189,7 +191,7 @@ export function evidenceView(root) {
       ${row('Scan-derived', `${S.findings.length} migration findings (${open} open, ${S.findings.length - open} dismissed in triage) with flows, data and migration notes`, `Devin migration-docs Code Scan <span class="mono">${m.scan}</span>, profile "${esc(m.scanProfile)}". A scan documents what it read; it does not guarantee a complete inventory.`)}
       ${row('Scan-derived', `${S.compliance.findings.length} control-gap findings on a second COBOL repository`, `Devin compliance Code Scan <span class="mono">${S.compliance.scan}</span> on <span class="mono">${S.compliance.repo}</span>.`)}
       ${row('Repository-derived', `${S.rules.length} business rules for ${[...new Set(S.rules.map((r) => r.program))].join(' and ')}`, `Rules catalog on branch <span class="mono">${m.rulesBranch}</span>, written by Devin, awaiting SME approval.`)}
-      ${row('Repository-derived', `${S.prs.length} pull requests linked to programs`, 'GitHub pull requests on the repository, matched by program or job name in the title. A stage inferred this way is a starting point, not a sign-off.')}
+      ${row('Repository-derived', `${S.prs.length} pull requests, ${S.prs.filter((p) => p.nodes.some((x) => x.startsWith('pgm:'))).length} of them linked to a program`, 'GitHub pull requests on the repository, matched by program or job name in the title. A stage inferred this way is a starting point, not a sign-off.')}
       ${row('Reported, not re-verified', 'Board tickets CD-102 to CD-109', 'Named by the session that ran the scan. The matching branches exist on GitHub; the tickets themselves were not opened from this app.')}
       ${row('Proposed', 'Route per component, complexity score, where to start', 'Rules over the graph and findings (technology used, lines, coupling, finding severity). For an architect and SME to confirm.')}
       ${row('Proposed', 'Next prompt for Devin on each program', 'Generated from the program\'s stage and its parsed dependencies.')}

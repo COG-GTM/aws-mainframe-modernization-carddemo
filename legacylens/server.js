@@ -65,7 +65,7 @@ const server = http.createServer(async (req, res) => {
     const p = url.pathname;
     if (p.startsWith('/api/data/')) {
       const k = p.slice(10);
-      if (!gz[k]) return json(res, 404, { error: 'unknown dataset' });
+      if (!Object.hasOwn(gz, k)) return json(res, 404, { error: 'unknown dataset' });
       if (/gzip/.test(req.headers['accept-encoding'] || '')) return send(res, 200, gz[k], 'application/json', { 'Content-Encoding': 'gzip' });
       return send(res, 200, data[k]);
     }

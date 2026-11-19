@@ -2,7 +2,7 @@
 """Build LegacyLens data from the CardDemo source tree, the exported migration-docs
 scan findings (raw/findings.txt), the business-rules catalog branch and the repo's PRs.
 Everything emitted here is derived from those inputs; nothing is hand-entered."""
-import json, os, re, subprocess, collections, xml.etree.ElementTree as ET
+import json, os, re, subprocess, sys, collections, xml.etree.ElementTree as ET
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 APP = os.path.dirname(HERE)
@@ -48,7 +48,7 @@ def edge(s, t, kind, file=None, line=None, detail=None):
     e = edges.get(k)
     if not e:
         e = edges[k] = {"source": s, "target": t, "kind": kind, "refs": []}
-    if file and len(e["refs"]) < 12:
+    if file and len(e["refs"]) < 60:
         r = {"file": file, "line": line}
         if detail:
             r["detail"] = detail
@@ -208,10 +208,10 @@ for name, f in programs.items():
     in_sql = None
     for idx, (i, l) in enumerate(cl):
         u = l.upper()
-        m = re.search(r"^\s{0,12}COPY\s+'?([\w-]+)'?", u[6:] if len(u) > 6 else u) or re.search(r"EXEC\s+SQL\s+INCLUDE\s+(\w+)", u)
+        m = re.search(r"^\s{0,12}COPY\s+'?([\w-]+)'?", u[6:] if len(u) > 6 else u) or re.search(r"EXEC\s+SQL\s+INCLUDE\s+(\w+)", u) or re.search(r"^.{6}\s+INCLUDE\s+(\w+)\s*$", u.rstrip())
         if m and m.group(1) in copybooks:
             edge(pid, "cpy:" + m.group(1), "includes", f, i, "COPY " + m.group(1))
-        elif m and m.group(1) not in ("SQLCA",) and not m.group(1).startswith(("DFH", "CMQ")) and re.search(r"COPY", u):
+        elif m and m.group(1) not in ("SQLCA", "SQLDA") and not m.group(1).startswith(("DFH", "CMQ")) and re.search(r"COPY", u):
             edge(pid, external(m.group(1), "sys", "system copybook (not in repo)"), "includes", f, i, "COPY " + m.group(1))
         m = re.search(r"CALL\s+['\"]([\w$#@-]+)['\"]", u)
         if m:
@@ -383,8 +383,10 @@ def parse_jcl(kind, name, f):
             did = ds_node(m.group(1))
             if not did:
                 continue
-            dm = re.search(r"DISP=\(?(\w+)", stmt_of.get(idx, l).upper())
+            dm = re.search(r"DISP=\(?(\w+)(?:,(\w+))?", stmt_of.get(idx, l).upper())
             disp = dm.group(1) if dm else "SHR"
+            if dm and dm.group(2) == "DELETE" and not run_as:
+                continue  # a cleanup step that deletes the dataset neither reads nor writes it
             mode = None
             if run_as and cur_dd in prog_dd.get(run_as, {}):
                 mode = prog_dd[run_as][cur_dd]["mode"]
@@ -558,7 +560,10 @@ print("compliance", len(compliance), collections.Counter(f for c in compliance f
 # ---- business rules catalog (branch cd-107) -----------------------------------
 rules = []
 BR = "origin/devin/cd-107-business-rules-catalog"
-for doc in sh("git", "ls-tree", "-r", "--name-only", BR, "modernization/java21/docs/business-rules/").splitlines():
+rule_docs = sh("git", "ls-tree", "-r", "--name-only", BR, "modernization/java21/docs/business-rules/").splitlines()
+if not rule_docs:
+    sys.exit("rules branch %s is not available; fetch it before rebuilding (see README)" % BR)
+for doc in rule_docs:
     if not doc.endswith(".md") or os.path.basename(doc) in ("README.md", "SME-CHECKLIST.md"):
         continue
     md = sh("git", "show", BR + ":" + doc)
@@ -577,20 +582,33 @@ prs = json.load(open(os.path.join(APP, "raw", "prs.json")))
 prog_names = sorted(list(programs) + list(jobs), key=len, reverse=True)
 pr_out = []
 for p in prs:
-    text = (p["title"] + " " + p["headRefName"]).upper()
-    # "COUSR00C-03C" names COUSR00C..COUSR03C
-    for rm in re.finditer(r"(?<![A-Z0-9])([A-Z]+)(\d+)([A-Z]?)-(\d+)\3(?![A-Z0-9])", text):
-        a, b = int(rm.group(2)), int(rm.group(4))
-        if 0 < b - a < 20:
-            text += " " + " ".join("%s%0*d%s" % (rm.group(1), len(rm.group(2)), v, rm.group(3)) for v in range(a, b + 1))
-    # "COUSR00C/01C/02C" names COUSR00C, COUSR01C, COUSR02C
-    for rm in re.finditer(r"(?<![A-Z0-9])([A-Z]+)(\d+)([A-Z]?)((?:/\d+\3)+)(?![A-Z0-9])", text):
-        text += " " + " ".join(rm.group(1) + v for v in rm.group(4).strip("/").split("/"))
-    hits = [("pgm:" if n in programs else "job:") + n for n in prog_names if re.search(r"(?<![A-Z0-9])" + re.escape(n) + r"(?![A-Z0-9])", text)]
-    # a PR about a job is evidence for the programs that job runs
-    hits += [t for h_ in list(hits) if h_.startswith("job:") for (s_, t, k_) in edges if s_ == h_ and k_ == "runs" and t.startswith("pgm:")]
+    def expand(t):
+        # "COUSR00C-03C" and "COUSR00C/01C/02C" name every program in the range or list
+        def rng(rm):
+            lo, hi = int(rm.group(2)), int(rm.group(4))
+            if not 0 < hi - lo < 20:
+                return rm.group(0)
+            return " ".join("%s%0*d%s" % (rm.group(1), len(rm.group(2)), v, rm.group(3)) for v in range(lo, hi + 1))
+        t = re.sub(r"(?<![A-Z0-9])([A-Z]+)(\d+)([A-Z]?)-(\d+)\3(?![A-Z0-9])", rng, t)
+        return re.sub(r"(?<![A-Z0-9])([A-Z]+)(\d+[A-Z]?)((?:/\d+[A-Z]?)+)(?![A-Z0-9])",
+                      lambda rm: " ".join(rm.group(1) + v for v in [rm.group(2)] + rm.group(3).strip("/").split("/")), t)
+    def named(t):
+        found = [("pgm:" if n in programs else "job:") + n for n in prog_names if re.search(r"(?<![A-Z0-9])" + re.escape(n) + r"(?![A-Z0-9])", t)]
+        # a PR about a job is evidence for the programs that job runs, and the subprograms those call
+        via = [t2 for h_ in found if h_.startswith("job:") for (s_, t2, k_) in edges if s_ == h_ and k_ == "runs" and t2.startswith("pgm:")]
+        via += [t2 for h_ in via for (s_, t2, k_) in edges if s_ == h_ and k_ == "calls" and t2.startswith("pgm:")]
+        return found + via
+    # each program is attributed to the clause of the title that names it ("A parity; B submission")
+    segs = p["title"].split(";")
+    about = {}
+    for seg in segs:
+        for h_ in named(expand(seg.upper())):
+            about.setdefault(h_, seg.strip())
+    hits = list(dict.fromkeys(list(about) + named(expand(p["headRefName"].upper()))))
+    if len(segs) == 1:
+        about = {}
     pr_out.append({"number": p["number"], "title": p["title"], "state": p["state"], "branch": p["headRefName"], "url": p["url"],
-                   "created": p["createdAt"], "merged": p.get("mergedAt"), "additions": p.get("additions"), "deletions": p.get("deletions"), "nodes": sorted(set(hits))})
+                   "base": p.get("baseRefName"), "about": about, "created": p["createdAt"], "merged": p.get("mergedAt"), "additions": p.get("additions"), "deletions": p.get("deletions"), "nodes": sorted(set(hits))})
 
 # ---- metrics & approaches -----------------------------------------------------
 deg_in = collections.Counter(); deg_out = collections.Counter()
