@@ -143,7 +143,7 @@ class DataLoaderTest extends PostgresTestBase {
     @Test
     void invalidFieldDataIsReportedByPositionOnly(@org.junit.jupiter.api.io.TempDir Path dir) throws Exception {
         Path bad = dir.resolve("cardxref.txt");
-        Files.writeString(bad, "0500024453765740X\nINJECTED00000050\n");
+        Files.writeString(bad, "0500024453765740INJECTED\n");
         assertThat(load("--job=LOAD", "--dd=CARDXREF=" + bad)).isEqualTo(ReturnCode.ABEND);
         assertThat(err.toString(StandardCharsets.UTF_8)).contains("LOAD CARDXREF record 1: invalid field data")
                 .doesNotContain("0500024453765740").doesNotContain("INJECTED");
