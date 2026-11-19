@@ -7,7 +7,7 @@ Produced by `!mf_stream_migration_plan` on 2026-11-19 (session devin-c4fce2ffab2
 ## 1. Goal and scope
 
 - Stream POSTTRAN, **BATCH**, one program CBTRN02C, from `app/jcl/POSTTRAN.jcl:23` to `GOBACK` (`app/cbl/CBTRN02C.cbl:234`). Exclusions per D-010.
-- Definition of done: FR-01..FR-17 pass on the golden cases (GnuCOBOL parity, D-004 + D-007 mask + D-009 abend rule) and Java tests JT-1..JT-3, in CI.
+- Definition of done: FR-01..FR-17 pass on the golden cases (GnuCOBOL parity, D-004 + D-007 mask + D-009 abend rule) and Java tests JT-1..JT-4, in CI.
 - Deliverable: Spring Batch job `POSTTRAN` in `modernization/carddemo-app`, launched by `java -jar carddemo-app.jar --job=POSTTRAN --dd=DALYTRAN=<file> --output-dir=<dir>`.
 
 ## 2. Target-state mapping (profiles applied: CORE §1, BATCH §3, DATA/BOUNDARY §5; ONLINE and SUBTRANSACTION N/A)
@@ -18,7 +18,7 @@ Produced by `!mf_stream_migration_plan` on 2026-11-19 (session devin-c4fce2ffab2
 | Job/step | one Job per JCL member, one step per EXEC, chunk-oriented | `Job POSTTRAN` -> `Step step15Cbtrn02c`: `DailyTransactionReader` -> `DailyTransactionProcessor` (calls `TransactionValidationService`, CBTRN02C 1500) -> `PostingItemWriter` (calls `PostingService`, 2000/2700/2800/2900, and `RejectStore`, 2500); `RejectFileWriter` publishes DALYREJS at job end |
 | Unit of work | one record = one DB transaction (D-009) | `chunk(1)` pinned for `step15Cbtrn02c` (D-011); the target-state default of 100 applies to other jobs only |
 | Restart state | restart from last committed chunk (D-002, D-011) | everything a restart needs is committed with each 1-record chunk: (1) the reader position (`DailyTransactionReader` is an `ItemStream`; its read count is saved in the step `ExecutionContext`); (2) the counters `posttran.processed` and `posttran.rejected` in the same `ExecutionContext`; (3) each reject's 430-byte image in table `batch.posttran_reject` (`job_instance_id`, `input_seq`, `record`), inserted in the record's transaction. On restart of the same JobInstance the reader skips the committed records and the counters resume from the context. At job end with RC 0/4, `RejectFileWriter` writes DALYREJS from `batch.posttran_reject` for that JobInstance ordered by `input_seq` into a temp file in the generation dir and renames it to `DALYREJS` (D-012); the SYSOUT counts come from the restored counters. Rows are kept for audit (housekeeping is out of scope) |
-| Restart | restart from last committed chunk (D-002); rerun guard (D-008) | `RerunGuard` step listener before the first read: any input TRAN-ID already in `transaction.transaction` -> RC 16, no writes |
+| Restart | restart from last committed chunk (D-002); rerun guard (D-008) | `RerunGuard` runs only when the step starts for a **new JobInstance** (new `run.id`, no prior `StepExecution`): any input TRAN-ID already in `transaction.transaction` -> RC 16, no writes (FR-17). A **restart of the same failed JobInstance** (`--restart`, which calls `JobOperator.restart` on the last FAILED execution of `POSTTRAN`) skips the guard, because its own committed records are expected in the table, and resumes from the checkpoint (Restart state row). Restarting a COMPLETED instance is refused by Spring Batch; a new run of the same file is a new instance and gets the full scan |
 | Return code | max step RC; 4 rejects; 16 abend; 12 usage | `PostingRunListener` sets 4 when rejects > 0; `BatchCli` maps FAILED -> 16, bad args -> 12 |
 | Datasets | DALYTRAN/DALYREJS files, KSDS -> tables (D-003) | §4 |
 | Logging | observable DISPLAYs reproduced on SYSOUT; PAN masked in logs | `SysoutWriter` writes the counts, the `Creating.` line and error lines verbatim to `<gen-dir>/SYSOUT`; application logs mask card numbers |
@@ -79,7 +79,7 @@ Phase 1 (data): Flyway V1-V7, entities and repositories for the 4 tables, the lo
 | 2 | Phase 0 child | scaffolding (§5) | target state | 1 PR -> main | -> 3 |
 | 3 | Phase 1 child | data layer + codec layouts + loader + golden harness (§4, §5) | field dictionary, BND-004..007 decisions | 1 PR -> main | -> 4 |
 | 4 | **Wave 1** child, `!mf_program_migration` | CBTRN02C -> `POSTTRAN` job: `TransactionValidationService` (1500), `PostingService` (2000/2700/2800/2900), `RejectStore` + `RejectFileWriter` (2500, staged rejects published at job end), `PostingRunListener` (counts, RC), `ProcessingTimestampProvider`, `RerunGuard` (D-008), `BatchCli` wiring | CBTRN02C FR doc, BND-001..009 decisions, D-008/009/011..014 | 1 PR -> main | -> 5 |
-| 5 | `!mf_program_parity_test` (Wave 1) | GC-1..GC-6 + JT-1..JT-3 | oracle outputs | `functional/CARDDEMO/POSTTRAN_parity/wave-1.md` | STOP D (notify) |
+| 5 | `!mf_program_parity_test` (Wave 1) | GC-1..GC-6 + JT-1..JT-4 | oracle outputs | `functional/CARDDEMO/POSTTRAN_parity/wave-1.md` | STOP D (notify) |
 | 6 | `!mf_stream_signoff` + independent audit session | end-to-end, CI gate, evidence | all | `POSTTRAN_signoff.md`, `POSTTRAN_audit.md` | STOP E |
 
 Single repo: each step is one PR. Phase 3 (UI testing) is skipped: no screens.
@@ -90,6 +90,7 @@ Single repo: each step is one PR. Phase 3 (UI testing) is skipped: no screens.
   - **Normal-end cases (GC-1, GC-2, GC-3, GC-5, GC-6):** DALYREJS sha256; TRANSACT/ACCTDATA/TCATBALF unloads equal to the oracle run on the same input (TRANSACT bytes 325-326 masked, D-007); exit code equal; SYSOUT count lines equal.
   - **Abend cases (GC-4):** Java exit code 16 (oracle 231); tables equal to the oracle run on the **valid prefix** (the records before the failing one, runbook R-13), not to the oracle's abend run, because COBOL leaves the failing record's account and category updates applied and Java rolls them back (D-009); assert that **no DALYREJS was published** in the generation dir (D-012); no counter comparison (COBOL never reaches its count DISPLAYs, `CBTRN02C.cbl:221-234`).
 - GC-1 sample 300, GC-2 `syn_all`, GC-3 `syn_ok`, GC-4 in-file duplicate, GC-5 empty, GC-6 missing account (to build). Java-only JT-1 rerun guard, JT-2 atomic rollback of the failing record, JT-3 reason 101 unit test.
+- **JT-4 restart after a transient failure** (CI): run GC-1 with a fault injected after record 150 is committed (e.g. the test datasource fails the next commit) -> exit 16, 150 records committed, no DALYREJS published; then `--restart` the same JobInstance -> the guard is skipped, the reader resumes at record 151, final exit 4, tables, DALYREJS sha256 and SYSOUT counts (300 / 38) equal the GC-1 oracle run. A second test starts a **new** instance on the same file after completion and expects RC 16 from the guard.
 - Every FR maps to at least one case (FR traceability matrix §9).
 - CI gate: `modernization-verify.yml` runs all of the above with Testcontainers `postgres:16`.
 

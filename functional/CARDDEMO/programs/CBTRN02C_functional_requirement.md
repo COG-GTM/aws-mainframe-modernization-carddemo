@@ -52,7 +52,7 @@ Ownership map: this is the only in-scope program, so it owns **every** stream re
 | CBTRN02C-14 | rejects > 0 / = 0 | RC 4 / RC 0 | `:229-231` | FR-14 |
 | CBTRN02C-15 | empty DALYTRAN | 0/0, empty DALYREJS published, RC 0, no master change | `:202-219,351-361` | FR-15 |
 | CBTRN02C-16 | a valid record repeats a TRAN-ID posted earlier in the run | abend, RC 16; earlier records stay committed (D-011); failing record leaves no partial update (D-009); DALYREJS not published (D-012) | `:562-578,707-711` | FR-16 |
-| CBTRN02C-17 | any input TRAN-ID already in TRANSACT before the run | RC 16 before any read-for-posting or write; no change (D-008) | target rule, no COBOL source (`:256` context) | FR-17 |
+| CBTRN02C-17 | a new job instance (not a restart of a failed one) whose input has a TRAN-ID already in TRANSACT | RC 16 before any read-for-posting or write; no change (D-008) | target rule, no COBOL source (`:256` context) | FR-17 |
 
 **17 program requirements; coverage 17/17 stream FRs both ways.**
 
@@ -104,7 +104,7 @@ CBTRN02C delegates only the abend to LE `CEE3ABD` (`:711`, BND-001). It is **not
 - CBTRN02C-16: GC-4 duplicate: RC 16 (oracle 231); tables equal the oracle run on the 2-record valid prefix (R-13); no DALYREJS published; no counter comparison.
 - CBTRN02C-15: GC-5 empty: RC 0, 0/0.
 - CBTRN02C-07: GC-6 (built in Phase 1) and JT-3.
-- CBTRN02C-17: JT-1. CBTRN02C-16 rollback detail: JT-2.
+- CBTRN02C-17: JT-1 (new instance -> RC 16) and JT-4 (restart of the same failed instance skips the guard and resumes; final outputs equal GC-1). CBTRN02C-16 rollback detail: JT-2.
 
 Given/When/Then per requirement: as stream FR §8 for the mapped FR id.
 

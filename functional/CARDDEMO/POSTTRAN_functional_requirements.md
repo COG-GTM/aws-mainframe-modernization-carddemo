@@ -53,7 +53,7 @@ Covering tests name the golden cases of §8 (GC-n, GnuCOBOL parity) or a Java te
 | FR-14 | Return code | at least one reject / no rejects | RC 4 / RC 0 | CBTRN02C | `:229-231` | 008 | GC-1 (4), GC-3 (0) |
 | FR-15 | Empty input | daily file has no records | 0 processed, 0 rejected, empty rejects file, RC 0, no master changes | CBTRN02C | `:202-219,351-361` | 002 | GC-5 |
 | FR-16 | Duplicate transaction id in the input | a valid record repeats an id already posted in this run | the job abends (target RC 16) at that record; records before it stay posted; that record leaves no partial update in the target (D-009) | CBTRN02C | `:562-578,707-711` | 004, 001 | GC-4 (RC + prior state), JT-2 |
-| FR-17 | Already-posted input (rerun) | any input id already exists in the transaction master before the run | RC 16 before posting; nothing changes (D-008) | target rule D-008 | D-008; `:256` | 004 | JT-1 (Java only, excluded from parity) |
+| FR-17 | Already-posted input (rerun) | a **new run** (new job instance, not a restart of a failed one) whose input has an id already in the transaction master | RC 16 before posting; nothing changes (D-008) | target rule D-008 | D-008; `:256` | 004 | JT-1 (Java only, excluded from parity) |
 
 **17 requirements** (15 source-derived + FR-16 partly and FR-17 fully from the STOP B decisions D-008/D-009). Sign-off set: FR-01..FR-17.
 
@@ -105,7 +105,7 @@ Golden cases (GnuCOBOL oracle, runbook R-04/R-06/R-11/R-12; parity bar D-004 wit
 - **GC-4** in-file duplicate (3 records, third repeats the first): Java RC 16 (oracle 231); tables equal to the oracle run on the 2-record valid prefix (R-13), not to the oracle abend run (D-009); no DALYREJS published (D-012); no counter comparison (COBOL ends before its count DISPLAYs).
 - **GC-5** empty input: RC 0, 0/0, empty DALYREJS.
 - **GC-6** (to build in Phase 1): CARDXREF fixture whose account is missing -> 0101. Needs an oracle option for a custom CARDXREF.
-Java-only: **JT-1** rerun guard (D-008); **JT-2** atomic rollback of the failing record (D-009); **JT-3** reason 101 unit test.
+Java-only: **JT-1** rerun guard on a new instance (D-008); **JT-2** atomic rollback of the failing record (D-009); **JT-3** reason 101 unit test; **JT-4** restart of a failed instance skips the guard and resumes from its checkpoint, final outputs equal GC-1 (D-002, D-011; plan §7).
 
 Given/When/Then:
 - FR-01: Given a record whose card, account, limit and expiry pass, When POSTTRAN runs, Then TRANSACT has a row with the input fields and a processing timestamp of the run.
@@ -118,7 +118,7 @@ Given/When/Then:
 - FR-13/14: Given R rejects out of P records, Then SYSOUT shows P and R, and RC is 4 if R > 0 else 0.
 - FR-15: Given an empty input, Then RC 0, counts 0, empty DALYREJS.
 - FR-16: Given a duplicate id later in the input, Then RC 16, the tables equal the oracle run on the records before the duplicate, and no DALYREJS is published.
-- FR-17: Given an input whose id already exists in TRANSACT, Then RC 16 and no table changes.
+- FR-17: Given a new run whose input has an id already in TRANSACT, Then RC 16 and no table changes. Given a restart of a failed run of the same instance, Then the guard is skipped and posting resumes after the last committed record (JT-4).
 
 ## 9. Traceability matrix
 
@@ -140,7 +140,7 @@ Given/When/Then:
 | FR-14 | CBTRN02C | `:229-231` | GC-1, GC-3 | process exit code |
 | FR-15 | CBTRN02C | `:202-219` | GC-5 | all outputs |
 | FR-16 | CBTRN02C | `:562-578,707-711` | GC-4, JT-2 | RC 16 + tables vs valid-prefix oracle run (R-13) + no DALYREJS published |
-| FR-17 | (D-008) | `:256` | JT-1 | RC + unchanged tables |
+| FR-17 | (D-008) | `:256` | JT-1, JT-4 | RC + unchanged tables (new instance); resume equals GC-1 (restart) |
 
 Requirements without an existing covering case today: FR-07 (GC-6 must be built). All others have an oracle run already executed in this session.
 
