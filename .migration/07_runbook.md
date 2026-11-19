@@ -46,6 +46,21 @@ Executed from the repo root on the Devin VM (Maven 3.9.9, Docker Engine 29.7.2).
 | R-17 | `(cd modernization && JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64 mvn -B verify)` (Phase 1) | BUILD SUCCESS; carddemo-common 14 tests, carddemo-app 26 tests (incl. `KsdsDataServiceTest` on `postgres:16`, `ParityHarnessTest`, `DailyTransactionReaderTest`, `DailyRejectWriterTest`), 0 failures |
 | R-18 | `.migration/tools/posttran_golden_cases.sh ~/work/golden2 ~/work/golden2-dest`, then `cmp`/masked `diff` of every file against the committed cases | regeneration reproduces every committed golden file (TRANSACT.unl equal with cols 325–326 masked); adds `dup-id/expected-atomic` (oracle on records 1–2: RC 0, account 7 = 697.77) copied into the repo (D-042) |
 | R-19 | `(cd modernization && JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64 mvn -B verify)` (Phase 1 after D-042) | BUILD SUCCESS; carddemo-common 14 tests, carddemo-app 27 tests, 0 failures |
+| R-20 | `(cd modernization && JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64 mvn -B verify)` (Wave 1) | BUILD SUCCESS; carddemo-common 21 tests, carddemo-app 55 tests, 0 failures. `PosttranJobParityTest` green on all 7 golden cases (DALYREJS bytes, ACCTDATA/TCATBALF/TRANSACT, SYSOUT, RC 4/4/4/16/0/4/0); `PosttranJobRunTest` restart / rerun / exit-12 / exit-16 cases green |
+| R-21 | `docker run -d --rm --name pt-pg -e POSTGRES_DB=carddemo -e POSTGRES_USER=carddemo -e POSTGRES_PASSWORD=carddemo -p 55433:5432 postgres:16`, then `java -jar modernization/carddemo-app/target/carddemo-app.jar --job=POSTTRAN --run-id=CLI-1 --dd=DALYTRAN=modernization/carddemo-app/src/test/resources/golden/posttran/baseline/input/DALYTRAN --dd=DALYREJS=~/work/cli/DALYREJS --dd=SYSOUT=~/work/cli/SYSOUT --spring.datasource.url=jdbc:postgresql://localhost:55433/carddemo` (empty masters; needs R-20 jar) | exit 4; SYSOUT `TRANSACTIONS PROCESSED :000000300`, `REJECTED  :000000300`; DALYREJS 129000 bytes, all `0100INVALID CARD NUMBER FOUND`. Relaunch of `--run-id=CLI-1` → exit 12 (completed); new `--run-id=CLI-2` with the same DALYREJS → exit 12 (exists) |
+
+## Running POSTTRAN (Wave 1)
+
+```
+java -jar carddemo-app.jar --job=POSTTRAN --dd=DALYTRAN=<file> [--dd=DALYREJS=<file>] [--dd=SYSOUT=<file>] [--run-id=<id>] \
+     [--carddemo.posttran.dalytran-encoding=IBM037] [--carddemo.batch.output-dir=<dir>] [--carddemo.batch.clock=2022-07-18T10:30:45] \
+     [--spring.datasource.url=jdbc:postgresql://<host>:<port>/carddemo --spring.datasource.username=... --spring.datasource.password=...]
+```
+
+- Exit code: 0 no reject, 4 rejects, 12 launch error (unknown job, DALYTRAN not bound, DALYREJS exists, completed `--run-id`), 16 abend.
+- New instance (new or omitted `--run-id`): `transaction.transactions` is emptied first (D-024), then DALYTRAN is posted. DALYREJS defaults to `<output-dir>/POSTTRAN/<run-id>/DALYREJS` and must not exist.
+- Restart after exit 16: relaunch with the same `--run-id` (and the same DALYREJS). Processing resumes after the last committed record; DALYREJS is truncated to its committed length; nothing is reposted.
+- Masters (accounts, card xref, TCATBAL) must already be loaded; tests load them with `KsdsDataService` (D-021).
 
 ## Gotchas (verified)
 - Sample ASCII files use EBCDIC-style overpunch: compile with `-fsign=EBCDIC`.
