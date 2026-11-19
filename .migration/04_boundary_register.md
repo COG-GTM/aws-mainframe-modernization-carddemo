@@ -357,3 +357,8 @@ Clarifications of DECIDED entries; no decision changed. Detail in `functional/CA
 - **Clarification:** rejects are staged per record in `batch.posttran_reject` in the record's transaction and assembled into DALYREJS at job end (RC 0/4 only, D-012), so a restart of the same JobInstance keeps the rejects of the records committed before the failure. Byte contract and publish rule unchanged.
 - **Status:** DECIDED (unchanged)
 - **History:** 2026-11-19 clarified after review ANALYSIS_0002
+
+### BND-004 / BND-008 clarification (cutover gate)
+- **Clarification:** production cutover (scheduler switch) is gated on every downstream consumer of TRANSACT/ACCTDATA/TCATBALF/CARDXREF (INTCALC, TRANBKP, COMBTRAN, TRANIDX, TRANREPT, CREASTMT, CBEXPORT, online readers) being migrated or fed a verified hand-off of the PostgreSQL state; there is no production cutover in this stream. Consistent with the BND-009 deferral and the DATA profile ("no strangler routing").
+- **Status:** DECIDED (unchanged)
+- **History:** 2026-11-19 clarified after review REVIEWER_0003
