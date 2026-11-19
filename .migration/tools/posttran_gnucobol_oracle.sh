@@ -13,9 +13,12 @@ OUT=${1:-${TMPDIR:-/tmp}/carddemo-posttran-oracle}
 DALY=${2:-$REPO/app/data/ASCII/dailytran.txt}
 ORACLE_NOW=${ORACLE_NOW-2022/07/18 10:30:45}
 DALYTRAN_ENCODING=${DALYTRAN_ENCODING:-ASCII}
+# CARDXREF: optional custom cross-reference (ASCII line-sequential, 50-byte records), e.g. GC-6 (account missing, reason 101)
+CARDXREF=${CARDXREF:-$REPO/app/data/ASCII/cardxref.txt}
 # resolve before the cd below so relative arguments work from any directory
 OUT=$(realpath -m -- "$OUT")
 DALY=$(realpath -e -- "$DALY")
+CARDXREF=$(realpath -e -- "$CARDXREF")
 if [ -e "$OUT" ] || [ -L "$OUT" ]; then
   # an existing OUT_DIR must be a directory we can list, and it must be empty; a listing error is a refusal
   if ! [ -d "$OUT" ] || ! entries=$(ls -A -- "$OUT") || [ -n "$entries" ]; then
@@ -98,7 +101,7 @@ cobc -x -std=ibm -fsign=EBCDIC -I "$REPO/app/cpy" "$REPO/app/cbl/CBTRN02C.cbl" -
 # Normalize sample data: strip CR, right-pad to LRECL
 pad() { tr -d '\r' < "$1" | awk -v n="$2" '{printf "%-" n "s\n", $0}'; }
 pad "$REPO/app/data/ASCII/acctdata.txt" 300 > "$OUT/data/acctdata.lseq"
-pad "$REPO/app/data/ASCII/cardxref.txt" 50  > "$OUT/data/cardxref.lseq"
+pad "$CARDXREF" 50  > "$OUT/data/cardxref.lseq"
 pad "$REPO/app/data/ASCII/tcatbal.txt"  50  > "$OUT/data/tcatbal.lseq"
 # DALYTRAN is RECFM=FB LRECL=350 sequential: fixed records, no newline
 case "$DALYTRAN_ENCODING" in
