@@ -186,7 +186,7 @@
       <div class="node ext"><b>TRANIDX</b></div><div class="arrow">&rarr;</div>
       <div class="node ext"><b>OPENFIL</b></div>
     </div>
-    <p class="legend">El job que va justo antes, TRANBKP, copia el maestro TRANSACT a <code>TRANSACT.BKUP(+1)</code> y luego borra y redefine el KSDS vacío. Por eso CBTRN02C abre TRANFILE en modo OUTPUT. COMBTRAN vuelve a fusionar después el backup con las transacciones nuevas.</p>
+    <p class="legend">El job que va justo antes, TRANBKP, copia el maestro TRANSACT a <code>TRANSACT.BKUP(+1)</code> y luego borra y redefine el KSDS vacío. Por eso CBTRN02C abre TRANFILE en modo OUTPUT. Después de POSTTRAN, un segundo TRANBKP copia el TRANSACT ya contabilizado a <code>TRANSACT.BKUP(+1)</code>, y COMBTRAN fusiona esa generación <code>TRANSACT.BKUP(0)</code> con <code>SYSTRAN(0)</code> (transacciones generadas por INTCALC). El histórico anterior a POSTTRAN no se vuelve a fusionar automáticamente: queda solo en la generación de backup previa.</p>
 
     <h3>4.2 Pasos del job</h3>
     <table>
