@@ -250,3 +250,52 @@ Register mode only: no decisions. Fields not listed (volume, retry, security, ow
 - **Contract complete?** NO
 - **Status:** UNDECIDED
 - **History:** 2026-11-19 registered (first pass)
+
+## Stream analysis - POSTTRAN, `!mf_stream_analysis`, 2026-11-19 (session devin-c4fce2ffab2c4abaac2aa02e217e00e4)
+
+Contracts completed for the boundaries this stream touches (detail in `functional/CARDDEMO/POSTTRAN_analysis.md` §5). No new crossings found (no B1-B6 in CBTRN02C). Status stays UNDECIDED until the plan.
+
+### BND-001 update (stream analysis)
+- **Contract complete?** YES. Only CBTRN02C abend path in this stream: 25 error branches PERFORM 9999-ABEND-PROGRAM (`app/cbl/CBTRN02C.cbl:247-689`), each preceded by a verbatim `ERROR ...` line and `FILE STATUS IS: NNNN<xxxx>` (`:715-727`). Volume: 0 per normal run. Retry: none. Idempotency: n/a. Security: none. Owner: IBM LE (runtime).
+- **Status:** UNDECIDED
+- **History:** 2026-11-19 contract completed by `!mf_stream_analysis` (POSTTRAN)
+
+### BND-002 update (stream analysis)
+- **Contract complete?** NO (producer). Contract: FB 350, CVTRA06Y, sequential, read to EOF (`:345-369`), status 00/10 else abend; empty file valid (0 processed, RC 0). Volume: 300 records in the repo sample (`app/data/ASCII/dailytran.txt`), daily. Encoding of the production feed unknown (OQ-5). DALYTRAN-PROC-TS (CVTRA06Y:17) is never used except inside the reject image. Owner: unknown.
+- **Status:** UNDECIDED
+- **History:** 2026-11-19 contract completed by `!mf_stream_analysis` (POSTTRAN)
+
+### BND-003 update (stream analysis)
+- **Contract complete?** NO (consumer). Contract: FB 430 = input image 350 + reason 9(04) + description X(76) (`:176-182`), one record per reject in input order; empty generation when no rejects; DCB from `POSTTRAN.jcl:34-38` (catalogued GDG via `app/jcl/DALYREJS.jcl:24-25`). Owner: unknown.
+- **Status:** UNDECIDED
+- **History:** 2026-11-19 contract completed by `!mf_stream_analysis` (POSTTRAN)
+
+### BND-004 update (stream analysis)
+- **Contract complete?** YES. POSTTRAN inserts one row per posted record; key TRAN-ID X(16) from the feed; duplicate -> status 22 -> abend (R-06). Other writers: online COBIL00C (`app/cbl/COBIL00C.cbl:212-219,512`) and COTRN02C (`app/cbl/COTRN02C.cbl:444-451,713`) allocate last-ID+1 by browsing to HIGH-VALUES; TRANBKP/COMBTRAN rebuild the file. Transactional coupling: same unit as BND-005/006 (D-009). Owner: transaction context.
+- **Status:** UNDECIDED
+- **History:** 2026-11-19 contract completed by `!mf_stream_analysis` (POSTTRAN)
+
+### BND-005 update (stream analysis)
+- **Contract complete?** YES. POSTTRAN reads by ACCT-ID (`:395`) and rewrites CURR-BAL, CYC-CREDIT, CYC-DEBIT (`:545-554`). Other writers COBIL00C (`:379`), COACTUPC, CBACT04C (`app/cbl/CBACT04C.cbl:356`). Concurrency: CICS files closed during the chain (BND-009). Owner: account context.
+- **Status:** UNDECIDED
+- **History:** 2026-11-19 contract completed by `!mf_stream_analysis` (POSTTRAN)
+
+### BND-006 update (stream analysis)
+- **Contract complete?** YES. Read (`:474`), status 23 -> create with balance = amount (`:503-510`), else rewrite balance + amount (`:526-528`). Read by CBACT04C (INTCALC). Owner: reference context.
+- **Status:** UNDECIDED
+- **History:** 2026-11-19 contract completed by `!mf_stream_analysis` (POSTTRAN)
+
+### BND-007 update (stream analysis)
+- **Contract complete?** YES. Read-only by card number (`:383`); 50 rows in the sample. Maintained by XREFFILE load and CBIMPORT. Owner: card context.
+- **Status:** UNDECIDED
+- **History:** 2026-11-19 contract completed by `!mf_stream_analysis` (POSTTRAN)
+
+### BND-008 update (stream analysis)
+- **Contract complete?** YES for the Java side: completion = exit code (0/4 success, 16 failure). Predecessor CBPAUP0J, successor WAITSTEP (`app/scheduler/CardDemo.ca7:68-79`); operator script `scripts/run_posting.sh` brackets with TRANBKP and TRANIDX. Owner of the replacement scheduler: unknown.
+- **Status:** UNDECIDED
+- **History:** 2026-11-19 contract completed by `!mf_stream_analysis` (POSTTRAN)
+
+### BND-009 update (stream analysis)
+- **Contract complete?** YES. CLOSEFIL closes TRANSACT, CCXREF, ACCTDAT, CXACAIX, USRSEC in CICS (`app/jcl/CLOSEFIL.jcl:22-30`); OPENFIL reopens. Online writers excluded from the stream (D-010).
+- **Status:** UNDECIDED
+- **History:** 2026-11-19 contract completed by `!mf_stream_analysis` (POSTTRAN)

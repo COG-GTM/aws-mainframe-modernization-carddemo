@@ -1,0 +1,28 @@
+flowchart TB
+  SCHED{{"External scheduler (replaces CA-7)<br/>CardDemo.ca7:72-79"}} --> JOB["JCL POSTTRAN STEP15<br/>POSTTRAN.jcl:23"]
+  JOB --> P["CBTRN02C<br/>entry / step driver"]
+  subgraph CBTRN02C paragraphs
+    P --> OPEN["0000..0500 OPEN x6<br/>:236-343"]
+    P --> LOOP["main loop :202-219"]
+    LOOP --> RD["1000 READ DALYTRAN :345-369"]
+    LOOP --> VAL["1500 VALIDATE :370-422<br/>100 / 101 / 102 / 103"]
+    LOOP --> POST["2000 POST :424-444"]
+    LOOP --> REJ["2500 WRITE REJECT :446-465"]
+    POST --> TS["Z-GET-DB2-FORMAT-TIMESTAMP :692-705"]
+    POST --> TCB["2700 TCATBAL upsert :467-542"]
+    POST --> ACU["2800 ACCOUNT rewrite :545-560"]
+    POST --> TRW["2900 TRANSACT write :562-579"]
+    P --> CLOSE["9000..9500 CLOSE x6 :582-690<br/>counts + RC 4 :227-231"]
+    P --> ABEND["9999 ABEND :707-711"]
+  end
+  ABEND --> CEE3ABD[["CEE3ABD (LE) BND-001"]]
+  DALY[("DALYTRAN PS<br/>BND-002")] --> RD
+  REJ --> REJS[("DALYREJS(+1)<br/>BND-003")]
+  VAL --> XREF[("CARDXREF KSDS<br/>BND-007")]
+  VAL --> ACCT[("ACCTDATA KSDS<br/>BND-005")]
+  ACU --> ACCT
+  TCB --> TCAT[("TCATBALF KSDS<br/>BND-006")]
+  TRW --> TRAN[("TRANSACT KSDS<br/>BND-004")]
+  ONL["online co-writers COBIL00C / COTRN02C<br/>BND-009 (excluded)"] -.-> TRAN
+  ONL -.-> ACCT
+  style P fill:#ffd54f,stroke:#e65100,stroke-width:3px

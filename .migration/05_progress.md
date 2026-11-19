@@ -54,3 +54,4 @@ One row per stream per status change; never edit a past row, append a new one. S
 | 2026-11-19 | BAT-UNLDGSAM | BATCH | not started | 1 program(s) | devin-c4fce2ffab2c4abaac2aa02e217e00e4 |
 | 2026-11-19 | BAT-MNTTRDB2 | BATCH | not started | 1 program(s) | devin-c4fce2ffab2c4abaac2aa02e217e00e4 |
 | 2026-11-19 | POSTTRAN | BATCH | not started -> scope confirmed (STOP B) | analysis next | devin-4abefb5b7baf4bfab62c956941e00bf7 |
+| 2026-11-19 | POSTTRAN | BATCH | **analyzed** | `functional/CARDDEMO/POSTTRAN_analysis.md`; 1 program, 1 wave (+ Phase 0/1); BND-001..009 contracts completed | devin-c4fce2ffab2c4abaac2aa02e217e00e4 |
