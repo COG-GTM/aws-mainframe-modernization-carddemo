@@ -185,9 +185,25 @@ dependency.
 
 ## 10. Independent audit verdict
 
-**PENDING.** To be run by a fresh child session that did not perform the migration, from
-`functional/CARDDEMO/POSTTRAN/evidence/AUDIT_CHECKLIST.md`. Its findings (by severity, with cites) and verdict must be reproduced here
-verbatim before STOP E; this session does not summarize or pre-judge them.
+**PASS WITH FINDINGS** — independent audit by a fresh session that did not perform the migration, on `5f92dd43`, full document
+`functional/CARDDEMO/POSTTRAN_audit.md`. No blocker, no major. Findings reproduced verbatim by id and severity:
+
+| Id | Severity | Finding |
+|---|---|---|
+| F-01 | Minor | Launch options without `=` are silently passed through: `--run-id AUDIT-OWN` after a COMPLETED `AUDIT-OWN` starts a new instance (run-id from the batch clock), resets TRANSACT and re-posts ACCTDATA/TCATBALF with RC 4 instead of exit 12 (Devin Review finding on #214; not worse than a legacy JCL re-submit) |
+| F-02 | Minor | DALYREJS abnormal disposition `DISP=(NEW,CATLG,DELETE)` not modelled nor registered: Java keeps the partial reject file after an abend (needed for restart) |
+| F-03 | Minor | `docker-compose.yml` publishes PostgreSQL on all host interfaces with fixed credentials `carddemo/carddemo` (Devin Review finding on #214) |
+| F-04 | Minor | No executable evidence for CLOSE failure (PR-CBTRN02C-15, AD-3) nor OPEN/WRITE failures of table-backed files and DALYREJS write (AD-2) |
+| N-01 | Info | `posttran_e2e.sh` defaults to `JAVA=java`; with Java 17 the seeding helper fails to compile (R-25 passes Java 21) |
+| N-02 | Info | `spring-batch-core` declared directly in `carddemo-common`; D-009 names the batch starter, not the artifact |
+| N-03 | Info | PR #218: `verify`, `posttran-e2e-compose`, Socket pass; Devin Review checks fail (not run nor addressed by instruction) |
+| N-04 | Info | Checklist names `POSTTRAN_independent_audit.md`; requester asked for `POSTTRAN_audit.md` |
+
+Auditor re-execution: `mvn -B verify` green (24 + 80 tests); GnuCOBOL oracle regenerated (7 scenarios, identical to the committed
+oracle except TRANSACT centiseconds); compose e2e against the auditor's oracle 8/8 legs PASS, NFR-04 0 hits; a new auditor-built case
+(0100/0102/0103, debit, zero amount, TCATBAL creation) equal on RC, DALYREJS, SYSOUT and the three tables. Deviations: D-015/D-039,
+D-024, AD-2/AD-3, NFR-04 partial acceptable; D-042 (AD-1) acceptable but needs explicit user acceptance at STOP E; F-02 should be
+recorded as a decision.
 
 ## 11. Outstanding items / open track (must land before decommissioning the legacy path)
 
