@@ -10,6 +10,9 @@ REPO=$(cd "$(dirname "$0")/../.." && pwd)
 OUT=${1:-${TMPDIR:-/tmp}/carddemo-posttran-oracle}
 DALY=${2:-$REPO/app/data/ASCII/dailytran.txt}
 ORACLE_NOW=${ORACLE_NOW-2022/07/18 10:30:45}
+# resolve before the cd below so relative arguments work from any directory
+OUT=$(realpath -m -- "$OUT")
+DALY=$(realpath -e -- "$DALY")
 if [ -e "$OUT" ] && [ -n "$(ls -A "$OUT" 2>/dev/null)" ]; then
   echo "refusing to write into non-empty OUT_DIR '$OUT' (pass a new or empty directory; nothing was deleted)" >&2; exit 2
 fi
