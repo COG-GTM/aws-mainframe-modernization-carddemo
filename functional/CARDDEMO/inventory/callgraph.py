@@ -17,6 +17,40 @@ def code_lines(path):
         if len(l) > 6 and l[6] in '*/': continue
         out.append((i, l[7:72] if len(l) > 7 else ''))
     return out
+def is_para(t):
+    return bool(re.match(r'[A-Z0-9][\w-]*\.\s*$', t)) and not t.startswith(' ')
+def literals_at_site(lines, k, var, verbs):
+    """Literals that can reach the dispatch at lines[k]. SITE: MOVEs to var after the previous dispatch
+    on var (or the paragraph start) and before k. If that region only defaults an empty var
+    (IF var = LOW-VALUES/SPACES), the value normally arrives from another paragraph, so add the MOVEs
+    in other paragraphs that are not consumed by a dispatch in their own paragraph (INBOUND).
+    Falls back to every MOVE/VALUE in the program (PROGRAM-WIDE)."""
+    disp = re.compile(r'\b(?:' + verbs + r')\b.*\b' + re.escape(var) + r'\b')
+    def para_start(x):
+        for j in range(x, -1, -1):
+            if is_para(lines[j][1]): return j
+        return 0
+    lo = 0
+    for j in range(k - 1, -1, -1):
+        t = lines[j][1]
+        if is_para(t) or disp.search(t):
+            lo = j + 1; break
+    near = literals_moved(lines[lo:k], var)
+    region = ' '.join(t for _, t in lines[lo:k])
+    if near and not re.search(re.escape(var) + r'\s*=\s*(?:LOW-VALUES|SPACES)', region):
+        return near, 'SITE'
+    here = para_start(k)
+    inbound = []
+    for lit, n in literals_moved(lines, var):
+        x = next(ix for ix, (ln, _) in enumerate(lines) if ln == n)
+        if para_start(x) == here: continue
+        consumed = False
+        for y in range(x + 1, len(lines)):
+            if is_para(lines[y][1]): break
+            if disp.search(lines[y][1]): consumed = True; break
+        if not consumed: inbound.append((lit, n))
+    if near or inbound: return near + inbound, 'SITE+INBOUND'
+    return literals_moved(lines, var), 'PROGRAM-WIDE'
 def literals_moved(lines, var):
     lits = []
     for i, t in lines:
@@ -38,8 +72,8 @@ for path in src:
         t_nolit = re.sub(r"'[^']*'|\"[^\"]*\"", "''", t)
         m = re.search(r"(?<![\w-])CALL\s+([A-Z][\w-]+)", t_nolit)
         if m:
-            var = m.group(1); lits = literals_moved(lines, var)
-            res = ','.join(f'{l}@{path}:{n}' for l, n in lits) or 'UNRESOLVED'
+            var = m.group(1); lits, scope = literals_at_site(lines, k, var, 'CALL')
+            res = (','.join(f'{l}@{path}:{n}' for l, n in lits) + ('' if scope == 'SITE' else f' [{scope}]')) if lits else 'UNRESOLVED'
             edges.append((caller, var, 'CALL-DYNAMIC', f'{path}:{i}', res))
         for verb in ('XCTL', 'LINK', 'START', 'RETURN'):
             if re.search(r'\b' + verb + r'\b', t) and (re.search(r'EXEC\s+CICS', t) or (k and re.search(r'EXEC\s+CICS\s*$', lines[k-1][1]))):
@@ -52,8 +86,8 @@ for path in src:
                 if m2.group(1):
                     edges.append((caller, tgt, 'CICS-' + verb + ('' if verb != 'RETURN' else '-TRANSID'), f'{path}:{i}', 'STATIC'))
                 else:
-                    lits = literals_moved(lines, tgt)
-                    res = ','.join(f'{l}@{path}:{n}' for l, n in lits) or 'UNRESOLVED'
+                    lits, scope = literals_at_site(lines, k, tgt, 'XCTL|LINK|START|RETURN')
+                    res = (','.join(f'{l}@{path}:{n}' for l, n in lits) + ('' if scope == 'SITE' else f' [{scope}]')) if lits else 'UNRESOLVED'
                     edges.append((caller, tgt + (f'({m2.group(3)})' if m2.group(3) else ''), 'CICS-' + verb + ('-TRANSID' if verb == 'RETURN' else '') + '-DYNAMIC', f'{path}:{i}', res))
 cpys = {os.path.splitext(os.path.basename(c))[0].upper(): c for c in glob.glob('app/**/cpy/*', recursive=True)}
 for path in src:

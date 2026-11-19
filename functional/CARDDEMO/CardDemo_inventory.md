@@ -21,13 +21,13 @@ Bounded mechanically as every COBOL and Assembler source under `app/**` (prefix 
 
 ## 2. Call graph method
 
-`inventory/callgraph.py` scans every source line, skipping column-7 comments, and emits `caller -> callee` with `<file>:<line>`: static `CALL '<lit>'`, dynamic `CALL <var>` (resolving MOVEd/VALUE literals), `EXEC CICS XCTL/LINK/START/RETURN TRANSID` (multi-line), CALLs inside COPY/`EXEC SQL INCLUDE` members (attributed to the including program), JCL `EXEC PGM=`/`EXEC PROC=`/TSO `RUN PROGRAM`, and CSD `DEFINE TRANSACTION ... PROGRAM(...)`. LE/MQ/IMS/DB2 runtime modules (`CEE3ABD CEEDAYS MQ* CBLTDLI DSNTIAC`) and system utilities (`IDCAMS SORT IEBGENER IEFBR14 SDSF DFSRRC00 IKJEFT01/1B FTP DFHCSDUP`) are tagged, not followed.
+`inventory/callgraph.py` scans every source line, skipping column-7 comments, and emits `caller -> callee` with `<file>:<line>`: static `CALL '<lit>'`, dynamic `CALL <var>` (resolving MOVEd/VALUE literals per call site: the MOVEs between the previous dispatch on the same variable, or the paragraph start, and the site; when that region only defaults an empty variable, the MOVEs in other paragraphs that are not consumed locally are added and tagged `[SITE+INBOUND]`; `[PROGRAM-WIDE]` marks the fallback), `EXEC CICS XCTL/LINK/START/RETURN TRANSID` (multi-line), CALLs inside COPY/`EXEC SQL INCLUDE` members (attributed to the including program), JCL `EXEC PGM=`/`EXEC PROC=`/TSO `RUN PROGRAM`, and CSD `DEFINE TRANSACTION ... PROGRAM(...)`. LE/MQ/IMS/DB2 runtime modules (`CEE3ABD CEEDAYS MQ* CBLTDLI DSNTIAC`) and system utilities (`IDCAMS SORT IEBGENER IEFBR14 SDSF DFSRRC00 IKJEFT01/1B FTP DFHCSDUP`) are tagged, not followed.
 
 Edge counts (`inventory/edges.tsv`): CALL 19, CALL-VIA-COPYBOOK 1, CALL-DYNAMIC-VIA-COPYBOOK 1, CALL-RUNTIME 43, CICS-XCTL 2, CICS-XCTL-DYNAMIC 30, CICS-LINK-DYNAMIC 1, CICS-RETURN-TRANSID-DYNAMIC 24, CSD-TRANSACTION 25, JCL-EXEC 12, JCL-PROC 4, JCL-TSO-RUN 1, JCL-UTILITY 109 = **272**. IMS programs started by `DFSRRC00 PARM='BMP|DLI,<pgm>,...'` are added from the PARM cites in §3.
 
 ### 2.1 Unresolved / dynamic edges (headline risk)
 
-No dynamic edge is left unresolved. 19 edges were not auto-resolved by the script (literal sits in a `VALUE` on a continuation line, or the target is the caller's caller); each is resolved by hand:
+No dynamic edge is left unresolved. (2026-11-19 review fix: per-site resolution replaced program-wide literal lists, which had attributed every MOVEd target to every dispatch in a program, e.g. `COUSR00C.cbl:197` also listed COUSR03C. The program-level graph, stream membership, shared map and the 46 = 37 + 8 + 1 arithmetic are unchanged; the edge count stays 272.) 19 edges were not auto-resolved by the script (literal sits in a `VALUE` on a continuation line, or the target is the caller's caller); each is resolved by hand:
 
 | Call site | Variable | Resolution |
 |---|---|---|

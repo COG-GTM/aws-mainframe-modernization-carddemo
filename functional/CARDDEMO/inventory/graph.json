@@ -81,35 +81,35 @@
    "WS-CICS-TRANID",
    "CICS-RETURN-TRANSID-DYNAMIC",
    "app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl:254",
-   "CPVS@app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl:36"
+   "CPVS@app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl:36 [SITE+INBOUND]"
   ],
   [
    "COPAUS0C",
    "CDEMO-TO-PROGRAM",
    "CICS-XCTL-DYNAMIC",
    "app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl:323",
-   "COSGN00C@app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl:669"
+   "COSGN00C@app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl:669 [PROGRAM-WIDE]"
   ],
   [
    "COPAUS0C",
    "CDEMO-TO-PROGRAM",
    "CICS-XCTL-DYNAMIC",
    "app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl:675",
-   "COSGN00C@app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl:669"
+   "COSGN00C@app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl:669 [SITE+INBOUND]"
   ],
   [
    "COPAUS1C",
    "WS-CICS-TRANID",
    "CICS-RETURN-TRANSID-DYNAMIC",
    "app/app-authorization-ims-db2-mq/cbl/COPAUS1C.cbl:202",
-   "CPVD@app/app-authorization-ims-db2-mq/cbl/COPAUS1C.cbl:36"
+   "CPVD@app/app-authorization-ims-db2-mq/cbl/COPAUS1C.cbl:36 [SITE+INBOUND]"
   ],
   [
    "COPAUS1C",
    "WS-PGM-AUTH-FRAUD",
    "CICS-LINK-DYNAMIC",
    "app/app-authorization-ims-db2-mq/cbl/COPAUS1C.cbl:248",
-   "COPAUS2C@app/app-authorization-ims-db2-mq/cbl/COPAUS1C.cbl:35"
+   "COPAUS2C@app/app-authorization-ims-db2-mq/cbl/COPAUS1C.cbl:35 [SITE+INBOUND]"
   ],
   [
    "COPAUS1C",
@@ -193,14 +193,14 @@
    "LIT-ADDTPGM",
    "CICS-XCTL-DYNAMIC",
    "app/app-transaction-type-db2/cbl/COTRTLIC.cbl:648",
-   "COTRTUPC@app/app-transaction-type-db2/cbl/COTRTLIC.cbl:50"
+   "COTRTUPC@app/app-transaction-type-db2/cbl/COTRTLIC.cbl:50 [SITE+INBOUND]"
   ],
   [
    "COTRTLIC",
    "LIT-THISTRANID",
    "CICS-RETURN-TRANSID-DYNAMIC",
    "app/app-transaction-type-db2/cbl/COTRTLIC.cbl:910",
-   "CTLI@app/app-transaction-type-db2/cbl/COTRTLIC.cbl:44"
+   "CTLI@app/app-transaction-type-db2/cbl/COTRTLIC.cbl:44 [SITE+INBOUND]"
   ],
   [
    "COTRTUPC",
@@ -550,7 +550,7 @@
    "WS-TRANID",
    "CICS-RETURN-TRANSID-DYNAMIC",
    "app/cbl/COADM01C.cbl:111",
-   "CA00@app/cbl/COADM01C.cbl:37"
+   "CA00@app/cbl/COADM01C.cbl:37 [SITE+INBOUND]"
   ],
   [
    "COADM01C",
@@ -564,28 +564,28 @@
    "CDEMO-TO-PROGRAM",
    "CICS-XCTL-DYNAMIC",
    "app/cbl/COADM01C.cbl:169",
-   "COSGN00C@app/cbl/COADM01C.cbl:101,COSGN00C@app/cbl/COADM01C.cbl:166"
+   "COSGN00C@app/cbl/COADM01C.cbl:166,COSGN00C@app/cbl/COADM01C.cbl:101 [SITE+INBOUND]"
   ],
   [
    "COADM01C",
    "WS-TRANID",
    "CICS-RETURN-TRANSID-DYNAMIC",
    "app/cbl/COADM01C.cbl:280",
-   "CA00@app/cbl/COADM01C.cbl:37"
+   "CA00@app/cbl/COADM01C.cbl:37 [SITE+INBOUND]"
   ],
   [
    "COBIL00C",
    "WS-TRANID",
    "CICS-RETURN-TRANSID-DYNAMIC",
    "app/cbl/COBIL00C.cbl:146",
-   "CB00@app/cbl/COBIL00C.cbl:38"
+   "CB00@app/cbl/COBIL00C.cbl:38 [SITE+INBOUND]"
   ],
   [
    "COBIL00C",
    "CDEMO-TO-PROGRAM",
    "CICS-XCTL-DYNAMIC",
    "app/cbl/COBIL00C.cbl:282",
-   "COSGN00C@app/cbl/COBIL00C.cbl:108,COMEN01C@app/cbl/COBIL00C.cbl:130,COSGN00C@app/cbl/COBIL00C.cbl:276"
+   "COSGN00C@app/cbl/COBIL00C.cbl:276,COSGN00C@app/cbl/COBIL00C.cbl:108,COMEN01C@app/cbl/COBIL00C.cbl:130 [SITE+INBOUND]"
   ],
   [
    "COBSWAIT",
@@ -655,7 +655,7 @@
    "WS-TRANID",
    "CICS-RETURN-TRANSID-DYNAMIC",
    "app/cbl/COMEN01C.cbl:107",
-   "CM00@app/cbl/COMEN01C.cbl:37"
+   "CM00@app/cbl/COMEN01C.cbl:37 [SITE+INBOUND]"
   ],
   [
    "COMEN01C",
@@ -676,14 +676,14 @@
    "CDEMO-TO-PROGRAM",
    "CICS-XCTL-DYNAMIC",
    "app/cbl/COMEN01C.cbl:202",
-   "COSGN00C@app/cbl/COMEN01C.cbl:97,COSGN00C@app/cbl/COMEN01C.cbl:199"
+   "COSGN00C@app/cbl/COMEN01C.cbl:199,COSGN00C@app/cbl/COMEN01C.cbl:97 [SITE+INBOUND]"
   ],
   [
    "CORPT00C",
    "WS-TRANID",
    "CICS-RETURN-TRANSID-DYNAMIC",
    "app/cbl/CORPT00C.cbl:199",
-   "CR00@app/cbl/CORPT00C.cbl:38"
+   "CR00@app/cbl/CORPT00C.cbl:38 [SITE+INBOUND]"
   ],
   [
    "CORPT00C",
@@ -704,21 +704,21 @@
    "CDEMO-TO-PROGRAM",
    "CICS-XCTL-DYNAMIC",
    "app/cbl/CORPT00C.cbl:549",
-   "COSGN00C@app/cbl/CORPT00C.cbl:173,COMEN01C@app/cbl/CORPT00C.cbl:188,COSGN00C@app/cbl/CORPT00C.cbl:543"
+   "COSGN00C@app/cbl/CORPT00C.cbl:543,COSGN00C@app/cbl/CORPT00C.cbl:173,COMEN01C@app/cbl/CORPT00C.cbl:188 [SITE+INBOUND]"
   ],
   [
    "CORPT00C",
    "WS-TRANID",
    "CICS-RETURN-TRANSID-DYNAMIC",
    "app/cbl/CORPT00C.cbl:587",
-   "CR00@app/cbl/CORPT00C.cbl:38"
+   "CR00@app/cbl/CORPT00C.cbl:38 [SITE+INBOUND]"
   ],
   [
    "COSGN00C",
    "WS-TRANID",
    "CICS-RETURN-TRANSID-DYNAMIC",
    "app/cbl/COSGN00C.cbl:98",
-   "CC00@app/cbl/COSGN00C.cbl:37"
+   "CC00@app/cbl/COSGN00C.cbl:37 [SITE+INBOUND]"
   ],
   [
    "COSGN00C",
@@ -739,42 +739,42 @@
    "WS-TRANID",
    "CICS-RETURN-TRANSID-DYNAMIC",
    "app/cbl/COTRN00C.cbl:138",
-   "CT00@app/cbl/COTRN00C.cbl:37"
+   "CT00@app/cbl/COTRN00C.cbl:37 [SITE+INBOUND]"
   ],
   [
    "COTRN00C",
    "CDEMO-TO-PROGRAM",
    "CICS-XCTL-DYNAMIC",
    "app/cbl/COTRN00C.cbl:193",
-   "COSGN00C@app/cbl/COTRN00C.cbl:108,COMEN01C@app/cbl/COTRN00C.cbl:123,COTRN01C@app/cbl/COTRN00C.cbl:188,COSGN00C@app/cbl/COTRN00C.cbl:513"
+   "COTRN01C@app/cbl/COTRN00C.cbl:188"
   ],
   [
    "COTRN00C",
    "CDEMO-TO-PROGRAM",
    "CICS-XCTL-DYNAMIC",
    "app/cbl/COTRN00C.cbl:519",
-   "COSGN00C@app/cbl/COTRN00C.cbl:108,COMEN01C@app/cbl/COTRN00C.cbl:123,COTRN01C@app/cbl/COTRN00C.cbl:188,COSGN00C@app/cbl/COTRN00C.cbl:513"
+   "COSGN00C@app/cbl/COTRN00C.cbl:513,COSGN00C@app/cbl/COTRN00C.cbl:108,COMEN01C@app/cbl/COTRN00C.cbl:123 [SITE+INBOUND]"
   ],
   [
    "COTRN01C",
    "WS-TRANID",
    "CICS-RETURN-TRANSID-DYNAMIC",
    "app/cbl/COTRN01C.cbl:136",
-   "CT01@app/cbl/COTRN01C.cbl:37"
+   "CT01@app/cbl/COTRN01C.cbl:37 [SITE+INBOUND]"
   ],
   [
    "COTRN01C",
    "CDEMO-TO-PROGRAM",
    "CICS-XCTL-DYNAMIC",
    "app/cbl/COTRN01C.cbl:206",
-   "COSGN00C@app/cbl/COTRN01C.cbl:95,COMEN01C@app/cbl/COTRN01C.cbl:117,COTRN00C@app/cbl/COTRN01C.cbl:126,COSGN00C@app/cbl/COTRN01C.cbl:200"
+   "COSGN00C@app/cbl/COTRN01C.cbl:200,COSGN00C@app/cbl/COTRN01C.cbl:95,COMEN01C@app/cbl/COTRN01C.cbl:117,COTRN00C@app/cbl/COTRN01C.cbl:126 [SITE+INBOUND]"
   ],
   [
    "COTRN02C",
    "WS-TRANID",
    "CICS-RETURN-TRANSID-DYNAMIC",
    "app/cbl/COTRN02C.cbl:156",
-   "CT02@app/cbl/COTRN02C.cbl:37"
+   "CT02@app/cbl/COTRN02C.cbl:37 [SITE+INBOUND]"
   ],
   [
    "COTRN02C",
@@ -795,84 +795,84 @@
    "CDEMO-TO-PROGRAM",
    "CICS-XCTL-DYNAMIC",
    "app/cbl/COTRN02C.cbl:509",
-   "COSGN00C@app/cbl/COTRN02C.cbl:116,COMEN01C@app/cbl/COTRN02C.cbl:138,COSGN00C@app/cbl/COTRN02C.cbl:503"
+   "COSGN00C@app/cbl/COTRN02C.cbl:503,COSGN00C@app/cbl/COTRN02C.cbl:116,COMEN01C@app/cbl/COTRN02C.cbl:138 [SITE+INBOUND]"
   ],
   [
    "COTRN02C",
    "WS-TRANID",
    "CICS-RETURN-TRANSID-DYNAMIC",
    "app/cbl/COTRN02C.cbl:530",
-   "CT02@app/cbl/COTRN02C.cbl:37"
+   "CT02@app/cbl/COTRN02C.cbl:37 [SITE+INBOUND]"
   ],
   [
    "COUSR00C",
    "WS-TRANID",
    "CICS-RETURN-TRANSID-DYNAMIC",
    "app/cbl/COUSR00C.cbl:141",
-   "CU00@app/cbl/COUSR00C.cbl:37"
+   "CU00@app/cbl/COUSR00C.cbl:37 [SITE+INBOUND]"
   ],
   [
    "COUSR00C",
    "CDEMO-TO-PROGRAM",
    "CICS-XCTL-DYNAMIC",
    "app/cbl/COUSR00C.cbl:197",
-   "COSGN00C@app/cbl/COUSR00C.cbl:111,COADM01C@app/cbl/COUSR00C.cbl:126,COUSR02C@app/cbl/COUSR00C.cbl:192,COUSR03C@app/cbl/COUSR00C.cbl:202,COSGN00C@app/cbl/COUSR00C.cbl:509"
+   "COUSR02C@app/cbl/COUSR00C.cbl:192"
   ],
   [
    "COUSR00C",
    "CDEMO-TO-PROGRAM",
    "CICS-XCTL-DYNAMIC",
    "app/cbl/COUSR00C.cbl:207",
-   "COSGN00C@app/cbl/COUSR00C.cbl:111,COADM01C@app/cbl/COUSR00C.cbl:126,COUSR02C@app/cbl/COUSR00C.cbl:192,COUSR03C@app/cbl/COUSR00C.cbl:202,COSGN00C@app/cbl/COUSR00C.cbl:509"
+   "COUSR03C@app/cbl/COUSR00C.cbl:202"
   ],
   [
    "COUSR00C",
    "CDEMO-TO-PROGRAM",
    "CICS-XCTL-DYNAMIC",
    "app/cbl/COUSR00C.cbl:515",
-   "COSGN00C@app/cbl/COUSR00C.cbl:111,COADM01C@app/cbl/COUSR00C.cbl:126,COUSR02C@app/cbl/COUSR00C.cbl:192,COUSR03C@app/cbl/COUSR00C.cbl:202,COSGN00C@app/cbl/COUSR00C.cbl:509"
+   "COSGN00C@app/cbl/COUSR00C.cbl:509,COSGN00C@app/cbl/COUSR00C.cbl:111,COADM01C@app/cbl/COUSR00C.cbl:126 [SITE+INBOUND]"
   ],
   [
    "COUSR01C",
    "WS-TRANID",
    "CICS-RETURN-TRANSID-DYNAMIC",
    "app/cbl/COUSR01C.cbl:107",
-   "CU01@app/cbl/COUSR01C.cbl:37"
+   "CU01@app/cbl/COUSR01C.cbl:37 [SITE+INBOUND]"
   ],
   [
    "COUSR01C",
    "CDEMO-TO-PROGRAM",
    "CICS-XCTL-DYNAMIC",
    "app/cbl/COUSR01C.cbl:176",
-   "COSGN00C@app/cbl/COUSR01C.cbl:79,COADM01C@app/cbl/COUSR01C.cbl:94,COSGN00C@app/cbl/COUSR01C.cbl:168"
+   "COSGN00C@app/cbl/COUSR01C.cbl:168,COSGN00C@app/cbl/COUSR01C.cbl:79,COADM01C@app/cbl/COUSR01C.cbl:94 [SITE+INBOUND]"
   ],
   [
    "COUSR02C",
    "WS-TRANID",
    "CICS-RETURN-TRANSID-DYNAMIC",
    "app/cbl/COUSR02C.cbl:135",
-   "CU02@app/cbl/COUSR02C.cbl:37"
+   "CU02@app/cbl/COUSR02C.cbl:37 [SITE+INBOUND]"
   ],
   [
    "COUSR02C",
    "CDEMO-TO-PROGRAM",
    "CICS-XCTL-DYNAMIC",
    "app/cbl/COUSR02C.cbl:259",
-   "COSGN00C@app/cbl/COUSR02C.cbl:91,COADM01C@app/cbl/COUSR02C.cbl:114,COADM01C@app/cbl/COUSR02C.cbl:125,COSGN00C@app/cbl/COUSR02C.cbl:253"
+   "COSGN00C@app/cbl/COUSR02C.cbl:253,COSGN00C@app/cbl/COUSR02C.cbl:91,COADM01C@app/cbl/COUSR02C.cbl:114,COADM01C@app/cbl/COUSR02C.cbl:125 [SITE+INBOUND]"
   ],
   [
    "COUSR03C",
    "WS-TRANID",
    "CICS-RETURN-TRANSID-DYNAMIC",
    "app/cbl/COUSR03C.cbl:134",
-   "CU03@app/cbl/COUSR03C.cbl:37"
+   "CU03@app/cbl/COUSR03C.cbl:37 [SITE+INBOUND]"
   ],
   [
    "COUSR03C",
    "CDEMO-TO-PROGRAM",
    "CICS-XCTL-DYNAMIC",
    "app/cbl/COUSR03C.cbl:206",
-   "COSGN00C@app/cbl/COUSR03C.cbl:91,COADM01C@app/cbl/COUSR03C.cbl:113,COADM01C@app/cbl/COUSR03C.cbl:124,COSGN00C@app/cbl/COUSR03C.cbl:200"
+   "COSGN00C@app/cbl/COUSR03C.cbl:200,COSGN00C@app/cbl/COUSR03C.cbl:91,COADM01C@app/cbl/COUSR03C.cbl:113,COADM01C@app/cbl/COUSR03C.cbl:124 [SITE+INBOUND]"
   ],
   [
    "CSUTLDTC",

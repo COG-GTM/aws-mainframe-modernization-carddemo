@@ -448,23 +448,23 @@
    ],
    [
     "COSGN00C",
-    "app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl:323 (resolved COSGN00C@app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl:669)"
+    "app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl:323 (resolved COSGN00C@app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl:669 [PROGRAM-WIDE])"
    ],
    [
     "COSGN00C",
-    "app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl:675 (resolved COSGN00C@app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl:669)"
+    "app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl:675 (resolved COSGN00C@app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl:669 [SITE+INBOUND])"
    ]
   ],
   "COPAUS1C": [
    [
     "COPAUS2C",
-    "app/app-authorization-ims-db2-mq/cbl/COPAUS1C.cbl:248 (resolved COPAUS2C@app/app-authorization-ims-db2-mq/cbl/COPAUS1C.cbl:35)"
+    "app/app-authorization-ims-db2-mq/cbl/COPAUS1C.cbl:248 (resolved COPAUS2C@app/app-authorization-ims-db2-mq/cbl/COPAUS1C.cbl:35 [SITE+INBOUND])"
    ]
   ],
   "COTRTLIC": [
    [
     "COTRTUPC",
-    "app/app-transaction-type-db2/cbl/COTRTLIC.cbl:648 (resolved COTRTUPC@app/app-transaction-type-db2/cbl/COTRTLIC.cbl:50)"
+    "app/app-transaction-type-db2/cbl/COTRTLIC.cbl:648 (resolved COTRTUPC@app/app-transaction-type-db2/cbl/COTRTLIC.cbl:50 [SITE+INBOUND])"
    ]
   ],
   "CBACT01C": [
@@ -530,17 +530,17 @@
   "COADM01C": [
    [
     "COSGN00C",
-    "app/cbl/COADM01C.cbl:169 (resolved COSGN00C@app/cbl/COADM01C.cbl:101)"
+    "app/cbl/COADM01C.cbl:169 (resolved COSGN00C@app/cbl/COADM01C.cbl:166)"
    ]
   ],
   "COBIL00C": [
    [
     "COMEN01C",
-    "app/cbl/COBIL00C.cbl:282 (resolved COSGN00C@app/cbl/COBIL00C.cbl:108)"
+    "app/cbl/COBIL00C.cbl:282 (resolved COSGN00C@app/cbl/COBIL00C.cbl:276)"
    ],
    [
     "COSGN00C",
-    "app/cbl/COBIL00C.cbl:282 (resolved COSGN00C@app/cbl/COBIL00C.cbl:108)"
+    "app/cbl/COBIL00C.cbl:282 (resolved COSGN00C@app/cbl/COBIL00C.cbl:276)"
    ]
   ],
   "COBSWAIT": [
@@ -552,17 +552,17 @@
   "COMEN01C": [
    [
     "COSGN00C",
-    "app/cbl/COMEN01C.cbl:202 (resolved COSGN00C@app/cbl/COMEN01C.cbl:97)"
+    "app/cbl/COMEN01C.cbl:202 (resolved COSGN00C@app/cbl/COMEN01C.cbl:199)"
    ]
   ],
   "CORPT00C": [
    [
     "COMEN01C",
-    "app/cbl/CORPT00C.cbl:549 (resolved COSGN00C@app/cbl/CORPT00C.cbl:173)"
+    "app/cbl/CORPT00C.cbl:549 (resolved COSGN00C@app/cbl/CORPT00C.cbl:543)"
    ],
    [
     "COSGN00C",
-    "app/cbl/CORPT00C.cbl:549 (resolved COSGN00C@app/cbl/CORPT00C.cbl:173)"
+    "app/cbl/CORPT00C.cbl:549 (resolved COSGN00C@app/cbl/CORPT00C.cbl:543)"
    ],
    [
     "CSUTLDTC",
@@ -586,51 +586,39 @@
   "COTRN00C": [
    [
     "COMEN01C",
-    "app/cbl/COTRN00C.cbl:193 (resolved COSGN00C@app/cbl/COTRN00C.cbl:108)"
-   ],
-   [
-    "COMEN01C",
-    "app/cbl/COTRN00C.cbl:519 (resolved COSGN00C@app/cbl/COTRN00C.cbl:108)"
+    "app/cbl/COTRN00C.cbl:519 (resolved COSGN00C@app/cbl/COTRN00C.cbl:513)"
    ],
    [
     "COSGN00C",
-    "app/cbl/COTRN00C.cbl:193 (resolved COSGN00C@app/cbl/COTRN00C.cbl:108)"
-   ],
-   [
-    "COSGN00C",
-    "app/cbl/COTRN00C.cbl:519 (resolved COSGN00C@app/cbl/COTRN00C.cbl:108)"
+    "app/cbl/COTRN00C.cbl:519 (resolved COSGN00C@app/cbl/COTRN00C.cbl:513)"
    ],
    [
     "COTRN01C",
-    "app/cbl/COTRN00C.cbl:193 (resolved COSGN00C@app/cbl/COTRN00C.cbl:108)"
-   ],
-   [
-    "COTRN01C",
-    "app/cbl/COTRN00C.cbl:519 (resolved COSGN00C@app/cbl/COTRN00C.cbl:108)"
+    "app/cbl/COTRN00C.cbl:193 (resolved COTRN01C@app/cbl/COTRN00C.cbl:188)"
    ]
   ],
   "COTRN01C": [
    [
     "COMEN01C",
-    "app/cbl/COTRN01C.cbl:206 (resolved COSGN00C@app/cbl/COTRN01C.cbl:95)"
+    "app/cbl/COTRN01C.cbl:206 (resolved COSGN00C@app/cbl/COTRN01C.cbl:200)"
    ],
    [
     "COSGN00C",
-    "app/cbl/COTRN01C.cbl:206 (resolved COSGN00C@app/cbl/COTRN01C.cbl:95)"
+    "app/cbl/COTRN01C.cbl:206 (resolved COSGN00C@app/cbl/COTRN01C.cbl:200)"
    ],
    [
     "COTRN00C",
-    "app/cbl/COTRN01C.cbl:206 (resolved COSGN00C@app/cbl/COTRN01C.cbl:95)"
+    "app/cbl/COTRN01C.cbl:206 (resolved COSGN00C@app/cbl/COTRN01C.cbl:200)"
    ]
   ],
   "COTRN02C": [
    [
     "COMEN01C",
-    "app/cbl/COTRN02C.cbl:509 (resolved COSGN00C@app/cbl/COTRN02C.cbl:116)"
+    "app/cbl/COTRN02C.cbl:509 (resolved COSGN00C@app/cbl/COTRN02C.cbl:503)"
    ],
    [
     "COSGN00C",
-    "app/cbl/COTRN02C.cbl:509 (resolved COSGN00C@app/cbl/COTRN02C.cbl:116)"
+    "app/cbl/COTRN02C.cbl:509 (resolved COSGN00C@app/cbl/COTRN02C.cbl:503)"
    ],
    [
     "CSUTLDTC",
@@ -644,81 +632,49 @@
   "COUSR00C": [
    [
     "COADM01C",
-    "app/cbl/COUSR00C.cbl:197 (resolved COSGN00C@app/cbl/COUSR00C.cbl:111)"
-   ],
-   [
-    "COADM01C",
-    "app/cbl/COUSR00C.cbl:207 (resolved COSGN00C@app/cbl/COUSR00C.cbl:111)"
-   ],
-   [
-    "COADM01C",
-    "app/cbl/COUSR00C.cbl:515 (resolved COSGN00C@app/cbl/COUSR00C.cbl:111)"
+    "app/cbl/COUSR00C.cbl:515 (resolved COSGN00C@app/cbl/COUSR00C.cbl:509)"
    ],
    [
     "COSGN00C",
-    "app/cbl/COUSR00C.cbl:197 (resolved COSGN00C@app/cbl/COUSR00C.cbl:111)"
-   ],
-   [
-    "COSGN00C",
-    "app/cbl/COUSR00C.cbl:207 (resolved COSGN00C@app/cbl/COUSR00C.cbl:111)"
-   ],
-   [
-    "COSGN00C",
-    "app/cbl/COUSR00C.cbl:515 (resolved COSGN00C@app/cbl/COUSR00C.cbl:111)"
+    "app/cbl/COUSR00C.cbl:515 (resolved COSGN00C@app/cbl/COUSR00C.cbl:509)"
    ],
    [
     "COUSR02C",
-    "app/cbl/COUSR00C.cbl:197 (resolved COSGN00C@app/cbl/COUSR00C.cbl:111)"
-   ],
-   [
-    "COUSR02C",
-    "app/cbl/COUSR00C.cbl:207 (resolved COSGN00C@app/cbl/COUSR00C.cbl:111)"
-   ],
-   [
-    "COUSR02C",
-    "app/cbl/COUSR00C.cbl:515 (resolved COSGN00C@app/cbl/COUSR00C.cbl:111)"
+    "app/cbl/COUSR00C.cbl:197 (resolved COUSR02C@app/cbl/COUSR00C.cbl:192)"
    ],
    [
     "COUSR03C",
-    "app/cbl/COUSR00C.cbl:197 (resolved COSGN00C@app/cbl/COUSR00C.cbl:111)"
-   ],
-   [
-    "COUSR03C",
-    "app/cbl/COUSR00C.cbl:207 (resolved COSGN00C@app/cbl/COUSR00C.cbl:111)"
-   ],
-   [
-    "COUSR03C",
-    "app/cbl/COUSR00C.cbl:515 (resolved COSGN00C@app/cbl/COUSR00C.cbl:111)"
+    "app/cbl/COUSR00C.cbl:207 (resolved COUSR03C@app/cbl/COUSR00C.cbl:202)"
    ]
   ],
   "COUSR01C": [
    [
     "COADM01C",
-    "app/cbl/COUSR01C.cbl:176 (resolved COSGN00C@app/cbl/COUSR01C.cbl:79)"
+    "app/cbl/COUSR01C.cbl:176 (resolved COSGN00C@app/cbl/COUSR01C.cbl:168)"
    ],
    [
     "COSGN00C",
-    "app/cbl/COUSR01C.cbl:176 (resolved COSGN00C@app/cbl/COUSR01C.cbl:79)"
+    "app/cbl/COUSR01C.cbl:176 (resolved COSGN00C@app/cbl/COUSR01C.cbl:168)"
    ]
   ],
   "COUSR02C": [
    [
     "COADM01C",
-    "app/cbl/COUSR02C.cbl:259 (resolved COSGN00C@app/cbl/COUSR02C.cbl:91)"
+    "app/cbl/COUSR02C.cbl:259 (resolved COSGN00C@app/cbl/COUSR02C.cbl:253)"
    ],
    [
     "COSGN00C",
-    "app/cbl/COUSR02C.cbl:259 (resolved COSGN00C@app/cbl/COUSR02C.cbl:91)"
+    "app/cbl/COUSR02C.cbl:259 (resolved COSGN00C@app/cbl/COUSR02C.cbl:253)"
    ]
   ],
   "COUSR03C": [
    [
     "COADM01C",
-    "app/cbl/COUSR03C.cbl:206 (resolved COSGN00C@app/cbl/COUSR03C.cbl:91)"
+    "app/cbl/COUSR03C.cbl:206 (resolved COSGN00C@app/cbl/COUSR03C.cbl:200)"
    ],
    [
     "COSGN00C",
-    "app/cbl/COUSR03C.cbl:206 (resolved COSGN00C@app/cbl/COUSR03C.cbl:91)"
+    "app/cbl/COUSR03C.cbl:206 (resolved COSGN00C@app/cbl/COUSR03C.cbl:200)"
    ]
   ],
   "COACTUPC": [
