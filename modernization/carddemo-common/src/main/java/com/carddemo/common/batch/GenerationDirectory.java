@@ -9,15 +9,15 @@ import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.time.Clock;
 import java.time.Instant;
-import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.Optional;
 import java.util.stream.Stream;
 
 /**
- * GDG {@code (+1)} replacement: one new directory per run, {@code <output-dir>/<JOB>/<yyyyMMdd-HHmmss-SSS>},
+ * GDG {@code (+1)} replacement: one new directory per run, {@code <output-dir>/<JOB>/<yyyyMMdd-HHmmss-SSS>} (UTC),
  * holding the job's output datasets, {@code SYSOUT} and {@code RETURN-CODE}. Directory names sort
- * chronologically, so the latest generation is the greatest name ({@code (0)}). A dataset that must
+ * chronologically (UTC has no DST step back), so the latest generation is the greatest name ({@code (0)}). A dataset that must
  * not exist after an abend ({@code DISP=(NEW,CATLG,DELETE)}) is written to a temp file and only
  * {@link #publish published} on success.
  */
@@ -39,9 +39,8 @@ public final class GenerationDirectory {
         try {
             Files.createDirectories(jobDir);
             Instant instant = clock.instant();
-            ZoneId zone = clock.getZone();
             for (int attempt = 0; attempt < 1000; attempt++) {
-                Path candidate = jobDir.resolve(NAME.format(instant.plusMillis(attempt).atZone(zone)));
+                Path candidate = jobDir.resolve(NAME.format(instant.plusMillis(attempt).atZone(ZoneOffset.UTC)));
                 try {
                     return new GenerationDirectory(Files.createDirectory(candidate));
                 } catch (FileAlreadyExistsException ignored) {

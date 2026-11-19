@@ -26,6 +26,18 @@ class GenerationDirectoryTest {
     }
 
     @Test
+    void namesAreUtcSoTheyStayOrderedAcrossDstChanges(@TempDir Path out) {
+        // 00:30 UTC is 02:30 CEST and 01:30 UTC is 02:30 CET on 2022-10-30 (Madrid falls back).
+        java.time.ZoneId madrid = java.time.ZoneId.of("Europe/Madrid");
+        GenerationDirectory before = GenerationDirectory.create(out, "POSTTRAN",
+                Clock.fixed(Instant.parse("2022-10-30T00:59:00Z"), madrid));
+        GenerationDirectory after = GenerationDirectory.create(out, "POSTTRAN",
+                Clock.fixed(Instant.parse("2022-10-30T01:01:00Z"), madrid));
+        assertThat(before.path().getFileName()).hasToString("20221030-005900-000");
+        assertThat(GenerationDirectory.latest(out, "POSTTRAN")).contains(after.path());
+    }
+
+    @Test
     void writesReturnCodeLikeTheOracle(@TempDir Path out) throws Exception {
         GenerationDirectory gen = GenerationDirectory.create(out, "POSTTRAN", CLOCK);
         gen.writeReturnCode(ReturnCode.WARNING);
