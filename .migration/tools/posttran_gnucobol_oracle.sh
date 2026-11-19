@@ -101,7 +101,8 @@ cobc -x -std=ibm -fsign=EBCDIC -I "$REPO/app/cpy" "$REPO/app/cbl/CBTRN02C.cbl" -
 # Normalize sample data: strip CR, right-pad to LRECL
 pad() { tr -d '\r' < "$1" | awk -v n="$2" '{printf "%-" n "s\n", $0}'; }
 pad "$REPO/app/data/ASCII/acctdata.txt" 300 > "$OUT/data/acctdata.lseq"
-pad "$CARDXREF" 50  > "$OUT/data/cardxref.lseq"
+# LDXREF writes the indexed file with ACCESS SEQUENTIAL, so records must be in key order (C collation = byte order of the 16-byte key)
+pad "$CARDXREF" 50 | LC_ALL=C sort > "$OUT/data/cardxref.lseq"
 pad "$REPO/app/data/ASCII/tcatbal.txt"  50  > "$OUT/data/tcatbal.lseq"
 # DALYTRAN is RECFM=FB LRECL=350 sequential: fixed records, no newline
 case "$DALYTRAN_ENCODING" in
