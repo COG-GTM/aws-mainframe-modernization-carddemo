@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>INTCALC — Documento de Requisitos Funcionales</title>
+<style>
+  :root {
+    --ink: #1f2933; --muted: #616e7c; --line: #d9e2ec; --bg: #f5f7fa;
+    --brand: #0b4f8a; --brand-soft: #e3eefa; --batch: #8a4b0b; --batch-soft: #fdf0e1;
+    --online: #0b6e4f; --online-soft: #e1f5ee; --warn: #9b1c1c; --warn-soft: #fde8e8;
+    --ph: #fff4c2;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; font: 15px/1.55 "Segoe UI", Roboto, Helvetica, Arial, sans-serif; color: var(--ink); background: var(--bg); }
+  .page { max-width: 1100px; margin: 0 auto; padding: 32px 40px 64px; background: #fff; box-shadow: 0 0 0 1px var(--line); }
+  header.doc { border-bottom: 4px solid var(--brand); padding-bottom: 16px; margin-bottom: 24px; }
+  header.doc .kicker { text-transform: uppercase; letter-spacing: .08em; font-size: 12px; color: var(--muted); }
+  header.doc h1 { margin: 4px 0 8px; font-size: 30px; color: var(--brand); }
+  header.doc .sub { color: var(--muted); }
+  h2 { margin: 40px 0 12px; padding-bottom: 6px; border-bottom: 1px solid var(--line); color: var(--brand); font-size: 22px; }
+  h3 { margin: 24px 0 8px; font-size: 17px; }
+  h2 .num { display: inline-block; min-width: 2.2em; color: var(--muted); }
+  p { margin: 8px 0; }
+  table { width: 100%; border-collapse: collapse; margin: 10px 0 16px; font-size: 14px; }
+  th, td { border: 1px solid var(--line); padding: 7px 9px; text-align: left; vertical-align: top; }
+  th { background: var(--brand-soft); font-weight: 600; }
+  table.kv th { width: 28%; }
+  code, .mono { font-family: "SFMono-Regular", Consolas, Menlo, monospace; font-size: 13px; }
+  .ph { background: var(--ph); padding: 0 3px; border-radius: 3px; font-family: Consolas, Menlo, monospace; font-size: 13px; }
+  .hint { color: var(--muted); font-style: italic; font-size: 13px; }
+  .note { border-left: 4px solid var(--brand); background: var(--brand-soft); padding: 10px 14px; margin: 12px 0; font-size: 14px; }
+  .note.warn { border-color: var(--warn); background: var(--warn-soft); }
+  .badge { display: inline-block; padding: 1px 8px; border-radius: 10px; font-size: 11px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; vertical-align: middle; margin-left: 6px; }
+  .badge.batch { background: var(--batch-soft); color: var(--batch); border: 1px solid var(--batch); }
+  .badge.online { background: var(--online-soft); color: var(--online); border: 1px solid var(--online); }
+  .badge.mig { background: var(--brand-soft); color: var(--brand); border: 1px solid var(--brand); }
+  .badge.ok { background: var(--online-soft); color: var(--online); }
+  .badge.ko { background: var(--warn-soft); color: var(--warn); }
+  section.only-batch { border-left: 3px solid var(--batch); padding-left: 14px; }
+  section.only-online { border-left: 3px solid var(--online); padding-left: 14px; }
+  nav.toc { background: var(--bg); border: 1px solid var(--line); padding: 12px 20px; columns: 2; font-size: 14px; }
+  nav.toc a { color: var(--brand); text-decoration: none; }
+  nav.toc ol { margin: 0; padding-left: 20px; }
+  .legend { font-size: 13px; color: var(--muted); margin: 8px 0 0; }
+  /* Diagramas de flujo editables (HTML/CSS, sin dependencias) */
+  .flow { display: flex; flex-wrap: wrap; align-items: stretch; gap: 0; margin: 14px 0; }
+  .flow .node { border: 2px solid var(--brand); border-radius: 8px; padding: 10px 12px; min-width: 140px; background: #fff; font-size: 13px; }
+  .flow .node b { display: block; font-size: 14px; }
+  .flow .node.job { border-color: var(--batch); background: var(--batch-soft); }
+  .flow .node.pgm { border-color: var(--brand); background: var(--brand-soft); }
+  .flow .node.map { border-color: var(--online); background: var(--online-soft); }
+  .flow .node.ext { border-style: dashed; border-color: var(--muted); }
+  .flow .arrow { align-self: center; padding: 0 8px; font-size: 22px; color: var(--muted); }
+  .flow .arrow small { display: block; font-size: 11px; text-align: center; }
+  .diagram { border: 1px solid var(--line); border-radius: 8px; padding: 12px; background: #fff; overflow-x: auto; }
+  .diagram svg { max-width: 100%; height: auto; }
+  .check { list-style: none; padding-left: 0; }
+  .check li::before { content: "\2610  "; color: var(--muted); }
+  footer.doc { margin-top: 48px; padding-top: 12px; border-top: 1px solid var(--line); font-size: 12px; color: var(--muted); }
+  @media print {
+    body { background: #fff; }
+    .page { box-shadow: none; padding: 0; max-width: none; }
+    h2 { page-break-after: avoid; }
+    table, .diagram, .flow { page-break-inside: avoid; }
+    nav.toc { columns: 1; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+<header class="doc">
+  <div class="kicker">CardDemo · Documento de Requisitos Funcionales · Migración</div>
+  <h1>INTCALC — Cálculo mensual de intereses</h1>
+  <div class="sub">
+    Tipo: <span class="badge batch">Batch</span> ·
+    Aplicación: CardDemo (núcleo de tarjetas, VSAM) ·
+    Versión del documento: 0.1 ·
+    Estado: Borrador
+  </div>
+</header>
+
+<div class="note">Documento generado a partir del código del repositorio <code>COG-GTM/aws-mainframe-modernization-carddemo</code> (commit <code>6c7618f</code>): <code>app/jcl/INTCALC.jcl</code>, <code>app/cbl/CBACT04C.cbl</code>, los copybooks <code>CVTRA01Y</code>, <code>CVACT01Y</code>, <code>CVACT03Y</code>, <code>CVTRA02Y</code> y <code>CVTRA05Y</code>, los JCL vecinos (<code>CLOSEFIL</code>, <code>TRANBKP</code>, <code>COMBTRAN</code>, <code>TRANIDX</code>, <code>WAITSTEP</code>, <code>OPENFIL</code>, <code>DEFGDGB</code>, <code>DISCGRP</code>, <code>TCATBALF</code>, <code>XREFFILE</code>), <code>app/scheduler/CardDemo.controlm</code> y <code>CardDemo.ca7</code>, <code>scripts/run_interest_calc.sh</code>, <code>scripts/run_full_batch.sh</code>, <code>app/csd</code>, los datos de <code>app/data</code> y <code>README.md</code>. Lo que no se puede deducir del código (SLA, responsables, volumen real de producción, sistemas externos) aparece como <b>pregunta abierta</b> y no se ha inventado.</div>
+
+<div class="note">Verificación en ejecución: CBACT04C se compiló sin cambios con GnuCOBOL 3.1.2 (<code>-std=ibm</code>, ficheros indexados BDB en lugar de VSAM) y se ejecutó con (a) un juego de datos sintético de 3 cuentas y (b) los ficheros de ejemplo de <code>app/data/ASCII</code>. Los resultados marcados como <b>[verificado]</b> salen de esas ejecuciones. Es una emulación fuera de z/OS: el comportamiento de VSAM/LE no está verificado en el mainframe.</div>
+
+<nav class="toc">
+  <ol>
+    <li><a href="#control">Control del documento</a></li>
+    <li><a href="#ident">Identificación del stream</a></li>
+    <li><a href="#resumen">Descripción funcional</a></li>
+    <li><a href="#flujo">Diagrama de flujo</a></li>
+    <li><a href="#inventario">Inventario de componentes</a></li>
+    <li><a href="#dependencias">Dependencias</a></li>
+    <li><a href="#rf">Requisitos funcionales</a></li>
+    <li><a href="#reglas">Reglas de negocio y validaciones</a></li>
+    <li><a href="#ui">Interfaz de usuario (online)</a></li>
+    <li><a href="#datos">Diccionario de datos y layouts</a></li>
+    <li><a href="#salidas">Salidas e informes</a></li>
+    <li><a href="#errores">Errores, códigos de retorno y reinicio</a></li>
+    <li><a href="#transacc">Transaccionalidad y concurrencia</a></li>
+    <li><a href="#rnf">Volumetría, rendimiento y planificación</a></li>
+    <li><a href="#seguridad">Seguridad y auditoría</a></li>
+    <li><a href="#destino">Mapeo a la arquitectura destino</a></li>
+    <li><a href="#migdatos">Migración de datos</a></li>
+    <li><a href="#pruebas">Estrategia de pruebas y equivalencia</a></li>
+    <li><a href="#traza">Matriz de trazabilidad</a></li>
+    <li><a href="#riesgos">Riesgos, supuestos y preguntas abiertas</a></li>
+    <li><a href="#glosario">Glosario</a></li>
+    <li><a href="#aprob">Aprobaciones</a></li>
+  </ol>
+</nav>
+
+<!-- 1 -->
+<section id="control">
+  <h2><span class="num">1.</span>Control del documento</h2>
+  <table class="kv">
+    <tr><th>ID del documento</th><td>RF-CARDDEMO-INTCALC-001</td></tr>
+    <tr><th>Autor(es)</th><td>Devin (análisis de código) · revisión pendiente</td></tr>
+    <tr><th>Fecha de creación / última revisión</th><td>2026-11-19 / 2026-11-19</td></tr>
+    <tr><th>Fuentes analizadas</th><td><code>app/jcl/INTCALC.jcl</code>, <code>app/cbl/CBACT04C.cbl</code>, <code>app/cpy/CVTRA01Y.cpy</code>, <code>CVACT01Y.cpy</code>, <code>CVACT03Y.cpy</code>, <code>CVTRA02Y.cpy</code>, <code>CVTRA05Y.cpy</code>, <code>app/jcl/{CLOSEFIL,OPENFIL,WAITSTEP,TRANBKP,COMBTRAN,TRANIDX,DEFGDGB,DISCGRP,TCATBALF,XREFFILE}.jcl</code>, <code>app/scheduler/CardDemo.controlm</code>, <code>app/scheduler/CardDemo.ca7</code>, <code>scripts/run_interest_calc.sh</code>, <code>scripts/run_full_batch.sh</code>, <code>app/csd/*.CSD</code>, <code>app/data/ASCII</code> y <code>app/data/EBCDIC</code>, <code>README.md</code>. Sin entrevistas.</td></tr>
+    <tr><th>Documentos relacionados</th><td><code>docs/ejemplo-POSTTRAN.html</code> (POSTTRAN, productor de TCATBALF y ACCTDATA) · COMBTRAN (consumidor de SYSTRAN) · CREASTMT y TRANREPT (consumidores de TRANSACT, documentados aparte)</td></tr>
+  </table>
+  <h3>Historial de cambios</h3>
+  <table>
+    <tr><th>Versión</th><th>Fecha</th><th>Autor</th><th>Cambios</th></tr>
+    <tr><td>0.1</td><td>2026-11-19</td><td>Devin</td><td>Versión inicial a partir del código fuente y de ejecuciones locales con GnuCOBOL</td></tr>
+  </table>
+</section>
+
+<!-- 2 -->
+<section id="ident">
+  <h2><span class="num">2.</span>Identificación del stream</h2>
+  <table class="kv">
+    <tr><th>Nombre del stream</th><td><b>INTCALC</b> — "Run interest calculations" (README); job "INTEREST CALCULATOR" (tarjeta JOB)</td></tr>
+    <tr><th>Tipo</th><td>Batch, un único job con un step</td></tr>
+    <tr><th>Aplicación / subsistema</th><td>CardDemo · cálculo de intereses sobre balances por categoría de transacción</td></tr>
+    <tr><th>Punto de entrada</th><td>Job <code>INTCALC</code> · <code>STEP15 EXEC PGM=CBACT04C,PARM='2022071800'</code> · STEPLIB <code>AWS.M2.CARDDEMO.LOADLIB</code></td></tr>
+    <tr><th>Planificador</th><td>Control-M: folder <code>MONTHLY-InterestCalculation</code> (<code>CardDemo.controlm</code>), cadena CLOSEFIL → INTCALC → COMBTRAN → WAITSTEP → OPENFIL. <b>No</b> aparece en CA7 (<code>CardDemo.ca7</code>). Los scripts de demo lo envían con otra secuencia (ver 4.1 y H-06).</td></tr>
+    <tr><th>Frecuencia y ventana</th><td>Mensual según el nombre del folder Control-M y la fórmula (÷ 1200 = tipo anual ÷ 12 meses). La definición no tiene criterio de días (<code>DAYS</code>/<code>MONTHDAYS</code>), solo <code>JAN…DEC="1"</code> y <code>TIMETO="23:00"</code>. Día del mes y ventana: <i>pregunta abierta Q-01</i>. En <code>run_full_batch.sh</code> se ejecuta en cada pasada del batch completo.</td></tr>
+    <tr><th>Criticidad de negocio</th><td>Alta (inferida) — modifica el saldo de todas las cuentas con balance por categoría y pone a cero los acumulados de ciclo. Impacto real si no se ejecuta: Q-02.</td></tr>
+    <tr><th>Responsable funcional / técnico</th><td><i>Pregunta abierta Q-03</i></td></tr>
+  </table>
+</section>
+
+<!-- 3 -->
+<section id="resumen">
+  <h2><span class="num">3.</span>Descripción funcional (qué hace)</h2>
+  <p>INTCALC recorre el fichero de balances por cuenta, tipo y categoría de transacción (<code>TCATBALF</code>). Para cada balance busca el tipo de interés del grupo de divulgación de la cuenta (<code>DISCGRP</code>) y, si no existe, el del grupo <code>DEFAULT</code>. Con un tipo distinto de cero calcula el interés del mes (balance × tipo ÷ 1200) y genera una transacción de interés (tipo 01, categoría 0005, origen "System") en una nueva generación del GDG <code>SYSTRAN</code>.</p>
+  <p>Al cambiar de cuenta suma el total de intereses al saldo actual (<code>ACCT-CURR-BAL</code>), pone a cero los acumulados de crédito y débito del ciclo y reescribe la cuenta. Las comisiones (<code>1400-COMPUTE-FEES</code>) no están implementadas. El job COMBTRAN fusiona después <code>SYSTRAN(0)</code> con el backup del maestro de transacciones y lo recarga en el KSDS <code>TRANSACT</code>.</p>
+  <table class="kv">
+    <tr><th>Objetivo de negocio</th><td>Cargar mensualmente a cada cuenta el interés devengado por sus balances, dejar constancia de cada cargo como transacción y cerrar el ciclo de facturación (acumulados de ciclo a cero).</td></tr>
+    <tr><th>Actores</th><td>Planificador Control-M / operación batch. Sin interacción de usuario.</td></tr>
+    <tr><th>Disparador</th><td>Fin de CLOSEFIL en el folder <code>MONTHLY-InterestCalculation</code>. En los scripts de demo, envío por FTP/JES tras CLOSEFIL (o tras POSTTRAN en el batch completo).</td></tr>
+    <tr><th>Entradas principales</th><td>TCATBALF (balances por categoría), ACCTDATA (cuentas y grupo de divulgación), CARDXREF vía AIX por cuenta (tarjeta de la cuenta), DISCGRP (tipos de interés), PARM de 10 caracteres (prefijo del ID de transacción)</td></tr>
+    <tr><th>Salidas / efectos</th><td>ACCTDATA actualizado (saldo + intereses, acumulados de ciclo = 0), <code>SYSTRAN(+1)</code> con una transacción por balance con tipo ≠ 0, trazas en SYSOUT, RC=0 o ABEND U999</td></tr>
+    <tr><th>Fuera de alcance</th><td>Contabilización diaria (POSTTRAN), cálculo de comisiones (no implementado), fusión de transacciones (COMBTRAN), extractos (CREASTMT), informes (TRANREPT), mantenimiento de tipos de interés (job DISCGRP)</td></tr>
+  </table>
+</section>
+
+<!-- 4 -->
+<section id="flujo">
+  <h2><span class="num">4.</span>Diagrama de flujo</h2>
+
+  <section class="only-batch">
+    <h3>4.1 Cadena de JCL <span class="badge batch">Solo batch</span></h3>
+    <p><b>Control-M</b>, folder <code>MONTHLY-InterestCalculation</code> (condiciones IN/OUT de <code>CardDemo.controlm</code>):</p>
+    <div class="flow">
+      <div class="node ext"><b>CLOSEFIL</b>SDSF · CEMT CLOSE de TRANSACT, CCXREF, ACCTDAT, CXACAIX, USRSEC</div>
+      <div class="arrow">&rarr;<small>OK</small></div>
+      <div class="node job"><b>INTCALC</b>STEP15 · PGM=CBACT04C</div>
+      <div class="arrow">&rarr;<small>OK</small></div>
+      <div class="node ext"><b>COMBTRAN</b>SORT + IDCAMS REPRO</div>
+      <div class="arrow">&rarr;</div>
+      <div class="node ext"><b>WAITSTEP</b>COBSWAIT 36 s</div>
+      <div class="arrow">&rarr;</div>
+      <div class="node ext"><b>OPENFIL</b>SDSF · CEMT OPEN</div>
+    </div>
+    <p><b>Script <code>scripts/run_interest_calc.sh</code></b> (envío por FTP a JES con pausas de 5 s, sin control de RC):</p>
+    <div class="flow">
+      <div class="node ext"><b>CLOSEFIL</b></div><div class="arrow">&rarr;</div>
+      <div class="node job"><b>INTCALC</b></div><div class="arrow">&rarr;</div>
+      <div class="node ext"><b>TRANBKP</b>backup + DELETE/DEFINE TRANSACT</div><div class="arrow">&rarr;</div>
+      <div class="node ext"><b>COMBTRAN</b></div><div class="arrow">&rarr;</div>
+      <div class="node ext"><b>TRANIDX</b>AIX de TRANSACT</div><div class="arrow">&rarr;</div>
+      <div class="node ext"><b>OPENFIL</b></div>
+    </div>
+    <p><b>Script <code>scripts/run_full_batch.sh</code></b>: CLOSEFIL → recargas (ACCTFILE, CARDFILE, XREFFILE, CUSTFILE, TRANBKP, DISCGRP, TCATBALF, TRANTYPE, DUSRSECJ) → POSTTRAN → <b>INTCALC</b> → TRANBKP → COMBTRAN → TRANIDX → OPENFIL.</p>
+    <p class="legend">Las tres secuencias no coinciden: Control-M no incluye TRANBKP ni TRANIDX alrededor de COMBTRAN, y CA7 no contiene INTCALC (H-06). En la secuencia de los scripts, TRANBKP copia TRANSACT a <code>TRANSACT.BKUP(+1)</code> y vacía el KSDS; COMBTRAN ordena por TRAN-ID <code>TRANSACT.BKUP(0)</code> + <code>SYSTRAN(0)</code> en <code>TRANSACT.COMBINED(+1)</code> y lo copia con REPRO al KSDS vacío; TRANIDX redefine el AIX.</p>
+
+    <h3>4.2 Pasos del job</h3>
+    <table>
+      <tr><th>Job</th><th>Step</th><th>Programa</th><th>Entradas (DD → DSN)</th><th>Salidas (DD → DSN)</th><th>Condición</th><th>Descripción</th></tr>
+      <tr><td>INTCALC</td><td>STEP15</td><td>CBACT04C<br>PARM='2022071800'</td>
+        <td>TCATBALF → <code>AWS.M2.CARDDEMO.TCATBALF.VSAM.KSDS</code> (SHR)<br>XREFFILE → <code>AWS.M2.CARDDEMO.CARDXREF.VSAM.KSDS</code> (SHR)<br>XREFFIL1 → <code>AWS.M2.CARDDEMO.CARDXREF.VSAM.AIX.PATH</code> (SHR)<br>DISCGRP → <code>AWS.M2.CARDDEMO.DISCGRP.VSAM.KSDS</code> (SHR)<br>ACCTFILE → <code>AWS.M2.CARDDEMO.ACCTDATA.VSAM.KSDS</code> (SHR, E/S)</td>
+        <td>ACCTFILE (REWRITE)<br>TRANSACT → <code>AWS.M2.CARDDEMO.SYSTRAN(+1)</code> (NEW,CATLG,DELETE · RECFM=F · LRECL=350 · SPACE=(CYL,(1,1),RLSE))<br>SYSOUT / SYSPRINT</td>
+        <td>Sin COND (único step)</td><td>Calcula intereses por balance, genera transacciones de interés y actualiza cuentas</td></tr>
+    </table>
+
+    <h3>4.3 Flujo de datos de CBACT04C</h3>
+    <div class="diagram">
+      <svg viewBox="0 0 900 380" xmlns="http://www.w3.org/2000/svg" font-family="Segoe UI, Arial, sans-serif" font-size="13">
+        <defs><marker id="a" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#616e7c"/></marker></defs>
+        <rect x="20" y="160" width="200" height="60" rx="8" fill="#fdf0e1" stroke="#8a4b0b" stroke-width="2"/>
+        <text x="120" y="185" text-anchor="middle" font-weight="700">TCATBALF KSDS</text>
+        <text x="120" y="205" text-anchor="middle">Secuencial · 50 B · Lectura</text>
+        <rect x="350" y="150" width="200" height="80" rx="10" fill="#e3eefa" stroke="#0b4f8a" stroke-width="2.5"/>
+        <text x="450" y="182" text-anchor="middle" font-weight="700" font-size="15">CBACT04C</text>
+        <text x="450" y="204" text-anchor="middle">tipo → interés → cuenta</text>
+        <rect x="20" y="20" width="230" height="56" rx="8" fill="#fff" stroke="#0b4f8a" stroke-width="2"/>
+        <text x="135" y="44" text-anchor="middle" font-weight="700">CARDXREF (AIX PATH)</text>
+        <text x="135" y="63" text-anchor="middle">Lectura aleatoria · clave cuenta</text>
+        <rect x="335" y="20" width="230" height="56" rx="8" fill="#fff" stroke="#0b4f8a" stroke-width="2"/>
+        <text x="450" y="44" text-anchor="middle" font-weight="700">DISCGRP KSDS</text>
+        <text x="450" y="63" text-anchor="middle">Grupo+tipo+categoría · DEFAULT</text>
+        <rect x="650" y="90" width="230" height="56" rx="8" fill="#fff" stroke="#0b4f8a" stroke-width="2"/>
+        <text x="765" y="114" text-anchor="middle" font-weight="700">ACCTDATA KSDS</text>
+        <text x="765" y="133" text-anchor="middle">READ + REWRITE (I-O)</text>
+        <rect x="650" y="230" width="230" height="56" rx="8" fill="#e1f5ee" stroke="#0b6e4f" stroke-width="2"/>
+        <text x="765" y="254" text-anchor="middle" font-weight="700">SYSTRAN(+1) GDG</text>
+        <text x="765" y="273" text-anchor="middle">WRITE (OUTPUT) · 350 B</text>
+        <rect x="650" y="310" width="230" height="56" rx="8" fill="#fff" stroke="#616e7c" stroke-width="2" stroke-dasharray="6 4"/>
+        <text x="765" y="334" text-anchor="middle" font-weight="700">COMBTRAN → TRANSACT</text>
+        <text x="765" y="353" text-anchor="middle">Job sucesor · SYSTRAN(0)</text>
+        <line x1="220" y1="190" x2="345" y2="190" stroke="#616e7c" stroke-width="2" marker-end="url(#a)"/>
+        <line x1="135" y1="76" x2="390" y2="146" stroke="#616e7c" stroke-width="2" marker-end="url(#a)"/>
+        <line x1="450" y1="76" x2="450" y2="146" stroke="#616e7c" stroke-width="2" marker-end="url(#a)"/>
+        <line x1="646" y1="112" x2="552" y2="165" stroke="#616e7c" stroke-width="2" marker-end="url(#a)"/>
+        <line x1="552" y1="180" x2="646" y2="128" stroke="#0b4f8a" stroke-width="2" marker-end="url(#a)"/>
+        <line x1="550" y1="212" x2="646" y2="255" stroke="#0b6e4f" stroke-width="2" marker-end="url(#a)"/>
+        <line x1="765" y1="286" x2="765" y2="306" stroke="#616e7c" stroke-width="2" marker-end="url(#a)"/>
+        <text x="592" y="266" fill="#0b6e4f">tipo ≠ 0</text>
+        <text x="540" y="104" fill="#0b4f8a">cambio de cuenta</text>
+      </svg>
+    </div>
+  </section>
+
+  <h3>4.4 Lógica interna del programa principal</h3>
+  <ol>
+    <li><code>0000…0400-*-OPEN</code> — abre TCATBALF (INPUT), XREFFILE (INPUT), DISCGRP (INPUT), ACCTFILE (I-O) y TRANSACT (OUTPUT). Cualquier file status ≠ '00' provoca ABEND.</li>
+    <li>Bucle <code>PERFORM UNTIL END-OF-FILE = 'Y'</code>: <code>1000-TCATBALF-GET-NEXT</code> lee el siguiente balance (status '10' = fin), suma 1 a <code>WS-RECORD-COUNT</code> y hace <code>DISPLAY</code> del registro completo.</li>
+    <li>Si <code>TRANCAT-ACCT-ID</code> ≠ <code>WS-LAST-ACCT-NUM</code> (cambio de cuenta): si no es la primera cuenta, <code>1050-UPDATE-ACCOUNT</code> reescribe la cuenta anterior; pone <code>WS-TOTAL-INT</code> a 0, guarda la cuenta nueva y la lee con <code>1100-GET-ACCT-DATA</code> y <code>1110-GET-XREF-DATA</code> (XREF por clave alternativa).</li>
+    <li><code>1200-GET-INTEREST-RATE</code> lee DISCGRP con clave ACCT-GROUP-ID + tipo + categoría. Si devuelve '23', repite con grupo <code>DEFAULT</code> en <code>1200-A-GET-DEFAULT-INT-RATE</code>.</li>
+    <li>Si <code>DIS-INT-RATE</code> ≠ 0: <code>1300-COMPUTE-INTEREST</code> calcula el interés, lo suma a <code>WS-TOTAL-INT</code> y graba la transacción con <code>1300-B-WRITE-TX</code>; después llama a <code>1400-COMPUTE-FEES</code>, que está vacío.</li>
+    <li>La rama <code>ELSE → 1050-UPDATE-ACCOUNT</code> prevista para el fin de fichero (líneas 219-220) no se ejecuta nunca: la última cuenta no se reescribe (H-01).</li>
+    <li><code>9000…9400-*-CLOSE</code> cierra los cinco ficheros; muestra <code>END OF EXECUTION OF PROGRAM CBACT04C</code> y hace <code>GOBACK</code> (RC=0).</li>
+  </ol>
+</section>
+
+<!-- 5 -->
+<section id="inventario">
+  <h2><span class="num">5.</span>Inventario de componentes</h2>
+  <table>
+    <tr><th>Tipo</th><th>Nombre</th><th>Ruta en el repositorio</th><th>Rol en el stream</th></tr>
+    <tr><td>JCL</td><td>INTCALC</td><td><code>app/jcl/INTCALC.jcl</code></td><td>Job del stream</td></tr>
+    <tr><td>JCL (prerrequisito)</td><td>DEFGDGB</td><td><code>app/jcl/DEFGDGB.jcl</code></td><td>Define la base GDG <code>AWS.M2.CARDDEMO.SYSTRAN</code> (LIMIT 5, SCRATCH), además de TRANSACT.BKUP y TRANSACT.COMBINED</td></tr>
+    <tr><td>JCL (carga de datos)</td><td>DISCGRP, TCATBALF, XREFFILE, ACCTFILE</td><td><code>app/jcl/</code></td><td>DELETE/DEFINE y REPRO desde los PS de ejemplo de los KSDS que lee el stream; XREFFILE define también el AIX <code>CARDXREF.VSAM.AIX</code> (KEYS(11,25), NONUNIQUEKEY) y su PATH</td></tr>
+    <tr><td>JCL (vecinos)</td><td>CLOSEFIL, OPENFIL, WAITSTEP, TRANBKP, COMBTRAN, TRANIDX</td><td><code>app/jcl/</code></td><td>Cierre/apertura de ficheros CICS, espera, backup y vaciado de TRANSACT, fusión de SYSTRAN y redefinición del AIX</td></tr>
+    <tr><td>Programa COBOL</td><td>CBACT04C</td><td><code>app/cbl/CBACT04C.cbl</code></td><td>Cálculo de intereses y actualización de cuentas</td></tr>
+    <tr><td>Copybook</td><td>CVTRA01Y</td><td><code>app/cpy/CVTRA01Y.cpy</code></td><td>Layout TRAN-CAT-BAL-RECORD</td></tr>
+    <tr><td>Copybook</td><td>CVACT01Y</td><td><code>app/cpy/CVACT01Y.cpy</code></td><td>Layout ACCOUNT-RECORD</td></tr>
+    <tr><td>Copybook</td><td>CVACT03Y</td><td><code>app/cpy/CVACT03Y.cpy</code></td><td>Layout CARD-XREF-RECORD</td></tr>
+    <tr><td>Copybook</td><td>CVTRA02Y</td><td><code>app/cpy/CVTRA02Y.cpy</code></td><td>Layout DIS-GROUP-RECORD</td></tr>
+    <tr><td>Copybook</td><td>CVTRA05Y</td><td><code>app/cpy/CVTRA05Y.cpy</code></td><td>Layout TRAN-RECORD (transacción generada)</td></tr>
+    <tr><td>Rutina LE</td><td>CEE3ABD</td><td>Language Environment (IBM)</td><td>ABEND controlado (código 999)</td></tr>
+    <tr><td>Rutina CardDemo</td><td>COBSWAIT</td><td><code>app/cbl/COBSWAIT.cbl</code></td><td>Usada por WAITSTEP en la cadena Control-M (no por INTCALC)</td></tr>
+    <tr><td>Definición CICS (CSD)</td><td>ACCTDAT, CCXREF, CXACAIX, TRANSACT</td><td><code>app/csd/CARDDEMO.CSD</code></td><td>Ficheros compartidos con el online; por eso el job va entre CLOSEFIL y OPENFIL. TCATBALF y DISCGRP no están definidos en CICS</td></tr>
+    <tr><td>Planificación</td><td>CardDemo.controlm</td><td><code>app/scheduler/CardDemo.controlm</code></td><td>Folder MONTHLY-InterestCalculation</td></tr>
+    <tr><td>Planificación</td><td>CardDemo.ca7</td><td><code>app/scheduler/CardDemo.ca7</code></td><td>No contiene INTCALC (H-06)</td></tr>
+    <tr><td>Scripts de envío</td><td>run_interest_calc.sh / run_full_batch.sh</td><td><code>scripts/</code></td><td>Envío por FTP/JES en el entorno de demo</td></tr>
+    <tr><td>Datos de prueba</td><td>tcatbal, acctdata, cardxref, discgrp</td><td><code>app/data/ASCII/</code>, <code>app/data/EBCDIC/</code></td><td>50 balances, 50 cuentas, 50 tarjetas, 51 registros de grupos (A000000000, DEFAULT, ZEROAPR)</td></tr>
+  </table>
+  <p class="legend">No usa mapas BMS, PROC, tarjetas SYSIN ni Assembler.</p>
+</section>
+
+<!-- 6 -->
+<section id="dependencias">
+  <h2><span class="num">6.</span>Dependencias</h2>
+  <h3>6.1 Datos (bases de datos y ficheros)</h3>
+  <table>
+    <tr><th>DD</th><th>DSN</th><th>Organización</th><th>Acceso</th><th>Clave</th><th>LRECL</th><th>Copybook</th><th>Observaciones</th></tr>
+    <tr><td>TCATBALF</td><td><code>AWS.M2.CARDDEMO.TCATBALF.VSAM.KSDS</code></td><td>VSAM KSDS</td><td>R (secuencial)</td><td>Cuenta 9(11) + tipo X(02) + categoría 9(04) (KEYS(17 0))</td><td>50</td><td>CVTRA01Y</td><td>Generado por POSTTRAN o recargado por el job TCATBALF. INTCALC no lo modifica</td></tr>
+    <tr><td>XREFFILE / XREFFIL1</td><td><code>AWS.M2.CARDDEMO.CARDXREF.VSAM.KSDS</code> / <code>…CARDXREF.VSAM.AIX.PATH</code></td><td>VSAM KSDS + AIX</td><td>R (aleatorio por clave alternativa)</td><td>XREF-ACCT-ID 9(11) (AIX KEYS(11,25), NONUNIQUEKEY)</td><td>50</td><td>CVACT03Y</td><td>Solo se usa para obtener el número de tarjeta de la transacción. El SELECT no declara <code>WITH DUPLICATES</code> (H-07)</td></tr>
+    <tr><td>DISCGRP</td><td><code>AWS.M2.CARDDEMO.DISCGRP.VSAM.KSDS</code></td><td>VSAM KSDS</td><td>R (aleatorio)</td><td>Grupo X(10) + tipo X(02) + categoría 9(04) (KEYS(16 0))</td><td>50</td><td>CVTRA02Y</td><td>Tipos de interés; recargado semanalmente por el job DISCGRP (Control-M DisclosureGroupsRefresh)</td></tr>
+    <tr><td>ACCTFILE</td><td><code>AWS.M2.CARDDEMO.ACCTDATA.VSAM.KSDS</code></td><td>VSAM KSDS</td><td>R/U (READ + REWRITE)</td><td>ACCT-ID 9(11)</td><td>300</td><td>CVACT01Y</td><td>Se actualizan saldo y acumulados de ciclo. Fichero CICS ACCTDAT</td></tr>
+    <tr><td>TRANSACT</td><td><code>AWS.M2.CARDDEMO.SYSTRAN(+1)</code></td><td>GDG secuencial (RECFM=F)</td><td>W (OPEN OUTPUT)</td><td>—</td><td>350</td><td>CVTRA05Y</td><td>Base GDG definida en DEFGDGB (LIMIT 5, SCRATCH). Consumido por COMBTRAN como <code>SYSTRAN(0)</code></td></tr>
+  </table>
+  <h3>6.2 Utilidades y rutinas compartidas</h3>
+  <table>
+    <tr><th>Utilidad / rutina</th><th>Tipo</th><th>Uso en el stream</th><th>Equivalente propuesto en destino</th></tr>
+    <tr><td>CEE3ABD</td><td>Language Environment</td><td>ABEND U999 ante cualquier error de E/S o clave inexistente en ACCTDATA/XREF</td><td>Excepción no recuperable → job FAILED</td></tr>
+    <tr><td>FUNCTION CURRENT-DATE</td><td>Intrínseca COBOL</td><td>TRAN-ORIG-TS y TRAN-PROC-TS en formato Db2 <code>AAAA-MM-DD-HH.MM.SS.cc0000</code></td><td>Reloj del sistema con zona horaria explícita, o fecha de negocio parametrizada</td></tr>
+    <tr><td>SDSF (CLOSEFIL/OPENFIL), COBSWAIT (WAITSTEP), SORT + IDCAMS (COMBTRAN, TRANBKP, TRANIDX)</td><td>Utilidades IBM / CardDemo</td><td>En jobs vecinos, no dentro de INTCALC</td><td>Pasos de preparación y cierre del job destino</td></tr>
+  </table>
+  <h3>6.3 Otras aplicaciones e interfaces</h3>
+  <table>
+    <tr><th>Sistema / componente</th><th>Dirección</th><th>Mecanismo</th><th>Dato intercambiado</th><th>Observaciones</th></tr>
+    <tr><td>POSTTRAN (CBTRN02C)</td><td>Upstream</td><td>TCATBALF y ACCTDATA</td><td>Balances por categoría y acumulados de ciclo</td><td>En Control-M no es predecesor de INTCALC (Q-04)</td></tr>
+    <tr><td>Job DISCGRP</td><td>Upstream</td><td>DISCGRP KSDS</td><td>Tipos de interés por grupo/tipo/categoría</td><td>Origen de negocio de los tipos: Q-05</td></tr>
+    <tr><td>COMBTRAN</td><td>Downstream</td><td><code>SYSTRAN(0)</code></td><td>Transacciones de interés</td><td>Único consumidor de SYSTRAN en el repositorio</td></tr>
+    <tr><td>CICS online CardDemo (consulta y actualización de cuentas, transacciones…)</td><td>Comparte datos</td><td>ACCTDAT, CCXREF, CXACAIX, TRANSACT</td><td>Cuentas y transacciones</td><td>Por eso se ejecuta entre CLOSEFIL y OPENFIL</td></tr>
+    <tr><td>CREASTMT / TRANREPT</td><td>Downstream indirecto</td><td>TRANSACT KSDS (tras COMBTRAN)</td><td>Transacciones de interés en extractos e informes</td><td>Documentados aparte</td></tr>
+  </table>
+  <h3>6.4 Dependencias de planificación</h3>
+  <table>
+    <tr><th>Predecesores</th><th>Sucesores</th><th>Recursos / condiciones</th><th>Calendario</th></tr>
+    <tr><td>Control-M: CLOSEFIL (condición <code>MONTHLY-InterestCalculation-CLOSEFIL</code>).<br>run_interest_calc.sh: CLOSEFIL.<br>run_full_batch.sh: POSTTRAN.</td><td>Control-M: COMBTRAN → WAITSTEP → OPENFIL.<br>Scripts: TRANBKP → COMBTRAN → TRANIDX → OPENFIL.</td><td>Ficheros CICS cerrados (CLOSEFIL). Base GDG SYSTRAN definida (DEFGDGB). Control-M: MAXRERUN=5, MAXWAIT=7, TIMETO=23:00.</td><td>Mensual según el folder; sin criterio de días definido (Q-01)</td></tr>
+  </table>
+</section>
+
+<!-- 7 -->
+<section id="rf">
+  <h2><span class="num">7.</span>Requisitos funcionales</h2>
+  <p class="legend">Los RF describen el comportamiento <b>actual</b>. Las correcciones propuestas están en los hallazgos (sección 20).</p>
+  <table>
+    <tr><th>ID</th><th>Requisito</th><th>Origen (legado)</th><th>Prioridad</th><th>Criterio de aceptación (Dado / Cuando / Entonces)</th></tr>
+    <tr><td>RF-01</td><td>El sistema debe procesar secuencialmente, en orden de clave (cuenta + tipo + categoría), todos los registros de TCATBALF hasta fin de fichero, mostrando cada registro en SYSOUT.</td><td>CBACT04C · bucle principal (l. 188-222) · 1000-TCATBALF-GET-NEXT</td><td>Must</td><td><b>Dado</b> un TCATBALF con N registros<br><b>Cuando</b> se ejecuta el stream<br><b>Entonces</b> se procesan los N registros y SYSOUT contiene N líneas con el registro</td></tr>
+    <tr><td>RF-02</td><td>Al empezar cada cuenta nueva, el sistema debe leer la cuenta en ACCTDATA y su referencia de tarjeta en CARDXREF por número de cuenta (AIX). Si alguna no existe, debe detenerse con ABEND.</td><td>Bucle principal (l. 194-206) · 1100-GET-ACCT-DATA · 1110-GET-XREF-DATA</td><td>Must</td><td><b>Dado</b> un balance de una cuenta que no está en ACCTDATA (o sin tarjeta en XREF)<br><b>Cuando</b> se procesa<br><b>Entonces</b> se muestra "ACCOUNT NOT FOUND: …" y el job termina con U999</td></tr>
+    <tr><td>RF-03</td><td>Para cada balance, el sistema debe obtener el tipo de interés de DISCGRP con la clave grupo de la cuenta + tipo + categoría; si no existe, debe usar el del grupo <code>DEFAULT</code> con el mismo tipo y categoría; si tampoco existe, ABEND.</td><td>1200-GET-INTEREST-RATE · 1200-A-GET-DEFAULT-INT-RATE</td><td>Must</td><td><b>Dado</b> una cuenta con grupo "NOGROUP" sin registros en DISCGRP y DEFAULT/01/0001 = 15,00<br><b>Cuando</b> se procesa su balance 01/0001<br><b>Entonces</b> se muestran "DISCLOSURE GROUP RECORD MISSING" y "TRY WITH DEFAULT GROUP CODE" y se aplica 15,00 <b>[verificado]</b></td></tr>
+    <tr><td>RF-04</td><td>Si el tipo es distinto de cero, el sistema debe calcular el interés mensual del balance según RN-02 y acumularlo en el total de la cuenta. Con tipo cero no calcula ni graba nada para ese balance.</td><td>Bucle principal (l. 214-217) · 1300-COMPUTE-INTEREST</td><td>Must</td><td><b>Dado</b> balances 1.000,00 a 15,00 %, 500,00 a 25,00 % y −200,00 a 0 % en la misma cuenta<br><b>Entonces</b> se generan 2 transacciones (12,50 y 10,41) y el total es 22,91 <b>[verificado]</b></td></tr>
+    <tr><td>RF-05</td><td>Por cada interés calculado, el sistema debe grabar una transacción en SYSTRAN(+1) con el contenido de RN-05, aunque el importe sea 0,00.</td><td>1300-B-WRITE-TX</td><td>Must</td><td><b>Dado</b> los datos de ejemplo de <code>app/data</code> (50 balances a 0,00)<br><b>Entonces</b> SYSTRAN contiene 50 transacciones 01/0005 de importe 0,00 con IDs 2022071800000001…2022071800000050 <b>[verificado]</b></td></tr>
+    <tr><td>RF-06</td><td>Al cambiar de cuenta, el sistema debe sumar el total de intereses de la cuenta anterior a ACCT-CURR-BAL, poner a cero ACCT-CURR-CYC-CREDIT y ACCT-CURR-CYC-DEBIT y reescribir la cuenta. <b>Comportamiento actual:</b> la última cuenta del fichero no se reescribe (H-01).</td><td>1050-UPDATE-ACCOUNT · bucle principal (l. 194-199, 219-220)</td><td>Must</td><td><b>Dado</b> 3 cuentas con saldo 1.000,00, crédito de ciclo 300,00 y débito −50,00, e intereses 22,91 / 15,00 / −1,25<br><b>Entonces</b> las cuentas 1 y 2 quedan en 1.022,91 y 1.015,00 con ciclo a 0, y la cuenta 3 queda sin cambios (1.000,00 / 300,00 / −50,00) aunque su transacción de −1,25 sí se graba <b>[verificado]</b></td></tr>
+    <tr><td>RF-07</td><td>El sistema debe formar el TRAN-ID con los 10 caracteres del PARM del JCL seguidos de un contador de 6 dígitos que empieza en 000001 en cada ejecución.</td><td>Linkage EXTERNAL-PARMS · 1300-B-WRITE-TX</td><td>Must</td><td><b>Dado</b> PARM='2022071800'<br><b>Entonces</b> la primera transacción es 2022071800000001 y cada nueva incrementa el contador <b>[verificado]</b></td></tr>
+    <tr><td>RF-08</td><td>Comportamiento actual: el sistema no calcula comisiones (el párrafo existe pero está vacío, "To be implemented").</td><td>1400-COMPUTE-FEES</td><td>Won't (actual)</td><td><b>Dado</b> cualquier entrada<br><b>Entonces</b> no se generan transacciones ni cargos de comisión</td></tr>
+    <tr><td>RF-09</td><td>Cualquier error de E/S (apertura, lectura, REWRITE, WRITE o cierre) o clave inexistente en ACCTDATA/XREF/DISCGRP DEFAULT debe detener el proceso con ABEND U999, mostrando el mensaje y el file status.</td><td>Párrafos *-OPEN/CLOSE, 1000, 1050, 1100, 1110, 1200, 1200-A, 1300-B · 9910-DISPLAY-IO-STATUS · 9999-ABEND-PROGRAM</td><td>Must</td><td><b>Dado</b> un error de E/S<br><b>Entonces</b> SYSOUT muestra el mensaje, "FILE STATUS IS: NNNN…" y "ABENDING PROGRAM", y el step termina con U999</td></tr>
+    <tr><td>RF-10</td><td>El sistema debe registrar en SYSOUT el inicio y el fin de la ejecución y terminar con RC=0 si no hay errores.</td><td>Procedimiento principal (l. 181, 230-232)</td><td>Must</td><td><b>Dado</b> una ejecución sin errores<br><b>Entonces</b> SYSOUT empieza por "START OF EXECUTION OF PROGRAM CBACT04C", termina por "END OF EXECUTION OF PROGRAM CBACT04C" y el RC es 0 <b>[verificado]</b></td></tr>
+  </table>
+</section>
+
+<!-- 8 -->
+<section id="reglas">
+  <h2><span class="num">8.</span>Reglas de negocio y validaciones <span class="badge mig">Migración</span></h2>
+  <table>
+    <tr><th>ID</th><th>Regla / validación</th><th>Fórmula o condición exacta</th><th>Resultado si no se cumple</th><th>Origen</th></tr>
+    <tr><td>RN-01</td><td>Ruptura por cuenta</td><td><code>TRANCAT-ACCT-ID (9(11)) NOT = WS-LAST-ACCT-NUM (X(11))</code>; inicialmente <code>WS-LAST-ACCT-NUM = SPACES</code>, de modo que el primer registro siempre abre cuenta. Depende de que TCATBALF se lea en orden de clave (lo garantiza el KSDS).</td><td>—</td><td>Bucle principal (l. 194)</td></tr>
+    <tr><td>RN-02</td><td>Interés mensual por balance</td><td><code>WS-MONTHLY-INT = (TRAN-CAT-BAL × DIS-INT-RATE) / 1200</code>, sin <code>ROUNDED</code> ni <code>ON SIZE ERROR</code>: se trunca a 2 decimales hacia cero. Ejemplos <b>[verificado]</b>: 1.000,00 × 15,00 / 1200 = 12,50; 500,00 × 25,00 / 1200 = 10,4166… → <b>10,41</b>; −100,00 × 15,00 / 1200 = <b>−1,25</b> (un balance negativo genera un interés negativo que reduce el saldo). Interpretación (inferida): DIS-INT-RATE es un tipo anual en %, y 1200 = 12 meses × 100.</td><td>—</td><td>1300-COMPUTE-INTEREST (l. 464-467)</td></tr>
+    <tr><td>RN-03</td><td>Selección del tipo de interés</td><td>Clave <code>ACCT-GROUP-ID + TRANCAT-TYPE-CD + TRANCAT-CD</code>. File status '00' o '23' se aceptan; con '23' se sustituye solo el grupo por <code>'DEFAULT'</code> (relleno a 10 con espacios) y se relee. Con <code>DIS-INT-RATE = 0</code> no hay interés ni transacción para ese balance, pero la cuenta se reescribe igualmente (RN-04).</td><td>DEFAULT inexistente u otro status → ABEND U999</td><td>1200-GET-INTEREST-RATE · 1200-A-GET-DEFAULT-INT-RATE</td></tr>
+    <tr><td>RN-04</td><td>Actualización de la cuenta</td><td><code>ACCT-CURR-BAL = ACCT-CURR-BAL + WS-TOTAL-INT</code>; <code>ACCT-CURR-CYC-CREDIT = 0</code>; <code>ACCT-CURR-CYC-DEBIT = 0</code>; REWRITE. Se aplica a toda cuenta con al menos un registro en TCATBALF (salvo la última, H-01), tenga o no intereses. Las cuentas sin registros en TCATBALF no se tocan.</td><td>REWRITE ≠ '00' → ABEND U999</td><td>1050-UPDATE-ACCOUNT</td></tr>
+    <tr><td>RN-05</td><td>Contenido de la transacción de interés</td><td><code>TRAN-ID</code> = PARM-DATE (10) ‖ WS-TRANID-SUFFIX 9(06); <code>TRAN-TYPE-CD</code> = '01' (Purchase); <code>TRAN-CAT-CD</code> = 0005 ("Interest Amount" en <code>trancatg.txt</code>); <code>TRAN-SOURCE</code> = 'System'; <code>TRAN-DESC</code> = 'Int. for a/c ' ‖ ACCT-ID; <code>TRAN-AMT</code> = WS-MONTHLY-INT; <code>TRAN-MERCHANT-ID</code> = 0; nombre, ciudad y CP del comercio = espacios; <code>TRAN-CARD-NUM</code> = XREF-CARD-NUM; <code>TRAN-ORIG-TS</code> = <code>TRAN-PROC-TS</code> = CURRENT-DATE en formato <code>AAAA-MM-DD-HH.MM.SS.cc0000</code>. El FILLER final no se inicializa explícitamente.</td><td>WRITE ≠ '00' → ABEND U999</td><td>1300-B-WRITE-TX · Z-GET-DB2-FORMAT-TIMESTAMP</td></tr>
+    <tr><td>RN-06</td><td>Una transacción por balance, no por cuenta</td><td>Se graba una transacción por cada registro TCATBALF con tipo ≠ 0, incluso con importe 0,00. El total de la cuenta es la suma de esas transacciones.</td><td>—</td><td>Bucle principal · 1300</td></tr>
+    <tr><td>RN-07</td><td>Validaciones no implementadas</td><td>No se valida el PARM (ni PARM-LENGTH ni el formato), el estado de la cuenta (ACCT-ACTIVE-STATUS), la fecha de expiración, el importe (0 o negativo), el límite de crédito ni el desbordamiento de ACCT-CURR-BAL. El TCATBALF no se actualiza con el interés ni se pone a cero.</td><td>—</td><td>CBACT04C (ausencia de código)</td></tr>
+  </table>
+</section>
+
+<!-- 9 -->
+<section id="ui" class="only-online">
+  <h2><span class="num">9.</span>Interfaz de usuario <span class="badge online">Solo online (BMS)</span></h2>
+  <p>N/A — stream batch sin pantallas.</p>
+</section>
+
+<!-- 10 -->
+<section id="datos">
+  <h2><span class="num">10.</span>Diccionario de datos y layouts <span class="badge mig">Migración</span></h2>
+  <p class="legend">Los ficheros se almacenan en EBCDIC. Los numéricos con signo son <i>zoned decimal</i> con el signo en el último byte (overpunch: en los ficheros ASCII de ejemplo aparecen como <code>{</code>, <code>A</code>–<code>I</code>, <code>}</code>, <code>J</code>–<code>R</code>). No hay campos COMP ni COMP-3 en los registros; solo en variables de trabajo (APPL-RESULT COMP, ABCODE/TIMING BINARY, PARM-LENGTH COMP). Las longitudes de los copybooks coinciden con el LRECL/RECORDSIZE del JCL (50, 50, 50, 300, 350).</p>
+  <h3>TRAN-CAT-BAL-RECORD (CVTRA01Y, LRECL 50)</h3>
+  <table>
+    <tr><th>Campo</th><th>PIC / USAGE</th><th>Pos.</th><th>Long.</th><th>Descripción</th><th>Tipo destino propuesto</th><th>Notas de conversión</th></tr>
+    <tr><td>TRANCAT-ACCT-ID</td><td>9(11)</td><td>1</td><td>11</td><td>Cuenta (clave, ruptura)</td><td>BIGINT</td><td>PK compuesta</td></tr>
+    <tr><td>TRANCAT-TYPE-CD</td><td>X(02)</td><td>12</td><td>2</td><td>Tipo de transacción</td><td>CHAR(2)</td><td>PK compuesta; FK a tipo</td></tr>
+    <tr><td>TRANCAT-CD</td><td>9(04)</td><td>14</td><td>4</td><td>Categoría</td><td>SMALLINT</td><td>PK compuesta</td></tr>
+    <tr><td>TRAN-CAT-BAL</td><td>S9(09)V99</td><td>18</td><td>11</td><td>Balance acumulado</td><td>DECIMAL(11,2)</td><td>Zoned con signo; base del interés</td></tr>
+    <tr><td>FILLER</td><td>X(22)</td><td>29</td><td>22</td><td>Reserva</td><td>—</td><td></td></tr>
+  </table>
+  <h3>DIS-GROUP-RECORD (CVTRA02Y, LRECL 50)</h3>
+  <table>
+    <tr><th>Campo</th><th>PIC / USAGE</th><th>Pos.</th><th>Long.</th><th>Descripción</th><th>Tipo destino propuesto</th><th>Notas de conversión</th></tr>
+    <tr><td>DIS-ACCT-GROUP-ID</td><td>X(10)</td><td>1</td><td>10</td><td>Grupo de divulgación ('DEFAULT', 'ZEROAPR', 'A000000000' en los datos de ejemplo)</td><td>VARCHAR(10)</td><td>PK compuesta; respetar espacios de relleno</td></tr>
+    <tr><td>DIS-TRAN-TYPE-CD</td><td>X(02)</td><td>11</td><td>2</td><td>Tipo</td><td>CHAR(2)</td><td>PK compuesta</td></tr>
+    <tr><td>DIS-TRAN-CAT-CD</td><td>9(04)</td><td>13</td><td>4</td><td>Categoría</td><td>SMALLINT</td><td>PK compuesta</td></tr>
+    <tr><td>DIS-INT-RATE</td><td>S9(04)V99</td><td>17</td><td>6</td><td>Tipo de interés (anual en %, inferido)</td><td>DECIMAL(6,2)</td><td>Zoned con signo; p. ej. <code>00150{</code> = 15,00</td></tr>
+    <tr><td>FILLER</td><td>X(28)</td><td>23</td><td>28</td><td>Reserva</td><td>—</td><td></td></tr>
+  </table>
+  <h3>ACCOUNT-RECORD (CVACT01Y, LRECL 300) — campos usados</h3>
+  <table>
+    <tr><th>Campo</th><th>PIC / USAGE</th><th>Pos.</th><th>Long.</th><th>Uso en INTCALC</th><th>Tipo destino propuesto</th><th>Notas de conversión</th></tr>
+    <tr><td>ACCT-ID</td><td>9(11)</td><td>1</td><td>11</td><td>Clave de lectura; texto de TRAN-DESC</td><td>BIGINT PK</td><td></td></tr>
+    <tr><td>ACCT-CURR-BAL</td><td>S9(10)V99</td><td>13</td><td>12</td><td>+= total de intereses</td><td>DECIMAL(12,2)</td><td>Zoned con signo</td></tr>
+    <tr><td>ACCT-CURR-CYC-CREDIT</td><td>S9(10)V99</td><td>79</td><td>12</td><td>Se pone a 0</td><td>DECIMAL(12,2)</td><td></td></tr>
+    <tr><td>ACCT-CURR-CYC-DEBIT</td><td>S9(10)V99</td><td>91</td><td>12</td><td>Se pone a 0</td><td>DECIMAL(12,2)</td><td></td></tr>
+    <tr><td>ACCT-ADDR-ZIP</td><td>X(10)</td><td>103</td><td>10</td><td>No se usa</td><td>VARCHAR(10)</td><td>En los datos de ejemplo contiene el código de grupo (H-02)</td></tr>
+    <tr><td>ACCT-GROUP-ID</td><td>X(10)</td><td>113</td><td>10</td><td>Parte de la clave de DISCGRP</td><td>VARCHAR(10) FK</td><td>En los datos de ejemplo está en blanco (H-02)</td></tr>
+    <tr><td>Resto (ACTIVE-STATUS, límites, fechas, FILLER)</td><td>—</td><td>12, 25-78, 123-300</td><td>—</td><td>Se reescriben sin cambios</td><td>Ver diccionario de cuentas</td><td></td></tr>
+  </table>
+  <h3>CARD-XREF-RECORD (CVACT03Y, LRECL 50)</h3>
+  <table>
+    <tr><th>Campo</th><th>PIC / USAGE</th><th>Pos.</th><th>Long.</th><th>Uso en INTCALC</th><th>Tipo destino propuesto</th><th>Notas de conversión</th></tr>
+    <tr><td>XREF-CARD-NUM</td><td>X(16)</td><td>1</td><td>16</td><td>Copiado a TRAN-CARD-NUM</td><td>CHAR(16) PK</td><td>PAN, dato sensible (PCI)</td></tr>
+    <tr><td>XREF-CUST-ID</td><td>9(09)</td><td>17</td><td>9</td><td>No se usa</td><td>BIGINT FK</td><td></td></tr>
+    <tr><td>XREF-ACCT-ID</td><td>9(11)</td><td>26</td><td>11</td><td>Clave alternativa de lectura (AIX)</td><td>BIGINT FK (índice no único)</td><td>AIX KEYS(11,25)</td></tr>
+    <tr><td>FILLER</td><td>X(14)</td><td>37</td><td>14</td><td>—</td><td>—</td><td></td></tr>
+  </table>
+  <h3>TRAN-RECORD (CVTRA05Y, LRECL 350) — transacción generada en SYSTRAN</h3>
+  <table>
+    <tr><th>Campo</th><th>PIC / USAGE</th><th>Pos.</th><th>Long.</th><th>Valor que asigna INTCALC</th><th>Tipo destino propuesto</th><th>Notas de conversión</th></tr>
+    <tr><td>TRAN-ID</td><td>X(16)</td><td>1</td><td>16</td><td>PARM-DATE ‖ contador 9(06)</td><td>VARCHAR(16) PK</td><td>Riesgo de colisión entre ejecuciones (H-03)</td></tr>
+    <tr><td>TRAN-TYPE-CD</td><td>X(02)</td><td>17</td><td>2</td><td>'01'</td><td>CHAR(2)</td><td></td></tr>
+    <tr><td>TRAN-CAT-CD</td><td>9(04)</td><td>19</td><td>4</td><td>0005</td><td>SMALLINT</td><td></td></tr>
+    <tr><td>TRAN-SOURCE</td><td>X(10)</td><td>23</td><td>10</td><td>'System'</td><td>VARCHAR(10)</td><td></td></tr>
+    <tr><td>TRAN-DESC</td><td>X(100)</td><td>33</td><td>100</td><td>'Int. for a/c ' ‖ ACCT-ID</td><td>VARCHAR(100)</td><td></td></tr>
+    <tr><td>TRAN-AMT</td><td>S9(09)V99</td><td>133</td><td>11</td><td>WS-MONTHLY-INT</td><td>DECIMAL(11,2)</td><td>Puede ser 0 o negativo</td></tr>
+    <tr><td>TRAN-MERCHANT-ID</td><td>9(09)</td><td>144</td><td>9</td><td>0</td><td>BIGINT</td><td></td></tr>
+    <tr><td>TRAN-MERCHANT-NAME / CITY / ZIP</td><td>X(50) / X(50) / X(10)</td><td>153 / 203 / 253</td><td>110</td><td>Espacios</td><td>VARCHAR</td><td></td></tr>
+    <tr><td>TRAN-CARD-NUM</td><td>X(16)</td><td>263</td><td>16</td><td>XREF-CARD-NUM</td><td>CHAR(16)</td><td>PAN</td></tr>
+    <tr><td>TRAN-ORIG-TS / TRAN-PROC-TS</td><td>X(26) / X(26)</td><td>279 / 305</td><td>52</td><td>CURRENT-DATE, p. ej. <code>2026-11-19-11.51.47.780000</code></td><td>TIMESTAMP</td><td>Centésimas + "0000"; formato con guion entre fecha y hora</td></tr>
+    <tr><td>FILLER</td><td>X(20)</td><td>331</td><td>20</td><td>Sin inicializar explícitamente</td><td>—</td><td>Contenido depende del compilador</td></tr>
+  </table>
+  <h3>Parámetro de entrada (LINKAGE EXTERNAL-PARMS)</h3>
+  <table>
+    <tr><th>Campo</th><th>PIC / USAGE</th><th>Pos.</th><th>Long.</th><th>Descripción</th><th>Tipo destino propuesto</th><th>Notas de conversión</th></tr>
+    <tr><td>PARM-LENGTH</td><td>S9(04) COMP</td><td>1</td><td>2</td><td>Longitud del PARM (la pone z/OS)</td><td>—</td><td>No se valida</td></tr>
+    <tr><td>PARM-DATE</td><td>X(10)</td><td>3</td><td>10</td><td>Prefijo de TRAN-ID; en el JCL <code>'2022071800'</code> fijo</td><td>Parámetro del job (fecha de proceso)</td><td>Solo se usa como prefijo, no como fecha de negocio</td></tr>
+  </table>
+</section>
+
+<!-- 11 -->
+<section id="salidas">
+  <h2><span class="num">11.</span>Salidas e informes</h2>
+  <table>
+    <tr><th>Salida</th><th>Formato</th><th>Destinatario / consumidor</th><th>Retención</th><th>Observaciones</th></tr>
+    <tr><td><code>AWS.M2.CARDDEMO.SYSTRAN(+1)</code></td><td>Secuencial RECFM=F, LRECL 350 (TRAN-RECORD)</td><td>COMBTRAN (<code>SYSTRAN(0)</code>) → TRANSACT KSDS</td><td>GDG LIMIT 5, SCRATCH (DEFGDGB)</td><td>Una transacción por balance con tipo ≠ 0</td></tr>
+    <tr><td>ACCTDATA KSDS (actualización en el sitio)</td><td>VSAM KSDS, 300 B</td><td>CICS online, CREASTMT, siguiente POSTTRAN</td><td>Sin versión; solo los backups externos que existan (Q-07)</td><td>Saldo e importes de ciclo</td></tr>
+    <tr><td>SYSOUT</td><td>Texto: inicio/fin, una línea por registro TCATBALF, avisos de DEFAULT y de cuenta no encontrada, errores y file status</td><td>Operación</td><td>Política de JES: Q-07</td><td>Incluye saldos por categoría en claro</td></tr>
+  </table>
+</section>
+
+<!-- 12 -->
+<section id="errores">
+  <h2><span class="num">12.</span>Errores, códigos de retorno y reinicio <span class="badge mig">Migración</span></h2>
+  <table>
+    <tr><th>Situación</th><th>Comportamiento actual</th><th>RC / ABEND / mensaje</th><th>Acción operativa</th></tr>
+    <tr><td>Fin normal</td><td>Cierra ficheros y GOBACK</td><td>RC=0 · "END OF EXECUTION OF PROGRAM CBACT04C"</td><td>Continúa la cadena (COMBTRAN)</td></tr>
+    <tr><td>Error al abrir cualquier fichero</td><td>ABEND inmediato, sin cambios</td><td>U999 · "ERROR OPENING …" + file status. Para DISCGRP el texto es "ERROR OPENING DALY REJECTS FILE" (H-09)</td><td>Revisar DSN/catálogo y relanzar</td></tr>
+    <tr><td>Cuenta de TCATBALF inexistente en ACCTDATA</td><td>Muestra "ACCOUNT NOT FOUND: n" y ABEND (status 23 ≠ '00')</td><td>U999 · "ERROR READING ACCOUNT FILE"</td><td>Recuperación completa (abajo)</td></tr>
+    <tr><td>Cuenta sin tarjeta en XREF (AIX)</td><td>Muestra "ACCOUNT NOT FOUND: n" y ABEND</td><td>U999 · "ERROR READING XREF FILE"</td><td>Recuperación completa</td></tr>
+    <tr><td>Grupo inexistente en DISCGRP</td><td>Aviso y reintento con DEFAULT</td><td>"DISCLOSURE GROUP RECORD MISSING" / "TRY WITH DEFAULT GROUP CODE"</td><td>Ninguna (no es error)</td></tr>
+    <tr><td>DEFAULT inexistente para el tipo/categoría</td><td>ABEND</td><td>U999 · "ERROR READING DEFAULT DISCLOSURE GROUP"</td><td>Completar DISCGRP y recuperación completa</td></tr>
+    <tr><td>Error en READ TCATBALF, REWRITE de cuenta, WRITE de SYSTRAN o CLOSE</td><td>ABEND</td><td>U999 · mensaje específico + "FILE STATUS IS: NNNN…"</td><td>Recuperación completa</td></tr>
+  </table>
+  <table class="kv">
+    <tr><th>Punto de reinicio</th><td>Solo desde el inicio del step; no hay checkpoint. Control-M permite hasta 5 reruns (MAXRERUN=5).</td></tr>
+    <tr><th>Procedimiento de recuperación</th><td>Restaurar ACCTDATA al estado anterior a la ejecución (las cuentas ya procesadas se reescribieron una a una), verificar que <code>SYSTRAN(+1)</code> no quedó catalogado (con <code>DISP=(NEW,CATLG,DELETE)</code> se borra en ABEND), corregir la causa y relanzar. El repositorio no contiene un job de backup de ACCTDATA previo a INTCALC (Q-07).</td></tr>
+    <tr><th>Idempotencia</th><td><b>No idempotente</b>: relanzar suma otra vez los intereses al saldo (TCATBALF no cambia) y genera transacciones con los <b>mismos TRAN-ID</b> (PARM fijo, contador desde 1). Tras un ABEND a mitad, las cuentas ya reescritas reciben el interés dos veces si no se restaura ACCTDATA, mientras que sus transacciones se pierden con la generación borrada (H-04).</td></tr>
+  </table>
+</section>
+
+<!-- 13 -->
+<section id="transacc">
+  <h2><span class="num">13.</span>Transaccionalidad y concurrencia <span class="badge mig">Migración</span></h2>
+  <table class="kv">
+    <tr><th>Unidad de trabajo</th><td>Sin commit ni rollback: cada REWRITE de cuenta y cada WRITE de transacción es definitivo en el momento.</td></tr>
+    <tr><th>Frecuencia de commit</th><td>N/A en el legado. En destino: una transacción de BD por cuenta (todas sus transacciones de interés + actualización de la cuenta) para que un fallo no deje cuentas a medias.</td></tr>
+    <tr><th>Orden de actualizaciones</th><td>Por cada balance: WRITE de la transacción en SYSTRAN. Por cada cuenta (al pasar a la siguiente): REWRITE en ACCTDATA. Las transacciones de una cuenta se graban antes de actualizar su saldo.</td></tr>
+    <tr><th>Acceso concurrente / bloqueos</th><td>Exclusividad por planificación: CLOSEFIL cierra ACCTDAT, CCXREF, CXACAIX y TRANSACT en CICS antes, y OPENFIL los reabre después. TCATBALF y DISCGRP no son ficheros CICS. Los KSDS se definen con SHAREOPTIONS(2 3) en sus jobs de carga. En los scripts no hay control real de dependencias, solo pausas de 5 s entre envíos (H-06).</td></tr>
+  </table>
+</section>
+
+<!-- 14 -->
+<section id="rnf">
+  <h2><span class="num">14.</span>Volumetría, rendimiento y planificación</h2>
+  <table>
+    <tr><th>Métrica</th><th>Valor actual</th><th>Objetivo en destino</th><th>Fuente</th></tr>
+    <tr><td>Registros de entrada por ejecución</td><td>50 balances / 50 cuentas en los datos de ejemplo. Producción: Q-06</td><td>Q-06</td><td><code>app/data/ASCII/tcatbal.txt</code></td></tr>
+    <tr><td>Transacciones generadas</td><td>Una por balance con tipo ≠ 0 (50 con los datos de ejemplo). Máximo 999.999 por ejecución por el contador 9(06) (H-03)</td><td>Sin límite práctico</td><td>CBACT04C</td></tr>
+    <tr><td>Duración / ventana batch</td><td>Q-01</td><td>Q-01</td><td>—</td></tr>
+    <tr><td>Parámetros Control-M</td><td>TIMETO=23:00, MAXWAIT=7, MAXRERUN=5 (configuración, no mediciones)</td><td>—</td><td><code>CardDemo.controlm</code></td></tr>
+    <tr><td>Espacio SYSTRAN</td><td>SPACE=(CYL,(1,1),RLSE)</td><td>—</td><td>INTCALC.jcl</td></tr>
+    <tr><td>Crecimiento anual</td><td>Q-06</td><td>Q-06</td><td>—</td></tr>
+  </table>
+</section>
+
+<!-- 15 -->
+<section id="seguridad">
+  <h2><span class="num">15.</span>Seguridad y auditoría</h2>
+  <table class="kv">
+    <tr><th>Autorización</th><td>Usuario de envío del job (<code>NOTIFY=&amp;SYSUID</code>); en Control-M <code>RUN_AS="xuemingh"</code>. Perfiles RACF sobre <code>AWS.M2.CARDDEMO.*</code> y usuario de producción: Q-08.</td></tr>
+    <tr><th>Datos sensibles</th><td>Número de tarjeta (PAN) en claro en XREF y en cada transacción de SYSTRAN; saldos por categoría en SYSOUT (DISPLAY de cada registro). En destino: cifrado en reposo y enmascarado en logs (PCI DSS).</td></tr>
+    <tr><th>Trazas y auditoría</th><td>Solo DISPLAY a SYSOUT. Cada cargo queda como transacción (origen "System", TRAN-PROC-TS). No hay registro de auditoría del cambio de saldo ni del valor anterior de los acumulados de ciclo.</td></tr>
+  </table>
+</section>
+
+<!-- 16 -->
+<section id="destino">
+  <h2><span class="num">16.</span>Mapeo a la arquitectura destino <span class="badge mig">Migración</span></h2>
+  <p class="legend">Propuesta orientativa: la arquitectura destino debe confirmarla el equipo de migración.</p>
+  <table>
+    <tr><th>Componente legado</th><th>Componente destino</th><th>Patrón</th><th>Notas</th></tr>
+    <tr><td>Job INTCALC / STEP15</td><td>Job batch (p. ej. Spring Batch <code>interestCalculationJob</code>)</td><td>Reader agrupado por cuenta → processor → writer</td><td>Parámetros: fecha de proceso (sustituye al PARM fijo) y periodo</td></tr>
+    <tr><td>TCATBALF KSDS (lectura secuencial)</td><td>Tabla <code>transaction_category_balance</code></td><td>Reader ordenado por cuenta, tipo y categoría</td><td>Agrupar por cuenta para tratar la ruptura (y la última cuenta, H-01)</td></tr>
+    <tr><td>1200 / 1200-A (DISCGRP + DEFAULT)</td><td>Servicio de tipos de interés sobre <code>disclosure_group</code></td><td>Lookup con fallback y caché</td><td>Mantener la regla DEFAULT (RN-03)</td></tr>
+    <tr><td>1300-COMPUTE-INTEREST</td><td>Processor</td><td><code>BigDecimal</code> con <code>RoundingMode.DOWN</code> a 2 decimales</td><td>Replicar el truncamiento o decidir redondeo (H-05)</td></tr>
+    <tr><td>1300-B-WRITE-TX → SYSTRAN GDG</td><td>Insert en <code>transaction</code> (o staging <code>system_transaction</code>)</td><td>Writer</td><td>ID único por ejecución (H-03); elimina COMBTRAN/TRANBKP/TRANIDX</td></tr>
+    <tr><td>1050-UPDATE-ACCOUNT</td><td>Update de <code>account</code></td><td>Writer transaccional por cuenta</td><td>Misma transacción de BD que las transacciones de interés</td></tr>
+    <tr><td>1400-COMPUTE-FEES (vacío)</td><td>—</td><td>—</td><td>Decidir si se implementa (Q-09)</td></tr>
+    <tr><td>RC 0 / ABEND U999</td><td>ExitStatus COMPLETED / FAILED</td><td>Mapeo al planificador</td><td>—</td></tr>
+    <tr><td>Control-M MONTHLY-InterestCalculation</td><td>Orquestador destino (Control-M, Airflow, Step Functions…)</td><td>DAG mensual</td><td>Sustituir CLOSEFIL/OPENFIL por bloqueo o ventana de mantenimiento</td></tr>
+  </table>
+</section>
+
+<!-- 17 -->
+<section id="migdatos">
+  <h2><span class="num">17.</span>Migración de datos <span class="badge mig">Migración</span></h2>
+  <table>
+    <tr><th>Origen</th><th>Destino</th><th>Conversión</th><th>Orden de carga</th><th>Validación</th></tr>
+    <tr><td>DISCGRP KSDS</td><td><code>disclosure_group</code></td><td>EBCDIC → UTF-8; zoned S9(04)V99 → DECIMAL(6,2); conservar espacios de relleno del grupo</td><td>1</td><td>Recuento (51 en ejemplo); existencia de DEFAULT para cada tipo/categoría</td></tr>
+    <tr><td>CARDXREF KSDS</td><td><code>card_xref</code></td><td>EBCDIC → UTF-8, numéricos a BIGINT</td><td>2</td><td>Recuento; ninguna cuenta con TCATBAL sin tarjeta</td></tr>
+    <tr><td>ACCTDATA KSDS</td><td><code>account</code></td><td>Zoned S9(10)V99 → DECIMAL(12,2); revisar ACCT-ADDR-ZIP vs ACCT-GROUP-ID (H-02)</td><td>3</td><td>Recuento y suma de ACCT-CURR-BAL; recuento de grupos en blanco</td></tr>
+    <tr><td>TCATBALF KSDS</td><td><code>transaction_category_balance</code></td><td>Zoned S9(09)V99 → DECIMAL(11,2)</td><td>4</td><td>Recuento y suma de TRAN-CAT-BAL; todas las cuentas existen en account</td></tr>
+    <tr><td>SYSTRAN GDG (generaciones vivas)</td><td><code>transaction</code></td><td>Timestamps X(26) → TIMESTAMP</td><td>5 (si se migran históricos)</td><td>Recuento y suma de TRAN-AMT; unicidad de TRAN-ID</td></tr>
+  </table>
+</section>
+
+<!-- 18 -->
+<section id="pruebas">
+  <h2><span class="num">18.</span>Estrategia de pruebas y criterios de equivalencia <span class="badge mig">Migración</span></h2>
+  <table>
+    <tr><th>ID</th><th>Escenario</th><th>Datos de prueba</th><th>Resultado esperado (legado)</th><th>RF cubiertos</th></tr>
+    <tr><td>CP-01</td><td>Ejecución completa con los datos de ejemplo</td><td><code>app/data/EBCDIC</code> (o ASCII): TCATBALF, ACCTDATA, CARDXREF, DISCGRP</td><td>50 transacciones 01/0005 de 0,00 (IDs …000001 a …000050), 50 avisos de DEFAULT, RC=0 <b>[verificado]</b>. Saldos sin cambios visibles (interés 0,00 y ciclos ya a 0)</td><td>RF-01, RF-03, RF-05, RF-06, RF-07, RF-10</td></tr>
+    <tr><td>CP-02</td><td>Varias categorías en una cuenta, con truncamiento</td><td>Cuenta con 1.000,00 a 15 %, 500,00 a 25 % y −200,00 a 0 %</td><td>Transacciones 12,50 y 10,41; saldo +22,91; ciclo a 0 <b>[verificado]</b></td><td>RF-04, RF-06</td></tr>
+    <tr><td>CP-03</td><td>Grupo inexistente → DEFAULT</td><td>Cuenta con grupo sin registros en DISCGRP</td><td>Avisos y tipo de DEFAULT <b>[verificado]</b></td><td>RF-03</td></tr>
+    <tr><td>CP-04</td><td>Balance negativo</td><td>−100,00 a 15 %</td><td>Transacción de −1,25 <b>[verificado]</b></td><td>RF-04, RF-05</td></tr>
+    <tr><td>CP-05</td><td>Última cuenta del fichero</td><td>Cualquier TCATBALF con ≥ 1 cuenta</td><td>La última cuenta no se reescribe (H-01) <b>[verificado]</b></td><td>RF-06</td></tr>
+    <tr><td>CP-06</td><td>Tipo 0 en todas las categorías</td><td>Cuenta con grupo ZEROAPR</td><td>Sin transacciones; cuenta reescrita con ciclo a 0 (si no es la última)</td><td>RF-04, RF-06</td></tr>
+    <tr><td>CP-07</td><td>Cuenta inexistente / sin tarjeta</td><td>Registro TCATBALF de una cuenta que no está en ACCTDATA o XREF</td><td>"ACCOUNT NOT FOUND", U999, SYSTRAN(+1) borrado</td><td>RF-02, RF-09</td></tr>
+    <tr><td>CP-08</td><td>DEFAULT inexistente</td><td>Tipo/categoría sin grupo ni DEFAULT</td><td>U999 "ERROR READING DEFAULT DISCLOSURE GROUP"</td><td>RF-03, RF-09</td></tr>
+    <tr><td>CP-09</td><td>Doble ejecución</td><td>Mismos datos dos veces</td><td>Saldo con doble interés y TRAN-ID repetidos entre ejecuciones</td><td>RF-06, RF-07</td></tr>
+  </table>
+  <p><b>Criterio de equivalencia:</b> ejecución en paralelo con los mismos TCATBALF, ACCTDATA, CARDXREF y DISCGRP iniciales y el mismo prefijo de ID. Comparación registro a registro de SYSTRAN (excepto TRAN-ORIG-TS y TRAN-PROC-TS) y de ACCTDATA (saldo y acumulados de ciclo), más recuento y suma de TRAN-AMT. Para cada hallazgo marcado "corregir" (H-01, H-03…), la diferencia esperada debe documentarse y aprobarse antes de la comparación.</p>
+</section>
+
+<!-- 19 -->
+<section id="traza">
+  <h2><span class="num">19.</span>Matriz de trazabilidad</h2>
+  <table>
+    <tr><th>RF</th><th>Reglas</th><th>Componente legado</th><th>Componente destino</th><th>Casos de prueba</th></tr>
+    <tr><td>RF-01</td><td>RN-01</td><td>CBACT04C · bucle principal · 1000-TCATBALF-GET-NEXT</td><td>Reader agrupado por cuenta</td><td>CP-01</td></tr>
+    <tr><td>RF-02</td><td>RN-01</td><td>1100-GET-ACCT-DATA · 1110-GET-XREF-DATA</td><td>Processor (lookup cuenta/tarjeta)</td><td>CP-07</td></tr>
+    <tr><td>RF-03</td><td>RN-03</td><td>1200-GET-INTEREST-RATE · 1200-A</td><td>Servicio de tipos de interés</td><td>CP-01, CP-03, CP-08</td></tr>
+    <tr><td>RF-04</td><td>RN-02, RN-03, RN-06</td><td>1300-COMPUTE-INTEREST</td><td>Processor</td><td>CP-02, CP-04, CP-06</td></tr>
+    <tr><td>RF-05</td><td>RN-05, RN-06</td><td>1300-B-WRITE-TX · Z-GET-DB2-FORMAT-TIMESTAMP</td><td>Writer de transacciones</td><td>CP-01, CP-04</td></tr>
+    <tr><td>RF-06</td><td>RN-04</td><td>1050-UPDATE-ACCOUNT</td><td>Writer de cuentas</td><td>CP-01, CP-02, CP-05, CP-06, CP-09</td></tr>
+    <tr><td>RF-07</td><td>RN-05</td><td>EXTERNAL-PARMS · 1300-B-WRITE-TX</td><td>Parámetros del job / generador de IDs</td><td>CP-01, CP-09</td></tr>
+    <tr><td>RF-08</td><td>—</td><td>1400-COMPUTE-FEES</td><td>— (Q-09)</td><td>—</td></tr>
+    <tr><td>RF-09</td><td>—</td><td>9910-DISPLAY-IO-STATUS · 9999-ABEND-PROGRAM</td><td>Manejo de excepciones</td><td>CP-07, CP-08</td></tr>
+    <tr><td>RF-10</td><td>—</td><td>Procedimiento principal</td><td>Job listener / ExitStatus</td><td>CP-01</td></tr>
+  </table>
+</section>
+
+<!-- 20 -->
+<section id="riesgos">
+  <h2><span class="num">20.</span>Riesgos, supuestos y preguntas abiertas</h2>
+  <h3>Hallazgos del análisis de código</h3>
+  <table>
+    <tr><th>ID</th><th>Hallazgo</th><th>Impacto</th><th>Decisión (replicar / corregir)</th></tr>
+    <tr><td>H-01</td><td><b>La última cuenta no se actualiza.</b> La rama <code>ELSE → PERFORM 1050-UPDATE-ACCOUNT</code> (l. 219-220) depende de <code>IF END-OF-FILE = 'N'</code> (l. 189), que siempre es cierto dentro de <code>PERFORM UNTIL END-OF-FILE = 'Y'</code>. Al llegar al fin de fichero el bucle termina sin reescribir la última cuenta: su transacción de interés sí se graba, pero el saldo y los acumulados de ciclo no cambian. <b>[verificado]</b> con datos sintéticos (cuenta 3). Con los datos de ejemplo no se ve, porque los intereses son 0,00 y los acumulados de ciclo ya están a 0.</td><td>Descuadre entre transacciones y saldo en una cuenta por ejecución; ciclo no cerrado</td><td>Corregir (llamar a 1050 tras el bucle si se procesó alguna cuenta)</td></tr>
+    <tr><td>H-02</td><td><b>Datos de ejemplo: el grupo está en el campo de código postal.</b> En <code>acctdata.txt</code> y en <code>AWS.M2.CARDDEMO.ACCTDATA.PS</code> el valor de grupo (<code>A000000000</code>, una cuenta <code>ZEROAPR</code> en EBCDIC) está en las posiciones 103-112 (ACCT-ADDR-ZIP) y ACCT-GROUP-ID (113-122) está en blanco. Todas las cuentas caen en DEFAULT, incluida la de ZEROAPR, que debería tener 0 %. <b>[verificado]</b>: 50 avisos de DEFAULT en CP-01.</td><td>Tipo de interés incorrecto si producción tiene el mismo desplazamiento</td><td>Validar datos reales antes de migrar (Q-10)</td></tr>
+    <tr><td>H-03</td><td><b>TRAN-ID no único entre ejecuciones.</b> El PARM está fijo en el JCL (<code>'2022071800'</code>) y el contador empieza en 1, así que cada ejecución genera los mismos IDs. Además, el contador 9(06) se desborda a partir de 999.999 transacciones. COMBTRAN (SORT + REPRO al KSDS con clave TRAN-ID) depende de que los IDs sean únicos.</td><td>Claves duplicadas al fusionar en TRANSACT si coinciden generaciones; pérdida o error en REPRO (inferido, no verificado en z/OS)</td><td>Corregir: parametrizar la fecha (variable de planificador) o generar ID único</td></tr>
+    <tr><td>H-04</td><td><b>Actualizaciones parciales tras ABEND.</b> Las cuentas ya reescritas conservan el interés, pero <code>SYSTRAN(+1)</code> se borra (<code>DISP=(NEW,CATLG,DELETE)</code>) y con él sus transacciones. Relanzar sin restaurar ACCTDATA duplica el interés.</td><td>Descuadre saldo / transacciones</td><td>Corregir en destino (transacción por cuenta) y definir backup previo</td></tr>
+    <tr><td>H-05</td><td><b>Truncamiento, no redondeo.</b> <code>COMPUTE</code> sin <code>ROUNDED</code>: 10,4166 → 10,41 y −10,4166 → −10,41 (hacia cero). <b>[verificado]</b></td><td>Diferencias de céntimos si el destino redondea</td><td>Replicar (RoundingMode.DOWN) salvo decisión de negocio</td></tr>
+    <tr><td>H-06</td><td><b>Planificadores no coinciden.</b> Control-M: CLOSEFIL → INTCALC → COMBTRAN → WAITSTEP → OPENFIL (sin TRANBKP ni TRANIDX y sin POSTTRAN como predecesor). <code>run_interest_calc.sh</code>: CLOSEFIL → INTCALC → TRANBKP → COMBTRAN → TRANIDX → OPENFIL. <code>run_full_batch.sh</code>: tras POSTTRAN en cada pasada. CA7: INTCALC no aparece. En la secuencia Control-M, COMBTRAN lee un <code>TRANSACT.BKUP(0)</code> que no se ha regenerado y hace REPRO sobre un TRANSACT no vaciado. Los scripts no esperan al RC, solo a pausas de 5 s.</td><td>Resultado distinto según el planificador; riesgo de duplicados o datos antiguos en TRANSACT y de cobrar intereses mensuales más de una vez al mes</td><td>No elegir: confirmar cuál es la secuencia vigente (Q-04)</td></tr>
+    <tr><td>H-07</td><td><b>XREF por cuenta con AIX no único.</b> El AIX se define con NONUNIQUEKEY, pero el SELECT no declara <code>WITH DUPLICATES</code> y el código solo acepta status '00'. Si una cuenta tiene más de una tarjeta, el READ por clave alternativa devuelve '02' (o la apertura falla por la discrepancia), lo que provoca ABEND. En los datos de ejemplo cada cuenta tiene una sola tarjeta, así que no se reproduce.</td><td>ABEND en producción con cuentas multitarjeta (inferido, no verificado en z/OS)</td><td>Corregir: aceptar '02' y definir qué tarjeta se usa (Q-11)</td></tr>
+    <tr><td>H-08</td><td><b>Transacciones de importe cero y TCATBALF sin reiniciar.</b> Con tipo ≠ 0 se graba la transacción aunque el interés sea 0,00 (CP-01: 50 transacciones de 0,00). INTCALC no pone a cero TCATBALF ni le suma el interés, y ningún job del repositorio lo reinicia salvo la recarga TCATBALF desde el PS de ejemplo.</td><td>Ruido en extractos; el interés del mes siguiente se calcula sobre el balance acumulado</td><td>Decidir con negocio (Q-12)</td></tr>
+    <tr><td>H-09</td><td>Mensaje erróneo en <code>0200-DISCGRP-OPEN</code>: "ERROR OPENING DALY REJECTS FILE" (copiado de otro programa).</td><td>Diagnóstico confuso</td><td>Corregir (no funcional)</td></tr>
+    <tr><td>H-10</td><td>Código muerto o incompleto: <code>1400-COMPUTE-FEES</code> vacío; la rama ELSE de H-01; <code>WS-RECORD-COUNT</code> se incrementa pero nunca se muestra.</td><td>Funcionalidad esperada ausente (comisiones)</td><td>No replicar el código muerto; decidir comisiones (Q-09)</td></tr>
+    <tr><td>H-11</td><td>Se aplican intereses a categorías de abono si tienen tipo ≠ 0 (p. ej. Refund 05/0001 y Reversal 06 a 15 % en DEFAULT): un balance negativo genera interés negativo. No se comprueba el estado ni la expiración de la cuenta.</td><td>Cálculo posiblemente no deseado</td><td>Confirmar con negocio (Q-05)</td></tr>
+    <tr><td>H-12</td><td>README dice que CLOSEFIL/OPENFIL usan IEFBR14, pero el JCL ejecuta <code>PGM=SDSF</code> con comandos <code>CEMT SET FIL(...) CLO/OPE</code>.</td><td>Documentación desalineada</td><td>Tomar el JCL como referencia</td></tr>
+  </table>
+  <h3>Supuestos</h3>
+  <ul>
+    <li>DIS-INT-RATE es un tipo anual en porcentaje y el job es mensual (se deduce de ÷ 1200 y del nombre del folder Control-M; no está documentado en el código).</li>
+    <li>TCATBALF refleja los balances del periodo que se quiere liquidar (lo deja POSTTRAN o la recarga TCATBALF).</li>
+    <li>El comportamiento observado con GnuCOBOL (bucle, truncamiento, fallback DEFAULT, ruptura por cuenta) es el mismo que en Enterprise COBOL, porque es semántica estándar del lenguaje; el tratamiento de VSAM/AIX (H-07) no se ha podido verificar.</li>
+  </ul>
+  <h3>Preguntas abiertas</h3>
+  <table>
+    <tr><th>ID</th><th>Pregunta</th><th>Dirigida a</th><th>Estado</th></tr>
+    <tr><td>Q-01</td><td>¿Qué día del mes y en qué ventana horaria se ejecuta? ¿SLA?</td><td>Operación</td><td>Abierta</td></tr>
+    <tr><td>Q-02</td><td>¿Impacto de negocio si no se ejecuta o se retrasa (criticidad real)?</td><td>Negocio</td><td>Abierta</td></tr>
+    <tr><td>Q-03</td><td>¿Responsables funcional y técnico?</td><td>Negocio / IT</td><td>Abierta</td></tr>
+    <tr><td>Q-04</td><td>¿Cuál es la secuencia vigente (Control-M, CA7 o scripts)? ¿POSTTRAN debe preceder siempre a INTCALC?</td><td>Operación / Arquitectura</td><td>Abierta</td></tr>
+    <tr><td>Q-05</td><td>¿Quién define los tipos de DISCGRP y deben aplicarse intereses a categorías de abono (refund, reversal)?</td><td>Negocio</td><td>Abierta</td></tr>
+    <tr><td>Q-06</td><td>¿Volumen real de balances y cuentas por ejecución y crecimiento esperado?</td><td>Operación</td><td>Abierta</td></tr>
+    <tr><td>Q-07</td><td>¿Existe backup de ACCTDATA antes de INTCALC y qué retención tienen SYSOUT y SYSTRAN en producción?</td><td>Operación</td><td>Abierta</td></tr>
+    <tr><td>Q-08</td><td>¿Perfiles RACF y usuario de ejecución en producción?</td><td>Seguridad</td><td>Abierta</td></tr>
+    <tr><td>Q-09</td><td>¿Hay que implementar el cálculo de comisiones (1400-COMPUTE-FEES) en el destino? ¿Con qué reglas?</td><td>Negocio</td><td>Abierta</td></tr>
+    <tr><td>Q-10</td><td>¿En los datos de producción ACCT-GROUP-ID está informado o tiene el mismo desplazamiento que en los datos de ejemplo (H-02)?</td><td>Datos / Negocio</td><td>Abierta</td></tr>
+    <tr><td>Q-11</td><td>¿Puede una cuenta tener varias tarjetas? Si es así, ¿qué tarjeta debe figurar en la transacción de interés?</td><td>Negocio</td><td>Abierta</td></tr>
+    <tr><td>Q-12</td><td>¿Se deben grabar transacciones de interés de 0,00? ¿Quién y cuándo debe reiniciar TCATBALF tras liquidar intereses?</td><td>Negocio</td><td>Abierta</td></tr>
+  </table>
+</section>
+
+<!-- 21 -->
+<section id="glosario">
+  <h2><span class="num">21.</span>Glosario</h2>
+  <table>
+    <tr><th>Término</th><th>Definición</th></tr>
+    <tr><td>KSDS</td><td>VSAM Key-Sequenced Data Set: fichero indexado por clave.</td></tr>
+    <tr><td>AIX / PATH</td><td>Índice alternativo de un KSDS y la ruta para acceder por él (aquí, XREF por número de cuenta).</td></tr>
+    <tr><td>GDG</td><td>Generation Data Group: versiones sucesivas de un dataset; (+1) es la nueva generación y (0) la última.</td></tr>
+    <tr><td>TCATBAL</td><td>Balance acumulado por cuenta, tipo y categoría de transacción.</td></tr>
+    <tr><td>Grupo de divulgación (DISCGRP)</td><td>Agrupación de cuentas con sus tipos de interés por tipo y categoría; DEFAULT es el grupo de respaldo.</td></tr>
+    <tr><td>SYSTRAN</td><td>GDG de transacciones generadas por el sistema (intereses), fusionadas después por COMBTRAN.</td></tr>
+    <tr><td>Acumulados de ciclo</td><td>ACCT-CURR-CYC-CREDIT / DEBIT: importes del ciclo de facturación en curso, que INTCALC pone a cero.</td></tr>
+    <tr><td>Zoned decimal</td><td>Numérico con un dígito por byte y el signo en el último byte.</td></tr>
+    <tr><td>ABEND U999</td><td>Terminación anormal forzada por el programa mediante CEE3ABD.</td></tr>
+    <tr><td>CEMT / SDSF</td><td>Comando CICS para abrir y cerrar ficheros, enviado desde batch con SDSF (CLOSEFIL/OPENFIL).</td></tr>
+  </table>
+</section>
+
+<!-- 22 -->
+<section id="aprob">
+  <h2><span class="num">22.</span>Aprobaciones</h2>
+  <table>
+    <tr><th>Rol</th><th>Nombre</th><th>Fecha</th><th>Firma / conformidad</th></tr>
+    <tr><td>Responsable funcional</td><td>Pendiente (Q-03)</td><td>Pendiente</td><td></td></tr>
+    <tr><td>Responsable técnico (legado)</td><td>Pendiente (Q-03)</td><td>Pendiente</td><td></td></tr>
+    <tr><td>Responsable de migración</td><td>Pendiente</td><td>Pendiente</td><td></td></tr>
+  </table>
+  <h3>Checklist de completitud</h3>
+  <ul class="check">
+    <li>No quedan marcadores ni textos de ayuda.</li>
+    <li>Cada RF tiene origen en el código y criterio de aceptación.</li>
+    <li>Todos los DSN del JCL aparecen en Dependencias.</li>
+    <li>Diagrama de flujo coherente con el inventario.</li>
+    <li>Hallazgos con decisión (replicar / corregir).</li>
+  </ul>
+</section>
+
+<footer class="doc">Documento de Requisitos Funcionales · Stream INTCALC · CardDemo · basado en <code>docs/plantilla-requisitos-funcionales.html</code></footer>
+</div>
+</body>
+</html>
