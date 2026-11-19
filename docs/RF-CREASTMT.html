@@ -165,7 +165,7 @@
     <h3>4.1 Cadena de JCL <span class="badge batch">Solo batch</span></h3>
     <p><b>Cadena en CA7</b> (SCHID 030, según los bloques <i>TRIGGERED JOBS</i> de <code>CardDemo.ca7</code>, líneas 465-534):</p>
     <div class="flow">
-      <div class="node ext"><b>CLOSEFIL</b>IEFBR14 · cierra VSAM en CICS</div>
+      <div class="node ext"><b>CLOSEFIL</b>SDSF · CEMT SET FIL(…) CLO</div>
       <div class="arrow">&rarr;</div>
       <div class="node job"><b>CREASTMT</b>5 steps · PGM=CBSTM03A</div>
       <div class="arrow">&rarr;</div>
@@ -173,7 +173,7 @@
       <div class="arrow">&rarr;</div>
       <div class="node ext"><b>WAITSTEP</b>COBSWAIT</div>
       <div class="arrow">&rarr;</div>
-      <div class="node ext"><b>OPENFIL</b>IEFBR14 · abre VSAM en CICS</div>
+      <div class="node ext"><b>OPENFIL</b>SDSF · CEMT SET FIL(…) OPE</div>
     </div>
     <p><b>Secuencia del batch completo según el README</b> (tabla "Running Batch Jobs"):</p>
     <div class="flow">
@@ -283,7 +283,7 @@
     <tr><td>Utilidades IBM</td><td>IDCAMS, SORT, IEFBR14</td><td>Sistema</td><td>Steps DELDEF01/STEP020, STEP010 y STEP030</td></tr>
     <tr><td>Rutina LE</td><td>CEE3ABD</td><td>Language Environment (IBM)</td><td>ABEND en <code>9999-ABEND-PROGRAM</code> (llamada sin parámetros, H-09)</td></tr>
     <tr><td>JCL sucesor</td><td>TXT2PDF1</td><td><code>app/jcl/TXT2PDF1.JCL</code></td><td>Convierte <code>STATEMNT.PS</code> a <code>STATEMNT.PS.PDF</code> con la REXX %TXT2PDF (<code>AWS.M2.LBD.TXT2PDF.LOAD/EXEC</code>)</td></tr>
-    <tr><td>JCL vecinos</td><td>CLOSEFIL / OPENFIL / WAITSTEP</td><td><code>app/jcl/CLOSEFIL.jcl</code>, <code>OPENFIL.jcl</code>, <code>WAITSTEP.jcl</code></td><td>Cierre/apertura de ficheros CICS y espera, alrededor del stream en CA7</td></tr>
+    <tr><td>JCL vecinos</td><td>CLOSEFIL / OPENFIL / WAITSTEP</td><td><code>app/jcl/CLOSEFIL.jcl</code>, <code>OPENFIL.jcl</code>, <code>WAITSTEP.jcl</code></td><td>CLOSEFIL/OPENFIL ejecutan SDSF con <code>CEMT SET FIL(…) CLO/OPE</code> sobre TRANSACT, CCXREF, ACCTDAT, CXACAIX y USRSEC (no CUSTDAT); WAITSTEP espera. Rodean al stream en CA7</td></tr>
     <tr><td>JCL productores de entradas</td><td>TRANFILE, TRANBKP, POSTTRAN, COMBTRAN, XREFFILE, CUSTFILE, ACCTFILE</td><td><code>app/jcl/</code></td><td>Definen y cargan TRANSACT, CARDXREF, CUSTDATA y ACCTDATA</td></tr>
     <tr><td>Planificación</td><td>CardDemo.ca7</td><td><code>app/scheduler/CardDemo.ca7</code></td><td>Cadena CLOSEFIL → CREASTMT → TXT2PDF1 → WAITSTEP → OPENFIL (SCHID 030)</td></tr>
     <tr><td>Planificación (ausente)</td><td>CardDemo.controlm, run_full_batch.sh</td><td><code>app/scheduler/</code>, <code>scripts/</code></td><td>No contienen CREASTMT (H-11)</td></tr>
@@ -332,7 +332,7 @@
   <h3>6.4 Dependencias de planificación</h3>
   <table>
     <tr><th>Predecesores</th><th>Sucesores</th><th>Recursos / condiciones</th><th>Calendario</th></tr>
-    <tr><td>CA7: CLOSEFIL (SCHID 030); el listado no muestra qué dispara ese CLOSEFIL (Q-11).<br>README: COMBTRAN.</td><td>CA7: TXT2PDF1 → WAITSTEP → OPENFIL.<br>README: TRANIDX → OPENFIL.</td><td>TRANSACT, CARDXREF, CUSTDATA y ACCTDATA cargados y cerrados en CICS. Volumen TSU023 disponible para el KSDS de trabajo.</td><td>Q-01</td></tr>
+    <tr><td>CA7: CLOSEFIL (SCHID 030); el listado no muestra qué dispara ese CLOSEFIL (Q-11).<br>README: COMBTRAN.</td><td>CA7: TXT2PDF1 → WAITSTEP → OPENFIL.<br>README: TRANIDX → OPENFIL.</td><td>TRANSACT, CARDXREF, CUSTDATA y ACCTDATA cargados. CLOSEFIL cierra en CICS TRANSACT, CCXREF y ACCTDAT, pero no CUSTDAT (H-17). Volumen TSU023 disponible para el KSDS de trabajo.</td><td>Q-01</td></tr>
   </table>
 </section>
 
@@ -492,7 +492,7 @@
     <tr><th>Unidad de trabajo</th><td>No hay actualizaciones de maestros; las salidas se escriben secuencialmente sin commit.</td></tr>
     <tr><th>Frecuencia de commit</th><td>N/A. En destino: escribir las salidas en una ubicación temporal y publicarlas al final (atómico).</td></tr>
     <tr><th>Orden de actualizaciones</th><td>Por cada tarjeta: texto de cabecera y HTML de cabecera → líneas de detalle (texto y HTML alternados) → pie de texto → cierre HTML.</td></tr>
-    <tr><th>Acceso concurrente / bloqueos</th><td>Los maestros se abren DISP=SHR y OPEN INPUT. En CA7 el job va tras CLOSEFIL, así que CICS no los tiene abiertos. Si se ejecuta con CICS activo podría leer datos a medio actualizar (Q-08). El KSDS de trabajo usa SHAREOPTIONS(2 3).</td></tr>
+    <tr><th>Acceso concurrente / bloqueos</th><td>Los maestros se abren DISP=SHR y OPEN INPUT. En CA7 el job va tras CLOSEFIL, que cierra en CICS TRANSACT, CCXREF y ACCTDAT, pero <b>no</b> CUSTDAT: el maestro de clientes puede seguir abierto y actualizándose online durante la lectura (H-17). Si se ejecuta fuera de esa cadena, con CICS activo, podría leer cualquier maestro a medio actualizar (Q-08). El KSDS de trabajo usa SHAREOPTIONS(2 3).</td></tr>
   </table>
 </section>
 
@@ -600,7 +600,7 @@
   <h3>Hallazgos del análisis de código</h3>
   <table>
     <tr><th>ID</th><th>Hallazgo</th><th>Impacto</th><th>Decisión (replicar / corregir)</th></tr>
-    <tr><td>H-01</td><td><code>WS-TRNX-TABLE</code> admite 51 tarjetas × 10 transacciones y <code>8500-READTRNX-READ</code> no comprueba los límites. Con más de 51 tarjetas distintas en TRANSACT o más de 10 transacciones en una tarjeta escribe fuera de la tabla. Además, la condición <code>UNTIL</code> de <code>4000-TRNXFILE-GET</code> evalúa <code>WS-CARD-NUM(CR-CNT + 1)</code>, fuera de la tabla si CR-CNT = 51. Los datos de ejemplo (50 tarjetas, máx. 6) caben por poco.</td><td>Alto: corrupción de memoria o extractos erróneos con volúmenes reales</td><td>Corregir en destino (sin límite fijo)</td></tr>
+    <tr><td>H-01</td><td><code>WS-TRNX-TABLE</code> admite 51 tarjetas × 10 transacciones y <code>8500-READTRNX-READ</code> no comprueba los límites. Con más de 51 tarjetas distintas en TRANSACT o más de 10 transacciones en una tarjeta escribe fuera de la tabla. Caso no demostrado: con exactamente 51 tarjetas, la condición <code>UNTIL CR-JMP &gt; CR-CNT OR WS-CARD-NUM(CR-JMP) &gt; XREF-CARD-NUM</code> de <code>4000-TRNXFILE-GET</code> solo accede a la fila 52 si el compilador evalúa la segunda parte cuando la primera ya es cierta (depende de la evaluación de condiciones; verificar). Los datos de ejemplo (50 tarjetas, máx. 6) caben por poco.</td><td>Alto: corrupción de memoria o extractos erróneos con volúmenes reales</td><td>Corregir en destino (sin límite fijo)</td></tr>
     <tr><td>H-02</td><td>No hay filtro de periodo: el extracto incluye todas las transacciones presentes en TRANSACT al ejecutarse, sin mirar fechas ni el ciclo de la cuenta.</td><td>Contenido del extracto dependiente de la posición en la cadena</td><td>Pendiente de negocio (Q-03)</td></tr>
     <tr><td>H-03</td><td>Se genera un extracto por tarjeta, no por cuenta. Una cuenta con varias tarjetas recibe varios extractos con el mismo saldo de cuenta, cada uno solo con las transacciones de su tarjeta.</td><td>Extractos duplicados o parciales por cuenta</td><td>Pendiente de negocio (Q-04)</td></tr>
     <tr><td>H-04</td><td>Si TRXFL está vacío, la primera lectura en <code>8100-TRNXFILE-OPEN</code> devuelve 10 y, como solo se aceptan 00/04, el programa hace ABEND en lugar de generar extractos sin movimientos.</td><td>Fallo del job en un caso de negocio válido</td><td>Corregir recomendado</td></tr>
@@ -616,12 +616,13 @@
     <tr><td>H-14</td><td>STEP010 no tiene COND: si DELDEF01 falla, el SORT se ejecuta igualmente sobre el TRXFL.SEQ sin borrar. Con COND=(0,NE), un RC=4 de cualquier utilidad salta el resto del job.</td><td>Comportamiento de cadena poco robusto</td><td>Definir condiciones explícitas en destino</td></tr>
     <tr><td>H-15</td><td>El emparejamiento depende de que XREF (clave KSDS) y TRXFL (SORT CH) estén ordenados por la misma comparación de texto. Con caracteres distintos de dígitos o una codificación distinta (EBCDIC frente a ASCII) el orden puede cambiar.</td><td>Transacciones omitidas tras migrar</td><td>Usar la misma colación en destino</td></tr>
     <tr><td>H-16</td><td>Las transacciones cuya tarjeta no está en XREF se omiten sin aviso ni recuento (RF-11).</td><td>Pérdida silenciosa de información</td><td>Corregir recomendado (informe de huérfanas)</td></tr>
+    <tr><td>H-17</td><td>CLOSEFIL (SDSF, <code>CEMT SET FIL(…) CLO</code>) cierra en CICS TRANSACT, CCXREF, ACCTDAT, CXACAIX y USRSEC, pero no CUSTDAT. CREASTMT lee CUSTDATA mientras el online puede seguir modificándolo.</td><td>Extracto con datos de cliente no consistentes con el resto</td><td>Confirmar con operación (Q-08); en destino, lectura consistente</td></tr>
   </table>
   <h3>Supuestos</h3>
   <ul>
     <li>TRAN-ID es único en TRANSACT (lo garantiza la clave del KSDS), así que tarjeta + ID es único en TRXFL y el REPRO no falla por duplicados.</li>
     <li>Toda XREF apunta a un cliente y una cuenta existentes (si no, ABEND, RF-05).</li>
-    <li>Los maestros no se modifican durante la ejecución (CLOSEFIL previo en CA7).</li>
+    <li>TRANSACT, CARDXREF y ACCTDATA no se modifican durante la ejecución (CLOSEFIL previo en CA7). Para CUSTDATA no hay esa garantía (H-17).</li>
   </ul>
   <h3>Preguntas abiertas</h3>
   <table>
