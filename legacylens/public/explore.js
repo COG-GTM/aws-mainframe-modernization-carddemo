@@ -182,7 +182,15 @@ export function findingsView(root, params) {
       <select id="stat" aria-label="Status"><option value="">Any status</option><option>open</option><option>dismissed</option></select>
       <select id="cat" aria-label="Category" style="max-width:150px"><option value="">Any category</option>${cats.map(([c, n]) => `<option value="${esc(c)}">${esc(c)} (${n})</option>`).join('')}</select></div>
       <small class="muted" id="count"></small></div><div class="items"></div></div><div class="detail"></div></div>`);
-  root.append(el);
+  const open = S.findings.filter((f) => f.status === 'open').length;
+  const wrap = h(`<div class="withintro"><details class="intro" open><summary><b>What this tab shows</b><span class="muted"> · the migration scan of CardDemo</span></summary>
+    <div class="three">
+      <div><span class="eyebrow">What it is</span><p>Devin read the CardDemo repository and wrote one document per batch job, screen, program and data definition: ${S.findings.length} in total. Each explains what that piece of the system does, so a team can plan its migration without reading the COBOL first.</p></div>
+      <div><span class="eyebrow">How to read a finding</span><p>Every document has the same parts: entry point, inputs, processing flow (with a diagram), data, outputs, external calls and migration notes. Names and file paths are links into the estate map and the source.</p></div>
+      <div><span class="eyebrow">Severity and status</span><p>Severity is how much care the component needs in a migration, not a defect rating. ${open} are open; the other ${S.findings.length - open} were dismissed in triage, mostly as duplicates merged into a fuller document. For security control gaps, see <a href="${href('compliance')}">Compliance</a>, which is a separate scan.</p></div>
+    </div></details></div>`);
+  wrap.append(el);
+  root.append(wrap);
   const items = el.querySelector('.items'), detail = el.querySelector('.detail');
   const [qi, sev, stat, cat] = ['input', '#sev', '#stat', '#cat'].map((s) => el.querySelector(s));
   const order = { critical: 0, high: 1, medium: 2, low: 3 };

@@ -149,3 +149,7 @@ tr.click { cursor: pointer; } tr.click:hover td { background: var(--card); } tr.
 .two > *, .three > *, .split > * { min-width: 0; } .tablewrap { overflow-x: auto; }
 .btn:disabled { opacity: .4; cursor: not-allowed; border-color: var(--border); } .btn.on:disabled { background: var(--surface); color: var(--text); }
 .map .hint { align-self: center; font-size: 12px; color: var(--text-muted); background: rgba(252,252,252,.9); padding: 2px 4px; }
+.withintro { display: flex; flex-direction: column; height: 100%; } .withintro > .split { flex: 1; min-height: 0; height: auto; }
+.intro { border-bottom: 1px solid var(--border); padding: 10px 20px; background: var(--card); flex: none; }
+.intro summary { cursor: pointer; } .intro .three { margin-top: 8px; gap: 24px; } .intro p, .page .three > div > p { margin: 4px 0 0; font-size: 13px; }
+@media (max-width: 980px) { .withintro { height: auto; } .intro .three { gap: 10px; } }
