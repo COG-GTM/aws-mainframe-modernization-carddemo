@@ -53,7 +53,7 @@ Covering tests name the golden cases of §8 (GC-n, GnuCOBOL parity) or a Java te
 | FR-14 | Return code | at least one reject / no rejects | RC 4 / RC 0 | CBTRN02C | `:229-231` | 008 | GC-1 (4), GC-3 (0) |
 | FR-15 | Empty input | daily file has no records | 0 processed, 0 rejected, empty rejects file, RC 0, no master changes | CBTRN02C | `:202-219,351-361` | 002 | GC-5 |
 | FR-16 | Duplicate transaction id in the input | a valid record repeats an id already posted in this run | the job abends (target RC 16) at that record; records before it stay posted; that record leaves no partial update in the target (D-009) | CBTRN02C | `:562-578,707-711` | 004, 001 | GC-4 (RC + prior state), JT-2 |
-| FR-17 | Already-posted input (rerun) | a **new run** (new job instance, not a restart of a failed one) whose input has an id already in the transaction master | RC 16 before posting; nothing changes (D-008) | target rule D-008 | D-008; `:256` | 004 | JT-1 (Java only, excluded from parity) |
+| FR-17 | Already-posted input (rerun) | a run whose job instance has not yet passed the rerun guard (every new instance, and a restart of an instance the guard rejected) and whose input has an id already in the transaction master | RC 16 before posting; nothing changes (D-008) | target rule D-008 | D-008; `:256` | 004 | JT-1 (Java only, excluded from parity) |
 
 **17 requirements** (15 source-derived + FR-16 partly and FR-17 fully from the STOP B decisions D-008/D-009). Sign-off set: FR-01..FR-17.
 

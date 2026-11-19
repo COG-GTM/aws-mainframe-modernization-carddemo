@@ -52,7 +52,7 @@ Ownership map: this is the only in-scope program, so it owns **every** stream re
 | CBTRN02C-14 | rejects > 0 / = 0 | RC 4 / RC 0 | `:229-231` | FR-14 |
 | CBTRN02C-15 | empty DALYTRAN | 0/0, empty DALYREJS published, RC 0, no master change | `:202-219,351-361` | FR-15 |
 | CBTRN02C-16 | a valid record repeats a TRAN-ID posted earlier in the run | abend, RC 16; earlier records stay committed (D-011); failing record leaves no partial update (D-009); DALYREJS not published (D-012) | `:562-578,707-711` | FR-16 |
-| CBTRN02C-17 | a new job instance (not a restart of a failed one) whose input has a TRAN-ID already in TRANSACT | RC 16 before any read-for-posting or write; no change (D-008) | target rule, no COBOL source (`:256` context) | FR-17 |
+| CBTRN02C-17 | an execution whose job instance has not yet passed the rerun guard (`posttran.guard.passed` absent: every new instance, or a restart of one the guard rejected) and whose input has a TRAN-ID already in TRANSACT | RC 16 before any read-for-posting or write; no change (D-008) | target rule, no COBOL source (`:256` context) | FR-17 |
 
 **17 program requirements; coverage 17/17 stream FRs both ways.**
 
