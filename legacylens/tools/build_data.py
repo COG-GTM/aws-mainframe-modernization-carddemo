@@ -383,9 +383,10 @@ def parse_jcl(kind, name, f):
             did = ds_node(m.group(1))
             if not did:
                 continue
-            dm = re.search(r"DISP=\(?(\w+)(?:,(\w+))?", stmt_of.get(idx, l).upper())
-            disp = dm.group(1) if dm else "SHR"
-            if dm and dm.group(2) == "DELETE" and not run_as:
+            dm = re.search(r"DISP=(\(?)(\w*)(?:,(\w+))?", stmt_of.get(idx, l).upper())
+            # an omitted status inside parentheses, DISP=(,CATLG), means NEW
+            disp = (dm.group(2) or ("NEW" if dm.group(1) else "SHR")) if dm else "SHR"
+            if dm and dm.group(3) == "DELETE" and not run_as:
                 continue  # a cleanup step that deletes the dataset neither reads nor writes it
             mode = None
             if run_as and cur_dd in prog_dd.get(run_as, {}):

@@ -26,7 +26,7 @@ Needs Node 22.13 or later (uses the built-in `node:sqlite`). Tracker edits are s
 `data/*.json` is generated; do not edit it by hand.
 
 ```
-gh pr list --state all --limit 400 --json number,title,state,headRefName,url,createdAt,mergedAt,additions,deletions > raw/prs.json
+gh pr list --state all --limit 400 --json number,title,state,headRefName,baseRefName,url,createdAt,mergedAt,additions,deletions > raw/prs.json
 python3 tools/build_data.py
 ```
 

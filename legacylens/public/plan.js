@@ -108,9 +108,9 @@ export function trackerView(root, params) {
     document.body.append(drawer);
     drawer.querySelector('#x').focus();
     const refresh = () => { if (!el.isConnected) return; paint(); if (drawer?.isConnected) open(id); };
-    drawer.querySelector('#x').addEventListener('click', () => { drawer.remove(); drawer = null; history.replaceState(null, '', href('tracker')); params = {}; paint(); });
+    drawer.querySelector('#x').addEventListener('click', () => { drawer.remove(); drawer = null; history.replaceState(null, '', href('tracker')); params = {}; paint(); rows.querySelector(`tr[data-id="${id}"]`)?.focus(); });
     drawer.querySelector('#stg').addEventListener('click', async (ev) => { const b = ev.target.closest('button'); if (!b) return; try { await saveTracker(id, { stage: b.dataset.v }); toast('Stage saved'); refresh(); } catch { toast('Could not save. Try again.'); } });
-    drawer.querySelector('#reset')?.addEventListener('click', async (ev) => { ev.preventDefault(); const t = S.tracker.get(id); if (t.owner || t.note) await saveTracker(id, { stage: null }); else await resetTracker(id); toast('Back to the evidence-derived stage'); refresh(); });
+    drawer.querySelector('#reset')?.addEventListener('click', async (ev) => { ev.preventDefault(); try { await resetTracker(id); toast('Back to the evidence-derived stage'); refresh(); } catch { toast('Could not save. Try again.'); } });
     drawer.querySelector('#save').addEventListener('click', async () => { try { await saveTracker(id, { owner: drawer.querySelector('#owner').value, note: drawer.querySelector('#note').value }); toast('Saved'); refresh(); } catch { toast('Could not save. Try again.'); } });
     drawer.querySelector('#cp').addEventListener('click', () => copy(nextPrompt(n), 'Prompt copied. Paste it into Devin.'));
   }

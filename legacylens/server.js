@@ -86,7 +86,8 @@ const server = http.createServer(async (req, res) => {
       const id = decodeURIComponent(m[1]);
       if (!nodeIds.has(id)) return json(res, 404, { error: 'unknown component' });
       if (req.method === 'DELETE') { db.prepare('DELETE FROM tracker WHERE node_id = ?').run(id); return json(res, 200, { ok: true }); }
-      const b = await readBody(req);
+      let b;
+      try { b = await readBody(req); } catch { return json(res, 400, { error: 'invalid JSON body' }); }
       if (b.stage != null && !STAGES.includes(b.stage)) return json(res, 400, { error: 'invalid stage' });
       // only the fields present in the request change, so two people editing different fields do not undo each other
       const cur = db.prepare('SELECT * FROM tracker WHERE node_id = ?').get(id) || { stage: null, owner: '', note: '' };

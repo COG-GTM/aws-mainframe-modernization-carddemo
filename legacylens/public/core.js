@@ -85,8 +85,8 @@ export async function saveTracker(id, patch) {
   S.tracker.set(id, await r.json());
 }
 export async function resetTracker(id) {
-  await fetch('/api/tracker/' + encodeURIComponent(id), { method: 'DELETE' });
-  S.tracker.delete(id);
+  // clears only the stage override; an owner or note someone else saved stays
+  await saveTracker(id, { stage: null });
 }
 
 export function nextPrompt(n) {
@@ -106,7 +106,8 @@ export function nextPrompt(n) {
     `Prepare cut-over for ${n.label}: write the parallel-run plan, the reconciliation query for its data stores, the rollback steps, and the go/no-go checklist for the system owner.`,
     `${n.label} is cut over. Propose the retirement PR: remove the COBOL source, its JCL and scheduler entries, and list any copybooks or datasets that no longer have a consumer.`,
   ];
-  return `${head}\n\nCurrent stage: ${STAGES[st.stage].label}\nNext: ${steps[st.stage]}\n\nHuman gate before the following stage: ${STAGES[Math.min(st.stage + 1, 4)].gate}.`;
+  const caveat = ap.approach === 'replace' && st.stage >= 2 ? `\nNote: the proposed route for ${n.label} is ${APPROACH.replace} (${ap.target}), but conversion work already exists. Confirm with the architect which one goes forward before doing the step below.` : '';
+  return `${head}\n\nCurrent stage: ${STAGES[st.stage].label}${caveat}\nNext: ${steps[st.stage]}\n\nHuman gate before the following stage: ${STAGES[Math.min(st.stage + 1, 4)].gate}.`;
 }
 
 // ---- routing ----
