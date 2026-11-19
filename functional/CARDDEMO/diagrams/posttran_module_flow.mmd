@@ -1,0 +1,13 @@
+flowchart LR
+  subgraph SCHED["CA-7 chain (context, app/scheduler/CardDemo.ca7)"]
+    CLOSEFIL[CLOSEFIL] --> CBPAUP0J[CBPAUP0J] --> POSTTRAN_JOB
+    POSTTRAN_JOB --> WAITSTEP[WAITSTEP]
+  end
+  POSTTRAN_JOB["JOB POSTTRAN<br/>POSTTRAN.jcl STEP15"] -->|EXEC PGM| CBTRN02C["CBTRN02C<br/>(STREAM, hard stop GOBACK)"]
+  CBTRN02C -->|CALL abend path| CEE3ABD(["CEE3ABD<br/>LE runtime, external"])
+  DALYTRAN[/"DALYTRAN PS 350"/] -->|read seq| CBTRN02C
+  CBTRN02C -->|write seq| DALYREJS[/"DALYREJS GDG +1, 430"/]
+  XREF[("CARDXREF KSDS")] -->|read| CBTRN02C
+  CBTRN02C <-->|read / rewrite| ACCT[("ACCTDATA KSDS")]
+  CBTRN02C <-->|read / write / rewrite| TCAT[("TCATBALF KSDS")]
+  CBTRN02C -->|write| TRAN[("TRANSACT KSDS")]
