@@ -6,3 +6,7 @@ batch-app/markers/*
 /.idea/
 .DS_Store
 **/.DS_Store
+
+# GnuCOBOL test build output
+tests/.build/
+__pycache__/
