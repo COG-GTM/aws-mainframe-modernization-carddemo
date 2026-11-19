@@ -1,0 +1,677 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CREASTMT — Documento de Requisitos Funcionales</title>
+<style>
+  :root {
+    --ink: #1f2933; --muted: #616e7c; --line: #d9e2ec; --bg: #f5f7fa;
+    --brand: #0b4f8a; --brand-soft: #e3eefa; --batch: #8a4b0b; --batch-soft: #fdf0e1;
+    --online: #0b6e4f; --online-soft: #e1f5ee; --warn: #9b1c1c; --warn-soft: #fde8e8;
+    --ph: #fff4c2;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; font: 15px/1.55 "Segoe UI", Roboto, Helvetica, Arial, sans-serif; color: var(--ink); background: var(--bg); }
+  .page { max-width: 1100px; margin: 0 auto; padding: 32px 40px 64px; background: #fff; box-shadow: 0 0 0 1px var(--line); }
+  header.doc { border-bottom: 4px solid var(--brand); padding-bottom: 16px; margin-bottom: 24px; }
+  header.doc .kicker { text-transform: uppercase; letter-spacing: .08em; font-size: 12px; color: var(--muted); }
+  header.doc h1 { margin: 4px 0 8px; font-size: 30px; color: var(--brand); }
+  header.doc .sub { color: var(--muted); }
+  h2 { margin: 40px 0 12px; padding-bottom: 6px; border-bottom: 1px solid var(--line); color: var(--brand); font-size: 22px; }
+  h3 { margin: 24px 0 8px; font-size: 17px; }
+  h2 .num { display: inline-block; min-width: 2.2em; color: var(--muted); }
+  p { margin: 8px 0; }
+  table { width: 100%; border-collapse: collapse; margin: 10px 0 16px; font-size: 14px; }
+  th, td { border: 1px solid var(--line); padding: 7px 9px; text-align: left; vertical-align: top; }
+  th { background: var(--brand-soft); font-weight: 600; }
+  table.kv th { width: 28%; }
+  code, .mono { font-family: "SFMono-Regular", Consolas, Menlo, monospace; font-size: 13px; }
+  .ph { background: var(--ph); padding: 0 3px; border-radius: 3px; font-family: Consolas, Menlo, monospace; font-size: 13px; }
+  .hint { color: var(--muted); font-style: italic; font-size: 13px; }
+  .note { border-left: 4px solid var(--brand); background: var(--brand-soft); padding: 10px 14px; margin: 12px 0; font-size: 14px; }
+  .note.warn { border-color: var(--warn); background: var(--warn-soft); }
+  .badge { display: inline-block; padding: 1px 8px; border-radius: 10px; font-size: 11px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; vertical-align: middle; margin-left: 6px; }
+  .badge.batch { background: var(--batch-soft); color: var(--batch); border: 1px solid var(--batch); }
+  .badge.online { background: var(--online-soft); color: var(--online); border: 1px solid var(--online); }
+  .badge.mig { background: var(--brand-soft); color: var(--brand); border: 1px solid var(--brand); }
+  .badge.ok { background: var(--online-soft); color: var(--online); }
+  .badge.ko { background: var(--warn-soft); color: var(--warn); }
+  section.only-batch { border-left: 3px solid var(--batch); padding-left: 14px; }
+  section.only-online { border-left: 3px solid var(--online); padding-left: 14px; }
+  nav.toc { background: var(--bg); border: 1px solid var(--line); padding: 12px 20px; columns: 2; font-size: 14px; }
+  nav.toc a { color: var(--brand); text-decoration: none; }
+  nav.toc ol { margin: 0; padding-left: 20px; }
+  .legend { font-size: 13px; color: var(--muted); margin: 8px 0 0; }
+  /* Diagramas de flujo editables (HTML/CSS, sin dependencias) */
+  .flow { display: flex; flex-wrap: wrap; align-items: stretch; gap: 0; margin: 14px 0; }
+  .flow .node { border: 2px solid var(--brand); border-radius: 8px; padding: 10px 12px; min-width: 140px; background: #fff; font-size: 13px; }
+  .flow .node b { display: block; font-size: 14px; }
+  .flow .node.job { border-color: var(--batch); background: var(--batch-soft); }
+  .flow .node.pgm { border-color: var(--brand); background: var(--brand-soft); }
+  .flow .node.map { border-color: var(--online); background: var(--online-soft); }
+  .flow .node.ext { border-style: dashed; border-color: var(--muted); }
+  .flow .arrow { align-self: center; padding: 0 8px; font-size: 22px; color: var(--muted); }
+  .flow .arrow small { display: block; font-size: 11px; text-align: center; }
+  .diagram { border: 1px solid var(--line); border-radius: 8px; padding: 12px; background: #fff; overflow-x: auto; }
+  .diagram svg { max-width: 100%; height: auto; }
+  .check { list-style: none; padding-left: 0; }
+  .check li::before { content: "\2610  "; color: var(--muted); }
+  footer.doc { margin-top: 48px; padding-top: 12px; border-top: 1px solid var(--line); font-size: 12px; color: var(--muted); }
+  td code { overflow-wrap: anywhere; }
+  @media print {
+    body { background: #fff; }
+    .page { box-shadow: none; padding: 0; max-width: none; }
+    h2 { page-break-after: avoid; }
+    table, .diagram, .flow { page-break-inside: avoid; }
+    nav.toc { columns: 1; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+<header class="doc">
+  <div class="kicker">CardDemo · Documento de Requisitos Funcionales · Migración</div>
+  <h1>CREASTMT — Generación de extractos de cuenta (texto y HTML)</h1>
+  <div class="sub">
+    Tipo: <span class="badge batch">Batch</span> ·
+    Aplicación: CardDemo (núcleo de tarjetas, VSAM) ·
+    Versión del documento: 0.1 ·
+    Estado: Borrador
+  </div>
+</header>
+
+<div class="note">Documento generado a partir del código del repositorio (<code>app/jcl/CREASTMT.JCL</code>, <code>app/cbl/CBSTM03A.CBL</code>, <code>app/cbl/CBSTM03B.CBL</code>, copybooks <code>COSTM01</code>, <code>CVACT03Y</code>, <code>CUSTREC</code>, <code>CVACT01Y</code> de <code>app/cpy</code>, los JCL vecinos de <code>app/jcl</code>, <code>app/scheduler</code>, <code>scripts/</code>, los datos de ejemplo de <code>app/data/ASCII</code> y <code>README.md</code>). Lo que no se puede deducir del código (SLA, frecuencia real, responsables, volumen de producción, destinatarios de los extractos) aparece como <b>pregunta abierta</b> y no se ha inventado.</div>
+
+<nav class="toc">
+  <ol>
+    <li><a href="#control">Control del documento</a></li>
+    <li><a href="#ident">Identificación del stream</a></li>
+    <li><a href="#resumen">Descripción funcional</a></li>
+    <li><a href="#flujo">Diagrama de flujo</a></li>
+    <li><a href="#inventario">Inventario de componentes</a></li>
+    <li><a href="#dependencias">Dependencias</a></li>
+    <li><a href="#rf">Requisitos funcionales</a></li>
+    <li><a href="#reglas">Reglas de negocio y validaciones</a></li>
+    <li><a href="#ui">Interfaz de usuario (online)</a></li>
+    <li><a href="#datos">Diccionario de datos y layouts</a></li>
+    <li><a href="#salidas">Salidas e informes</a></li>
+    <li><a href="#errores">Errores, códigos de retorno y reinicio</a></li>
+    <li><a href="#transacc">Transaccionalidad y concurrencia</a></li>
+    <li><a href="#rnf">Volumetría, rendimiento y planificación</a></li>
+    <li><a href="#seguridad">Seguridad y auditoría</a></li>
+    <li><a href="#destino">Mapeo a la arquitectura destino</a></li>
+    <li><a href="#migdatos">Migración de datos</a></li>
+    <li><a href="#pruebas">Estrategia de pruebas y equivalencia</a></li>
+    <li><a href="#traza">Matriz de trazabilidad</a></li>
+    <li><a href="#riesgos">Riesgos, supuestos y preguntas abiertas</a></li>
+    <li><a href="#glosario">Glosario</a></li>
+    <li><a href="#aprob">Aprobaciones</a></li>
+  </ol>
+</nav>
+
+<!-- 1 -->
+<section id="control">
+  <h2><span class="num">1.</span>Control del documento</h2>
+  <table class="kv">
+    <tr><th>ID del documento</th><td>RF-CARDDEMO-CREASTMT-001</td></tr>
+    <tr><th>Autor(es)</th><td>Devin (análisis de código) · revisión pendiente</td></tr>
+    <tr><th>Fuentes analizadas</th><td><code>app/jcl/CREASTMT.JCL</code>, <code>app/cbl/CBSTM03A.CBL</code>, <code>app/cbl/CBSTM03B.CBL</code>, <code>app/cpy/COSTM01.CPY</code>, <code>CVACT03Y.cpy</code>, <code>CUSTREC.cpy</code>, <code>CVACT01Y.cpy</code>, <code>CVTRA05Y.cpy</code>, <code>app/jcl/TXT2PDF1.JCL</code>, <code>TRANBKP.jcl</code>, <code>TRANFILE.jcl</code>, <code>COMBTRAN.jcl</code>, <code>XREFFILE.jcl</code>, <code>CUSTFILE.jcl</code>, <code>ACCTFILE.jcl</code>, <code>app/scheduler/CardDemo.ca7</code>, <code>app/scheduler/CardDemo.controlm</code>, <code>scripts/run_full_batch.sh</code>, <code>app/data/ASCII/*.txt</code>, <code>README.md</code></td></tr>
+    <tr><th>Documentos relacionados</th><td>POSTTRAN (<code>docs/ejemplo-POSTTRAN.html</code>) y COMBTRAN — productores del maestro TRANSACT; TXT2PDF1 — consumidor del extracto en texto</td></tr>
+  </table>
+  <h3>Historial de cambios</h3>
+  <table>
+    <tr><th>Versión</th><th>Fecha</th><th>Autor</th><th>Cambios</th></tr>
+    <tr><td>0.1</td><td>2026-11-19</td><td>Devin</td><td>Versión inicial a partir del código fuente</td></tr>
+  </table>
+</section>
+
+<!-- 2 -->
+<section id="ident">
+  <h2><span class="num">2.</span>Identificación del stream</h2>
+  <table class="kv">
+    <tr><th>Nombre del stream</th><td><b>CREASTMT</b> — "Create Statement" (tarjeta JOB) / "Produce transaction statement" (README)</td></tr>
+    <tr><th>Tipo</th><td>Batch, un único job con 5 steps (DELDEF01, STEP010, STEP020, STEP030, STEP040)</td></tr>
+    <tr><th>Aplicación / subsistema</th><td>CardDemo · extractos de cuenta para clientes</td></tr>
+    <tr><th>Punto de entrada</th><td>Job <code>CREASTMT</code> · step de negocio <code>STEP040 EXEC PGM=CBSTM03A</code> (STEPLIB <code>AWS.M2.CARDDEMO.LOADLIB</code>), que llama a la subrutina de E/S <code>CBSTM03B</code></td></tr>
+    <tr><th>Planificador</th><td>CA7 (<code>app/scheduler/CardDemo.ca7</code>), SCHID 030: lo dispara CLOSEFIL y él dispara TXT2PDF1. <b>No</b> aparece en <code>CardDemo.controlm</code> ni en <code>scripts/run_full_batch.sh</code>; el README lo sitúa en otra posición de la cadena (H-11).</td></tr>
+    <tr><th>Frecuencia y ventana</th><td>No se deduce del código: CA7 solo indica SCHID 030 y el programa no filtra por periodo. <i>Pregunta abierta Q-01</i>.</td></tr>
+    <tr><th>Criticidad de negocio</th><td>Media-alta (inferencia): produce el extracto que se entrega al titular. No actualiza ningún maestro, así que un fallo no deja datos inconsistentes, pero sí borra los extractos de la ejecución anterior (H-13).</td></tr>
+    <tr><th>Responsable funcional / técnico</th><td><i>Pregunta abierta Q-02</i></td></tr>
+  </table>
+</section>
+
+<!-- 3 -->
+<section id="resumen">
+  <h2><span class="num">3.</span>Descripción funcional (qué hace)</h2>
+  <p>CREASTMT genera <b>un extracto por cada tarjeta</b> registrada en la referencia cruzada (<code>CARDXREF</code>), en dos formatos: texto plano de 80 columnas (<code>STATEMNT.PS</code>) y HTML (<code>STATEMNT.HTML</code>).</p>
+  <p>Primero prepara los datos: borra y redefine un KSDS de trabajo (<code>TRXFL</code>), ordena el maestro de transacciones por número de tarjeta e ID de transacción poniendo la tarjeta al principio del registro, y carga esa copia en el KSDS. Después borra los extractos de la ejecución anterior. Por último, <code>CBSTM03A</code> carga todas las transacciones en una tabla en memoria agrupada por tarjeta y recorre la XREF: para cada tarjeta lee el cliente y la cuenta, escribe la cabecera (nombre, dirección, ID de cuenta, saldo actual y puntuación FICO), una línea por cada transacción de la tarjeta (ID, descripción e importe) y el total. Todo el acceso a ficheros VSAM se hace a través de la subrutina <code>CBSTM03B</code>.</p>
+  <table class="kv">
+    <tr><th>Objetivo de negocio</th><td>Entregar a cada titular un resumen de su cuenta con las transacciones de su tarjeta.</td></tr>
+    <tr><th>Actores</th><td>Operación batch / planificador CA7. Sin interacción de usuario.</td></tr>
+    <tr><th>Disparador</th><td>Fin de CLOSEFIL en la cadena CA7 (SCHID 030). Según el README, se ejecuta tras COMBTRAN dentro del batch completo.</td></tr>
+    <tr><th>Entradas principales</th><td>TRANSACT KSDS (transacciones), CARDXREF (tarjeta → cliente + cuenta), CUSTDATA (clientes), ACCTDATA (cuentas)</td></tr>
+    <tr><th>Salidas / efectos</th><td>STATEMNT.PS (texto, 80 B) y STATEMNT.HTML (HTML, 100 B), recreados en cada ejecución; KSDS de trabajo TRXFL y su secuencial TRXFL.SEQ; trazas en SYSOUT. No modifica ningún maestro.</td></tr>
+    <tr><th>Fuera de alcance</th><td>Conversión a PDF (job TXT2PDF1), contabilización (POSTTRAN), intereses (INTCALC), informes de transacciones (TRANREPT), envío o distribución de los extractos al cliente.</td></tr>
+  </table>
+</section>
+
+<!-- 4 -->
+<section id="flujo">
+  <h2><span class="num">4.</span>Diagrama de flujo</h2>
+
+  <section class="only-batch">
+    <h3>4.1 Cadena de JCL <span class="badge batch">Solo batch</span></h3>
+    <p><b>Cadena en CA7</b> (SCHID 030, según los bloques <i>TRIGGERED JOBS</i> de <code>CardDemo.ca7</code>, líneas 465-534):</p>
+    <div class="flow">
+      <div class="node ext"><b>CLOSEFIL</b>SDSF · CEMT SET FIL(…) CLO</div>
+      <div class="arrow">&rarr;</div>
+      <div class="node job"><b>CREASTMT</b>5 steps · PGM=CBSTM03A</div>
+      <div class="arrow">&rarr;</div>
+      <div class="node ext"><b>TXT2PDF1</b>IKJEFT1B · %TXT2PDF · STATEMNT.PS → PDF</div>
+      <div class="arrow">&rarr;</div>
+      <div class="node ext"><b>WAITSTEP</b>COBSWAIT</div>
+      <div class="arrow">&rarr;</div>
+      <div class="node ext"><b>OPENFIL</b>SDSF · CEMT SET FIL(…) OPE</div>
+    </div>
+    <p><b>Secuencia del batch completo según el README</b> (tabla "Running Batch Jobs"):</p>
+    <div class="flow">
+      <div class="node ext"><b>POSTTRAN</b></div><div class="arrow">&rarr;</div>
+      <div class="node ext"><b>INTCALC</b></div><div class="arrow">&rarr;</div>
+      <div class="node ext"><b>TRANBKP</b></div><div class="arrow">&rarr;</div>
+      <div class="node ext"><b>COMBTRAN</b>REPRO de TRANSACT.COMBINED(+1) al KSDS</div><div class="arrow">&rarr;</div>
+      <div class="node job"><b>CREASTMT</b></div><div class="arrow">&rarr;</div>
+      <div class="node ext"><b>TRANIDX</b></div><div class="arrow">&rarr;</div>
+      <div class="node ext"><b>OPENFIL</b></div>
+    </div>
+    <p class="legend"><code>scripts/run_full_batch.sh</code> sigue la secuencia del README pero <b>no envía CREASTMT</b> (salta de COMBTRAN a TRANIDX), y <code>CardDemo.controlm</code> no lo define. El contenido de los extractos depende de qué hay en TRANSACT al ejecutarse (H-02), y eso cambia según la cadena que se use (H-11).</p>
+
+    <h3>4.2 Pasos del job</h3>
+    <div class="flow">
+      <div class="node pgm"><b>DELDEF01</b>IDCAMS · DELETE/DEFINE TRXFL</div><div class="arrow">&rarr;</div>
+      <div class="node pgm"><b>STEP010</b>SORT · TRANSACT → TRXFL.SEQ</div><div class="arrow">&rarr;<small>COND=(0,NE)</small></div>
+      <div class="node pgm"><b>STEP020</b>IDCAMS REPRO → TRXFL KSDS</div><div class="arrow">&rarr;<small>COND=(0,NE)</small></div>
+      <div class="node pgm"><b>STEP030</b>IEFBR14 · borra extractos previos</div><div class="arrow">&rarr;<small>COND=(0,NE)</small></div>
+      <div class="node job"><b>STEP040</b>CBSTM03A + CBSTM03B</div>
+    </div>
+    <table>
+      <tr><th>Job</th><th>Step</th><th>Programa / utilidad</th><th>Entradas (DD → DSN)</th><th>Salidas (DD → DSN)</th><th>Condición (COND/IF/RC)</th><th>Descripción</th></tr>
+      <tr><td>CREASTMT</td><td>DELDEF01</td><td>IDCAMS</td><td>SYSIN en línea</td><td>Borra <code>AWS.M2.CARDDEMO.TRXFL.SEQ</code> y el cluster <code>AWS.M2.CARDDEMO.TRXFL.VSAM.KSDS</code>; <code>SET MAXCC = 0</code>; define el cluster KEYS(32 0), RECORDSIZE(350 350), SHAREOPTIONS(2 3), ERASE, VOLUMES(TSU023), CYL(1 5), CISZ(4096)</td><td>Sin COND (primer step)</td><td>Prepara el KSDS de trabajo vacío</td></tr>
+      <tr><td>CREASTMT</td><td>STEP010</td><td>SORT</td><td>SORTIN → <code>AWS.M2.CARDDEMO.TRANSACT.VSAM.KSDS</code> (SHR)</td><td>SORTOUT → <code>AWS.M2.CARDDEMO.TRXFL.SEQ</code> (NEW,CATLG,DELETE · FB · LRECL=350 · BLKSIZE=3500)</td><td>Sin COND: se ejecuta aunque DELDEF01 falle</td><td><code>SORT FIELDS=(263,16,CH,A,1,16,CH,A)</code> · <code>OUTREC FIELDS=(1:263,16,17:1,262,279:279,50)</code> (RN-01)</td></tr>
+      <tr><td>CREASTMT</td><td>STEP020</td><td>IDCAMS</td><td>INFILE → <code>TRXFL.SEQ</code></td><td>OUTFILE → <code>TRXFL.VSAM.KSDS</code></td><td>COND=(0,NE): se salta si algún step anterior dio RC≠0</td><td><code>REPRO INFILE(INFILE) OUTFILE(OUTFILE)</code></td></tr>
+      <tr><td>CREASTMT</td><td>STEP030</td><td>IEFBR14</td><td>—</td><td>HTMLFILE → <code>AWS.M2.CARDDEMO.STATEMNT.HTML</code>, STMTFILE → <code>AWS.M2.CARDDEMO.STATEMNT.PS</code>, ambos DISP=(MOD,DELETE,DELETE)</td><td>COND=(0,NE)</td><td>Borra los extractos de la ejecución anterior (si no existen, los crea y los borra)</td></tr>
+      <tr><td>CREASTMT</td><td>STEP040</td><td>CBSTM03A (CALL CBSTM03B)</td><td>TRNXFILE → <code>TRXFL.VSAM.KSDS</code><br>XREFFILE → <code>AWS.M2.CARDDEMO.CARDXREF.VSAM.KSDS</code><br>ACCTFILE → <code>AWS.M2.CARDDEMO.ACCTDATA.VSAM.KSDS</code><br>CUSTFILE → <code>AWS.M2.CARDDEMO.CUSTDATA.VSAM.KSDS</code><br>(todos SHR)</td><td>STMTFILE → <code>STATEMNT.PS</code> (NEW,CATLG,DELETE · FB · LRECL=80 · BLKSIZE=8000)<br>HTMLFILE → <code>STATEMNT.HTML</code> (NEW,CATLG,DELETE · FB · LRECL=100 · BLKSIZE=800)<br>SYSOUT / SYSPRINT</td><td>COND=(0,NE)</td><td>Genera los extractos en texto y HTML</td></tr>
+    </table>
+
+    <h3>4.3 Flujo de datos de STEP040</h3>
+    <div class="diagram">
+      <svg viewBox="0 0 900 390" xmlns="http://www.w3.org/2000/svg" font-family="Segoe UI, Arial, sans-serif" font-size="13">
+        <defs><marker id="a" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#616e7c"/></marker></defs>
+        <rect x="20" y="20" width="210" height="56" rx="8" fill="#fdf0e1" stroke="#8a4b0b" stroke-width="2"/>
+        <text x="125" y="44" text-anchor="middle" font-weight="700">TRXFL KSDS (TRNXFILE)</text>
+        <text x="125" y="63" text-anchor="middle">READ secuencial · clave tarjeta+ID</text>
+        <rect x="20" y="110" width="210" height="56" rx="8" fill="#fff" stroke="#0b4f8a" stroke-width="2"/>
+        <text x="125" y="134" text-anchor="middle" font-weight="700">CARDXREF KSDS</text>
+        <text x="125" y="153" text-anchor="middle">READ secuencial · por tarjeta</text>
+        <rect x="20" y="200" width="210" height="56" rx="8" fill="#fff" stroke="#0b4f8a" stroke-width="2"/>
+        <text x="125" y="224" text-anchor="middle" font-weight="700">CUSTDATA KSDS</text>
+        <text x="125" y="243" text-anchor="middle">READ aleatorio · XREF-CUST-ID</text>
+        <rect x="20" y="290" width="210" height="56" rx="8" fill="#fff" stroke="#0b4f8a" stroke-width="2"/>
+        <text x="125" y="314" text-anchor="middle" font-weight="700">ACCTDATA KSDS</text>
+        <text x="125" y="333" text-anchor="middle">READ aleatorio · XREF-ACCT-ID</text>
+        <rect x="290" y="150" width="170" height="80" rx="10" fill="#e3eefa" stroke="#0b4f8a" stroke-width="2"/>
+        <text x="375" y="182" text-anchor="middle" font-weight="700" font-size="15">CBSTM03B</text>
+        <text x="375" y="204" text-anchor="middle">subrutina de E/S</text>
+        <rect x="510" y="140" width="180" height="100" rx="10" fill="#e3eefa" stroke="#0b4f8a" stroke-width="2.5"/>
+        <text x="600" y="172" text-anchor="middle" font-weight="700" font-size="15">CBSTM03A</text>
+        <text x="600" y="194" text-anchor="middle">tabla 51×10 en memoria</text>
+        <text x="600" y="214" text-anchor="middle">1 extracto por tarjeta</text>
+        <rect x="730" y="70" width="155" height="56" rx="8" fill="#e1f5ee" stroke="#0b6e4f" stroke-width="2"/>
+        <text x="807" y="94" text-anchor="middle" font-weight="700">STATEMNT.PS</text>
+        <text x="807" y="113" text-anchor="middle">texto · FB 80</text>
+        <rect x="730" y="230" width="155" height="56" rx="8" fill="#e1f5ee" stroke="#0b6e4f" stroke-width="2"/>
+        <text x="807" y="254" text-anchor="middle" font-weight="700">STATEMNT.HTML</text>
+        <text x="807" y="273" text-anchor="middle">HTML · FB 100</text>
+        <rect x="730" y="320" width="155" height="56" rx="8" fill="#fff" stroke="#616e7c" stroke-width="2" stroke-dasharray="6 4"/>
+        <text x="807" y="344" text-anchor="middle" font-weight="700">TXT2PDF1</text>
+        <text x="807" y="363" text-anchor="middle">STATEMNT.PS.PDF</text>
+        <line x1="230" y1="48" x2="286" y2="168" stroke="#616e7c" stroke-width="2" marker-end="url(#a)"/>
+        <line x1="230" y1="138" x2="286" y2="182" stroke="#616e7c" stroke-width="2" marker-end="url(#a)"/>
+        <line x1="230" y1="228" x2="286" y2="200" stroke="#616e7c" stroke-width="2" marker-end="url(#a)"/>
+        <line x1="230" y1="318" x2="286" y2="214" stroke="#616e7c" stroke-width="2" marker-end="url(#a)"/>
+        <line x1="460" y1="190" x2="506" y2="190" stroke="#616e7c" stroke-width="2" marker-end="url(#a)"/>
+        <text x="483" y="260" text-anchor="middle" font-size="11" fill="#616e7c">CALL 'CBSTM03B'</text>
+        <text x="483" y="274" text-anchor="middle" font-size="11" fill="#616e7c">USING WS-M03B-AREA</text>
+        <line x1="690" y1="170" x2="726" y2="104" stroke="#0b6e4f" stroke-width="2" marker-end="url(#a)"/>
+        <line x1="690" y1="214" x2="726" y2="252" stroke="#0b6e4f" stroke-width="2" marker-end="url(#a)"/>
+        <line x1="870" y1="126" x2="870" y2="316" stroke="#616e7c" stroke-width="2" stroke-dasharray="5 4" marker-end="url(#a)"/>
+      </svg>
+    </div>
+    <p class="legend">La flecha discontinua es el job sucesor en CA7 (TXT2PDF1 lee <code>STATEMNT.PS</code> por la DD INDD). Ningún job del repo consume <code>STATEMNT.HTML</code>.</p>
+  </section>
+
+  <h3>4.4 Lógica interna del programa principal (CBSTM03A)</h3>
+  <ol>
+    <li><b>Diagnóstico de entorno</b> (líneas 266-291): direcciona PSA → TCB → TIOT, muestra <code>Running JCL : &lt;job&gt; Step &lt;step&gt;</code> y lista cada DD del TIOT con "valid UCB" / "null UCB".</li>
+    <li><code>OPEN OUTPUT STMT-FILE HTML-FILE</code> e <code>INITIALIZE WS-TRNX-TABLE WS-TRN-TBL-CNTR</code> (293-294).</li>
+    <li><b>Despachador</b> <code>0000-START</code> (296-314): según <code>WS-FL-DD</code> usa <code>ALTER 8100-FILE-OPEN TO PROCEED TO …</code> + <code>GO TO</code> para encadenar: <code>8100-TRNXFILE-OPEN</code> → <code>8500-READTRNX-READ</code> → <code>8200-XREFFILE-OPEN</code> → <code>8300-CUSTFILE-OPEN</code> → <code>8400-ACCTFILE-OPEN</code> → <code>1000-MAINLINE</code>.</li>
+    <li><code>8100-TRNXFILE-OPEN</code> (730-762): abre TRNXFILE y lee el primer registro (acepta RC 00/04; otro valor, incluido fin de fichero, provoca ABEND).</li>
+    <li><code>8500-READTRNX-READ</code> (818-853): carga <b>todas</b> las transacciones en <code>WS-TRNX-TABLE</code> (51 tarjetas × 10 transacciones), cambiando de fila cuando cambia la tarjeta (RN-02). Al llegar al fin de fichero (RC 10) guarda el contador de la última tarjeta.</li>
+    <li><code>8200/8300/8400-*-OPEN</code> (765-816): abren XREFFILE, CUSTFILE y ACCTFILE.</li>
+    <li><code>1000-MAINLINE</code> (316-339): hasta fin de XREF: <code>1000-XREFFILE-GET-NEXT</code> → <code>2000-CUSTFILE-GET</code> → <code>3000-ACCTFILE-GET</code> → <code>5000-CREATE-STATEMENT</code> → total a 0 → <code>4000-TRNXFILE-GET</code>.</li>
+    <li><code>5000-CREATE-STATEMENT</code> (458-504) escribe la cabecera de texto y, vía <code>5100-WRITE-HTML-HEADER</code> y <code>5200-WRITE-HTML-NMADBS</code>, la cabecera HTML.</li>
+    <li><code>4000-TRNXFILE-GET</code> (416-456) busca la tarjeta en la tabla (RN-03), escribe cada transacción con <code>6000-WRITE-TRANS</code> (675-723), acumula el total (RN-04) y escribe el pie de texto y el cierre HTML.</li>
+    <li>Cierra TRNXFILE, XREFFILE, CUSTFILE, ACCTFILE (<code>9100…9400</code>), STMT-FILE y HTML-FILE, y termina con <code>GOBACK</code> (RC 0).</li>
+  </ol>
+  <p class="legend">CBSTM03B (subrutina): <code>0000-START</code> despacha por nombre de DD (<code>LK-M03B-DD</code>) y operación (<code>LK-M03B-OPER</code>: O=abrir, C=cerrar, R=leer siguiente, K=leer por clave). TRNXFILE y XREFFILE solo admiten O/R/C (acceso secuencial); CUSTFILE y ACCTFILE solo O/K/C (acceso aleatorio). Devuelve el file status en <code>LK-M03B-RC</code> y el registro en <code>LK-M03B-FLDT</code>.</p>
+</section>
+
+<!-- 5 -->
+<section id="inventario">
+  <h2><span class="num">5.</span>Inventario de componentes</h2>
+  <table>
+    <tr><th>Tipo</th><th>Nombre</th><th>Ruta en el repositorio</th><th>Rol en el stream</th></tr>
+    <tr><td>JCL</td><td>CREASTMT</td><td><code>app/jcl/CREASTMT.JCL</code></td><td>Job del stream (5 steps)</td></tr>
+    <tr><td>Programa COBOL</td><td>CBSTM03A</td><td><code>app/cbl/CBSTM03A.CBL</code></td><td>Lógica de generación de extractos (texto y HTML)</td></tr>
+    <tr><td>Subrutina COBOL</td><td>CBSTM03B</td><td><code>app/cbl/CBSTM03B.CBL</code></td><td>E/S de los cuatro KSDS (llamada estática/dinámica por <code>CALL 'CBSTM03B'</code>)</td></tr>
+    <tr><td>Copybook</td><td>COSTM01</td><td><code>app/cpy/COSTM01.CPY</code></td><td>Layout TRNX-RECORD (transacción con la tarjeta delante, clave 32 B)</td></tr>
+    <tr><td>Copybook</td><td>CVACT03Y</td><td><code>app/cpy/CVACT03Y.cpy</code></td><td>Layout CARD-XREF-RECORD</td></tr>
+    <tr><td>Copybook</td><td>CUSTREC</td><td><code>app/cpy/CUSTREC.cpy</code></td><td>Layout CUSTOMER-RECORD</td></tr>
+    <tr><td>Copybook</td><td>CVACT01Y</td><td><code>app/cpy/CVACT01Y.cpy</code></td><td>Layout ACCOUNT-RECORD</td></tr>
+    <tr><td>Copybook (referencia)</td><td>CVTRA05Y</td><td><code>app/cpy/CVTRA05Y.cpy</code></td><td>Layout TRAN-RECORD del maestro TRANSACT (entrada del SORT); no se incluye en los programas</td></tr>
+    <tr><td>Utilidades IBM</td><td>IDCAMS, SORT, IEFBR14</td><td>Sistema</td><td>Steps DELDEF01/STEP020, STEP010 y STEP030</td></tr>
+    <tr><td>Rutina LE</td><td>CEE3ABD</td><td>Language Environment (IBM)</td><td>ABEND en <code>9999-ABEND-PROGRAM</code> (llamada sin parámetros, H-09)</td></tr>
+    <tr><td>JCL sucesor</td><td>TXT2PDF1</td><td><code>app/jcl/TXT2PDF1.JCL</code></td><td>Convierte <code>STATEMNT.PS</code> a <code>STATEMNT.PS.PDF</code> con la REXX %TXT2PDF (<code>AWS.M2.LBD.TXT2PDF.LOAD/EXEC</code>)</td></tr>
+    <tr><td>JCL vecinos</td><td>CLOSEFIL / OPENFIL / WAITSTEP</td><td><code>app/jcl/CLOSEFIL.jcl</code>, <code>OPENFIL.jcl</code>, <code>WAITSTEP.jcl</code></td><td>CLOSEFIL/OPENFIL ejecutan SDSF con <code>CEMT SET FIL(…) CLO/OPE</code> sobre TRANSACT, CCXREF, ACCTDAT, CXACAIX y USRSEC (no CUSTDAT); WAITSTEP espera. Rodean al stream en CA7</td></tr>
+    <tr><td>JCL productores de entradas</td><td>TRANFILE, TRANBKP, POSTTRAN, COMBTRAN, XREFFILE, CUSTFILE, ACCTFILE</td><td><code>app/jcl/</code></td><td>Definen y cargan TRANSACT, CARDXREF, CUSTDATA y ACCTDATA</td></tr>
+    <tr><td>Planificación</td><td>CardDemo.ca7</td><td><code>app/scheduler/CardDemo.ca7</code></td><td>Cadena CLOSEFIL → CREASTMT → TXT2PDF1 → WAITSTEP → OPENFIL (SCHID 030)</td></tr>
+    <tr><td>Planificación (ausente)</td><td>CardDemo.controlm, run_full_batch.sh</td><td><code>app/scheduler/</code>, <code>scripts/</code></td><td>No contienen CREASTMT (H-11)</td></tr>
+    <tr><td>Datos de prueba</td><td>dailytran, cardxref, custdata, acctdata</td><td><code>app/data/ASCII/</code>, <code>app/data/EBCDIC/</code></td><td>300 transacciones de 50 tarjetas (máx. 6 por tarjeta), 50 XREF, 50 clientes, 50 cuentas</td></tr>
+  </table>
+  <p class="legend">No usa mapas BMS, PROC, ficheros de control (<code>app/ctl</code>), GDG ni Assembler.</p>
+</section>
+
+<!-- 6 -->
+<section id="dependencias">
+  <h2><span class="num">6.</span>Dependencias</h2>
+  <h3>6.1 Datos (bases de datos y ficheros)</h3>
+  <table>
+    <tr><th>DD</th><th>DSN</th><th>Organización</th><th>Acceso</th><th>Clave</th><th>LRECL</th><th>Copybook</th><th>Observaciones</th></tr>
+    <tr><td>SORTIN (STEP010)</td><td><code>AWS.M2.CARDDEMO.TRANSACT.VSAM.KSDS</code></td><td>VSAM KSDS</td><td>R (SORT)</td><td>TRAN-ID X(16)</td><td>350</td><td>CVTRA05Y</td><td>Definido por TRANFILE/TRANBKP; cargado por POSTTRAN y COMBTRAN</td></tr>
+    <tr><td>SORTOUT / INFILE</td><td><code>AWS.M2.CARDDEMO.TRXFL.SEQ</code></td><td>Secuencial FB</td><td>W (STEP010) · R (STEP020)</td><td>—</td><td>350</td><td>COSTM01</td><td>Queda catalogado al terminar; lo borra DELDEF01 en la siguiente ejecución</td></tr>
+    <tr><td>OUTFILE / TRNXFILE</td><td><code>AWS.M2.CARDDEMO.TRXFL.VSAM.KSDS</code></td><td>VSAM KSDS</td><td>W (REPRO) · R secuencial (CBSTM03B)</td><td>Tarjeta X(16) + TRAN-ID X(16) (KEYS 32 0)</td><td>350</td><td>COSTM01 / FD-TRNXFILE-REC</td><td>Fichero de trabajo propio del stream; no lo usa ningún otro job</td></tr>
+    <tr><td>XREFFILE</td><td><code>AWS.M2.CARDDEMO.CARDXREF.VSAM.KSDS</code></td><td>VSAM KSDS</td><td>R secuencial</td><td>XREF-CARD-NUM X(16)</td><td>50</td><td>CVACT03Y</td><td>Definido y cargado por XREFFILE.jcl</td></tr>
+    <tr><td>CUSTFILE</td><td><code>AWS.M2.CARDDEMO.CUSTDATA.VSAM.KSDS</code></td><td>VSAM KSDS</td><td>R aleatorio</td><td>CUST-ID X(9) en la FD</td><td>500</td><td>CUSTREC</td><td>Definido y cargado por CUSTFILE.jcl</td></tr>
+    <tr><td>ACCTFILE</td><td><code>AWS.M2.CARDDEMO.ACCTDATA.VSAM.KSDS</code></td><td>VSAM KSDS</td><td>R aleatorio</td><td>ACCT-ID 9(11)</td><td>300</td><td>CVACT01Y</td><td>Definido y cargado por ACCTFILE.jcl; actualizado por POSTTRAN/INTCALC</td></tr>
+    <tr><td>STMTFILE</td><td><code>AWS.M2.CARDDEMO.STATEMNT.PS</code></td><td>Secuencial FB</td><td>W (OPEN OUTPUT)</td><td>—</td><td>80</td><td>ST-LINE0…15 (en línea)</td><td>Borrado en STEP030 y recreado en STEP040; lo lee TXT2PDF1</td></tr>
+    <tr><td>HTMLFILE</td><td><code>AWS.M2.CARDDEMO.STATEMNT.HTML</code></td><td>Secuencial FB</td><td>W (OPEN OUTPUT)</td><td>—</td><td>100</td><td>HTML-LINES (en línea)</td><td>Borrado en STEP030 y recreado en STEP040; ningún consumidor en el repo</td></tr>
+    <tr><td>STEPLIB</td><td><code>AWS.M2.CARDDEMO.LOADLIB</code></td><td>PDS de carga</td><td>R</td><td>—</td><td>—</td><td>—</td><td>Módulos CBSTM03A y CBSTM03B</td></tr>
+  </table>
+  <p class="legend">Contraste LRECL ↔ copybook: TRXFL 350 = COSTM01 (32 + 318); CARDXREF 50 = CVACT03Y; CUSTDATA 500 = CUSTREC (332 + FILLER 168); ACCTDATA 300 = CVACT01Y; STMTFILE 80 = FD-STMTFILE-REC; HTMLFILE 100 = FD-HTMLFILE-REC. Todos coinciden con el <code>RECORDSIZE</code> de sus <code>DEFINE CLUSTER</code>. Única discrepancia: el DCB de HTMLFILE en STEP030 dice LRECL=80 (H-12, sin efecto porque solo se borra).</p>
+  <h3>6.2 Utilidades y rutinas compartidas</h3>
+  <table>
+    <tr><th>Utilidad / rutina</th><th>Tipo</th><th>Uso en el stream</th><th>Equivalente propuesto en destino</th></tr>
+    <tr><td>IDCAMS</td><td>Utilidad IBM</td><td>DELETE/DEFINE del KSDS de trabajo y REPRO</td><td>Innecesario: consulta ordenada a BD o fichero temporal</td></tr>
+    <tr><td>SORT (DFSORT/Syncsort)</td><td>Utilidad IBM</td><td>Ordenación por tarjeta + ID y reformateo OUTREC</td><td><code>ORDER BY card_num, tran_id</code></td></tr>
+    <tr><td>IEFBR14</td><td>Utilidad IBM</td><td>Borrado de los extractos anteriores</td><td>Limpieza o versionado del directorio de salida</td></tr>
+    <tr><td>CBSTM03B</td><td>Subrutina CardDemo</td><td>Abrir, leer y cerrar los cuatro KSDS</td><td>Repositorios / DAO</td></tr>
+    <tr><td>CEE3ABD</td><td>Language Environment</td><td>ABEND ante errores de E/S</td><td>Excepción no recuperable → job FAILED</td></tr>
+    <tr><td>Bloques de control z/OS (PSA, TCB, TIOT)</td><td>Sistema operativo</td><td>Mostrar job, step y DDs en SYSOUT</td><td>Logging del framework (nombre de job, parámetros)</td></tr>
+    <tr><td>%TXT2PDF (en TXT2PDF1)</td><td>REXX de terceros</td><td>Conversión del extracto en texto a PDF (job sucesor)</td><td>Librería de generación PDF</td></tr>
+  </table>
+  <h3>6.3 Otras aplicaciones e interfaces</h3>
+  <table>
+    <tr><th>Sistema / componente</th><th>Dirección</th><th>Mecanismo</th><th>Dato intercambiado</th><th>Observaciones</th></tr>
+    <tr><td>POSTTRAN, COMBTRAN, TRANBKP, TRANFILE</td><td>Upstream</td><td>TRANSACT KSDS</td><td>Transacciones</td><td>El contenido de TRANSACT en el momento de la ejecución determina los extractos (H-02)</td></tr>
+    <tr><td>XREFFILE, CUSTFILE, ACCTFILE (y online CICS)</td><td>Upstream</td><td>KSDS maestros</td><td>Tarjetas, clientes, cuentas</td><td>Mantenimiento online de clientes/cuentas vía CICS (COACTUPC, etc.)</td></tr>
+    <tr><td>CICS online CardDemo</td><td>Comparte datos</td><td>Mismos VSAM</td><td>—</td><td>En CA7 se ejecuta entre CLOSEFIL y OPENFIL</td></tr>
+    <tr><td>TXT2PDF1</td><td>Downstream</td><td>STATEMNT.PS</td><td>Extracto en texto</td><td>Genera <code>STATEMNT.PS.PDF</code></td></tr>
+    <tr><td>Distribución al cliente</td><td>Downstream</td><td>No identificado</td><td>Extractos texto/HTML/PDF</td><td>Ningún job del repo envía los extractos (Q-06)</td></tr>
+  </table>
+  <h3>6.4 Dependencias de planificación</h3>
+  <table>
+    <tr><th>Predecesores</th><th>Sucesores</th><th>Recursos / condiciones</th><th>Calendario</th></tr>
+    <tr><td>CA7: CLOSEFIL (SCHID 030); el listado no muestra qué dispara ese CLOSEFIL (Q-11).<br>README: COMBTRAN.</td><td>CA7: TXT2PDF1 → WAITSTEP → OPENFIL.<br>README: TRANIDX → OPENFIL.</td><td>TRANSACT, CARDXREF, CUSTDATA y ACCTDATA cargados. CLOSEFIL cierra en CICS TRANSACT, CCXREF y ACCTDAT, pero no CUSTDAT (H-17). Volumen TSU023 disponible para el KSDS de trabajo.</td><td>Q-01</td></tr>
+  </table>
+</section>
+
+<!-- 7 -->
+<section id="rf">
+  <h2><span class="num">7.</span>Requisitos funcionales</h2>
+  <table>
+    <tr><th>ID</th><th>Requisito</th><th>Origen (legado)</th><th>Prioridad</th><th>Criterio de aceptación</th></tr>
+    <tr><td>RF-01</td><td>El sistema debe obtener una copia del maestro de transacciones ordenada por número de tarjeta y, dentro de cada tarjeta, por ID de transacción, con la tarjeta al inicio del registro (RN-01).</td><td>CREASTMT · DELDEF01, STEP010, STEP020</td><td>Must</td><td><b>Dado</b> TRANSACT con N transacciones<br><b>Cuando</b> se ejecuta el stream<br><b>Entonces</b> TRXFL KSDS contiene N registros con clave tarjeta(16)+ID(16) en orden ascendente</td></tr>
+    <tr><td>RF-02</td><td>El sistema debe eliminar los extractos de la ejecución anterior antes de generar los nuevos.</td><td>CREASTMT · STEP030</td><td>Must</td><td><b>Dado</b> STATEMNT.PS y STATEMNT.HTML de una ejecución previa<br><b>Cuando</b> se ejecuta el stream<br><b>Entonces</b> las salidas contienen solo los extractos de esta ejecución</td></tr>
+    <tr><td>RF-03</td><td>El sistema debe cargar todas las transacciones de la copia ordenada agrupadas por tarjeta antes de generar extractos.</td><td>CBSTM03A · 8100-TRNXFILE-OPEN, 8500-READTRNX-READ</td><td>Must</td><td><b>Dado</b> transacciones de K tarjetas (K ≤ 51, ≤ 10 por tarjeta)<br><b>Entonces</b> la tabla en memoria tiene K filas con su número de transacciones</td></tr>
+    <tr><td>RF-04</td><td>El sistema debe generar un extracto por cada registro de la referencia cruzada (tarjeta), en orden ascendente de número de tarjeta, tenga o no transacciones.</td><td>CBSTM03A · 1000-MAINLINE, 1000-XREFFILE-GET-NEXT</td><td>Must</td><td><b>Dado</b> CARDXREF con 50 tarjetas<br><b>Entonces</b> STATEMNT.PS contiene 50 bloques "START OF STATEMENT" … "END OF STATEMENT" y STATEMNT.HTML 50 documentos</td></tr>
+    <tr><td>RF-05</td><td>Para cada tarjeta, el sistema debe obtener el cliente (por XREF-CUST-ID) y la cuenta (por XREF-ACCT-ID). Si cualquiera de los dos no existe, el proceso termina con ABEND.</td><td>CBSTM03A · 2000-CUSTFILE-GET, 3000-ACCTFILE-GET · CBSTM03B 3000/4000</td><td>Must</td><td><b>Dado</b> una XREF cuyo cliente no existe<br><b>Entonces</b> SYSOUT muestra "ERROR READING CUSTFILE" y "RETURN CODE: 23", y el job termina con ABEND</td></tr>
+    <tr><td>RF-06</td><td>La cabecera del extracto en texto debe incluir nombre completo, tres líneas de dirección, ID de cuenta, saldo actual y puntuación FICO, con el layout de RN-05 a RN-07.</td><td>CBSTM03A · 5000-CREATE-STATEMENT</td><td>Must</td><td><b>Dado</b> un cliente "JOHN A SMITH" y una cuenta con saldo 1234,56<br><b>Entonces</b> el extracto muestra "JOHN A SMITH", "Account ID         :" con el ID de 11 dígitos y "Current Balance    :000001234.56 "</td></tr>
+    <tr><td>RF-07</td><td>El extracto debe listar, una línea por transacción y en orden de ID, todas las transacciones de la tarjeta con ID, descripción (49 primeros caracteres) e importe.</td><td>CBSTM03A · 4000-TRNXFILE-GET, 6000-WRITE-TRANS</td><td>Must</td><td><b>Dado</b> una tarjeta con 3 transacciones<br><b>Entonces</b> el bloque "TRANSACTION SUMMARY" contiene 3 líneas ST-LINE14 en orden ascendente de TRAN-ID</td></tr>
+    <tr><td>RF-08</td><td>El extracto debe terminar con el total de los importes de la tarjeta (suma con signo, RN-04) y la marca de fin.</td><td>CBSTM03A · 4000-TRNXFILE-GET</td><td>Must</td><td><b>Dado</b> importes 100,00, 50,25 y −20,00<br><b>Entonces</b> la línea "Total EXP:" muestra <code>$      130.25 </code> seguida de "END OF STATEMENT"</td></tr>
+    <tr><td>RF-09</td><td>Por cada extracto en texto, el sistema debe generar un documento HTML equivalente: cabecera con el número de cuenta, datos fijos del banco, nombre y dirección, datos básicos y tabla de transacciones (ID, detalle, importe).</td><td>CBSTM03A · 5100-WRITE-HTML-HEADER, 5200-WRITE-HTML-NMADBS, 6000-WRITE-TRANS, 4000-TRNXFILE-GET</td><td>Must</td><td><b>Dado</b> un extracto de texto<br><b>Entonces</b> STATEMNT.HTML contiene un documento <code>&lt;!DOCTYPE html&gt;…&lt;/html&gt;</code> con "Statement for Account Number:", "Bank of XYZ", "410 Terry Ave N", "Seattle WA 99999" y una fila por transacción</td></tr>
+    <tr><td>RF-10</td><td>Una tarjeta sin transacciones debe generar igualmente su extracto, sin líneas de detalle y con total cero.</td><td>CBSTM03A · 4000-TRNXFILE-GET</td><td>Must</td><td><b>Dado</b> una tarjeta de XREF sin transacciones<br><b>Entonces</b> su extracto tiene la cabecera y "Total EXP:" con <code>$         .00 </code></td></tr>
+    <tr><td>RF-11</td><td>Comportamiento actual: las transacciones cuya tarjeta no está en la referencia cruzada no aparecen en ningún extracto y no se informan.</td><td>CBSTM03A · 4000-TRNXFILE-GET (solo recorre tarjetas de XREF)</td><td>Should</td><td><b>Dado</b> una transacción de una tarjeta ausente de XREF<br><b>Entonces</b> no aparece en ningún extracto, no hay mensaje y el RC es 0 (H-16)</td></tr>
+    <tr><td>RF-12</td><td>Comportamiento actual: cualquier error de apertura, lectura o cierre de los KSDS, y el fichero de transacciones vacío, detienen el proceso con ABEND tras mostrar el fichero y el file status.</td><td>CBSTM03A · 8100…8400, 8500, 1000-XREFFILE-GET-NEXT, 9100…9400, 9999-ABEND-PROGRAM</td><td>Must</td><td><b>Dado</b> TRXFL vacío<br><b>Entonces</b> SYSOUT muestra "ERROR READING TRNXFILE", "RETURN CODE: 10", "ABENDING PROGRAM" y el job termina con ABEND (H-04)</td></tr>
+    <tr><td>RF-13</td><td>Al iniciar, el programa debe mostrar en SYSOUT el job, el step y las DD asignadas.</td><td>CBSTM03A · inicio de PROCEDURE DIVISION (266-291)</td><td>Could</td><td><b>Dado</b> la ejecución en STEP040<br><b>Entonces</b> SYSOUT muestra "Running JCL : CREASTMT Step STEP040" y la lista de DD (TRNXFILE, XREFFILE…)</td></tr>
+  </table>
+</section>
+
+<!-- 8 -->
+<section id="reglas">
+  <h2><span class="num">8.</span>Reglas de negocio y validaciones <span class="badge mig">Migración</span></h2>
+  <table>
+    <tr><th>ID</th><th>Regla / validación</th><th>Fórmula o condición exacta</th><th>Resultado si no se cumple</th><th>Origen</th></tr>
+    <tr><td>RN-01</td><td>Ordenación y reformateo de transacciones</td><td><code>SORT FIELDS=(263,16,CH,A,1,16,CH,A)</code>: tarjeta (TRAN-CARD-NUM) y luego TRAN-ID, ambos como texto ascendente. <code>OUTREC FIELDS=(1:263,16,17:1,262,279:279,50)</code>: bytes 1-16 = tarjeta, 17-278 = bytes 1-262 originales (ID…ZIP), 279-328 = bytes 279-328 originales (ORIG-TS completo y 24 de los 26 bytes de PROC-TS). El registro reformateado mide 328 B en un dataset de 350 B (H-08).</td><td>—</td><td>CREASTMT.JCL · STEP010</td></tr>
+    <tr><td>RN-02</td><td>Agrupación por tarjeta</td><td>Si <code>TRNX-CARD-NUM = WS-SAVE-CARD</code> → <code>TR-CNT + 1</code>; si no → <code>WS-TRCT(CR-CNT) = TR-CNT</code>, <code>CR-CNT + 1</code>, <code>TR-CNT = 1</code>. Supone la entrada ordenada por tarjeta (RN-01). Capacidad: 51 tarjetas × 10 transacciones, <b>sin control de límites</b> (H-01).</td><td>Desbordamiento de tabla no detectado</td><td>8500-READTRNX-READ</td></tr>
+    <tr><td>RN-03</td><td>Emparejamiento tarjeta XREF ↔ tabla</td><td>Recorre <code>CR-JMP</code> desde 1 hasta <code>CR-JMP &gt; CR-CNT</code> o <code>WS-CARD-NUM(CR-JMP) &gt; XREF-CARD-NUM</code> (comparación alfanumérica de PIC X(16)); escribe las transacciones de la fila con <code>XREF-CARD-NUM = WS-CARD-NUM(CR-JMP)</code>.</td><td>Tarjeta sin transacciones → extracto vacío</td><td>4000-TRNXFILE-GET</td></tr>
+    <tr><td>RN-04</td><td>Total del extracto</td><td><code>WS-TOTAL-AMT = Σ TRNX-AMT</code> de la tarjeta (con signo; los abonos negativos restan). WS-TOTAL-AMT es COMP-3 S9(9)V99 y se pone a 0 antes de cada tarjeta. Se edita como <code>Z(9).99-</code> (signo detrás). Ejemplo: 100,00 + 50,25 − 20,00 = 130,25. La etiqueta es "Total EXP:" (H-05).</td><td>Desbordamiento a partir de 10<sup>9</sup> (truncado)</td><td>4000-TRNXFILE-GET</td></tr>
+    <tr><td>RN-05</td><td>Nombre del titular</td><td><code>STRING CUST-FIRST-NAME, CUST-MIDDLE-NAME, CUST-LAST-NAME DELIMITED BY ' '</code>, separados por un espacio, en ST-NAME X(75). Cada parte se corta en su primer espacio (H-07).</td><td>Nombres compuestos truncados</td><td>5000-CREATE-STATEMENT</td></tr>
+    <tr><td>RN-06</td><td>Dirección</td><td>Línea 1 = CUST-ADDR-LINE-1 (50) · línea 2 = CUST-ADDR-LINE-2 (50) · línea 3 = <code>CUST-ADDR-LINE-3 + STATE-CD + COUNTRY-CD + ZIP</code>, cada uno <code>DELIMITED BY ' '</code> y separados por un espacio (ST-ADD3 X(80)).</td><td>Ciudades con espacios truncadas</td><td>5000-CREATE-STATEMENT</td></tr>
+    <tr><td>RN-07</td><td>Formatos de presentación</td><td>Saldo: ACCT-CURR-BAL S9(10)V99 → <code>9(9).99-</code> (se pierde el dígito de mayor peso). Importe: TRNX-AMT → <code>Z(9).99-</code> precedido de "$". Descripción: TRNX-DESC X(100) → ST-TRANDT X(49). FICO: 9(03) → X(20). Account ID: 9(11) → X(20). En HTML los textos se cortan en el primer doble espacio (<code>DELIMITED BY '  '</code>).</td><td>Truncamientos silenciosos (H-07)</td><td>5000, 5200, 6000</td></tr>
+    <tr><td>RN-08</td><td>Códigos de retorno aceptados</td><td>Apertura y primera lectura de TRNXFILE, aperturas y cierres: <code>'00'</code> o <code>'04'</code>. Lecturas siguientes de TRNXFILE y XREFFILE: <code>'00'</code> (sigue) y <code>'10'</code> (fin). Lecturas de CUSTFILE y ACCTFILE: solo <code>'00'</code>. Cualquier otro → ABEND.</td><td>ABEND</td><td>8100…8500, 1000/2000/3000-*-GET, 9100…9400</td></tr>
+    <tr><td>RN-09</td><td>Datos fijos del emisor (solo HTML)</td><td>"Bank of XYZ" / "410 Terry Ave N" / "Seattle WA 99999" (literales 88 HTML-L16…L18). El extracto de texto no incluye datos del banco.</td><td>—</td><td>5100-WRITE-HTML-HEADER</td></tr>
+    <tr><td>RN-10</td><td>Validaciones no implementadas</td><td>No se filtra por fecha ni periodo de extracto, ni por estado de la cuenta (ACCT-ACTIVE-STATUS) o de la tarjeta; no se usan los acumulados de ciclo (ACCT-CURR-CYC-CREDIT/DEBIT) ni el límite de crédito.</td><td>—</td><td>CBSTM03A (ausencia)</td></tr>
+  </table>
+</section>
+
+<!-- 9 -->
+<section id="ui" class="only-online">
+  <h2><span class="num">9.</span>Interfaz de usuario <span class="badge online">Solo online (BMS)</span></h2>
+  <p>N/A — stream batch sin pantallas.</p>
+</section>
+
+<!-- 10 -->
+<section id="datos">
+  <h2><span class="num">10.</span>Diccionario de datos y layouts <span class="badge mig">Migración</span></h2>
+  <p class="legend">Los ficheros se almacenan en EBCDIC. Los numéricos con signo de los registros son <i>zoned decimal</i> con el signo en el último byte (overpunch). En WORKING-STORAGE de CBSTM03A hay campos COMP (contadores) y COMP-3 (total), que no se graban en ficheros.</p>
+  <h3>TRNX-RECORD (COSTM01, LRECL 350, clave 32 B) — registro de TRXFL</h3>
+  <table>
+    <tr><th>Campo</th><th>PIC</th><th>Pos.</th><th>Long.</th><th>Uso en CREASTMT</th><th>Tipo destino propuesto</th><th>Notas de conversión</th></tr>
+    <tr><td>TRNX-CARD-NUM</td><td>X(16)</td><td>1</td><td>16</td><td>Clave (1.ª parte), agrupación</td><td>CHAR(16)</td><td>PAN, dato sensible</td></tr>
+    <tr><td>TRNX-ID</td><td>X(16)</td><td>17</td><td>16</td><td>Clave (2.ª parte), "Tran ID"</td><td>VARCHAR(16)</td><td>Ordenado como texto</td></tr>
+    <tr><td>TRNX-TYPE-CD</td><td>X(02)</td><td>33</td><td>2</td><td>No usado</td><td>CHAR(2)</td><td></td></tr>
+    <tr><td>TRNX-CAT-CD</td><td>9(04)</td><td>35</td><td>4</td><td>No usado</td><td>SMALLINT</td><td></td></tr>
+    <tr><td>TRNX-SOURCE</td><td>X(10)</td><td>39</td><td>10</td><td>No usado</td><td>VARCHAR(10)</td><td></td></tr>
+    <tr><td>TRNX-DESC</td><td>X(100)</td><td>49</td><td>100</td><td>"Tran Details" (49 primeros caracteres)</td><td>VARCHAR(100)</td><td>Truncado en la salida (RN-07)</td></tr>
+    <tr><td>TRNX-AMT</td><td>S9(09)V99</td><td>149</td><td>11</td><td>Importe y total</td><td>DECIMAL(11,2)</td><td>Zoned con signo</td></tr>
+    <tr><td>TRNX-MERCHANT-ID / NAME / CITY / ZIP</td><td>9(09) / X(50) / X(50) / X(10)</td><td>160 / 169 / 219 / 269</td><td>9 / 50 / 50 / 10</td><td>No usados</td><td>BIGINT / VARCHAR</td><td></td></tr>
+    <tr><td>TRNX-ORIG-TS</td><td>X(26)</td><td>279</td><td>26</td><td>No usado</td><td>TIMESTAMP</td><td></td></tr>
+    <tr><td>TRNX-PROC-TS</td><td>X(26)</td><td>305</td><td>26</td><td>No usado</td><td>TIMESTAMP</td><td>Solo 24 B proceden del original; 329-350 dependen del relleno de SORT (H-08)</td></tr>
+    <tr><td>FILLER</td><td>X(20)</td><td>331</td><td>20</td><td>—</td><td>—</td><td></td></tr>
+  </table>
+  <p class="legend">El registro de entrada al SORT es TRAN-RECORD (CVTRA05Y): TRAN-ID 1-16, …, TRAN-MERCHANT-ZIP 253-262, TRAN-CARD-NUM 263-278, TRAN-ORIG-TS 279-304, TRAN-PROC-TS 305-330, FILLER 331-350.</p>
+  <h3>CARD-XREF-RECORD (CVACT03Y, LRECL 50)</h3>
+  <table>
+    <tr><th>Campo</th><th>PIC</th><th>Pos.</th><th>Long.</th><th>Uso en CREASTMT</th><th>Tipo destino propuesto</th></tr>
+    <tr><td>XREF-CARD-NUM</td><td>X(16)</td><td>1</td><td>16</td><td>Clave; un extracto por valor</td><td>CHAR(16) PK</td></tr>
+    <tr><td>XREF-CUST-ID</td><td>9(09)</td><td>17</td><td>9</td><td>Clave de lectura de CUSTDATA</td><td>BIGINT FK</td></tr>
+    <tr><td>XREF-ACCT-ID</td><td>9(11)</td><td>26</td><td>11</td><td>Clave de lectura de ACCTDATA</td><td>BIGINT FK</td></tr>
+    <tr><td>FILLER</td><td>X(14)</td><td>37</td><td>14</td><td>—</td><td>—</td></tr>
+  </table>
+  <h3>CUSTOMER-RECORD (CUSTREC, LRECL 500) — campos usados</h3>
+  <table>
+    <tr><th>Campo</th><th>PIC</th><th>Pos.</th><th>Long.</th><th>Uso en CREASTMT</th><th>Tipo destino propuesto</th></tr>
+    <tr><td>CUST-ID</td><td>9(09)</td><td>1</td><td>9</td><td>Clave (en la FD de CBSTM03B es X(09))</td><td>BIGINT PK</td></tr>
+    <tr><td>CUST-FIRST-NAME / MIDDLE-NAME / LAST-NAME</td><td>X(25) ×3</td><td>10 / 35 / 60</td><td>25 ×3</td><td>ST-NAME (RN-05)</td><td>VARCHAR(25)</td></tr>
+    <tr><td>CUST-ADDR-LINE-1 / 2 / 3</td><td>X(50) ×3</td><td>85 / 135 / 185</td><td>50 ×3</td><td>ST-ADD1, ST-ADD2, ST-ADD3 (RN-06)</td><td>VARCHAR(50)</td></tr>
+    <tr><td>CUST-ADDR-STATE-CD</td><td>X(02)</td><td>235</td><td>2</td><td>ST-ADD3</td><td>CHAR(2)</td></tr>
+    <tr><td>CUST-ADDR-COUNTRY-CD</td><td>X(03)</td><td>237</td><td>3</td><td>ST-ADD3</td><td>CHAR(3)</td></tr>
+    <tr><td>CUST-ADDR-ZIP</td><td>X(10)</td><td>240</td><td>10</td><td>ST-ADD3</td><td>VARCHAR(10)</td></tr>
+    <tr><td>CUST-FICO-CREDIT-SCORE</td><td>9(03)</td><td>330</td><td>3</td><td>ST-FICO-SCORE</td><td>SMALLINT</td></tr>
+  </table>
+  <p class="legend">No usados: teléfonos (250, 265), SSN (280), documento (289), fecha de nacimiento (309), cuenta EFT (319), indicador de titular principal (329), FILLER (333-500).</p>
+  <h3>ACCOUNT-RECORD (CVACT01Y, LRECL 300) — campos usados</h3>
+  <table>
+    <tr><th>Campo</th><th>PIC</th><th>Pos.</th><th>Long.</th><th>Uso en CREASTMT</th><th>Tipo destino propuesto</th></tr>
+    <tr><td>ACCT-ID</td><td>9(11)</td><td>1</td><td>11</td><td>Clave; "Account ID" y cabecera HTML</td><td>BIGINT PK</td></tr>
+    <tr><td>ACCT-CURR-BAL</td><td>S9(10)V99</td><td>13</td><td>12</td><td>"Current Balance" (RN-07)</td><td>DECIMAL(12,2)</td></tr>
+  </table>
+  <h3>Interfaz CBSTM03A ↔ CBSTM03B (WS-M03B-AREA / LK-M03B-AREA, 1040 B)</h3>
+  <table>
+    <tr><th>Campo</th><th>PIC</th><th>Pos.</th><th>Long.</th><th>Descripción</th></tr>
+    <tr><td>M03B-DD</td><td>X(08)</td><td>1</td><td>8</td><td>TRNXFILE / XREFFILE / CUSTFILE / ACCTFILE</td></tr>
+    <tr><td>M03B-OPER</td><td>X(01)</td><td>9</td><td>1</td><td>O, C, R, K (W y Z declarados pero no implementados)</td></tr>
+    <tr><td>M03B-RC</td><td>X(02)</td><td>10</td><td>2</td><td>File status devuelto</td></tr>
+    <tr><td>M03B-KEY</td><td>X(25)</td><td>12</td><td>25</td><td>Clave de lectura aleatoria</td></tr>
+    <tr><td>M03B-KEY-LN</td><td>S9(4)</td><td>37</td><td>4</td><td>Longitud de clave (9 cliente, 11 cuenta)</td></tr>
+    <tr><td>M03B-FLDT</td><td>X(1000)</td><td>41</td><td>1000</td><td>Registro leído</td></tr>
+  </table>
+  <h3>Tabla en memoria WS-TRNX-TABLE (171.156 B)</h3>
+  <table>
+    <tr><th>Elemento</th><th>Definición</th><th>Notas</th></tr>
+    <tr><td>WS-CARD-TBL</td><td>OCCURS 51 · WS-CARD-NUM X(16)</td><td>Una fila por tarjeta distinta</td></tr>
+    <tr><td>WS-TRAN-TBL</td><td>OCCURS 10 · WS-TRAN-NUM X(16) + WS-TRAN-REST X(318)</td><td>Tabla de dos dimensiones</td></tr>
+    <tr><td>WS-TRCT</td><td>OCCURS 51 · S9(4) COMP</td><td>Transacciones cargadas por tarjeta</td></tr>
+  </table>
+  <h3>Registros de salida</h3>
+  <table>
+    <tr><th>Fichero</th><th>Registro</th><th>Líneas por extracto</th></tr>
+    <tr><td>STMTFILE (80 B)</td><td>ST-LINE0 "START OF STATEMENT", ST-LINE1-4 nombre y dirección, ST-LINE5/6/5 "Basic Details", ST-LINE7-9 cuenta, saldo, FICO, ST-LINE10-13 "TRANSACTION SUMMARY" y encabezado (Tran ID 16 · Tran Details 51 · Tran Amount 13), ST-LINE12, n × ST-LINE14 (ID 16 · espacio · detalle 49 · "$" · importe 13), ST-LINE12, ST-LINE14A "Total EXP:", ST-LINE15 "END OF STATEMENT"</td><td>18 + n (n = transacciones de la tarjeta)</td></tr>
+    <tr><td>HTMLFILE (100 B)</td><td>Un documento HTML completo por extracto (<code>&lt;!DOCTYPE html&gt;</code> … <code>&lt;/html&gt;</code>), una etiqueta o párrafo por registro, con estilos en línea</td><td>Variable</td></tr>
+  </table>
+</section>
+
+<!-- 11 -->
+<section id="salidas">
+  <h2><span class="num">11.</span>Salidas e informes</h2>
+  <table>
+    <tr><th>Salida</th><th>Formato</th><th>Destinatario / consumidor</th><th>Retención</th><th>Observaciones</th></tr>
+    <tr><td>STATEMNT.PS</td><td>PS FB 80 B, texto</td><td>TXT2PDF1 (→ <code>STATEMNT.PS.PDF</code>); destinatario final Q-06</td><td>Solo la última ejecución (no GDG)</td><td>Extractos concatenados</td></tr>
+    <tr><td>STATEMNT.HTML</td><td>PS FB 100 B, HTML</td><td>Ningún consumidor en el repo (Q-06)</td><td>Solo la última ejecución (no GDG)</td><td>Varios documentos HTML concatenados en un dataset (H-06)</td></tr>
+    <tr><td>TRXFL.SEQ / TRXFL.VSAM.KSDS</td><td>PS FB 350 / KSDS 350</td><td>Solo el propio stream</td><td>Hasta la siguiente ejecución</td><td>Contienen el PAN en claro (sección 15)</td></tr>
+    <tr><td>SYSOUT</td><td>Texto</td><td>Operación</td><td>Según política de JES</td><td>"Running JCL", lista de DD del TIOT, errores "ERROR … / RETURN CODE:" y "ABENDING PROGRAM"; listados de IDCAMS y SORT</td></tr>
+  </table>
+</section>
+
+<!-- 12 -->
+<section id="errores">
+  <h2><span class="num">12.</span>Errores, códigos de retorno y reinicio <span class="badge mig">Migración</span></h2>
+  <table>
+    <tr><th>Situación</th><th>Comportamiento actual</th><th>RC / ABEND / mensaje</th><th>Acción operativa</th></tr>
+    <tr><td>Ejecución correcta</td><td>Fin normal de los 5 steps</td><td>RC=0 (CBSTM03A no fija RETURN-CODE)</td><td>Ninguna</td></tr>
+    <tr><td>DEFINE del KSDS de trabajo falla (p. ej. volumen TSU023 no disponible)</td><td>STEP010 se ejecuta igualmente (sin COND); STEP020-040 se saltan por COND=(0,NE)</td><td>RC≠0 de IDCAMS</td><td>Corregir y re-ejecutar desde el inicio</td></tr>
+    <tr><td>SORT o REPRO con RC≠0 (incluido RC=4 de aviso)</td><td>Se saltan los steps siguientes; los extractos anteriores <b>no</b> se borran</td><td>RC de la utilidad</td><td>Revisar listado y re-ejecutar</td></tr>
+    <tr><td>TRANSACT vacío</td><td>REPRO de 0 registros (RC de IDCAMS por fichero vacío: Q-10) y, si llega a STEP040, la primera lectura devuelve 10 → ABEND</td><td>"ERROR READING TRNXFILE" · "RETURN CODE: 10" · "ABENDING PROGRAM"</td><td>Verificar la cadena previa (H-04)</td></tr>
+    <tr><td>Error al abrir, leer o cerrar un KSDS</td><td>DISPLAY del fichero y del file status; <code>CALL 'CEE3ABD'</code></td><td>ABEND (código no explícito, H-09)</td><td>Analizar el file status</td></tr>
+    <tr><td>Cliente o cuenta de una XREF inexistente</td><td>ABEND en la primera tarjeta afectada; el resto de extractos no se genera</td><td>"ERROR READING CUSTFILE/ACCTFILE" · "RETURN CODE: 23"</td><td>Corregir la integridad referencial y re-ejecutar</td></tr>
+    <tr><td>Más de 51 tarjetas o más de 10 transacciones por tarjeta</td><td>Escritura fuera de la tabla sin detección (sin SSRANGE)</td><td>Resultado imprevisible: datos corruptos o ABEND del sistema</td><td>Ver H-01</td></tr>
+    <tr><td>Error al escribir STMTFILE/HTMLFILE (p. ej. falta de espacio)</td><td>Sin FILE STATUS en esas FD: lo trata el runtime</td><td>ABEND del sistema (p. ej. Sx37)</td><td>Ampliar SPACE y re-ejecutar</td></tr>
+  </table>
+  <table class="kv">
+    <tr><th>Punto de reinicio</th><td>Desde el inicio (DELDEF01). Re-ejecutar solo STEP040 exige borrar antes STATEMNT.PS/HTML (DISP=NEW).</td></tr>
+    <tr><th>Procedimiento de recuperación</th><td>Corregir la causa y volver a lanzar el job completo; no hay maestros que restaurar.</td></tr>
+    <tr><th>Idempotencia</th><td><b>Idempotente</b> respecto a los maestros (solo lectura): re-ejecutar con las mismas entradas produce los mismos extractos. Riesgo: si STEP040 falla después de STEP030, los extractos anteriores ya se han borrado y no hay ninguno disponible hasta re-ejecutar (H-13).</td></tr>
+  </table>
+</section>
+
+<!-- 13 -->
+<section id="transacc">
+  <h2><span class="num">13.</span>Transaccionalidad y concurrencia <span class="badge mig">Migración</span></h2>
+  <table class="kv">
+    <tr><th>Unidad de trabajo</th><td>No hay actualizaciones de maestros; las salidas se escriben secuencialmente sin commit.</td></tr>
+    <tr><th>Frecuencia de commit</th><td>N/A. En destino: escribir las salidas en una ubicación temporal y publicarlas al final (atómico).</td></tr>
+    <tr><th>Orden de actualizaciones</th><td>Por cada tarjeta: texto de cabecera y HTML de cabecera → líneas de detalle (texto y HTML alternados) → pie de texto → cierre HTML.</td></tr>
+    <tr><th>Acceso concurrente / bloqueos</th><td>Los maestros se abren DISP=SHR y OPEN INPUT. En CA7 el job va tras CLOSEFIL, que cierra en CICS TRANSACT, CCXREF y ACCTDAT, pero <b>no</b> CUSTDAT: el maestro de clientes puede seguir abierto y actualizándose online durante la lectura (H-17). Si se ejecuta fuera de esa cadena, con CICS activo, podría leer cualquier maestro a medio actualizar (Q-08). El KSDS de trabajo usa SHAREOPTIONS(2 3).</td></tr>
+  </table>
+</section>
+
+<!-- 14 -->
+<section id="rnf">
+  <h2><span class="num">14.</span>Volumetría, rendimiento y planificación</h2>
+  <table>
+    <tr><th>Métrica</th><th>Valor actual</th><th>Objetivo en destino</th><th>Fuente</th></tr>
+    <tr><td>Transacciones / tarjetas / extractos</td><td>Datos de ejemplo: 300 transacciones, 50 tarjetas (máx. 6 por tarjeta), 50 XREF → 50 extractos. Producción: Q-05</td><td>Q-05</td><td><code>app/data/ASCII/dailytran.txt</code>, <code>cardxref.txt</code></td></tr>
+    <tr><td>Capacidad máxima del programa</td><td>51 tarjetas distintas y 10 transacciones por tarjeta en TRANSACT (H-01)</td><td>Sin límite fijo</td><td>CBSTM03A · WS-TRNX-TABLE</td></tr>
+    <tr><td>Coste de emparejamiento</td><td>Por cada XREF se recorre la tabla desde la primera fila: O(tarjetas XREF × tarjetas con transacciones)</td><td>Lectura agrupada (merge) O(n)</td><td>4000-TRNXFILE-GET</td></tr>
+    <tr><td>Parámetros CA7</td><td>REGION=4096K, CPUTM=00023, ELAPTM=2359 (límites configurados, iguales para todos los jobs del listado; no son mediciones)</td><td>—</td><td><code>CardDemo.ca7</code></td></tr>
+    <tr><td>Espacio</td><td>KSDS de trabajo CYL(1 5); TRXFL.SEQ, STATEMNT.PS y STATEMNT.HTML SPACE=(CYL,(1,1),RLSE)</td><td>—</td><td>CREASTMT.JCL</td></tr>
+    <tr><td>Duración / ventana batch</td><td>Q-01</td><td>Q-01</td><td>—</td></tr>
+  </table>
+</section>
+
+<!-- 15 -->
+<section id="seguridad">
+  <h2><span class="num">15.</span>Seguridad y auditoría</h2>
+  <table class="kv">
+    <tr><th>Autorización</th><td>Usuario de envío del job (NOTIFY=&amp;SYSUID). Perfiles RACF sobre <code>AWS.M2.CARDDEMO.*</code>: Q-09.</td></tr>
+    <tr><th>Datos sensibles</th><td>El extracto incluye nombre, dirección, saldo y <b>puntuación FICO</b> del cliente (Q-09). No imprime el número de tarjeta. TRXFL.SEQ y TRXFL.VSAM.KSDS contienen el PAN en claro y quedan catalogados entre ejecuciones. En destino: cifrado en reposo, borrado de temporales y control de acceso a los extractos.</td></tr>
+    <tr><th>Trazas y auditoría</th><td>Solo DISPLAY a SYSOUT (job/step, DD, errores). No hay recuento de extractos generados ni registro de auditoría de su emisión.</td></tr>
+  </table>
+</section>
+
+<!-- 16 -->
+<section id="destino">
+  <h2><span class="num">16.</span>Mapeo a la arquitectura destino <span class="badge mig">Migración</span></h2>
+  <p class="legend">Propuesta orientativa: la arquitectura destino debe confirmarla el equipo de migración.</p>
+  <table>
+    <tr><th>Componente legado</th><th>Componente destino</th><th>Patrón</th><th>Notas</th></tr>
+    <tr><td>Job CREASTMT</td><td>Job batch (p. ej. Spring Batch <code>createStatementsJob</code>)</td><td>Reader (XREF) → processor (cliente + cuenta + transacciones) → writers</td><td>Parámetros: periodo del extracto si se decide filtrar (Q-03)</td></tr>
+    <tr><td>DELDEF01 + STEP010 + STEP020 (TRXFL)</td><td>Consulta <code>SELECT … FROM transaction ORDER BY card_num, tran_id</code></td><td>Eliminación del fichero intermedio</td><td>Mantener el orden por TRAN-ID como texto</td></tr>
+    <tr><td>WS-TRNX-TABLE (51×10)</td><td>Lectura por tarjeta o merge de dos cursores ordenados</td><td>Sin límites fijos</td><td>Corrige H-01</td></tr>
+    <tr><td>CBSTM03B</td><td>Repositorios <code>CardXrefRepository</code>, <code>CustomerRepository</code>, <code>AccountRepository</code>, <code>TransactionRepository</code></td><td>DAO</td><td>Los códigos O/C/R/K desaparecen</td></tr>
+    <tr><td>5000 / 6000 / 4000 (texto)</td><td>Writer de texto de 80 columnas</td><td>FlatFileItemWriter / plantilla</td><td>Reproducir formatos RN-05…RN-07 para la equivalencia</td></tr>
+    <tr><td>5100 / 5200 / 6000 / 4000 (HTML)</td><td>Motor de plantillas (Thymeleaf, Freemarker…)</td><td>Un documento por extracto</td><td>Escapar caracteres HTML (H-06); datos del banco configurables</td></tr>
+    <tr><td>STEP030 + DISP=NEW</td><td>Salida versionada por ejecución</td><td>Escritura temporal + publicación</td><td>Corrige H-13</td></tr>
+    <tr><td>TXT2PDF1</td><td>Generación PDF integrada</td><td>Librería PDF</td><td>Fuera del alcance de este stream</td></tr>
+    <tr><td>TIOT / ALTER / GO TO</td><td>Se eliminan</td><td>Flujo estructurado y logging</td><td>H-10</td></tr>
+    <tr><td>ABEND CEE3ABD / RC 0</td><td>ExitStatus FAILED / COMPLETED</td><td>Mapeo al orquestador</td><td>—</td></tr>
+    <tr><td>CA7 SCHID 030</td><td>Orquestador destino</td><td>DAG con las dependencias decididas en Q-08</td><td>Sustituir CLOSEFIL/OPENFIL por lectura consistente</td></tr>
+  </table>
+</section>
+
+<!-- 17 -->
+<section id="migdatos">
+  <h2><span class="num">17.</span>Migración de datos <span class="badge mig">Migración</span></h2>
+  <table>
+    <tr><th>Origen</th><th>Destino</th><th>Conversión</th><th>Orden de carga</th><th>Validación</th></tr>
+    <tr><td>CUSTDATA KSDS</td><td><code>customer</code></td><td>EBCDIC → UTF-8; CUST-ID a BIGINT</td><td>1</td><td>Recuento de registros</td></tr>
+    <tr><td>ACCTDATA KSDS</td><td><code>account</code></td><td>Zoned decimal → DECIMAL</td><td>2</td><td>Recuento y suma de ACCT-CURR-BAL</td></tr>
+    <tr><td>CARDXREF KSDS</td><td><code>card_xref</code></td><td>Numéricos a BIGINT; comprobar FK a customer y account (RF-05)</td><td>3</td><td>Recuento; huérfanos = 0</td></tr>
+    <tr><td>TRANSACT KSDS</td><td><code>transaction</code></td><td>Zoned decimal → DECIMAL; timestamps X(26) → TIMESTAMP</td><td>4</td><td>Recuento y suma de TRAN-AMT por tarjeta</td></tr>
+    <tr><td>TRXFL, STATEMNT.*</td><td>No se migran</td><td>Temporales / salidas regenerables</td><td>—</td><td>—</td></tr>
+  </table>
+</section>
+
+<!-- 18 -->
+<section id="pruebas">
+  <h2><span class="num">18.</span>Estrategia de pruebas y criterios de equivalencia <span class="badge mig">Migración</span></h2>
+  <table>
+    <tr><th>ID</th><th>Escenario</th><th>Datos de prueba</th><th>Resultado esperado</th><th>RF cubiertos</th></tr>
+    <tr><td>CP-01</td><td>Ejecución completa con los datos de ejemplo</td><td>TRANSACT cargado con <code>DALYTRAN.PS.INIT</code> (TRANFILE) + CARDXREF, CUSTDATA y ACCTDATA de <code>app/data/EBCDIC</code></td><td>50 extractos; STATEMNT.PS y STATEMNT.HTML idénticos al legado; RC 0</td><td>RF-01, RF-03, RF-04, RF-06, RF-07, RF-08, RF-09</td></tr>
+    <tr><td>CP-02</td><td>Re-ejecución</td><td>Mismas entradas, dos ejecuciones seguidas</td><td>Salidas idénticas; solo existen los extractos de la última</td><td>RF-02</td></tr>
+    <tr><td>CP-03</td><td>Tarjeta sin transacciones</td><td>XREF con una tarjeta sin movimientos</td><td>Extracto con cabecera y total .00</td><td>RF-10</td></tr>
+    <tr><td>CP-04</td><td>Cuenta con dos tarjetas</td><td>Dos XREF con el mismo ACCT-ID</td><td>Dos extractos con el mismo saldo; cada uno con las transacciones de su tarjeta</td><td>RF-04, RF-07</td></tr>
+    <tr><td>CP-05</td><td>Importe negativo</td><td>Transacciones 100,00, 50,25 y −20,00</td><td>"Total EXP:" = 130.25</td><td>RF-08</td></tr>
+    <tr><td>CP-06</td><td>Transacción de tarjeta ausente de XREF</td><td>TRAN-CARD-NUM que no existe en XREF</td><td>No aparece en ningún extracto; RC 0</td><td>RF-11</td></tr>
+    <tr><td>CP-07</td><td>Cliente o cuenta inexistente</td><td>XREF que apunta a un CUST-ID / ACCT-ID sin registro</td><td>ABEND con "RETURN CODE: 23"</td><td>RF-05, RF-12</td></tr>
+    <tr><td>CP-08</td><td>TRANSACT vacío</td><td>KSDS sin registros</td><td>ABEND con "RETURN CODE: 10" (comportamiento legado, H-04)</td><td>RF-12</td></tr>
+    <tr><td>CP-09</td><td>Límites de la tabla</td><td>52 tarjetas con transacciones; una tarjeta con 11 transacciones</td><td>Legado: imprevisible. Destino: según la decisión de H-01</td><td>RF-03</td></tr>
+    <tr><td>CP-10</td><td>Truncamientos de presentación</td><td>Nombre "MARY ANN", ciudad "NEW YORK", descripción de 100 caracteres, saldo ≥ 1.000.000.000</td><td>Reproducir (o corregir según H-07) los cortes documentados en RN-05…RN-07</td><td>RF-06, RF-07</td></tr>
+    <tr><td>CP-11</td><td>Caracteres especiales en HTML</td><td>Nombre o descripción con <code>&amp;</code> o <code>&lt;</code></td><td>Legado: sin escapar. Destino: según H-06</td><td>RF-09</td></tr>
+  </table>
+  <p><b>Criterio de equivalencia:</b> ejecución en paralelo con los mismos maestros. Comparación línea a línea de STATEMNT.PS (80 columnas) y del contenido HTML normalizado (sin espacios finales de cada registro de 100 B), además del número de extractos y del RC. Las diferencias aceptadas por decisión de hallazgos (H-01, H-06, H-07) deben listarse explícitamente.</p>
+</section>
+
+<!-- 19 -->
+<section id="traza">
+  <h2><span class="num">19.</span>Matriz de trazabilidad</h2>
+  <table>
+    <tr><th>RF</th><th>Reglas</th><th>Componente legado</th><th>Componente destino</th><th>Casos de prueba</th></tr>
+    <tr><td>RF-01</td><td>RN-01</td><td>DELDEF01, STEP010, STEP020</td><td>Consulta ordenada</td><td>CP-01</td></tr>
+    <tr><td>RF-02</td><td>—</td><td>STEP030</td><td>Salida versionada</td><td>CP-02</td></tr>
+    <tr><td>RF-03</td><td>RN-02, RN-08</td><td>8100-TRNXFILE-OPEN, 8500-READTRNX-READ</td><td>Reader de transacciones</td><td>CP-01, CP-09</td></tr>
+    <tr><td>RF-04</td><td>RN-03</td><td>1000-MAINLINE, 1000-XREFFILE-GET-NEXT</td><td>Reader de XREF</td><td>CP-01, CP-04</td></tr>
+    <tr><td>RF-05</td><td>RN-08</td><td>2000-CUSTFILE-GET, 3000-ACCTFILE-GET, CBSTM03B</td><td>Processor + repositorios</td><td>CP-07</td></tr>
+    <tr><td>RF-06</td><td>RN-05, RN-06, RN-07</td><td>5000-CREATE-STATEMENT</td><td>Writer de texto</td><td>CP-01, CP-10</td></tr>
+    <tr><td>RF-07</td><td>RN-03, RN-07</td><td>4000-TRNXFILE-GET, 6000-WRITE-TRANS</td><td>Writer de texto / HTML</td><td>CP-01, CP-04, CP-10</td></tr>
+    <tr><td>RF-08</td><td>RN-04</td><td>4000-TRNXFILE-GET</td><td>Processor (total)</td><td>CP-01, CP-05</td></tr>
+    <tr><td>RF-09</td><td>RN-09</td><td>5100, 5200, 6000, 4000</td><td>Plantilla HTML</td><td>CP-01, CP-11</td></tr>
+    <tr><td>RF-10</td><td>RN-03</td><td>4000-TRNXFILE-GET</td><td>Processor</td><td>CP-03</td></tr>
+    <tr><td>RF-11</td><td>RN-03</td><td>4000-TRNXFILE-GET</td><td>Processor / informe de huérfanas</td><td>CP-06</td></tr>
+    <tr><td>RF-12</td><td>RN-08</td><td>8100…8500, 9100…9400, 9999-ABEND-PROGRAM</td><td>Manejo de excepciones</td><td>CP-07, CP-08</td></tr>
+    <tr><td>RF-13</td><td>—</td><td>Inicio de PROCEDURE DIVISION (TIOT)</td><td>Logging del framework</td><td>CP-01</td></tr>
+  </table>
+</section>
+
+<!-- 20 -->
+<section id="riesgos">
+  <h2><span class="num">20.</span>Riesgos, supuestos y preguntas abiertas</h2>
+  <h3>Hallazgos del análisis de código</h3>
+  <table>
+    <tr><th>ID</th><th>Hallazgo</th><th>Impacto</th><th>Decisión (replicar / corregir)</th></tr>
+    <tr><td>H-01</td><td><code>WS-TRNX-TABLE</code> admite 51 tarjetas × 10 transacciones y <code>8500-READTRNX-READ</code> no comprueba los límites. Con más de 51 tarjetas distintas en TRANSACT o más de 10 transacciones en una tarjeta escribe fuera de la tabla. Caso no demostrado: con exactamente 51 tarjetas, la condición <code>UNTIL CR-JMP &gt; CR-CNT OR WS-CARD-NUM(CR-JMP) &gt; XREF-CARD-NUM</code> de <code>4000-TRNXFILE-GET</code> solo accede a la fila 52 si el compilador evalúa la segunda parte cuando la primera ya es cierta (depende de la evaluación de condiciones; verificar). Los datos de ejemplo (50 tarjetas, máx. 6) caben por poco.</td><td>Alto: corrupción de memoria o extractos erróneos con volúmenes reales</td><td>Corregir en destino (sin límite fijo)</td></tr>
+    <tr><td>H-02</td><td>No hay filtro de periodo: el extracto incluye todas las transacciones presentes en TRANSACT al ejecutarse, sin mirar fechas ni el ciclo de la cuenta.</td><td>Contenido del extracto dependiente de la posición en la cadena</td><td>Pendiente de negocio (Q-03)</td></tr>
+    <tr><td>H-03</td><td>Se genera un extracto por tarjeta, no por cuenta. Una cuenta con varias tarjetas recibe varios extractos con el mismo saldo de cuenta, cada uno solo con las transacciones de su tarjeta.</td><td>Extractos duplicados o parciales por cuenta</td><td>Pendiente de negocio (Q-04)</td></tr>
+    <tr><td>H-04</td><td>Si TRXFL está vacío, la primera lectura en <code>8100-TRNXFILE-OPEN</code> devuelve 10 y, como solo se aceptan 00/04, el programa hace ABEND en lugar de generar extractos sin movimientos.</td><td>Fallo del job en un caso de negocio válido</td><td>Corregir recomendado</td></tr>
+    <tr><td>H-05</td><td>"Total EXP:" es la suma con signo de todos los importes (RN-04): los abonos reducen el total. La etiqueta sugiere solo gastos.</td><td>Interpretación ambigua para el cliente</td><td>Confirmar con negocio (Q-07)</td></tr>
+    <tr><td>H-06</td><td>STATEMNT.HTML contiene un documento HTML completo por extracto concatenado en un único dataset (varios <code>&lt;!DOCTYPE html&gt;</code>), y los datos del cliente y las descripciones no se escapan (<code>&amp;</code>, <code>&lt;</code>).</td><td>HTML inválido como fichero único; riesgo de inyección de marcado</td><td>Corregir en destino (un documento por extracto, escape)</td></tr>
+    <tr><td>H-07</td><td>Truncamientos silenciosos: nombre y línea 3 de dirección cortados en el primer espacio (<code>DELIMITED BY ' '</code>); descripción 100 → 49; saldo S9(10)V99 → <code>9(9).99-</code> pierde el dígito de mayor peso; en HTML, corte en el primer doble espacio.</td><td>Datos incompletos en el extracto</td><td>Pendiente: replicar para la equivalencia o corregir</td></tr>
+    <tr><td>H-08</td><td><code>OUTREC FIELDS=(1:263,16,17:1,262,279:279,50)</code> genera 328 B: TRAN-PROC-TS pierde sus 2 últimos bytes y los bytes 329-350 dependen del relleno que haga SORT en un LRECL 350.</td><td>Bajo (campos no usados en el extracto)</td><td>No replicar</td></tr>
+    <tr><td>H-09</td><td>Gestión de errores incompleta: STMT-FILE y HTML-FILE no tienen FILE STATUS (OPEN y WRITE no se comprueban); <code>CALL 'CEE3ABD'</code> sin los parámetros de código y timing; en CBSTM03B un DD desconocido devuelve sin fijar RC, y las operaciones W (WRITE) y Z (REWRITE) están declaradas pero no implementadas (código muerto).</td><td>Diagnóstico pobre ante fallos</td><td>Corregir en destino</td></tr>
+    <tr><td>H-10</td><td>Patrones no portables: direccionamiento de PSA/TCB/TIOT con un puntero no inicializado (dirección 0) solo para mostrar DD; secuencia de aperturas con <code>ALTER</code> y <code>GO TO</code>. Tras el bucle del TIOT se vuelve a mostrar la última entrada.</td><td>No migrable tal cual</td><td>Eliminar en destino</td></tr>
+    <tr><td>H-11</td><td>Planificación inconsistente: CA7 lo encadena CLOSEFIL → CREASTMT → TXT2PDF1 → WAITSTEP → OPENFIL; el README lo sitúa entre COMBTRAN y TRANIDX; <code>run_full_batch.sh</code> no lo envía; Control-M no lo contiene.</td><td>Inventario de planificación incierto; contenido distinto según la cadena</td><td>Confirmar el planificador vigente (Q-08)</td></tr>
+    <tr><td>H-12</td><td>JCL con restos de edición: la línea 90 de <code>CREASTMT.JCL</code> lleva texto tras <code>RLSE),</code> ("00,RECFM=FB), ATA.VSAM.KSDS") que JCL trata como comentario; el DCB de HTMLFILE en STEP030 dice LRECL=80 frente a 100 en STEP040; volumen <code>TSU023</code> fijado en el DEFINE.</td><td>Bajo (sin efecto funcional)</td><td>Limpiar</td></tr>
+    <tr><td>H-13</td><td>Las salidas no son GDG: STEP030 borra los extractos anteriores antes de generar los nuevos. Si STEP040 falla, no queda ningún extracto.</td><td>Sin histórico ni recuperación de extractos emitidos</td><td>Pendiente (Q-06)</td></tr>
+    <tr><td>H-14</td><td>STEP010 no tiene COND: si DELDEF01 falla, el SORT se ejecuta igualmente sobre el TRXFL.SEQ sin borrar. Con COND=(0,NE), un RC=4 de cualquier utilidad salta el resto del job.</td><td>Comportamiento de cadena poco robusto</td><td>Definir condiciones explícitas en destino</td></tr>
+    <tr><td>H-15</td><td>El emparejamiento depende de que XREF (clave KSDS) y TRXFL (SORT CH) estén ordenados por la misma comparación de texto. Con caracteres distintos de dígitos o una codificación distinta (EBCDIC frente a ASCII) el orden puede cambiar.</td><td>Transacciones omitidas tras migrar</td><td>Usar la misma colación en destino</td></tr>
+    <tr><td>H-16</td><td>Las transacciones cuya tarjeta no está en XREF se omiten sin aviso ni recuento (RF-11).</td><td>Pérdida silenciosa de información</td><td>Corregir recomendado (informe de huérfanas)</td></tr>
+    <tr><td>H-17</td><td>CLOSEFIL (SDSF, <code>CEMT SET FIL(…) CLO</code>) cierra en CICS TRANSACT, CCXREF, ACCTDAT, CXACAIX y USRSEC, pero no CUSTDAT. CREASTMT lee CUSTDATA mientras el online puede seguir modificándolo.</td><td>Extracto con datos de cliente no consistentes con el resto</td><td>Confirmar con operación (Q-08); en destino, lectura consistente</td></tr>
+  </table>
+  <h3>Supuestos</h3>
+  <ul>
+    <li>TRAN-ID es único en TRANSACT (lo garantiza la clave del KSDS), así que tarjeta + ID es único en TRXFL y el REPRO no falla por duplicados.</li>
+    <li>Toda XREF apunta a un cliente y una cuenta existentes (si no, ABEND, RF-05).</li>
+    <li>TRANSACT, CARDXREF y ACCTDATA no se modifican durante la ejecución (CLOSEFIL previo en CA7). Para CUSTDATA no hay esa garantía (H-17).</li>
+  </ul>
+  <h3>Preguntas abiertas</h3>
+  <table>
+    <tr><th>ID</th><th>Pregunta</th><th>Dirigida a</th><th>Estado</th></tr>
+    <tr><td>Q-01</td><td>¿Con qué frecuencia y en qué ventana se generan los extractos (mensual, por ciclo, diario)? ¿SLA?</td><td>Operación / negocio</td><td>Abierta</td></tr>
+    <tr><td>Q-02</td><td>¿Responsables funcional y técnico?</td><td>Negocio / IT</td><td>Abierta</td></tr>
+    <tr><td>Q-03</td><td>¿El extracto debe limitarse a un periodo (fechas o ciclo de la cuenta)?</td><td>Negocio</td><td>Abierta</td></tr>
+    <tr><td>Q-04</td><td>¿Extracto por tarjeta (actual) o por cuenta?</td><td>Negocio</td><td>Abierta</td></tr>
+    <tr><td>Q-05</td><td>¿Número real de tarjetas y transacciones por ejecución? (determina el impacto de H-01)</td><td>Operación</td><td>Abierta</td></tr>
+    <tr><td>Q-06</td><td>¿Quién recibe STATEMNT.PS/HTML/PDF, cómo se distribuyen y qué retención se exige?</td><td>Negocio / operación</td><td>Abierta</td></tr>
+    <tr><td>Q-07</td><td>¿"Total EXP" debe ser el neto (actual) o solo los cargos?</td><td>Negocio</td><td>Abierta</td></tr>
+    <tr><td>Q-08</td><td>¿Qué planificador y qué posición en la cadena son los vigentes (CA7, README, script)?</td><td>Operación</td><td>Abierta</td></tr>
+    <tr><td>Q-09</td><td>¿Perfiles RACF? ¿Es aceptable mostrar la puntuación FICO en el extracto?</td><td>Seguridad / cumplimiento</td><td>Abierta</td></tr>
+    <tr><td>Q-10</td><td>¿Qué RC dan SORT/REPRO con TRANSACT vacío y qué relleno aplica SORT a los bytes 329-350 en el entorno real?</td><td>Sistemas</td><td>Abierta</td></tr>
+    <tr><td>Q-11</td><td>¿Qué job dispara el CLOSEFIL que precede a CREASTMT en CA7? El listado no lo muestra.</td><td>Operación</td><td>Abierta</td></tr>
+  </table>
+</section>
+
+<!-- 21 -->
+<section id="glosario">
+  <h2><span class="num">21.</span>Glosario</h2>
+  <table>
+    <tr><th>Término</th><th>Definición</th></tr>
+    <tr><td>Extracto (statement)</td><td>Resumen de cuenta entregado al titular con sus datos y transacciones.</td></tr>
+    <tr><td>KSDS</td><td>VSAM Key-Sequenced Data Set: fichero indexado por clave.</td></tr>
+    <tr><td>XREF</td><td>Referencia cruzada tarjeta → cliente → cuenta.</td></tr>
+    <tr><td>TRXFL</td><td>Copia de trabajo de TRANSACT con clave tarjeta + ID de transacción.</td></tr>
+    <tr><td>TIOT / PSA / TCB</td><td>Bloques de control de z/OS: tabla de DD del step, área de prefijo y bloque de control de tarea.</td></tr>
+    <tr><td>ALTER</td><td>Sentencia COBOL obsoleta que cambia en ejecución el destino de un <code>GO TO</code>.</td></tr>
+    <tr><td>COMP / COMP-3</td><td>Binario / decimal empaquetado.</td></tr>
+    <tr><td>Zoned decimal</td><td>Numérico con un dígito por byte y el signo en el último byte.</td></tr>
+    <tr><td>FICO</td><td>Puntuación de riesgo crediticio del cliente.</td></tr>
+    <tr><td>CEE3ABD</td><td>Servicio de Language Environment que fuerza un ABEND.</td></tr>
+    <tr><td>COND=(0,NE)</td><td>El step se salta si algún step anterior terminó con RC distinto de 0.</td></tr>
+  </table>
+</section>
+
+<!-- 22 -->
+<section id="aprob">
+  <h2><span class="num">22.</span>Aprobaciones</h2>
+  <table>
+    <tr><th>Rol</th><th>Nombre</th><th>Fecha</th><th>Firma / conformidad</th></tr>
+    <tr><td>Responsable funcional</td><td>Pendiente</td><td></td><td></td></tr>
+    <tr><td>Responsable técnico (legado)</td><td>Pendiente</td><td></td><td></td></tr>
+    <tr><td>Responsable de migración</td><td>Pendiente</td><td></td><td></td></tr>
+  </table>
+</section>
+
+<footer class="doc">Documento de requisitos funcionales basado en la plantilla <code>docs/plantilla-requisitos-funcionales.html</code> · Stream CREASTMT · CardDemo</footer>
+</div>
+</body>
+</html>
