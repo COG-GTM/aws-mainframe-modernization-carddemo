@@ -36,7 +36,7 @@ No dynamic edge is left unresolved. (2026-11-19 review fix: per-site resolution 
 | `app/cbl/COCRDLIC.cbl:538`, `:566` | `CCARD-NEXT-PROG` | `LIT-CARDDTLPGM` = COCRDSLC (`:196`, MOVE `:526`); `LIT-CARDUPDPGM` = COCRDUPC (`:204`, MOVE `:554`) |
 | `app/cbl/COCRDLIC.cbl:402` | `LIT-MENUPGM` | COMEN01C (`:188`) |
 | `app/cbl/COACTVWC.cbl:349`, `COACTUPC.cbl:956`, `COCRDSLC.cbl:331`, `COCRDUPC.cbl:473` | `CDEMO-TO-PROGRAM` | `LIT-MENUPGM` = COMEN01C (`COACTVWC.cbl:169`, `COACTUPC.cbl:558`) or `CDEMO-FROM-PROGRAM` (return to caller, e.g. `COACTVWC.cbl:336-338`) |
-| `app/app-transaction-type-db2/cbl/COTRTLIC.cbl:620`, `COTRTUPC.cbl:457` | `CDEMO-TO-PROGRAM` | `LIT-ADMINPGM` = COADM01C (`COTRTLIC.cbl:47`, `COTRTUPC.cbl:210`), `LIT-ADDTPGM` = COTRTUPC (`COTRTLIC.cbl:50`, MOVE `:638`) or `CDEMO-FROM-PROGRAM` |
+| `app/app-transaction-type-db2/cbl/COTRTLIC.cbl:620`, `COTRTUPC.cbl:457` | `CDEMO-TO-PROGRAM` | PF3 return: `LIT-ADMINPGM` = COADM01C (`COTRTLIC.cbl:47` MOVE `:603`, `COTRTUPC.cbl:210` MOVE `:440`) or `CDEMO-FROM-PROGRAM` (`COTRTLIC.cbl:605`, `COTRTUPC.cbl:442`). The PF2 hop to COTRTUPC is a separate, script-resolved XCTL (`COTRTLIC.cbl:648`, `LIT-ADDTPGM` `:50`, MOVE `:638`) |
 | `app/app-authorization-ims-db2-mq/cbl/COPAUS1C.cbl:368` | `CDEMO-TO-PROGRAM` | `WS-PGM-AUTH-SMRY` = COPAUS0C (`:34`, MOVE `:168`, `:185`) |
 | 8 x `RETURN TRANSID(LIT-THISTRANID)` (COACTVWC `:402`, COACTUPC `:1015`, COCRDLIC `:615`, COCRDSLC `:402`, COCRDUPC `:554`, COTRTUPC `:567`, ...) | own trancode | pseudo-conversational re-entry into the same program (CAVW, CAUP, CCLI, CCDL, CCUP, CTTU) |
 | `app/app-transaction-type-db2/cpy/CSDB2RPY.cpy:57` (via `COTRTLIC.cbl:2055`) | `LIT-DSNTIAC` | DB2 runtime `DSNTIAC` (`COTRTLIC.cbl:54`) |
