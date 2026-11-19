@@ -79,6 +79,8 @@ class RejectFileWriterTest extends PostgresTestBase {
         store.stage(10L, new DailyTransaction(1, record), 101, "OTHER INSTANCE");
 
         GenerationDirectory abended = generation();
+        assertThat(writer.writeTemp(abended, 9L)).isEqualTo(2);
+        assertThat(abended.temp(RejectFileWriter.DD)).exists();
         assertThat(writer.finish(abended, 9L, ReturnCode.ABEND)).isEmpty();
         assertThat(abended.resolve(RejectFileWriter.DD)).doesNotExist();
         assertThat(abended.temp(RejectFileWriter.DD)).doesNotExist();
