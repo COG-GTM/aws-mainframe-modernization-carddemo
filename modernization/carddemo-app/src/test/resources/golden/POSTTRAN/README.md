@@ -6,7 +6,7 @@ GnuCOBOL oracle outputs of `.migration/tools/posttran_gnucobol_oracle.sh` (`ORAC
 | Case | Input | Oracle RC | Runbook |
 |---|---|---|---|
 | GC-1 | `app/data/ASCII/dailytran.txt` (300 records, 38 rejects) | 4 | R-04 |
-| GC-2 | `syn_all` (reasons 100/102/103) | 4 | R-11 |
+| GC-2 | `syn_all`: emits reasons 0100, 0103, 0103 (the expired-and-over-limit record reports 0103, the last check wins; 0102 itself is emitted in GC-1) | 4 | R-11 |
 | GC-3 | `syn_ok` (all valid) | 0 | R-11 |
 | GC-4 | in-file duplicate TRAN-ID (abend); `expected-prefix/` = oracle on the 2 valid records | 231 (Java: 16) | R-06, R-13 |
 | GC-5 | empty | 0 | R-12 |
