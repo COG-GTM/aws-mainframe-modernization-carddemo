@@ -1,0 +1,3 @@
+010001Regular Sales Draft
+010005Interest
+020001Cash payment
