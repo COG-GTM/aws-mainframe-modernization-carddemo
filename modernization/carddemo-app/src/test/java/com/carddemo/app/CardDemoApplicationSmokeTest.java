@@ -38,21 +38,22 @@ class CardDemoApplicationSmokeTest extends PostgresTestBase {
     }
 
     @Test
-    void flywayAppliedV0ToV6AndNotV7() {
-        assertThat(flyway.info().current().getVersion().getVersion()).isEqualTo("6");
+    void flywayAppliedV0ToV7() {
+        assertThat(flyway.info().current().getVersion().getVersion()).isEqualTo("7");
         List<String> applied = jdbc.queryForList(
                 "SELECT version || ':' || success FROM flyway_schema_history ORDER BY installed_rank", String.class);
-        assertThat(applied).containsExactly("0:true", "1:true", "2:true", "3:true", "4:true", "5:true", "6:true");
+        assertThat(applied).containsExactly("0:true", "1:true", "2:true", "3:true", "4:true", "5:true", "6:true", "7:true");
     }
 
     @Test
-    void tablesArePhase1WithoutTransact() {
+    void tablesArePhase1() {
         List<String> tables = jdbc.queryForList("""
                 SELECT lower(table_schema || '.' || table_name) FROM information_schema.tables
                 WHERE table_schema NOT IN ('pg_catalog', 'information_schema')""", String.class);
         assertThat(tables).containsExactlyInAnyOrder(
                 "public.flyway_schema_history",
-                "account.account", "card.card_xref", "reference.tran_cat_balance", "batch.posttran_reject",
+                "account.account", "card.card_xref", "reference.tran_cat_balance", "transaction.transaction",
+                "batch.posttran_reject",
                 "batch.batch_job_instance", "batch.batch_job_execution", "batch.batch_job_execution_params",
                 "batch.batch_step_execution", "batch.batch_step_execution_context", "batch.batch_job_execution_context");
         assertThat(jdbc.queryForList("SELECT schema_name FROM information_schema.schemata", String.class))

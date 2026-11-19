@@ -6,6 +6,8 @@ import com.carddemo.common.cobol.CodePage;
 import com.carddemo.common.record.CobolRecord;
 import com.carddemo.reference.batch.TranCatBalanceRecordLayout;
 import com.carddemo.reference.repository.TranCatBalanceRepository;
+import com.carddemo.transaction.batch.TransactionRecordLayout;
+import com.carddemo.transaction.repository.TransactionRepository;
 import org.springframework.data.domain.Sort;
 
 import java.util.Comparator;
@@ -13,7 +15,8 @@ import java.util.List;
 
 /**
  * Unloads tables to text exactly like the oracle's ULACCT/ULTCAT: one ASCII record image per line in key order,
- * trailing spaces dropped (GnuCOBOL LINE SEQUENTIAL WRITE). TRANSACT (ULTRAN) waits for V7 / OQ-7.
+ * trailing spaces dropped (GnuCOBOL LINE SEQUENTIAL WRITE). TRANSACT keeps its timestamp texts as stored (D-015);
+ * compare it with {@link GoldenCompare#TRANSACT_MASK}.
  */
 public final class TableUnloader {
 
@@ -30,6 +33,13 @@ public final class TableUnloader {
         return repository.findAll().stream()
                 .map(t -> line(TranCatBalanceRecordLayout.toRecord(t, CodePage.ASCII)))
                 .sorted(Comparator.comparing(l -> l.substring(0, 17))).toList();
+    }
+
+    public static List<String> transactions(TransactionRepository repository) {
+        // KSDS key order = byte order of TRAN-ID, not the database collation
+        return repository.findAll().stream()
+                .map(t -> line(TransactionRecordLayout.toRecord(t, CodePage.ASCII)))
+                .sorted(Comparator.comparing(l -> l.substring(0, 16))).toList();
     }
 
     static String line(CobolRecord record) {

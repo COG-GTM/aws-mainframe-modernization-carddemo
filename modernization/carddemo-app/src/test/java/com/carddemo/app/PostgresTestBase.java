@@ -30,6 +30,6 @@ public abstract class PostgresTestBase {
     protected JdbcTemplate jdbc;
 
     protected void truncateBusinessTables() {
-        jdbc.execute("TRUNCATE account.account, card.card_xref, reference.tran_cat_balance, batch.posttran_reject");
+        jdbc.execute("TRUNCATE account.account, card.card_xref, reference.tran_cat_balance, transaction.transaction, batch.posttran_reject");
     }
 }
