@@ -3,14 +3,14 @@
 | Item | Value |
 |---|---|
 | Date | 2026-11-19 |
-| Implementation under test | branch `devin/1795099675-posttran-wave1` (PR #216), SHA `cb5affa9`, module `modernization/`, job `POSTTRAN` |
+| Implementation under test | branch `devin/1795099675-posttran-wave1` (PR #216): first run on SHA `cb5affa9`; re-run (§10) on `8c331b24` (D-052, merged into this branch), module `modernization/`, job `POSTTRAN` |
 | Oracle | GnuCOBOL 3.1 (BDB indexed) on `app/cbl/CBTRN02C.cbl` via `.migration/tools/posttran_gnucobol_oracle.sh`, `COB_CURRENT_DATE='2022/07/18 10:30:45'` |
-| Java side | real CLI seam `CardDemoApplication.launch` (`--job=POSTTRAN --run-id=… --dd=DALYTRAN=… --dd=DALYREJS=… --dd=SYSOUT=…`, `--carddemo.batch.clock` = oracle clock, D-046) on PostgreSQL 16 (Testcontainers `postgres:16`, Flyway V1+V2). No H2 |
-| Test | `modernization/carddemo-app/src/test/java/com/carddemo/app/Cbtrn02cIndependentParityTest.java` (19 cases) |
+| Java side | real CLI seam `CardDemoApplication.launch` (`--job=POSTTRAN --run-id=… --dd=DALYTRAN=… --dd=DALYREJS=… --dd=SYSOUT=…`, `--carddemo.batch.clock` = oracle clock, D-046) on PostgreSQL 16 (Testcontainers `postgres:16`, Flyway V1+V2, V1-V3 in the §10 re-run). No H2 |
+| Test | `modernization/carddemo-app/src/test/java/com/carddemo/app/Cbtrn02cIndependentParityTest.java` (19 cases; 20 after §10) |
 | Inputs + oracle outputs | `modernization/carddemo-app/src/test/resources/parity/cbtrn02c/<case>/{input,expected*}` (reproducible seed data) |
 | Generators | `.migration/tools/cbtrn02c_parity_cases.py` (inputs, reads `app/data/ASCII` only), `.migration/tools/cbtrn02c_parity_oracle.sh` (runs GnuCOBOL, copies its outputs unchanged) |
 | Customer-supplied cases | none supplied |
-| Verdict | **17 PASS, 2 FAIL** (DV-01, DV-02: negative zero sign), plus untested requirements listed in §5 |
+| Verdict | **Final (§10, re-run on `8c331b24`): 20 PASS, 0 FAIL**; DV-01 / DV-02 **RESOLVED**. First run: 17 PASS, 2 FAIL (DV-01, DV-02: negative zero sign). Untested requirements in §5 |
 
 Independence: expected values come only from GnuCOBOL runs of the COBOL source and from the FR docs; the case list was built from
 `CBTRN02C.cbl` and the FR docs, not from the Java code. The existing 7-case golden harness (`ParityHarness`, `GoldenCase`) is
@@ -47,21 +47,22 @@ Columns: RC / DALYREJS records (reason codes) / SYSOUT counters (processed, reje
 | 10 | `ovf-temp-bal-cp037` | FR-16, D-047 | case 9 in CP037 | identical to case 9 | RC 0; =; =; = | PASS |
 | 11 | `ovf-acct-bal` | D-047, FR-08, PR-11 | accts 23/24: CURR-BAL ±9999999999.99 ± 1.00 (`S9(10)V99`, `cbl:547`) | RC 0; 2 / 0; acct 23 → `00000000009I` (+0.99), acct 24 → `00000000009R` (-0.99) | RC 0; =; =; = | PASS |
 | 12 | `ovf-cyc` | D-047, FR-04/08, PR-06/11 | accts 25/26: CYC-CREDIT 9999999999.50 + 1.00, CYC-DEBIT -9999999999.50 - 1.00 (`cbl:549,551`) | RC 0; 2 / 0; truncated cycle fields | RC 0; =; =; = | PASS |
-| 13 | `ovf-tcatbal` | D-047, FR-07, PR-10 | accts 27-29: TRAN-CAT-BAL 999999999.99 + 1.00, -999999999.99 - 0.01, create with 999999999.99 (`S9(09)V99`, `cbl:508,527`) | RC 0; 3 / 0; TCATBAL 28/01/0001 = `0000000000}` (**negative zero**) | RC 0; DALYREJS =; SYSOUT =; ACCTDATA =; TRANSACT =; TCATBAL 28/01/0001 = `0000000000{` | **FAIL (DV-02)** |
-| 14 | `negative-zero` | FR-08/09, PR-09/11 | acct 30, DALYTRAN-AMT `0000000000}` (-0.00) | RC 0; 1 / 0; CYC-DEBIT branch not taken (`-0 >= 0`), TRANSACT TRAN-AMT = `0000000000}` | RC 0; DALYREJS =; SYSOUT =; ACCTDATA =; TCATBALF =; TRANSACT TRAN-AMT = `0000000000{` | **FAIL (DV-01)** |
+| 13 | `ovf-tcatbal` | D-047, FR-07, PR-10 | accts 27-29: TRAN-CAT-BAL 999999999.99 + 1.00, -999999999.99 - 0.01, create with 999999999.99 (`S9(09)V99`, `cbl:508,527`) | RC 0; 3 / 0; TCATBAL 28/01/0001 = `0000000000}` (**negative zero**) | RC 0; DALYREJS =; SYSOUT =; ACCTDATA =; TRANSACT =; TCATBAL 28/01/0001 = `0000000000{` | PASS in §10 re-run (first run: **FAIL**, DV-02, **RESOLVED**) |
+| 14 | `negative-zero` | FR-08/09, PR-09/11 | acct 30, DALYTRAN-AMT `0000000000}` (-0.00) | RC 0; 1 / 0; CYC-DEBIT branch not taken (`-0 >= 0`), TRANSACT TRAN-AMT = `0000000000}` | RC 0; DALYREJS =; SYSOUT =; ACCTDATA =; TCATBALF =; TRANSACT TRAN-AMT = `0000000000{` | PASS in §10 re-run (first run: **FAIL**, DV-01, **RESOLVED**) |
 | 15 | `dup-rejected-id` | FR-02/13, PR-04/12 | 4 records: id A posts, id A rejected 0100 (no WRITE, no abend), id B rejected, id B posts | RC 4; 2 × 0100; 4 / 2; 2 rows | RC 4; =; =; = | PASS |
 | 16 | `dup-abend-newkey` | FR-10/13, PR-10/11/12/13/17 | 4 records: post, 0100, duplicate id on a new TCATBAL key (acct 34), never-read record | RC 231; 1 × 0100; SYSOUT creation line + `ERROR WRITING TO TRANSACTION FILE` / status `0022` / `ABENDING PROGRAM`; tables vs `expected-atomic` (oracle run on records 1-2, D-042) | RC 16; =; SYSOUT =; tables = `expected-atomic` | PASS (under D-042) |
 | 17 | `restart-fixed` | NFR-01, FR-11, PR-14 | leg 1 = case 16 input with the same `--run-id`; leg 2 = record 3 replaced by a new id, relaunch same `--run-id` | leg 1: RC 231, 1 × 0100, SYSOUT as case 16. Final: oracle fresh run on the fixed file: RC 4; 1 × 0100; 4 / 1; 3 rows | leg 1: RC 16, =, =. Final: RC 4; DALYREJS =; tables =; last 3 SYSOUT lines (counters + end) = | PASS |
 | 18 | `rerun` | FR-11, PR-14 | same DALYTRAN, two new instances on the same tables (accts 36/37) | run 1: RC 4, 1 × 0100, 3 / 1, 2 rows; run 2: RC 4, 0102 + 0100 (acct 36 now over limit), 3 / 2, 1 row (TRANSACT re-created) | run 1 =; run 2 = | PASS |
 | 19 | `dalytran-missing` | FR-13, PR-01/17 | `--dd=DALYTRAN` names a file that does not exist | RC 231; SYSOUT `ERROR OPENING DALYTRAN` / `FILE STATUS IS: NNNN0035` / `ABENDING PROGRAM`; DALYREJS never created; TRANSACT never opened | RC 16; SYSOUT =; no DALYREJS; stale TRANSACT row kept | PASS |
+| 20 | `negative-zero-balances` (added in §10) | D-047, FR-07/08, PR-10/11 | accts 38-42: CURR-BAL -9999999999.99 - 0.01, CURR-BAL / TCATBAL 5.00 - 5.00, CYC-DEBIT -9999999999.99 - 0.01, CURR-BAL / CYC-CREDIT -5.00 + 5.00, CURR-BAL / TCATBAL -0.00 + 0.00 (`cbl:527,547,549,551`) | RC 0; 5 / 0; truncation to zero keeps `}` (acct 38 CURR-BAL, acct 40 CYC-DEBIT); exact-zero ADDs give `{` (accts 39, 41, 42, TCATBAL 39 and 42) | RC 0; DALYREJS =; SYSOUT =; ACCTDATA =; TCATBALF =; TRANSACT = | PASS |
 
-Mock data: every card / account key is a real sample key (`app/data/ASCII/cardxref.txt` accounts 1-37); only the fields under
+Mock data: every card / account key is a real sample key (`app/data/ASCII/cardxref.txt` accounts 1-42); only the fields under
 test were changed in the account / TCATBAL override files of the case. `4000000000000001` is used only where a card that is
 *not* in CARDXREF is the point of the case (reason 0100). Account 13 is dropped from ACCTDATA for reason 0101.
 
-## 3. Failures (diff + COBOL cite)
+## 3. Failures (diff + COBOL cite) – first run; both RESOLVED in §10
 
-### DV-01 – negative zero amount loses its sign in TRANSACT (`negative-zero`)
+### DV-01 – negative zero amount loses its sign in TRANSACT (`negative-zero`) – RESOLVED (`8c331b24`, D-052)
 
 - Reproduce: `(cd modernization && JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64 mvn -B test -pl carddemo-app -am -Dtest=Cbtrn02cIndependentParityTest -Dsurefire.failIfNoSpecifiedTests=false)`
   and remove the `divergence.*` lines from `parity/cbtrn02c/negative-zero/case.properties`.
@@ -79,7 +80,7 @@ actual   NEGZERO000000001010001POS TERM  Purchase at Abshire-Lowe   …   000000
 - Likely cause (inference, not verified in code): the Java amount is a `BigDecimal`, which has no signed zero, so the zoned encoder
   writes `{` (+0).
 
-### DV-02 – TCATBAL overflow to zero keeps a negative sign in COBOL (`ovf-tcatbal`)
+### DV-02 – TCATBAL overflow to zero keeps a negative sign in COBOL (`ovf-tcatbal`) – RESOLVED (`8c331b24`, D-052)
 
 - Reproduce: as DV-01 with `parity/cbtrn02c/ovf-tcatbal/case.properties`.
 - COBOL: `ADD DALYTRAN-AMT TO TRAN-CAT-BAL` without `ON SIZE ERROR` (`app/cbl/CBTRN02C.cbl:527`), `TRAN-CAT-BAL PIC S9(09)V99`
@@ -115,9 +116,9 @@ Each requirement appears once.
 | PR-CBTRN02C-06 over-limit 102 | 1, 3, 5, 6, 9, 12, 18 | PASS |
 | PR-CBTRN02C-07 expiry 103 over 102 | 4, 5 | PASS |
 | PR-CBTRN02C-08 reject record + count | 1, 3-6, 15-19 | PASS (write failure: UNTESTED) |
-| PR-CBTRN02C-09 build transaction, PROC-TS | all posting cases | **FAIL** (DV-01) |
-| PR-CBTRN02C-10 TCATBAL create / rewrite | 6, 8, 13, 16 | **FAIL** (DV-02); create vs rewrite and SYSOUT lines PASS (8) |
-| PR-CBTRN02C-11 account update | 6, 11, 12, 14 | PASS |
+| PR-CBTRN02C-09 build transaction, PROC-TS | all posting cases | PASS after §10 (first run FAIL, DV-01 RESOLVED) |
+| PR-CBTRN02C-10 TCATBAL create / rewrite | 6, 8, 13, 16 | PASS after §10 (first run FAIL, DV-02 RESOLVED) |
+| PR-CBTRN02C-11 account update | 6, 11, 12, 14, 20 | PASS |
 | PR-CBTRN02C-12 insert transaction, duplicate abend | 15, 16 | PASS |
 | PR-CBTRN02C-13 order + one DB transaction | 16 | PASS against D-042 `expected-atomic` (COBOL itself half-posts, see §6) |
 | PR-CBTRN02C-14 new instance empties TRANSACT, restart keeps | all (stale row), 17, 18, 19 | PASS |
@@ -130,9 +131,9 @@ Each requirement appears once.
 | FR-POSTTRAN-04 0102 | 3, 6, 9, 12 | PASS (FR text discrepancy, §6) |
 | FR-POSTTRAN-05 0103 | 4, 5 | PASS |
 | FR-POSTTRAN-06 430-byte reject record | 1, 3-6, 15-18 | PASS |
-| FR-POSTTRAN-07 TCATBAL add / create | 8, 13 | **FAIL** (DV-02) |
+| FR-POSTTRAN-07 TCATBAL add / create | 8, 13 | PASS after §10 (first run FAIL, DV-02 RESOLVED) |
 | FR-POSTTRAN-08 account balances | 6, 11, 12, 14 | PASS |
-| FR-POSTTRAN-09 transaction copied unchanged | 14 | **FAIL** (DV-01) |
+| FR-POSTTRAN-09 transaction copied unchanged | 14 | PASS after §10 (first run FAIL, DV-01 RESOLVED) |
 | FR-POSTTRAN-10 atomic posting | 16 | PASS (D-042) |
 | FR-POSTTRAN-11 new instance / restart | 17, 18 | PASS |
 | FR-POSTTRAN-12 RC 4 / 0 | all | PASS |
@@ -143,11 +144,11 @@ Each requirement appears once.
 | FR-POSTTRAN-17 DALYREJS new file per run | - | UNTESTED |
 | NFR-01 commit 1, restart | 17 | PASS |
 | NFR-02 BigDecimal, never double | - | UNTESTED (code property, not observable) |
-| NFR-03 byte/row parity | all | **FAIL** (DV-01, DV-02) |
+| NFR-03 byte/row parity | all | PASS after §10 (first run FAIL, DV-01, DV-02 RESOLVED) |
 | NFR-04 card masking in logs | - | UNTESTED |
 
-Count: 38 requirements; 29 PASS, 4 FAIL (PR-09, PR-10, FR-07, FR-09; NFR-03 follows), 5 UNTESTED (PR-15, FR-17, NFR-02, NFR-04, plus
-the partial gaps noted in PR-01/02/08). This is a requirement count, not a parity percentage.
+Count: 38 requirements. First run: 29 PASS, 5 FAIL (PR-09, PR-10, FR-07, FR-09, NFR-03), 4 UNTESTED (PR-15, FR-17, NFR-02, NFR-04),
+plus the partial gaps noted in PR-01/02/08. **Final (§10): 34 PASS, 0 FAIL, 4 UNTESTED.** This is a requirement count, not a parity percentage.
 
 ## 5. Untested
 
@@ -164,8 +165,8 @@ the partial gaps noted in PR-01/02/08). This is a requirement count, not a parit
 1. **FR-POSTTRAN-04 says "exact decimal arithmetic, scale 2"; the COBOL computes into `WS-TEMP-BAL PIC S9(09)V99` (`cbl:187,403-405`) with no
    `ON SIZE ERROR`.** Case 9: CYC-CREDIT 1000000000.00 + 5.00 truncates to 5.00 and the record **posts** in COBOL; exact arithmetic
    would reject it with 0102. The Java job follows the COBOL (D-047), so the case passes; the FR text should say "COBOL `S9(09)V99`
-   truncation (D-047)".
-2. FR-POSTTRAN-09 "copied unchanged" is right; the Java side does not meet it for -0.00 (DV-01).
+   truncation (D-047)". Corrected on the wave branch (D-052).
+2. FR-POSTTRAN-09 "copied unchanged" is right; the Java side did not meet it for -0.00 (DV-01, RESOLVED in `8c331b24`).
 3. PR-CBTRN02C-13 / FR-POSTTRAN-10 describe the target (one DB transaction per record, D-026). COBOL half-posts on the abending
    record: the full-run oracle tables (`dup-abend-newkey/expected-full/`) contain the TCATBAL key 34/01/0006 and account 34 +20.00
    that the Java job rolls back. Accepted difference under D-042, not counted as FAIL.
@@ -268,26 +269,57 @@ $ (cd modernization && JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64 mvn -B verif
 ```
 
 `negative-zero` and `ovf-tcatbal` are green only because of their `divergence.*` markers (D-051): they assert that DV-01 / DV-02
-still reproduce. They are FAIL in this report.
+still reproduce (first run). Markers removed in §10.
 
 ## 9. Hand-back to `!mf_program_migration`
 
 | Id | Case | Requirement | Cite | Fix owner |
 |---|---|---|---|---|
-| DV-01 | `negative-zero` | FR-POSTTRAN-09, PR-CBTRN02C-09, NFR-03 | `CBTRN02C.cbl:430` | Wave 1 implementation (not fixed here) |
-| DV-02 | `ovf-tcatbal` | FR-POSTTRAN-07, PR-CBTRN02C-10, NFR-03 | `CBTRN02C.cbl:527`, `CVTRA01Y.cpy:9` | Wave 1 implementation (not fixed here) |
-| FR-04 text | `ovf-temp-bal` | FR-POSTTRAN-04 | `CBTRN02C.cbl:187,403-405` | FR doc wording (implementation already follows COBOL) |
+| DV-01 | `negative-zero` | FR-POSTTRAN-09, PR-CBTRN02C-09, NFR-03 | `CBTRN02C.cbl:430` | **RESOLVED** in `8c331b24` (D-052); verified by §10 re-run |
+| DV-02 | `ovf-tcatbal` | FR-POSTTRAN-07, PR-CBTRN02C-10, NFR-03 | `CBTRN02C.cbl:527`, `CVTRA01Y.cpy:9` | **RESOLVED** in `8c331b24` (D-052); verified by §10 re-run |
+| FR-04 text | `ovf-temp-bal` | FR-POSTTRAN-04 | `CBTRN02C.cbl:187,403-405` | **RESOLVED**: FR doc wording corrected (D-052) |
 
 ## 10. Re-run after the Wave 1 fix (2026-11-19)
 
-The wave branch fixed DV-01 / DV-02 (`8c331b24`, D-052) and was merged into this branch. The `divergence.*` markers were removed
-from `negative-zero` and `ovf-tcatbal`; expected outputs are unchanged (same GnuCOBOL files).
+The wave branch fixed DV-01 / DV-02 (`8c331b24`, D-052: Flyway V3 sign flags, FR-POSTTRAN-04 wording) and was merged into this
+branch with `git merge` (no rebase, no force-push). Changes on the test side only:
+
+- `divergence.*` markers removed from `negative-zero` and `ovf-tcatbal`: both cases now require the oracle result. Their expected
+  files are unchanged (same GnuCOBOL output as the first run).
+- New oracle case 20 `negative-zero-balances` (generator + wrapper updated): negative zero on the other signed balance fields.
+  GnuCOBOL output (`expected/ACCTDATA.unl`, `TCATBALF.unl`, `TRANSACT.unl`):
+
+| Rec | Account | Operation (cite) | Oracle result |
+|---|---|---|---|
+| 1 | 38 | CURR-BAL -9999999999.99 + (-0.01), `S9(10)V99` truncation (`cbl:547`) | CURR-BAL `00000000000}` (-0) |
+| 2 | 39 | CURR-BAL 5.00 + (-5.00); TCATBAL 39/01/0001 5.00 + (-5.00) (`cbl:527,547`) | CURR-BAL `00000000000{`, TCATBAL `0000000000{` (+0) |
+| 3 | 40 | CYC-DEBIT -9999999999.99 + (-0.01), truncation (`cbl:551`) | CYC-DEBIT `00000000000}` (-0); posts (temp bal truncated, D-047) |
+| 4 | 41 | CURR-BAL -5.00 + 5.00; CYC-CREDIT -5.00 + 5.00 (`cbl:547,549`) | both `00000000000{` (+0) |
+| 5 | 42 | CURR-BAL -0.00 + 0.00; TCATBAL 42/01/0001 -0.00 + 0.00 | both `{` (+0) |
+
+  Rule shown by the oracle: a zero produced by high-order truncation keeps the sign of the true result; an exact-zero ADD is +0.
+- Oracle reproducibility: the full wrapper was re-run into a scratch DEST (`~/work/po2-dest`); every committed expected file except
+  `TRANSACT.unl` (TRAN-PROC-TS centiseconds) is byte-identical (`cmp`, 0 differences).
 
 ```
+$ .migration/tools/cbtrn02c_parity_oracle.sh ~/work/po2 ~/work/po2-dest
+...
+negative-zero RC=0 rejects=0
+negative-zero-balances RC=0 rejects=0
+...
 $ (cd modernization && JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64 mvn -B verify)
 [INFO] Tests run: 24, Failures: 0, Errors: 0, Skipped: 0        (carddemo-common)
-[INFO] Tests run: 79, Failures: 0, Errors: 0, Skipped: 0        (carddemo-app, incl. 19 Cbtrn02cIndependentParityTest)
+Job POSTTRAN run.id=PARITY-negative-zero-balances execution=16 status=COMPLETED RC=0
+[INFO] Tests run: 80, Failures: 0, Errors: 0, Skipped: 0        (carddemo-app, incl. 20 Cbtrn02cIndependentParityTest)
+BUILD SUCCESS
 ```
 
-Result after the fix: **19 PASS, 0 FAIL**. Cases 13 and 14, PR-CBTRN02C-09/10, FR-POSTTRAN-07/09 and NFR-03 are now PASS
-(38 requirements: 34 PASS, 0 FAIL, 4 UNTESTED as in §5). FR-POSTTRAN-04 wording was corrected on the wave branch (D-052).
+### Final summary
+
+| Item | Result |
+|---|---|
+| Cases | **20 PASS, 0 FAIL** (19 original + `negative-zero-balances`); no divergence markers left |
+| DV-01 `negative-zero` (TRANSACT TRAN-AMT) | **RESOLVED**: Java writes `0000000000}` = oracle |
+| DV-02 `ovf-tcatbal` (TCATBAL 28/01/0001) | **RESOLVED**: Java writes `0000000000}` = oracle |
+| Requirements (38) | 34 PASS, 0 FAIL, 4 UNTESTED (PR-15, FR-POSTTRAN-17, NFR-02, NFR-04; §5) |
+| FR vs COBOL | FR-POSTTRAN-04 wording corrected on the wave branch (D-052) |

@@ -178,6 +178,20 @@ write('negative-zero', [
     tran('NEGZERO000000001', 30, raw_amt='0000000000}'),
 ], accts=[acct(30, **EXP)])
 
+# negative-zero-balances (D-047/D-052): -0 produced by truncation and by exact-zero ADDs on every signed balance field
+write('negative-zero-balances', [
+    tran('NEGZBAL000000001', 38, '-0.01'),    # CURR-BAL -9999999999.99 - 0.01 truncates to -0 (cbl:547)
+    tran('NEGZBAL000000002', 39, '-5.00'),    # CURR-BAL 5.00 - 5.00 and TCATBAL 5.00 - 5.00: exact zero (cbl:527, 547)
+    tran('NEGZBAL000000003', 40, '-0.01'),    # CYC-DEBIT -9999999999.99 - 0.01 truncates to -0 (cbl:551)
+    tran('NEGZBAL000000004', 41, '5.00'),     # CYC-CREDIT -5.00 + 5.00 and CURR-BAL -5.00 + 5.00: exact zero (cbl:547, 549)
+    tran('NEGZBAL000000005', 42, '0.00'),     # CURR-BAL -0.00 + 0.00, TCATBAL -0.00 + 0.00 (seeded negative zero)
+], accts=[acct(38, bal='-9999999999.99', **EXP),
+          acct(39, bal='5.00', **EXP),
+          acct(40, limit='9999999999.99', credit='0.00', debit='-9999999999.99', **EXP),
+          acct(41, bal='-5.00', credit='-5.00', debit='0.00', **EXP),
+          acct(42, bal='-0.00', **EXP)],
+   tcat=[tcat(39, '01', '0001', '5.00'), tcat(42, '01', '0001', '-0.00')])
+
 # dup-rejected-id (PR-12): a duplicate TRAN-ID only abends when the duplicate is posted (TRANSACT WRITE, cbl:564)
 write('dup-rejected-id', [
     tran('DUPREJ0000000001', 31),                              # posts

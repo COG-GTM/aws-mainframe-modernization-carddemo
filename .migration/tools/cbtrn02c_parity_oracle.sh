@@ -32,7 +32,7 @@ publish() { # case oracle_run input_dir kind [charset] [daly_src]
 }
 
 for c in limit-exact expiry-boundary reason-precedence same-account-multi tcatbal-create-rewrite ovf-temp-bal \
-         ovf-acct-bal ovf-cyc ovf-tcatbal negative-zero dup-rejected-id; do
+         ovf-acct-bal ovf-cyc ovf-tcatbal negative-zero negative-zero-balances dup-rejected-id; do
   oracle "$c" "$WORK/in/$c" "$WORK/in/$c/dailytran.txt"; publish "$c" "$c" "$WORK/in/$c" single
 done
 mkdir -p "$WORK/in/baseline" "$WORK/in/empty"; : > "$WORK/in/empty/dailytran.txt"
