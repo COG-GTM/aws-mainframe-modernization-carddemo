@@ -116,7 +116,7 @@ Single repo: each step is one PR. Phase 3 (UI testing) is skipped: no screens.
 | 0109 dead path | not implemented as a reject; documented in the program FR |
 | GC-6 needs an oracle extension | Phase 1 task |
 | TRAN-ID allocation shared with online writers | BND-004 deferral with re-entry condition |
-| TRANSACT shared with INTCALC/COMBTRAN interest rows, whose ORIG-TS uses the DB2 format (`app/cbl/CBACT04C.cbl:496-498,613-624`; `app/jcl/COMBTRAN.jcl:22-48`): D-013's single ORIG-TS format cannot hold both | **OPEN, NEEDS USER (OQ-7)**: proposed D-015 keeps the original 26-byte text next to the TIMESTAMP; decide before Phase 1 writes `V6__transaction.sql` |
+| TRANSACT shared with INTCALC/COMBTRAN interest rows, whose ORIG-TS uses the DB2 format (`app/cbl/CBACT04C.cbl:496-498,613-624`; `app/jcl/COMBTRAN.jcl:22-48`): D-013's single ORIG-TS format cannot hold both; the same holds for PROC-TS, which COBIL00C writes as `yyyy-MM-dd HH:mm:ss.SSSSSS` (`app/cbl/COBIL00C.cbl:230-232`, `app/cpy/CSDAT01Y.cpy:42-55`) and CBEXPORT exports (`app/cbl/CBEXPORT.cbl:481-482`) | **OPEN, NEEDS USER (OQ-7)**: proposed D-015 keeps the original 26-byte text of both ORIG-TS and PROC-TS next to the TIMESTAMPs; decide before Phase 1 writes `V6__transaction.sql` |
 | Downstream batch and online consumers still read VSAM | production cutover gated on their migration or a verified hand-off (BND-004/008); no production cutover in this stream |
 
 No blocker for Phase 0, Phase 1 or Wave 1 once STOP C approves.
