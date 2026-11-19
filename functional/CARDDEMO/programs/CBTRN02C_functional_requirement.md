@@ -105,7 +105,7 @@ CBTRN02C delegates only the abend to LE `CEE3ABD` (`:711`, BND-001). It is **not
 - CBTRN02C-15: GC-5 empty: RC 0, 0/0.
 - CBTRN02C-07: GC-6 (built in Phase 1) and JT-3.
 - CBTRN02C-12 (CP037): GC-7: `--dd-encoding=CP037` on the EBCDIC sample; DALYREJS written in CP037 equals the oracle DALYREJS converted to CP037 (R-14).
-- CBTRN02C-17: JT-1 (new instance -> RC 16) and JT-4 (restart of the same failed instance skips the guard and resumes; final outputs equal GC-1). CBTRN02C-16 rollback detail: JT-2.
+- CBTRN02C-17: JT-1 (new instance -> RC 16) and JT-4 (restart of a failed instance that had passed the guard skips it and resumes, final outputs equal GC-1; restart of an instance the guard rejected runs the guard again, RC 16, no writes). CBTRN02C-16 rollback detail: JT-2.
 
 Given/When/Then per requirement: as stream FR §8 for the mapped FR id.
 

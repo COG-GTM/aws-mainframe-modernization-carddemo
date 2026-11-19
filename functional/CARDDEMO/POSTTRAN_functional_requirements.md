@@ -119,7 +119,7 @@ Given/When/Then:
 - FR-13/14: Given R rejects out of P records, Then SYSOUT shows P and R, and RC is 4 if R > 0 else 0.
 - FR-15: Given an empty input, Then RC 0, counts 0, empty DALYREJS.
 - FR-16: Given a duplicate id later in the input, Then RC 16, the tables equal the oracle run on the records before the duplicate, and no DALYREJS is published.
-- FR-17: Given a new run whose input has an id already in TRANSACT, Then RC 16 and no table changes. Given a restart of a failed run of the same instance, Then the guard is skipped and posting resumes after the last committed record (JT-4).
+- FR-17: Given a new run whose input has an id already in TRANSACT, Then RC 16 and no table changes. Given a restart of a failed run of the same instance that had passed the guard, Then the guard is skipped and posting resumes after the last committed record; Given a restart of an instance that the guard itself rejected, Then the guard runs again, RC 16, no table changes (JT-4).
 
 ## 9. Traceability matrix
 
