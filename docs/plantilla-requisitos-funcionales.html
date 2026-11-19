@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>[[NOMBRE_STREAM]] — Documento de Requisitos Funcionales</title>
+<style>
+  :root {
+    --ink: #1f2933; --muted: #616e7c; --line: #d9e2ec; --bg: #f5f7fa;
+    --brand: #0b4f8a; --brand-soft: #e3eefa; --batch: #8a4b0b; --batch-soft: #fdf0e1;
+    --online: #0b6e4f; --online-soft: #e1f5ee; --warn: #9b1c1c; --warn-soft: #fde8e8;
+    --ph: #fff4c2;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; font: 15px/1.55 "Segoe UI", Roboto, Helvetica, Arial, sans-serif; color: var(--ink); background: var(--bg); }
+  .page { max-width: 1100px; margin: 0 auto; padding: 32px 40px 64px; background: #fff; box-shadow: 0 0 0 1px var(--line); }
+  header.doc { border-bottom: 4px solid var(--brand); padding-bottom: 16px; margin-bottom: 24px; }
+  header.doc .kicker { text-transform: uppercase; letter-spacing: .08em; font-size: 12px; color: var(--muted); }
+  header.doc h1 { margin: 4px 0 8px; font-size: 30px; color: var(--brand); }
+  header.doc .sub { color: var(--muted); }
+  h2 { margin: 40px 0 12px; padding-bottom: 6px; border-bottom: 1px solid var(--line); color: var(--brand); font-size: 22px; }
+  h3 { margin: 24px 0 8px; font-size: 17px; }
+  h2 .num { display: inline-block; min-width: 2.2em; color: var(--muted); }
+  p { margin: 8px 0; }
+  table { width: 100%; border-collapse: collapse; margin: 10px 0 16px; font-size: 14px; }
+  th, td { border: 1px solid var(--line); padding: 7px 9px; text-align: left; vertical-align: top; }
+  th { background: var(--brand-soft); font-weight: 600; }
+  table.kv th { width: 28%; }
+  code, .mono { font-family: "SFMono-Regular", Consolas, Menlo, monospace; font-size: 13px; }
+  .ph { background: var(--ph); padding: 0 3px; border-radius: 3px; font-family: Consolas, Menlo, monospace; font-size: 13px; }
+  .hint { color: var(--muted); font-style: italic; font-size: 13px; }
+  .note { border-left: 4px solid var(--brand); background: var(--brand-soft); padding: 10px 14px; margin: 12px 0; font-size: 14px; }
+  .note.warn { border-color: var(--warn); background: var(--warn-soft); }
+  .badge { display: inline-block; padding: 1px 8px; border-radius: 10px; font-size: 11px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; vertical-align: middle; margin-left: 6px; }
+  .badge.batch { background: var(--batch-soft); color: var(--batch); border: 1px solid var(--batch); }
+  .badge.online { background: var(--online-soft); color: var(--online); border: 1px solid var(--online); }
+  .badge.mig { background: var(--brand-soft); color: var(--brand); border: 1px solid var(--brand); }
+  .badge.ok { background: var(--online-soft); color: var(--online); }
+  .badge.ko { background: var(--warn-soft); color: var(--warn); }
+  section.only-batch { border-left: 3px solid var(--batch); padding-left: 14px; }
+  section.only-online { border-left: 3px solid var(--online); padding-left: 14px; }
+  nav.toc { background: var(--bg); border: 1px solid var(--line); padding: 12px 20px; columns: 2; font-size: 14px; }
+  nav.toc a { color: var(--brand); text-decoration: none; }
+  nav.toc ol { margin: 0; padding-left: 20px; }
+  .legend { font-size: 13px; color: var(--muted); margin: 8px 0 0; }
+  /* Diagramas de flujo editables (HTML/CSS, sin dependencias) */
+  .flow { display: flex; flex-wrap: wrap; align-items: stretch; gap: 0; margin: 14px 0; }
+  .flow .node { border: 2px solid var(--brand); border-radius: 8px; padding: 10px 12px; min-width: 140px; background: #fff; font-size: 13px; }
+  .flow .node b { display: block; font-size: 14px; }
+  .flow .node.job { border-color: var(--batch); background: var(--batch-soft); }
+  .flow .node.pgm { border-color: var(--brand); background: var(--brand-soft); }
+  .flow .node.map { border-color: var(--online); background: var(--online-soft); }
+  .flow .node.ext { border-style: dashed; border-color: var(--muted); }
+  .flow .arrow { align-self: center; padding: 0 8px; font-size: 22px; color: var(--muted); }
+  .flow .arrow small { display: block; font-size: 11px; text-align: center; }
+  .diagram { border: 1px solid var(--line); border-radius: 8px; padding: 12px; background: #fff; overflow-x: auto; }
+  .diagram svg { max-width: 100%; height: auto; }
+  .check { list-style: none; padding-left: 0; }
+  .check li::before { content: "\2610  "; color: var(--muted); }
+  footer.doc { margin-top: 48px; padding-top: 12px; border-top: 1px solid var(--line); font-size: 12px; color: var(--muted); }
+  @media print {
+    body { background: #fff; }
+    .page { box-shadow: none; padding: 0; max-width: none; }
+    h2 { page-break-after: avoid; }
+    table, .diagram, .flow { page-break-inside: avoid; }
+    nav.toc { columns: 1; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+<!--
+  CÓMO USAR ESTA PLANTILLA
+  - Sustituye cada [[MARCADOR]] (resaltado en amarillo) por el valor real.
+  - Los textos en gris e itálica (.hint) son ayudas: bórralos al rellenar.
+  - Secciones marcadas "Solo batch" o "Solo online (BMS)": elimina las que no apliquen al tipo de stream.
+  - Añade o borra filas de tabla según haga falta. Indica "N/A" en lugar de dejar una celda vacía.
+  - Ejemplo relleno: docs/ejemplo-POSTTRAN.html
+-->
+
+<header class="doc">
+  <div class="kicker">CardDemo · Documento de Requisitos Funcionales · Migración</div>
+  <h1><span class="ph">[[NOMBRE_STREAM]]</span> — <span class="ph">[[TÍTULO_CORTO]]</span></h1>
+  <div class="sub">
+    Tipo: <span class="ph">[[Batch | Online (BMS)]]</span> ·
+    Aplicación: <span class="ph">[[APLICACIÓN]]</span> ·
+    Versión del documento: <span class="ph">[[x.y]]</span> ·
+    Estado: <span class="ph">[[Borrador | En revisión | Aprobado]]</span>
+  </div>
+</header>
+
+<nav class="toc">
+  <ol>
+    <li><a href="#control">Control del documento</a></li>
+    <li><a href="#ident">Identificación del stream</a></li>
+    <li><a href="#resumen">Descripción funcional</a></li>
+    <li><a href="#flujo">Diagrama de flujo</a></li>
+    <li><a href="#inventario">Inventario de componentes</a></li>
+    <li><a href="#dependencias">Dependencias</a></li>
+    <li><a href="#rf">Requisitos funcionales</a></li>
+    <li><a href="#reglas">Reglas de negocio y validaciones</a></li>
+    <li><a href="#ui">Interfaz de usuario (online)</a></li>
+    <li><a href="#datos">Diccionario de datos y layouts</a></li>
+    <li><a href="#salidas">Salidas e informes</a></li>
+    <li><a href="#errores">Errores, códigos de retorno y reinicio</a></li>
+    <li><a href="#transacc">Transaccionalidad y concurrencia</a></li>
+    <li><a href="#rnf">Volumetría, rendimiento y planificación</a></li>
+    <li><a href="#seguridad">Seguridad y auditoría</a></li>
+    <li><a href="#destino">Mapeo a la arquitectura destino</a></li>
+    <li><a href="#migdatos">Migración de datos</a></li>
+    <li><a href="#pruebas">Estrategia de pruebas y equivalencia</a></li>
+    <li><a href="#traza">Matriz de trazabilidad</a></li>
+    <li><a href="#riesgos">Riesgos, supuestos y preguntas abiertas</a></li>
+    <li><a href="#glosario">Glosario</a></li>
+    <li><a href="#aprob">Aprobaciones</a></li>
+  </ol>
+</nav>
+
+<!-- 1 -->
+<section id="control">
+  <h2><span class="num">1.</span>Control del documento</h2>
+  <table class="kv">
+    <tr><th>ID del documento</th><td><span class="ph">[[RF-APP-STREAM-001]]</span></td></tr>
+    <tr><th>Autor(es)</th><td><span class="ph">[[NOMBRE · EQUIPO]]</span></td></tr>
+    <tr><th>Fecha de creación / última revisión</th><td><span class="ph">[[AAAA-MM-DD]]</span> / <span class="ph">[[AAAA-MM-DD]]</span></td></tr>
+    <tr><th>Fuentes analizadas</th><td><span class="ph">[[Repositorio, rama/commit, ficheros JCL/COBOL/BMS/copybooks, entrevistas]]</span></td></tr>
+    <tr><th>Documentos relacionados</th><td><span class="ph">[[Enlaces a otros RF, diseño técnico, tickets]]</span></td></tr>
+  </table>
+  <h3>Historial de cambios</h3>
+  <table>
+    <tr><th>Versión</th><th>Fecha</th><th>Autor</th><th>Cambios</th></tr>
+    <tr><td><span class="ph">[[0.1]]</span></td><td><span class="ph">[[AAAA-MM-DD]]</span></td><td><span class="ph">[[NOMBRE]]</span></td><td><span class="ph">[[Versión inicial]]</span></td></tr>
+  </table>
+</section>
+
+<!-- 2 -->
+<section id="ident">
+  <h2><span class="num">2.</span>Identificación del stream</h2>
+  <table class="kv">
+    <tr><th>Nombre del stream</th><td><span class="ph">[[NOMBRE_STREAM]]</span> <span class="hint">— en batch, el nombre del job o cadena (p. ej. POSTTRAN); en online, el nombre funcional de la opción de menú (p. ej. "Ver cuenta").</span></td></tr>
+    <tr><th>Tipo</th><td><span class="ph">[[Batch | Online (BMS)]]</span></td></tr>
+    <tr><th>Aplicación / subsistema</th><td><span class="ph">[[CardDemo · módulo]]</span></td></tr>
+    <tr><th>Punto de entrada</th><td><span class="badge batch">Batch</span> Job(s) JCL: <span class="ph">[[JOBNAME(s)]]</span><br><span class="badge online">Online</span> TransID: <span class="ph">[[XXXX]]</span> · Opción de menú: <span class="ph">[[nº / texto]]</span> · Mapset/Map: <span class="ph">[[COxxxxx]]</span></td></tr>
+    <tr><th>Planificador</th><td><span class="ph">[[Control-M folder / CA7 SCHID / manual / disparado desde CICS]]</span></td></tr>
+    <tr><th>Frecuencia y ventana</th><td><span class="ph">[[Diaria 23:00–01:00 | Mensual | Bajo demanda | 24x7]]</span></td></tr>
+    <tr><th>Criticidad de negocio</th><td><span class="ph">[[Alta | Media | Baja]]</span> — <span class="ph">[[impacto si no se ejecuta]]</span></td></tr>
+    <tr><th>Responsable funcional / técnico</th><td><span class="ph">[[NOMBRE]]</span> / <span class="ph">[[NOMBRE]]</span></td></tr>
+  </table>
+</section>
+
+<!-- 3 -->
+<section id="resumen">
+  <h2><span class="num">3.</span>Descripción funcional (qué hace)</h2>
+  <p><span class="ph">[[Resumen en 3–5 frases, en lenguaje de negocio: qué problema resuelve, qué hace con los datos, qué resultado deja.]]</span></p>
+  <table class="kv">
+    <tr><th>Objetivo de negocio</th><td><span class="ph">[[...]]</span></td></tr>
+    <tr><th>Actores</th><td><span class="ph">[[Operador batch, usuario regular, administrador, sistema externo...]]</span></td></tr>
+    <tr><th>Disparador</th><td><span class="ph">[[Planificación, llegada de fichero, acción en pantalla, job predecesor...]]</span></td></tr>
+    <tr><th>Entradas principales</th><td><span class="ph">[[...]]</span></td></tr>
+    <tr><th>Salidas / efectos</th><td><span class="ph">[[...]]</span></td></tr>
+    <tr><th>Fuera de alcance</th><td><span class="ph">[[...]]</span></td></tr>
+  </table>
+</section>
+
+<!-- 4 -->
+<section id="flujo">
+  <h2><span class="num">4.</span>Diagrama de flujo</h2>
+  <p class="hint">Edita las cajas copiando/pegando los bloques <code>.node</code> y <code>.arrow</code>. Para diagramas complejos, sustituye el bloque por un SVG en línea (ver ejemplo POSTTRAN).</p>
+
+  <section class="only-batch">
+    <h3>4.1 Cadena de JCL <span class="badge batch">Solo batch</span></h3>
+    <div class="flow">
+      <div class="node ext"><b>[[JOB PREDECESOR]]</b>[[condición]]</div>
+      <div class="arrow">&rarr;</div>
+      <div class="node job"><b>[[JOBNAME]]</b>[[STEP]] · PGM=[[PROGRAMA]]</div>
+      <div class="arrow">&rarr;<small>[[RC&le;4]]</small></div>
+      <div class="node job"><b>[[JOBNAME]]</b>[[STEP]] · PGM=[[PROGRAMA]]</div>
+      <div class="arrow">&rarr;</div>
+      <div class="node ext"><b>[[JOB SUCESOR]]</b>[[condición]]</div>
+    </div>
+    <h3>4.2 Pasos del job</h3>
+    <table>
+      <tr><th>Job</th><th>Step</th><th>Programa / utilidad</th><th>Entradas (DD → DSN)</th><th>Salidas (DD → DSN)</th><th>Condición (COND/IF/RC)</th><th>Descripción</th></tr>
+      <tr><td><span class="ph">[[JOB]]</span></td><td><span class="ph">[[STEP]]</span></td><td><span class="ph">[[PGM]]</span></td><td><span class="ph">[[DD → DSN]]</span></td><td><span class="ph">[[DD → DSN]]</span></td><td><span class="ph">[[...]]</span></td><td><span class="ph">[[...]]</span></td></tr>
+    </table>
+  </section>
+
+  <section class="only-online">
+    <h3>4.3 Navegación de pantallas <span class="badge online">Solo online (BMS)</span></h3>
+    <div class="flow">
+      <div class="node map"><b>[[COMEN01]]</b>Menú · TransID [[CM00]]</div>
+      <div class="arrow">&rarr;<small>[[opción n / ENTER]]</small></div>
+      <div class="node pgm"><b>[[COxxxxxC]]</b>XCTL · COMMAREA</div>
+      <div class="arrow">&rarr;<small>SEND MAP</small></div>
+      <div class="node map"><b>[[COxxxxx]]</b>[[Pantalla]]</div>
+      <div class="arrow">&rarr;<small>[[PF3]]</small></div>
+      <div class="node map"><b>[[COMEN01]]</b>Vuelta al menú</div>
+    </div>
+    <table>
+      <tr><th>Paso</th><th>Pantalla (map)</th><th>Programa</th><th>Acción usuario / tecla</th><th>Resultado / transferencia (XCTL, LINK, RETURN TRANSID)</th></tr>
+      <tr><td>1</td><td><span class="ph">[[...]]</span></td><td><span class="ph">[[...]]</span></td><td><span class="ph">[[ENTER / PF3 / PF7...]]</span></td><td><span class="ph">[[...]]</span></td></tr>
+    </table>
+  </section>
+
+  <h3>4.4 Lógica interna del programa principal</h3>
+  <p class="hint">Secuencia de párrafos principales (p. ej. 0000-OPEN → 1000-READ → 1500-VALIDATE → 2000-POST → 9000-CLOSE).</p>
+  <ol><li><span class="ph">[[PÁRRAFO]]</span> — <span class="ph">[[qué hace]]</span></li></ol>
+</section>
+
+<!-- 5 -->
+<section id="inventario">
+  <h2><span class="num">5.</span>Inventario de componentes</h2>
+  <table>
+    <tr><th>Tipo</th><th>Nombre</th><th>Ruta en el repositorio</th><th>Rol en el stream</th></tr>
+    <tr><td>JCL / PROC</td><td><span class="ph">[[...]]</span></td><td><span class="ph">[[app/jcl/...]]</span></td><td><span class="ph">[[...]]</span></td></tr>
+    <tr><td>Programa COBOL</td><td><span class="ph">[[...]]</span></td><td><span class="ph">[[app/cbl/...]]</span></td><td><span class="ph">[[...]]</span></td></tr>
+    <tr><td>Copybook</td><td><span class="ph">[[...]]</span></td><td><span class="ph">[[app/cpy/...]]</span></td><td><span class="ph">[[...]]</span></td></tr>
+    <tr><td>Mapset BMS <span class="badge online">Online</span></td><td><span class="ph">[[...]]</span></td><td><span class="ph">[[app/bms/... · app/cpy-bms/...]]</span></td><td><span class="ph">[[...]]</span></td></tr>
+    <tr><td>Assembler / rutina</td><td><span class="ph">[[...]]</span></td><td><span class="ph">[[app/asm/...]]</span></td><td><span class="ph">[[...]]</span></td></tr>
+    <tr><td>Tarjetas de control (SYSIN/CNTL)</td><td><span class="ph">[[...]]</span></td><td><span class="ph">[[app/ctl/...]]</span></td><td><span class="ph">[[...]]</span></td></tr>
+    <tr><td>Definición CICS (CSD) <span class="badge online">Online</span></td><td><span class="ph">[[...]]</span></td><td><span class="ph">[[app/csd/...]]</span></td><td><span class="ph">[[...]]</span></td></tr>
+    <tr><td>Planificación</td><td><span class="ph">[[...]]</span></td><td><span class="ph">[[app/scheduler/...]]</span></td><td><span class="ph">[[...]]</span></td></tr>
+  </table>
+</section>
+
+<!-- 6 -->
+<section id="dependencias">
+  <h2><span class="num">6.</span>Dependencias</h2>
+  <h3>6.1 Datos (bases de datos y ficheros)</h3>
+  <table>
+    <tr><th>DD / nombre lógico</th><th>DSN / tabla / segmento</th><th>Organización</th><th>Acceso</th><th>Clave</th><th>LRECL</th><th>Copybook</th><th>Observaciones</th></tr>
+    <tr><td><span class="ph">[[DD]]</span></td><td><span class="ph">[[DSN]]</span></td><td><span class="ph">[[VSAM KSDS | ESDS | RRDS | PS | GDG | Db2 | IMS]]</span></td><td><span class="ph">[[R | W | R/W | U]]</span></td><td><span class="ph">[[...]]</span></td><td><span class="ph">[[...]]</span></td><td><span class="ph">[[...]]</span></td><td><span class="ph">[[...]]</span></td></tr>
+  </table>
+  <h3>6.2 Utilidades y rutinas compartidas</h3>
+  <table>
+    <tr><th>Utilidad / rutina</th><th>Tipo</th><th>Uso en el stream</th><th>Equivalente propuesto en destino</th></tr>
+    <tr><td><span class="ph">[[IDCAMS | SORT | IEBGENER | IEFBR14 | CEE3ABD | CSUTLDTC | COBSWAIT]]</span></td><td><span class="ph">[[Utilidad IBM | LE | rutina CardDemo]]</span></td><td><span class="ph">[[...]]</span></td><td><span class="ph">[[...]]</span></td></tr>
+  </table>
+  <h3>6.3 Otras aplicaciones e interfaces</h3>
+  <table>
+    <tr><th>Sistema</th><th>Dirección</th><th>Mecanismo</th><th>Dato intercambiado</th><th>Observaciones</th></tr>
+    <tr><td><span class="ph">[[...]]</span></td><td><span class="ph">[[Upstream | Downstream]]</span></td><td><span class="ph">[[Fichero | MQ | FTP | CICS LINK | Db2]]</span></td><td><span class="ph">[[...]]</span></td><td><span class="ph">[[...]]</span></td></tr>
+  </table>
+  <h3>6.4 Dependencias de planificación</h3>
+  <table>
+    <tr><th>Predecesores</th><th>Sucesores</th><th>Recursos / condiciones</th><th>Calendario</th></tr>
+    <tr><td><span class="ph">[[...]]</span></td><td><span class="ph">[[...]]</span></td><td><span class="ph">[[ficheros cerrados en CICS, IN/OUT conditions...]]</span></td><td><span class="ph">[[...]]</span></td></tr>
+  </table>
+</section>
+
+<!-- 7 -->
+<section id="rf">
+  <h2><span class="num">7.</span>Requisitos funcionales</h2>
+  <p class="hint">Un requisito por fila, verificable. "Origen" apunta al código que lo implementa hoy (programa · párrafo · línea). Prioridad MoSCoW.</p>
+  <table>
+    <tr><th>ID</th><th>Requisito</th><th>Origen (legado)</th><th>Prioridad</th><th>Criterio de aceptación (Dado / Cuando / Entonces)</th></tr>
+    <tr><td>RF-01</td><td><span class="ph">[[El sistema debe...]]</span></td><td><span class="ph">[[PGM · PÁRRAFO]]</span></td><td><span class="ph">[[Must]]</span></td><td><b>Dado</b> <span class="ph">[[...]]</span><br><b>Cuando</b> <span class="ph">[[...]]</span><br><b>Entonces</b> <span class="ph">[[...]]</span></td></tr>
+  </table>
+</section>
+
+<!-- 8 -->
+<section id="reglas">
+  <h2><span class="num">8.</span>Reglas de negocio y validaciones <span class="badge mig">Migración</span></h2>
+  <table>
+    <tr><th>ID</th><th>Regla / validación</th><th>Fórmula o condición exacta</th><th>Resultado si no se cumple</th><th>Origen</th></tr>
+    <tr><td>RN-01</td><td><span class="ph">[[...]]</span></td><td><span class="ph">[[...]]</span></td><td><span class="ph">[[rechazo, código, mensaje]]</span></td><td><span class="ph">[[...]]</span></td></tr>
+  </table>
+  <p class="hint">Documenta redondeos, signos, truncamientos, comparaciones de fechas como texto, orden de evaluación y qué ocurre cuando fallan varias reglas a la vez.</p>
+</section>
+
+<!-- 9 -->
+<section id="ui" class="only-online">
+  <h2><span class="num">9.</span>Interfaz de usuario <span class="badge online">Solo online (BMS)</span></h2>
+  <h3>9.1 Campos de pantalla</h3>
+  <table>
+    <tr><th>Campo (BMS)</th><th>Etiqueta</th><th>Tipo / longitud</th><th>E/S</th><th>Atributos</th><th>Validación</th><th>Origen del dato</th></tr>
+    <tr><td><span class="ph">[[...]]</span></td><td><span class="ph">[[...]]</span></td><td><span class="ph">[[X(11)]]</span></td><td><span class="ph">[[Entrada | Salida]]</span></td><td><span class="ph">[[UNPROT, NUM, BRT, IC]]</span></td><td><span class="ph">[[...]]</span></td><td><span class="ph">[[...]]</span></td></tr>
+  </table>
+  <h3>9.2 Teclas de función</h3>
+  <table>
+    <tr><th>Tecla</th><th>Acción</th></tr>
+    <tr><td><span class="ph">[[ENTER / PF3 / PF7 / PF8 ...]]</span></td><td><span class="ph">[[...]]</span></td></tr>
+  </table>
+  <h3>9.3 Mensajes</h3>
+  <table>
+    <tr><th>Texto</th><th>Tipo</th><th>Condición</th></tr>
+    <tr><td><span class="ph">[[...]]</span></td><td><span class="ph">[[Error | Info]]</span></td><td><span class="ph">[[...]]</span></td></tr>
+  </table>
+</section>
+
+<!-- 10 -->
+<section id="datos">
+  <h2><span class="num">10.</span>Diccionario de datos y layouts <span class="badge mig">Migración</span></h2>
+  <p class="hint">Un bloque por registro relevante. Marca COMP/COMP-3, campos con signo, REDEFINES, OCCURS y FILLER con uso real.</p>
+  <h3><span class="ph">[[REGISTRO]]</span> (<span class="ph">[[COPYBOOK]]</span>, LRECL <span class="ph">[[n]]</span>)</h3>
+  <table>
+    <tr><th>Campo</th><th>PIC / USAGE</th><th>Pos.</th><th>Long.</th><th>Descripción</th><th>Tipo destino propuesto</th><th>Notas de conversión</th></tr>
+    <tr><td><span class="ph">[[...]]</span></td><td><span class="ph">[[S9(09)V99]]</span></td><td><span class="ph">[[1]]</span></td><td><span class="ph">[[...]]</span></td><td><span class="ph">[[...]]</span></td><td><span class="ph">[[DECIMAL(11,2)]]</span></td><td><span class="ph">[[signo zoned, EBCDIC...]]</span></td></tr>
+  </table>
+</section>
+
+<!-- 11 -->
+<section id="salidas">
+  <h2><span class="num">11.</span>Salidas e informes</h2>
+  <table>
+    <tr><th>Salida</th><th>Formato</th><th>Destinatario / consumidor</th><th>Retención</th><th>Observaciones</th></tr>
+    <tr><td><span class="ph">[[fichero, informe SYSOUT, pantalla, mensaje]]</span></td><td><span class="ph">[[...]]</span></td><td><span class="ph">[[...]]</span></td><td><span class="ph">[[GDG LIMIT n, días]]</span></td><td><span class="ph">[[...]]</span></td></tr>
+  </table>
+</section>
+
+<!-- 12 -->
+<section id="errores">
+  <h2><span class="num">12.</span>Errores, códigos de retorno y reinicio <span class="badge mig">Migración</span></h2>
+  <table>
+    <tr><th>Situación</th><th>Comportamiento actual</th><th>RC / ABEND / mensaje</th><th>Acción operativa</th></tr>
+    <tr><td><span class="ph">[[...]]</span></td><td><span class="ph">[[...]]</span></td><td><span class="ph">[[RC=0/4/8/12, U999, file status]]</span></td><td><span class="ph">[[...]]</span></td></tr>
+  </table>
+  <table class="kv">
+    <tr><th>Punto de reinicio</th><td><span class="ph">[[desde el inicio | desde step | checkpoint]]</span></td></tr>
+    <tr><th>Procedimiento de recuperación</th><td><span class="ph">[[restaurar backups, borrar GDG(+1), re-ejecutar...]]</span></td></tr>
+    <tr><th>Idempotencia</th><td><span class="ph">[[¿Re-ejecutar duplica datos? ¿Por qué?]]</span></td></tr>
+  </table>
+</section>
+
+<!-- 13 -->
+<section id="transacc">
+  <h2><span class="num">13.</span>Transaccionalidad y concurrencia <span class="badge mig">Migración</span></h2>
+  <table class="kv">
+    <tr><th>Unidad de trabajo</th><td><span class="ph">[[registro a registro | job completo | SYNCPOINT CICS]]</span></td></tr>
+    <tr><th>Frecuencia de commit</th><td><span class="ph">[[...]]</span></td></tr>
+    <tr><th>Orden de actualizaciones</th><td><span class="ph">[[...]]</span></td></tr>
+    <tr><th>Acceso concurrente / bloqueos</th><td><span class="ph">[[ficheros cerrados en CICS, SHAREOPTIONS, ENQ, READ UPDATE]]</span></td></tr>
+  </table>
+</section>
+
+<!-- 14 -->
+<section id="rnf">
+  <h2><span class="num">14.</span>Volumetría, rendimiento y planificación</h2>
+  <table>
+    <tr><th>Métrica</th><th>Valor actual</th><th>Objetivo en destino</th><th>Fuente</th></tr>
+    <tr><td>Registros de entrada por ejecución</td><td><span class="ph">[[...]]</span></td><td><span class="ph">[[...]]</span></td><td><span class="ph">[[...]]</span></td></tr>
+    <tr><td>Duración / ventana batch</td><td><span class="ph">[[...]]</span></td><td><span class="ph">[[...]]</span></td><td><span class="ph">[[...]]</span></td></tr>
+    <tr><td>Tiempo de respuesta / TPS <span class="badge online">Online</span></td><td><span class="ph">[[...]]</span></td><td><span class="ph">[[...]]</span></td><td><span class="ph">[[...]]</span></td></tr>
+    <tr><td>Crecimiento anual</td><td><span class="ph">[[...]]</span></td><td><span class="ph">[[...]]</span></td><td><span class="ph">[[...]]</span></td></tr>
+  </table>
+</section>
+
+<!-- 15 -->
+<section id="seguridad">
+  <h2><span class="num">15.</span>Seguridad y auditoría</h2>
+  <table class="kv">
+    <tr><th>Autorización</th><td><span class="ph">[[RACF, perfil de usuario CardDemo (admin/regular), usuario de job]]</span></td></tr>
+    <tr><th>Datos sensibles</th><td><span class="ph">[[PAN, datos personales, saldos — requisitos de enmascarado/cifrado]]</span></td></tr>
+    <tr><th>Trazas y auditoría</th><td><span class="ph">[[DISPLAY a SYSOUT, logs, timestamps de proceso]]</span></td></tr>
+  </table>
+</section>
+
+<!-- 16 -->
+<section id="destino">
+  <h2><span class="num">16.</span>Mapeo a la arquitectura destino <span class="badge mig">Migración</span></h2>
+  <table>
+    <tr><th>Componente legado</th><th>Componente destino</th><th>Patrón</th><th>Notas</th></tr>
+    <tr><td><span class="ph">[[JCL / programa / VSAM / BMS]]</span></td><td><span class="ph">[[Spring Batch job | servicio REST | tabla PostgreSQL | pantalla web]]</span></td><td><span class="ph">[[reader-processor-writer, API, ...]]</span></td><td><span class="ph">[[...]]</span></td></tr>
+  </table>
+</section>
+
+<!-- 17 -->
+<section id="migdatos">
+  <h2><span class="num">17.</span>Migración de datos <span class="badge mig">Migración</span></h2>
+  <table>
+    <tr><th>Origen</th><th>Destino</th><th>Conversión</th><th>Orden de carga</th><th>Validación</th></tr>
+    <tr><td><span class="ph">[[DSN]]</span></td><td><span class="ph">[[tabla]]</span></td><td><span class="ph">[[EBCDIC→UTF-8, COMP-3→DECIMAL, fechas]]</span></td><td><span class="ph">[[n]]</span></td><td><span class="ph">[[recuentos, sumas de control]]</span></td></tr>
+  </table>
+</section>
+
+<!-- 18 -->
+<section id="pruebas">
+  <h2><span class="num">18.</span>Estrategia de pruebas y criterios de equivalencia <span class="badge mig">Migración</span></h2>
+  <table>
+    <tr><th>ID</th><th>Escenario</th><th>Datos de prueba</th><th>Resultado esperado</th><th>RF cubiertos</th></tr>
+    <tr><td>CP-01</td><td><span class="ph">[[...]]</span></td><td><span class="ph">[[app/data/...]]</span></td><td><span class="ph">[[...]]</span></td><td><span class="ph">[[RF-01]]</span></td></tr>
+  </table>
+  <p><b>Criterio de equivalencia:</b> <span class="ph">[[ejecución en paralelo legado vs destino con el mismo fichero de entrada; comparación registro a registro de salidas y sumas de control]]</span></p>
+</section>
+
+<!-- 19 -->
+<section id="traza">
+  <h2><span class="num">19.</span>Matriz de trazabilidad</h2>
+  <table>
+    <tr><th>RF</th><th>Reglas</th><th>Componente legado</th><th>Componente destino</th><th>Casos de prueba</th></tr>
+    <tr><td><span class="ph">[[RF-01]]</span></td><td><span class="ph">[[RN-01]]</span></td><td><span class="ph">[[...]]</span></td><td><span class="ph">[[...]]</span></td><td><span class="ph">[[CP-01]]</span></td></tr>
+  </table>
+</section>
+
+<!-- 20 -->
+<section id="riesgos">
+  <h2><span class="num">20.</span>Riesgos, supuestos y preguntas abiertas</h2>
+  <h3>Hallazgos del análisis de código</h3>
+  <p class="hint">Código muerto, defectos latentes y comportamientos dudosos que hay que decidir si se replican o se corrigen.</p>
+  <table>
+    <tr><th>ID</th><th>Hallazgo</th><th>Impacto</th><th>Decisión (replicar / corregir)</th></tr>
+    <tr><td>H-01</td><td><span class="ph">[[...]]</span></td><td><span class="ph">[[...]]</span></td><td><span class="ph">[[...]]</span></td></tr>
+  </table>
+  <h3>Supuestos</h3>
+  <ul><li><span class="ph">[[...]]</span></li></ul>
+  <h3>Preguntas abiertas</h3>
+  <table>
+    <tr><th>ID</th><th>Pregunta</th><th>Dirigida a</th><th>Estado</th></tr>
+    <tr><td>Q-01</td><td><span class="ph">[[...]]</span></td><td><span class="ph">[[...]]</span></td><td><span class="ph">[[Abierta]]</span></td></tr>
+  </table>
+</section>
+
+<!-- 21 -->
+<section id="glosario">
+  <h2><span class="num">21.</span>Glosario</h2>
+  <table>
+    <tr><th>Término</th><th>Definición</th></tr>
+    <tr><td><span class="ph">[[...]]</span></td><td><span class="ph">[[...]]</span></td></tr>
+  </table>
+</section>
+
+<!-- 22 -->
+<section id="aprob">
+  <h2><span class="num">22.</span>Aprobaciones</h2>
+  <table>
+    <tr><th>Rol</th><th>Nombre</th><th>Fecha</th><th>Firma / conformidad</th></tr>
+    <tr><td>Responsable funcional</td><td><span class="ph">[[...]]</span></td><td><span class="ph">[[...]]</span></td><td></td></tr>
+    <tr><td>Responsable técnico (legado)</td><td><span class="ph">[[...]]</span></td><td><span class="ph">[[...]]</span></td><td></td></tr>
+    <tr><td>Responsable de migración</td><td><span class="ph">[[...]]</span></td><td><span class="ph">[[...]]</span></td><td></td></tr>
+  </table>
+  <h3>Checklist de completitud</h3>
+  <ul class="check">
+    <li>No quedan marcadores <span class="ph">[[...]]</span> ni textos de ayuda.</li>
+    <li>Cada RF tiene origen en el código y criterio de aceptación.</li>
+    <li>Todos los DSN/tablas del JCL o programa aparecen en Dependencias.</li>
+    <li>Diagrama de flujo coherente con el inventario.</li>
+    <li>Hallazgos con decisión (replicar / corregir).</li>
+  </ul>
+</section>
+
+<footer class="doc">Plantilla de Documento de Requisitos Funcionales · CardDemo · docs/plantilla-requisitos-funcionales.html</footer>
+</div>
+</body>
+</html>

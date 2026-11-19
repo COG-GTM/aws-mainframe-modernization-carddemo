@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>POSTTRAN — Documento de Requisitos Funcionales</title>
+<style>
+  :root {
+    --ink: #1f2933; --muted: #616e7c; --line: #d9e2ec; --bg: #f5f7fa;
+    --brand: #0b4f8a; --brand-soft: #e3eefa; --batch: #8a4b0b; --batch-soft: #fdf0e1;
+    --online: #0b6e4f; --online-soft: #e1f5ee; --warn: #9b1c1c; --warn-soft: #fde8e8;
+    --ph: #fff4c2;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; font: 15px/1.55 "Segoe UI", Roboto, Helvetica, Arial, sans-serif; color: var(--ink); background: var(--bg); }
+  .page { max-width: 1100px; margin: 0 auto; padding: 32px 40px 64px; background: #fff; box-shadow: 0 0 0 1px var(--line); }
+  header.doc { border-bottom: 4px solid var(--brand); padding-bottom: 16px; margin-bottom: 24px; }
+  header.doc .kicker { text-transform: uppercase; letter-spacing: .08em; font-size: 12px; color: var(--muted); }
+  header.doc h1 { margin: 4px 0 8px; font-size: 30px; color: var(--brand); }
+  header.doc .sub { color: var(--muted); }
+  h2 { margin: 40px 0 12px; padding-bottom: 6px; border-bottom: 1px solid var(--line); color: var(--brand); font-size: 22px; }
+  h3 { margin: 24px 0 8px; font-size: 17px; }
+  h2 .num { display: inline-block; min-width: 2.2em; color: var(--muted); }
+  p { margin: 8px 0; }
+  table { width: 100%; border-collapse: collapse; margin: 10px 0 16px; font-size: 14px; }
+  th, td { border: 1px solid var(--line); padding: 7px 9px; text-align: left; vertical-align: top; }
+  th { background: var(--brand-soft); font-weight: 600; }
+  table.kv th { width: 28%; }
+  code, .mono { font-family: "SFMono-Regular", Consolas, Menlo, monospace; font-size: 13px; }
+  .ph { background: var(--ph); padding: 0 3px; border-radius: 3px; font-family: Consolas, Menlo, monospace; font-size: 13px; }
+  .hint { color: var(--muted); font-style: italic; font-size: 13px; }
+  .note { border-left: 4px solid var(--brand); background: var(--brand-soft); padding: 10px 14px; margin: 12px 0; font-size: 14px; }
+  .note.warn { border-color: var(--warn); background: var(--warn-soft); }
+  .badge { display: inline-block; padding: 1px 8px; border-radius: 10px; font-size: 11px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; vertical-align: middle; margin-left: 6px; }
+  .badge.batch { background: var(--batch-soft); color: var(--batch); border: 1px solid var(--batch); }
+  .badge.online { background: var(--online-soft); color: var(--online); border: 1px solid var(--online); }
+  .badge.mig { background: var(--brand-soft); color: var(--brand); border: 1px solid var(--brand); }
+  .badge.ok { background: var(--online-soft); color: var(--online); }
+  .badge.ko { background: var(--warn-soft); color: var(--warn); }
+  section.only-batch { border-left: 3px solid var(--batch); padding-left: 14px; }
+  section.only-online { border-left: 3px solid var(--online); padding-left: 14px; }
+  nav.toc { background: var(--bg); border: 1px solid var(--line); padding: 12px 20px; columns: 2; font-size: 14px; }
+  nav.toc a { color: var(--brand); text-decoration: none; }
+  nav.toc ol { margin: 0; padding-left: 20px; }
+  .legend { font-size: 13px; color: var(--muted); margin: 8px 0 0; }
+  /* Diagramas de flujo editables (HTML/CSS, sin dependencias) */
+  .flow { display: flex; flex-wrap: wrap; align-items: stretch; gap: 0; margin: 14px 0; }
+  .flow .node { border: 2px solid var(--brand); border-radius: 8px; padding: 10px 12px; min-width: 140px; background: #fff; font-size: 13px; }
+  .flow .node b { display: block; font-size: 14px; }
+  .flow .node.job { border-color: var(--batch); background: var(--batch-soft); }
+  .flow .node.pgm { border-color: var(--brand); background: var(--brand-soft); }
+  .flow .node.map { border-color: var(--online); background: var(--online-soft); }
+  .flow .node.ext { border-style: dashed; border-color: var(--muted); }
+  .flow .arrow { align-self: center; padding: 0 8px; font-size: 22px; color: var(--muted); }
+  .flow .arrow small { display: block; font-size: 11px; text-align: center; }
+  .diagram { border: 1px solid var(--line); border-radius: 8px; padding: 12px; background: #fff; overflow-x: auto; }
+  .diagram svg { max-width: 100%; height: auto; }
+  .check { list-style: none; padding-left: 0; }
+  .check li::before { content: "\2610  "; color: var(--muted); }
+  footer.doc { margin-top: 48px; padding-top: 12px; border-top: 1px solid var(--line); font-size: 12px; color: var(--muted); }
+  @media print {
+    body { background: #fff; }
+    .page { box-shadow: none; padding: 0; max-width: none; }
+    h2 { page-break-after: avoid; }
+    table, .diagram, .flow { page-break-inside: avoid; }
+    nav.toc { columns: 1; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+<header class="doc">
+  <div class="kicker">CardDemo · Documento de Requisitos Funcionales · Migración · Ejemplo relleno</div>
+  <h1>POSTTRAN — Contabilización diaria de transacciones</h1>
+  <div class="sub">
+    Tipo: <span class="badge batch">Batch</span> ·
+    Aplicación: CardDemo (núcleo de tarjetas, VSAM) ·
+    Versión del documento: 0.1 ·
+    Estado: Borrador
+  </div>
+</header>
+
+<div class="note">Documento generado a partir del código del repositorio (<code>app/jcl/POSTTRAN.jcl</code>, <code>app/cbl/CBTRN02C.cbl</code>, copybooks de <code>app/cpy</code>, <code>app/scheduler</code>, <code>scripts/</code> y <code>README.md</code>). Lo que no se puede deducir del código (SLA, responsables, volumen real de producción) aparece como <b>pregunta abierta</b> y no se ha inventado.</div>
+
+<nav class="toc">
+  <ol>
+    <li><a href="#control">Control del documento</a></li>
+    <li><a href="#ident">Identificación del stream</a></li>
+    <li><a href="#resumen">Descripción funcional</a></li>
+    <li><a href="#flujo">Diagrama de flujo</a></li>
+    <li><a href="#inventario">Inventario de componentes</a></li>
+    <li><a href="#dependencias">Dependencias</a></li>
+    <li><a href="#rf">Requisitos funcionales</a></li>
+    <li><a href="#reglas">Reglas de negocio y validaciones</a></li>
+    <li><a href="#ui">Interfaz de usuario (online)</a></li>
+    <li><a href="#datos">Diccionario de datos y layouts</a></li>
+    <li><a href="#salidas">Salidas e informes</a></li>
+    <li><a href="#errores">Errores, códigos de retorno y reinicio</a></li>
+    <li><a href="#transacc">Transaccionalidad y concurrencia</a></li>
+    <li><a href="#rnf">Volumetría, rendimiento y planificación</a></li>
+    <li><a href="#seguridad">Seguridad y auditoría</a></li>
+    <li><a href="#destino">Mapeo a la arquitectura destino</a></li>
+    <li><a href="#migdatos">Migración de datos</a></li>
+    <li><a href="#pruebas">Estrategia de pruebas y equivalencia</a></li>
+    <li><a href="#traza">Matriz de trazabilidad</a></li>
+    <li><a href="#riesgos">Riesgos, supuestos y preguntas abiertas</a></li>
+    <li><a href="#glosario">Glosario</a></li>
+    <li><a href="#aprob">Aprobaciones</a></li>
+  </ol>
+</nav>
+
+<!-- 1 -->
+<section id="control">
+  <h2><span class="num">1.</span>Control del documento</h2>
+  <table class="kv">
+    <tr><th>ID del documento</th><td>RF-CARDDEMO-POSTTRAN-001</td></tr>
+    <tr><th>Autor(es)</th><td>Devin (análisis de código) · revisión pendiente</td></tr>
+    <tr><th>Fuentes analizadas</th><td><code>app/jcl/POSTTRAN.jcl</code>, <code>app/cbl/CBTRN02C.cbl</code>, <code>app/cpy/CVTRA06Y.cpy</code>, <code>CVTRA05Y.cpy</code>, <code>CVACT01Y.cpy</code>, <code>CVACT03Y.cpy</code>, <code>CVTRA01Y.cpy</code>, <code>app/jcl/DALYREJS.jcl</code>, <code>app/jcl/TRANBKP.jcl</code>, <code>app/scheduler/CardDemo.ca7</code>, <code>scripts/run_posting.sh</code>, <code>scripts/run_full_batch.sh</code>, <code>README.md</code></td></tr>
+    <tr><th>Documentos relacionados</th><td>INTCALC (CBACT04C), COMBTRAN, TRANREPT (CBTRN03C), CREASTMT (CBSTM03A) — consumidores de las salidas de este stream</td></tr>
+  </table>
+  <h3>Historial de cambios</h3>
+  <table>
+    <tr><th>Versión</th><th>Fecha</th><th>Autor</th><th>Cambios</th></tr>
+    <tr><td>0.1</td><td>2026-11-19</td><td>Devin</td><td>Versión inicial a partir del código fuente</td></tr>
+  </table>
+</section>
+
+<!-- 2 -->
+<section id="ident">
+  <h2><span class="num">2.</span>Identificación del stream</h2>
+  <table class="kv">
+    <tr><th>Nombre del stream</th><td><b>POSTTRAN</b> — "Core transaction processing job" (README)</td></tr>
+    <tr><th>Tipo</th><td>Batch, un único job con un step</td></tr>
+    <tr><th>Aplicación / subsistema</th><td>CardDemo · contabilización de transacciones de tarjeta</td></tr>
+    <tr><th>Punto de entrada</th><td>Job <code>POSTTRAN</code> · <code>STEP15 EXEC PGM=CBTRN02C</code> · STEPLIB <code>AWS.M2.CARDDEMO.LOADLIB</code></td></tr>
+    <tr><th>Planificador</th><td>CA7 (<code>app/scheduler/CardDemo.ca7</code>), SCHID 030, disparado por CBPAUP0J. <b>No</b> aparece en la definición de Control-M (<code>CardDemo.controlm</code>), que solo contiene los folders DAILY-TransactionBackup, WEEKLY-* y MONTHLY-InterestCalculation.</td></tr>
+    <tr><th>Frecuencia y ventana</th><td>Diaria (procesa el fichero de transacciones del día). Ventana concreta: <i>pregunta abierta Q-01</i>.</td></tr>
+    <tr><th>Criticidad de negocio</th><td>Alta — sin POSTTRAN no se actualizan saldos de cuenta ni balances por categoría, y fallan aguas abajo el cálculo de intereses (INTCALC) y los extractos (CREASTMT).</td></tr>
+    <tr><th>Responsable funcional / técnico</th><td><i>Pregunta abierta Q-02</i></td></tr>
+  </table>
+</section>
+
+<!-- 3 -->
+<section id="resumen">
+  <h2><span class="num">3.</span>Descripción funcional (qué hace)</h2>
+  <p>POSTTRAN lee el fichero secuencial de transacciones diarias de tarjeta (<code>DALYTRAN</code>) y, para cada transacción, comprueba que la tarjeta existe, que la cuenta asociada existe, que la operación no supera el límite de crédito y que no llega después de la fecha de expiración de la cuenta.</p>
+  <p>Las transacciones válidas se <b>contabilizan</b>: se acumula el importe en el balance por cuenta/tipo/categoría (<code>TCATBALF</code>), se actualizan el saldo y los acumulados de ciclo de la cuenta (<code>ACCTFILE</code>) y se graba la transacción en el maestro de transacciones (<code>TRANFILE</code>) con un timestamp de proceso. Las inválidas se escriben en un fichero de rechazos (<code>DALYREJS</code>, nueva generación GDG) con el código y la descripción del motivo. Si hay al menos un rechazo, el job termina con RC=4.</p>
+  <table class="kv">
+    <tr><th>Objetivo de negocio</th><td>Reflejar diariamente en cuentas y balances las operaciones realizadas con tarjeta y aislar las que no cumplen las reglas.</td></tr>
+    <tr><th>Actores</th><td>Operación batch / planificador CA7. Sin interacción de usuario.</td></tr>
+    <tr><th>Disparador</th><td>Fin de CBPAUP0J en la cadena CA7 (SCHID 030). En los scripts de demo, envío manual tras CLOSEFIL y la recarga de ficheros.</td></tr>
+    <tr><th>Entradas principales</th><td>DALYTRAN (transacciones del día), CARDXREF (tarjeta → cuenta), ACCTDATA (cuentas), TCATBALF (balances por categoría)</td></tr>
+    <tr><th>Salidas / efectos</th><td>TRANSACT KSDS (transacciones contabilizadas), ACCTDATA y TCATBALF actualizados, DALYREJS(+1) con rechazos, totales en SYSOUT, RC 0/4</td></tr>
+    <tr><th>Fuera de alcance</th><td>Cálculo de intereses (INTCALC), generación de extractos (CREASTMT), informes de transacciones (TRANREPT), autorizaciones en tiempo real (módulo IMS/Db2/MQ)</td></tr>
+  </table>
+</section>
+
+<!-- 4 -->
+<section id="flujo">
+  <h2><span class="num">4.</span>Diagrama de flujo</h2>
+
+  <section class="only-batch">
+    <h3>4.1 Cadena de JCL <span class="badge batch">Solo batch</span></h3>
+    <p><b>Cadena en CA7</b> (SCHID 030, según los bloques <i>TRIGGERED JOBS</i> de <code>CardDemo.ca7</code>):</p>
+    <div class="flow">
+      <div class="node ext"><b>CLOSEFIL</b>SDSF · CEMT SET FIL(...) CLO</div>
+      <div class="arrow">&rarr;</div>
+      <div class="node ext"><b>CBPAUP0J</b>CBPAUP0C · purga autorizaciones</div>
+      <div class="arrow">&rarr;</div>
+      <div class="node job"><b>POSTTRAN</b>STEP15 · PGM=CBTRN02C</div>
+      <div class="arrow">&rarr;</div>
+      <div class="node ext"><b>WAITSTEP</b>COBSWAIT</div>
+      <div class="arrow">&rarr;</div>
+      <div class="node ext"><b>OPENFIL</b>SDSF · CEMT SET FIL(...) OPE</div>
+    </div>
+    <p><b>Secuencia del batch completo</b> (tabla "Running Batch Jobs" del README y <code>scripts/run_full_batch.sh</code>):</p>
+    <div class="flow">
+      <div class="node ext"><b>CLOSEFIL</b></div><div class="arrow">&rarr;</div>
+      <div class="node ext"><b>Recargas</b>ACCTFILE · CARDFILE · XREFFILE · CUSTFILE · TRANBKP · TRANCATG · TRANTYPE · DISCGRP · TCATBALF · DUSRSECJ</div><div class="arrow">&rarr;</div>
+      <div class="node job"><b>POSTTRAN</b></div><div class="arrow">&rarr;</div>
+      <div class="node ext"><b>INTCALC</b></div><div class="arrow">&rarr;</div>
+      <div class="node ext"><b>TRANBKP</b></div><div class="arrow">&rarr;</div>
+      <div class="node ext"><b>COMBTRAN</b></div><div class="arrow">&rarr;</div>
+      <div class="node ext"><b>CREASTMT</b></div><div class="arrow">&rarr;</div>
+      <div class="node ext"><b>TRANIDX</b></div><div class="arrow">&rarr;</div>
+      <div class="node ext"><b>OPENFIL</b></div>
+    </div>
+    <p class="legend">El job que va justo antes, TRANBKP, copia el maestro TRANSACT a <code>TRANSACT.BKUP(+1)</code> y luego borra y redefine el KSDS vacío. Por eso CBTRN02C abre TRANFILE en modo OUTPUT. Después de POSTTRAN, un segundo TRANBKP copia el TRANSACT ya contabilizado a <code>TRANSACT.BKUP(+1)</code>, y COMBTRAN fusiona esa generación <code>TRANSACT.BKUP(0)</code> con <code>SYSTRAN(0)</code> (transacciones generadas por INTCALC). El histórico anterior a POSTTRAN no se vuelve a fusionar automáticamente: queda solo en la generación de backup previa.</p>
+
+    <h3>4.2 Pasos del job</h3>
+    <table>
+      <tr><th>Job</th><th>Step</th><th>Programa</th><th>Entradas (DD → DSN)</th><th>Salidas (DD → DSN)</th><th>Condición</th><th>Descripción</th></tr>
+      <tr><td>POSTTRAN</td><td>STEP15</td><td>CBTRN02C</td>
+        <td>DALYTRAN → <code>AWS.M2.CARDDEMO.DALYTRAN.PS</code><br>XREFFILE → <code>AWS.M2.CARDDEMO.CARDXREF.VSAM.KSDS</code><br>ACCTFILE → <code>AWS.M2.CARDDEMO.ACCTDATA.VSAM.KSDS</code> (E/S)<br>TCATBALF → <code>AWS.M2.CARDDEMO.TCATBALF.VSAM.KSDS</code> (E/S)</td>
+        <td>TRANFILE → <code>AWS.M2.CARDDEMO.TRANSACT.VSAM.KSDS</code><br>DALYREJS → <code>AWS.M2.CARDDEMO.DALYREJS(+1)</code> (NEW,CATLG,DELETE · RECFM=F · LRECL=430)<br>SYSOUT / SYSPRINT</td>
+        <td>Sin COND (único step)</td><td>Valida y contabiliza transacciones diarias</td></tr>
+    </table>
+
+    <h3>4.3 Flujo de datos de CBTRN02C</h3>
+    <div class="diagram">
+      <svg viewBox="0 0 900 360" xmlns="http://www.w3.org/2000/svg" font-family="Segoe UI, Arial, sans-serif" font-size="13">
+        <defs><marker id="a" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#616e7c"/></marker></defs>
+        <rect x="20" y="150" width="190" height="60" rx="8" fill="#fdf0e1" stroke="#8a4b0b" stroke-width="2"/>
+        <text x="115" y="175" text-anchor="middle" font-weight="700">DALYTRAN.PS</text>
+        <text x="115" y="195" text-anchor="middle">Secuencial · 350 B · Lectura</text>
+        <rect x="350" y="140" width="200" height="80" rx="10" fill="#e3eefa" stroke="#0b4f8a" stroke-width="2.5"/>
+        <text x="450" y="172" text-anchor="middle" font-weight="700" font-size="15">CBTRN02C</text>
+        <text x="450" y="194" text-anchor="middle">valida → contabiliza / rechaza</text>
+        <rect x="350" y="20" width="200" height="56" rx="8" fill="#fff" stroke="#0b4f8a" stroke-width="2"/>
+        <text x="450" y="44" text-anchor="middle" font-weight="700">CARDXREF KSDS</text>
+        <text x="450" y="63" text-anchor="middle">Lectura aleatoria · clave tarjeta</text>
+        <rect x="650" y="20" width="230" height="56" rx="8" fill="#fff" stroke="#0b4f8a" stroke-width="2"/>
+        <text x="765" y="44" text-anchor="middle" font-weight="700">ACCTDATA KSDS</text>
+        <text x="765" y="63" text-anchor="middle">READ + REWRITE · clave cuenta</text>
+        <rect x="650" y="110" width="230" height="56" rx="8" fill="#fff" stroke="#0b4f8a" stroke-width="2"/>
+        <text x="765" y="134" text-anchor="middle" font-weight="700">TCATBALF KSDS</text>
+        <text x="765" y="153" text-anchor="middle">READ + WRITE/REWRITE</text>
+        <rect x="650" y="200" width="230" height="56" rx="8" fill="#e1f5ee" stroke="#0b6e4f" stroke-width="2"/>
+        <text x="765" y="224" text-anchor="middle" font-weight="700">TRANSACT KSDS</text>
+        <text x="765" y="243" text-anchor="middle">WRITE (OPEN OUTPUT) · válidas</text>
+        <rect x="650" y="290" width="230" height="56" rx="8" fill="#fde8e8" stroke="#9b1c1c" stroke-width="2"/>
+        <text x="765" y="314" text-anchor="middle" font-weight="700">DALYREJS(+1) GDG</text>
+        <text x="765" y="333" text-anchor="middle">WRITE · rechazos + motivo</text>
+        <line x1="210" y1="180" x2="345" y2="180" stroke="#616e7c" stroke-width="2" marker-end="url(#a)"/>
+        <line x1="450" y1="76" x2="450" y2="136" stroke="#616e7c" stroke-width="2" marker-end="url(#a)"/>
+        <line x1="550" y1="160" x2="646" y2="52" stroke="#616e7c" stroke-width="2" marker-end="url(#a)"/>
+        <line x1="550" y1="172" x2="646" y2="140" stroke="#616e7c" stroke-width="2" marker-end="url(#a)"/>
+        <line x1="550" y1="192" x2="646" y2="226" stroke="#0b6e4f" stroke-width="2" marker-end="url(#a)"/>
+        <line x1="550" y1="208" x2="646" y2="316" stroke="#9b1c1c" stroke-width="2" marker-end="url(#a)"/>
+        <text x="575" y="292" fill="#9b1c1c">motivo ≠ 0</text>
+        <text x="585" y="198" fill="#0b6e4f">motivo = 0</text>
+      </svg>
+    </div>
+  </section>
+
+  <h3>4.4 Lógica interna del programa principal</h3>
+  <ol>
+    <li><code>0000…0500-*-OPEN</code> — abre DALYTRAN (INPUT), TRANFILE (OUTPUT), XREFFILE (INPUT), DALYREJS (OUTPUT), ACCTFILE (I-O), TCATBALF (I-O). Cualquier error al abrir provoca ABEND.</li>
+    <li>Bucle hasta fin de fichero: <code>1000-DALYTRAN-GET-NEXT</code> lee un registro y suma 1 a <code>WS-TRANSACTION-COUNT</code>.</li>
+    <li><code>1500-VALIDATE-TRAN</code> → <code>1500-A-LOOKUP-XREF</code> (tarjeta) y, solo si la tarjeta es válida, <code>1500-B-LOOKUP-ACCT</code> (cuenta, límite y expiración).</li>
+    <li>Si el motivo es 0: <code>2000-POST-TRANSACTION</code> → <code>2700-UPDATE-TCATBAL</code> → <code>2800-UPDATE-ACCOUNT-REC</code> → <code>2900-WRITE-TRANSACTION-FILE</code>.</li>
+    <li>Si no: suma 1 a <code>WS-REJECT-COUNT</code> y ejecuta <code>2500-WRITE-REJECT-REC</code>.</li>
+    <li><code>9000…9500-*-CLOSE</code>; escribe en SYSOUT <code>TRANSACTIONS PROCESSED</code> y <code>TRANSACTIONS REJECTED</code>; pone RC=4 si hay rechazos.</li>
+  </ol>
+</section>
+
+<!-- 5 -->
+<section id="inventario">
+  <h2><span class="num">5.</span>Inventario de componentes</h2>
+  <table>
+    <tr><th>Tipo</th><th>Nombre</th><th>Ruta en el repositorio</th><th>Rol en el stream</th></tr>
+    <tr><td>JCL</td><td>POSTTRAN</td><td><code>app/jcl/POSTTRAN.jcl</code></td><td>Job del stream</td></tr>
+    <tr><td>JCL (prerrequisito)</td><td>DALYREJS</td><td><code>app/jcl/DALYREJS.jcl</code></td><td>Define la base GDG <code>AWS.M2.CARDDEMO.DALYREJS</code> (LIMIT 5, SCRATCH)</td></tr>
+    <tr><td>Programa COBOL</td><td>CBTRN02C</td><td><code>app/cbl/CBTRN02C.cbl</code></td><td>Lógica de validación y contabilización</td></tr>
+    <tr><td>Copybook</td><td>CVTRA06Y</td><td><code>app/cpy/CVTRA06Y.cpy</code></td><td>Layout DALYTRAN-RECORD (entrada diaria)</td></tr>
+    <tr><td>Copybook</td><td>CVTRA05Y</td><td><code>app/cpy/CVTRA05Y.cpy</code></td><td>Layout TRAN-RECORD (maestro de transacciones)</td></tr>
+    <tr><td>Copybook</td><td>CVACT03Y</td><td><code>app/cpy/CVACT03Y.cpy</code></td><td>Layout CARD-XREF-RECORD</td></tr>
+    <tr><td>Copybook</td><td>CVACT01Y</td><td><code>app/cpy/CVACT01Y.cpy</code></td><td>Layout ACCOUNT-RECORD</td></tr>
+    <tr><td>Copybook</td><td>CVTRA01Y</td><td><code>app/cpy/CVTRA01Y.cpy</code></td><td>Layout TRAN-CAT-BAL-RECORD</td></tr>
+    <tr><td>Rutina LE</td><td>CEE3ABD</td><td>Language Environment (IBM)</td><td>ABEND controlado (código 999)</td></tr>
+    <tr><td>Planificación</td><td>CardDemo.ca7</td><td><code>app/scheduler/CardDemo.ca7</code></td><td>Cadena CLOSEFIL → CBPAUP0J → POSTTRAN → WAITSTEP → OPENFIL</td></tr>
+    <tr><td>Scripts de envío</td><td>run_posting.sh / run_full_batch.sh</td><td><code>scripts/</code></td><td>Envío por FTP/JES en el entorno de demo</td></tr>
+    <tr><td>Datos de prueba</td><td>dailytran</td><td><code>app/data/ASCII/dailytran.txt</code>, <code>app/data/EBCDIC/AWS.M2.CARDDEMO.DALYTRAN.PS</code></td><td>300 transacciones de ejemplo</td></tr>
+  </table>
+  <p class="legend">No usa mapas BMS, PROC, SYSIN ni Assembler.</p>
+</section>
+
+<!-- 6 -->
+<section id="dependencias">
+  <h2><span class="num">6.</span>Dependencias</h2>
+  <h3>6.1 Datos (bases de datos y ficheros)</h3>
+  <table>
+    <tr><th>DD</th><th>DSN</th><th>Organización</th><th>Acceso</th><th>Clave</th><th>LRECL</th><th>Copybook</th><th>Observaciones</th></tr>
+    <tr><td>DALYTRAN</td><td><code>AWS.M2.CARDDEMO.DALYTRAN.PS</code></td><td>Secuencial</td><td>R (secuencial)</td><td>—</td><td>350</td><td>CVTRA06Y</td><td>Ningún job del repo lo genera; se carga con los datos de ejemplo (Q-03)</td></tr>
+    <tr><td>XREFFILE</td><td><code>AWS.M2.CARDDEMO.CARDXREF.VSAM.KSDS</code></td><td>VSAM KSDS</td><td>R (aleatorio)</td><td>XREF-CARD-NUM X(16)</td><td>50</td><td>CVACT03Y</td><td>Tarjeta → cliente + cuenta</td></tr>
+    <tr><td>ACCTFILE</td><td><code>AWS.M2.CARDDEMO.ACCTDATA.VSAM.KSDS</code></td><td>VSAM KSDS</td><td>R/U (READ + REWRITE)</td><td>ACCT-ID 9(11)</td><td>300</td><td>CVACT01Y</td><td>Se actualizan saldo y acumulados de ciclo</td></tr>
+    <tr><td>TCATBALF</td><td><code>AWS.M2.CARDDEMO.TCATBALF.VSAM.KSDS</code></td><td>VSAM KSDS</td><td>R/W/U</td><td>Cuenta 9(11) + tipo X(2) + categoría 9(4)</td><td>50</td><td>CVTRA01Y</td><td>Si la clave no existe, se crea el registro</td></tr>
+    <tr><td>TRANFILE</td><td><code>AWS.M2.CARDDEMO.TRANSACT.VSAM.KSDS</code></td><td>VSAM KSDS</td><td>W (OPEN OUTPUT)</td><td>TRAN-ID X(16)</td><td>350</td><td>CVTRA05Y</td><td>TRANBKP lo deja vacío antes; AIX redefinido después por TRANIDX</td></tr>
+    <tr><td>DALYREJS</td><td><code>AWS.M2.CARDDEMO.DALYREJS(+1)</code></td><td>GDG secuencial</td><td>W</td><td>—</td><td>430</td><td>En línea (REJECT-RECORD)</td><td>350 B de transacción + 80 B de trailer de validación</td></tr>
+  </table>
+  <h3>6.2 Utilidades y rutinas compartidas</h3>
+  <table>
+    <tr><th>Utilidad / rutina</th><th>Tipo</th><th>Uso en el stream</th><th>Equivalente propuesto en destino</th></tr>
+    <tr><td>CEE3ABD</td><td>Language Environment</td><td>ABEND U999 ante cualquier error de E/S</td><td>Excepción no recuperable → job FAILED</td></tr>
+    <tr><td>FUNCTION CURRENT-DATE</td><td>Intrínseca COBOL</td><td>Timestamp de proceso en formato Db2 (<code>AAAA-MM-DD-HH.MM.SS.cc0000</code>)</td><td>Reloj del sistema con zona horaria explícita</td></tr>
+    <tr><td>IDCAMS (TRANBKP, TRANIDX), SDSF con comandos CEMT a la región CICSAWSA (CLOSEFIL/OPENFIL: TRANSACT, CCXREF, ACCTDAT, CXACAIX, USRSEC), COBSWAIT (WAITSTEP)</td><td>Utilidades IBM / CardDemo</td><td>En jobs vecinos, no dentro de POSTTRAN</td><td>Pasos de preparación y cierre del job destino</td></tr>
+  </table>
+  <h3>6.3 Otras aplicaciones e interfaces</h3>
+  <table>
+    <tr><th>Sistema / componente</th><th>Dirección</th><th>Mecanismo</th><th>Dato intercambiado</th><th>Observaciones</th></tr>
+    <tr><td>Origen de transacciones diarias</td><td>Upstream</td><td>Fichero DALYTRAN.PS</td><td>Transacciones del día</td><td>Sistema emisor no identificado en el repo (Q-03)</td></tr>
+    <tr><td>CICS online CardDemo (COACTVWC, COACTUPC, COTRN00C/01C/02C, COBIL00C, CORPT00C…)</td><td>Comparte datos</td><td>Mismos VSAM (ACCTDAT, TRANSACT, CXACAIX…)</td><td>Cuentas y transacciones</td><td>Por eso se ejecuta entre CLOSEFIL y OPENFIL</td></tr>
+    <tr><td>INTCALC (CBACT04C)</td><td>Downstream</td><td>TCATBALF, ACCTDATA, CARDXREF</td><td>Balances por categoría → intereses</td><td>Depende de que POSTTRAN termine bien</td></tr>
+    <tr><td>COMBTRAN / CREASTMT / TRANREPT</td><td>Downstream</td><td>TRANSACT KSDS y backups GDG</td><td>Transacciones contabilizadas</td><td>Fusión, extractos e informes</td></tr>
+  </table>
+  <h3>6.4 Dependencias de planificación</h3>
+  <table>
+    <tr><th>Predecesores</th><th>Sucesores</th><th>Recursos / condiciones</th><th>Calendario</th></tr>
+    <tr><td>CA7: CBPAUP0J (tras CLOSEFIL).<br>Batch completo: recargas ACCTFILE, TCATBALF, TRANBKP…</td><td>CA7: WAITSTEP → OPENFIL.<br>Batch completo: INTCALC → TRANBKP → COMBTRAN → CREASTMT → TRANIDX → OPENFIL</td><td>VSAM cerrados en CICS (CLOSEFIL). Base GDG DALYREJS definida. TRANSACT KSDS vacío (TRANBKP).</td><td>Diario (Q-01)</td></tr>
+  </table>
+</section>
+
+<!-- 7 -->
+<section id="rf">
+  <h2><span class="num">7.</span>Requisitos funcionales</h2>
+  <table>
+    <tr><th>ID</th><th>Requisito</th><th>Origen (legado)</th><th>Prioridad</th><th>Criterio de aceptación</th></tr>
+    <tr><td>RF-01</td><td>El sistema debe procesar secuencialmente todas las transacciones del fichero diario hasta el fin de fichero.</td><td>CBTRN02C · bucle principal · 1000-DALYTRAN-GET-NEXT</td><td>Must</td><td><b>Dado</b> un fichero diario con N registros<br><b>Cuando</b> se ejecuta el stream<br><b>Entonces</b> se cuentan N transacciones procesadas</td></tr>
+    <tr><td>RF-02</td><td>El sistema debe rechazar la transacción cuyo número de tarjeta no exista en la referencia cruzada (motivo 100).</td><td>1500-A-LOOKUP-XREF</td><td>Must</td><td><b>Dado</b> una tarjeta que no está en CARDXREF<br><b>Cuando</b> se procesa<br><b>Entonces</b> va a DALYREJS con 0100 "INVALID CARD NUMBER FOUND" y no se modifica ningún maestro</td></tr>
+    <tr><td>RF-03</td><td>El sistema debe rechazar la transacción cuya cuenta asociada no exista (motivo 101).</td><td>1500-B-LOOKUP-ACCT</td><td>Must</td><td><b>Dado</b> una tarjeta cuyo XREF-ACCT-ID no está en ACCTDATA<br><b>Cuando</b> se procesa<br><b>Entonces</b> se rechaza con 0101 "ACCOUNT RECORD NOT FOUND"</td></tr>
+    <tr><td>RF-04</td><td>El sistema debe rechazar la transacción que supere el límite de crédito de la cuenta (motivo 102), según RN-01.</td><td>1500-B-LOOKUP-ACCT</td><td>Must</td><td><b>Dado</b> crédito de ciclo − débito de ciclo + importe &gt; límite de crédito<br><b>Cuando</b> se procesa<br><b>Entonces</b> se rechaza con 0102 "OVERLIMIT TRANSACTION"</td></tr>
+    <tr><td>RF-05</td><td>El sistema debe rechazar la transacción originada después de la fecha de expiración de la cuenta (motivo 103).</td><td>1500-B-LOOKUP-ACCT</td><td>Must</td><td><b>Dado</b> ACCT-EXPIRAION-DATE &lt; los 10 primeros caracteres de DALYTRAN-ORIG-TS<br><b>Cuando</b> se procesa<br><b>Entonces</b> se rechaza con 0103 "TRANSACTION RECEIVED AFTER ACCT EXPIRATION"</td></tr>
+    <tr><td>RF-06</td><td>Cada rechazo debe guardar el registro original completo y un trailer con el código (4 dígitos) y la descripción del motivo.</td><td>2500-WRITE-REJECT-REC</td><td>Must</td><td><b>Dado</b> una transacción rechazada<br><b>Entonces</b> DALYREJS contiene 430 bytes: 350 de la transacción original + 4 de código + 76 de descripción</td></tr>
+    <tr><td>RF-07</td><td>Para cada transacción válida, el sistema debe sumar el importe al balance de la clave cuenta + tipo + categoría, y crear el registro si no existe.</td><td>2700-UPDATE-TCATBAL · 2700-A / 2700-B</td><td>Must</td><td><b>Dado</b> una clave inexistente en TCATBALF<br><b>Cuando</b> se contabiliza un importe X<br><b>Entonces</b> se crea el registro con TRAN-CAT-BAL = X. Si ya existía con saldo B, queda B + X</td></tr>
+    <tr><td>RF-08</td><td>Para cada transacción válida, el sistema debe sumar el importe al saldo actual de la cuenta y al acumulado de crédito de ciclo (si el importe es ≥ 0) o al de débito de ciclo (si es &lt; 0).</td><td>2800-UPDATE-ACCOUNT-REC</td><td>Must</td><td><b>Dado</b> una cuenta con saldo S y un importe X ≥ 0<br><b>Entonces</b> el saldo pasa a S + X y ACCT-CURR-CYC-CREDIT aumenta en X. Si X &lt; 0, ACCT-CURR-CYC-DEBIT aumenta en X</td></tr>
+    <tr><td>RF-09</td><td>Cada transacción válida debe grabarse en el maestro de transacciones con todos los campos de entrada y TRAN-PROC-TS = fecha y hora de proceso.</td><td>2000-POST-TRANSACTION · 2900-WRITE-TRANSACTION-FILE · Z-GET-DB2-FORMAT-TIMESTAMP</td><td>Must</td><td><b>Dado</b> una transacción válida<br><b>Entonces</b> TRANSACT contiene un registro con clave TRAN-ID igual a DALYTRAN-ID y PROC-TS en formato <code>AAAA-MM-DD-HH.MM.SS.cc0000</code></td></tr>
+    <tr><td>RF-10</td><td>Al terminar, el sistema debe informar del total de transacciones procesadas y rechazadas, y terminar con RC=4 si hay al menos un rechazo (RC=0 si no hay ninguno).</td><td>Procedimiento principal</td><td>Must</td><td><b>Dado</b> 300 transacciones de las que 5 se rechazan<br><b>Entonces</b> SYSOUT muestra "TRANSACTIONS PROCESSED :000000300" y "TRANSACTIONS REJECTED  :000000005", y el RC es 4</td></tr>
+    <tr><td>RF-11</td><td>Comportamiento actual: los errores de E/S al abrir, leer DALYTRAN, leer/grabar TCATBAL, grabar TRANSACT o DALYREJS y cerrar detienen el proceso con ABEND y muestran el file status. Excepciones: una clave inexistente en XREF o ACCTDATA no es error de E/S sino rechazo (RF-02/RF-03), y un INVALID KEY en el REWRITE de cuenta asigna 109 sin abortar (ver H-03; la corrección se decide aparte).</td><td>Párrafos *-OPEN/CLOSE, 1000, 2700, 2800, 2900, 9910, 9999</td><td>Must</td><td><b>Dado</b> un TRAN-ID duplicado en el fichero diario<br><b>Cuando</b> se graba en TRANSACT<br><b>Entonces</b> se muestra "ERROR WRITING TO TRANSACTION FILE" con "FILE STATUS IS: NNNN0022" y el job termina con ABEND U999</td></tr>
+  </table>
+</section>
+
+<!-- 8 -->
+<section id="reglas">
+  <h2><span class="num">8.</span>Reglas de negocio y validaciones <span class="badge mig">Migración</span></h2>
+  <table>
+    <tr><th>ID</th><th>Regla / validación</th><th>Fórmula o condición exacta</th><th>Resultado si no se cumple</th><th>Origen</th></tr>
+    <tr><td>RN-01</td><td>Límite de crédito</td><td><code>WS-TEMP-BAL = ACCT-CURR-CYC-CREDIT − ACCT-CURR-CYC-DEBIT + DALYTRAN-AMT</code>; se acepta si <code>ACCT-CREDIT-LIMIT ≥ WS-TEMP-BAL</code>. WS-TEMP-BAL es S9(09)V99: los resultados de más de 9 dígitos enteros se truncan.</td><td>Rechazo 102</td><td>1500-B-LOOKUP-ACCT</td></tr>
+    <tr><td>RN-02</td><td>Expiración de la cuenta</td><td>Comparación <b>alfanumérica</b> <code>ACCT-EXPIRAION-DATE (X(10)) ≥ DALYTRAN-ORIG-TS(1:10)</code>. Solo es correcta si ambas fechas están en formato AAAA-MM-DD.</td><td>Rechazo 103</td><td>1500-B-LOOKUP-ACCT</td></tr>
+    <tr><td>RN-03</td><td>Orden de evaluación</td><td>XREF → ACCT. Si falla XREF no se lee la cuenta. RN-01 y RN-02 se evalúan las dos y, si fallan ambas, prevalece 103 (sobrescribe 102).</td><td>Solo se guarda un motivo</td><td>1500-VALIDATE-TRAN</td></tr>
+    <tr><td>RN-04</td><td>Signo del importe</td><td>Importe ≥ 0 → acumulado de crédito de ciclo. Importe &lt; 0 → acumulado de débito de ciclo (el valor negativo se suma tal cual). El saldo actual siempre suma el importe.</td><td>—</td><td>2800-UPDATE-ACCOUNT-REC</td></tr>
+    <tr><td>RN-05</td><td>Clave de balance por categoría</td><td>XREF-ACCT-ID + DALYTRAN-TYPE-CD + DALYTRAN-CAT-CD. Si no existe la clave, se crea (file status 23 se trata como "no encontrado").</td><td>—</td><td>2700-UPDATE-TCATBAL</td></tr>
+    <tr><td>RN-06</td><td>Timestamp de proceso</td><td>Se ignora DALYTRAN-PROC-TS de entrada; TRAN-PROC-TS = CURRENT-DATE con formato Db2 y "0000" en los cuatro últimos caracteres.</td><td>—</td><td>Z-GET-DB2-FORMAT-TIMESTAMP</td></tr>
+    <tr><td>RN-07</td><td>Validaciones no implementadas</td><td>No se valida el estado de la cuenta (ACCT-ACTIVE-STATUS), ni el tipo/categoría contra TRANTYPE/TRANCATG, ni el límite de efectivo (ACCT-CASH-CREDIT-LIMIT). El código tiene el comentario "ADD MORE VALIDATIONS HERE".</td><td>—</td><td>1500-VALIDATE-TRAN</td></tr>
+  </table>
+</section>
+
+<!-- 9 -->
+<section id="ui" class="only-online">
+  <h2><span class="num">9.</span>Interfaz de usuario <span class="badge online">Solo online (BMS)</span></h2>
+  <p>N/A — stream batch sin pantallas.</p>
+</section>
+
+<!-- 10 -->
+<section id="datos">
+  <h2><span class="num">10.</span>Diccionario de datos y layouts <span class="badge mig">Migración</span></h2>
+  <p class="legend">Los ficheros se almacenan en EBCDIC. Los campos numéricos con signo son <i>zoned decimal</i> con el signo en el último byte (overpunch: en ASCII aparecen como <code>{</code>, <code>A</code>–<code>I</code>, <code>}</code>, <code>J</code>–<code>R</code>). No se usa COMP ni COMP-3 en estos registros.</p>
+  <h3>DALYTRAN-RECORD (CVTRA06Y, LRECL 350) — idéntico a TRAN-RECORD (CVTRA05Y)</h3>
+  <table>
+    <tr><th>Campo</th><th>PIC</th><th>Pos.</th><th>Long.</th><th>Descripción</th><th>Tipo destino propuesto</th><th>Notas de conversión</th></tr>
+    <tr><td>DALYTRAN-ID</td><td>X(16)</td><td>1</td><td>16</td><td>ID de transacción (clave en TRANSACT)</td><td>VARCHAR(16) PK</td><td>Conserva los ceros a la izquierda</td></tr>
+    <tr><td>DALYTRAN-TYPE-CD</td><td>X(02)</td><td>17</td><td>2</td><td>Tipo de transacción</td><td>CHAR(2) FK → tipo</td><td></td></tr>
+    <tr><td>DALYTRAN-CAT-CD</td><td>9(04)</td><td>19</td><td>4</td><td>Categoría</td><td>SMALLINT / CHAR(4)</td><td>Forma parte de la clave de TCATBAL</td></tr>
+    <tr><td>DALYTRAN-SOURCE</td><td>X(10)</td><td>23</td><td>10</td><td>Origen (p. ej. "POS TERM")</td><td>VARCHAR(10)</td><td>Quitar espacios finales</td></tr>
+    <tr><td>DALYTRAN-DESC</td><td>X(100)</td><td>33</td><td>100</td><td>Descripción</td><td>VARCHAR(100)</td><td></td></tr>
+    <tr><td>DALYTRAN-AMT</td><td>S9(09)V99</td><td>133</td><td>11</td><td>Importe con signo</td><td>DECIMAL(11,2)</td><td>Zoned con signo en el último byte; coma decimal implícita</td></tr>
+    <tr><td>DALYTRAN-MERCHANT-ID</td><td>9(09)</td><td>144</td><td>9</td><td>Comercio</td><td>BIGINT / CHAR(9)</td><td></td></tr>
+    <tr><td>DALYTRAN-MERCHANT-NAME</td><td>X(50)</td><td>153</td><td>50</td><td>Nombre del comercio</td><td>VARCHAR(50)</td><td></td></tr>
+    <tr><td>DALYTRAN-MERCHANT-CITY</td><td>X(50)</td><td>203</td><td>50</td><td>Ciudad</td><td>VARCHAR(50)</td><td></td></tr>
+    <tr><td>DALYTRAN-MERCHANT-ZIP</td><td>X(10)</td><td>253</td><td>10</td><td>Código postal</td><td>VARCHAR(10)</td><td></td></tr>
+    <tr><td>DALYTRAN-CARD-NUM</td><td>X(16)</td><td>263</td><td>16</td><td>Número de tarjeta (PAN)</td><td>CHAR(16)</td><td>Dato sensible (PCI)</td></tr>
+    <tr><td>DALYTRAN-ORIG-TS</td><td>X(26)</td><td>279</td><td>26</td><td>Timestamp de origen</td><td>TIMESTAMP</td><td>Ejemplo: <code>2022-06-10 19:27:53.000000</code></td></tr>
+    <tr><td>DALYTRAN-PROC-TS</td><td>X(26)</td><td>305</td><td>26</td><td>Timestamp de proceso</td><td>TIMESTAMP</td><td>En TRANSACT lo rellena el batch (RN-06)</td></tr>
+    <tr><td>FILLER</td><td>X(20)</td><td>331</td><td>20</td><td>Reserva</td><td>—</td><td></td></tr>
+  </table>
+  <h3>ACCOUNT-RECORD (CVACT01Y, LRECL 300) — campos usados</h3>
+  <table>
+    <tr><th>Campo</th><th>PIC</th><th>Pos.</th><th>Long.</th><th>Uso en POSTTRAN</th><th>Tipo destino propuesto</th></tr>
+    <tr><td>ACCT-ID</td><td>9(11)</td><td>1</td><td>11</td><td>Clave de lectura</td><td>BIGINT PK</td></tr>
+    <tr><td>ACCT-CURR-BAL</td><td>S9(10)V99</td><td>13</td><td>12</td><td>+= importe</td><td>DECIMAL(12,2)</td></tr>
+    <tr><td>ACCT-CREDIT-LIMIT</td><td>S9(10)V99</td><td>25</td><td>12</td><td>RN-01</td><td>DECIMAL(12,2)</td></tr>
+    <tr><td>ACCT-EXPIRAION-DATE</td><td>X(10)</td><td>59</td><td>10</td><td>RN-02</td><td>DATE (validar formato al migrar)</td></tr>
+    <tr><td>ACCT-CURR-CYC-CREDIT</td><td>S9(10)V99</td><td>79</td><td>12</td><td>RN-01, += importe ≥ 0</td><td>DECIMAL(12,2)</td></tr>
+    <tr><td>ACCT-CURR-CYC-DEBIT</td><td>S9(10)V99</td><td>91</td><td>12</td><td>RN-01, += importe &lt; 0</td><td>DECIMAL(12,2)</td></tr>
+  </table>
+  <h3>CARD-XREF-RECORD (CVACT03Y, LRECL 50) y TRAN-CAT-BAL-RECORD (CVTRA01Y, LRECL 50)</h3>
+  <table>
+    <tr><th>Registro</th><th>Campo</th><th>PIC</th><th>Pos.</th><th>Tipo destino propuesto</th></tr>
+    <tr><td>XREF</td><td>XREF-CARD-NUM (clave)</td><td>X(16)</td><td>1</td><td>CHAR(16) PK</td></tr>
+    <tr><td>XREF</td><td>XREF-CUST-ID</td><td>9(09)</td><td>17</td><td>BIGINT FK</td></tr>
+    <tr><td>XREF</td><td>XREF-ACCT-ID</td><td>9(11)</td><td>26</td><td>BIGINT FK</td></tr>
+    <tr><td>TCATBAL</td><td>TRANCATG-ACCT-ID + TYPE-CD + CD (clave)</td><td>9(11) X(02) 9(04)</td><td>1 / 12 / 14</td><td>PK compuesta</td></tr>
+    <tr><td>TCATBAL</td><td>TRAN-CAT-BAL</td><td>S9(09)V99</td><td>18</td><td>DECIMAL(11,2)</td></tr>
+  </table>
+  <h3>REJECT-RECORD (en línea en CBTRN02C, LRECL 430)</h3>
+  <table>
+    <tr><th>Campo</th><th>PIC</th><th>Pos.</th><th>Descripción</th></tr>
+    <tr><td>REJECT-TRAN-DATA</td><td>X(350)</td><td>1</td><td>Registro DALYTRAN original</td></tr>
+    <tr><td>WS-VALIDATION-FAIL-REASON</td><td>9(04)</td><td>351</td><td>100 / 101 / 102 / 103</td></tr>
+    <tr><td>WS-VALIDATION-FAIL-REASON-DESC</td><td>X(76)</td><td>355</td><td>Texto del motivo</td></tr>
+  </table>
+</section>
+
+<!-- 11 -->
+<section id="salidas">
+  <h2><span class="num">11.</span>Salidas e informes</h2>
+  <table>
+    <tr><th>Salida</th><th>Formato</th><th>Destinatario / consumidor</th><th>Retención</th><th>Observaciones</th></tr>
+    <tr><td>TRANSACT KSDS</td><td>VSAM 350 B</td><td>COMBTRAN, TRANREPT, CREASTMT, online CICS</td><td>Maestro</td><td>Solo las transacciones de esta ejecución (el KSDS viene vacío de TRANBKP)</td></tr>
+    <tr><td>DALYREJS(+1)</td><td>PS FB 430 B</td><td>Operación / negocio (revisión de rechazos)</td><td>GDG LIMIT 5, SCRATCH</td><td>Ningún job del repo lo consume (Q-04)</td></tr>
+    <tr><td>ACCTDATA / TCATBALF</td><td>VSAM</td><td>INTCALC, online</td><td>Maestro</td><td>Actualizados en el sitio</td></tr>
+    <tr><td>SYSOUT</td><td>Texto</td><td>Operación</td><td>Según política de JES</td><td>START/END, totales, errores de E/S, avisos "TCATBAL record not found… Creating."</td></tr>
+  </table>
+</section>
+
+<!-- 12 -->
+<section id="errores">
+  <h2><span class="num">12.</span>Errores, códigos de retorno y reinicio <span class="badge mig">Migración</span></h2>
+  <table>
+    <tr><th>Situación</th><th>Comportamiento actual</th><th>RC / ABEND / mensaje</th><th>Acción operativa</th></tr>
+    <tr><td>Todas las transacciones válidas</td><td>Fin normal</td><td>RC=0</td><td>Ninguna</td></tr>
+    <tr><td>Una o más rechazadas</td><td>Fin normal con rechazos en DALYREJS</td><td>RC=4</td><td>Revisar DALYREJS(0)</td></tr>
+    <tr><td>Error al abrir, leer, escribir o cerrar cualquier fichero</td><td>DISPLAY del error y del file status, CALL CEE3ABD</td><td>ABEND U999 · "FILE STATUS IS: NNNNxxxx"</td><td>Analizar el file status y recuperar (ver abajo)</td></tr>
+    <tr><td>TRAN-ID duplicado (en la entrada o ya presente en TRANSACT)</td><td>WRITE falla con status 22 → ABEND</td><td>U999</td><td>Depurar la entrada y recuperar</td></tr>
+    <tr><td>Registro de cuenta desaparecido entre la lectura y el REWRITE</td><td>Se asigna el motivo 109, pero <b>no se actúa</b> sobre él (H-03)</td><td>Ninguno</td><td>—</td></tr>
+  </table>
+  <table class="kv">
+    <tr><th>Punto de reinicio</th><td>Solo desde el inicio (un step, sin checkpoints).</td></tr>
+    <tr><th>Procedimiento de recuperación</th><td>Restaurar ACCTDATA y TCATBALF al estado previo, redefinir TRANSACT vacío (TRANBKP), borrar la generación DALYREJS(+1) si se catalogó, corregir la entrada y volver a enviar. Con DISP=(NEW,CATLG,DELETE), DALYREJS se borra si hay ABEND.</td></tr>
+    <tr><th>Idempotencia</th><td><b>No idempotente</b>: ACCTDATA y TCATBALF se actualizan en el sitio. Re-ejecutar sin restaurar duplica importes.</td></tr>
+  </table>
+</section>
+
+<!-- 13 -->
+<section id="transacc">
+  <h2><span class="num">13.</span>Transaccionalidad y concurrencia <span class="badge mig">Migración</span></h2>
+  <table class="kv">
+    <tr><th>Unidad de trabajo</th><td>Registro a registro, sin commit ni rollback: cada WRITE/REWRITE VSAM es definitivo.</td></tr>
+    <tr><th>Frecuencia de commit</th><td>N/A en el legado. En destino: definir el tamaño de chunk y la atomicidad por transacción (TCATBAL + ACCT + TRANSACT en la misma transacción de BD).</td></tr>
+    <tr><th>Orden de actualizaciones</th><td>TCATBALF → ACCTDATA → TRANSACT. Un ABEND entre pasos deja la transacción a medio aplicar.</td></tr>
+    <tr><th>Acceso concurrente / bloqueos</th><td>Acceso exclusivo garantizado por la planificación: CLOSEFIL cierra en CICS TRANSACT, CCXREF, ACCTDAT, CXACAIX y USRSEC antes, y OPENFIL los reabre después. TCATBALF no está en esa lista. TRANSACT se define con SHAREOPTIONS(2 3).</td></tr>
+  </table>
+</section>
+
+<!-- 14 -->
+<section id="rnf">
+  <h2><span class="num">14.</span>Volumetría, rendimiento y planificación</h2>
+  <table>
+    <tr><th>Métrica</th><th>Valor actual</th><th>Objetivo en destino</th><th>Fuente</th></tr>
+    <tr><td>Registros de entrada por ejecución</td><td>300 en los datos de ejemplo. Producción: Q-05</td><td>Q-05</td><td><code>app/data/ASCII/dailytran.txt</code></td></tr>
+    <tr><td>Parámetros CA7</td><td>REGION=4096K, CPUTM=00023, ELAPTM=2359 (límites configurados, no mediciones)</td><td>—</td><td><code>CardDemo.ca7</code></td></tr>
+    <tr><td>Duración / ventana batch</td><td>Q-01</td><td>Q-01</td><td>—</td></tr>
+    <tr><td>Espacio DALYREJS</td><td>SPACE=(CYL,(1,1),RLSE)</td><td>—</td><td>POSTTRAN.jcl</td></tr>
+  </table>
+</section>
+
+<!-- 15 -->
+<section id="seguridad">
+  <h2><span class="num">15.</span>Seguridad y auditoría</h2>
+  <table class="kv">
+    <tr><th>Autorización</th><td>Usuario de envío del job (NOTIFY=&amp;SYSUID). Perfiles RACF sobre <code>AWS.M2.CARDDEMO.*</code>: Q-06.</td></tr>
+    <tr><th>Datos sensibles</th><td>Número de tarjeta (PAN) en claro en DALYTRAN, TRANSACT, XREF y DALYREJS. En destino: cifrado en reposo y enmascarado en logs (PCI DSS).</td></tr>
+    <tr><th>Trazas y auditoría</th><td>Solo DISPLAY a SYSOUT (totales y errores). TRAN-PROC-TS deja constancia del momento de contabilización. No hay registro de auditoría de los cambios de saldo.</td></tr>
+  </table>
+</section>
+
+<!-- 16 -->
+<section id="destino">
+  <h2><span class="num">16.</span>Mapeo a la arquitectura destino <span class="badge mig">Migración</span></h2>
+  <p class="legend">Propuesta orientativa: la arquitectura destino debe confirmarla el equipo de migración.</p>
+  <table>
+    <tr><th>Componente legado</th><th>Componente destino</th><th>Patrón</th><th>Notas</th></tr>
+    <tr><td>Job POSTTRAN / STEP15</td><td>Job batch (p. ej. Spring Batch <code>postTransactionsJob</code>)</td><td>Chunk: reader → processor → writer</td><td>Parámetro: fecha de negocio / fichero de entrada</td></tr>
+    <tr><td>DALYTRAN.PS</td><td>Fichero de entrada o tabla de staging <code>daily_transaction</code></td><td>FlatFileItemReader con layout fijo</td><td>Conversión EBCDIC y zoned decimal</td></tr>
+    <tr><td>1500-VALIDATE-TRAN</td><td>ItemProcessor / servicio de validación</td><td>Reglas RN-01…RN-03</td><td>Mantener el orden y la prioridad de motivos o decidir lo contrario (H-02)</td></tr>
+    <tr><td>2700 / 2800 / 2900</td><td>ItemWriter transaccional</td><td>Upsert de <code>transaction_category_balance</code>, update de <code>account</code>, insert de <code>transaction</code></td><td>Una transacción de BD por registro o por chunk</td></tr>
+    <tr><td>DALYREJS GDG</td><td>Tabla <code>daily_transaction_reject</code> o fichero por ejecución</td><td>Skip listener / writer de rechazos</td><td>Retención equivalente a LIMIT 5</td></tr>
+    <tr><td>RC 0/4, ABEND U999</td><td>ExitStatus COMPLETED / COMPLETED_WITH_REJECTS / FAILED</td><td>Mapeo al planificador destino</td><td>Mantener la semántica "RC=4 no detiene la cadena"</td></tr>
+    <tr><td>CA7 SCHID 030</td><td>Orquestador destino (Control-M, Airflow, Step Functions…)</td><td>DAG con las mismas dependencias</td><td>Sustituir CLOSEFIL/OPENFIL por bloqueo o ventana de mantenimiento</td></tr>
+  </table>
+</section>
+
+<!-- 17 -->
+<section id="migdatos">
+  <h2><span class="num">17.</span>Migración de datos <span class="badge mig">Migración</span></h2>
+  <table>
+    <tr><th>Origen</th><th>Destino</th><th>Conversión</th><th>Orden de carga</th><th>Validación</th></tr>
+    <tr><td>CARDXREF KSDS</td><td><code>card_xref</code></td><td>EBCDIC → UTF-8, numéricos a BIGINT</td><td>1</td><td>Recuento de registros</td></tr>
+    <tr><td>ACCTDATA KSDS</td><td><code>account</code></td><td>Zoned decimal → DECIMAL; fechas X(10) → DATE</td><td>2</td><td>Recuento y suma de ACCT-CURR-BAL</td></tr>
+    <tr><td>TCATBALF KSDS</td><td><code>transaction_category_balance</code></td><td>Zoned decimal → DECIMAL</td><td>3</td><td>Recuento y suma de TRAN-CAT-BAL</td></tr>
+    <tr><td>TRANSACT KSDS / BKUP</td><td><code>transaction</code></td><td>Timestamps X(26) → TIMESTAMP</td><td>4</td><td>Recuento y suma de TRAN-AMT</td></tr>
+  </table>
+</section>
+
+<!-- 18 -->
+<section id="pruebas">
+  <h2><span class="num">18.</span>Estrategia de pruebas y criterios de equivalencia <span class="badge mig">Migración</span></h2>
+  <table>
+    <tr><th>ID</th><th>Escenario</th><th>Datos de prueba</th><th>Resultado esperado</th><th>RF cubiertos</th></tr>
+    <tr><td>CP-01</td><td>Ejecución completa con el fichero de ejemplo</td><td><code>app/data/EBCDIC/AWS.M2.CARDDEMO.DALYTRAN.PS</code> + maestros de <code>app/data/EBCDIC</code></td><td>Totales, RC y contenido de las salidas idénticos al legado</td><td>RF-01, RF-10</td></tr>
+    <tr><td>CP-02</td><td>Tarjeta inexistente</td><td>Registro con PAN que no está en XREF</td><td>Rechazo 0100; maestros sin cambios</td><td>RF-02, RF-06</td></tr>
+    <tr><td>CP-03</td><td>Cuenta inexistente</td><td>XREF que apunta a una cuenta sin registro</td><td>Rechazo 0101</td><td>RF-03</td></tr>
+    <tr><td>CP-04</td><td>Sobrelímite exacto y +0,01</td><td>Importe que deja WS-TEMP-BAL = límite y = límite + 0,01</td><td>Aceptado / rechazo 0102</td><td>RF-04</td></tr>
+    <tr><td>CP-05</td><td>Expiración (mismo día y día siguiente)</td><td>ORIG-TS igual a la fecha de expiración y un día después</td><td>Aceptado / rechazo 0103</td><td>RF-05</td></tr>
+    <tr><td>CP-06</td><td>Sobrelímite y expirada a la vez</td><td>Ambas condiciones</td><td>Rechazo 0103 (comportamiento legado, H-02)</td><td>RF-04, RF-05</td></tr>
+    <tr><td>CP-07</td><td>Categoría nueva y existente</td><td>Clave TCATBAL inexistente y existente</td><td>Creación / acumulación</td><td>RF-07</td></tr>
+    <tr><td>CP-08</td><td>Importe negativo</td><td>Abono (devolución)</td><td>Suma en el débito de ciclo y resta del saldo</td><td>RF-08</td></tr>
+    <tr><td>CP-09</td><td>TRAN-ID duplicado</td><td>Dos registros con el mismo ID</td><td>Fallo del job (legado: U999)</td><td>RF-11</td></tr>
+  </table>
+  <p><b>Criterio de equivalencia:</b> ejecución en paralelo con los mismos maestros iniciales y el mismo DALYTRAN. Comparación registro a registro de TRANSACT (excepto TRAN-PROC-TS), ACCTDATA, TCATBALF y DALYREJS, además de los totales procesados/rechazados y el RC.</p>
+</section>
+
+<!-- 19 -->
+<section id="traza">
+  <h2><span class="num">19.</span>Matriz de trazabilidad</h2>
+  <table>
+    <tr><th>RF</th><th>Reglas</th><th>Componente legado</th><th>Componente destino</th><th>Casos de prueba</th></tr>
+    <tr><td>RF-01</td><td>—</td><td>CBTRN02C · bucle principal</td><td>Reader</td><td>CP-01</td></tr>
+    <tr><td>RF-02</td><td>RN-03</td><td>1500-A-LOOKUP-XREF</td><td>Processor</td><td>CP-02</td></tr>
+    <tr><td>RF-03</td><td>RN-03</td><td>1500-B-LOOKUP-ACCT</td><td>Processor</td><td>CP-03</td></tr>
+    <tr><td>RF-04</td><td>RN-01, RN-03</td><td>1500-B-LOOKUP-ACCT</td><td>Processor</td><td>CP-04, CP-06</td></tr>
+    <tr><td>RF-05</td><td>RN-02, RN-03</td><td>1500-B-LOOKUP-ACCT</td><td>Processor</td><td>CP-05, CP-06</td></tr>
+    <tr><td>RF-06</td><td>—</td><td>2500-WRITE-REJECT-REC</td><td>Writer de rechazos</td><td>CP-02</td></tr>
+    <tr><td>RF-07</td><td>RN-05</td><td>2700-*</td><td>Writer</td><td>CP-07</td></tr>
+    <tr><td>RF-08</td><td>RN-04</td><td>2800-UPDATE-ACCOUNT-REC</td><td>Writer</td><td>CP-08</td></tr>
+    <tr><td>RF-09</td><td>RN-06</td><td>2000 / 2900 / Z-GET-DB2-FORMAT-TIMESTAMP</td><td>Writer</td><td>CP-01</td></tr>
+    <tr><td>RF-10</td><td>—</td><td>Procedimiento principal</td><td>Job listener / ExitStatus</td><td>CP-01</td></tr>
+    <tr><td>RF-11</td><td>—</td><td>9910 / 9999</td><td>Manejo de excepciones</td><td>CP-09</td></tr>
+  </table>
+</section>
+
+<!-- 20 -->
+<section id="riesgos">
+  <h2><span class="num">20.</span>Riesgos, supuestos y preguntas abiertas</h2>
+  <h3>Hallazgos del análisis de código</h3>
+  <table>
+    <tr><th>ID</th><th>Hallazgo</th><th>Impacto</th><th>Decisión (replicar / corregir)</th></tr>
+    <tr><td>H-01</td><td>En <code>9300-DALYREJS-CLOSE</code>, ante un error se mueve <code>XREFFILE-STATUS</code> (no <code>DALYREJS-STATUS</code>) a IO-STATUS.</td><td>Diagnóstico erróneo al cerrar rechazos</td><td>Corregir (no funcional)</td></tr>
+    <tr><td>H-02</td><td>Si una transacción incumple a la vez el límite y la expiración, solo se registra el motivo 103.</td><td>Información de rechazo incompleta</td><td>Pendiente de negocio</td></tr>
+    <tr><td>H-03</td><td>Si falla el REWRITE de la cuenta se asigna el motivo 109, pero la transacción se graba igualmente en TRANSACT y TCATBAL ya está actualizado; el motivo se pierde.</td><td>Posible descuadre silencioso</td><td>Corregir recomendado</td></tr>
+    <tr><td>H-04</td><td>La expiración se compara como texto (RN-02); cualquier fecha mal formateada da resultados erróneos.</td><td>Aceptación o rechazo incorrectos</td><td>Usar tipo fecha en destino y validar los datos al migrar</td></tr>
+    <tr><td>H-05</td><td>RN-01 usa los acumulados de ciclo, no ACCT-CURR-BAL. Los importes negativos se suman a CYC-DEBIT (que queda negativo), y en la fórmula "− CYC-DEBIT" aumentan WS-TEMP-BAL, es decir, consumen límite igual que los créditos (crédito 100, débito −20, importe 10 → se compara 130 con el límite).</td><td>Semántica de límite dudosa</td><td>Confirmar con negocio (Q-07)</td></tr>
+    <tr><td>H-06</td><td>Sin checkpoint ni atomicidad; no es idempotente (sección 12).</td><td>Recuperación manual compleja</td><td>Corregir en destino (transacción por registro o chunk)</td></tr>
+    <tr><td>H-07</td><td>POSTTRAN figura en CA7 pero no en la definición de Control-M del repositorio.</td><td>Inventario de planificación incompleto</td><td>Confirmar cuál es el planificador vigente</td></tr>
+  </table>
+  <h3>Supuestos</h3>
+  <ul>
+    <li>Las fechas de los maestros y de las transacciones siguen el formato AAAA-MM-DD.</li>
+    <li>El KSDS TRANSACT está vacío al empezar POSTTRAN (lo garantiza TRANBKP en la secuencia documentada).</li>
+    <li>Un RC=4 no detiene la cadena (no hay COND en los jobs sucesores del repo).</li>
+  </ul>
+  <h3>Preguntas abiertas</h3>
+  <table>
+    <tr><th>ID</th><th>Pregunta</th><th>Dirigida a</th><th>Estado</th></tr>
+    <tr><td>Q-01</td><td>¿Ventana horaria y SLA de la cadena diaria?</td><td>Operación</td><td>Abierta</td></tr>
+    <tr><td>Q-02</td><td>¿Responsables funcional y técnico?</td><td>Negocio / IT</td><td>Abierta</td></tr>
+    <tr><td>Q-03</td><td>¿Qué sistema genera DALYTRAN.PS y cómo llega (FTP, MQ, otro job)?</td><td>Arquitectura</td><td>Abierta</td></tr>
+    <tr><td>Q-04</td><td>¿Quién revisa DALYREJS y qué se hace con los rechazos (reproceso)?</td><td>Negocio</td><td>Abierta</td></tr>
+    <tr><td>Q-05</td><td>¿Volumen diario real y picos?</td><td>Operación</td><td>Abierta</td></tr>
+    <tr><td>Q-06</td><td>¿Perfiles RACF y usuario de ejecución en producción?</td><td>Seguridad</td><td>Abierta</td></tr>
+    <tr><td>Q-07</td><td>¿La regla de límite (RN-01) es la deseada o hay que usar el saldo actual o el disponible?</td><td>Negocio</td><td>Abierta</td></tr>
+  </table>
+</section>
+
+<!-- 21 -->
+<section id="glosario">
+  <h2><span class="num">21.</span>Glosario</h2>
+  <table>
+    <tr><th>Término</th><th>Definición</th></tr>
+    <tr><td>KSDS</td><td>VSAM Key-Sequenced Data Set: fichero indexado por clave.</td></tr>
+    <tr><td>GDG</td><td>Generation Data Group: versiones sucesivas de un dataset; (+1) es la nueva generación y (0) la última.</td></tr>
+    <tr><td>XREF</td><td>Referencia cruzada tarjeta → cliente → cuenta.</td></tr>
+    <tr><td>TCATBAL</td><td>Balance acumulado por cuenta, tipo y categoría de transacción.</td></tr>
+    <tr><td>Zoned decimal</td><td>Numérico con un dígito por byte y el signo en el último byte.</td></tr>
+    <tr><td>RC</td><td>Return code del step/job (0 = OK, 4 = aviso).</td></tr>
+    <tr><td>ABEND U999</td><td>Terminación anormal forzada por el programa mediante CEE3ABD.</td></tr>
+  </table>
+</section>
+
+<!-- 22 -->
+<section id="aprob">
+  <h2><span class="num">22.</span>Aprobaciones</h2>
+  <table>
+    <tr><th>Rol</th><th>Nombre</th><th>Fecha</th><th>Firma / conformidad</th></tr>
+    <tr><td>Responsable funcional</td><td>Pendiente</td><td></td><td></td></tr>
+    <tr><td>Responsable técnico (legado)</td><td>Pendiente</td><td></td><td></td></tr>
+    <tr><td>Responsable de migración</td><td>Pendiente</td><td></td><td></td></tr>
+  </table>
+</section>
+
+<footer class="doc">Ejemplo relleno de la plantilla <code>docs/plantilla-requisitos-funcionales.html</code> · Stream POSTTRAN · CardDemo</footer>
+</div>
+</body>
+</html>
