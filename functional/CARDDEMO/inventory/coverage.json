@@ -1,0 +1,741 @@
+{
+ "streams": [
+  {
+   "id": "ONL-00 Sign-on + menus",
+   "kind": "ONLINE",
+   "trigger": "CC00 (also CM00, CA00)",
+   "proof": "app/csd/CARDDEMO.CSD:378; app/csd/CARDDEMO.CSD:399; app/csd/CARDDEMO.CSD:327",
+   "programs": [
+    "COADM01C",
+    "COMEN01C",
+    "COSGN00C"
+   ]
+  },
+  {
+   "id": "ONL-M01 Account View",
+   "kind": "ONLINE",
+   "trigger": "main menu option 1 (COMEN01C) / trancode CAVW",
+   "proof": "app/cpy/COMEN02Y.cpy:28; app/csd/CARDDEMO.CSD:317",
+   "programs": [
+    "COACTVWC"
+   ]
+  },
+  {
+   "id": "ONL-M02 Account Update",
+   "kind": "ONLINE",
+   "trigger": "main menu option 2 (COMEN01C) / trancode CAUP",
+   "proof": "app/cpy/COMEN02Y.cpy:34; app/csd/CARDDEMO.CSD:306",
+   "programs": [
+    "COACTUPC",
+    "CSUTLDTC"
+   ]
+  },
+  {
+   "id": "ONL-M03 Credit Card List",
+   "kind": "ONLINE",
+   "trigger": "main menu option 3 (COMEN01C) / trancode CCLI",
+   "proof": "app/cpy/COMEN02Y.cpy:40; app/csd/CARDDEMO.CSD:357",
+   "programs": [
+    "COCRDLIC",
+    "COCRDSLC",
+    "COCRDUPC"
+   ]
+  },
+  {
+   "id": "ONL-M04 Credit Card View",
+   "kind": "ONLINE",
+   "trigger": "main menu option 4 (COMEN01C) / trancode CCDL",
+   "proof": "app/cpy/COMEN02Y.cpy:46; app/csd/CARDDEMO.CSD:347",
+   "programs": [
+    "COCRDSLC"
+   ]
+  },
+  {
+   "id": "ONL-M05 Credit Card Update",
+   "kind": "ONLINE",
+   "trigger": "main menu option 5 (COMEN01C) / trancode CCUP",
+   "proof": "app/cpy/COMEN02Y.cpy:52; app/csd/CARDDEMO.CSD:367",
+   "programs": [
+    "COCRDUPC"
+   ]
+  },
+  {
+   "id": "ONL-M06 Transaction List",
+   "kind": "ONLINE",
+   "trigger": "main menu option 6 (COMEN01C) / trancode CT00",
+   "proof": "app/cpy/COMEN02Y.cpy:58; app/csd/CARDDEMO.CSD:419",
+   "programs": [
+    "COTRN00C",
+    "COTRN01C"
+   ]
+  },
+  {
+   "id": "ONL-M07 Transaction View",
+   "kind": "ONLINE",
+   "trigger": "main menu option 7 (COMEN01C) / trancode CT01",
+   "proof": "app/cpy/COMEN02Y.cpy:64; app/csd/CARDDEMO.CSD:429",
+   "programs": [
+    "COTRN00C",
+    "COTRN01C"
+   ]
+  },
+  {
+   "id": "ONL-M08 Transaction Add",
+   "kind": "ONLINE",
+   "trigger": "main menu option 8 (COMEN01C) / trancode CT02",
+   "proof": "app/cpy/COMEN02Y.cpy:71; app/csd/CARDDEMO.CSD:439",
+   "programs": [
+    "COTRN02C",
+    "CSUTLDTC"
+   ]
+  },
+  {
+   "id": "ONL-M09 Transaction Reports",
+   "kind": "ONLINE",
+   "trigger": "main menu option 9 (COMEN01C) / trancode CR00",
+   "proof": "app/cpy/COMEN02Y.cpy:77; app/csd/CARDDEMO.CSD:409",
+   "programs": [
+    "CORPT00C",
+    "CSUTLDTC"
+   ]
+  },
+  {
+   "id": "ONL-M10 Bill Payment",
+   "kind": "ONLINE",
+   "trigger": "main menu option 10 (COMEN01C) / trancode CB00",
+   "proof": "app/cpy/COMEN02Y.cpy:83; app/csd/CARDDEMO.CSD:337",
+   "programs": [
+    "COBIL00C"
+   ]
+  },
+  {
+   "id": "ONL-M11 Pending Authorization View",
+   "kind": "ONLINE",
+   "trigger": "main menu option 11 (COMEN01C) / trancode CPVS",
+   "proof": "app/cpy/COMEN02Y.cpy:89; app/app-authorization-ims-db2-mq/csd/CRDDEMO2.csd:49",
+   "programs": [
+    "COPAUS0C",
+    "COPAUS1C",
+    "COPAUS2C"
+   ]
+  },
+  {
+   "id": "ONL-A01 User List",
+   "kind": "ONLINE",
+   "trigger": "admin menu option 1 (COADM01C) / trancode CU00",
+   "proof": "app/cpy/COADM02Y.cpy:29; app/csd/CARDDEMO.CSD:449",
+   "programs": [
+    "COUSR00C",
+    "COUSR02C",
+    "COUSR03C"
+   ]
+  },
+  {
+   "id": "ONL-A02 User Add",
+   "kind": "ONLINE",
+   "trigger": "admin menu option 2 (COADM01C) / trancode CU01",
+   "proof": "app/cpy/COADM02Y.cpy:34; app/csd/CARDDEMO.CSD:459",
+   "programs": [
+    "COUSR01C"
+   ]
+  },
+  {
+   "id": "ONL-A03 User Update",
+   "kind": "ONLINE",
+   "trigger": "admin menu option 3 (COADM01C) / trancode CU02",
+   "proof": "app/cpy/COADM02Y.cpy:39; app/csd/CARDDEMO.CSD:469",
+   "programs": [
+    "COUSR02C"
+   ]
+  },
+  {
+   "id": "ONL-A04 User Delete",
+   "kind": "ONLINE",
+   "trigger": "admin menu option 4 (COADM01C) / trancode CU03",
+   "proof": "app/cpy/COADM02Y.cpy:44; app/csd/CARDDEMO.CSD:479",
+   "programs": [
+    "COUSR03C"
+   ]
+  },
+  {
+   "id": "ONL-A05 Transaction Type List/Update (Db2)",
+   "kind": "ONLINE",
+   "trigger": "admin menu option 5 (COADM01C) / trancode CTLI",
+   "proof": "app/cpy/COADM02Y.cpy:49; app/app-transaction-type-db2/csd/CRDDEMOD.csd:25",
+   "programs": [
+    "COTRTLIC",
+    "COTRTUPC"
+   ]
+  },
+  {
+   "id": "ONL-A06 Transaction Type Maintenance (Db2)",
+   "kind": "ONLINE",
+   "trigger": "admin menu option 6 (COADM01C) / trancode CTTU",
+   "proof": "app/cpy/COADM02Y.cpy:53; app/app-transaction-type-db2/csd/CRDDEMOD.csd:35",
+   "programs": [
+    "COTRTUPC"
+   ]
+  },
+  {
+   "id": "ONL-CP00 Authorization request processor (MQ)",
+   "kind": "ONLINE (MQ-triggered, no screen)",
+   "trigger": "CP00",
+   "proof": "app/app-authorization-ims-db2-mq/csd/CRDDEMO2.csd:59",
+   "programs": [
+    "COPAUA0C"
+   ]
+  },
+  {
+   "id": "ONL-CDRA Account inquiry via MQ",
+   "kind": "ONLINE (MQ request/response)",
+   "trigger": "CDRA",
+   "proof": "app/app-vsam-mq/csd/CRDDEMOM.csd:17",
+   "programs": [
+    "COACCT01"
+   ]
+  },
+  {
+   "id": "ONL-CDRD System date via MQ",
+   "kind": "ONLINE (MQ request/response)",
+   "trigger": "CDRD",
+   "proof": "app/app-vsam-mq/csd/CRDDEMOM.csd:27",
+   "programs": [
+    "CODATE01"
+   ]
+  },
+  {
+   "id": "ONL-CDV1 (BLOCKED: COCRDSEC absent)",
+   "kind": "ONLINE",
+   "trigger": "CDV1",
+   "proof": "app/csd/CARDDEMO.CSD:388; PROGRAM app/csd/CARDDEMO.CSD:211",
+   "programs": [
+    "COCRDSEC"
+   ]
+  },
+  {
+   "id": "BAT-POSTTRAN",
+   "kind": "BATCH",
+   "trigger": "job POSTTRAN",
+   "proof": "app/jcl/POSTTRAN.jcl:23",
+   "programs": [
+    "CBTRN02C"
+   ]
+  },
+  {
+   "id": "BAT-INTCALC",
+   "kind": "BATCH",
+   "trigger": "job INTCALC",
+   "proof": "app/jcl/INTCALC.jcl:22",
+   "programs": [
+    "CBACT04C"
+   ]
+  },
+  {
+   "id": "BAT-TRANREPT",
+   "kind": "BATCH",
+   "trigger": "job TRANREPT",
+   "proof": "app/jcl/TRANREPT.jcl:59",
+   "programs": [
+    "CBTRN03C"
+   ]
+  },
+  {
+   "id": "BAT-CREASTMT",
+   "kind": "BATCH",
+   "trigger": "job CREASTMT",
+   "proof": "app/jcl/CREASTMT.JCL:79",
+   "programs": [
+    "CBSTM03A",
+    "CBSTM03B"
+   ]
+  },
+  {
+   "id": "BAT-READACCT",
+   "kind": "BATCH",
+   "trigger": "job READACCT",
+   "proof": "app/jcl/READACCT.jcl:32",
+   "programs": [
+    "CBACT01C",
+    "COBDATFT"
+   ]
+  },
+  {
+   "id": "BAT-READCARD",
+   "kind": "BATCH",
+   "trigger": "job READCARD",
+   "proof": "app/jcl/READCARD.jcl:22",
+   "programs": [
+    "CBACT02C"
+   ]
+  },
+  {
+   "id": "BAT-READCUST",
+   "kind": "BATCH",
+   "trigger": "job READCUST",
+   "proof": "app/jcl/READCUST.jcl:21",
+   "programs": [
+    "CBCUS01C"
+   ]
+  },
+  {
+   "id": "BAT-READXREF",
+   "kind": "BATCH",
+   "trigger": "job READXREF",
+   "proof": "app/jcl/READXREF.jcl:22",
+   "programs": [
+    "CBACT03C"
+   ]
+  },
+  {
+   "id": "BAT-CBEXPORT",
+   "kind": "BATCH",
+   "trigger": "job CBEXPORT",
+   "proof": "app/jcl/CBEXPORT.jcl:43",
+   "programs": [
+    "CBEXPORT"
+   ]
+  },
+  {
+   "id": "BAT-CBIMPORT",
+   "kind": "BATCH",
+   "trigger": "job CBIMPORT",
+   "proof": "app/jcl/CBIMPORT.jcl:22",
+   "programs": [
+    "CBIMPORT"
+   ]
+  },
+  {
+   "id": "BAT-WAITSTEP",
+   "kind": "BATCH",
+   "trigger": "job WAITSTEP",
+   "proof": "app/jcl/WAITSTEP.jcl:22",
+   "programs": [
+    "COBSWAIT",
+    "MVSWAIT"
+   ]
+  },
+  {
+   "id": "BAT-CBPAUP0J",
+   "kind": "BATCH",
+   "trigger": "job CBPAUP0J",
+   "proof": "app/app-authorization-ims-db2-mq/jcl/CBPAUP0J.jcl:25",
+   "programs": [
+    "CBPAUP0C"
+   ]
+  },
+  {
+   "id": "BAT-LOADPADB",
+   "kind": "BATCH",
+   "trigger": "job LOADPADB",
+   "proof": "app/app-authorization-ims-db2-mq/jcl/LOADPADB.JCL:27",
+   "programs": [
+    "PAUDBLOD"
+   ]
+  },
+  {
+   "id": "BAT-UNLDPADB",
+   "kind": "BATCH",
+   "trigger": "job UNLDPADB",
+   "proof": "app/app-authorization-ims-db2-mq/jcl/UNLDPADB.JCL:39",
+   "programs": [
+    "PAUDBUNL"
+   ]
+  },
+  {
+   "id": "BAT-UNLDGSAM",
+   "kind": "BATCH",
+   "trigger": "job UNLDGSAM",
+   "proof": "app/app-authorization-ims-db2-mq/jcl/UNLDGSAM.JCL:27",
+   "programs": [
+    "DBUNLDGS"
+   ]
+  },
+  {
+   "id": "BAT-MNTTRDB2",
+   "kind": "BATCH",
+   "trigger": "job MNTTRDB2",
+   "proof": "app/app-transaction-type-db2/jcl/MNTTRDB2.jcl:30",
+   "programs": [
+    "COBTUPDT"
+   ]
+  }
+ ],
+ "exclusive": [
+  "CBACT01C",
+  "CBACT02C",
+  "CBACT03C",
+  "CBACT04C",
+  "CBCUS01C",
+  "CBEXPORT",
+  "CBIMPORT",
+  "CBPAUP0C",
+  "CBSTM03A",
+  "CBSTM03B",
+  "CBTRN02C",
+  "CBTRN03C",
+  "COACCT01",
+  "COACTUPC",
+  "COACTVWC",
+  "COADM01C",
+  "COBDATFT",
+  "COBIL00C",
+  "COBSWAIT",
+  "COBTUPDT",
+  "COCRDLIC",
+  "CODATE01",
+  "COMEN01C",
+  "COPAUA0C",
+  "COPAUS0C",
+  "COPAUS1C",
+  "COPAUS2C",
+  "CORPT00C",
+  "COSGN00C",
+  "COTRN02C",
+  "COTRTLIC",
+  "COUSR00C",
+  "COUSR01C",
+  "DBUNLDGS",
+  "MVSWAIT",
+  "PAUDBLOD",
+  "PAUDBUNL"
+ ],
+ "shared": {
+  "COCRDSLC": [
+   "ONL-M03 Credit Card List",
+   "ONL-M04 Credit Card View"
+  ],
+  "COCRDUPC": [
+   "ONL-M03 Credit Card List",
+   "ONL-M05 Credit Card Update"
+  ],
+  "COTRN00C": [
+   "ONL-M06 Transaction List",
+   "ONL-M07 Transaction View"
+  ],
+  "COTRN01C": [
+   "ONL-M06 Transaction List",
+   "ONL-M07 Transaction View"
+  ],
+  "COTRTUPC": [
+   "ONL-A05 Transaction Type List/Update (Db2)",
+   "ONL-A06 Transaction Type Maintenance (Db2)"
+  ],
+  "COUSR02C": [
+   "ONL-A01 User List",
+   "ONL-A03 User Update"
+  ],
+  "COUSR03C": [
+   "ONL-A01 User List",
+   "ONL-A04 User Delete"
+  ],
+  "CSUTLDTC": [
+   "ONL-M02 Account Update",
+   "ONL-M08 Transaction Add",
+   "ONL-M09 Transaction Reports"
+  ]
+ },
+ "unreachable": [
+  "CBTRN01C"
+ ],
+ "absent": [
+  "COCRDSEC"
+ ],
+ "forward_edges": {
+  "COPAUS0C": [
+   [
+    "COPAUS1C",
+    "app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl:323 (WS-PGM-AUTH-DTL VALUE :34, MOVE :316)"
+   ],
+   [
+    "COSGN00C",
+    "app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl:323 (resolved COSGN00C@app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl:669)"
+   ],
+   [
+    "COSGN00C",
+    "app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl:675 (resolved COSGN00C@app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl:669)"
+   ]
+  ],
+  "COPAUS1C": [
+   [
+    "COPAUS2C",
+    "app/app-authorization-ims-db2-mq/cbl/COPAUS1C.cbl:248 (resolved COPAUS2C@app/app-authorization-ims-db2-mq/cbl/COPAUS1C.cbl:35)"
+   ]
+  ],
+  "COTRTLIC": [
+   [
+    "COTRTUPC",
+    "app/app-transaction-type-db2/cbl/COTRTLIC.cbl:648 (resolved COTRTUPC@app/app-transaction-type-db2/cbl/COTRTLIC.cbl:50)"
+   ]
+  ],
+  "CBACT01C": [
+   [
+    "COBDATFT",
+    "app/cbl/CBACT01C.cbl:231"
+   ]
+  ],
+  "CBSTM03A": [
+   [
+    "CBSTM03B",
+    "app/cbl/CBSTM03A.CBL:351"
+   ],
+   [
+    "CBSTM03B",
+    "app/cbl/CBSTM03A.CBL:377"
+   ],
+   [
+    "CBSTM03B",
+    "app/cbl/CBSTM03A.CBL:401"
+   ],
+   [
+    "CBSTM03B",
+    "app/cbl/CBSTM03A.CBL:734"
+   ],
+   [
+    "CBSTM03B",
+    "app/cbl/CBSTM03A.CBL:746"
+   ],
+   [
+    "CBSTM03B",
+    "app/cbl/CBSTM03A.CBL:769"
+   ],
+   [
+    "CBSTM03B",
+    "app/cbl/CBSTM03A.CBL:787"
+   ],
+   [
+    "CBSTM03B",
+    "app/cbl/CBSTM03A.CBL:805"
+   ],
+   [
+    "CBSTM03B",
+    "app/cbl/CBSTM03A.CBL:835"
+   ],
+   [
+    "CBSTM03B",
+    "app/cbl/CBSTM03A.CBL:860"
+   ],
+   [
+    "CBSTM03B",
+    "app/cbl/CBSTM03A.CBL:877"
+   ],
+   [
+    "CBSTM03B",
+    "app/cbl/CBSTM03A.CBL:893"
+   ],
+   [
+    "CBSTM03B",
+    "app/cbl/CBSTM03A.CBL:909"
+   ]
+  ],
+  "COADM01C": [
+   [
+    "COSGN00C",
+    "app/cbl/COADM01C.cbl:169 (resolved COSGN00C@app/cbl/COADM01C.cbl:101)"
+   ]
+  ],
+  "COBIL00C": [
+   [
+    "COMEN01C",
+    "app/cbl/COBIL00C.cbl:282 (resolved COSGN00C@app/cbl/COBIL00C.cbl:108)"
+   ],
+   [
+    "COSGN00C",
+    "app/cbl/COBIL00C.cbl:282 (resolved COSGN00C@app/cbl/COBIL00C.cbl:108)"
+   ]
+  ],
+  "COBSWAIT": [
+   [
+    "MVSWAIT",
+    "app/cbl/COBSWAIT.cbl:38"
+   ]
+  ],
+  "COMEN01C": [
+   [
+    "COSGN00C",
+    "app/cbl/COMEN01C.cbl:202 (resolved COSGN00C@app/cbl/COMEN01C.cbl:97)"
+   ]
+  ],
+  "CORPT00C": [
+   [
+    "COMEN01C",
+    "app/cbl/CORPT00C.cbl:549 (resolved COSGN00C@app/cbl/CORPT00C.cbl:173)"
+   ],
+   [
+    "COSGN00C",
+    "app/cbl/CORPT00C.cbl:549 (resolved COSGN00C@app/cbl/CORPT00C.cbl:173)"
+   ],
+   [
+    "CSUTLDTC",
+    "app/cbl/CORPT00C.cbl:392"
+   ],
+   [
+    "CSUTLDTC",
+    "app/cbl/CORPT00C.cbl:412"
+   ]
+  ],
+  "COSGN00C": [
+   [
+    "COADM01C",
+    "app/cbl/COSGN00C.cbl:231"
+   ],
+   [
+    "COMEN01C",
+    "app/cbl/COSGN00C.cbl:236"
+   ]
+  ],
+  "COTRN00C": [
+   [
+    "COMEN01C",
+    "app/cbl/COTRN00C.cbl:193 (resolved COSGN00C@app/cbl/COTRN00C.cbl:108)"
+   ],
+   [
+    "COMEN01C",
+    "app/cbl/COTRN00C.cbl:519 (resolved COSGN00C@app/cbl/COTRN00C.cbl:108)"
+   ],
+   [
+    "COSGN00C",
+    "app/cbl/COTRN00C.cbl:193 (resolved COSGN00C@app/cbl/COTRN00C.cbl:108)"
+   ],
+   [
+    "COSGN00C",
+    "app/cbl/COTRN00C.cbl:519 (resolved COSGN00C@app/cbl/COTRN00C.cbl:108)"
+   ],
+   [
+    "COTRN01C",
+    "app/cbl/COTRN00C.cbl:193 (resolved COSGN00C@app/cbl/COTRN00C.cbl:108)"
+   ],
+   [
+    "COTRN01C",
+    "app/cbl/COTRN00C.cbl:519 (resolved COSGN00C@app/cbl/COTRN00C.cbl:108)"
+   ]
+  ],
+  "COTRN01C": [
+   [
+    "COMEN01C",
+    "app/cbl/COTRN01C.cbl:206 (resolved COSGN00C@app/cbl/COTRN01C.cbl:95)"
+   ],
+   [
+    "COSGN00C",
+    "app/cbl/COTRN01C.cbl:206 (resolved COSGN00C@app/cbl/COTRN01C.cbl:95)"
+   ],
+   [
+    "COTRN00C",
+    "app/cbl/COTRN01C.cbl:206 (resolved COSGN00C@app/cbl/COTRN01C.cbl:95)"
+   ]
+  ],
+  "COTRN02C": [
+   [
+    "COMEN01C",
+    "app/cbl/COTRN02C.cbl:509 (resolved COSGN00C@app/cbl/COTRN02C.cbl:116)"
+   ],
+   [
+    "COSGN00C",
+    "app/cbl/COTRN02C.cbl:509 (resolved COSGN00C@app/cbl/COTRN02C.cbl:116)"
+   ],
+   [
+    "CSUTLDTC",
+    "app/cbl/COTRN02C.cbl:393"
+   ],
+   [
+    "CSUTLDTC",
+    "app/cbl/COTRN02C.cbl:413"
+   ]
+  ],
+  "COUSR00C": [
+   [
+    "COADM01C",
+    "app/cbl/COUSR00C.cbl:197 (resolved COSGN00C@app/cbl/COUSR00C.cbl:111)"
+   ],
+   [
+    "COADM01C",
+    "app/cbl/COUSR00C.cbl:207 (resolved COSGN00C@app/cbl/COUSR00C.cbl:111)"
+   ],
+   [
+    "COADM01C",
+    "app/cbl/COUSR00C.cbl:515 (resolved COSGN00C@app/cbl/COUSR00C.cbl:111)"
+   ],
+   [
+    "COSGN00C",
+    "app/cbl/COUSR00C.cbl:197 (resolved COSGN00C@app/cbl/COUSR00C.cbl:111)"
+   ],
+   [
+    "COSGN00C",
+    "app/cbl/COUSR00C.cbl:207 (resolved COSGN00C@app/cbl/COUSR00C.cbl:111)"
+   ],
+   [
+    "COSGN00C",
+    "app/cbl/COUSR00C.cbl:515 (resolved COSGN00C@app/cbl/COUSR00C.cbl:111)"
+   ],
+   [
+    "COUSR02C",
+    "app/cbl/COUSR00C.cbl:197 (resolved COSGN00C@app/cbl/COUSR00C.cbl:111)"
+   ],
+   [
+    "COUSR02C",
+    "app/cbl/COUSR00C.cbl:207 (resolved COSGN00C@app/cbl/COUSR00C.cbl:111)"
+   ],
+   [
+    "COUSR02C",
+    "app/cbl/COUSR00C.cbl:515 (resolved COSGN00C@app/cbl/COUSR00C.cbl:111)"
+   ],
+   [
+    "COUSR03C",
+    "app/cbl/COUSR00C.cbl:197 (resolved COSGN00C@app/cbl/COUSR00C.cbl:111)"
+   ],
+   [
+    "COUSR03C",
+    "app/cbl/COUSR00C.cbl:207 (resolved COSGN00C@app/cbl/COUSR00C.cbl:111)"
+   ],
+   [
+    "COUSR03C",
+    "app/cbl/COUSR00C.cbl:515 (resolved COSGN00C@app/cbl/COUSR00C.cbl:111)"
+   ]
+  ],
+  "COUSR01C": [
+   [
+    "COADM01C",
+    "app/cbl/COUSR01C.cbl:176 (resolved COSGN00C@app/cbl/COUSR01C.cbl:79)"
+   ],
+   [
+    "COSGN00C",
+    "app/cbl/COUSR01C.cbl:176 (resolved COSGN00C@app/cbl/COUSR01C.cbl:79)"
+   ]
+  ],
+  "COUSR02C": [
+   [
+    "COADM01C",
+    "app/cbl/COUSR02C.cbl:259 (resolved COSGN00C@app/cbl/COUSR02C.cbl:91)"
+   ],
+   [
+    "COSGN00C",
+    "app/cbl/COUSR02C.cbl:259 (resolved COSGN00C@app/cbl/COUSR02C.cbl:91)"
+   ]
+  ],
+  "COUSR03C": [
+   [
+    "COADM01C",
+    "app/cbl/COUSR03C.cbl:206 (resolved COSGN00C@app/cbl/COUSR03C.cbl:91)"
+   ],
+   [
+    "COSGN00C",
+    "app/cbl/COUSR03C.cbl:206 (resolved COSGN00C@app/cbl/COUSR03C.cbl:91)"
+   ]
+  ],
+  "COACTUPC": [
+   [
+    "CSUTLDTC",
+    "app/cpy/CSUTLDPY.cpy:293"
+   ]
+  ],
+  "COCRDLIC": [
+   [
+    "COCRDSLC",
+    "app/cbl/COCRDLIC.cbl:538 (LIT-CARDDTLPGM VALUE :196, MOVE :526)"
+   ],
+   [
+    "COCRDUPC",
+    "app/cbl/COCRDLIC.cbl:566 (LIT-CARDUPDPGM VALUE :204, MOVE :554)"
+   ]
+  ]
+ }
+}

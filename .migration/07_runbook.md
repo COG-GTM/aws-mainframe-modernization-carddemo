@@ -26,7 +26,7 @@ How the script works (read it before changing it): compiles a `CEE3ABD` stub (`c
 
 | ID | Command | Observed |
 |---|---|---|
-| R-08 | `python3 functional/CARDDEMO/inventory/callgraph.py . functional/CARDDEMO/inventory > functional/CARDDEMO/inventory/edges.tsv` | 271 edges + header (see inventory) |
+| R-08 | `python3 functional/CARDDEMO/inventory/callgraph.py . functional/CARDDEMO/inventory > functional/CARDDEMO/inventory/edges.tsv` | 272 edges + header (see inventory) |
 | R-09 | `python3 functional/CARDDEMO/inventory/coverage.py . functional/CARDDEMO/inventory` | `CHECK 46 = 37 + 8 + 1 -> True` |
 | R-10 | `cd functional/CARDDEMO/inventory && <mermaid-cli>/mmdc -p <puppeteer.json> -i module_flow.mmd -o module_flow.png` with `@mermaid-js/mermaid-cli@10.9.1` installed under `~/work/mmd` (`PUPPETEER_SKIP_DOWNLOAD=1 npm i @mermaid-js/mermaid-cli@10.9.1`) and `puppeteer.json` = `{"executablePath":"/opt/.devin/chrome/chrome/linux-137.0.7118.2/chrome-linux64/chrome","args":["--no-sandbox"]}` | PNG rendered |
 
