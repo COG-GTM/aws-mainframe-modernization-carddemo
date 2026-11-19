@@ -1,0 +1,48 @@
+digraph CardDemo {
+    graph [
+        rankdir=TB, bgcolor="white", pad=0.22, nodesep=0.32, ranksep=0.55,
+        labelloc=t, label="CardDemo runtime", fontname="DejaVu Sans Bold",
+        fontsize=22, fontcolor="#152238"
+    ];
+    node [
+        shape=box, style="rounded,filled", color="#4e6986", fillcolor="#eef5fc",
+        fontname="DejaVu Sans", fontsize=11, fontcolor="#152238", margin="0.17,0.10"
+    ];
+    edge [color="#435971", fontname="DejaVu Sans", fontsize=9, fontcolor="#2e4660", arrowsize=0.7];
+
+    terminal [label="3270 terminal"];
+    submit [label="Job submission\nManual, Control-M or CA 7"];
+    cics [label=<<B>CICS / COBOL</B><BR/>CC00 sign-on and BMS screens<BR/>User and admin transactions>];
+    batch [label=<<B>JES / operational batch</B><BR/>JCL, COBOL and utilities<BR/>POSTTRAN, INTCALC, reports>];
+    shared [label=<<B>Core VSAM files</B><BR/>Customers, accounts, cards, cross-reference,<BR/>transactions, balances and user security>, fillcolor="#eaf6ef", color="#397255"];
+    sequential [label="Sequential and GDG datasets\nDaily input, rejects, backups, reports", fillcolor="#eaf6ef", color="#397255"];
+
+    {rank=same; terminal; submit}
+    {rank=same; cics; batch}
+    {rank=same; shared; sequential}
+    terminal -> cics;
+    submit -> batch;
+    cics -> batch [label="report via JES", style=dashed];
+    cics -> shared [dir=both, label="file I/O"];
+    batch -> shared [dir=both, label="file I/O"];
+    batch -> sequential [dir=both];
+
+    subgraph cluster_transfer {
+        label="Separate branch migration jobs";
+        fontname="DejaVu Sans Bold";
+        fontsize=12;
+        fontcolor="#152238";
+        style="rounded,filled";
+        fillcolor="#fbf8ef";
+        color="#9b8050";
+        margin=14;
+        node [fillcolor="#fff3d8", color="#977345"];
+        export [label="CBEXPORT\nPackage typed records"];
+        interchange [label="Indexed export cluster\nFixed 500-byte records"];
+        import [label="CBIMPORT\nSplit records by type"];
+        staging [label="Sequential staging\nand error datasets"];
+        {rank=same; export; interchange; import; staging}
+        export -> interchange -> import -> staging;
+    }
+    shared -> export [label="reads five files"];
+}
