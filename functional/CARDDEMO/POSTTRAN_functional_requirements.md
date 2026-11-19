@@ -76,7 +76,7 @@ All message texts are literals in CBTRN02C (no external message table).
 |---|---|---|
 | TRAN-ID .. TRAN-ORIG-TS | copied from the same DALYTRAN field | `:425-436` |
 | TRAN-PROC-TS | run time as `YYYY-MM-DD-HH.MM.SS.hh0000` (hundredths then `0000`); DALYTRAN-PROC-TS is ignored | `:437-438,692-705` |
-| TRAN FILLER | spaces (COBOL INITIAL VALUE of record area; verified in R-04 output) | CVTRA05Y:18 |
+| TRAN FILLER | not moved by CBTRN02C; the oracle unload is line-sequential and trims trailing spaces (330-byte lines), so its content is not observed. Target writes spaces (INFERRED) | CVTRA05Y:18 |
 | ACCT-CURR-BAL | + amount | `:547` |
 | ACCT-CURR-CYC-CREDIT / -DEBIT | + amount when amount >= 0 / when < 0 | `:548-552` |
 | TRAN-CAT-BAL (existing) | + amount | `:527` |

@@ -299,3 +299,52 @@ Contracts completed for the boundaries this stream touches (detail in `functiona
 - **Contract complete?** YES. CLOSEFIL closes TRANSACT, CCXREF, ACCTDAT, CXACAIX, USRSEC in CICS (`app/jcl/CLOSEFIL.jcl:22-30`); OPENFIL reopens. Online writers excluded from the stream (D-010).
 - **Status:** UNDECIDED
 - **History:** 2026-11-19 contract completed by `!mf_stream_analysis` (POSTTRAN)
+
+## Plan proposals - POSTTRAN, `!mf_stream_migration_plan`, 2026-11-19 (session devin-c4fce2ffab2c4abaac2aa02e217e00e4)
+
+Detail in `functional/CARDDEMO/POSTTRAN_migration_plan.md` §3. Status **PROPOSED**: the user decides at STOP C; nothing fired.
+
+### BND-001 proposal (plan)
+- **Proposed decision:** Replace with typed exception -> step FAILED -> RC 16; SYSOUT error line + ABENDING PROGRAM. Seam common.error/BatchCli. No lead time.
+- **Status:** PROPOSED (awaiting STOP C)
+- **History:** 2026-11-19 proposed by `!mf_stream_migration_plan`
+
+### BND-002 proposal (plan)
+- **Proposed decision:** Keep byte contract; RecordReader + DailyTransactionLayout, --dd/--dd-encoding. Lead-time LR-1 (producer, encoding, delivery; not fired). Cutover: production sample passes parity.
+- **Status:** PROPOSED (awaiting STOP C)
+- **History:** 2026-11-19 proposed by `!mf_stream_migration_plan`
+
+### BND-003 proposal (plan)
+- **Proposed decision:** Keep byte contract in generation dir; publish only on RC 0/4 (D-012). Lead-time LR-2 (consumers; not fired).
+- **Status:** PROPOSED (awaiting STOP C)
+- **History:** 2026-11-19 proposed by `!mf_stream_migration_plan`
+
+### BND-004 proposal (plan)
+- **Proposed decision:** Java job single writer of POSTTRAN rows; append-only; PK duplicate -> RC 16; rerun guard (D-008). Shared TRAN-ID allocation DEFERRED: dependency ONL-M08/M10, impact none while COBOL is oracle, re-entry when either enters planning.
+- **Status:** PROPOSED (awaiting STOP C)
+- **History:** 2026-11-19 proposed by `!mf_stream_migration_plan`
+
+### BND-005 proposal (plan)
+- **Proposed decision:** Account context owns account.account; update in the record's transaction; @Version; lock failure -> RC 16, no retry.
+- **Status:** PROPOSED (awaiting STOP C)
+- **History:** 2026-11-19 proposed by `!mf_stream_migration_plan`
+
+### BND-006 proposal (plan)
+- **Proposed decision:** Reference context owns reference.tran_cat_balance; read-then-insert-or-update in the record's transaction; @Version.
+- **Status:** PROPOSED (awaiting STOP C)
+- **History:** 2026-11-19 proposed by `!mf_stream_migration_plan`
+
+### BND-007 proposal (plan)
+- **Proposed decision:** Read-only card.card_xref seeded by the loader; not found -> reject 100.
+- **Status:** PROPOSED (awaiting STOP C)
+- **History:** 2026-11-19 proposed by `!mf_stream_migration_plan`
+
+### BND-008 proposal (plan)
+- **Proposed decision:** External scheduler runs the CLI; exit code + RETURN-CODE file; CLOSEFIL/OPENFIL/WAITSTEP dropped. Lead-time LR-3 (scheduler owner; not fired).
+- **Status:** PROPOSED (awaiting STOP C)
+- **History:** 2026-11-19 proposed by `!mf_stream_migration_plan`
+
+### BND-009 proposal (plan)
+- **Proposed decision:** DEFERRED: dependency production parallel run; impact none while COBOL is oracle; re-entry when the user asks for production cutover.
+- **Status:** PROPOSED (awaiting STOP C)
+- **History:** 2026-11-19 proposed by `!mf_stream_migration_plan`
