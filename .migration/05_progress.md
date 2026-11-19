@@ -8,7 +8,7 @@ One row per stream per status change; never edit a past row, append a new one. S
 |---|---|---|---|---|
 | 2026-11-19 | `!mf_ingest_target_state` | CONFIRMED at STOP A by the user | `functional/CARDDEMO/CardDemo_target_state.md` @ `devin/1795090039-mf-posttran-stream` (`07a8fbb`) | orchestrator devin-4abefb5b7baf4bfab62c956941e00bf7 |
 | 2026-11-19 | `!mf_migration_setup` | `.migration/` created; runbook verified (see 07); awaiting STOP A re-confirmation of workspace/topology/runbook | `.migration/**` @ `devin/1795090039-mf-posttran-stream` | devin-c4fce2ffab2c4abaac2aa02e217e00e4 |
-| 2026-11-19 | `!mf_module_inventory_analysis` | 46 programs = 37 + 8 + 1; 46 streams catalogued; 18 boundaries registered; **awaiting STOP B** (user confirms POSTTRAN type/hard stop) | `functional/CARDDEMO/CardDemo_inventory.md` @ same branch | devin-c4fce2ffab2c4abaac2aa02e217e00e4 |
+| 2026-11-19 | `!mf_module_inventory_analysis` | 46 programs = 37 + 8 + 1; 38 streams catalogued (22 online, 16 batch) + 32 utility-only jobs; 18 boundaries registered; **awaiting STOP B** (user confirms POSTTRAN type/hard stop) | `functional/CARDDEMO/CardDemo_inventory.md` @ same branch | devin-c4fce2ffab2c4abaac2aa02e217e00e4 |
 
 ## Streams
 
