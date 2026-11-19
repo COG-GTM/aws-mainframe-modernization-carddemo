@@ -47,4 +47,18 @@ class ZonedDecimalTest {
         assertThatThrownBy(() -> ZonedDecimal.encode(new BigDecimal("1.001"), 5, 2, true)).hasMessageContaining("decimals");
         assertThatThrownBy(() -> ZonedDecimal.encode(new BigDecimal("-1"), 5, 0, false)).hasMessageContaining("unsigned");
     }
+
+    @Test
+    void negativeZeroIsDetectedAndWrittenWithTheNegativeOverpunch() {
+        assertThat(ZonedDecimal.isNegativeZero("0000000000}", true)).isTrue();
+        assertThat(ZonedDecimal.isNegativeZero("0000000000{", true)).isFalse();
+        assertThat(ZonedDecimal.isNegativeZero("0000000001}", true)).isFalse();
+        assertThat(ZonedDecimal.isNegativeZero("00000000000", false)).isFalse();
+        assertThat(ZonedDecimal.decode("0000000000}", 2, true)).isEqualByComparingTo("0");
+        assertThat(ZonedDecimal.encode(new BigDecimal("0.00"), 11, 2, true, true)).isEqualTo("0000000000}");
+        assertThat(ZonedDecimal.encode(new BigDecimal("-0.00"), 11, 2, true)).as("BigDecimal has no -0").isEqualTo("0000000000{");
+        assertThatThrownBy(() -> ZonedDecimal.encode(new BigDecimal("1.00"), 11, 2, true, true))
+                .isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> ZonedDecimal.encode(BigDecimal.ZERO, 4, 0, false, true)).isInstanceOf(IllegalArgumentException.class);
+    }
 }

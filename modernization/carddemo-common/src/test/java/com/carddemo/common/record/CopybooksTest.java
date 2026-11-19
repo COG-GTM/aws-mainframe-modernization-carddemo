@@ -72,4 +72,15 @@ class CopybooksTest {
             assertThat(rebuilt.toString()).as(file).isEqualTo(text);
         }
     }
+
+    @Test
+    void negativeZeroSurvivesParseAndSetOnSignedFields() {
+        String text = Copybooks.CVTRA01Y.blank().set("TRANCAT-ACCT-ID", 28).set("TRANCAT-TYPE-CD", "01").set("TRANCAT-CD", 1)
+                .set("TRAN-CAT-BAL", java.math.BigDecimal.ZERO, true).toString();
+        assertThat(text.substring(17, 28)).isEqualTo("0000000000}");
+        FixedRecord parsed = Copybooks.CVTRA01Y.parse(text);
+        assertThat(parsed.negativeZero("TRAN-CAT-BAL")).isTrue();
+        assertThat(parsed.negativeZero("TRANCAT-CD")).as("unsigned").isFalse();
+        assertThat(parsed.set("TRAN-CAT-BAL", java.math.BigDecimal.ZERO).negativeZero("TRAN-CAT-BAL")).isFalse();
+    }
 }

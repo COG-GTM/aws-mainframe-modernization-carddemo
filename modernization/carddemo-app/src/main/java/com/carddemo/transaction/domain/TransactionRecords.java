@@ -19,6 +19,7 @@ public final class TransactionRecords {
         t.setSource(r.text("TRAN-SOURCE"));
         t.setDescription(r.text("TRAN-DESC"));
         t.setAmount(r.decimal("TRAN-AMT"));
+        t.setAmountNegativeZero(r.negativeZero("TRAN-AMT"));
         t.setMerchantId(r.number("TRAN-MERCHANT-ID"));
         t.setMerchantName(r.text("TRAN-MERCHANT-NAME"));
         t.setMerchantCity(r.text("TRAN-MERCHANT-CITY"));
@@ -36,7 +37,7 @@ public final class TransactionRecords {
                 .set("TRAN-CAT-CD", t.getCatCd())
                 .set("TRAN-SOURCE", t.getSource())
                 .set("TRAN-DESC", t.getDescription())
-                .set("TRAN-AMT", t.getAmount())
+                .set("TRAN-AMT", t.getAmount(), t.isAmountNegativeZero())
                 .set("TRAN-MERCHANT-ID", t.getMerchantId())
                 .set("TRAN-MERCHANT-NAME", t.getMerchantName())
                 .set("TRAN-MERCHANT-CITY", t.getMerchantCity())

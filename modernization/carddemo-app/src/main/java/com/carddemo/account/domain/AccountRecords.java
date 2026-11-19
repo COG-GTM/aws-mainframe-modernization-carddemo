@@ -16,13 +16,18 @@ public final class AccountRecords {
         a.setAcctId(r.number("ACCT-ID"));
         a.setActiveStatus(r.text("ACCT-ACTIVE-STATUS"));
         a.setCurrBal(r.decimal("ACCT-CURR-BAL"));
+        a.setCurrBalNegativeZero(r.negativeZero("ACCT-CURR-BAL"));
         a.setCreditLimit(r.decimal("ACCT-CREDIT-LIMIT"));
+        a.setCreditLimitNegativeZero(r.negativeZero("ACCT-CREDIT-LIMIT"));
         a.setCashCreditLimit(r.decimal("ACCT-CASH-CREDIT-LIMIT"));
+        a.setCashCreditLimitNegativeZero(r.negativeZero("ACCT-CASH-CREDIT-LIMIT"));
         a.setOpenDate(r.text("ACCT-OPEN-DATE"));
         a.setExpirationDate(r.text("ACCT-EXPIRAION-DATE"));
         a.setReissueDate(r.text("ACCT-REISSUE-DATE"));
         a.setCurrCycCredit(r.decimal("ACCT-CURR-CYC-CREDIT"));
+        a.setCurrCycCreditNegativeZero(r.negativeZero("ACCT-CURR-CYC-CREDIT"));
         a.setCurrCycDebit(r.decimal("ACCT-CURR-CYC-DEBIT"));
+        a.setCurrCycDebitNegativeZero(r.negativeZero("ACCT-CURR-CYC-DEBIT"));
         a.setAddrZip(r.text("ACCT-ADDR-ZIP"));
         a.setGroupId(r.text("ACCT-GROUP-ID"));
         return a;
@@ -32,14 +37,14 @@ public final class AccountRecords {
         return CVACT01Y.blank()
                 .set("ACCT-ID", a.getAcctId())
                 .set("ACCT-ACTIVE-STATUS", a.getActiveStatus())
-                .set("ACCT-CURR-BAL", a.getCurrBal())
-                .set("ACCT-CREDIT-LIMIT", a.getCreditLimit())
-                .set("ACCT-CASH-CREDIT-LIMIT", a.getCashCreditLimit())
+                .set("ACCT-CURR-BAL", a.getCurrBal(), a.isCurrBalNegativeZero())
+                .set("ACCT-CREDIT-LIMIT", a.getCreditLimit(), a.isCreditLimitNegativeZero())
+                .set("ACCT-CASH-CREDIT-LIMIT", a.getCashCreditLimit(), a.isCashCreditLimitNegativeZero())
                 .set("ACCT-OPEN-DATE", a.getOpenDate())
                 .set("ACCT-EXPIRAION-DATE", a.getExpirationDate())
                 .set("ACCT-REISSUE-DATE", a.getReissueDate())
-                .set("ACCT-CURR-CYC-CREDIT", a.getCurrCycCredit())
-                .set("ACCT-CURR-CYC-DEBIT", a.getCurrCycDebit())
+                .set("ACCT-CURR-CYC-CREDIT", a.getCurrCycCredit(), a.isCurrCycCreditNegativeZero())
+                .set("ACCT-CURR-CYC-DEBIT", a.getCurrCycDebit(), a.isCurrCycDebitNegativeZero())
                 .set("ACCT-ADDR-ZIP", a.getAddrZip())
                 .set("ACCT-GROUP-ID", a.getGroupId())
                 .toString();
