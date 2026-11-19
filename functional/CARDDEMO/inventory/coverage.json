@@ -457,11 +457,19 @@
   ],
   "COPAUS1C": [
    [
+    "COPAUS0C",
+    "app/app-authorization-ims-db2-mq/cbl/COPAUS1C.cbl:368 (WS-PGM-AUTH-SMRY VALUE :34, MOVE :168,:185)"
+   ],
+   [
     "COPAUS2C",
     "app/app-authorization-ims-db2-mq/cbl/COPAUS1C.cbl:248 (resolved COPAUS2C@app/app-authorization-ims-db2-mq/cbl/COPAUS1C.cbl:35 [SITE+INBOUND])"
    ]
   ],
   "COTRTLIC": [
+   [
+    "COTRTUPC",
+    "app/app-transaction-type-db2/cbl/COTRTLIC.cbl:620 (LIT-ADDTPGM VALUE :50, MOVE :638; also LIT-ADMINPGM :47/:603 and CDEMO-FROM-PROGRAM :605 (returns))"
+   ],
    [
     "COTRTUPC",
     "app/app-transaction-type-db2/cbl/COTRTLIC.cbl:648 (resolved COTRTUPC@app/app-transaction-type-db2/cbl/COTRTLIC.cbl:50 [SITE+INBOUND])"

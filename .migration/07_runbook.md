@@ -30,7 +30,7 @@ How the script works (read it before changing it): compiles a `CEE3ABD` stub (`c
 | ID | Command | Observed |
 |---|---|---|
 | R-08 | `python3 functional/CARDDEMO/inventory/callgraph.py . functional/CARDDEMO/inventory > functional/CARDDEMO/inventory/edges.tsv` | 276 edges + header (see inventory) |
-| R-09 | `python3 functional/CARDDEMO/inventory/coverage.py . functional/CARDDEMO/inventory` | exit 0; `CHECK 46 = 37 + 8 + 1 -> True`, `CHECK-A` 41 declared / 40 roots (1 cited exception), `CHECK-B` 0 unattributed, `CHECK-C` CBTRN01C clean, `INDEPENDENT CHECKS PASS` |
+| R-09 | `python3 functional/CARDDEMO/inventory/coverage.py . functional/CARDDEMO/inventory` | exit 0; `CHECK 46 = 37 + 8 + 1 -> True`, `CHECK-A` 41 declared / 40 roots (1 cited exception), `CHECK-B` 0 unattributed, `CHECK-C` CBTRN01C clean, `CHECK-D` 19 unresolved / 0 without resolution / 0 inconsistent, `INDEPENDENT CHECKS PASS` |
 | R-10 | `cd functional/CARDDEMO/inventory && <mermaid-cli>/mmdc -p <puppeteer.json> -i module_flow.mmd -o module_flow.png` with `@mermaid-js/mermaid-cli@10.9.1` installed under `~/work/mmd` (`PUPPETEER_SKIP_DOWNLOAD=1 npm i @mermaid-js/mermaid-cli@10.9.1`) and `puppeteer.json` = `{"executablePath":"/opt/.devin/chrome/chrome/linux-137.0.7118.2/chrome-linux64/chrome","args":["--no-sandbox"]}` | PNG rendered |
 
 ## Java build, test, run (NOT YET RUNNABLE - `modernization/` does not exist on `main`; Phase 0 creates it)

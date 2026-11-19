@@ -22,11 +22,39 @@ for caller, callee, kind, c, res in G['edges']:
             if lit in progs: fwd[caller].add((lit, c + ' (resolved ' + res.split(',')[0] + ')'))
 # variable-held literals resolved by hand (VALUE + MOVE + XCTL cites)
 MANUAL = [
- ('COCRDLIC', 'COCRDSLC', 'app/cbl/COCRDLIC.cbl:538 (LIT-CARDDTLPGM VALUE :196, MOVE :526)'),
- ('COCRDLIC', 'COCRDUPC', 'app/cbl/COCRDLIC.cbl:566 (LIT-CARDUPDPGM VALUE :204, MOVE :554)'),
  ('COPAUS0C', 'COPAUS1C', 'app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl:323 (WS-PGM-AUTH-DTL VALUE :34, MOVE :316)'),
 ]
 for a, b, c in MANUAL: fwd[a].add((b, c))
+# Hand resolution of every dynamic dispatch the script leaves UNRESOLVED (CardDemo_inventory.md 2.1), keyed by call site.
+# FORWARD: program edge inside the stream; DISPATCH: hub option -> stream root; RETURN: back to the hub or to
+# CDEMO-FROM-PROGRAM (B5); SELF: pseudo-conversational RETURN TRANSID to the program's own trancode.
+def table(cpy): return re.findall(r"'(CO[A-Z0-9]{5,6})'", open(cpy, encoding='latin1').read())
+A, T = 'app/app-authorization-ims-db2-mq/cbl/', 'app/app-transaction-type-db2/cbl/'
+SITE = {
+ 'app/cbl/COMEN01C.cbl:156': ('DISPATCH', table('app/cpy/COMEN02Y.cpy'), 'CDEMO-MENU-OPT-PGMNAME table app/cpy/COMEN02Y.cpy'),
+ 'app/cbl/COMEN01C.cbl:185': ('DISPATCH', table('app/cpy/COMEN02Y.cpy'), 'CDEMO-MENU-OPT-PGMNAME table app/cpy/COMEN02Y.cpy'),
+ 'app/cbl/COADM01C.cbl:146': ('DISPATCH', table('app/cpy/COADM02Y.cpy'), 'CDEMO-ADMIN-OPT-PGMNAME table app/cpy/COADM02Y.cpy'),
+ 'app/cbl/COCRDLIC.cbl:538': ('FORWARD', ['COCRDSLC'], 'LIT-CARDDTLPGM VALUE :196, MOVE :526'),
+ 'app/cbl/COCRDLIC.cbl:566': ('FORWARD', ['COCRDUPC'], 'LIT-CARDUPDPGM VALUE :204, MOVE :554'),
+ A + 'COPAUS1C.cbl:368': ('FORWARD', ['COPAUS0C'], 'WS-PGM-AUTH-SMRY VALUE :34, MOVE :168,:185'),
+ T + 'COTRTLIC.cbl:620': ('FORWARD', ['COTRTUPC'], 'LIT-ADDTPGM VALUE :50, MOVE :638; also LIT-ADMINPGM :47/:603 and CDEMO-FROM-PROGRAM :605 (returns)'),
+ T + 'COTRTUPC.cbl:457': ('RETURN', ['COADM01C'], 'LIT-ADMINPGM VALUE :209, MOVE :440; or CDEMO-FROM-PROGRAM :442'),
+ 'app/cbl/COCRDLIC.cbl:402': ('RETURN', ['COMEN01C'], 'LIT-MENUPGM VALUE :187'),
+ 'app/cbl/COACTVWC.cbl:349': ('RETURN', ['COMEN01C'], 'LIT-MENUPGM VALUE :168, MOVE :336; or CDEMO-FROM-PROGRAM :338'),
+ 'app/cbl/COACTUPC.cbl:956': ('RETURN', ['COMEN01C'], 'LIT-MENUPGM VALUE :557, MOVE :939; or CDEMO-FROM-PROGRAM :941'),
+ 'app/cbl/COCRDSLC.cbl:331': ('RETURN', ['COMEN01C'], 'LIT-MENUPGM VALUE :179, MOVE :318; or CDEMO-FROM-PROGRAM :320'),
+ 'app/cbl/COCRDUPC.cbl:473': ('RETURN', ['COMEN01C'], 'LIT-MENUPGM VALUE :235, MOVE :451; or CDEMO-FROM-PROGRAM :453'),
+ 'app/cbl/COACTVWC.cbl:402': ('SELF', ['CAVW'], 'LIT-THISTRANID VALUE :145'),
+ 'app/cbl/COACTUPC.cbl:1015': ('SELF', ['CAUP'], 'LIT-THISTRANID VALUE :535'),
+ 'app/cbl/COCRDLIC.cbl:615': ('SELF', ['CCLI'], 'LIT-THISTRANID VALUE :181'),
+ 'app/cbl/COCRDSLC.cbl:402': ('SELF', ['CCDL'], 'LIT-THISTRANID VALUE :165'),
+ 'app/cbl/COCRDUPC.cbl:554': ('SELF', ['CCUP'], 'LIT-THISTRANID VALUE :221'),
+ T + 'COTRTUPC.cbl:567': ('SELF', ['CTTU'], 'LIT-THISTRANID VALUE :203'),
+}
+site_caller = {c: caller for caller, callee, kind, c, res in G['edges']}
+for c, (k, ts, why) in SITE.items():
+    if k == 'FORWARD':
+        for t in ts: fwd[site_caller[c]].add((t, c + ' (' + why + ')'))
 S = []  # id, kind, entry/trigger, proof, roots
 def tran(t, csd='app/csd/CARDDEMO.CSD'): return cite(csd, rf'DEFINE TRANSACTION\({t}\)')
 S.append(('ONL-00 Sign-on + menus', 'ONLINE', 'CC00 (also CM00, CA00)', tran('CC00') + '; ' + tran('CM00') + '; ' + tran('CA00'), ['COSGN00C', 'COMEN01C', 'COADM01C']))
@@ -125,6 +153,25 @@ for caller, callee, kind, c, res in G['edges']:
 bad_unreach = [(p, inbound[p], declared.get(p)) for p in unreach if inbound[p] or declared.get(p)]
 print(f'CHECK-C unreachable: {len(unreach)} unreachable, with inbound edge or declaration: {bad_unreach}')
 fails += bool(bad_unreach)
+# D. every UNRESOLVED dynamic edge has a hand resolution, and each resolution is consistent with the catalog
+csd_tran = {caller[5:]: callee for caller, callee, kind, c, res in G['edges'] if kind == 'CSD-TRANSACTION'}
+unres = [(caller, c) for caller, callee, kind, c, res in G['edges'] if res == 'UNRESOLVED']
+missing = [c for _, c in unres if c not in SITE]
+bad = []
+for caller, c in unres:
+    if c not in SITE: continue
+    k, ts, why = SITE[c]
+    src_text = open(c.rsplit(':', 1)[0], encoding='latin1').read()
+    for t in ts:
+        if k != 'DISPATCH' and f"'{t}'" not in src_text: bad.append((c, t, 'literal not present in the caller source'))
+        if k == 'DISPATCH' and t not in roots: bad.append((c, t, 'dispatch target is not a stream root'))
+        if k == 'FORWARD' and any(t not in members[sid] for sid in where[caller]): bad.append((c, t, 'forward target outside the caller stream'))
+        if k == 'RETURN' and t not in MENU: bad.append((c, t, 'return target is not the navigation hub'))
+        if k == 'SELF' and csd_tran.get(t) != caller: bad.append((c, t, 'trancode is not defined for the caller'))
+stale = [c for c in SITE if c not in dict((x, 1) for _, x in unres)]
+print(f'CHECK-D unresolved sites: {len(unres)} unresolved, {len(missing)} without a hand resolution {missing}, '
+      f'{len(bad)} inconsistent {bad}, {len(stale)} stale resolutions {stale}')
+fails += bool(missing or bad or stale)
 print('INDEPENDENT CHECKS', 'PASS' if not fails else f'FAIL ({fails})')
 for p in shared: print('SHARED', p, where[p])
 for s in out['streams']: print(s['id'], '|', s['programs'])
