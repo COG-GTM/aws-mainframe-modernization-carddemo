@@ -97,7 +97,8 @@ DECL_NOT_ROOT = {
              'app/app-authorization-ims-db2-mq/cbl/COPAUS1C.cbl:36, RETURN TRANSID :203); a cold start '
              '(EIBCALEN = 0, :165-169) XCTLs to COPAUS0C, so it runs inside ONL-M11',
 }
-unrooted_decls = sorted(d for d in declared if (d in progs or d in absent) and d not in roots and d not in DECL_NOT_ROOT)
+# every declared target counts, whether or not its source is in the repo (an absent program behind a live trancode is still an entry point)
+unrooted_decls = sorted(d for d in declared if d not in roots and d not in DECL_NOT_ROOT)
 for d, why in DECL_NOT_ROOT.items(): print('CHECK-A exception', d, '-', why)
 print(f'CHECK-A declarations: {len(declared)} declared targets, {len(roots)} stream roots; '
       f'roots without declaration {undeclared_roots}; declared programs not a root {unrooted_decls}')
