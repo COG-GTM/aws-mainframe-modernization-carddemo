@@ -102,7 +102,11 @@ pad "$REPO/app/data/ASCII/cardxref.txt" 50  > "$OUT/data/cardxref.lseq"
 pad "$REPO/app/data/ASCII/tcatbal.txt"  50  > "$OUT/data/tcatbal.lseq"
 # DALYTRAN is RECFM=FB LRECL=350 sequential: fixed records, no newline
 case "$DALYTRAN_ENCODING" in
-  ASCII) pad "$DALY" 350 | tr -d '\n' > "$OUT/data/DALYTRAN" ;;
+  ASCII) # a line longer than LRECL would shift every later record once the newlines are removed
+         if ! tr -d '\r' < "$DALY" | LC_ALL=C awk 'length($0) > 350 { printf "DALYTRAN line %d is %d bytes (> 350)\n", NR, length($0) > "/dev/stderr"; bad = 1 } END { exit bad }'; then
+           echo "refusing DALYTRAN '$DALY': ASCII records must be at most 350 bytes" >&2; exit 2
+         fi
+         pad "$DALY" 350 | tr -d '\n' > "$OUT/data/DALYTRAN" ;;
   CP037) python3 - "$DALY" "$OUT/data/DALYTRAN" <<'PY'
 import sys
 raw = open(sys.argv[1], 'rb').read()
