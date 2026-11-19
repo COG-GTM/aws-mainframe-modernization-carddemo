@@ -1,5 +1,7 @@
 # POSTTRAN migration plan
 
+**Status: APPROVED at STOP C by user, STOP C, 2026-11-19 ("Approve").**
+
 Produced by `!mf_stream_migration_plan` on 2026-11-19 (session devin-c4fce2ffab2c4abaac2aa02e217e00e4), branch `devin/1795090039-mf-posttran-stream`. Inputs: `POSTTRAN_analysis.md`, `POSTTRAN_functional_requirements.md` (17 FRs), `CardDemo_target_state.md` (CONFIRMED), `CardDemo_inventory.md`, D-001..D-010. **Status: awaiting STOP C (blocking).** Every boundary decision and every new decision below is **PROPOSED**; nothing has been launched or requested externally.
 
 ## 1. Goal and scope
@@ -23,7 +25,7 @@ Produced by `!mf_stream_migration_plan` on 2026-11-19 (session devin-c4fce2ffab2
 | Money | BigDecimal scale 2, truncate | `WS-TEMP-BAL` reproduced as S9(9)V99 with high-order truncation (D-014) |
 | Drift rules | BATCH §3 drift rules 1-6 | reviewed in every PR |
 
-## 3. Boundary decision table (all PROPOSED; user decides at STOP C)
+## 3. Boundary decision table (all DECIDED: approved by user, STOP C, 2026-11-19 ("Approve"))
 
 | BND | Class | Proposed decision | Seam | Error / idempotency | Owner | Evidence | Lead-time request (listed, NOT fired) | Routing point / cutover |
 |---|---|---|---|---|---|---|---|---|
@@ -87,7 +89,7 @@ Single repo: each step is one PR. Phase 3 (UI testing) is skipped: no screens.
 - Every FR maps to at least one case (FR traceability matrix §9).
 - CI gate: `modernization-verify.yml` runs all of the above with Testcontainers `postgres:16`.
 
-## 8. New decisions needed at STOP C (PROPOSED, recorded in `06_decisions.md`)
+## 8. New decisions at STOP C (APPROVED by user, STOP C, 2026-11-19 ("Approve"), recorded in `06_decisions.md`)
 
 | Id | Question | Proposed | Why |
 |---|---|---|---|
