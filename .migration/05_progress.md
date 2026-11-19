@@ -9,6 +9,7 @@ One row per stream per status change; never edit a past row, append a new one. S
 | 2026-11-19 | `!mf_ingest_target_state` | CONFIRMED at STOP A by the user | `functional/CARDDEMO/CardDemo_target_state.md` @ `devin/1795090039-mf-posttran-stream` (`07a8fbb`) | orchestrator devin-4abefb5b7baf4bfab62c956941e00bf7 |
 | 2026-11-19 | `!mf_migration_setup` | `.migration/` created; runbook verified (see 07); awaiting STOP A re-confirmation of workspace/topology/runbook | `.migration/**` @ `devin/1795090039-mf-posttran-stream` | devin-c4fce2ffab2c4abaac2aa02e217e00e4 |
 | 2026-11-19 | `!mf_module_inventory_analysis` | 46 programs = 37 + 8 + 1; 38 streams catalogued (22 online, 16 batch) + 32 utility-only jobs; 18 boundaries registered; **awaiting STOP B** (user confirms POSTTRAN type/hard stop) | `functional/CARDDEMO/CardDemo_inventory.md` @ same branch | devin-c4fce2ffab2c4abaac2aa02e217e00e4 |
+| 2026-11-19 | STOP B | User confirmed POSTTRAN (BATCH, CBTRN02C, hard stop GOBACK) and D-007/D-008/D-009/D-010 | `.migration/06_decisions.md` | devin-4abefb5b7baf4bfab62c956941e00bf7 |
 
 ## Streams
 
@@ -52,3 +53,4 @@ One row per stream per status change; never edit a past row, append a new one. S
 | 2026-11-19 | BAT-UNLDPADB | BATCH | not started | 1 program(s) | devin-c4fce2ffab2c4abaac2aa02e217e00e4 |
 | 2026-11-19 | BAT-UNLDGSAM | BATCH | not started | 1 program(s) | devin-c4fce2ffab2c4abaac2aa02e217e00e4 |
 | 2026-11-19 | BAT-MNTTRDB2 | BATCH | not started | 1 program(s) | devin-c4fce2ffab2c4abaac2aa02e217e00e4 |
+| 2026-11-19 | POSTTRAN | BATCH | not started -> scope confirmed (STOP B) | analysis next | devin-4abefb5b7baf4bfab62c956941e00bf7 |
