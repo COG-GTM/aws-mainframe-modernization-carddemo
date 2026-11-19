@@ -1,0 +1,705 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TRANREPT — Documento de Requisitos Funcionales</title>
+<style>
+  :root {
+    --ink: #1f2933; --muted: #616e7c; --line: #d9e2ec; --bg: #f5f7fa;
+    --brand: #0b4f8a; --brand-soft: #e3eefa; --batch: #8a4b0b; --batch-soft: #fdf0e1;
+    --online: #0b6e4f; --online-soft: #e1f5ee; --warn: #9b1c1c; --warn-soft: #fde8e8;
+    --ph: #fff4c2;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; font: 15px/1.55 "Segoe UI", Roboto, Helvetica, Arial, sans-serif; color: var(--ink); background: var(--bg); }
+  .page { max-width: 1100px; margin: 0 auto; padding: 32px 40px 64px; background: #fff; box-shadow: 0 0 0 1px var(--line); }
+  header.doc { border-bottom: 4px solid var(--brand); padding-bottom: 16px; margin-bottom: 24px; }
+  header.doc .kicker { text-transform: uppercase; letter-spacing: .08em; font-size: 12px; color: var(--muted); }
+  header.doc h1 { margin: 4px 0 8px; font-size: 30px; color: var(--brand); }
+  header.doc .sub { color: var(--muted); }
+  h2 { margin: 40px 0 12px; padding-bottom: 6px; border-bottom: 1px solid var(--line); color: var(--brand); font-size: 22px; }
+  h3 { margin: 24px 0 8px; font-size: 17px; }
+  h2 .num { display: inline-block; min-width: 2.2em; color: var(--muted); }
+  p { margin: 8px 0; }
+  table { width: 100%; border-collapse: collapse; margin: 10px 0 16px; font-size: 14px; }
+  th, td { border: 1px solid var(--line); padding: 7px 9px; text-align: left; vertical-align: top; }
+  th { background: var(--brand-soft); font-weight: 600; }
+  table.kv th { width: 28%; }
+  code, .mono { font-family: "SFMono-Regular", Consolas, Menlo, monospace; font-size: 13px; }
+  .ph { background: var(--ph); padding: 0 3px; border-radius: 3px; font-family: Consolas, Menlo, monospace; font-size: 13px; }
+  .hint { color: var(--muted); font-style: italic; font-size: 13px; }
+  .note { border-left: 4px solid var(--brand); background: var(--brand-soft); padding: 10px 14px; margin: 12px 0; font-size: 14px; }
+  .note.warn { border-color: var(--warn); background: var(--warn-soft); }
+  .badge { display: inline-block; padding: 1px 8px; border-radius: 10px; font-size: 11px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; vertical-align: middle; margin-left: 6px; }
+  .badge.batch { background: var(--batch-soft); color: var(--batch); border: 1px solid var(--batch); }
+  .badge.online { background: var(--online-soft); color: var(--online); border: 1px solid var(--online); }
+  .badge.mig { background: var(--brand-soft); color: var(--brand); border: 1px solid var(--brand); }
+  .badge.ok { background: var(--online-soft); color: var(--online); }
+  .badge.ko { background: var(--warn-soft); color: var(--warn); }
+  section.only-batch { border-left: 3px solid var(--batch); padding-left: 14px; }
+  section.only-online { border-left: 3px solid var(--online); padding-left: 14px; }
+  nav.toc { background: var(--bg); border: 1px solid var(--line); padding: 12px 20px; columns: 2; font-size: 14px; }
+  nav.toc a { color: var(--brand); text-decoration: none; }
+  nav.toc ol { margin: 0; padding-left: 20px; }
+  .legend { font-size: 13px; color: var(--muted); margin: 8px 0 0; }
+  /* Diagramas de flujo editables (HTML/CSS, sin dependencias) */
+  .flow { display: flex; flex-wrap: wrap; align-items: stretch; gap: 0; margin: 14px 0; }
+  .flow .node { border: 2px solid var(--brand); border-radius: 8px; padding: 10px 12px; min-width: 140px; background: #fff; font-size: 13px; }
+  .flow .node b { display: block; font-size: 14px; }
+  .flow .node.job { border-color: var(--batch); background: var(--batch-soft); }
+  .flow .node.pgm { border-color: var(--brand); background: var(--brand-soft); }
+  .flow .node.map { border-color: var(--online); background: var(--online-soft); }
+  .flow .node.ext { border-style: dashed; border-color: var(--muted); }
+  .flow .arrow { align-self: center; padding: 0 8px; font-size: 22px; color: var(--muted); }
+  .flow .arrow small { display: block; font-size: 11px; text-align: center; }
+  .diagram { border: 1px solid var(--line); border-radius: 8px; padding: 12px; background: #fff; overflow-x: auto; }
+  .diagram svg { max-width: 100%; height: auto; }
+  .check { list-style: none; padding-left: 0; }
+  .check li::before { content: "\2610  "; color: var(--muted); }
+  footer.doc { margin-top: 48px; padding-top: 12px; border-top: 1px solid var(--line); font-size: 12px; color: var(--muted); }
+  @media print {
+    body { background: #fff; }
+    .page { box-shadow: none; padding: 0; max-width: none; }
+    h2 { page-break-after: avoid; }
+    table, .diagram, .flow { page-break-inside: avoid; }
+    nav.toc { columns: 1; }
+  }
+  td code, td .mono { overflow-wrap: anywhere; word-break: break-word; }
+  #rf td:first-child, #reglas td:first-child, #traza td:first-child, #riesgos td:first-child, #pruebas td:first-child { white-space: nowrap; }
+</style>
+</head>
+<body>
+<div class="page">
+<header class="doc">
+  <div class="kicker">CardDemo · Documento de Requisitos Funcionales · Migración</div>
+  <h1>TRANREPT — Informe de transacciones por rango de fechas</h1>
+  <div class="sub">
+    Tipo: <span class="badge batch">Batch</span> (disparado desde CICS) ·
+    Aplicación: CardDemo (núcleo de tarjetas, VSAM) ·
+    Versión del documento: 0.1 ·
+    Estado: Borrador
+  </div>
+</header>
+
+<div class="note">Documento generado a partir del código del repositorio: <code>app/jcl/TRANREPT.jcl</code>, <code>app/proc/TRANREPT.prc</code>, <code>app/proc/REPROC.prc</code>, <code>app/ctl/REPROCT.ctl</code>, <code>app/cbl/CBTRN03C.cbl</code>, los copybooks <code>CVTRA05Y</code>, <code>CVACT03Y</code>, <code>CVTRA03Y</code>, <code>CVTRA04Y</code> y <code>CVTRA07Y</code>, el disparador online <code>app/cbl/CORPT00C.cbl</code> y <code>app/csd/CARDDEMO.CSD</code>, los jobs vecinos (<code>REPTFILE</code>, <code>DEFGDGB</code>, <code>TRANBKP</code>, <code>COMBTRAN</code>), <code>app/catlg/LISTCAT.txt</code>, <code>app/scheduler</code>, <code>scripts/</code> y <code>README.md</code>. Lo que no se puede deducir del código (SLA, responsables, volumen real de producción, consumidores del informe) aparece como <b>pregunta abierta</b> y no se ha inventado.</div>
+
+<div class="note warn"><b>Verificación en ejecución.</b> Además de la lectura del código, CBTRN03C se compiló con GnuCOBOL 3 (<code>cobc -std=ibm</code>) y se ejecutó con los datos de ejemplo de <code>app/data/ASCII</code> (300 transacciones, TRAN-PROC-TS = TRAN-ORIG-TS, ordenadas por tarjeta) y un stub de CEE3ABD. Los resultados citados como «ejecución E-n» proceden de esas pruebas. Los pasos de SORT e IDCAMS no se ejecutaron (solo se analizaron). La semántica de <code>NEXT SENTENCE</code> observada coincide con la definida por el estándar COBOL y por IBM Enterprise COBOL, pero conviene confirmarla en el entorno z/OS (Q-08).</div>
+
+<nav class="toc">
+  <ol>
+    <li><a href="#control">Control del documento</a></li>
+    <li><a href="#ident">Identificación del stream</a></li>
+    <li><a href="#resumen">Descripción funcional</a></li>
+    <li><a href="#flujo">Diagrama de flujo</a></li>
+    <li><a href="#inventario">Inventario de componentes</a></li>
+    <li><a href="#dependencias">Dependencias</a></li>
+    <li><a href="#rf">Requisitos funcionales</a></li>
+    <li><a href="#reglas">Reglas de negocio y validaciones</a></li>
+    <li><a href="#ui">Interfaz de usuario (online)</a></li>
+    <li><a href="#datos">Diccionario de datos y layouts</a></li>
+    <li><a href="#salidas">Salidas e informes</a></li>
+    <li><a href="#errores">Errores, códigos de retorno y reinicio</a></li>
+    <li><a href="#transacc">Transaccionalidad y concurrencia</a></li>
+    <li><a href="#rnf">Volumetría, rendimiento y planificación</a></li>
+    <li><a href="#seguridad">Seguridad y auditoría</a></li>
+    <li><a href="#destino">Mapeo a la arquitectura destino</a></li>
+    <li><a href="#migdatos">Migración de datos</a></li>
+    <li><a href="#pruebas">Estrategia de pruebas y equivalencia</a></li>
+    <li><a href="#traza">Matriz de trazabilidad</a></li>
+    <li><a href="#riesgos">Riesgos, supuestos y preguntas abiertas</a></li>
+    <li><a href="#glosario">Glosario</a></li>
+    <li><a href="#aprob">Aprobaciones</a></li>
+  </ol>
+</nav>
+
+<!-- 1 -->
+<section id="control">
+  <h2><span class="num">1.</span>Control del documento</h2>
+  <table class="kv">
+    <tr><th>ID del documento</th><td>RF-CARDDEMO-TRANREPT-001</td></tr>
+    <tr><th>Autor(es)</th><td>Devin (análisis de código) · revisión pendiente</td></tr>
+    <tr><th>Fecha de creación / última revisión</th><td>2026-11-19 / 2026-11-19</td></tr>
+    <tr><th>Fuentes analizadas</th><td>Repositorio <code>COG-GTM/aws-mainframe-modernization-carddemo</code>, rama base <code>devin/1795088487-docs-plantilla-rf</code> (código idéntico a <code>main</code>): <code>app/jcl/TRANREPT.jcl</code>, <code>app/proc/TRANREPT.prc</code>, <code>app/proc/REPROC.prc</code>, <code>app/ctl/REPROCT.ctl</code>, <code>app/cbl/CBTRN03C.cbl</code>, <code>app/cpy/CVTRA05Y.cpy</code>, <code>CVACT03Y.cpy</code>, <code>CVTRA03Y.cpy</code>, <code>CVTRA04Y.cpy</code>, <code>CVTRA07Y.cpy</code>, <code>app/cbl/CORPT00C.cbl</code>, <code>app/cpy/COMEN02Y.cpy</code>, <code>app/csd/CARDDEMO.CSD</code>, <code>app/jcl/REPTFILE.jcl</code>, <code>DEFGDGB.jcl</code>, <code>TRANBKP.jcl</code>, <code>COMBTRAN.jcl</code>, <code>app/catlg/LISTCAT.txt</code>, <code>app/scheduler/CardDemo.ca7</code>, <code>CardDemo.controlm</code>, <code>scripts/*.sh</code>, <code>README.md</code>, <code>app/data/ASCII/*</code></td></tr>
+    <tr><th>Documentos relacionados</th><td><code>docs/ejemplo-POSTTRAN.html</code> (POSTTRAN, que alimenta el maestro TRANSACT), documentos RF de INTCALC y CREASTMT (sesiones paralelas), futura documentación del stream online CR00 «Transaction Reports» (CORPT00C)</td></tr>
+  </table>
+  <h3>Historial de cambios</h3>
+  <table>
+    <tr><th>Versión</th><th>Fecha</th><th>Autor</th><th>Cambios</th></tr>
+    <tr><td>0.1</td><td>2026-11-19</td><td>Devin</td><td>Versión inicial a partir del código fuente y de ejecuciones de CBTRN03C con GnuCOBOL</td></tr>
+  </table>
+</section>
+
+<!-- 2 -->
+<section id="ident">
+  <h2><span class="num">2.</span>Identificación del stream</h2>
+  <table class="kv">
+    <tr><th>Nombre del stream</th><td><b>TRANREPT</b> — «Transaction Report - Submitted from CICS» (README, tabla de jobs)</td></tr>
+    <tr><th>Tipo</th><td>Batch: un job de 3 steps (IDCAMS REPRO → SORT → CBTRN03C), en dos variantes: JCL autónomo y PROC invocada desde CICS</td></tr>
+    <tr><th>Aplicación / subsistema</th><td>CardDemo · informes de transacciones</td></tr>
+    <tr><th>Punto de entrada</th><td>
+      <span class="badge batch">Batch</span> Job <code>TRANREPT</code> (<code>app/jcl/TRANREPT.jcl</code>), o job <code>TRNRPT00</code> generado por CORPT00C que ejecuta <code>//STEP10 EXEC PROC=TRANREPT</code> (<code>app/proc/TRANREPT.prc</code>). Programa principal <code>CBTRN03C</code> (STEPLIB <code>AWS.M2.CARDDEMO.LOADLIB</code>).<br>
+      <span class="badge online">Disparador online</span> TransID <code>CR00</code> · programa <code>CORPT00C</code> · mapset/map <code>CORPT00</code>/<code>CORPT0A</code> · opción 9 «Transaction Reports» del menú principal (<code>COMEN02Y</code>, tipo de usuario U)</td></tr>
+    <tr><th>Planificador</th><td>Ninguno. TRANREPT <b>no</b> aparece en <code>CardDemo.ca7</code> ni en <code>CardDemo.controlm</code>, ni en los scripts de <code>scripts/</code>. Se envía bajo demanda desde CICS (CORPT00C → TDQ <code>JOBS</code> → lector interno) o manualmente.</td></tr>
+    <tr><th>Frecuencia y ventana</th><td>Bajo demanda (informes mensual, anual o personalizado pedidos por el usuario). Ventana y concurrencia permitidas: <i>pregunta abierta Q-01</i>.</td></tr>
+    <tr><th>Criticidad de negocio</th><td>Informativa: el stream no modifica maestros. Impacto si no se ejecuta o falla: el usuario no recibe el informe. Criticidad formal: <i>Q-02</i>.</td></tr>
+    <tr><th>Responsable funcional / técnico</th><td><i>Pregunta abierta Q-02</i></td></tr>
+  </table>
+</section>
+
+<!-- 3 -->
+<section id="resumen">
+  <h2><span class="num">3.</span>Descripción funcional (qué hace)</h2>
+  <p>TRANREPT produce el informe «Daily Transaction Report» (<code>DALYREPT</code>) con las transacciones de tarjeta contabilizadas cuya fecha de proceso cae dentro de un rango de fechas. El usuario pide el informe desde la pantalla CICS «Transaction Reports» (mensual, anual o con fechas a medida) y CORPT00C envía el job con esas fechas.</p>
+  <p>El job hace primero una copia del maestro de transacciones (<code>TRANSACT</code> KSDS) a una nueva generación de <code>TRANSACT.BKUP</code>, filtra esa copia por fecha de proceso y la ordena por número de tarjeta. Después CBTRN03C recorre el fichero filtrado, completa cada transacción con el número de cuenta (referencia cruzada de tarjetas) y las descripciones de tipo y categoría, y escribe un informe paginado de 133 columnas con subtotales por tarjeta (rotulados «Account Total»), totales de página y un total general.</p>
+  <table class="kv">
+    <tr><th>Objetivo de negocio</th><td>Dar a los usuarios un listado de las transacciones de un periodo con totales por cuenta/tarjeta, por página y general.</td></tr>
+    <tr><th>Actores</th><td>Usuario regular de CardDemo (pantalla CR00); JES / lector interno; operación batch (envío manual del JCL autónomo).</td></tr>
+    <tr><th>Disparador</th><td>Confirmación (<code>Y</code>) en la pantalla CR00, que escribe el JCL en la TDQ extrapartición <code>JOBS</code> (DDNAME <code>INREADER</code>). Alternativa: envío manual de <code>TRANREPT.jcl</code>.</td></tr>
+    <tr><th>Entradas principales</th><td>TRANSACT KSDS (transacciones contabilizadas), CARDXREF KSDS (tarjeta → cuenta), TRANTYPE KSDS y TRANCATG KSDS (descripciones), fechas de inicio y fin (SYMNAMES del SORT y DATEPARM)</td></tr>
+    <tr><th>Salidas / efectos</th><td><code>TRANREPT(+1)</code> (informe FB 133), <code>TRANSACT.BKUP(+1)</code> (copia completa del maestro), <code>TRANSACT.DALY(+1)</code> (transacciones filtradas y ordenadas), SYSOUT con cada transacción leída. No modifica ningún maestro.</td></tr>
+    <tr><th>Fuera de alcance</th><td>La pantalla CR00 en sí (navegación, atributos BMS), que se documenta en su propio stream online; la contabilización de transacciones (POSTTRAN); los extractos (CREASTMT); la impresión física o distribución del informe (Q-05).</td></tr>
+  </table>
+</section>
+
+<!-- 4 -->
+<section id="flujo">
+  <h2><span class="num">4.</span>Diagrama de flujo</h2>
+
+  <section class="only-batch">
+    <h3>4.1 Cadena de JCL <span class="badge batch">Solo batch</span></h3>
+    <p><b>Variante online</b> (la habitual según el README): CORPT00C genera el job <code>TRNRPT00</code>, que invoca la PROC <code>TRANREPT</code> y sustituye <code>STEP05R.SYMNAMES</code> y <code>STEP10R.DATEPARM</code> por las fechas elegidas.</p>
+    <div class="flow">
+      <div class="node map"><b>CR00 · CORPT00C</b>Mensual / Anual / Personalizado + confirmación Y</div>
+      <div class="arrow">&rarr;<small>WRITEQ TD JOBS</small></div>
+      <div class="node ext"><b>INTRDR (JES)</b>job TRNRPT00 · PROC=TRANREPT</div>
+      <div class="arrow">&rarr;</div>
+      <div class="node job"><b>STEP01R</b>PROC REPROC · IDCAMS REPRO</div>
+      <div class="arrow">&rarr;<small>sin COND</small></div>
+      <div class="node job"><b>STEP05R</b>PGM=SORT · INCLUDE + SORT</div>
+      <div class="arrow">&rarr;<small>sin COND</small></div>
+      <div class="node job"><b>STEP10R</b>PGM=CBTRN03C</div>
+      <div class="arrow">&rarr;</div>
+      <div class="node ext"><b>TRANREPT(+1)</b>informe 133 col.</div>
+    </div>
+    <p><b>Variante JCL autónomo</b> (<code>app/jcl/TRANREPT.jcl</code>): mismos pasos, con las fechas del SORT fijas en el JCL (<code>2022-01-01</code> a <code>2022-07-06</code>) y DATEPARM leído del fichero catalogado <code>AWS.M2.CARDDEMO.DATEPARM</code>. Los dos primeros steps se llaman ambos <code>STEP05R</code> (H-07).</p>
+    <p class="legend">Prerrequisitos (una sola vez): bases GDG <code>TRANSACT.BKUP</code>, <code>TRANSACT.DALY</code> y <code>TRANREPT</code> definidas por <code>DEFGDGB.jcl</code> (y <code>REPTFILE.jcl</code> para TRANREPT, con otro LIMIT: H-10). Contenido: el maestro TRANSACT lo cargan TRANBKP/POSTTRAN/COMBTRAN y las transacciones online (COTRN02C, COBIL00C).</p>
+
+    <h3>4.2 Pasos del job</h3>
+    <table>
+      <tr><th>Job</th><th>Step (JCL / PROC)</th><th>Programa / utilidad</th><th>Entradas (DD → DSN)</th><th>Salidas (DD → DSN)</th><th>Condición</th><th>Descripción</th></tr>
+      <tr><td>TRANREPT / TRNRPT00</td><td>STEP05R (JCL, l. 23) / STEP01R (PROC)</td><td>PROC REPROC → step PRC001 · IDCAMS</td>
+        <td>PRC001.FILEIN → <code>AWS.M2.CARDDEMO.TRANSACT.VSAM.KSDS</code> (SHR)<br>SYSIN → <code>AWS.M2.CARDDEMO.CNTL(REPROCT)</code>: <code>REPRO INFILE(FILEIN) OUTFILE(FILEOUT)</code></td>
+        <td>PRC001.FILEOUT → <code>AWS.M2.CARDDEMO.TRANSACT.BKUP(+1)</code> (NEW,CATLG,DELETE · FB · LRECL 350)</td>
+        <td>Primer step</td><td>Copia completa del maestro de transacciones</td></tr>
+      <tr><td></td><td>STEP05R (JCL, l. 37) / STEP05R (PROC)</td><td>SORT (DFSORT/SYNCSORT)</td>
+        <td>SORTIN → <code>TRANSACT.BKUP(+1)</code><br>SYMNAMES (en línea): <code>TRAN-CARD-NUM,263,16,ZD</code> · <code>TRAN-PROC-DT,305,10,CH</code> · <code>PARM-START-DATE</code> · <code>PARM-END-DATE</code></td>
+        <td>SORTOUT → <code>AWS.M2.CARDDEMO.TRANSACT.DALY(+1)</code> (NEW,CATLG,DELETE · DCB=*.SORTIN)</td>
+        <td>Sin COND / IF</td><td><code>INCLUDE COND=(TRAN-PROC-DT,GE,PARM-START-DATE,AND,TRAN-PROC-DT,LE,PARM-END-DATE)</code> · <code>SORT FIELDS=(TRAN-CARD-NUM,A)</code></td></tr>
+      <tr><td></td><td>STEP10R</td><td>CBTRN03C</td>
+        <td>TRANFILE → <code>TRANSACT.DALY(+1)</code><br>CARDXREF → <code>AWS.M2.CARDDEMO.CARDXREF.VSAM.KSDS</code><br>TRANTYPE → <code>AWS.M2.CARDDEMO.TRANTYPE.VSAM.KSDS</code><br>TRANCATG → <code>AWS.M2.CARDDEMO.TRANCATG.VSAM.KSDS</code><br>DATEPARM → <code>AWS.M2.CARDDEMO.DATEPARM</code> (JCL) o en línea (CORPT00C)</td>
+        <td>TRANREPT → <code>AWS.M2.CARDDEMO.TRANREPT(+1)</code> (NEW,CATLG,DELETE · FB · LRECL 133)<br>SYSOUT / SYSPRINT</td>
+        <td>Sin COND / IF</td><td>Genera el informe paginado con subtotales y totales</td></tr>
+    </table>
+
+    <h3>4.3 Flujo de datos</h3>
+    <div class="diagram">
+      <svg viewBox="0 0 960 400" xmlns="http://www.w3.org/2000/svg" font-family="Segoe UI, Arial, sans-serif" font-size="13">
+        <defs><marker id="a" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#616e7c"/></marker></defs>
+        <rect x="10" y="20" width="200" height="56" rx="8" fill="#fff" stroke="#0b4f8a" stroke-width="2"/>
+        <text x="110" y="44" text-anchor="middle" font-weight="700">TRANSACT KSDS</text>
+        <text x="110" y="63" text-anchor="middle">Maestro · 350 B · lectura</text>
+        <rect x="10" y="140" width="200" height="56" rx="8" fill="#fdf0e1" stroke="#8a4b0b" stroke-width="2"/>
+        <text x="110" y="164" text-anchor="middle" font-weight="700">IDCAMS REPRO</text>
+        <text x="110" y="183" text-anchor="middle">STEP05R/STEP01R</text>
+        <rect x="10" y="260" width="200" height="56" rx="8" fill="#fff" stroke="#8a4b0b" stroke-width="2" stroke-dasharray="5,3"/>
+        <text x="110" y="284" text-anchor="middle" font-weight="700">TRANSACT.BKUP(+1)</text>
+        <text x="110" y="303" text-anchor="middle">GDG · copia completa</text>
+        <rect x="260" y="260" width="190" height="56" rx="8" fill="#fdf0e1" stroke="#8a4b0b" stroke-width="2"/>
+        <text x="355" y="284" text-anchor="middle" font-weight="700">SORT</text>
+        <text x="355" y="303" text-anchor="middle">INCLUDE fechas · por tarjeta</text>
+        <rect x="260" y="140" width="190" height="56" rx="8" fill="#fff" stroke="#8a4b0b" stroke-width="2" stroke-dasharray="5,3"/>
+        <text x="355" y="164" text-anchor="middle" font-weight="700">TRANSACT.DALY(+1)</text>
+        <text x="355" y="183" text-anchor="middle">GDG · filtrado y ordenado</text>
+        <rect x="500" y="130" width="200" height="80" rx="10" fill="#e3eefa" stroke="#0b4f8a" stroke-width="2.5"/>
+        <text x="600" y="162" text-anchor="middle" font-weight="700" font-size="15">CBTRN03C</text>
+        <text x="600" y="184" text-anchor="middle">enriquece · pagina · totaliza</text>
+        <rect x="500" y="20" width="200" height="56" rx="8" fill="#fff" stroke="#616e7c" stroke-width="2" stroke-dasharray="5,3"/>
+        <text x="600" y="44" text-anchor="middle" font-weight="700">DATEPARM</text>
+        <text x="600" y="63" text-anchor="middle">fecha inicio / fin · 80 B</text>
+        <rect x="750" y="20" width="200" height="56" rx="8" fill="#fff" stroke="#0b4f8a" stroke-width="2"/>
+        <text x="850" y="44" text-anchor="middle" font-weight="700">CARDXREF KSDS</text>
+        <text x="850" y="63" text-anchor="middle">tarjeta → cuenta</text>
+        <rect x="750" y="100" width="200" height="56" rx="8" fill="#fff" stroke="#0b4f8a" stroke-width="2"/>
+        <text x="850" y="124" text-anchor="middle" font-weight="700">TRANTYPE KSDS</text>
+        <text x="850" y="143" text-anchor="middle">tipo → descripción</text>
+        <rect x="750" y="180" width="200" height="56" rx="8" fill="#fff" stroke="#0b4f8a" stroke-width="2"/>
+        <text x="850" y="204" text-anchor="middle" font-weight="700">TRANCATG KSDS</text>
+        <text x="850" y="223" text-anchor="middle">tipo+categoría → descripción</text>
+        <rect x="500" y="300" width="200" height="56" rx="8" fill="#e1f5ee" stroke="#0b6e4f" stroke-width="2"/>
+        <text x="600" y="324" text-anchor="middle" font-weight="700">TRANREPT(+1)</text>
+        <text x="600" y="343" text-anchor="middle">informe FB 133</text>
+        <rect x="750" y="300" width="200" height="56" rx="8" fill="#fde8e8" stroke="#9b1c1c" stroke-width="2"/>
+        <text x="850" y="324" text-anchor="middle" font-weight="700">SYSOUT</text>
+        <text x="850" y="343" text-anchor="middle">registro completo por tx (PAN)</text>
+        <line x1="110" y1="76" x2="110" y2="136" stroke="#616e7c" stroke-width="2" marker-end="url(#a)"/>
+        <line x1="110" y1="196" x2="110" y2="256" stroke="#616e7c" stroke-width="2" marker-end="url(#a)"/>
+        <line x1="210" y1="288" x2="256" y2="288" stroke="#616e7c" stroke-width="2" marker-end="url(#a)"/>
+        <line x1="355" y1="260" x2="355" y2="200" stroke="#616e7c" stroke-width="2" marker-end="url(#a)"/>
+        <line x1="450" y1="170" x2="496" y2="170" stroke="#616e7c" stroke-width="2" marker-end="url(#a)"/>
+        <line x1="600" y1="76" x2="600" y2="126" stroke="#616e7c" stroke-width="2" marker-end="url(#a)"/>
+        <line x1="750" y1="50" x2="704" y2="140" stroke="#616e7c" stroke-width="2" marker-end="url(#a)"/>
+        <line x1="750" y1="128" x2="704" y2="160" stroke="#616e7c" stroke-width="2" marker-end="url(#a)"/>
+        <line x1="750" y1="208" x2="704" y2="185" stroke="#616e7c" stroke-width="2" marker-end="url(#a)"/>
+        <line x1="600" y1="210" x2="600" y2="296" stroke="#0b6e4f" stroke-width="2" marker-end="url(#a)"/>
+        <line x1="690" y1="210" x2="760" y2="296" stroke="#9b1c1c" stroke-width="2" marker-end="url(#a)"/>
+        <text x="612" y="262" fill="#0b6e4f">WRITE</text>
+        <text x="730" y="262" fill="#9b1c1c">DISPLAY</text>
+        <text x="20" y="385" fill="#616e7c" font-size="12">Línea continua: fichero VSAM de entrada · discontinua: dataset temporal GDG o parámetro · verde: salida de negocio · rojo: traza con datos sensibles</text>
+      </svg>
+    </div>
+  </section>
+
+  <h3>4.4 Lógica interna del programa principal (CBTRN03C)</h3>
+  <ol>
+    <li><code>0000-TRANFILE-OPEN</code> … <code>0500-DATEPARM-OPEN</code> (l. 376–482) — abre TRANFILE, CARDXREF, TRANTYPE, TRANCATG y DATEPARM en INPUT y TRANREPT en OUTPUT. Cualquier status ≠ <code>00</code> provoca ABEND.</li>
+    <li><code>0550-DATEPARM-READ</code> (l. 220–243) — lee un registro de DATEPARM en <code>WS-START-DATE</code> (pos. 1–10) y <code>WS-END-DATE</code> (pos. 12–21) y muestra <code>Reporting from … to …</code>. Si DATEPARM está vacío, marca fin de fichero y no se procesa ninguna transacción.</li>
+    <li>Bucle principal (l. 170–206): <code>1000-TRANFILE-GET-NEXT</code> lee la siguiente transacción. Si <code>TRAN-PROC-TS(1:10)</code> está fuera del rango de DATEPARM, se ejecuta <code>NEXT SENTENCE</code>, que <b>termina el bucle</b> (H-01).</li>
+    <li>Si no es fin de fichero: <code>DISPLAY TRAN-RECORD</code> (l. 180); si cambia la tarjeta, escribe el subtotal de la tarjeta anterior (<code>1120-WRITE-ACCOUNT-TOTALS</code>) y busca la cuenta (<code>1500-A-LOOKUP-XREF</code>); busca siempre tipo (<code>1500-B-LOOKUP-TRANTYPE</code>) y categoría (<code>1500-C-LOOKUP-TRANCATG</code>) y escribe la línea (<code>1100-WRITE-TRANSACTION-REPORT</code>: cabeceras la primera vez, salto de página, acumulación y <code>1120-WRITE-DETAIL</code>).</li>
+    <li>En fin de fichero (l. 197–203): suma otra vez el importe del último registro leído a los totales de página y de cuenta, escribe el total de página (<code>1110-WRITE-PAGE-TOTALS</code>) y el total general (<code>1110-WRITE-GRAND-TOTALS</code>). No escribe el subtotal de la última tarjeta (H-02, H-03).</li>
+    <li><code>9000…9500-*-CLOSE</code> (l. 514–621) cierran los ficheros; <code>GOBACK</code> con RC=0.</li>
+  </ol>
+</section>
+
+<!-- 5 -->
+<section id="inventario">
+  <h2><span class="num">5.</span>Inventario de componentes</h2>
+  <table>
+    <tr><th>Tipo</th><th>Nombre</th><th>Ruta en el repositorio</th><th>Rol en el stream</th></tr>
+    <tr><td>JCL</td><td>TRANREPT</td><td><code>app/jcl/TRANREPT.jcl</code></td><td>Job autónomo (fechas fijas en SYMNAMES, DATEPARM catalogado)</td></tr>
+    <tr><td>PROC</td><td>TRANREPT</td><td><code>app/proc/TRANREPT.prc</code></td><td>PROC invocada por el job TRNRPT00 que genera CORPT00C (steps STEP01R, STEP05R, STEP10R). Su cabecera es <code>//REPROC PROC</code> (H-07)</td></tr>
+    <tr><td>PROC</td><td>REPROC</td><td><code>app/proc/REPROC.prc</code></td><td>Step PRC001 = IDCAMS con SYSIN <code>&amp;CNTLLIB(REPROCT)</code>; FILEIN/FILEOUT se sustituyen desde TRANREPT</td></tr>
+    <tr><td>Tarjeta de control</td><td>REPROCT</td><td><code>app/ctl/REPROCT.ctl</code></td><td><code>REPRO INFILE(FILEIN) OUTFILE(FILEOUT)</code></td></tr>
+    <tr><td>SYSIN en línea</td><td>SYMNAMES / SYSIN del SORT</td><td><code>TRANREPT.jcl</code> l. 40–48 · <code>TRANREPT.prc</code> · <code>CORPT00C</code> JOB-DATA</td><td>Posiciones de tarjeta y fecha de proceso, rango de fechas, INCLUDE y SORT</td></tr>
+    <tr><td>Programa COBOL</td><td>CBTRN03C</td><td><code>app/cbl/CBTRN03C.cbl</code></td><td>Generación del informe</td></tr>
+    <tr><td>Copybook</td><td>CVTRA05Y</td><td><code>app/cpy/CVTRA05Y.cpy</code></td><td>TRAN-RECORD (transacción, 350 B)</td></tr>
+    <tr><td>Copybook</td><td>CVACT03Y</td><td><code>app/cpy/CVACT03Y.cpy</code></td><td>CARD-XREF-RECORD (50 B)</td></tr>
+    <tr><td>Copybook</td><td>CVTRA03Y</td><td><code>app/cpy/CVTRA03Y.cpy</code></td><td>TRAN-TYPE-RECORD (60 B)</td></tr>
+    <tr><td>Copybook</td><td>CVTRA04Y</td><td><code>app/cpy/CVTRA04Y.cpy</code></td><td>TRAN-CAT-RECORD (60 B)</td></tr>
+    <tr><td>Copybook</td><td>CVTRA07Y</td><td><code>app/cpy/CVTRA07Y.cpy</code></td><td>Líneas del informe: cabeceras, detalle, totales</td></tr>
+    <tr><td>Rutina LE</td><td>CEE3ABD</td><td>Language Environment (IBM)</td><td>ABEND controlado U999</td></tr>
+    <tr><td>Programa COBOL/CICS (disparador)</td><td>CORPT00C</td><td><code>app/cbl/CORPT00C.cbl</code></td><td>Calcula el rango de fechas y envía el job a la TDQ <code>JOBS</code></td></tr>
+    <tr><td>Mapset BMS (disparador)</td><td>CORPT00 / CORPT0A</td><td><code>app/bms/CORPT00.bms</code> · <code>app/cpy-bms/CORPT00.CPY</code></td><td>Pantalla «Transaction Reports»</td></tr>
+    <tr><td>Rutina CardDemo</td><td>CSUTLDTC</td><td><code>app/cbl/CSUTLDTC.cbl</code></td><td>Validación de fechas personalizadas en CORPT00C</td></tr>
+    <tr><td>Copybooks online</td><td>COCOM01Y · COMEN02Y</td><td><code>app/cpy/</code></td><td>COMMAREA; opción 9 del menú principal → CORPT00C</td></tr>
+    <tr><td>Definición CICS (CSD)</td><td>TRANSACTION(CR00) · PROGRAM(CORPT00C) · MAPSET(CORPT00) · TDQUEUE(JOBS)</td><td><code>app/csd/CARDDEMO.CSD</code> (l. 137, 242, 409, 499)</td><td>JOBS: extrapartición, DDNAME <code>INREADER</code>, RECORDSIZE 80, salida → lector interno de JES</td></tr>
+    <tr><td>JCL (prerrequisito)</td><td>DEFGDGB</td><td><code>app/jcl/DEFGDGB.jcl</code></td><td>Define TRANSACT.BKUP, TRANSACT.DALY y TRANREPT (LIMIT 5, SCRATCH)</td></tr>
+    <tr><td>JCL (prerrequisito)</td><td>REPTFILE</td><td><code>app/jcl/REPTFILE.jcl</code></td><td>Define TRANREPT con LIMIT 10 y sin SCRATCH (H-10)</td></tr>
+    <tr><td>JCL vecinos</td><td>TRANBKP · COMBTRAN · POSTTRAN</td><td><code>app/jcl/</code></td><td>Comparten el maestro TRANSACT y la GDG TRANSACT.BKUP (H-09)</td></tr>
+    <tr><td>Catálogo</td><td>LISTCAT</td><td><code>app/catlg/LISTCAT.txt</code></td><td>Atributos reales de las GDG y de DATEPARM</td></tr>
+    <tr><td>Planificación</td><td>—</td><td><code>app/scheduler/CardDemo.ca7</code>, <code>CardDemo.controlm</code></td><td>TRANREPT no figura en ninguno</td></tr>
+    <tr><td>Datos de prueba</td><td>dailytran · cardxref · trantype · trancatg</td><td><code>app/data/ASCII/</code>, <code>app/data/EBCDIC/</code></td><td>Base de las ejecuciones E-1…E-5. No hay fichero TRANSACT ni DATEPARM de ejemplo</td></tr>
+  </table>
+  <p class="legend">No usa Assembler. Los ficheros del módulo opcional Db2 (<code>app/app-transaction-type-db2</code>) no intervienen: TRANTYPE se lee del KSDS.</p>
+</section>
+
+<!-- 6 -->
+<section id="dependencias">
+  <h2><span class="num">6.</span>Dependencias</h2>
+  <h3>6.1 Datos (bases de datos y ficheros)</h3>
+  <table>
+    <tr><th>DD / nombre lógico</th><th>DSN</th><th>Organización</th><th>Acceso</th><th>Clave</th><th>LRECL</th><th>Copybook</th><th>Observaciones</th></tr>
+    <tr><td>PRC001.FILEIN</td><td><code>AWS.M2.CARDDEMO.TRANSACT.VSAM.KSDS</code></td><td>VSAM KSDS</td><td>R (REPRO secuencial)</td><td>TRAN-ID X(16)</td><td>350</td><td>CVTRA05Y</td><td>DISP=SHR; abierto también por CICS (SHAREOPTIONS(2 3) en TRANBKP)</td></tr>
+    <tr><td>PRC001.FILEOUT / SORTIN</td><td><code>AWS.M2.CARDDEMO.TRANSACT.BKUP(+1)</code></td><td>GDG PS FB</td><td>W (REPRO) · R (SORT)</td><td>—</td><td>350</td><td>CVTRA05Y</td><td>Misma base GDG que usan TRANBKP y COMBTRAN. LISTCAT: LIMIT 5, NOSCRATCH (H-09)</td></tr>
+    <tr><td>SORTOUT / TRANFILE</td><td><code>AWS.M2.CARDDEMO.TRANSACT.DALY(+1)</code></td><td>GDG PS FB</td><td>W (SORT) · R (CBTRN03C, INPUT)</td><td>Ordenado por TRAN-CARD-NUM</td><td>350</td><td>CVTRA05Y (FD: 304 + PROC-TS 26 + 20)</td><td>LISTCAT: LIMIT 5, NOSCRATCH. Solo lo usa TRANREPT</td></tr>
+    <tr><td>CARDXREF</td><td><code>AWS.M2.CARDDEMO.CARDXREF.VSAM.KSDS</code></td><td>VSAM KSDS</td><td>R (aleatorio)</td><td>XREF-CARD-NUM X(16)</td><td>50</td><td>CVACT03Y</td><td>Solo se lee al cambiar de tarjeta</td></tr>
+    <tr><td>TRANTYPE</td><td><code>AWS.M2.CARDDEMO.TRANTYPE.VSAM.KSDS</code></td><td>VSAM KSDS</td><td>R (aleatorio)</td><td>TRAN-TYPE X(02)</td><td>60</td><td>CVTRA03Y</td><td>Una lectura por transacción</td></tr>
+    <tr><td>TRANCATG</td><td><code>AWS.M2.CARDDEMO.TRANCATG.VSAM.KSDS</code></td><td>VSAM KSDS</td><td>R (aleatorio)</td><td>TRAN-TYPE-CD X(02) + TRAN-CAT-CD 9(04)</td><td>60</td><td>CVTRA04Y</td><td>Una lectura por transacción</td></tr>
+    <tr><td>DATEPARM</td><td><code>AWS.M2.CARDDEMO.DATEPARM</code> (JCL autónomo) · DD * en línea (CORPT00C)</td><td>PS</td><td>R (un registro)</td><td>—</td><td>80</td><td>En línea (WS-DATEPARM-RECORD)</td><td>Ningún job del repo crea el DSN catalogado (existe en LISTCAT, creado 2022.187) — Q-04</td></tr>
+    <tr><td>TRANREPT</td><td><code>AWS.M2.CARDDEMO.TRANREPT(+1)</code></td><td>GDG PS FB</td><td>W (OPEN OUTPUT)</td><td>—</td><td>133</td><td>CVTRA07Y</td><td>DEFGDGB: LIMIT 5 SCRATCH · REPTFILE: LIMIT 10 · LISTCAT: LIMIT 5 SCRATCH (H-10)</td></tr>
+    <tr><td>SYSOUT / SYSPRINT</td><td>SYSOUT=*</td><td>JES</td><td>W</td><td>—</td><td>—</td><td>—</td><td>Mensajes de IDCAMS/SORT y DISPLAY de CBTRN03C</td></tr>
+  </table>
+  <h3>6.2 Utilidades y rutinas compartidas</h3>
+  <table>
+    <tr><th>Utilidad / rutina</th><th>Tipo</th><th>Uso en el stream</th><th>Equivalente propuesto en destino</th></tr>
+    <tr><td>IDCAMS (REPRO) vía PROC REPROC</td><td>Utilidad IBM</td><td>Copia íntegra del KSDS TRANSACT a TRANSACT.BKUP(+1)</td><td>Consulta directa a la tabla <code>transaction</code> (no hace falta copia)</td></tr>
+    <tr><td>SORT con SYMNAMES</td><td>Utilidad IBM (DFSORT o compatible)</td><td>Filtro por fecha de proceso y orden por tarjeta</td><td><code>WHERE proc_date BETWEEN :start AND :end ORDER BY card_num</code></td></tr>
+    <tr><td>CEE3ABD</td><td>Language Environment</td><td>ABEND U999 ante errores de E/S o claves inexistentes</td><td>Excepción no recuperable → job FAILED</td></tr>
+    <tr><td>FUNCTION MOD</td><td>Intrínseca COBOL</td><td>Salto de página cada 20 líneas (RN-05)</td><td>Paginación del motor de informes</td></tr>
+    <tr><td>CSUTLDTC, FUNCTION CURRENT-DATE / INTEGER-OF-DATE / DATE-OF-INTEGER</td><td>Rutina CardDemo (llama a CEEDAYS) e intrínsecas</td><td>En CORPT00C: validación de fechas y cálculo de rangos</td><td>Validación de fechas en la API / UI</td></tr>
+    <tr><td>TDQ extrapartición JOBS → lector interno JES</td><td>CICS / JES</td><td>Envío del job desde la pantalla</td><td>Lanzamiento asíncrono del job (API del orquestador, cola de mensajes)</td></tr>
+  </table>
+  <h3>6.3 Otras aplicaciones e interfaces</h3>
+  <table>
+    <tr><th>Sistema / componente</th><th>Dirección</th><th>Mecanismo</th><th>Dato intercambiado</th><th>Observaciones</th></tr>
+    <tr><td>CICS CardDemo · CR00 / CORPT00C</td><td>Upstream (disparador)</td><td>WRITEQ TD JOBS (80 B por línea JCL)</td><td>JCL del job TRNRPT00 con fechas</td><td>El job se ejecuta de forma asíncrona; la pantalla solo informa «… report submitted for printing …»</td></tr>
+    <tr><td>POSTTRAN, COMBTRAN, transacciones online (COTRN02C, COBIL00C)</td><td>Upstream (datos)</td><td>KSDS TRANSACT</td><td>Transacciones con TRAN-PROC-TS</td><td>El contenido del maestro depende del momento del día (ver 6.4)</td></tr>
+    <tr><td>TRANBKP / COMBTRAN</td><td>Comparte recurso</td><td>GDG TRANSACT.BKUP</td><td>Generaciones de backup</td><td>TRANREPT añade generaciones a la misma base (H-09)</td></tr>
+    <tr><td>Consumidor del informe</td><td>Downstream</td><td>Dataset TRANREPT(+1)</td><td>Informe de 133 columnas</td><td>Ningún job del repo lo consume ni lo imprime (Q-05)</td></tr>
+  </table>
+  <h3>6.4 Dependencias de planificación</h3>
+  <table>
+    <tr><th>Predecesores</th><th>Sucesores</th><th>Recursos / condiciones</th><th>Calendario</th></tr>
+    <tr><td>Ninguno formal. Datos: las transacciones del periodo deben estar contabilizadas en TRANSACT (POSTTRAN / COMBTRAN). Si se lanza entre TRANBKP (que redefine TRANSACT vacío) y el final de COMBTRAN, el informe sale vacío o incompleto: tras POSTTRAN el maestro solo contiene las transacciones del día, y el histórico no vuelve hasta que COMBTRAN lo reincorpora desde <code>TRANSACT.BKUP(0)</code>.</td><td>Ninguno</td><td>Bases GDG definidas (DEFGDGB/REPTFILE). TRANSACT, CARDXREF, TRANTYPE y TRANCATG accesibles con DISP=SHR mientras CICS los tiene abiertos. Lector interno de JES disponible (DDNAME INREADER en la región CICS).</td><td>Bajo demanda (Q-01)</td></tr>
+  </table>
+</section>
+
+<!-- 7 -->
+<section id="rf">
+  <h2><span class="num">7.</span>Requisitos funcionales</h2>
+  <p class="legend">Los RF describen el <b>comportamiento actual</b>. Las correcciones propuestas están en los hallazgos (sección 20).</p>
+  <table>
+    <tr><th>ID</th><th>Requisito</th><th>Origen (legado)</th><th>Prioridad</th><th>Criterio de aceptación (Dado / Cuando / Entonces)</th></tr>
+    <tr><td>RF-01</td><td>El sistema debe permitir lanzar el informe desde la pantalla «Transaction Reports» eligiendo un tipo (mensual, anual o personalizado) y confirmándolo con Y, y enviar un job que ejecute la PROC TRANREPT con las fechas calculadas tanto en el filtro del SORT como en DATEPARM.</td><td>CORPT00C · PROCESS-ENTER-KEY · SUBMIT-JOB-TO-INTRDR (l. 462) · WIRTE-JOBSUB-TDQ (l. 518) · JOB-DATA</td><td>Must</td><td><b>Dado</b> un usuario en CR00 que marca «Monthly» y confirma Y<br><b>Cuando</b> pulsa ENTER<br><b>Entonces</b> se escriben en la TDQ JOBS las líneas del job TRNRPT00 (con <code>PARM-START-DATE</code>/<code>PARM-END-DATE</code> y DATEPARM iguales) hasta <code>/*EOF</code>, y la pantalla muestra «Monthly report submitted for printing ...»</td></tr>
+    <tr><td>RF-02</td><td>El rango de fechas debe calcularse según el tipo de informe (RN-09).</td><td>CORPT00C · PROCESS-ENTER-KEY</td><td>Must</td><td><b>Dado</b> la fecha del sistema 2026-02-15<br><b>Cuando</b> se pide «Monthly» / «Yearly»<br><b>Entonces</b> el rango es 2026-02-01…2026-02-28 / 2026-01-01…2026-12-31</td></tr>
+    <tr><td>RF-03</td><td>Antes de filtrar, el job debe copiar el maestro de transacciones completo a una nueva generación de TRANSACT.BKUP.</td><td>TRANREPT.jcl STEP05R (l. 23) / PROC STEP01R · REPROC · REPROCT</td><td>Must</td><td><b>Dado</b> un KSDS TRANSACT con N registros<br><b>Cuando</b> termina el primer step<br><b>Entonces</b> existe TRANSACT.BKUP(+1) con N registros de 350 B en orden de TRAN-ID</td></tr>
+    <tr><td>RF-04</td><td>El job debe seleccionar solo las transacciones con fecha de proceso dentro del rango (ambos extremos incluidos) y ordenarlas por número de tarjeta ascendente.</td><td>STEP05R SORT · SYMNAMES · INCLUDE / SORT FIELDS</td><td>Must</td><td><b>Dado</b> el rango 2022-06-01…2022-06-30<br><b>Cuando</b> se ejecuta el SORT<br><b>Entonces</b> TRANSACT.DALY(+1) contiene solo registros con pos. 305–314 entre esas fechas, ordenados por pos. 263–278</td></tr>
+    <tr><td>RF-05</td><td>CBTRN03C debe leer el rango de fechas del primer registro de DATEPARM (pos. 1–10 inicio, 12–21 fin) y mostrarlo en SYSOUT y en la cabecera del informe.</td><td>CBTRN03C · 0550-DATEPARM-READ · 1100-WRITE-TRANSACTION-REPORT</td><td>Must</td><td><b>Dado</b> DATEPARM = <code>2022-06-01 2022-06-30</code><br><b>Entonces</b> SYSOUT muestra «Reporting from 2022-06-01 to 2022-06-30» y la cabecera «Date Range: 2022-06-01 to 2022-06-30» (E-1)</td></tr>
+    <tr><td>RF-06</td><td>Para cada transacción el informe debe mostrar el número de cuenta (obtenido de CARDXREF por tarjeta), el tipo con su descripción (TRANTYPE) y la categoría con su descripción (TRANCATG).</td><td>Bucle principal l. 181–196 · 1500-A/B/C-LOOKUP-* · 1120-WRITE-DETAIL</td><td>Must</td><td><b>Dado</b> una transacción tipo 01, categoría 0001, tarjeta asociada a la cuenta 50<br><b>Entonces</b> la línea contiene <code>00000000050 01-Purchase 0001-Regular Sales Draft</code> (E-1)</td></tr>
+    <tr><td>RF-07</td><td>Cada línea de detalle debe seguir el layout de TRANSACTION-DETAIL-REPORT (ID, cuenta, tipo, categoría, origen, importe editado) — sección 10.</td><td>1120-WRITE-DETAIL · CVTRA07Y</td><td>Must</td><td><b>Dado</b> TRAN-AMT = 183,80<br><b>Entonces</b> el importe aparece como <code>183.80</code> alineado a la derecha en <code>-ZZZ,ZZZ,ZZZ.ZZ</code></td></tr>
+    <tr><td>RF-08</td><td>El informe debe empezar con la cabecera (nombre, línea en blanco, títulos de columna y línea de guiones) y repetir total de página + cabecera cuando el contador de líneas sea múltiplo de 20 antes de escribir un detalle (RN-05).</td><td>1100-WRITE-TRANSACTION-REPORT · 1110-WRITE-PAGE-TOTALS · 1120-WRITE-HEADERS</td><td>Must</td><td><b>Dado</b> el fichero de ejemplo (300 tx)<br><b>Entonces</b> hay 17 totales de página y las cabeceras empiezan en las líneas 1, 23, 63, 83, 123… (E-1)</td></tr>
+    <tr><td>RF-09</td><td>Cuando cambia el número de tarjeta, el informe debe escribir el subtotal «Account Total» de la tarjeta anterior seguido de una línea de guiones.</td><td>Bucle principal l. 181–184 · 1120-WRITE-ACCOUNT-TOTALS</td><td>Must</td><td><b>Dado</b> 6 transacciones de la tarjeta A (suma 1.549,30) seguidas de otra tarjeta<br><b>Entonces</b> aparece <code>Account Total…+ 1,549.30</code> antes de la primera línea de la nueva tarjeta</td></tr>
+    <tr><td>RF-10</td><td>Al llegar al fin del fichero, el informe debe terminar con un total de página y un total general (suma de todos los totales de página). Comportamiento actual: el último importe se suma dos veces y no se escribe el subtotal de la última tarjeta (H-02, H-03).</td><td>Bucle principal l. 197–203 · 1110-WRITE-PAGE-TOTALS · 1110-WRITE-GRAND-TOTALS</td><td>Must</td><td><b>Dado</b> el fichero de ejemplo, suma de detalles 153.587,20 y último importe 765,60<br><b>Entonces</b> (legado) Grand Total = 154.352,80 y hay 49 subtotales para 50 tarjetas (E-1)</td></tr>
+    <tr><td>RF-11</td><td>Comportamiento actual: si una transacción leída tiene fecha de proceso fuera del rango de DATEPARM, el programa deja de procesar y cierra el informe sin totales finales, con RC=0 (H-01).</td><td>Bucle principal l. 173–178 (<code>NEXT SENTENCE</code>)</td><td>Must (replicar o corregir según decisión H-01)</td><td><b>Dado</b> el registro 101 con fecha 2022-05-01 y DATEPARM junio<br><b>Entonces</b> (legado) el informe tiene 100 detalles, sin Total de página final ni Grand Total, y RC=0 (E-2)</td></tr>
+    <tr><td>RF-12</td><td>Si DATEPARM o TRANFILE están vacíos, el job termina con RC=0 y un informe sin ninguna línea.</td><td>0550-DATEPARM-READ · bucle principal</td><td>Should</td><td><b>Dado</b> DATEPARM vacío (E-3) o TRANFILE vacío (E-4)<br><b>Entonces</b> TRANREPT(+1) tiene 0 registros y RC=0</td></tr>
+    <tr><td>RF-13</td><td>Cualquier error de apertura, lectura, escritura o cierre, y cualquier tarjeta, tipo o categoría inexistente en los maestros, debe detener el programa con ABEND U999 tras mostrar el motivo y el file status.</td><td>0000…0500-*-OPEN · 1000 · 1111 · 1500-A/B/C · 9000…9500-*-CLOSE · 9910 · 9999</td><td>Must</td><td><b>Dado</b> una tarjeta que no está en CARDXREF<br><b>Entonces</b> SYSOUT muestra «INVALID CARD NUMBER : 9999999999999999», «FILE STATUS IS: NNNN0023», «ABENDING PROGRAM» y el step termina con U999 (E-5)</td></tr>
+    <tr><td>RF-14</td><td>El informe debe grabarse como nueva generación <code>TRANREPT(+1)</code>, registros fijos de 133 bytes.</td><td>STEP10R DD TRANREPT · FD REPORT-FILE</td><td>Must</td><td><b>Dado</b> una ejecución correcta<br><b>Entonces</b> se cataloga una generación nueva FB/133; con ABEND se borra (DISP=(NEW,CATLG,DELETE))</td></tr>
+  </table>
+</section>
+
+<!-- 8 -->
+<section id="reglas">
+  <h2><span class="num">8.</span>Reglas de negocio y validaciones <span class="badge mig">Migración</span></h2>
+  <table>
+    <tr><th>ID</th><th>Regla / validación</th><th>Fórmula o condición exacta</th><th>Resultado si no se cumple</th><th>Origen</th></tr>
+    <tr><td>RN-01</td><td>Rango de fechas (dos filtros)</td><td>SORT: <code>TRAN-PROC-DT (pos. 305, 10, CH) GE PARM-START-DATE AND LE PARM-END-DATE</code>. CBTRN03C: <code>TRAN-PROC-TS(1:10) &gt;= WS-START-DATE AND &lt;= WS-END-DATE</code>. Ambas son comparaciones <b>alfanuméricas</b>: solo son correctas con fechas AAAA-MM-DD. No se valida que inicio ≤ fin.</td><td>SORT: el registro se descarta. CBTRN03C: ver RN-02</td><td>TRANREPT STEP05R · CBTRN03C l. 173–178</td></tr>
+    <tr><td>RN-02</td><td>Registro fuera de rango en CBTRN03C</td><td><code>IF … CONTINUE ELSE NEXT SENTENCE END-IF</code>: NEXT SENTENCE transfiere el control a la sentencia que sigue al siguiente punto, que está tras <code>END-PERFORM.</code> (l. 206). El bucle termina.</td><td>Fin del informe sin totales finales, RC=0</td><td>CBTRN03C l. 177</td></tr>
+    <tr><td>RN-03</td><td>Ruptura de control por tarjeta</td><td><code>IF WS-CURR-CARD-NUM NOT = TRAN-CARD-NUM</code>: si no es la primera vez (<code>WS-FIRST-TIME = 'N'</code>) escribe el subtotal; guarda la nueva tarjeta y lee CARDXREF. La ruptura es por <b>tarjeta</b>, aunque el rótulo diga «Account Total».</td><td>—</td><td>CBTRN03C l. 181–188</td></tr>
+    <tr><td>RN-04</td><td>Acumulación de importes</td><td>Por detalle: <code>ADD TRAN-AMT TO WS-PAGE-TOTAL WS-ACCOUNT-TOTAL</code>. Total de página: <code>ADD WS-PAGE-TOTAL TO WS-GRAND-TOTAL</code> y <code>WS-PAGE-TOTAL = 0</code>. Subtotal: <code>WS-ACCOUNT-TOTAL = 0</code> tras escribirlo. Acumuladores <code>S9(09)V99</code> sin <code>ON SIZE ERROR</code>. Importes con signo: una devolución de −30 sobre 100 deja 70 en todos los acumulados.</td><td>Desbordamiento &gt; 999.999.999,99: se truncan los dígitos altos sin aviso (H-12)</td><td>1100 · 1110-WRITE-PAGE-TOTALS · 1120-WRITE-ACCOUNT-TOTALS</td></tr>
+    <tr><td>RN-05</td><td>Paginación</td><td>Antes de cada detalle: <code>IF FUNCTION MOD(WS-LINE-COUNTER, 20) = 0</code> → total de página + cabeceras. Incrementos del contador: cabecera +4, detalle +1, subtotal +2, total de página +2, total general 0. Como los subtotales suman 2, el contador puede saltar un múltiplo de 20 y la página siguiente llega a 40 líneas.</td><td>Páginas de longitud irregular (H-05)</td><td>1100 · 1110 · 1120-WRITE-HEADERS · WS-PAGE-SIZE (l. 131)</td></tr>
+    <tr><td>RN-06</td><td>Cierre en fin de fichero</td><td>Al detectar EOF, TRAN-RECORD conserva el último registro leído (READ … INTO no lo modifica). Si su fecha está en rango: <code>ADD TRAN-AMT TO WS-PAGE-TOTAL WS-ACCOUNT-TOTAL</code>, total de página y total general. No se llama a 1120-WRITE-ACCOUNT-TOTALS. Si su fecha está fuera de rango (o no hay registros), aplica RN-02 y no hay totales.</td><td>Total general inflado en el último importe; falta el último subtotal</td><td>CBTRN03C l. 197–203</td></tr>
+    <tr><td>RN-07</td><td>Claves de búsqueda</td><td>CARDXREF: <code>FD-XREF-CARD-NUM = TRAN-CARD-NUM</code>. TRANTYPE: <code>FD-TRAN-TYPE = TRAN-TYPE-CD</code>. TRANCATG: <code>FD-TRAN-TYPE-CD + FD-TRAN-CAT-CD = TRAN-TYPE-CD + TRAN-CAT-CD</code>. CARDXREF solo se consulta en la primera transacción de cada tarjeta.</td><td>INVALID KEY → ABEND U999 (status 23)</td><td>1500-A/B/C-LOOKUP-*</td></tr>
+    <tr><td>RN-08</td><td>Formato de salida</td><td>Cuenta 9(11) → X(11) con ceros a la izquierda; descripción de tipo truncada a 15 caracteres y de categoría a 29; importe de detalle <code>-ZZZ,ZZZ,ZZZ.ZZ</code> (signo solo si es negativo); totales <code>+ZZZ,ZZZ,ZZZ.ZZ</code> (signo siempre). Separadores de miles con coma y decimales con punto.</td><td>—</td><td>1120-WRITE-DETAIL · CVTRA07Y</td></tr>
+    <tr><td>RN-09</td><td>Cálculo del rango en CORPT00C</td><td>Mensual: inicio = AAAA-MM-01 del mes actual; fin = <code>DATE-OF-INTEGER(INTEGER-OF-DATE(día 1 del mes siguiente) − 1)</code>. Anual: AAAA-01-01 … AAAA-12-31. Personalizado: los 6 campos obligatorios, mes ≤ 12, día ≤ 31, numéricos, y fecha válida según CSUTLDTC (se acepta también el mensaje 2513). Confirmación: Y/y envía, N/n limpia la pantalla, otro valor da error.</td><td>Mensaje en la pantalla y no se envía el job</td><td>CORPT00C · PROCESS-ENTER-KEY · SUBMIT-JOB-TO-INTRDR</td></tr>
+  </table>
+</section>
+
+<!-- 9 -->
+<section id="ui" class="only-online">
+  <h2><span class="num">9.</span>Interfaz de usuario <span class="badge online">Solo online (BMS)</span></h2>
+  <p>N/A — TRANREPT es un stream batch sin pantallas propias. La pantalla que lo dispara (CR00 · CORPT00C · mapa CORPT0A) se resume en RF-01, RF-02 y RN-09 y debe documentarse como stream online independiente (campos, atributos, PF3 → COMEN01C y mensajes).</p>
+</section>
+
+<!-- 10 -->
+<section id="datos">
+  <h2><span class="num">10.</span>Diccionario de datos y layouts <span class="badge mig">Migración</span></h2>
+  <p class="legend">Ficheros en EBCDIC. Los numéricos con signo son <i>zoned decimal</i> con el signo en el último byte (overpunch). No hay COMP ni COMP-3 en los registros de fichero. En WORKING-STORAGE, <code>WS-LINE-COUNTER</code> (9(09)) y <code>WS-PAGE-SIZE</code> (9(03)) son COMP-3 y <code>APPL-RESULT</code> es COMP; no se persisten.</p>
+  <h3>TRAN-RECORD (CVTRA05Y, LRECL 350) — TRANSACT KSDS, TRANSACT.BKUP y TRANSACT.DALY</h3>
+  <table>
+    <tr><th>Campo</th><th>PIC</th><th>Pos.</th><th>Long.</th><th>Descripción / uso en TRANREPT</th><th>Tipo destino propuesto</th><th>Notas de conversión</th></tr>
+    <tr><td>TRAN-ID</td><td>X(16)</td><td>1</td><td>16</td><td>ID de transacción → columna «Transaction ID»</td><td>VARCHAR(16) PK</td><td>Conservar ceros a la izquierda</td></tr>
+    <tr><td>TRAN-TYPE-CD</td><td>X(02)</td><td>17</td><td>2</td><td>Tipo → clave TRANTYPE y parte de la clave TRANCATG</td><td>CHAR(2) FK</td><td></td></tr>
+    <tr><td>TRAN-CAT-CD</td><td>9(04)</td><td>19</td><td>4</td><td>Categoría → parte de la clave TRANCATG</td><td>SMALLINT</td><td>Se imprime con 4 dígitos</td></tr>
+    <tr><td>TRAN-SOURCE</td><td>X(10)</td><td>23</td><td>10</td><td>Origen → columna «Tran Source»</td><td>VARCHAR(10)</td><td></td></tr>
+    <tr><td>TRAN-DESC</td><td>X(100)</td><td>33</td><td>100</td><td>No se usa en el informe</td><td>VARCHAR(100)</td><td></td></tr>
+    <tr><td>TRAN-AMT</td><td>S9(09)V99</td><td>133</td><td>11</td><td>Importe → detalle y acumulados</td><td>DECIMAL(11,2)</td><td>Zoned con signo; decimal implícito</td></tr>
+    <tr><td>TRAN-MERCHANT-ID</td><td>9(09)</td><td>144</td><td>9</td><td>No se usa</td><td>BIGINT</td><td></td></tr>
+    <tr><td>TRAN-MERCHANT-NAME / CITY / ZIP</td><td>X(50) / X(50) / X(10)</td><td>153 / 203 / 253</td><td>50 / 50 / 10</td><td>No se usan</td><td>VARCHAR</td><td></td></tr>
+    <tr><td>TRAN-CARD-NUM</td><td>X(16)</td><td>263</td><td>16</td><td>Tarjeta → clave de orden del SORT (declarada <code>ZD</code> en SYMNAMES), ruptura de control y clave CARDXREF</td><td>CHAR(16)</td><td>PAN: enmascarar en logs. Orden ZD = orden de texto solo si son 16 dígitos (H-14)</td></tr>
+    <tr><td>TRAN-ORIG-TS</td><td>X(26)</td><td>279</td><td>26</td><td>No se usa</td><td>TIMESTAMP</td><td></td></tr>
+    <tr><td>TRAN-PROC-TS</td><td>X(26)</td><td>305</td><td>26</td><td>Fecha de proceso: los 10 primeros caracteres se comparan con el rango (SORT <code>TRAN-PROC-DT,305,10,CH</code> y CBTRN03C)</td><td>TIMESTAMP</td><td>Formato de POSTTRAN <code>AAAA-MM-DD-HH.MM.SS.cc0000</code>; comparar como fecha en destino</td></tr>
+    <tr><td>FILLER</td><td>X(20)</td><td>331</td><td>20</td><td>—</td><td>—</td><td></td></tr>
+  </table>
+  <p class="legend">FD de CBTRN03C: <code>FD-TRANS-DATA X(304)</code> + <code>FD-TRAN-PROC-TS X(26)</code> + <code>FD-FILLER X(20)</code> = 350, coherente con LRECL 350 del JCL. Se lee con <code>READ … INTO TRAN-RECORD</code>.</p>
+
+  <h3>CARD-XREF-RECORD (CVACT03Y, LRECL 50) — CARDXREF KSDS</h3>
+  <table>
+    <tr><th>Campo</th><th>PIC</th><th>Pos.</th><th>Long.</th><th>Descripción</th><th>Tipo destino propuesto</th><th>Notas</th></tr>
+    <tr><td>XREF-CARD-NUM</td><td>X(16)</td><td>1</td><td>16</td><td>Clave: número de tarjeta</td><td>CHAR(16) PK</td><td></td></tr>
+    <tr><td>XREF-CUST-ID</td><td>9(09)</td><td>17</td><td>9</td><td>No se usa en TRANREPT</td><td>BIGINT</td><td></td></tr>
+    <tr><td>XREF-ACCT-ID</td><td>9(11)</td><td>26</td><td>11</td><td>Cuenta → columna «Account ID»</td><td>BIGINT</td><td>Se imprime con 11 dígitos y ceros a la izquierda</td></tr>
+    <tr><td>FILLER</td><td>X(14)</td><td>37</td><td>14</td><td>—</td><td>—</td><td></td></tr>
+  </table>
+
+  <h3>TRAN-TYPE-RECORD (CVTRA03Y, LRECL 60) y TRAN-CAT-RECORD (CVTRA04Y, LRECL 60)</h3>
+  <table>
+    <tr><th>Campo</th><th>PIC</th><th>Pos.</th><th>Long.</th><th>Descripción</th><th>Tipo destino propuesto</th><th>Notas</th></tr>
+    <tr><td>TRAN-TYPE</td><td>X(02)</td><td>1</td><td>2</td><td>Clave del tipo</td><td>CHAR(2) PK</td><td>7 tipos en los datos de ejemplo</td></tr>
+    <tr><td>TRAN-TYPE-DESC</td><td>X(50)</td><td>3</td><td>50</td><td>Descripción del tipo</td><td>VARCHAR(50)</td><td>Se trunca a 15 en el informe</td></tr>
+    <tr><td>FILLER</td><td>X(08)</td><td>53</td><td>8</td><td>—</td><td>—</td><td></td></tr>
+    <tr><td>TRAN-CAT-KEY: TRAN-TYPE-CD + TRAN-CAT-CD</td><td>X(02) + 9(04)</td><td>1</td><td>6</td><td>Clave compuesta</td><td>PK (type_cd, cat_cd)</td><td>18 categorías en los datos de ejemplo</td></tr>
+    <tr><td>TRAN-CAT-TYPE-DESC</td><td>X(50)</td><td>7</td><td>50</td><td>Descripción de la categoría</td><td>VARCHAR(50)</td><td>Se trunca a 29 en el informe</td></tr>
+    <tr><td>FILLER</td><td>X(04)</td><td>57</td><td>4</td><td>—</td><td>—</td><td></td></tr>
+  </table>
+
+  <h3>WS-DATEPARM-RECORD (en línea en CBTRN03C, registro de 80 B)</h3>
+  <table>
+    <tr><th>Campo</th><th>PIC</th><th>Pos.</th><th>Long.</th><th>Descripción</th><th>Tipo destino propuesto</th><th>Notas</th></tr>
+    <tr><td>WS-START-DATE</td><td>X(10)</td><td>1</td><td>10</td><td>Fecha de inicio AAAA-MM-DD</td><td>DATE (parámetro del job)</td><td>No se valida el formato</td></tr>
+    <tr><td>FILLER</td><td>X(01)</td><td>11</td><td>1</td><td>Separador (espacio)</td><td>—</td><td></td></tr>
+    <tr><td>WS-END-DATE</td><td>X(10)</td><td>12</td><td>10</td><td>Fecha de fin AAAA-MM-DD</td><td>DATE (parámetro del job)</td><td>Inclusiva</td></tr>
+  </table>
+
+  <h3>Líneas del informe (CVTRA07Y, registro de 133 B)</h3>
+  <table>
+    <tr><th>Grupo</th><th>Composición (PIC · contenido)</th><th>Long. útil</th><th>Uso</th></tr>
+    <tr><td>REPORT-NAME-HEADER</td><td>X(38) <code>DALYREPT</code> · X(41) <code>Daily Transaction Report</code> · X(12) <code>Date Range: </code> · X(10) inicio · X(04) <code> to </code> · X(10) fin</td><td>115</td><td>Primera línea de cada página</td></tr>
+    <tr><td>TRANSACTION-HEADER-1</td><td>Títulos: Transaction ID (17) · Account ID (12) · Transaction Type (19) · Tran Category (35) · Tran Source (14) · espacio (1) · Amount (16)</td><td>114</td><td>Títulos de columna</td></tr>
+    <tr><td>TRANSACTION-HEADER-2</td><td>X(133) ALL '-'</td><td>133</td><td>Separador tras cabecera, subtotal y total de página</td></tr>
+    <tr><td>TRANSACTION-DETAIL-REPORT</td><td>X(16) ID · sp · X(11) cuenta · sp · X(02) tipo · '-' · X(15) desc. tipo · sp · 9(04) categoría · '-' · X(29) desc. categoría · sp · X(10) origen · 4 sp · <code>-ZZZ,ZZZ,ZZZ.ZZ</code> importe · 2 sp</td><td>114</td><td>Una por transacción</td></tr>
+    <tr><td>REPORT-ACCOUNT-TOTALS</td><td>X(13) <code>Account Total</code> · X(84) puntos · <code>+ZZZ,ZZZ,ZZZ.ZZ</code></td><td>112</td><td>Subtotal por tarjeta</td></tr>
+    <tr><td>REPORT-PAGE-TOTALS</td><td>X(11) <code>Page Total</code> · X(86) puntos · <code>+ZZZ,ZZZ,ZZZ.ZZ</code></td><td>112</td><td>Total de página</td></tr>
+    <tr><td>REPORT-GRAND-TOTALS</td><td>X(11) <code>Grand Total</code> · X(86) puntos · <code>+ZZZ,ZZZ,ZZZ.ZZ</code></td><td>112</td><td>Última línea</td></tr>
+  </table>
+  <p class="legend">Todos los grupos se mueven a <code>FD-REPTFILE-REC X(133)</code> y se completan con espacios. No hay carácter de control de carro (RECFM=FB, no FBA).</p>
+</section>
+
+<!-- 11 -->
+<section id="salidas">
+  <h2><span class="num">11.</span>Salidas e informes</h2>
+  <table>
+    <tr><th>Salida</th><th>Formato</th><th>Destinatario / consumidor</th><th>Retención</th><th>Observaciones</th></tr>
+    <tr><td><code>TRANREPT(+1)</code></td><td>PS FB 133, texto</td><td>Usuario que pidió el informe (Q-05)</td><td>GDG LIMIT 5 SCRATCH (catálogo) — LIMIT 10 según REPTFILE (H-10)</td><td>Sin carácter de control de impresión. La pantalla dice «submitted for printing», pero no hay paso de impresión</td></tr>
+    <tr><td><code>TRANSACT.BKUP(+1)</code></td><td>PS FB 350</td><td>SORT del propio job</td><td>GDG LIMIT 5 NOSCRATCH (compartida con TRANBKP/COMBTRAN)</td><td>Efecto lateral relevante (H-09)</td></tr>
+    <tr><td><code>TRANSACT.DALY(+1)</code></td><td>PS FB 350</td><td>STEP10R</td><td>GDG LIMIT 5 NOSCRATCH</td><td>Intermedio; nadie más lo usa</td></tr>
+    <tr><td>SYSOUT</td><td>Texto</td><td>Operación</td><td>Política de JES</td><td>START/END, «Reporting from…», el registro completo de cada transacción (<code>DISPLAY TRAN-RECORD</code>), «TRAN-AMT» y «WS-PAGE-TOTAL» al final, errores de E/S</td></tr>
+  </table>
+  <h3>Extracto del informe (ejecución E-1, datos de ejemplo)</h3>
+  <div class="diagram"><pre class="mono" style="margin:0;font-size:11px;line-height:1.35">DALYREPT                              Daily Transaction Report                 Date Range: 2022-06-01 to 2022-06-30
+
+Transaction ID   Account ID  Transaction Type   Tran Category                      Tran Source            Amount
+-------------------------------------------------------------------------------------------------------------------------------------
+0000000058866561 00000000050 01-Purchase        0001-Regular Sales Draft           POS TERM               183.80
+0000000329724245 00000000050 01-Purchase        0001-Regular Sales Draft           POS TERM                14.00
+0000000475746885 00000000050 01-Purchase        0001-Regular Sales Draft           POS TERM               967.40
+0000000577826814 00000000050 03-Credit          0001-Credit to Account             OPERATOR                47.80
+0000000685488982 00000000050 01-Purchase        0001-Regular Sales Draft           POS TERM                94.70
+0000000838587312 00000000050 01-Purchase        0001-Regular Sales Draft           POS TERM               241.60
+Account Total....................................................................................+      1,549.30
+-------------------------------------------------------------------------------------------------------------------------------------
+…
+0000000884070277 00000000040 01-Purchase        0001-Regular Sales Draft           POS TERM               194.30
+0000000982241353 00000000040 01-Purchase        0001-Regular Sales Draft           POS TERM               765.60
+Page Total ......................................................................................+      5,401.30
+-------------------------------------------------------------------------------------------------------------------------------------
+Grand Total......................................................................................+    154,352.80</pre></div>
+  <p class="legend">Fin del informe de E-1: falta el «Account Total» de la última tarjeta (cuenta 40, 1.660,80) y el Grand Total supera en 765,60 (el último importe) a la suma de los 300 detalles (153.587,20). Ver H-02 y H-03.</p>
+</section>
+
+<!-- 12 -->
+<section id="errores">
+  <h2><span class="num">12.</span>Errores, códigos de retorno y reinicio <span class="badge mig">Migración</span></h2>
+  <table>
+    <tr><th>Situación</th><th>Comportamiento actual</th><th>RC / ABEND / mensaje</th><th>Acción operativa</th></tr>
+    <tr><td>Ejecución normal</td><td>Informe con detalles, subtotales y totales</td><td>RC=0 en los 3 steps</td><td>Ninguna</td></tr>
+    <tr><td>Sin transacciones en el rango, TRANFILE vacío o DATEPARM vacío</td><td>Informe sin ninguna línea (ni cabecera)</td><td>RC=0 (E-3, E-4)</td><td>Ninguna: el usuario recibe un informe vacío sin explicación (H-11)</td></tr>
+    <tr><td>Transacción fuera del rango de DATEPARM en TRANFILE</td><td>El bucle termina; informe truncado sin totales finales</td><td>RC=0 (E-2)</td><td>No se detecta (H-01)</td></tr>
+    <tr><td>Tarjeta, tipo o categoría inexistente</td><td>DISPLAY «INVALID CARD NUMBER :» / «INVALID TRANSACTION TYPE :» / «INVALID TRAN CATG KEY :», file status 23, CALL CEE3ABD</td><td>ABEND U999 · «FILE STATUS IS: NNNN0023» (E-5)</td><td>Corregir el maestro y relanzar desde el principio</td></tr>
+    <tr><td>Error de apertura, lectura, escritura o cierre</td><td>DISPLAY del error («ERROR OPENING TRANFILE», «ERROR WRITING REPTFILE»…) y del file status (9910), CALL CEE3ABD</td><td>ABEND U999 · «FILE STATUS IS: NNNNxxxx» (status 9x en binario)</td><td>Analizar el status y relanzar</td></tr>
+    <tr><td>Error en IDCAMS o SORT (RC ≥ 8 sin ABEND)</td><td>Sin COND: el step siguiente se ejecuta igualmente</td><td>RC del step</td><td>Revisar manualmente (H-08)</td></tr>
+    <tr><td>Error al escribir en la TDQ JOBS (CORPT00C)</td><td>Mensaje en pantalla; el job no se envía (puede quedar JCL parcial en la cola)</td><td>«Unable to Write TDQ (JOBS)...»</td><td>Revisar la TDQ / lector interno</td></tr>
+  </table>
+  <table class="kv">
+    <tr><th>Punto de reinicio</th><td>Desde el principio. Reiniciar en STEP10R en un job nuevo exige cambiar <code>TRANSACT.DALY(+1)</code> por <code>(0)</code>, porque las referencias relativas se resuelven por job.</td></tr>
+    <tr><th>Procedimiento de recuperación</th><td>Con ABEND, los DSN NEW,CATLG,DELETE del step que falla se borran; las generaciones de steps anteriores (BKUP, DALY) quedan catalogadas y consumen huecos de la GDG. Corregir la causa y volver a lanzar desde CR00 o el JCL.</td></tr>
+    <tr><th>Idempotencia</th><td>Sí en datos de negocio (solo lectura de maestros). Cada ejecución crea nuevas generaciones en tres GDG, y en TRANSACT.BKUP desplaza backups de TRANBKP (H-09).</td></tr>
+  </table>
+</section>
+
+<!-- 13 -->
+<section id="transacc">
+  <h2><span class="num">13.</span>Transaccionalidad y concurrencia <span class="badge mig">Migración</span></h2>
+  <table class="kv">
+    <tr><th>Unidad de trabajo</th><td>Job completo de solo lectura sobre los maestros; solo escribe datasets nuevos.</td></tr>
+    <tr><th>Frecuencia de commit</th><td>N/A (no hay actualizaciones).</td></tr>
+    <tr><th>Orden de actualizaciones</th><td>N/A. Orden de escritura del informe: cabecera → detalles → subtotal en cada ruptura → total de página en cada salto → total de página y total general al final.</td></tr>
+    <tr><th>Acceso concurrente / bloqueos</th><td>Todos los VSAM con DISP=SHR, también mientras CICS los tiene abiertos (TRANREPT no está entre CLOSEFIL y OPENFIL). La copia REPRO no es una foto consistente si hay altas online simultáneas en TRANSACT (SHAREOPTIONS(2 3)). Varias peticiones simultáneas desde CR00 crean jobs <code>TRNRPT00</code> con el mismo nombre: JES los serializa por nombre de job si así está configurado (Q-01).</td></tr>
+  </table>
+</section>
+
+<!-- 14 -->
+<section id="rnf">
+  <h2><span class="num">14.</span>Volumetría, rendimiento y planificación</h2>
+  <table>
+    <tr><th>Métrica</th><th>Valor actual</th><th>Objetivo en destino</th><th>Fuente</th></tr>
+    <tr><td>Registros de entrada por ejecución</td><td>Todo el maestro TRANSACT se copia y ordena en cada ejecución. Datos de ejemplo: 300 transacciones, 50 tarjetas. Producción: Q-03</td><td>Q-03</td><td><code>app/data/ASCII/dailytran.txt</code></td></tr>
+    <tr><td>Líneas de informe</td><td>501 líneas para 300 transacciones (E-1)</td><td>Equivalente</td><td>Ejecución E-1</td></tr>
+    <tr><td>Líneas de SYSOUT</td><td>Una por transacción + 6 (306 en E-1)</td><td>Logs sin datos sensibles</td><td>Ejecución E-1</td></tr>
+    <tr><td>Duración / ventana batch</td><td>Q-01</td><td>Q-01</td><td>—</td></tr>
+    <tr><td>Espacio</td><td>SPACE=(CYL,(1,1),RLSE) para BKUP, DALY y TRANREPT</td><td>—</td><td>TRANREPT.jcl / .prc</td></tr>
+    <tr><td>Tiempo de respuesta / TPS <span class="badge online">Online</span></td><td>N/A: CR00 solo encola el job</td><td>—</td><td>CORPT00C</td></tr>
+    <tr><td>Crecimiento anual</td><td>Q-03</td><td>Q-03</td><td>—</td></tr>
+  </table>
+</section>
+
+<!-- 15 -->
+<section id="seguridad">
+  <h2><span class="num">15.</span>Seguridad y auditoría</h2>
+  <table class="kv">
+    <tr><th>Autorización</th><td>Opción 9 del menú principal (tipo de usuario U en <code>COMEN02Y</code>; los administradores usan otro menú). El job se envía con el usuario CICS/región (<code>NOTIFY=&amp;SYSUID</code> en la línea JCL). Perfiles RACF sobre <code>AWS.M2.CARDDEMO.*</code> y sobre el lector interno: Q-06.</td></tr>
+    <tr><th>Datos sensibles</th><td>El PAN no aparece en el informe (solo ID de transacción y cuenta), pero sí en claro en TRANSACT.BKUP, TRANSACT.DALY y en <b>SYSOUT</b>, porque <code>DISPLAY TRAN-RECORD</code> escribe el registro completo de cada transacción (H-06). En destino: enmascarado en logs (PCI DSS) y cifrado en reposo.</td></tr>
+    <tr><th>Trazas y auditoría</th><td>Solo SYSOUT del job. No se registra quién pidió el informe ni con qué fechas, salvo en el JCL del job TRNRPT00 en JES.</td></tr>
+  </table>
+</section>
+
+<!-- 16 -->
+<section id="destino">
+  <h2><span class="num">16.</span>Mapeo a la arquitectura destino <span class="badge mig">Migración</span></h2>
+  <p class="legend">Propuesta orientativa: la arquitectura destino debe confirmarla el equipo de migración.</p>
+  <table>
+    <tr><th>Componente legado</th><th>Componente destino</th><th>Patrón</th><th>Notas</th></tr>
+    <tr><td>CR00 / CORPT00C + TDQ JOBS</td><td>Pantalla web + endpoint <code>POST /reports/transactions</code> que lanza el job de forma asíncrona</td><td>API + cola / lanzador de jobs</td><td>Parámetros <code>startDate</code>, <code>endDate</code>, <code>type</code>; devolver ID de ejecución y estado</td></tr>
+    <tr><td>STEP01R/STEP05R REPRO + SORT</td><td>Consulta SQL sobre <code>transaction</code> con filtro y orden</td><td>Reader (JdbcCursorItemReader o similar)</td><td>Elimina las GDG BKUP y DALY. Filtrar por fecha real, no por texto</td></tr>
+    <tr><td>CBTRN03C (enriquecimiento)</td><td>JOIN con <code>card_xref</code>, <code>transaction_type</code>, <code>transaction_category</code></td><td>Processor o JOIN en la consulta</td><td>Decidir si una clave inexistente aborta (legado) o se informa</td></tr>
+    <tr><td>CBTRN03C (paginación y totales)</td><td>Motor de informes (JasperReports, plantilla, CSV/PDF)</td><td>Writer con grupos por tarjeta/cuenta, página y total</td><td>Decidir H-01…H-05 antes de construir; ver criterio de equivalencia</td></tr>
+    <tr><td>DATEPARM / SYMNAMES</td><td>Parámetros del job</td><td>JobParameters</td><td>Una única fuente para el rango (H-13)</td></tr>
+    <tr><td>TRANREPT(+1) GDG</td><td>Fichero en almacenamiento de objetos / tabla de informes generados</td><td>Política de retención</td><td>Retención equivalente a LIMIT 5 (o 10, H-10)</td></tr>
+    <tr><td>RC 0 / ABEND U999</td><td>ExitStatus COMPLETED / FAILED</td><td>Mapeo al orquestador</td><td>Añadir estado «sin datos» si negocio lo pide (H-11)</td></tr>
+  </table>
+</section>
+
+<!-- 17 -->
+<section id="migdatos">
+  <h2><span class="num">17.</span>Migración de datos <span class="badge mig">Migración</span></h2>
+  <table>
+    <tr><th>Origen</th><th>Destino</th><th>Conversión</th><th>Orden de carga</th><th>Validación</th></tr>
+    <tr><td>TRANTYPE KSDS</td><td><code>transaction_type</code></td><td>EBCDIC → UTF-8, quitar espacios finales</td><td>1</td><td>Recuento (7 en ejemplo)</td></tr>
+    <tr><td>TRANCATG KSDS</td><td><code>transaction_category</code></td><td>EBCDIC → UTF-8; clave (CHAR(2), SMALLINT)</td><td>2</td><td>Recuento (18 en ejemplo); FK a tipo</td></tr>
+    <tr><td>CARDXREF KSDS</td><td><code>card_xref</code></td><td>Numéricos zoned → BIGINT</td><td>3</td><td>Recuento; toda tarjeta de TRANSACT tiene XREF</td></tr>
+    <tr><td>TRANSACT KSDS</td><td><code>transaction</code></td><td>Zoned decimal → DECIMAL(11,2); TRAN-PROC-TS X(26) → TIMESTAMP</td><td>4</td><td>Recuento y suma de TRAN-AMT por fecha de proceso; FK a tipo/categoría/tarjeta</td></tr>
+    <tr><td>TRANREPT GDG (histórico)</td><td>Archivo de informes (opcional)</td><td>Texto EBCDIC → UTF-8</td><td>5</td><td>Solo si negocio necesita los informes ya emitidos (Q-05)</td></tr>
+  </table>
+</section>
+
+<!-- 18 -->
+<section id="pruebas">
+  <h2><span class="num">18.</span>Estrategia de pruebas y criterios de equivalencia <span class="badge mig">Migración</span></h2>
+  <p class="legend">E-1…E-5 se ejecutaron en este análisis con GnuCOBOL (ver aviso inicial). El resto son casos propuestos.</p>
+  <table>
+    <tr><th>ID</th><th>Escenario</th><th>Datos de prueba</th><th>Resultado esperado (legado)</th><th>RF cubiertos</th></tr>
+    <tr><td>CP-01 (E-1)</td><td>Informe completo con datos de ejemplo</td><td><code>dailytran.txt</code> con PROC-TS = ORIG-TS (2022-06-10), ordenado por tarjeta; maestros de <code>app/data/ASCII</code>; DATEPARM 2022-06-01 2022-06-30</td><td>RC=0; 501 líneas; 300 detalles (suma 153.587,20); 49 «Account Total»; 17 «Page Total»; Grand Total 154.352,80</td><td>RF-05…RF-10, RF-14</td></tr>
+    <tr><td>CP-02 (E-2)</td><td>Registro fuera de rango en medio del fichero</td><td>E-1 con el registro 101 en 2022-05-01</td><td>RC=0; 166 líneas; 100 detalles; sin Page Total final ni Grand Total</td><td>RF-11</td></tr>
+    <tr><td>CP-03 (E-3)</td><td>DATEPARM vacío</td><td>Fichero de 0 registros</td><td>RC=0; informe vacío; SYSOUT sin «Reporting from»</td><td>RF-12</td></tr>
+    <tr><td>CP-04 (E-4)</td><td>TRANFILE vacío (ninguna transacción en el rango)</td><td>Fichero de 0 registros</td><td>RC=0; informe vacío</td><td>RF-12</td></tr>
+    <tr><td>CP-05 (E-5)</td><td>Tarjeta inexistente en CARDXREF</td><td>Un registro con tarjeta 9999999999999999</td><td>ABEND U999; «INVALID CARD NUMBER : 9999999999999999», «FILE STATUS IS: NNNN0023»</td><td>RF-13</td></tr>
+    <tr><td>CP-06</td><td>Tipo o categoría inexistente</td><td>Registro con tipo 99 o categoría 9999</td><td>ABEND U999 con «INVALID TRANSACTION TYPE» / «INVALID TRAN CATG KEY»</td><td>RF-13</td></tr>
+    <tr><td>CP-07</td><td>Límites del rango</td><td>PROC-TS el día de inicio, el de fin y el día anterior/siguiente</td><td>Incluidos los extremos; excluidos los de fuera (por el SORT)</td><td>RF-04</td></tr>
+    <tr><td>CP-08</td><td>Cuenta con dos tarjetas</td><td>Dos tarjetas de la misma cuenta</td><td>Dos «Account Total» (uno por tarjeta)</td><td>RF-09</td></tr>
+    <tr><td>CP-09</td><td>Importes negativos</td><td>Devoluciones con importe negativo</td><td>Detalle con «-»; totales con signo, restan</td><td>RF-07, RF-10</td></tr>
+    <tr><td>CP-10</td><td>Rango mensual, anual y personalizado desde CR00</td><td>Fecha del sistema conocida (p. ej. año bisiesto, febrero)</td><td>JCL en la TDQ con las fechas de RN-09 en SYMNAMES y DATEPARM</td><td>RF-01, RF-02</td></tr>
+    <tr><td>CP-11</td><td>Validaciones de fecha personalizada y confirmación</td><td>Campos vacíos, mes 13, día 32, fecha inválida, confirmación «X»</td><td>Mensaje de error correspondiente y ningún job enviado</td><td>RF-01</td></tr>
+    <tr><td>CP-12</td><td>Copia del maestro</td><td>KSDS con N registros</td><td>TRANSACT.BKUP(+1) con N registros</td><td>RF-03</td></tr>
+  </table>
+  <p><b>Criterio de equivalencia:</b> ejecución en paralelo legado vs destino con los mismos maestros y el mismo rango de fechas; comparación línea a línea del informe (columnas, orden, formato de importes) y de los totales. Antes hay que decidir H-01, H-02, H-03 y H-05: si se corrigen, la comparación debe excluir de forma explícita las líneas afectadas (último subtotal, total general, posición de los saltos de página) y comparar en su lugar la suma de detalles por tarjeta, por página y global.</p>
+</section>
+
+<!-- 19 -->
+<section id="traza">
+  <h2><span class="num">19.</span>Matriz de trazabilidad</h2>
+  <table>
+    <tr><th>RF</th><th>Reglas</th><th>Componente legado</th><th>Componente destino</th><th>Casos de prueba</th></tr>
+    <tr><td>RF-01</td><td>RN-09</td><td>CORPT00C · SUBMIT-JOB-TO-INTRDR · TDQ JOBS</td><td>Pantalla + API de lanzamiento</td><td>CP-10, CP-11</td></tr>
+    <tr><td>RF-02</td><td>RN-09</td><td>CORPT00C · PROCESS-ENTER-KEY</td><td>Servicio de cálculo de rango</td><td>CP-10</td></tr>
+    <tr><td>RF-03</td><td>—</td><td>STEP05R/STEP01R · REPROC · REPROCT</td><td>(eliminado: consulta directa)</td><td>CP-12</td></tr>
+    <tr><td>RF-04</td><td>RN-01</td><td>STEP05R SORT</td><td>Reader SQL</td><td>CP-07</td></tr>
+    <tr><td>RF-05</td><td>RN-01</td><td>0550-DATEPARM-READ</td><td>JobParameters</td><td>CP-01, CP-03</td></tr>
+    <tr><td>RF-06</td><td>RN-07</td><td>1500-A/B/C-LOOKUP-*</td><td>JOIN / Processor</td><td>CP-01, CP-05, CP-06</td></tr>
+    <tr><td>RF-07</td><td>RN-08</td><td>1120-WRITE-DETAIL · CVTRA07Y</td><td>Plantilla del informe</td><td>CP-01, CP-09</td></tr>
+    <tr><td>RF-08</td><td>RN-05</td><td>1100 · 1110-WRITE-PAGE-TOTALS · 1120-WRITE-HEADERS</td><td>Motor de informes</td><td>CP-01</td></tr>
+    <tr><td>RF-09</td><td>RN-03, RN-04</td><td>Bucle principal · 1120-WRITE-ACCOUNT-TOTALS</td><td>Grupo por tarjeta/cuenta</td><td>CP-01, CP-08</td></tr>
+    <tr><td>RF-10</td><td>RN-04, RN-06</td><td>Bucle principal (EOF) · 1110-WRITE-GRAND-TOTALS</td><td>Totales del informe</td><td>CP-01, CP-09</td></tr>
+    <tr><td>RF-11</td><td>RN-02</td><td>Bucle principal (NEXT SENTENCE)</td><td>Según decisión H-01</td><td>CP-02</td></tr>
+    <tr><td>RF-12</td><td>RN-02, RN-06</td><td>0550-DATEPARM-READ · bucle principal</td><td>Estado «sin datos»</td><td>CP-03, CP-04</td></tr>
+    <tr><td>RF-13</td><td>RN-07</td><td>*-OPEN/CLOSE · 1111 · 1500-* · 9910 · 9999</td><td>Manejo de excepciones</td><td>CP-05, CP-06</td></tr>
+    <tr><td>RF-14</td><td>—</td><td>STEP10R DD TRANREPT</td><td>Almacenamiento del informe</td><td>CP-01</td></tr>
+  </table>
+</section>
+
+<!-- 20 -->
+<section id="riesgos">
+  <h2><span class="num">20.</span>Riesgos, supuestos y preguntas abiertas</h2>
+  <h3>Hallazgos del análisis de código</h3>
+  <table>
+    <tr><th>ID</th><th>Hallazgo</th><th>Impacto</th><th>Decisión (replicar / corregir)</th></tr>
+    <tr><td>H-01</td><td><b>NEXT SENTENCE termina el informe.</b> En CBTRN03C l. 173–178, una transacción con fecha fuera del rango de DATEPARM ejecuta <code>NEXT SENTENCE</code>, que salta tras <code>END-PERFORM.</code>: se cierra el informe sin totales finales y con RC=0 (E-2). En la variante online es latente, porque el SORT usa las mismas fechas, pero se dispara en el JCL autónomo si DATEPARM es más estrecho que SYMNAMES (H-13). La intención aparente era «saltar el registro».</td><td>Informe truncado sin aviso</td><td>Corregir recomendado (saltar el registro); confirmar con negocio</td></tr>
+    <tr><td>H-02</td><td><b>El último importe se suma dos veces.</b> En EOF (l. 200–201) se ejecuta <code>ADD TRAN-AMT TO WS-PAGE-TOTAL WS-ACCOUNT-TOTAL</code> con el registro anterior aún en TRAN-RECORD. E-1: Grand Total 154.352,80 frente a 153.587,20 de detalles (+765,60) y último Page Total también inflado.</td><td>Totales incorrectos en todos los informes con datos</td><td>Corregir</td></tr>
+    <tr><td>H-03</td><td><b>Falta el subtotal de la última tarjeta.</b> En EOF no se llama a <code>1120-WRITE-ACCOUNT-TOTALS</code>: E-1 tiene 49 «Account Total» para 50 tarjetas (falta 1.660,80).</td><td>Informe incompleto</td><td>Corregir</td></tr>
+    <tr><td>H-04</td><td><b>«Account Total» es un subtotal por tarjeta.</b> La ruptura usa <code>WS-CURR-CARD-NUM</code> y el SORT ordena por tarjeta; una cuenta con varias tarjetas tiene varios subtotales y sus líneas pueden no ser contiguas. Los datos de ejemplo tienen 1 tarjeta por cuenta, por eso no se ve.</td><td>Rótulo engañoso</td><td>Pendiente de negocio (Q-07)</td></tr>
+    <tr><td>H-05</td><td><b>Paginación irregular.</b> <code>MOD(WS-LINE-COUNTER, 20)</code> solo se evalúa antes de cada detalle y los subtotales suman 2 líneas, así que el contador salta múltiplos de 20. E-1: páginas de 22, 40, 20, 40, 20… líneas. El total de página puede caer en medio de una tarjeta.</td><td>Formato distinto del esperado (20 líneas)</td><td>Decidir: replicar o paginar por número de líneas real</td></tr>
+    <tr><td>H-06</td><td><b>PAN en SYSOUT.</b> <code>DISPLAY TRAN-RECORD</code> (l. 180) escribe el registro completo de cada transacción, con número de tarjeta en claro; también hay DISPLAY de depuración de TRAN-AMT y WS-PAGE-TOTAL (l. 198–199).</td><td>Exposición de datos de tarjeta (PCI DSS); volumen de SYSOUT igual al de transacciones</td><td>Corregir (no replicar)</td></tr>
+    <tr><td>H-07</td><td><b>JCL con nombres de step duplicados.</b> En <code>TRANREPT.jcl</code> el REPRO (l. 23) y el SORT (l. 37) se llaman ambos <code>STEP05R</code>; en la PROC son STEP01R y STEP05R. Además el miembro <code>TRANREPT.prc</code> empieza con <code>//REPROC PROC</code>.</td><td>Ambigüedad en overrides y reinicios por step; confusión con la PROC REPROC</td><td>Corregir en destino (no aplica)</td></tr>
+    <tr><td>H-08</td><td><b>Sin COND / IF-THEN.</b> Si IDCAMS o SORT terminan con RC ≥ 8 sin ABEND, el step siguiente se ejecuta igual sobre datos incompletos.</td><td>Informe erróneo con job aparentemente correcto</td><td>Corregir en destino (parar en error)</td></tr>
+    <tr><td>H-09</td><td><b>TRANREPT escribe en la GDG de backups del maestro.</b> <code>TRANSACT.BKUP(+1)</code> es la misma base que usan TRANBKP (copia antes de redefinir el KSDS) y COMBTRAN (lee <code>BKUP(0)</code>). LISTCAT: LIMIT 5, NOSCRATCH. Cinco informes seguidos desplazan del catálogo el backup de TRANBKP, y si se pide un informe entre TRANBKP y COMBTRAN, COMBTRAN lee la copia de TRANREPT.</td><td>Pérdida de puntos de recuperación; dependencia oculta con la cadena diaria</td><td>Corregir (usar dataset propio o consulta directa en destino)</td></tr>
+    <tr><td>H-10</td><td><b>Definiciones de GDG incoherentes.</b> TRANREPT: <code>REPTFILE.jcl</code> LIMIT(10) sin SCRATCH, <code>DEFGDGB.jcl</code> LIMIT(5) SCRATCH, LISTCAT LIMIT 5 SCRATCH. TRANSACT.BKUP y TRANSACT.DALY: DEFGDGB dice SCRATCH y LISTCAT NOSCRATCH.</td><td>Retención real incierta</td><td>Confirmar (Q-09)</td></tr>
+    <tr><td>H-11</td><td><b>Informe vacío sin explicación.</b> Sin transacciones en el rango, con TRANFILE vacío o con DATEPARM vacío, el informe no tiene ni cabecera y el RC es 0 (E-3, E-4).</td><td>El usuario no sabe si falló o no había datos</td><td>Decidir (cabecera + «sin movimientos»)</td></tr>
+    <tr><td>H-12</td><td><b>Desbordamiento silencioso.</b> Acumuladores <code>S9(09)V99</code> sin <code>ON SIZE ERROR</code>: totales &gt; 999.999.999,99 pierden los dígitos altos.</td><td>Totales erróneos con volúmenes altos</td><td>Corregir en destino (DECIMAL mayor)</td></tr>
+    <tr><td>H-13</td><td><b>Dos fuentes para el mismo rango.</b> En el JCL autónomo el SORT usa fechas fijas (<code>2022-01-01</code>…<code>2022-07-06</code>) y CBTRN03C lee DATEPARM de un DSN que ningún job del repo crea; pueden no coincidir (dispara H-01). La cabecera muestra el rango de DATEPARM aunque el SORT haya filtrado otro.</td><td>Informe con rango inconsistente</td><td>Corregir en destino (un solo parámetro)</td></tr>
+    <tr><td>H-14</td><td><b>Fechas y claves como texto.</b> El rango se compara como texto (SORT CH y COBOL PIC X). En batch no se valida nada: ni el formato de DATEPARM ni que inicio ≤ fin. CORPT00C sí valida los componentes y cada fecha con CSUTLDTC (RN-09), pero tampoco comprueba inicio ≤ fin (rango invertido → informe vacío). El SORT ordena la tarjeta como ZD aunque el campo es PIC X: solo equivale al orden de texto con 16 dígitos.</td><td>Resultados erróneos con datos mal formateados</td><td>Usar tipos fecha y validar en destino</td></tr>
+    <tr><td>H-15</td><td><b>Descripciones truncadas.</b> Tipo 50 → 15 caracteres y categoría 50 → 29 en la línea de detalle.</td><td>Menor</td><td>Replicar o ampliar según el nuevo formato</td></tr>
+    <tr><td>H-16</td><td><b>Fuera de la planificación e identidad del job distinta.</b> TRANREPT no está en CA7, Control-M ni scripts. Desde CICS el job se llama <code>TRNRPT00</code>, no TRANREPT. La pantalla dice «submitted for printing» pero no hay paso de impresión.</td><td>Inventario operativo incompleto; seguimiento difícil</td><td>Documentar en el orquestador destino</td></tr>
+    <tr><td>H-17</td><td><b>Numeración de párrafos repetida.</b> Dos párrafos <code>1110-*</code> y tres <code>1120-*</code> con funciones distintas.</td><td>Mantenibilidad</td><td>No aplica en destino</td></tr>
+  </table>
+  <h3>Supuestos</h3>
+  <ul>
+    <li>TRAN-PROC-TS del maestro empieza por una fecha AAAA-MM-DD (formato que graba POSTTRAN).</li>
+    <li>La variante habitual es la online (README: «Submitted from CICS»), en la que SYMNAMES y DATEPARM llevan el mismo rango.</li>
+    <li>La semántica de NEXT SENTENCE en z/OS es la observada en GnuCOBOL (estándar COBOL); pendiente de confirmar (Q-08).</li>
+    <li>Todas las tarjetas, tipos y categorías de TRANSACT existen en sus maestros (si no, el job aborta).</li>
+  </ul>
+  <h3>Preguntas abiertas</h3>
+  <table>
+    <tr><th>ID</th><th>Pregunta</th><th>Dirigida a</th><th>Estado</th></tr>
+    <tr><td>Q-01</td><td>¿En qué horario se permite pedir el informe? ¿Debe bloquearse durante la cadena diaria (TRANBKP → POSTTRAN → COMBTRAN)? ¿Cómo gestiona JES varios TRNRPT00 a la vez?</td><td>Operación</td><td>Abierta</td></tr>
+    <tr><td>Q-02</td><td>¿Responsables funcional y técnico? ¿Criticidad formal del informe?</td><td>Negocio / IT</td><td>Abierta</td></tr>
+    <tr><td>Q-03</td><td>¿Volumen real de TRANSACT y crecimiento? (cada ejecución copia y ordena el maestro entero)</td><td>Operación</td><td>Abierta</td></tr>
+    <tr><td>Q-04</td><td>¿Quién crea y mantiene <code>AWS.M2.CARDDEMO.DATEPARM</code> para el JCL autónomo?</td><td>Operación</td><td>Abierta</td></tr>
+    <tr><td>Q-05</td><td>¿Quién consume TRANREPT(+1)? ¿Se imprime, se descarga, se envía? ¿Hay que migrar los informes ya emitidos?</td><td>Negocio</td><td>Abierta</td></tr>
+    <tr><td>Q-06</td><td>¿Perfiles RACF del lector interno y de <code>AWS.M2.CARDDEMO.*</code> para el usuario CICS?</td><td>Seguridad</td><td>Abierta</td></tr>
+    <tr><td>Q-07</td><td>¿El subtotal debe ser por tarjeta o por cuenta (H-04)?</td><td>Negocio</td><td>Abierta</td></tr>
+    <tr><td>Q-08</td><td>¿Confirma una ejecución en z/OS el comportamiento de H-01 (y el contenido inicial de TRAN-RECORD sin VALUE cuando TRANFILE está vacío)?</td><td>Equipo legado</td><td>Abierta</td></tr>
+    <tr><td>Q-09</td><td>¿Qué definición de la GDG TRANREPT es la vigente: LIMIT 5 SCRATCH o LIMIT 10 (H-10)?</td><td>Operación</td><td>Abierta</td></tr>
+  </table>
+</section>
+
+<!-- 21 -->
+<section id="glosario">
+  <h2><span class="num">21.</span>Glosario</h2>
+  <table>
+    <tr><th>Término</th><th>Definición</th></tr>
+    <tr><td>DALYREPT</td><td>Nombre corto del informe «Daily Transaction Report» que produce CBTRN03C.</td></tr>
+    <tr><td>DATEPARM</td><td>Fichero de un registro con fecha de inicio y fin del informe.</td></tr>
+    <tr><td>GDG (+1)/(0)</td><td>Generation Data Group: (+1) crea una generación nueva en el job; (0) es la última catalogada.</td></tr>
+    <tr><td>REPRO</td><td>Función de IDCAMS que copia un dataset (aquí, el KSDS TRANSACT a secuencial).</td></tr>
+    <tr><td>SYMNAMES</td><td>Fichero de símbolos del SORT que asigna nombres a posiciones y constantes.</td></tr>
+    <tr><td>TDQ extrapartición / INTRDR</td><td>Cola de datos transitoria de CICS asociada a un DD; aquí, al lector interno de JES, que ejecuta como job el JCL escrito en ella.</td></tr>
+    <tr><td>NEXT SENTENCE</td><td>Sentencia COBOL que transfiere el control a la sentencia que sigue al siguiente punto separador, ignorando END-IF y END-PERFORM.</td></tr>
+    <tr><td>Ruptura de control</td><td>Escritura de un subtotal cuando cambia el valor de la clave de agrupación (aquí, la tarjeta).</td></tr>
+    <tr><td>PAN</td><td>Primary Account Number: número de tarjeta.</td></tr>
+    <tr><td>U999</td><td>Código de ABEND de usuario que lanza CEE3ABD en CardDemo.</td></tr>
+  </table>
+</section>
+
+<!-- 22 -->
+<section id="aprob">
+  <h2><span class="num">22.</span>Aprobaciones</h2>
+  <table>
+    <tr><th>Rol</th><th>Nombre</th><th>Fecha</th><th>Firma / conformidad</th></tr>
+    <tr><td>Responsable funcional</td><td>Pendiente (Q-02)</td><td>—</td><td></td></tr>
+    <tr><td>Responsable técnico (legado)</td><td>Pendiente (Q-02)</td><td>—</td><td></td></tr>
+    <tr><td>Responsable de migración</td><td>Pendiente</td><td>—</td><td></td></tr>
+  </table>
+  <h3>Checklist de completitud</h3>
+  <ul class="check">
+    <li>No quedan marcadores ni textos de ayuda.</li>
+    <li>Cada RF tiene origen en el código y criterio de aceptación.</li>
+    <li>Todos los DSN del JCL y de la PROC aparecen en Dependencias.</li>
+    <li>Diagrama de flujo coherente con el inventario.</li>
+    <li>Hallazgos con decisión (replicar / corregir).</li>
+  </ul>
+</section>
+
+<footer class="doc">Documento de Requisitos Funcionales · CardDemo · TRANREPT · docs/RF-TRANREPT.html · generado a partir de docs/plantilla-requisitos-funcionales.html</footer>
+
+</div>
+</body>
+</html>
