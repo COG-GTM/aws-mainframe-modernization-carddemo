@@ -13,8 +13,11 @@ ORACLE_NOW=${ORACLE_NOW-2022/07/18 10:30:45}
 # resolve before the cd below so relative arguments work from any directory
 OUT=$(realpath -m -- "$OUT")
 DALY=$(realpath -e -- "$DALY")
-if [ -e "$OUT" ] && [ -n "$(ls -A "$OUT" 2>/dev/null)" ]; then
-  echo "refusing to write into non-empty OUT_DIR '$OUT' (pass a new or empty directory; nothing was deleted)" >&2; exit 2
+if [ -e "$OUT" ] || [ -L "$OUT" ]; then
+  # an existing OUT_DIR must be a directory we can list, and it must be empty; a listing error is a refusal
+  if ! [ -d "$OUT" ] || ! entries=$(ls -A -- "$OUT") || [ -n "$entries" ]; then
+    echo "refusing OUT_DIR '$OUT': it must be a new, or an existing empty and listable, directory (nothing was deleted)" >&2; exit 2
+  fi
 fi
 mkdir -p "$OUT/bin" "$OUT/data" "$OUT/expected"
 cd "$OUT/bin"
