@@ -277,3 +277,17 @@ still reproduce. They are FAIL in this report.
 | DV-01 | `negative-zero` | FR-POSTTRAN-09, PR-CBTRN02C-09, NFR-03 | `CBTRN02C.cbl:430` | Wave 1 implementation (not fixed here) |
 | DV-02 | `ovf-tcatbal` | FR-POSTTRAN-07, PR-CBTRN02C-10, NFR-03 | `CBTRN02C.cbl:527`, `CVTRA01Y.cpy:9` | Wave 1 implementation (not fixed here) |
 | FR-04 text | `ovf-temp-bal` | FR-POSTTRAN-04 | `CBTRN02C.cbl:187,403-405` | FR doc wording (implementation already follows COBOL) |
+
+## 10. Re-run after the Wave 1 fix (2026-11-19)
+
+The wave branch fixed DV-01 / DV-02 (`8c331b24`, D-052) and was merged into this branch. The `divergence.*` markers were removed
+from `negative-zero` and `ovf-tcatbal`; expected outputs are unchanged (same GnuCOBOL files).
+
+```
+$ (cd modernization && JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64 mvn -B verify)
+[INFO] Tests run: 24, Failures: 0, Errors: 0, Skipped: 0        (carddemo-common)
+[INFO] Tests run: 79, Failures: 0, Errors: 0, Skipped: 0        (carddemo-app, incl. 19 Cbtrn02cIndependentParityTest)
+```
+
+Result after the fix: **19 PASS, 0 FAIL**. Cases 13 and 14, PR-CBTRN02C-09/10, FR-POSTTRAN-07/09 and NFR-03 are now PASS
+(38 requirements: 34 PASS, 0 FAIL, 4 UNTESTED as in §5). FR-POSTTRAN-04 wording was corrected on the wave branch (D-052).

@@ -17,6 +17,7 @@ public final class TranCatBalanceRecords {
         b.setTypeCd(r.text("TRANCAT-TYPE-CD"));
         b.setCatCd((int) r.number("TRANCAT-CD"));
         b.setBalance(r.decimal("TRAN-CAT-BAL"));
+        b.setBalanceNegativeZero(r.negativeZero("TRAN-CAT-BAL"));
         return b;
     }
 
@@ -25,7 +26,7 @@ public final class TranCatBalanceRecords {
                 .set("TRANCAT-ACCT-ID", b.getAcctId())
                 .set("TRANCAT-TYPE-CD", b.getTypeCd())
                 .set("TRANCAT-CD", b.getCatCd())
-                .set("TRAN-CAT-BAL", b.getBalance())
+                .set("TRAN-CAT-BAL", b.getBalance(), b.isBalanceNegativeZero())
                 .toString();
     }
 }

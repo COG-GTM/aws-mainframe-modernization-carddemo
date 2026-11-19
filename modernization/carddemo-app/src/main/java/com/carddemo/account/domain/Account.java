@@ -54,6 +54,26 @@ public class Account implements Persistable<Long> {
     @Column(name = "group_id", nullable = false)
     private String groupId;
 
+    /** Zero with a negative sign (COBOL {@code '}'} overpunch), which NUMERIC cannot hold (D-052). */
+    @Column(name = "curr_bal_negative_zero", nullable = false)
+    private boolean currBalNegativeZero;
+
+    /** Zero with a negative sign (COBOL {@code '}'} overpunch), which NUMERIC cannot hold (D-052). */
+    @Column(name = "credit_limit_negative_zero", nullable = false)
+    private boolean creditLimitNegativeZero;
+
+    /** Zero with a negative sign (COBOL {@code '}'} overpunch), which NUMERIC cannot hold (D-052). */
+    @Column(name = "cash_credit_limit_negative_zero", nullable = false)
+    private boolean cashCreditLimitNegativeZero;
+
+    /** Zero with a negative sign (COBOL {@code '}'} overpunch), which NUMERIC cannot hold (D-052). */
+    @Column(name = "curr_cyc_credit_negative_zero", nullable = false)
+    private boolean currCycCreditNegativeZero;
+
+    /** Zero with a negative sign (COBOL {@code '}'} overpunch), which NUMERIC cannot hold (D-052). */
+    @Column(name = "curr_cyc_debit_negative_zero", nullable = false)
+    private boolean currCycDebitNegativeZero;
+
     @Version
     @Column(name = "version", nullable = false)
     private long version;
@@ -179,5 +199,45 @@ public class Account implements Persistable<Long> {
 
     public long getVersion() {
         return version;
+    }
+
+    public boolean isCurrBalNegativeZero() {
+        return currBalNegativeZero;
+    }
+
+    public void setCurrBalNegativeZero(boolean currBalNegativeZero) {
+        this.currBalNegativeZero = currBalNegativeZero;
+    }
+
+    public boolean isCreditLimitNegativeZero() {
+        return creditLimitNegativeZero;
+    }
+
+    public void setCreditLimitNegativeZero(boolean creditLimitNegativeZero) {
+        this.creditLimitNegativeZero = creditLimitNegativeZero;
+    }
+
+    public boolean isCashCreditLimitNegativeZero() {
+        return cashCreditLimitNegativeZero;
+    }
+
+    public void setCashCreditLimitNegativeZero(boolean cashCreditLimitNegativeZero) {
+        this.cashCreditLimitNegativeZero = cashCreditLimitNegativeZero;
+    }
+
+    public boolean isCurrCycCreditNegativeZero() {
+        return currCycCreditNegativeZero;
+    }
+
+    public void setCurrCycCreditNegativeZero(boolean currCycCreditNegativeZero) {
+        this.currCycCreditNegativeZero = currCycCreditNegativeZero;
+    }
+
+    public boolean isCurrCycDebitNegativeZero() {
+        return currCycDebitNegativeZero;
+    }
+
+    public void setCurrCycDebitNegativeZero(boolean currCycDebitNegativeZero) {
+        this.currCycDebitNegativeZero = currCycDebitNegativeZero;
     }
 }

@@ -56,6 +56,10 @@ public class Transaction implements Persistable<String> {
     @Column(name = "proc_ts", nullable = false)
     private String procTs;
 
+    /** Zero with a negative sign (COBOL {@code '}'} overpunch), which NUMERIC cannot hold (D-052). */
+    @Column(name = "amount_negative_zero", nullable = false)
+    private boolean amountNegativeZero;
+
     /** New until loaded or persisted: {@code save} then INSERTs, so a duplicate key fails like a KSDS WRITE (status 22). */
     @Transient
     private boolean isNew = true;
@@ -181,5 +185,13 @@ public class Transaction implements Persistable<String> {
 
     public void setProcTs(String procTs) {
         this.procTs = procTs;
+    }
+
+    public boolean isAmountNegativeZero() {
+        return amountNegativeZero;
+    }
+
+    public void setAmountNegativeZero(boolean amountNegativeZero) {
+        this.amountNegativeZero = amountNegativeZero;
     }
 }

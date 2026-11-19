@@ -82,7 +82,9 @@ public class DailyTransactionPostingService {
             created.setAcctId(xrefAcctId);
             created.setTypeCd(key.getTypeCd());
             created.setCatCd(key.getCatCd());
-            created.setBalance(CobolDecimal.store(transaction.amount(), TCATBAL_INTEGER_DIGITS, 2));
+            CobolDecimal.Stored balance = CobolDecimal.storeWithSign(transaction.amount(), TCATBAL_INTEGER_DIGITS, 2);
+            created.setBalance(balance.value());
+            created.setBalanceNegativeZero(balance.negativeZero());
             try {
                 balances.saveAndFlush(created);
             } catch (DataAccessException e) {
@@ -90,7 +92,10 @@ public class DailyTransactionPostingService {
             }
         } else {
             TranCatBalance balance = found.get();
-            balance.setBalance(CobolDecimal.store(balance.getBalance().add(transaction.amount()), TCATBAL_INTEGER_DIGITS, 2));
+            CobolDecimal.Stored sum = CobolDecimal.storeWithSign(balance.getBalance().add(transaction.amount()),
+                    TCATBAL_INTEGER_DIGITS, 2);
+            balance.setBalance(sum.value());
+            balance.setBalanceNegativeZero(sum.negativeZero());
             try {
                 balances.saveAndFlush(balance);
             } catch (DataAccessException e) {
@@ -113,11 +118,18 @@ public class DailyTransactionPostingService {
         }
         Account account = found.get();
         BigDecimal amount = transaction.amount();
-        account.setCurrBal(CobolDecimal.store(account.getCurrBal().add(amount), ACCOUNT_INTEGER_DIGITS, 2));
+        CobolDecimal.Stored currBal = add(account.getCurrBal(), amount);
+        account.setCurrBal(currBal.value());
+        account.setCurrBalNegativeZero(currBal.negativeZero());
+        // -0.00 >= 0 is true in COBOL too: a negative-zero amount goes to cycle credit
         if (amount.signum() >= 0) {
-            account.setCurrCycCredit(CobolDecimal.store(account.getCurrCycCredit().add(amount), ACCOUNT_INTEGER_DIGITS, 2));
+            CobolDecimal.Stored credit = add(account.getCurrCycCredit(), amount);
+            account.setCurrCycCredit(credit.value());
+            account.setCurrCycCreditNegativeZero(credit.negativeZero());
         } else {
-            account.setCurrCycDebit(CobolDecimal.store(account.getCurrCycDebit().add(amount), ACCOUNT_INTEGER_DIGITS, 2));
+            CobolDecimal.Stored debit = add(account.getCurrCycDebit(), amount);
+            account.setCurrCycDebit(debit.value());
+            account.setCurrCycDebitNegativeZero(debit.negativeZero());
         }
         try {
             accounts.saveAndFlush(account);
@@ -128,7 +140,7 @@ public class DailyTransactionPostingService {
 
     /**
      * {@code 2900-WRITE-TRANSACTION-FILE} (cbl:562-579). TRAN-RECORD is DALYTRAN-RECORD field for field (cbl:424-435;
-     * CVTRA05Y and CVTRA06Y have the same layout) with {@code TRAN-PROC-TS} replaced. A duplicate TRAN-ID (status 22) or
+     * CVTRA05Y and CVTRA06Y have the same layout) with {@code TRAN-PROC-TS} replaced; a MOVE keeps the sign of a -0.00 amount (D-052). A duplicate TRAN-ID (status 22) or
      * any other failure abends.
      */
     void writeTransaction(DailyTransaction transaction, String procTs, SysoutWriter sysout) {
@@ -139,6 +151,11 @@ public class DailyTransactionPostingService {
         } catch (DataAccessException e) {
             throw abend(sysout, "ERROR WRITING TO TRANSACTION FILE", status(e), e);
         }
+    }
+
+    /** {@code ADD DALYTRAN-AMT TO <account field>} into {@code PIC S9(10)V99}, sign kept as GnuCOBOL stores it (D-052). */
+    private static CobolDecimal.Stored add(BigDecimal field, BigDecimal amount) {
+        return CobolDecimal.storeWithSign(field.add(amount), ACCOUNT_INTEGER_DIGITS, 2);
     }
 
     /** {@code FD-TRAN-CAT-KEY}: {@code 9(11)} account + {@code X(02)} type + {@code 9(04)} category. */

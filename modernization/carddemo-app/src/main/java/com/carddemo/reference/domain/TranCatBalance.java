@@ -34,6 +34,10 @@ public class TranCatBalance implements Persistable<TranCatBalanceId> {
     @Column(name = "balance", nullable = false)
     private BigDecimal balance;
 
+    /** Zero with a negative sign (COBOL {@code '}'} overpunch), which NUMERIC cannot hold (D-052). */
+    @Column(name = "balance_negative_zero", nullable = false)
+    private boolean balanceNegativeZero;
+
     @Version
     @Column(name = "version", nullable = false)
     private long version;
@@ -95,5 +99,13 @@ public class TranCatBalance implements Persistable<TranCatBalanceId> {
 
     public long getVersion() {
         return version;
+    }
+
+    public boolean isBalanceNegativeZero() {
+        return balanceNegativeZero;
+    }
+
+    public void setBalanceNegativeZero(boolean balanceNegativeZero) {
+        this.balanceNegativeZero = balanceNegativeZero;
     }
 }

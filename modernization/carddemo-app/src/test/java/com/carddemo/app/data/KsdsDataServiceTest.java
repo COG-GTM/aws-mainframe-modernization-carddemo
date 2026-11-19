@@ -100,4 +100,24 @@ class KsdsDataServiceTest extends PostgresContainerSupport {
         stale.setBalance(new BigDecimal("2.00"));
         assertThatThrownBy(() -> balances.saveAndFlush(stale)).isInstanceOf(ObjectOptimisticLockingFailureException.class);
     }
+
+    @Test
+    void negativeZeroInEverySignedFieldSurvivesLoadAndUnload() {
+        String account = RecordFiles.readLines(GoldenCase.SAMPLE_DATA.resolve("acctdata.txt"), 300, CobolCharsets.ASCII).get(0);
+        com.carddemo.common.record.FixedRecord a = com.carddemo.common.record.Copybooks.CVACT01Y.parse(account);
+        for (String f : List.of("ACCT-CURR-BAL", "ACCT-CREDIT-LIMIT", "ACCT-CASH-CREDIT-LIMIT", "ACCT-CURR-CYC-CREDIT", "ACCT-CURR-CYC-DEBIT")) {
+            a.set(f, BigDecimal.ZERO, true);
+        }
+        String tcatbal = com.carddemo.common.record.Copybooks.CVTRA01Y.blank().set("TRANCAT-ACCT-ID", 1).set("TRANCAT-TYPE-CD", "01")
+                .set("TRANCAT-CD", 1).set("TRAN-CAT-BAL", BigDecimal.ZERO, true).toString();
+        String tran = RecordFiles.readLines(GoldenCase.named("syn-ok").expected("TRANSACT.unl"), 350, CobolCharsets.ASCII).get(0);
+        String negTran = com.carddemo.common.record.Copybooks.CVTRA05Y.parse(tran).set("TRAN-AMT", BigDecimal.ZERO, true).toString();
+        data.load(Ksds.ACCTDATA, List.of(a.toString()));
+        data.load(Ksds.TCATBALF, List.of(tcatbal));
+        data.load(Ksds.TRANSACT, List.of(negTran));
+        assertThat(data.unload(Ksds.ACCTDATA)).containsExactly(a.toString());
+        assertThat(data.unload(Ksds.TCATBALF)).containsExactly(tcatbal);
+        assertThat(data.unload(Ksds.TRANSACT)).containsExactly(negTran);
+        assertThat(a.toString()).contains("00000000000}");
+    }
 }
