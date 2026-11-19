@@ -73,7 +73,7 @@ Ownership map: this is the only in-scope program, so it owns **every** stream re
 |---|---|---|---|---|
 | 001 | B11 | CEE3ABD | typed `PostingAbendException` -> step FAILED -> exit 16; SYSOUT error line + `ABENDING PROGRAM` | no retry, no skip |
 | 002 | B7 | DALYTRAN, sequential | `RecordReader` + `DailyTransactionLayout` (CVTRA06Y), ASCII or CP037 | read error -> abend; EOF ends loop |
-| 003 | B7 | DALYREJS, write | `RejectStore` inserts each reject into `batch.posttran_reject` in the record's transaction; `RejectFileWriter` assembles them by `input_seq` into a temp file in the generation dir and renames it on RC 0/4 only (D-012) | write error -> abend |
+| 003 | B7 | DALYREJS, write | `RejectStore` inserts each reject's raw 430 bytes (`BYTEA`, input encoding) into `batch.posttran_reject` in the record's transaction; `RejectFileWriter` assembles them by `input_seq` into a temp file in the generation dir and renames it on RC 0/4 only (D-012) | write error -> abend |
 | 004 | B10 | `transaction.transaction`, insert, PK `tran_id` | `TransactionRepository` (JPA); append-only; rerun guard (D-008) | duplicate -> RC 16 |
 | 005 | B10 | `account.account`, read + update, PK `acct_id`, `@Version` | `AccountRepository` in the record's transaction | lock failure -> RC 16, no retry |
 | 006 | B10 | `reference.tran_cat_balance`, read + insert/update, composite PK, `@Version` | repository upsert in the record's transaction | conflict -> RC 16 |
