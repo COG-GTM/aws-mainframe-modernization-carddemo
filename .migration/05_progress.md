@@ -11,3 +11,5 @@
 | 2026-11-19 | `!mf_stream_fr_generation` | DONE: FR-POSTTRAN-01..17, NFR-01..04 | `functional/CARDDEMO/POSTTRAN_functional_requirements.md` |
 | 2026-11-19 | `!mf_stream_migration_plan` + `!mf_boundary_resolution` | DONE: Phase 0, Phase 1, Wave 1 (CBTRN02C); B-01..B-09 DECIDED; D-024..D-029 | `functional/CARDDEMO/POSTTRAN_migration_plan.md` |
 | 2026-11-19 | STOP | Plan pushed; waiting for "sigue" | - |
+| 2026-11-19 | "sigue" received | Step 5 started | - |
+| 2026-11-19 | `!mf_program_fr_generation` | DONE: PR-CBTRN02C-01..17, each mapped to FR-POSTTRAN and source | `functional/CARDDEMO/programs/CBTRN02C_functional_requirement.md` |
