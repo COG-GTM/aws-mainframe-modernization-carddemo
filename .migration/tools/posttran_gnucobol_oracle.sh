@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # GnuCOBOL golden-master run of POSTTRAN (app/jcl/POSTTRAN.jcl STEP15 -> CBTRN02C).
-# Reads app/** only (never modifies it). Writes everything under $OUT (default ${TMPDIR:-/tmp}/carddemo-posttran-oracle).
+# Reads app/** only (never modifies it). Writes everything under $OUT (default ${TMPDIR:-/tmp}/carddemo-posttran-oracle),
+# which must not exist or be empty: the script never deletes anything.
 # Usage: .migration/tools/posttran_gnucobol_oracle.sh [OUT_DIR] [DALYTRAN_ASCII_FILE]
 # Env:   ORACLE_NOW  clock pinned via GnuCOBOL COB_CURRENT_DATE for CBTRN02C's TRAN-PROC-TS
 #        (FUNCTION CURRENT-DATE, CBTRN02C.cbl:693); default '2022/07/18 10:30:45'; empty = real clock.
@@ -9,7 +10,10 @@ REPO=$(cd "$(dirname "$0")/../.." && pwd)
 OUT=${1:-${TMPDIR:-/tmp}/carddemo-posttran-oracle}
 DALY=${2:-$REPO/app/data/ASCII/dailytran.txt}
 ORACLE_NOW=${ORACLE_NOW-2022/07/18 10:30:45}
-rm -rf "$OUT"; mkdir -p "$OUT/bin" "$OUT/data" "$OUT/expected"
+if [ -e "$OUT" ] && [ -n "$(ls -A "$OUT" 2>/dev/null)" ]; then
+  echo "refusing to write into non-empty OUT_DIR '$OUT' (pass a new or empty directory; nothing was deleted)" >&2; exit 2
+fi
+mkdir -p "$OUT/bin" "$OUT/data" "$OUT/expected"
 cd "$OUT/bin"
 
 # CEE3ABD stub: LE abend -> process exit with ABCODE (999 -> RC 231 on Linux, 999 mod 256)
