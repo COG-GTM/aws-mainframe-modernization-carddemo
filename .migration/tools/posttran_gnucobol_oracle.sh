@@ -6,6 +6,8 @@
 # Usage: .migration/tools/posttran_gnucobol_oracle.sh [OUT_DIR] [DALYTRAN_FILE]
 # Env:   DALYTRAN_ENCODING  ASCII (default: line-sequential text, padded to 350) or CP037 (RECFM=FB 350-byte EBCDIC
 #        records, e.g. app/data/EBCDIC/AWS.M2.CARDDEMO.DALYTRAN.PS), converted record by record to ISO-8859-1 for GnuCOBOL.
+# Env:   ACCTDATA_FILE, CARDXREF_FILE, TCATBAL_FILE  line-sequential master inputs (default app/data/ASCII/{acctdata,cardxref,tcatbal}.txt),
+#        used by golden cases that need a derived master (e.g. acct-missing).
 # Env:   ORACLE_NOW  clock pinned via GnuCOBOL COB_CURRENT_DATE for CBTRN02C's TRAN-PROC-TS
 #        (FUNCTION CURRENT-DATE, CBTRN02C.cbl:693); default '2022/07/18 10:30:45'; empty = real clock.
 set -euo pipefail
@@ -14,6 +16,9 @@ OUT=${1:-${TMPDIR:-/tmp}/carddemo-posttran-oracle}
 DALY=${2:-$REPO/app/data/ASCII/dailytran.txt}
 ORACLE_NOW=${ORACLE_NOW-2022/07/18 10:30:45}
 DALYTRAN_ENCODING=${DALYTRAN_ENCODING:-ASCII}
+ACCTDATA_FILE=$(realpath -e -- "${ACCTDATA_FILE:-$REPO/app/data/ASCII/acctdata.txt}")
+CARDXREF_FILE=$(realpath -e -- "${CARDXREF_FILE:-$REPO/app/data/ASCII/cardxref.txt}")
+TCATBAL_FILE=$(realpath -e -- "${TCATBAL_FILE:-$REPO/app/data/ASCII/tcatbal.txt}")
 # resolve before the cd below so relative arguments work from any directory
 OUT=$(realpath -m -- "$OUT")
 DALY=$(realpath -e -- "$DALY")
@@ -98,9 +103,9 @@ cobc -x -std=ibm -fsign=EBCDIC -I "$REPO/app/cpy" "$REPO/app/cbl/CBTRN02C.cbl" -
 
 # Normalize sample data: strip CR, right-pad to LRECL
 pad() { tr -d '\r' < "$1" | awk -v n="$2" '{printf "%-" n "s\n", $0}'; }
-pad "$REPO/app/data/ASCII/acctdata.txt" 300 > "$OUT/data/acctdata.lseq"
-pad "$REPO/app/data/ASCII/cardxref.txt" 50  > "$OUT/data/cardxref.lseq"
-pad "$REPO/app/data/ASCII/tcatbal.txt"  50  > "$OUT/data/tcatbal.lseq"
+pad "$ACCTDATA_FILE" 300 > "$OUT/data/acctdata.lseq"
+pad "$CARDXREF_FILE" 50  > "$OUT/data/cardxref.lseq"
+pad "$TCATBAL_FILE"  50  > "$OUT/data/tcatbal.lseq"
 # DALYTRAN is RECFM=FB LRECL=350 sequential: fixed records, no newline
 case "$DALYTRAN_ENCODING" in
   ASCII) # a line longer than LRECL would shift every later record once the newlines are removed

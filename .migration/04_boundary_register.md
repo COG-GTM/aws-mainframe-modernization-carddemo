@@ -22,3 +22,9 @@ A boundary is anything POSTTRAN touches that it does not own alone. Rows are nev
 | B-07 | 2026-11-19 | DECIDED | RUNTIME_SERVICE | Exception → exit 16 | out | plan §4 | - |
 | B-08 | 2026-11-19 | DECIDED | SCHEDULER | Exit-code contract 0/4/12/16 | in/out | plan §4 | operations |
 | B-09 | 2026-11-19 | DECIDED | ONLINE_COEXISTENCE | Same batch window; online untouched | context | plan §4 | CICS |
+| B-01 | 2026-11-19 | SEAM BUILT (Phase 1) | DATASET_IN | `transaction.batch.DailyTransactionReader` (FB 350, ISO-8859-1/IBM037, restart by item count) | in | D-038; `DailyTransactionReaderTest` | - |
+| B-02 | 2026-11-19 | SEAM BUILT (Phase 1) | DATASET_OUT | `transaction.batch.DailyRejectWriter` (430-byte records, CREATE_NEW, restart truncate to committed offset) | out | D-012, D-016; `DailyRejectWriterTest` | - |
+| B-03 | 2026-11-19 | SEAM BUILT (Phase 1) | SHARED_DATA | `transaction.transactions` (V2) + `TransactionRepository`; reset listener is Wave 1 | out | D-040 | as registered |
+| B-04 | 2026-11-19 | SEAM BUILT (Phase 1) | SHARED_DATA | `account.accounts` (V2) + `AccountRepository`, `@Version` | in/out | D-019; `KsdsDataServiceTest` | as registered |
+| B-05 | 2026-11-19 | SEAM BUILT (Phase 1) | SHARED_DATA | `card.card_xref` (V2) + `CardXrefRepository` | in | `KsdsDataServiceTest` | as registered |
+| B-06 | 2026-11-19 | SEAM BUILT (Phase 1) | SHARED_DATA | `reference.tran_cat_balances` (V2) + `TranCatBalanceRepository`, `@Version` | in/out | D-019, D-036; `KsdsDataServiceTest` | as registered |
