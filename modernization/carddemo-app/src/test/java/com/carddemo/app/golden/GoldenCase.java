@@ -17,7 +17,7 @@ import java.util.stream.Stream;
  * One oracle golden case under {@code src/test/resources/golden/posttran/<name>}, built by
  * {@code .migration/tools/posttran_golden_cases.sh} (runbook R-16).
  */
-public record GoldenCase(String name, Path dir, Charset dalytranCharset, String oracleNow) {
+public record GoldenCase(String name, Path dir, Charset dalytranCharset, String oracleNow, String tablesExpected) {
 
     public static final Path ROOT = Path.of("src/test/resources/golden/posttran");
     /** Default POSTTRAN masters, the same files the oracle loads (R-04). */
@@ -43,7 +43,8 @@ public record GoldenCase(String name, Path dir, Charset dalytranCharset, String 
             throw new UncheckedIOException(e);
         }
         return new GoldenCase(dir.getFileName().toString(), dir,
-                CobolCharsets.forName(p.getProperty("dalytran.charset", "ISO-8859-1")), p.getProperty("oracle.now"));
+                CobolCharsets.forName(p.getProperty("dalytran.charset", "ISO-8859-1")), p.getProperty("oracle.now"),
+                p.getProperty("tables.expected", "expected"));
     }
 
     /** The exact DALYTRAN bytes CBTRN02C read. */
@@ -61,9 +62,13 @@ public record GoldenCase(String name, Path dir, Charset dalytranCharset, String 
         return dir.resolve("expected").resolve(file);
     }
 
-    /** {@code expected/TRANSACT.unl}, {@code ACCTDATA.unl} or {@code TCATBALF.unl}. */
+    /**
+     * Expected end state of a table: {@code expected/<KSDS>.unl}, or {@code <tables.expected>/<KSDS>.unl} when the case
+     * sets it. {@code dup-id} uses {@code expected-atomic}: the oracle's tables keep the half-posted abending record, the
+     * Java job rolls it back (D-026, D-042).
+     */
     public Path expectedUnload(Ksds ksds) {
-        return expected(ksds.name() + ".unl");
+        return dir.resolve(tablesExpected).resolve(ksds.name() + ".unl");
     }
 
     public int oracleReturnCode() {

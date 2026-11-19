@@ -37,7 +37,8 @@ public final class ParityHarness {
      * One table: the Java unload (fixed-width records, key order) against the oracle's line-sequential {@code .unl}
      * (trailing spaces re-padded to LRECL). Every data field is compared; FILLER bytes are masked on both sides (D-036:
      * not stored, and CBTRN02C leaves TCATBAL FILLER of a new record to WORKING-STORAGE history). TRANSACT also masks
-     * the TRAN-PROC-TS centiseconds.
+     * the TRAN-PROC-TS centiseconds. The expected file is {@link GoldenCase#expectedUnload}: for an abend case it is the
+     * atomic end state (D-042).
      */
     public static void assertTable(GoldenCase c, Ksds ksds, List<String> actualRecords) {
         List<String> expected = normalize(ksds, RecordFiles.readLines(c.expectedUnload(ksds), ksds.recordLength(), CobolCharsets.ASCII));

@@ -69,3 +69,13 @@ run_case acct-missing ASCII "$WORK/inputs/acct-missing/dailytran.txt" "$WORK/inp
 # dup-id (FR-POSTTRAN-13, R-06): records 1, 2, 1 -> duplicate TRAN-ID on TRANSACT write -> status 22 -> abend U999 (RC 231)
 head -2 "$REPO/app/data/ASCII/dailytran.txt" > "$WORK/inputs/dup.txt"; head -1 "$REPO/app/data/ASCII/dailytran.txt" >> "$WORK/inputs/dup.txt"
 run_case dup-id ASCII "$WORK/inputs/dup.txt"
+
+# dup-id table expectation under per-record atomic posting (D-026, D-042): CBTRN02C rewrites TCATBAL and ACCOUNT for
+# record 3 before its TRANSACT WRITE fails, so the oracle tables keep that half-posted record; the Java job rolls the
+# record back. The oracle run on the records before the abending one gives the atomic end state of the three tables.
+head -2 "$REPO/app/data/ASCII/dailytran.txt" > "$WORK/inputs/dup-atomic.txt"
+"$ORACLE" "$WORK/dup-id-atomic" "$WORK/inputs/dup-atomic.txt" > "$WORK/dup-id-atomic.log" 2>&1 || { cat "$WORK/dup-id-atomic.log" >&2; exit 1; }
+mkdir -p "$DEST/dup-id/expected-atomic"
+cp "$WORK/dup-id-atomic/expected/"{TRANSACT,ACCTDATA,TCATBALF}.unl "$DEST/dup-id/expected-atomic/"
+echo 'tables.expected=expected-atomic' >> "$DEST/dup-id/case.properties"
+echo "dup-id atomic tables: RC=$(cat "$WORK/dup-id-atomic/expected/RETURN-CODE") (records 1-2 only)"

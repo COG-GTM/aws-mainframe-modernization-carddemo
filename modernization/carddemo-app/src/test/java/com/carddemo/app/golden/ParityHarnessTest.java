@@ -29,6 +29,22 @@ class ParityHarnessTest {
     }
 
     @Test
+    void dupIdTablesAreTheAtomicEndStateNotTheOraclesHalfPostedRecord() {
+        GoldenCase c = GoldenCase.named("dup-id");
+        assertThat(c.expectedUnload(Ksds.ACCTDATA)).isEqualTo(c.dir().resolve("expected-atomic/ACCTDATA.unl"));
+        assertThat(GoldenCase.named("baseline").expectedUnload(Ksds.ACCTDATA)).isEqualTo(GoldenCase.named("baseline").expected("ACCTDATA.unl"));
+        // account 7: 193.00 + 504.77 (record 1) = 697.77; the oracle also applied record 3 (the duplicate) before abending
+        assertThat(balanceOfAccount7(c.expectedUnload(Ksds.ACCTDATA))).isEqualByComparingTo("697.77");
+        assertThat(balanceOfAccount7(c.expected("ACCTDATA.unl"))).isEqualByComparingTo("1202.54");
+    }
+
+    private static java.math.BigDecimal balanceOfAccount7(Path unl) {
+        return RecordFiles.readLines(unl, 300, CobolCharsets.ASCII).stream()
+                .map(com.carddemo.common.record.Copybooks.CVACT01Y::parse)
+                .filter(r -> r.number("ACCT-ID") == 7L).findFirst().orElseThrow().decimal("ACCT-CURR-BAL");
+    }
+
+    @Test
     void oracleReturnCode231IsJava16AndZeroAndFourAreIdentical() {
         assertThat(OracleReturnCode.GNUCOBOL_U999).isEqualTo(231);
         assertThat(OracleReturnCode.toJava(0)).isEqualTo(ReturnCode.OK);
