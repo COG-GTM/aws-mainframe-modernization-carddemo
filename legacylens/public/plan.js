@@ -81,7 +81,7 @@ export function trackerView(root, params) {
     const done = all.reduce((a, u) => a + u.st.stage, 0), max = all.length * 4;
     el.querySelector('#sum').textContent = `${all.length} programs · ${Math.round((done / max) * 100)}% of stage steps complete · ${all.filter((u) => u.st.manual).length} edited by hand`;
     const v = q.value.trim().toUpperCase();
-    rows.innerHTML = all.filter((u) => (!v || u.n.label.includes(v)) && (fs.value === '' || u.st.stage === +fs.value)).map(({ n, st }) => `<tr class="click${params.n === n.id ? ' sel' : ''}" data-id="${n.id}">
+    rows.innerHTML = all.filter((u) => (!v || u.n.label.includes(v)) && (fs.value === '' || u.st.stage === +fs.value)).map(({ n, st }) => `<tr class="click${params.n === n.id ? ' sel' : ''}" data-id="${n.id}" tabindex="0" role="button" aria-label="Open ${esc(n.label)}">
       <td><b class="mono" style="font-weight:500">${esc(n.label)}</b><br><span class="muted" style="font-size:12px">${esc(n.sub)} · ${n.loc} lines</span></td>
       <td><span class="tag">${APPROACH[n.approach.approach]}</span></td>
       <td><div class="stagebar" title="${STAGES[st.stage].label}">${STAGES.map((_, i) => `<i class="${i <= st.stage ? 'on' : !st.manual && i <= st.review ? 'rev' : ''}"></i>`).join('')}</div><span style="font-size:12px">${STAGES[st.stage].label}${st.manual ? ' <span class="muted">(edited)</span>' : st.review > st.stage ? ` <span class="muted">· ${STAGES[st.review].label.toLowerCase()} in review</span>` : ''}</span></td>
@@ -106,7 +106,7 @@ export function trackerView(root, params) {
       ${prs.length ? `<h3>Pull requests naming ${esc(n.label)} <span class="muted">(${prs.length})</span></h3><ul class="conn">${prs.map((p) => `<li><a href="${esc(p.url)}" target="_blank" rel="noopener" class="mono">#${p.number}</a><span style="font-size:13px">${esc(p.title)}</span><span class="ref tag ${p.state === 'MERGED' ? 'green' : ''}">${p.state.toLowerCase()}</span></li>`).join('')}</ul>` : ''}
     </aside>`);
     document.body.append(drawer);
-    const refresh = () => { paint(); open(id); };
+    const refresh = () => { if (!el.isConnected) return; paint(); if (drawer?.isConnected) open(id); };
     drawer.querySelector('#x').addEventListener('click', () => { drawer.remove(); drawer = null; history.replaceState(null, '', href('tracker')); params = {}; paint(); });
     drawer.querySelector('#stg').addEventListener('click', async (ev) => { const b = ev.target.closest('button'); if (!b) return; try { await saveTracker(id, { stage: b.dataset.v }); toast('Stage saved'); refresh(); } catch { toast('Could not save. Try again.'); } });
     drawer.querySelector('#reset')?.addEventListener('click', async (ev) => { ev.preventDefault(); const t = S.tracker.get(id); if (t.owner || t.note) await saveTracker(id, { stage: null }); else await resetTracker(id); toast('Back to the evidence-derived stage'); refresh(); });
@@ -114,6 +114,7 @@ export function trackerView(root, params) {
     drawer.querySelector('#cp').addEventListener('click', () => copy(nextPrompt(n), 'Prompt copied. Paste it into Devin.'));
   }
   rows.addEventListener('click', (ev) => { const r = ev.target.closest('tr.click'); if (r) go('tracker', { n: r.dataset.id }); });
+  rows.addEventListener('keydown', (ev) => { if (ev.key === 'Enter' || ev.key === ' ') { const r = ev.target.closest('tr.click'); if (r) { ev.preventDefault(); go('tracker', { n: r.dataset.id }); } } });
   q.addEventListener('input', paint); fs.addEventListener('input', paint);
   paint();
   if (params.n) open(params.n);
@@ -147,7 +148,7 @@ export function complianceView(root, params) {
   function paint() {
     const res = F.filter((f) => (!cf.value || f.families.includes(cf.value)) && (!cc.value || f.category === cc.value) && (!cs.value || f.status === cs.value)).sort((a, b) => (a.status === 'open' ? 0 : 1) - (b.status === 'open' ? 0 : 1) || order[a.severity] - order[b.severity]);
     el.querySelector('#cn').textContent = `${res.length} of ${F.length}`;
-    rows.innerHTML = res.map((f) => `<tr class="click" data-id="${f.id}"><td>${sevTag(f.severity)}</td><td>${esc(f.title)}</td><td class="mono" style="white-space:nowrap">${f.controls.slice(0, 3).map(esc).join(' ')}${f.controls.length > 3 ? ' +' + (f.controls.length - 3) : ''}</td><td>${f.category}</td><td><span class="tag ${f.status}">${f.status}</span></td></tr>`).join('') || '<tr><td colspan="5" class="muted">No findings match.</td></tr>';
+    rows.innerHTML = res.map((f) => `<tr class="click" data-id="${f.id}" tabindex="0" role="button"><td>${sevTag(f.severity)}</td><td>${esc(f.title)}</td><td class="mono" style="white-space:nowrap">${f.controls.slice(0, 3).map(esc).join(' ')}${f.controls.length > 3 ? ' +' + (f.controls.length - 3) : ''}</td><td>${f.category}</td><td><span class="tag ${f.status}">${f.status}</span></td></tr>`).join('') || '<tr><td colspan="5" class="muted">No findings match.</td></tr>';
   }
   function open_(id) {
     drawer?.remove(); const f = F.find((x) => x.id === id); if (!f) return;
@@ -162,6 +163,7 @@ export function complianceView(root, params) {
     drawer.querySelector('#x').addEventListener('click', () => { drawer.remove(); drawer = null; });
   }
   rows.addEventListener('click', (ev) => { const r = ev.target.closest('tr.click'); if (r) open_(r.dataset.id); });
+  rows.addEventListener('keydown', (ev) => { if (ev.key === 'Enter' || ev.key === ' ') { const r = ev.target.closest('tr.click'); if (r) { ev.preventDefault(); open_(r.dataset.id); } } });
   el.querySelector('#fam').addEventListener('click', (ev) => { const b = ev.target.closest('[data-f]'); if (b) { cf.value = cf.value === b.dataset.f ? '' : b.dataset.f; paint(); } });
   [cf, cc, cs].forEach((x) => x.addEventListener('input', paint));
   paint();

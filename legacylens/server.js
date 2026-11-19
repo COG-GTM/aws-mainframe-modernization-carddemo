@@ -88,7 +88,10 @@ const server = http.createServer(async (req, res) => {
       if (req.method === 'DELETE') { db.prepare('DELETE FROM tracker WHERE node_id = ?').run(id); return json(res, 200, { ok: true }); }
       const b = await readBody(req);
       if (b.stage != null && !STAGES.includes(b.stage)) return json(res, 400, { error: 'invalid stage' });
-      const row = { node_id: id, stage: b.stage ?? null, owner: String(b.owner ?? '').slice(0, 80), note: String(b.note ?? '').slice(0, 2000), updated_at: new Date().toISOString() };
+      // only the fields present in the request change, so two people editing different fields do not undo each other
+      const cur = db.prepare('SELECT * FROM tracker WHERE node_id = ?').get(id) || { stage: null, owner: '', note: '' };
+      const row = { node_id: id, stage: 'stage' in b ? b.stage : cur.stage, owner: 'owner' in b ? String(b.owner ?? '').slice(0, 80) : cur.owner,
+        note: 'note' in b ? String(b.note ?? '').slice(0, 2000) : cur.note, updated_at: new Date().toISOString() };
       db.prepare(`INSERT INTO tracker (node_id, stage, owner, note, updated_at) VALUES (?, ?, ?, ?, ?)
         ON CONFLICT(node_id) DO UPDATE SET stage = excluded.stage, owner = excluded.owner, note = excluded.note, updated_at = excluded.updated_at`)
         .run(row.node_id, row.stage, row.owner, row.note, row.updated_at);

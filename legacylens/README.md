@@ -19,7 +19,7 @@ npm ci
 npm start            # http://localhost:4310 (PORT to change)
 ```
 
-Needs Node 22.5 or later (uses the built-in `node:sqlite`). Tracker edits are stored in `~/legacylens-data/tracker.db` (`LEGACYLENS_DATA` to change).
+Needs Node 22.13 or later (uses the built-in `node:sqlite`). Tracker edits are stored in `~/legacylens-data/tracker.db` (`LEGACYLENS_DATA` to change).
 
 ## Rebuild the data
 

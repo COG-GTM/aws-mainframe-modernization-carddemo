@@ -62,9 +62,10 @@ export function evidenceStage(n) {
     if (p.state === 'CLOSED') continue;  // closed without merging: not evidence
     const t = p.title;
     const tag = { t: `PR #${p.number} (${p.state.toLowerCase()})`, passed: p.state === 'MERGED' };
-    if (/parity|golden|gnucobol|equivalen|e2e|sign-off|audit/i.test(t)) ev[3].push(tag);
+    if (/sfind/i.test(t + ' ' + p.branch)) ev[0].push({ ...tag, t: tag.t + ' fixes a finding in the COBOL' });
+    else if (/parity|golden|gnucobol|equivalen|e2e|sign-off|audit/i.test(t)) ev[3].push(tag);
     else if (/^docs|requisitos|rules|inventory|diagram/i.test(t)) ev[1].push(tag);
-    else if (/^\[?sfind|^bug|fix bug|mask|require/i.test(t)) ev[0].push({ ...tag, t: tag.t + ' fixes a finding in the COBOL' });
+    else if (/sfind|^bug|fix bug|\bmask\b|\brequire/i.test(t + ' ' + p.branch)) ev[0].push({ ...tag, t: tag.t + ' fixes a finding in the COBOL' });
     else ev[2].push(tag);
   }
   // a stage counts only when its human gate has been passed (a merged PR); open work is "in review"
@@ -79,9 +80,7 @@ export function unitState(n) {
   return { ...d, derived: d.stage, stage: manual >= 0 ? manual : d.stage, manual: manual >= 0, owner: t?.owner || '', note: t?.note || '', updated: t?.updated_at };
 }
 export async function saveTracker(id, patch) {
-  const cur = S.tracker.get(id) || { stage: null, owner: '', note: '' };
-  const body = { stage: cur.stage, owner: cur.owner, note: cur.note, ...patch };
-  const r = await fetch('/api/tracker/' + encodeURIComponent(id), { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+  const r = await fetch('/api/tracker/' + encodeURIComponent(id), { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(patch) });
   if (!r.ok) throw new Error('save failed');
   S.tracker.set(id, await r.json());
 }
@@ -152,6 +151,8 @@ let mid = 0;
 export function md(text) {
   const el = document.createElement('div'); el.className = 'md';
   el.innerHTML = marked.parse(text || '');
+  // imported documents may only link to http(s) pages
+  el.querySelectorAll('a[href]').forEach((a) => { if (!/^https?:\/\//i.test(a.getAttribute('href'))) a.replaceWith(...a.childNodes); else { a.target = '_blank'; a.rel = 'noopener'; } });
   const files = new Set(S.estate.files.map((f) => f.path));
   el.querySelectorAll('code').forEach((c) => {
     if (c.parentElement.tagName === 'PRE') return;

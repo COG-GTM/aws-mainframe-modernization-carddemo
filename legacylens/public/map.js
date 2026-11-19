@@ -116,7 +116,8 @@ export function mapView(root, params) {
     if (!st.sel || !byId.has(st.sel)) { st.trace = null; renderSide(); if (!keepCamera) fit(); return; }
     const level = new Map([[st.sel, 0]]), elevel = new Map();
     const walk = (dirn) => {
-      let frontier = [st.sel];
+      // each direction keeps its own visited set, so a node reached downstream is still expanded upstream
+      let frontier = [st.sel]; const seen = new Set(frontier);
       for (let d = 1; d <= st.depth && frontier.length; d++) {
         const next = [];
         for (const id of frontier) for (const l of links) {
@@ -124,7 +125,8 @@ export function mapView(root, params) {
           const from = dirn > 0 ? l.source.id : l.target.id, to = dirn > 0 ? l.target.id : l.source.id;
           if (from !== id) continue;
           if (!elevel.has(l.i)) elevel.set(l.i, d);
-          if (!level.has(to)) { level.set(to, d * dirn); next.push(to); }
+          if (!level.has(to)) level.set(to, d * dirn);
+          if (!seen.has(to)) { seen.add(to); next.push(to); }
         }
         frontier = next;
       }
@@ -256,7 +258,7 @@ export function mapView(root, params) {
     const [cpy, cn] = most('copybook', 'includes', 'in');
     const acct = nodes.find((d) => d.n.label === 'ACCTDATA.VSAM.KSDS');
     const list = [
-      ['job:INTCALC', 'down', 2, 'Monthly interest run', 'From the INTCALC job through CBACT04C to every file it reads and writes.'],
+      ['pgm:CBACT04C', 'both', 1, 'Monthly interest run', 'CBACT04C, the INTCALC job that runs it, and every file it reads and writes.'],
       [acct?.id, 'both', 1, 'Who touches the account master', `Every program that reads or writes ${acct?.n.label}.`],
       ['pgm:COSGN00C', 'down', 2, 'From sign-on outward', 'The sign-on program, the menus it transfers to, and the screens behind them.'],
       [cpy.id, 'up', 1, 'One layout, many programs', `${cpy.n.label} is copied into ${cn} programs: change it and all of them move.`],

@@ -227,9 +227,20 @@ for name, f in programs.items():
         m = re.search(r"CALL\s+([A-Z][\w-]+)\s+USING", u)
         if m and m.group(1) in values and values[m.group(1)][0] in programs:
             edge(pid, "pgm:" + values[m.group(1)][0], "calls", f, i, "CALL " + m.group(1))
-        m = re.search(r"OPEN\s+(INPUT|OUTPUT|I-O|EXTEND)\s+([\w-]+)", u)
-        if m and m.group(2) in selects:
-            prog_dd[name][selects[m.group(2)]] = {"mode": m.group(1), "line": i}
+        if re.search(r"\bOPEN\s+(INPUT|OUTPUT|I-O|EXTEND)\b", u):
+            # one OPEN can name several files and several modes, across lines
+            toks = []
+            for j in range(idx, min(idx + 8, len(cl))):
+                seg = cl[j][1].upper()[7:]
+                toks += re.findall(r"[\w-]+|\.", seg.split("OPEN", 1)[1] if j == idx else seg)
+            mode = None
+            for tk in toks:
+                if tk in ("INPUT", "OUTPUT", "I-O", "EXTEND"):
+                    mode = tk
+                elif tk in selects and mode:
+                    prog_dd[name].setdefault(selects[tk], {"mode": mode, "line": i})
+                else:
+                    break
         if re.search(r"EXEC\s+DLI|EXEC\s+DL/I", u):
             edge(pid, external("IMS DL/I", "ims", "IMS database API"), "calls", f, i, "EXEC DLI")
         # CICS command blocks
@@ -320,10 +331,36 @@ def parse_jcl(kind, name, f):
     step = None; pgm = None; steps = []
     cl = code_lines(f, text)
     cur_dd = None
+    RUNRX = r"RUN\s+PROGRAM\((\w+)\)|PARM='?\(?(?:BMP|DLI|DBB),(\w+)"
+    # whole DD statement (with its continuation lines) for every line that belongs to one
+    stmt_of = {}
+    k = 0
+    while k < len(cl):
+        if re.match(r"//\S+\s+DD\s", cl[k][1]):
+            j = k + 1
+            while j < len(cl) and re.match(r"//\s+\S", cl[j][1]) and not re.search(r"\sEXEC\s", cl[j][1]):
+                j += 1
+            joined = " ".join(x[1] for x in cl[k:j])
+            for q in range(k, j):
+                stmt_of[q] = joined
+            k = j
+        else:
+            k += 1
+    # the application program a utility step runs (IMS region PARM, DB2 RUN PROGRAM)
+    step_prog = {}
+    exec_idx = [q for q, (_, x) in enumerate(cl) if re.match(r"//\S*\s+EXEC\s", x)]
+    for n_, q in enumerate(exec_idx):
+        end = exec_idx[n_ + 1] if n_ + 1 < len(exec_idx) else len(cl)
+        for _, x in cl[q:end]:
+            m2 = re.search(RUNRX, x.upper())
+            if m2 and (m2.group(1) or m2.group(2)) in programs:
+                step_prog[q] = m2.group(1) or m2.group(2)
+                break
     for idx, (i, l) in enumerate(cl):
         m = re.match(r"//(\S*)\s+EXEC\s+(?:PGM=([\w&]+)|(?:PROC=)?(\w+))", l)
         if m:
             step = m.group(1); pgm = (m.group(2) or "").upper(); pr = (m.group(3) or "").upper()
+            run_as = pgm if pgm in programs else step_prog.get(idx)
             steps.append({"step": step, "pgm": pgm or pr, "line": i})
             if pgm in programs:
                 edge(jid, "pgm:" + pgm, "runs", f, i, "EXEC PGM=" + pgm)
@@ -346,17 +383,12 @@ def parse_jcl(kind, name, f):
             did = ds_node(m.group(1))
             if not did:
                 continue
-            stmt = l
-            j = idx + 1
-            while stmt.rstrip().endswith(",") and j < len(cl):
-                stmt += cl[j][1]; j += 1
-            back = " ".join(x[1] for x in cl[max(0, idx - 2):idx + 1])
-            dm = re.search(r"DISP=\(?(\w+)", (stmt + " " + back).upper())
+            dm = re.search(r"DISP=\(?(\w+)", stmt_of.get(idx, l).upper())
             disp = dm.group(1) if dm else "SHR"
             mode = None
-            if pgm in programs and cur_dd in prog_dd.get(pgm, {}):
-                mode = prog_dd[pgm][cur_dd]["mode"]
-            tgt_prog = "pgm:" + pgm if pgm in programs else None
+            if run_as and cur_dd in prog_dd.get(run_as, {}):
+                mode = prog_dd[run_as][cur_dd]["mode"]
+            tgt_prog = "pgm:" + run_as if run_as else None
             detail = "%s DD %s DISP=%s" % (step or "", cur_dd, disp)
             writes = mode in ("OUTPUT", "EXTEND", "I-O") if mode else disp in ("NEW", "MOD") or (cur_dd or "").startswith(("SORTOUT", "SYSUT2", "OUT"))
             reads = mode in ("INPUT", "I-O") if mode else not writes
@@ -365,8 +397,6 @@ def parse_jcl(kind, name, f):
                 edge(actor, did, "writes", f, i, detail)
             if reads:
                 edge(did, actor, "reads", f, i, detail)
-            if tgt_prog and mode and mode != "INPUT":
-                pass
         # IDCAMS control statements naming datasets
         m = re.search(r"(?:NAME|INDATASET|OUTDATASET|RELATE|PATHENTRY)\s*\(\s*([A-Z0-9.]+)", l.upper())
         if m and not l.startswith("//") and "." in m.group(1):
@@ -548,7 +578,17 @@ prog_names = sorted(list(programs) + list(jobs), key=len, reverse=True)
 pr_out = []
 for p in prs:
     text = (p["title"] + " " + p["headRefName"]).upper()
+    # "COUSR00C-03C" names COUSR00C..COUSR03C
+    for rm in re.finditer(r"(?<![A-Z0-9])([A-Z]+)(\d+)([A-Z]?)-(\d+)\3(?![A-Z0-9])", text):
+        a, b = int(rm.group(2)), int(rm.group(4))
+        if 0 < b - a < 20:
+            text += " " + " ".join("%s%0*d%s" % (rm.group(1), len(rm.group(2)), v, rm.group(3)) for v in range(a, b + 1))
+    # "COUSR00C/01C/02C" names COUSR00C, COUSR01C, COUSR02C
+    for rm in re.finditer(r"(?<![A-Z0-9])([A-Z]+)(\d+)([A-Z]?)((?:/\d+\3)+)(?![A-Z0-9])", text):
+        text += " " + " ".join(rm.group(1) + v for v in rm.group(4).strip("/").split("/"))
     hits = [("pgm:" if n in programs else "job:") + n for n in prog_names if re.search(r"(?<![A-Z0-9])" + re.escape(n) + r"(?![A-Z0-9])", text)]
+    # a PR about a job is evidence for the programs that job runs
+    hits += [t for h_ in list(hits) if h_.startswith("job:") for (s_, t, k_) in edges if s_ == h_ and k_ == "runs" and t.startswith("pgm:")]
     pr_out.append({"number": p["number"], "title": p["title"], "state": p["state"], "branch": p["headRefName"], "url": p["url"],
                    "created": p["createdAt"], "merged": p.get("mergedAt"), "additions": p.get("additions"), "deletions": p.get("deletions"), "nodes": sorted(set(hits))})
 
@@ -629,7 +669,7 @@ for x in inv:
     if x["path"].startswith("app/") and not x["binary"] and "/data/" not in x["path"]:
         lang_loc[x["lang"]] += x["lines"]
 estate = {"stats": {"comp3": comp3, "linesByLang": dict(lang_loc)}, "nodes": list(nodes.values()), "edges": list(edges.values()), "files": inv, "schedule": sched,
-          "meta": {"repo": "COG-GTM/aws-mainframe-modernization-carddemo", "commit": sh("git", "rev-parse", "--short", "origin/main").strip(),
+          "meta": {"repo": "COG-GTM/aws-mainframe-modernization-carddemo", "commit": sh("git", "log", "-1", "--format=%h", "--", "app").strip(),
                    "scan": "scan-dcf9da1645664298850b3547a8b50fca", "scanProfile": "CardDemo COBOL-to-Java 21 factory discovery",
                    "rulesBranch": BR.replace("origin/", "")}}
 json.dump(estate, open(os.path.join(OUT, "estate.json"), "w"))
