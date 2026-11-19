@@ -101,7 +101,7 @@ CBTRN02C delegates only the abend to LE `CEE3ABD` (`:711`, BND-001). It is **not
 - CBTRN02C-01..05, 12..14: GC-1 (300 sample) RC 4, 262 posted, 38 rejects 0102, DALYREJS sha256 and table unloads equal to the oracle (TRANSACT bytes 325-326 masked).
 - CBTRN02C-05, 06, 09, 10, 11: GC-2 `syn_all`: rejects 0100, 0103, 0103; TCATBAL row `00000000007010099` created.
 - CBTRN02C-03, 14: GC-3 `syn_ok`: RC 0; credit +504.77, debit -504.70.
-- CBTRN02C-16: GC-4 duplicate: RC 16 (oracle 231), first two records committed.
+- CBTRN02C-16: GC-4 duplicate: RC 16 (oracle 231); tables equal the oracle run on the 2-record valid prefix (R-13); no DALYREJS published; no counter comparison.
 - CBTRN02C-15: GC-5 empty: RC 0, 0/0.
 - CBTRN02C-07: GC-6 (built in Phase 1) and JT-3.
 - CBTRN02C-17: JT-1. CBTRN02C-16 rollback detail: JT-2.

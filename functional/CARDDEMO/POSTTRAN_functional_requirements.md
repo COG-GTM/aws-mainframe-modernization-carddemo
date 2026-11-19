@@ -102,7 +102,7 @@ Golden cases (GnuCOBOL oracle, runbook R-04/R-06/R-11/R-12; parity bar D-004 wit
 - **GC-1** repo sample (300 records): RC 4, 262 posted, 38 rejected all 0102.
 - **GC-2** synthetic `syn_all` (6 records): RC 4; rejects 0100, 0103, 0103 (overlimit + expired); TCATBAL row created for key `00000000007010099`.
 - **GC-3** synthetic `syn_ok` (2 records): RC 0; credit +504.77, debit -504.70.
-- **GC-4** in-file duplicate (3 records, third repeats the first): abend (Java RC 16); first two posted.
+- **GC-4** in-file duplicate (3 records, third repeats the first): Java RC 16 (oracle 231); tables equal to the oracle run on the 2-record valid prefix (R-13), not to the oracle abend run (D-009); no DALYREJS published (D-012); no counter comparison (COBOL ends before its count DISPLAYs).
 - **GC-5** empty input: RC 0, 0/0, empty DALYREJS.
 - **GC-6** (to build in Phase 1): CARDXREF fixture whose account is missing -> 0101. Needs an oracle option for a custom CARDXREF.
 Java-only: **JT-1** rerun guard (D-008); **JT-2** atomic rollback of the failing record (D-009); **JT-3** reason 101 unit test.
@@ -117,7 +117,7 @@ Given/When/Then:
 - FR-12: Given N rejects, Then DALYREJS is N x 430 bytes in input order, byte-identical to the oracle.
 - FR-13/14: Given R rejects out of P records, Then SYSOUT shows P and R, and RC is 4 if R > 0 else 0.
 - FR-15: Given an empty input, Then RC 0, counts 0, empty DALYREJS.
-- FR-16: Given a duplicate id later in the input, Then RC 16, earlier records stay posted, the duplicate leaves no partial update.
+- FR-16: Given a duplicate id later in the input, Then RC 16, the tables equal the oracle run on the records before the duplicate, and no DALYREJS is published.
 - FR-17: Given an input whose id already exists in TRANSACT, Then RC 16 and no table changes.
 
 ## 9. Traceability matrix
@@ -139,7 +139,7 @@ Given/When/Then:
 | FR-13 | CBTRN02C | `:227-228` | GC-1..5 | SYSOUT count lines |
 | FR-14 | CBTRN02C | `:229-231` | GC-1, GC-3 | process exit code |
 | FR-15 | CBTRN02C | `:202-219` | GC-5 | all outputs |
-| FR-16 | CBTRN02C | `:562-578,707-711` | GC-4, JT-2 | RC + tables (D-009 rule) |
+| FR-16 | CBTRN02C | `:562-578,707-711` | GC-4, JT-2 | RC 16 + tables vs valid-prefix oracle run (R-13) + no DALYREJS published |
 | FR-17 | (D-008) | `:256` | JT-1 | RC + unchanged tables |
 
 Requirements without an existing covering case today: FR-07 (GC-6 must be built). All others have an oracle run already executed in this session.
