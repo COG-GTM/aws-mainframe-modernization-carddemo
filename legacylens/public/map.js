@@ -319,7 +319,7 @@ export function mapView(root, params) {
   computeTrace(false);
   document.fonts.ready.then(() => { raf = requestAnimationFrame(draw); });
   return {
-    update(p) { const id = p.n && byId.has(p.n) ? p.n : null; if (p.dir) st.dir = p.dir; if (p.d) st.depth = +p.d; if (id !== st.sel) { st.sel = id; syncButtons(); computeTrace(false); } },
+    update(p) { const id = p.n && byId.has(p.n) ? p.n : null, dir = p.dir || 'both', depth = +(p.d || 1); if (id !== st.sel || dir !== st.dir || depth !== st.depth) { st.sel = id; st.dir = dir; st.depth = depth; syncButtons(); computeTrace(false); } },
     destroy() { alive = false; cancelAnimationFrame(raf); ro.disconnect(); },
   };
 }

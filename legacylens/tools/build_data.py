@@ -14,7 +14,7 @@ def sh(*a):
     return subprocess.run(a, cwd=REPO, capture_output=True, text=True).stdout
 
 files = [f for f in sh("git", "ls-files").splitlines()
-         if not f.startswith(("legacylens/", "samples/", "modernization/"))]
+         if not f.startswith(("legacylens/", "modernization/")) and not f.endswith(".zip")]
 
 def read(p):
     with open(os.path.join(REPO, p), "rb") as fh:
@@ -86,7 +86,8 @@ def code_lines(p, text):
 # ---- pass 1: declare nodes for source artifacts --------------------------------
 by_ext = collections.defaultdict(list)
 for f in files:
-    by_ext[ext(f)].append(f)
+    if not f.startswith("samples/"):  # sample build JCL is browsable in Source but is not part of the estate graph
+        by_ext[ext(f)].append(f)
 
 programs = {}
 for f in by_ext["cbl"]:
@@ -331,6 +332,12 @@ def parse_jcl(kind, name, f):
     step = None; pgm = None; steps = []
     cl = code_lines(f, text)
     cur_dd = None
+    # JCL symbols set in the job (// SET HLQ=AWS.M2.CARDDEMO) are substituted into dataset names
+    syms = dict(re.findall(r"^//\s+SET\s+(\w+)=([\w.]+)", "\n".join(x for _, x in cl), re.M))
+    def resolve_syms(t):
+        for k_, v_ in syms.items():
+            t = re.sub(r"&" + k_ + r"\.{1,2}", v_ + ".", t).replace("&" + k_, v_)
+        return t
     RUNRX = r"RUN\s+PROGRAM\((\w+)\)|PARM='?\(?(?:BMP|DLI|DBB),(\w+)"
     # whole DD statement (with its continuation lines) for every line that belongs to one
     stmt_of = {}
@@ -378,7 +385,7 @@ def parse_jcl(kind, name, f):
             if p in programs:
                 isrun = "RUN" in l.upper() or "PARM=" in l.upper()
                 edge(jid, "pgm:" + p, "runs" if isrun else "defines", f, i, ("runs " if isrun else "CSD definition for ") + p)
-        m = re.search(r"DSN=([A-Z0-9.&#@$()+\-]+)", l.upper())
+        m = re.search(r"DSN=([A-Z0-9.&#@$()+\-]+)", resolve_syms(l.upper()))
         if m and step is not None:
             did = ds_node(m.group(1))
             if not did:
@@ -497,7 +504,9 @@ for part in re.split(r"\n(?=- sfind-)", raw):
     for l in body.split("\n"):
         fm = re.match(r"^  (Description|Recommendation|Note|Code owners|Scan session|Snippet|File|Location|Line|Path): ?(.*)$", l)
         if fm:
-            cur = fm.group(1); fields[cur] = fm.group(2)
+            cur = fm.group(1)
+            # a finding can carry several source excerpts; keep them all
+            fields[cur] = (fields[cur] + "\n\n" if cur == "Snippet" and cur in fields else "") + fm.group(2)
         elif cur:
             fields[cur] += "\n" + l
     text = part
@@ -673,7 +682,8 @@ for n in nodes.values():
     elif n["type"] == "job":
         n["prs"] = len(pr_by_node.get(n["id"], []))
         runs = [t for (s, t, k) in edges if s == n["id"] and k == "runs"]
-        if runs and all(t.startswith("util:") for t in runs):
+        STORAGE = {"util:IDCAMS", "util:IEFBR14", "util:IEBGENER", "util:SORT", "util:DSNUTILB", "util:IEBCOPY"}
+        if runs and all(t in STORAGE for t in runs):
             n["approach"] = {"approach": "retire", "target": "Platform operations: schema migrations, data loads and backups replace VSAM define/REPRO/sort steps",
                              "why": ["Runs only system utilities (%s); it manages storage that does not exist on the target platform." % ", ".join(sorted({t.split(':')[1] for t in runs}))],
                              "alternative": "Keep as-is under a replatform, where the emulation runtime provides the same utilities.", "complexity": min(40, n.get("loc", 0) // 6), "effort": "low"}

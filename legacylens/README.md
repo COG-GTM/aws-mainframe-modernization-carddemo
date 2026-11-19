@@ -3,7 +3,7 @@
 A web app that shows what a Devin scan and a source parse reveal about the CardDemo mainframe estate, and tracks its migration.
 
 - **Estate map**: every program, job, transaction, screen, copybook and data store, with the references between them (COPY, CALL, EXEC CICS, EXEC SQL, JCL DD, Control-M). Click a component to trace upstream and downstream.
-- **Source**: all tracked files, with the lines that carry a parsed connection marked.
+- **Source**: all tracked text files (the two runtime zips under `samples/` are left out), with the lines that carry a parsed connection marked.
 - **Decomposition**: per program, the scan's logic and flow document, the business-rules catalog, and its connections.
 - **Scan findings**: the 211 findings of migration-docs scan `scan-dcf9da1645664298850b3547a8b50fca`.
 - **Approach**: a proposed route per component (refactor, rewrite, replace with COTS/GOTS, retire), where to start, and areas to focus on.
