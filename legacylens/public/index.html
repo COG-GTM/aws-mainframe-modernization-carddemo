@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>LegacyLens - CardDemo estate</title>
+<link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+<header class="top">
+  <a class="brand" href="#/map" aria-label="LegacyLens home">
+    <img src="/cognition-lockup-black.svg" alt="Cognition" height="18">
+    <span class="product">LegacyLens</span>
+  </a>
+  <nav id="nav" aria-label="Sections">
+    <a href="#/map" data-view="map">Estate map</a>
+    <a href="#/source" data-view="source">Source</a>
+    <a href="#/decompose" data-view="decompose">Decomposition</a>
+    <a href="#/findings" data-view="findings">Scan findings</a>
+    <a href="#/approach" data-view="approach">Approach</a>
+    <a href="#/tracker" data-view="tracker">Tracker</a>
+    <a href="#/compliance" data-view="compliance">Compliance</a>
+    <a href="#/evidence" data-view="evidence">Evidence</a>
+  </nav>
+  <div class="repo mono" id="repoTag"></div>
+</header>
+<main id="view" tabindex="-1"><p class="loading">Loading estate…</p></main>
+<footer class="foot">
+  <span id="footMeta"></span>
+  <a href="https://devin-gtm.devinenterprise.com/sessions/3373771a49d24b0497b02b7e0381ede3" target="_blank" rel="noopener">Request changes in Devin</a>
+</footer>
+<div id="toast" role="status" aria-live="polite"></div>
+<script src="/vendor/d3.min.js"></script>
+<script src="/vendor/marked.min.js"></script>
+<script type="module" src="/app.js"></script>
+</body>
+</html>
