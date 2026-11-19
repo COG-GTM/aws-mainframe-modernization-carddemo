@@ -102,7 +102,13 @@ Las referencias de línea corresponden a [`app/cbl/CBTRN02C.cbl`](../app/cbl/CBT
 
 ### Tratamiento de errores de E/S (requisito transversal)
 
-- Errores de apertura, lectura, escritura o cierre de cualquier fichero (salvo los casos controlados `10` en DALYTRAN y `23` en TCATBALF) muestran el file status (`9910-DISPLAY-IO-STATUS`) y terminan el programa con abend **999** mediante `CEE3ABD` (`9999-ABEND-PROGRAM`).
+- Errores de apertura, lectura, escritura o cierre de cualquier fichero muestran el file status (`9910-DISPLAY-IO-STATUS`) y terminan el programa con abend **999** mediante `CEE3ABD` (`9999-ABEND-PROGRAM`).
+- Excepciones controladas, que no provocan abend:
+  - Fin de fichero (status `10`) en la lectura de `DALYTRAN` (RF-01).
+  - `INVALID KEY` en la lectura de `XREFFILE` → rechazo 100 (RF-02).
+  - `INVALID KEY` en la lectura de `ACCTFILE` → rechazo 101 (RF-03).
+  - Registro no encontrado (status `23`) en la lectura de `TCATBALF` → creación del registro (RF-07).
+  - `INVALID KEY` en el `REWRITE` de `ACCTFILE` → código 109 (RF-08, ver O-01).
 
 ## 4. Matriz de códigos de rechazo
 
@@ -134,7 +140,7 @@ Precondiciones: los ficheros VSAM deben estar cerrados en CICS y refrescados (jo
 
 | Id | Criterio |
 |---|---|
-| CA-01 | Toda transacción de `DALYTRAN` que supera RF-02 a RF-05 queda escrita en `TRANFILE` con todos sus campos copiados y `TRAN-PROC-TS` informado con el timestamp de proceso en formato DB2. |
+| CA-01 | Toda transacción de `DALYTRAN` que supera RF-02 a RF-05 queda escrita en `TRANFILE` con los campos mapeados en RF-06 copiados desde `DALYTRAN` (no se copian `DALYTRAN-PROC-TS` ni el `FILLER` final de 20 bytes) y `TRAN-PROC-TS` informado con el timestamp de proceso en formato DB2. |
 | CA-02 | Por cada transacción posteada, `ACCT-CURR-BAL` de la cuenta se incrementa en `DALYTRAN-AMT`, y `ACCT-CURR-CYC-CREDIT` (importe ≥ 0) o `ACCT-CURR-CYC-DEBIT` (importe < 0) se incrementa en el mismo importe. |
 | CA-03 | Por cada transacción posteada, `TRAN-CAT-BAL` de la clave cuenta + tipo + categoría se incrementa en `DALYTRAN-AMT`; si la clave no existía se crea con ese importe. |
 | CA-04 | Toda transacción que falla una validación aparece en la nueva generación de `DALYREJS` con el registro original y el trailer con código (100, 101, 102 o 103) y descripción del motivo, y no modifica `TRANFILE`, `ACCTFILE` ni `TCATBALF`. |
