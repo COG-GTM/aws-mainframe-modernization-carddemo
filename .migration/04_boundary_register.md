@@ -348,3 +348,12 @@ Detail in `functional/CARDDEMO/POSTTRAN_migration_plan.md` §3. Status **DECIDED
 - **Proposed decision:** DEFERRED: dependency production parallel run; impact none while COBOL is oracle; re-entry when the user asks for production cutover.
 - **Status:** DECIDED, approved by user, STOP C, 2026-11-19 ("Approve")
 - **History:** 2026-11-19 proposed by `!mf_stream_migration_plan`
+
+## Review clarifications - PR #210 Devin Review, 2026-11-19 (session devin-c4fce2ffab2c4abaac2aa02e217e00e4)
+
+Clarifications of DECIDED entries; no decision changed. Detail in `functional/CARDDEMO/POSTTRAN_migration_plan.md`.
+
+### BND-003 clarification (restart state)
+- **Clarification:** rejects are staged per record in `batch.posttran_reject` in the record's transaction and assembled into DALYREJS at job end (RC 0/4 only, D-012), so a restart of the same JobInstance keeps the rejects of the records committed before the failure. Byte contract and publish rule unchanged.
+- **Status:** DECIDED (unchanged)
+- **History:** 2026-11-19 clarified after review ANALYSIS_0002

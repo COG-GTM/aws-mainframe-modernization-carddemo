@@ -73,7 +73,7 @@ Ownership map: this is the only in-scope program, so it owns **every** stream re
 |---|---|---|---|---|
 | 001 | B11 | CEE3ABD | typed `PostingAbendException` -> step FAILED -> exit 16; SYSOUT error line + `ABENDING PROGRAM` | no retry, no skip |
 | 002 | B7 | DALYTRAN, sequential | `RecordReader` + `DailyTransactionLayout` (CVTRA06Y), ASCII or CP037 | read error -> abend; EOF ends loop |
-| 003 | B7 | DALYREJS, write | `RejectFileWriter` to temp file in the generation dir, renamed on RC 0/4 only (D-012) | write error -> abend |
+| 003 | B7 | DALYREJS, write | `RejectStore` inserts each reject into `batch.posttran_reject` in the record's transaction; `RejectFileWriter` assembles them by `input_seq` into a temp file in the generation dir and renames it on RC 0/4 only (D-012) | write error -> abend |
 | 004 | B10 | `transaction.transaction`, insert, PK `tran_id` | `TransactionRepository` (JPA); append-only; rerun guard (D-008) | duplicate -> RC 16 |
 | 005 | B10 | `account.account`, read + update, PK `acct_id`, `@Version` | `AccountRepository` in the record's transaction | lock failure -> RC 16, no retry |
 | 006 | B10 | `reference.tran_cat_balance`, read + insert/update, composite PK, `@Version` | repository upsert in the record's transaction | conflict -> RC 16 |
@@ -88,7 +88,7 @@ Transaction behavior: one record = one DB transaction, commit interval 1 (D-009,
 - Business errors: reasons 0100-0103 (§4).
 - Empty input: CBTRN02C-15. Single record, all rejected: RC 4, no master change.
 - Reason 0109 (`:555-558`): **dead** after the successful READ at `:395` in the same record; not implemented as a reject. If the target's update finds no row, it is an abend (technical).
-- Restart: no COBOL checkpoint. Target restarts from the last committed record (D-002, D-011). Rerun of an already-posted input: CBTRN02C-17.
+- Restart: no COBOL checkpoint. Target restarts from the last committed record (D-002, D-011); reader position and the processed/rejected counters are restored from the step `ExecutionContext`, and the rejects already committed are in `batch.posttran_reject`, so the published DALYREJS and the SYSOUT counts cover the whole input (plan §2 "Restart state"). Rerun of an already-posted input: CBTRN02C-17.
 - Technical (not requirements): open/read/write/rewrite/close failures (`:236-343,345-369,446-465,481-542,562-579,582-690`) -> abend RC 16 with the verbatim `ERROR ...` line and `FILE STATUS IS: NNNN<xxxx>`.
 - Timestamps: PROC-TS format `yyyy-MM-dd-HH.mm.ss.SS0000` (`:692-705`); hundredths masked in parity (D-007). Malformed ORIG-TS -> RC 16 (D-013 deviation).
 
