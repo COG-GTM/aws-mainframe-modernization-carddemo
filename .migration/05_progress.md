@@ -58,3 +58,4 @@ One row per stream per status change; never edit a past row, append a new one. S
 | 2026-11-19 | POSTTRAN | BATCH | **FR generated** | `functional/CARDDEMO/POSTTRAN_functional_requirements.md`; 17 FRs, sign-off set FR-01..FR-17 | devin-c4fce2ffab2c4abaac2aa02e217e00e4 |
 | 2026-11-19 | POSTTRAN | BATCH | **planned, awaiting STOP C** | `functional/CARDDEMO/POSTTRAN_migration_plan.md`; BND-001..009 PROPOSED; D-011..D-014 PROPOSED; LR-1..3 listed, not fired | devin-c4fce2ffab2c4abaac2aa02e217e00e4 |
 | 2026-11-19 | POSTTRAN | BATCH | FR done -> planned (STOP C approved) | BND-001..009 DECIDED; D-011..D-014 approved; next: program FR CBTRN02C | devin-4abefb5b7baf4bfab62c956941e00bf7 |
+| 2026-11-19 | POSTTRAN | BATCH | **program FRs done** (ready for Phase 0) | `functional/CARDDEMO/programs/CBTRN02C_functional_requirement.md`; 17 requirements, 17/17 stream FRs traced both ways; all boundaries DECIDED | devin-c4fce2ffab2c4abaac2aa02e217e00e4 |

@@ -148,7 +148,7 @@ Requirements without an existing covering case today: FR-07 (GC-6 must be built)
 
 | Program | Role | Requirements |
 |---|---|---|
-| CBTRN02C | entry, step driver, validation, posting, reject writer | FR-01..FR-16 (FR-17 is a target-only rule implemented in the same job) |
+| [CBTRN02C](programs/CBTRN02C_functional_requirement.md) | entry, step driver, validation, posting, reject writer | FR-01..FR-16 (FR-17 is a target-only rule implemented in the same job) |
 
 ## 11. Open questions and assumptions
 
