@@ -67,3 +67,9 @@ java -jar carddemo-app.jar --job=POSTTRAN --dd=DALYTRAN=<file> [--dd=DALYREJS=<f
 - `COB_CURRENT_DATE` pins to the second only.
 - Testcontainers 1.19.x (Boot 3.3.4 default) fails against Docker Engine 29; the parent POM pins 1.21.4 (D-030).
 - CBTRN02C opens TRANSACT `OUTPUT` (`app/cbl/CBTRN02C.cbl:256`): a rerun on the same files recreates TRANSACT but reposts ACCTDATA/TCATBALF. Always run the oracle in a fresh OUT.
+
+## R-22 Independent CBTRN02C parity pass (2026-11-19)
+
+- Regenerate inputs + oracle outputs: `.migration/tools/cbtrn02c_parity_oracle.sh ~/work/po` (refuses an existing WORK_DIR or case dir; writes `modernization/carddemo-app/src/test/resources/parity/cbtrn02c`). Re-add the `divergence.*` lines of D-051 afterwards if the divergences still exist.
+- Run: `(cd modernization && JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64 mvn -B test -pl carddemo-app -am -Dtest=Cbtrn02cIndependentParityTest -Dsurefire.failIfNoSpecifiedTests=false)`; Java outputs land in `carddemo-app/target/parity-actual/cbtrn02c/`.
+- Result: `functional/CARDDEMO/programs/CBTRN02C_parity_results.md`.
