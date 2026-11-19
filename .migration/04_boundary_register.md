@@ -367,3 +367,8 @@ Clarifications of DECIDED entries; no decision changed. Detail in `functional/CA
 - **Clarification:** CP037 input gets its own golden case (GC-7, runbook R-14): the oracle converts the RECFM=FB EBCDIC file record by record (`DALYTRAN_ENCODING=CP037`), and DALYREJS is written in the input encoding because the reject image is the input record unchanged (FR-12). The production sample required by the BND-002 cutover condition is run the same way. Byte contract unchanged.
 - **Status:** DECIDED (unchanged)
 - **History:** 2026-11-19 clarified after review round 2 REVIEWER_0003
+
+### BND-007 clarification (upstream source before cutover)
+- **Clarification:** the loader seed from `app/data` serves parity only. Any production cutover is also gated on an authoritative initial load and ongoing update of the masters POSTTRAN reads (CARDXREF, ACCTDATA, TCATBALF) from the source that maintains them today (XREFFILE load `app/jcl/XREFFILE.jcl:57-62`, CBIMPORT, online maintenance), migrated or replicated with a verified reconciliation. No production cutover in this stream; decision unchanged.
+- **Status:** DECIDED (unchanged)
+- **History:** 2026-11-19 clarified after review round 3 REVIEWER_0003
