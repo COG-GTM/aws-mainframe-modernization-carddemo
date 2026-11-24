@@ -1,0 +1,4 @@
+010001Regular Sales Draft                                   
+010002Regular Cash Advance                                  
+020001Payment received                                      
+030001Merchandise return credit                             
