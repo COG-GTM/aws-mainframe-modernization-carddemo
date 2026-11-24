@@ -1,0 +1,33 @@
+spring:
+  application:
+    name: carddemo-transaction
+  datasource:
+    # VSAM KSDS clusters -> relational tables. Override with any JDBC URL (e.g. PostgreSQL / Db2).
+    url: ${CARDDEMO_DB_URL:jdbc:h2:file:./.h2/carddemo;AUTO_SERVER=TRUE}
+    username: ${CARDDEMO_DB_USER:sa}
+    password: ${CARDDEMO_DB_PASSWORD:}
+  jpa:
+    hibernate:
+      ddl-auto: update
+    open-in-view: false
+  batch:
+    jdbc:
+      initialize-schema: always
+    job:
+      # Web mode by default; run a batch job with
+      #   --spring.batch.job.enabled=true --spring.batch.job.name=TransactionPostingJob
+      enabled: false
+
+carddemo:
+  batch:
+    dalytran-file: ${DALYTRAN:../data/ASCII/dailytran.txt}   # DD DALYTRAN
+    dalyrejs-dir: ${DALYREJS:./batch-output}                 # DD DALYREJS (GDG base)
+    chunk-size: 100                                          # commit interval
+  seed:
+    enabled: true
+    data-dir: ${CARDDEMO_DATA_DIR:../data/ASCII}
+
+logging:
+  level:
+    com.carddemo.transaction.batch.validation.DailyTransactionValidationProcessor: WARN
+    com.carddemo.transaction.batch.posting.TransactionPostingService: WARN
