@@ -1,0 +1,9 @@
+# Test-only users for the `test` profile (unit tests and Db2 ITs). Never used by the packaged service.
+carddemo:
+  security:
+    maintainer:
+      username: it-maintainer
+      password: it-maintainer-pw
+    reader:
+      username: it-reader
+      password: it-reader-pw
