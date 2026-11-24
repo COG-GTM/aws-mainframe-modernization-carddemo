@@ -1,0 +1,9 @@
+# Test-only API users (unit/MockMvc/IT). Never used outside src/test.
+carddemo:
+  security:
+    maintainer:
+      username: test-maintainer
+      password: test-maintainer-pw
+    reader:
+      username: test-reader
+      password: test-reader-pw

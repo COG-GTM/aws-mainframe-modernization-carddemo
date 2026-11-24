@@ -1,0 +1,428 @@
+[
+  {
+    "item": {
+      "type": "Issue",
+      "severity": "ERROR",
+      "name": "Missing COBOL copy book detected",
+      "description": "One or more missing COBOL copybooks were detected in the dependencies graph.",
+      "impact": "May have impact on Transform step.",
+      "details": "A COBOL copybook referenced is not present in the analyzed codebase.",
+      "action": "Add the missing copybook to your source code or verify it's included in the analysis scope with the correct file extension."
+    },
+    "files": [
+      {
+        "file": "COPAUA0C.cbl",
+        "filePath": "app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl",
+        "lineNumber": 203,
+        "details": [
+          "Missing COBOL Copybook: CVACT03Y (Copy)",
+          "Line(s): 203"
+        ]
+      },
+      {
+        "file": "COPAUA0C.cbl",
+        "filePath": "app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl",
+        "lineNumber": 206,
+        "details": [
+          "Missing COBOL Copybook: CVACT01Y (Copy)",
+          "Line(s): 206"
+        ]
+      },
+      {
+        "file": "COPAUA0C.cbl",
+        "filePath": "app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl",
+        "lineNumber": 209,
+        "details": [
+          "Missing COBOL Copybook: CVCUS01Y (Copy)",
+          "Line(s): 209"
+        ]
+      },
+      {
+        "file": "COPAUS0C.cbl",
+        "filePath": "app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl",
+        "lineNumber": 116,
+        "details": [
+          "Missing COBOL Copybook: COCOM01Y (Copy)",
+          "Line(s): 116"
+        ]
+      },
+      {
+        "file": "COPAUS0C.cbl",
+        "filePath": "app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl",
+        "lineNumber": 132,
+        "details": [
+          "Missing COBOL Copybook: COTTL01Y (Copy)",
+          "Line(s): 132"
+        ]
+      },
+      {
+        "file": "COPAUS0C.cbl",
+        "filePath": "app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl",
+        "lineNumber": 135,
+        "details": [
+          "Missing COBOL Copybook: CSDAT01Y (Copy)",
+          "Line(s): 135"
+        ]
+      },
+      {
+        "file": "COPAUS0C.cbl",
+        "filePath": "app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl",
+        "lineNumber": 138,
+        "details": [
+          "Missing COBOL Copybook: CSMSG01Y (Copy)",
+          "Line(s): 138"
+        ]
+      },
+      {
+        "file": "COPAUS0C.cbl",
+        "filePath": "app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl",
+        "lineNumber": 141,
+        "details": [
+          "Missing COBOL Copybook: CSMSG02Y (Copy)",
+          "Line(s): 141"
+        ]
+      },
+      {
+        "file": "COPAUS0C.cbl",
+        "filePath": "app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl",
+        "lineNumber": 144,
+        "details": [
+          "Missing COBOL Copybook: CVACT01Y (Copy)",
+          "Line(s): 144"
+        ]
+      },
+      {
+        "file": "COPAUS0C.cbl",
+        "filePath": "app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl",
+        "lineNumber": 147,
+        "details": [
+          "Missing COBOL Copybook: CVACT02Y (Copy)",
+          "Line(s): 147"
+        ]
+      },
+      {
+        "file": "COPAUS0C.cbl",
+        "filePath": "app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl",
+        "lineNumber": 150,
+        "details": [
+          "Missing COBOL Copybook: CVACT03Y (Copy)",
+          "Line(s): 150"
+        ]
+      },
+      {
+        "file": "COPAUS0C.cbl",
+        "filePath": "app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl",
+        "lineNumber": 153,
+        "details": [
+          "Missing COBOL Copybook: CVCUS01Y (Copy)",
+          "Line(s): 153"
+        ]
+      },
+      {
+        "file": "COPAUS1C.cbl",
+        "filePath": "app-authorization-ims-db2-mq/cbl/COPAUS1C.cbl",
+        "lineNumber": 109,
+        "details": [
+          "Missing COBOL Copybook: COCOM01Y (Copy)",
+          "Line(s): 109"
+        ]
+      },
+      {
+        "file": "COPAUS1C.cbl",
+        "filePath": "app-authorization-ims-db2-mq/cbl/COPAUS1C.cbl",
+        "lineNumber": 126,
+        "details": [
+          "Missing COBOL Copybook: COTTL01Y (Copy)",
+          "Line(s): 126"
+        ]
+      },
+      {
+        "file": "COPAUS1C.cbl",
+        "filePath": "app-authorization-ims-db2-mq/cbl/COPAUS1C.cbl",
+        "lineNumber": 129,
+        "details": [
+          "Missing COBOL Copybook: CSDAT01Y (Copy)",
+          "Line(s): 129"
+        ]
+      },
+      {
+        "file": "COPAUS1C.cbl",
+        "filePath": "app-authorization-ims-db2-mq/cbl/COPAUS1C.cbl",
+        "lineNumber": 132,
+        "details": [
+          "Missing COBOL Copybook: CSMSG01Y (Copy)",
+          "Line(s): 132"
+        ]
+      },
+      {
+        "file": "COPAUS1C.cbl",
+        "filePath": "app-authorization-ims-db2-mq/cbl/COPAUS1C.cbl",
+        "lineNumber": 135,
+        "details": [
+          "Missing COBOL Copybook: CSMSG02Y (Copy)",
+          "Line(s): 135"
+        ]
+      }
+    ]
+  },
+  {
+    "item": {
+      "type": "Issue",
+      "severity": "ERROR",
+      "name": "Missing control card detected",
+      "description": "One or more missing control cards were detected.",
+      "impact": "May have impact during the execution.",
+      "details": "A JCL control card or configuration file is not present in the analyzed codebase.",
+      "action": "Include the missing control card in your source code inputs. If the control card is provided dynamically at runtime (e.g., via an external SYSIN file), ensure it will be available in the target environment when the modernized batch job executes."
+    },
+    "files": [
+      {
+        "file": "DBPAUTP0.jcl",
+        "filePath": "app-authorization-ims-db2-mq/jcl/DBPAUTP0.jcl",
+        "details": [
+          "Missing Control Card: DFSVSMDB (Control card)"
+        ]
+      },
+      {
+        "file": "LOADPADB.JCL",
+        "filePath": "app-authorization-ims-db2-mq/jcl/LOADPADB.JCL",
+        "details": [
+          "Missing Control Card: DFSVSMDB (Control card)"
+        ]
+      },
+      {
+        "file": "UNLDGSAM.JCL",
+        "filePath": "app-authorization-ims-db2-mq/jcl/UNLDGSAM.JCL",
+        "details": [
+          "Missing Control Card: DFSVSMDB (Control card)"
+        ]
+      },
+      {
+        "file": "UNLDPADB.JCL",
+        "filePath": "app-authorization-ims-db2-mq/jcl/UNLDPADB.JCL",
+        "details": [
+          "Missing Control Card: DFSVSMDB (Control card)"
+        ]
+      }
+    ]
+  },
+  {
+    "item": {
+      "type": "Issue",
+      "severity": "ERROR",
+      "name": "Missing dependency detected",
+      "description": "One or more missing dependencies were detected in the dependencies graph.",
+      "impact": "May have impact on Transform step.",
+      "details": "A referenced component could not be found in the analyzed codebase.",
+      "action": "Verify the missing component exists in your source code and and include it in the analysis scope."
+    },
+    "files": [
+      {
+        "file": "COPAUA0C.cbl",
+        "filePath": "app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl",
+        "lineNumber": 477,
+        "details": [
+          "Missing CICS Dataset Definition: CCXREF (Exec CICS Read dataset; [Dynamic] Call)",
+          "Line(s): 477"
+        ]
+      },
+      {
+        "file": "COPAUA0C.cbl",
+        "filePath": "app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl",
+        "lineNumber": 525,
+        "details": [
+          "Missing CICS Dataset Definition: ACCTDAT (Exec CICS Read dataset; [Dynamic] Call)",
+          "Line(s): 525"
+        ]
+      },
+      {
+        "file": "COPAUA0C.cbl",
+        "filePath": "app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl",
+        "lineNumber": 573,
+        "details": [
+          "Missing CICS Dataset Definition: CUSTDAT (Exec CICS Read dataset; [Dynamic] Call)",
+          "Line(s): 573"
+        ]
+      },
+      {
+        "file": "COPAUS0C.cbl",
+        "filePath": "app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl",
+        "lineNumber": 818,
+        "details": [
+          "Missing CICS Dataset Definition: CXACAIX (Exec CICS Read dataset; [Dynamic] Call)",
+          "Line(s): 818"
+        ]
+      },
+      {
+        "file": "COPAUS0C.cbl",
+        "filePath": "app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl",
+        "lineNumber": 869,
+        "details": [
+          "Missing CICS Dataset Definition: ACCTDAT (Exec CICS Read dataset; [Dynamic] Call)",
+          "Line(s): 869"
+        ]
+      },
+      {
+        "file": "COPAUS0C.cbl",
+        "filePath": "app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl",
+        "lineNumber": 920,
+        "details": [
+          "Missing CICS Dataset Definition: CUSTDAT (Exec CICS Read dataset; [Dynamic] Call)",
+          "Line(s): 920"
+        ]
+      },
+      {
+        "file": "DBUNLDGS.CBL",
+        "filePath": "app-authorization-ims-db2-mq/cbl/DBUNLDGS.CBL",
+        "lineNumber": 222,
+        "details": [
+          "Missing Dynamic Call Value: ROOT-UNQUAL-SSA (IMS message invocation; [Dynamic] Call)",
+          "Line(s): 222"
+        ]
+      },
+      {
+        "file": "DBUNLDGS.CBL",
+        "filePath": "app-authorization-ims-db2-mq/cbl/DBUNLDGS.CBL",
+        "lineNumber": 267,
+        "details": [
+          "Missing Dynamic Call Value: CHILD-UNQUAL-SSA (IMS message invocation; [Dynamic] Call)",
+          "Line(s): 267"
+        ]
+      },
+      {
+        "file": "PAUDBLOD.CBL",
+        "filePath": "app-authorization-ims-db2-mq/cbl/PAUDBLOD.CBL",
+        "lineNumber": 244,
+        "details": [
+          "Missing Dynamic Call Value: ROOT-UNQUAL-SSA (IMS message invocation; [Dynamic] Call)",
+          "Line(s): 244"
+        ]
+      },
+      {
+        "file": "PAUDBLOD.CBL",
+        "filePath": "app-authorization-ims-db2-mq/cbl/PAUDBLOD.CBL",
+        "lineNumber": 296,
+        "details": [
+          "Missing Dynamic Call Value: ROOT-QUAL-SSA (IMS message invocation; [Dynamic] Call)",
+          "Line(s): 296"
+        ]
+      },
+      {
+        "file": "PAUDBLOD.CBL",
+        "filePath": "app-authorization-ims-db2-mq/cbl/PAUDBLOD.CBL",
+        "lineNumber": 321,
+        "details": [
+          "Missing Dynamic Call Value: CHILD-UNQUAL-SSA (IMS message invocation; [Dynamic] Call)",
+          "Line(s): 321"
+        ]
+      },
+      {
+        "file": "PAUDBUNL.CBL",
+        "filePath": "app-authorization-ims-db2-mq/cbl/PAUDBUNL.CBL",
+        "lineNumber": 213,
+        "details": [
+          "Missing Dynamic Call Value: ROOT-UNQUAL-SSA (IMS message invocation; [Dynamic] Call)",
+          "Line(s): 213"
+        ]
+      },
+      {
+        "file": "PAUDBUNL.CBL",
+        "filePath": "app-authorization-ims-db2-mq/cbl/PAUDBUNL.CBL",
+        "lineNumber": 257,
+        "details": [
+          "Missing Dynamic Call Value: CHILD-UNQUAL-SSA (IMS message invocation; [Dynamic] Call)",
+          "Line(s): 257"
+        ]
+      },
+      {
+        "file": "CBPAUP0J.jcl",
+        "filePath": "app-authorization-ims-db2-mq/jcl/CBPAUP0J.jcl",
+        "details": [
+          "Missing [Dataset, PDS]: IMS.SDFSRESL (PDS use; Read Dataset)"
+        ]
+      },
+      {
+        "file": "DBPAUTP0.jcl",
+        "filePath": "app-authorization-ims-db2-mq/jcl/DBPAUTP0.jcl",
+        "details": [
+          "Missing [Dataset, PDS]: OEMA.IMS.IMSP.SDFSRESL (PDS use; Read Dataset)",
+          "Missing PDS: OEMPP.IMS.V15R01MB.PROCLIB (PDS use)"
+        ]
+      },
+      {
+        "file": "LOADPADB.JCL",
+        "filePath": "app-authorization-ims-db2-mq/jcl/LOADPADB.JCL",
+        "details": [
+          "Missing [Dataset, PDS]: OEMA.IMS.IMSP.SDFSRESL (PDS use; Read Dataset)",
+          "Missing PDS: OEMPP.IMS.V15R01MB.PROCLIB (PDS use)"
+        ]
+      },
+      {
+        "file": "UNLDGSAM.JCL",
+        "filePath": "app-authorization-ims-db2-mq/jcl/UNLDGSAM.JCL",
+        "details": [
+          "Missing [Dataset, PDS]: OEMA.IMS.IMSP.SDFSRESL (PDS use; Read Dataset)",
+          "Missing PDS: OEMPP.IMS.V15R01MB.PROCLIB (PDS use)"
+        ]
+      },
+      {
+        "file": "UNLDPADB.JCL",
+        "filePath": "app-authorization-ims-db2-mq/jcl/UNLDPADB.JCL",
+        "details": [
+          "Missing [Dataset, PDS]: OEMA.IMS.IMSP.SDFSRESL (PDS use; Read Dataset)",
+          "Missing PDS: OEMPP.IMS.V15R01MB.PROCLIB (PDS use)"
+        ]
+      }
+    ]
+  },
+  {
+    "item": {
+      "type": "Issue",
+      "severity": "ERROR",
+      "name": "Missing program detected",
+      "description": "One or more missing programs were detected in the dependencies graph.",
+      "impact": "May have impact during the execution.",
+      "details": "A called program is not present in the analyzed codebase.",
+      "action": "Add the missing program to your source code or verify it's a system utility that will be available at runtime."
+    },
+    "files": [
+      {
+        "file": "COPAUS0C.cbl",
+        "filePath": "app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl",
+        "lineNumber": 322,
+        "details": [
+          "Missing Program: COMEN01C (Exec CICS program; [Dynamic] Call)",
+          "Line(s): 322, 674",
+          "Missing Program: COSGN00C (Exec CICS program; [Dynamic] Call)",
+          "Line(s): 322, 674"
+        ]
+      }
+    ]
+  },
+  {
+    "item": {
+      "type": "Issue",
+      "severity": "ERROR",
+      "name": "Unknown file type detected",
+      "description": "One or more files are classified as UNKNOWN.",
+      "impact": "May have impact on Transform step.",
+      "details": "The classification process was unable to determine the type of one or more files in the codebase. These files may be data files, configuration files, or artifacts in an unrecognized format.",
+      "action": "Review the detected unknown files and determine if they are required for the application. If needed, manually classify them or use the correct file extensions."
+    },
+    "files": [
+      {
+        "file": "PROJECT",
+        "details": [
+          "Found 1 file(s) classified as UNKNOWN."
+        ]
+      },
+      {
+        "file": "README.md",
+        "filePath": "app-authorization-ims-db2-mq/README.md",
+        "details": [
+          "File classified as UNKNOWN."
+        ]
+      }
+    ]
+  }
+]

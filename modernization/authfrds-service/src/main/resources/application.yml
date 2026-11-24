@@ -1,0 +1,38 @@
+spring:
+  application:
+    name: authfrds-service
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:db2://localhost:50000/CARDDEMO:retrieveMessagesFromServerOnGetMessage=true;}
+    username: ${SPRING_DATASOURCE_USERNAME:db2inst1}
+    password: ${SPRING_DATASOURCE_PASSWORD}
+    driver-class-name: com.ibm.db2.jcc.DB2Driver
+    hikari:
+      connection-test-query: SELECT 1 FROM SYSIBM.SYSDUMMY1
+      initialization-fail-timeout: -1
+server:
+  # loopback by default (HTTP Basic over plain HTTP); put TLS in front before exposing it
+  address: ${SERVER_ADDRESS:127.0.0.1}
+  port: ${SERVER_PORT:8080}
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+    operations-sorter: method
+    try-it-out-enabled: true
+carddemo:
+  # BR-AF-040: API credentials come from the environment only (see .env.example); startup fails if unset.
+  security:
+    maintainer:
+      username: ${AUTHFRDS_API_USER:}
+      password: ${AUTHFRDS_API_PASSWORD:}
+    reader:
+      username: ${AUTHFRDS_API_READER_USER:}
+      password: ${AUTHFRDS_API_READER_PASSWORD:}
+  list:
+    page-size: 5
+  ims-stub:
+    seed: classpath:ims-stub/pending-authorizations.json
