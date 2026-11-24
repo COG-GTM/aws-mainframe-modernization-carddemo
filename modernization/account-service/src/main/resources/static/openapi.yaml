@@ -1,0 +1,161 @@
+openapi: 3.0.3
+info:
+  title: CardDemo Account Service
+  version: 1.0.0
+  description: Replaces COACTVWC (CAVW) and COACTUPC (CAUP).
+servers:
+- url: http://localhost:8082
+security:
+- bearerAuth: []
+paths:
+  /api/v1/accounts/{acctId}:
+    parameters:
+    - name: acctId
+      in: path
+      required: true
+      description: ACCT-ID, up to 11 digits, non-zero
+      schema:
+        type: string
+        pattern: ^\d{1,11}$
+    get:
+      summary: View account with customer
+      description: 'Legacy: COACTVWC / CAVW (ACCTDAT + CXACAIX + CUSTDAT).'
+      tags:
+      - accounts
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccountDetails'
+        '400':
+          $ref: '#/components/responses/Error'
+        '404':
+          $ref: '#/components/responses/Error'
+    put:
+      summary: Update account and customer
+      description: 'Legacy: COACTUPC / CAUP. Send back accountVersion/customerVersion from GET; a stale version returns 409 "Record changed by
+        some one else. Please review"..'
+      tags:
+      - accounts
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Message'
+        '400':
+          $ref: '#/components/responses/Error'
+        '404':
+          $ref: '#/components/responses/Error'
+        '409':
+          $ref: '#/components/responses/Error'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AccountUpdateRequest'
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Issued by POST /api/v1/auth/signon locally; by Amazon Cognito in AWS
+  responses:
+    Error:
+      description: Error with legacy message
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ApiError'
+  schemas:
+    ApiError:
+      type: object
+      properties:
+        status: &id002
+          type: integer
+        code: &id001
+          type: string
+        message:
+          type: string
+          description: Legacy screen message text, preserved verbatim
+        timestamp:
+          type: string
+          format: date-time
+    Message:
+      type: object
+      properties:
+        message: *id001
+    AccountDetails:
+      type: object
+      properties:
+        acctId: *id002
+        activeStatus: *id001
+        currBal: &id003
+          type: number
+        creditLimit: *id003
+        cashCreditLimit: *id003
+        openDate: &id004
+          type: string
+          format: date
+        expirationDate: *id004
+        reissueDate: *id004
+        currCycCredit: *id003
+        currCycDebit: *id003
+        groupId: *id001
+        custId: *id002
+        firstName: *id001
+        middleName: *id001
+        lastName: *id001
+        addrLine1: *id001
+        addrLine2: *id001
+        addrLine3: *id001
+        addrStateCd: *id001
+        addrCountryCd: *id001
+        addrZip: *id001
+        phoneNum1: *id001
+        phoneNum2: *id001
+        ssn: *id001
+        govtIssuedId: *id001
+        dob: *id004
+        eftAccountId: *id001
+        priCardHolderInd: *id001
+        ficoCreditScore: *id002
+        accountVersion: *id002
+        customerVersion: *id002
+    AccountUpdateRequest:
+      type: object
+      properties:
+        activeStatus: *id001
+        currBal: *id003
+        creditLimit: *id003
+        cashCreditLimit: *id003
+        openDate: *id004
+        expirationDate: *id004
+        reissueDate: *id004
+        currCycCredit: *id003
+        currCycDebit: *id003
+        groupId: *id001
+        firstName: *id001
+        middleName: *id001
+        lastName: *id001
+        addrLine1: *id001
+        addrLine2: *id001
+        addrLine3: *id001
+        addrStateCd: *id001
+        addrCountryCd: *id001
+        addrZip: *id001
+        phoneNum1: *id001
+        phoneNum2: *id001
+        ssn: *id001
+        govtIssuedId: *id001
+        dob: *id004
+        eftAccountId: *id001
+        priCardHolderInd: *id001
+        ficoCreditScore: *id002
+        accountVersion: *id002
+        customerVersion: *id002

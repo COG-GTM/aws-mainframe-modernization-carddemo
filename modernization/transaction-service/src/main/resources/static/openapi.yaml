@@ -1,0 +1,341 @@
+openapi: 3.0.3
+info:
+  title: CardDemo Transaction Service
+  version: 1.0.0
+  description: Replaces COTRN00C-02C (CT00-CT02), COBIL00C (CB00), CORPT00C (CR00) and TRANTYPE/TRANCATG lookups.
+servers:
+- url: http://localhost:8084
+security:
+- bearerAuth: []
+paths:
+  /api/v1/transactions:
+    get:
+      summary: List transactions, 10 per page
+      description: 'Legacy: COTRN00C / CT00.'
+      tags:
+      - transactions
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                description: Stateless replacement for the COMMAREA browse state (first/last key, page number)
+                properties:
+                  items:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Transaction'
+                  pageNumber: &id003
+                    type: integer
+                  firstKey: &id001
+                    type: string
+                  lastKey: *id001
+                  hasNextPage: &id002
+                    type: boolean
+                  hasPreviousPage: *id002
+                  message: *id001
+        '400':
+          $ref: '#/components/responses/Error'
+      parameters:
+      - name: startKey
+        in: query
+        required: false
+        description: Key to start browsing from (the screen search field)
+        schema:
+          type: string
+      - name: after
+        in: query
+        required: false
+        description: lastKey of the current page (PF8 / page down)
+        schema:
+          type: string
+      - name: before
+        in: query
+        required: false
+        description: firstKey of the current page (PF7 / page up)
+        schema:
+          type: string
+      - name: page
+        in: query
+        required: false
+        description: Current page number (echoed and incremented)
+        schema:
+          type: integer
+    post:
+      summary: Add transaction
+      description: 'Legacy: COTRN02C / CT02. Without confirm=Y returns 200 with confirmationRequired=true (the "Confirm (Y/N)" step)..'
+      tags:
+      - transactions
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OperationResult'
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OperationResult'
+        '400':
+          $ref: '#/components/responses/Error'
+        '404':
+          $ref: '#/components/responses/Error'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AddTransactionRequest'
+  /api/v1/transactions/{tranId}:
+    get:
+      summary: View transaction
+      description: 'Legacy: COTRN01C / CT01.'
+      tags:
+      - transactions
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Transaction'
+        '404':
+          $ref: '#/components/responses/Error'
+      parameters:
+      - name: tranId
+        in: path
+        required: true
+        description: TRAN-ID (16 chars)
+        schema:
+          type: string
+  /api/v1/bill-payments:
+    post:
+      summary: Pay account balance in full
+      description: 'Legacy: COBIL00C / CB00. Two-step confirm like CT02..'
+      tags:
+      - payments
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OperationResult'
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OperationResult'
+        '400':
+          $ref: '#/components/responses/Error'
+        '404':
+          $ref: '#/components/responses/Error'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BillPaymentRequest'
+  /api/v1/reports/transactions:
+    post:
+      summary: Queue transaction report
+      description: 'Legacy: CORPT00C / CR00 (submits TRANREPT).'
+      tags:
+      - reports
+      responses:
+        '202':
+          description: Accepted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReportRequest'
+        '400':
+          $ref: '#/components/responses/Error'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReportCommand'
+  /api/v1/reports/transactions/{id}:
+    get:
+      summary: Report status and output
+      description: 'Legacy: TRANREPT output dataset.'
+      tags:
+      - reports
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReportRequest'
+        '404':
+          $ref: '#/components/responses/Error'
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema: *id003
+  /api/v1/transaction-types:
+    get:
+      summary: Transaction types
+      description: 'Legacy: TRANTYPE / CVTRA03Y.'
+      tags:
+      - reference
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    typeCd: *id001
+                    description: *id001
+  /api/v1/transaction-categories:
+    get:
+      summary: Transaction categories
+      description: 'Legacy: TRANCATG / CVTRA04Y.'
+      tags:
+      - reference
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    typeCd: *id001
+                    catCd: *id003
+                    description: *id001
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Issued by POST /api/v1/auth/signon locally; by Amazon Cognito in AWS
+  responses:
+    Error:
+      description: Error with legacy message
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ApiError'
+  schemas:
+    ApiError:
+      type: object
+      properties:
+        status: *id003
+        code: *id001
+        message:
+          type: string
+          description: Legacy screen message text, preserved verbatim
+        timestamp: &id004
+          type: string
+          format: date-time
+    Message:
+      type: object
+      properties:
+        message: *id001
+    Transaction:
+      type: object
+      properties:
+        tranId: *id001
+        typeCd: *id001
+        catCd: *id003
+        source: *id001
+        description: *id001
+        amount: &id005
+          type: number
+        merchantId: *id003
+        merchantName: *id001
+        merchantCity: *id001
+        merchantZip: *id001
+        cardNum: *id001
+        origTs: *id004
+        procTs: *id004
+    AddTransactionRequest:
+      type: object
+      properties:
+        acctId: *id001
+        cardNum: *id001
+        typeCd: *id001
+        catCd: *id001
+        source: *id001
+        description: *id001
+        amount:
+          type: string
+          example: '-00000012.50'
+          description: Format -99999999.99 as on the CT02 screen
+        origDate:
+          type: string
+          example: '2024-01-15'
+        procDate: *id001
+        merchantId: *id001
+        merchantName: *id001
+        merchantCity: *id001
+        merchantZip: *id001
+        confirm:
+          type: string
+          enum:
+          - Y
+          - N
+    BillPaymentRequest:
+      type: object
+      properties:
+        acctId: *id001
+        confirm:
+          type: string
+          enum:
+          - Y
+          - N
+    OperationResult:
+      type: object
+      properties:
+        message: *id001
+        confirmationRequired: *id002
+        tranId: *id001
+        currentBalance: *id005
+    ReportCommand:
+      type: object
+      properties:
+        reportType:
+          type: string
+          enum:
+          - MONTHLY
+          - YEARLY
+          - CUSTOM
+        startDate: &id006
+          type: string
+          format: date
+        endDate: *id006
+        confirm: *id001
+    ReportRequest:
+      type: object
+      properties:
+        id: *id003
+        reportType: *id001
+        startDate: *id006
+        endDate: *id006
+        requestedBy: *id001
+        status:
+          type: string
+          enum:
+          - SUBMITTED
+          - COMPLETED
+        requestedAt: *id004
+        completedAt: *id004
+        output: *id001

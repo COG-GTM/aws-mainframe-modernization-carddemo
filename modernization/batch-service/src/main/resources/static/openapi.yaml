@@ -1,0 +1,169 @@
+openapi: 3.0.3
+info:
+  title: CardDemo Batch Service
+  version: 1.0.0
+  description: Spring Batch replacements for POSTTRAN (CBTRN02C), INTCALC (CBACT04C), TRANREPT (CBTRN03C) and CREASTMT (CBSTM03A/B). All operations
+    require ROLE_ADMIN.
+servers:
+- url: http://localhost:8085
+security:
+- bearerAuth: []
+paths:
+  /api/v1/batch/jobs:
+    get:
+      summary: List jobs
+      description: 'Legacy: JCL members. Requires ROLE_ADMIN (USRSEC user type A).'
+      tags:
+      - jobs
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items: &id002
+                  type: string
+  /api/v1/batch/jobs/{name}:
+    post:
+      summary: Run a job synchronously
+      description: 'Legacy: JES SUBMIT of POSTTRAN / INTCALC / TRANREPT / CREASTMT. Requires ROLE_ADMIN (USRSEC user type A).'
+      tags:
+      - jobs
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JobRun'
+        '400':
+          $ref: '#/components/responses/Error'
+        '403':
+          $ref: '#/components/responses/Error'
+        '404':
+          $ref: '#/components/responses/Error'
+      parameters:
+      - name: name
+        in: path
+        required: true
+        description: POSTTRAN | INTCALC | TRANREPT | CREASTMT
+        schema:
+          type: string
+      - name: date
+        in: query
+        required: false
+        description: INTCALC PARM date (YYYY-MM-DD)
+        schema:
+          type: string
+      - name: startDate
+        in: query
+        required: false
+        description: TRANREPT start
+        schema:
+          type: string
+      - name: endDate
+        in: query
+        required: false
+        description: TRANREPT end
+        schema:
+          type: string
+  /api/v1/batch/daily-transactions:
+    post:
+      summary: Stage a DALYTRAN file
+      description: 'Legacy: DALYTRAN.PS input to POSTTRAN. Requires ROLE_ADMIN (USRSEC user type A).'
+      tags:
+      - jobs
+      responses:
+        '202':
+          description: Accepted
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  staged: &id001
+                    type: integer
+        '400':
+          $ref: '#/components/responses/Error'
+        '403':
+          $ref: '#/components/responses/Error'
+      parameters:
+      - name: encoding
+        in: query
+        required: false
+        description: ASCII (default) or EBCDIC
+        schema:
+          type: string
+      requestBody:
+        required: true
+        content:
+          text/plain:
+            schema:
+              type: string
+              description: 350-byte CVTRA06Y records
+          application/octet-stream:
+            schema:
+              type: string
+              format: binary
+  /api/v1/batch/report-requests/process:
+    post:
+      summary: Process queued report requests now
+      description: 'Legacy: CORPT00C internal-reader submit. Requires ROLE_ADMIN (USRSEC user type A).'
+      tags:
+      - jobs
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  processed: *id001
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Issued by POST /api/v1/auth/signon locally; by Amazon Cognito in AWS
+  responses:
+    Error:
+      description: Error with legacy message
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ApiError'
+  schemas:
+    ApiError:
+      type: object
+      properties:
+        status: *id001
+        code: *id002
+        message:
+          type: string
+          description: Legacy screen message text, preserved verbatim
+        timestamp:
+          type: string
+          format: date-time
+    Message:
+      type: object
+      properties:
+        message: *id002
+    JobRun:
+      type: object
+      properties:
+        jobExecutionId: *id001
+        job: *id002
+        status: *id002
+        returnCode:
+          type: integer
+          description: 'JCL-style RC: 0 OK, 4 = rejects written'
+        counters:
+          type: object
+          additionalProperties: true
+        output: *id002
+        failures:
+          type: array
+          items: *id002
