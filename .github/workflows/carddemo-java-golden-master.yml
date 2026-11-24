@@ -1,0 +1,38 @@
+name: carddemo-java golden master
+
+on:
+  pull_request:
+    paths:
+      - "app/cbl/**"
+      - "app/cpy/**"
+      - "app/data/ASCII/**"
+      - "app/jcl/**"
+      - "carddemo-java/golden-master/**"
+      - ".github/workflows/carddemo-java-golden-master.yml"
+  push:
+    branches: [main]
+    paths:
+      - "app/cbl/**"
+      - "app/cpy/**"
+      - "app/data/ASCII/**"
+      - "app/jcl/**"
+      - "carddemo-java/golden-master/**"
+      - ".github/workflows/carddemo-java-golden-master.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install GnuCOBOL
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y gnucobol3
+          cobc --version | head -1
+          cobc --info | grep -i indexed
+      - name: Rerun the batch chain twice and compare with the baselines
+        run: carddemo-java/golden-master/run.sh --check
