@@ -494,6 +494,11 @@ class Copaus0cServiceTest {
             Copaus0cResult r = firstPage();
             assertEquals("TXN000000000001 ", r.screen().row(1).trnid());
             assertEquals(msg(""), r.screen().errmsg());
+            data.ims.schedulePsb("PSBPAUTB");
+            data.ims.getUniqueSummary(1);
+            var gnp = data.ims.getNextDetail();
+            assertEquals("FW", gnp.dibstat());
+            assertEquals("TXN000000000001", gnp.segment().paTransactionId());
         }
 
         @Test
