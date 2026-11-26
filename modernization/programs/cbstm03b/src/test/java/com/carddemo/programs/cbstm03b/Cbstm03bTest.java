@@ -136,6 +136,21 @@ class Cbstm03bTest {
         }
 
         @Test
+        void sameCardTransactionsFollowEbcdicKeyOrder() {
+            String digit = trnx("4000000000000009", "0000000000000001", "DIGIT");
+            String letter = trnx("4000000000000009", "A000000000000001", "LETTER");
+            Cbstm03b p = new Cbstm03b(InMemoryIndexedFile.of("TRNXFILE", 350, 0, 32, List.of(digit, letter)),
+                    xrefFile, custFile, acctFile);
+            LkM03bArea lk = area("TRNXFILE", M03bOper.OPEN);
+            p.call(lk);
+            lk.set(M03bOper.READ);
+            p.call(lk);
+            assertEquals(fldtOf(letter), lk.fldt(), "EBCDIC: letters sort before digits");
+            p.call(lk);
+            assertEquals(fldtOf(digit), lk.fldt());
+        }
+
+        @Test
         void readBeforeOpenIsStatus47() {
             LkM03bArea lk = call("TRNXFILE", M03bOper.READ);
             assertEquals("47", lk.rc());
@@ -315,6 +330,20 @@ class Cbstm03bTest {
         void zeroKeyLengthAbends() {
             assertThrows(Cbstm03bAbend.class, () -> readK("ACCTFILE", "00000000001", 0));
         }
+    }
+
+    @Test
+    void unreadableDatasetIsReportedAsOpenStatusNotException(@org.junit.jupiter.api.io.TempDir java.nio.file.Path tmp)
+            throws Exception {
+        java.nio.file.Path shortXref = tmp.resolve("xref.txt");
+        java.nio.file.Files.writeString(shortXref, "x".repeat(51) + "\n");
+        Cbstm03b p = Cbstm03b.fromDatasets(tmp, shortXref, null, null);
+        LkM03bArea trnx = area("TRNXFILE", M03bOper.OPEN);
+        p.call(trnx);
+        assertEquals("30", trnx.rc(), "directory instead of dataset");
+        LkM03bArea xref = area("XREFFILE", M03bOper.OPEN);
+        p.call(xref);
+        assertEquals("30", xref.rc(), "record longer than LRECL 50");
     }
 
     @Test

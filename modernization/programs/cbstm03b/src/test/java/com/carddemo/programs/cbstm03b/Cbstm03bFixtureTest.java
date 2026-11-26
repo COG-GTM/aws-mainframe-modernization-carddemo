@@ -6,6 +6,7 @@ import com.carddemo.programs.cbstm03b.copybook.FdTrnxFileRec;
 import com.carddemo.programs.cbstm03b.copybook.FdXrefFileRec;
 import com.carddemo.programs.cbstm03b.copybook.LkM03bArea;
 import com.carddemo.programs.cbstm03b.copybook.M03bOper;
+import com.carddemo.programs.cbstm03b.io.EbcdicCollation;
 import com.carddemo.programs.cbstm03b.io.FixedWidthRecordReader;
 import com.carddemo.programs.cbstm03b.io.FixedWidthRecordWriter;
 import org.junit.jupiter.api.BeforeEach;
@@ -38,7 +39,8 @@ class Cbstm03bFixtureTest {
     /** SORT FIELDS=(263,16,CH,A,1,16,CH,A); OUTREC FIELDS=(1:263,16,17:1,262,279:279,50); LRECL=350. */
     static List<String> creastmtStep010(List<String> transact) {
         List<String> sorted = new ArrayList<>(transact);
-        sorted.sort(Comparator.comparing((String r) -> r.substring(262, 278)).thenComparing(r -> r.substring(0, 16)));
+        sorted.sort(Comparator.comparing((String r) -> r.substring(262, 278), EbcdicCollation.ORDER)
+                .thenComparing(r -> r.substring(0, 16), EbcdicCollation.ORDER));
         List<String> out = new ArrayList<>();
         for (String r : sorted) {
             String rec = r.substring(262, 278) + r.substring(0, 262) + r.substring(278, 328);
@@ -80,7 +82,7 @@ class Cbstm03bFixtureTest {
             assertEquals("00", x.rc());
             xrefs++;
             FdXrefFileRec xref = FdXrefFileRec.parse(x.fldt().substring(0, FdXrefFileRec.RECORD_LENGTH));
-            assertTrue(xref.fdXrefCardNum().compareTo(previousCard) > 0, "ascending card order");
+            assertTrue(EbcdicCollation.compare(xref.fdXrefCardNum(), previousCard) > 0, "ascending card order");
             previousCard = xref.fdXrefCardNum();
             String custId = xref.fdXrefData().substring(0, 9);   // XREF-CUST-ID PIC 9(09)
             String acctId = xref.fdXrefData().substring(9, 20);  // XREF-ACCT-ID PIC 9(11)
@@ -103,7 +105,7 @@ class Cbstm03bFixtureTest {
         LkM03bArea t;
         while ((t = call("TRNXFILE", M03bOper.READ)).rc().equals("00")) {
             FdTrnxFileRec rec = FdTrnxFileRec.parse(t.fldt().substring(0, 350));
-            assertTrue(rec.fdTrnxsId().compareTo(previousKey) > 0, "ascending FD-TRNXS-ID order");
+            assertTrue(EbcdicCollation.compare(rec.fdTrnxsId(), previousKey) > 0, "ascending FD-TRNXS-ID order");
             previousKey = rec.fdTrnxsId();
             assertEquals(trxfl.get(trnx), rec.toRecord());
             trnx++;

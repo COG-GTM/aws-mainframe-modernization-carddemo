@@ -11,8 +11,6 @@ import com.carddemo.programs.cbstm03b.io.InMemoryIndexedFile;
 import com.carddemo.programs.cbstm03b.io.IndexedFile;
 import com.carddemo.programs.cbstm03b.io.ReadResult;
 
-import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Objects;
 
@@ -46,25 +44,24 @@ public class Cbstm03b {
     }
 
     /**
-     * Binds the four DDs of CREASTMT STEP040 to line-delimited fixed-width datasets.
-     * A null or non-existent path behaves like an unallocated DD (OPEN status 35).
+     * Binds the four DDs of CREASTMT STEP040 to line-delimited fixed-width datasets. Datasets are
+     * read on OPEN, so a null/missing path returns 35 and an unreadable or malformed one returns
+     * 30/39 to the caller as LK-M03B-RC.
      */
-    public static Cbstm03b fromDatasets(Path trnxfile, Path xreffile, Path custfile, Path acctfile)
-            throws IOException {
+    public static Cbstm03b fromDatasets(Path trnxfile, Path xreffile, Path custfile, Path acctfile) {
         return new Cbstm03b(
-                load(DD_TRNXFILE, trnxfile, FdTrnxFileRec.RECORD_LENGTH, FdTrnxFileRec.KEY_OFFSET, FdTrnxFileRec.KEY_LENGTH),
-                load(DD_XREFFILE, xreffile, FdXrefFileRec.RECORD_LENGTH, FdXrefFileRec.KEY_OFFSET, FdXrefFileRec.KEY_LENGTH),
-                load(DD_CUSTFILE, custfile, FdCustFileRec.RECORD_LENGTH, FdCustFileRec.KEY_OFFSET, FdCustFileRec.KEY_LENGTH),
-                load(DD_ACCTFILE, acctfile, FdAcctFileRec.RECORD_LENGTH, FdAcctFileRec.KEY_OFFSET, FdAcctFileRec.KEY_LENGTH));
+                bind(DD_TRNXFILE, trnxfile, FdTrnxFileRec.RECORD_LENGTH, FdTrnxFileRec.KEY_OFFSET, FdTrnxFileRec.KEY_LENGTH),
+                bind(DD_XREFFILE, xreffile, FdXrefFileRec.RECORD_LENGTH, FdXrefFileRec.KEY_OFFSET, FdXrefFileRec.KEY_LENGTH),
+                bind(DD_CUSTFILE, custfile, FdCustFileRec.RECORD_LENGTH, FdCustFileRec.KEY_OFFSET, FdCustFileRec.KEY_LENGTH),
+                bind(DD_ACCTFILE, acctfile, FdAcctFileRec.RECORD_LENGTH, FdAcctFileRec.KEY_OFFSET, FdAcctFileRec.KEY_LENGTH));
     }
 
-    private static InMemoryIndexedFile load(String dd, Path path, int lrecl, int keyOffset, int keyLength)
-            throws IOException {
-        if (path == null || !Files.exists(path)) {
+    private static InMemoryIndexedFile bind(String dd, Path path, int lrecl, int keyOffset, int keyLength) {
+        if (path == null) {
             return InMemoryIndexedFile.missing(dd, lrecl, keyOffset, keyLength);
         }
-        return InMemoryIndexedFile.of(dd, lrecl, keyOffset, keyLength,
-                new FixedWidthRecordReader(lrecl).readAll(path));
+        FixedWidthRecordReader reader = new FixedWidthRecordReader(lrecl);
+        return InMemoryIndexedFile.deferred(dd, lrecl, keyOffset, keyLength, () -> reader.readAll(path));
     }
 
     /** PROCEDURE DIVISION USING LK-M03B-AREA. */

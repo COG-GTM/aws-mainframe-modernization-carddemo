@@ -3,7 +3,11 @@ package com.carddemo.programs.cbstm03b.io;
 import com.carddemo.programs.cbstm03b.copybook.FileStatus;
 import org.junit.jupiter.api.Test;
 
+import org.junit.jupiter.api.io.TempDir;
+
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.List;
@@ -11,6 +15,7 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class FixedWidthIoTest {
 
@@ -55,5 +60,36 @@ class FixedWidthIoTest {
         assertEquals("xxBB", f.readByKey("BB").record());
         assertEquals(FileStatus.RECORD_NOT_FOUND, f.readByKey("CC").status());
         assertThrows(IllegalArgumentException.class, () -> f.readByKey("C"));
+    }
+
+    @Test
+    void keysAreReadInEbcdicOrder() {
+        InMemoryIndexedFile f = InMemoryIndexedFile.of("F", 2, 0, 2, List.of("11", "A1", "a1"));
+        f.open();
+        assertEquals("a1", f.readNext().record());
+        assertEquals("A1", f.readNext().record());
+        assertEquals("11", f.readNext().record());
+        assertTrue(EbcdicCollation.compare("A", "1") < 0);
+        assertTrue("A".compareTo("1") > 0, "ASCII order differs");
+    }
+
+    @Test
+    void deferredFileReportsLoadProblemsAsOpenStatuses(@TempDir Path tmp) throws IOException {
+        Path bad = tmp.resolve("bad.txt");
+        Files.writeString(bad, "toolong\n");
+        FixedWidthRecordReader reader = new FixedWidthRecordReader(4);
+        assertEquals("30", InMemoryIndexedFile.deferred("F", 4, 0, 2, () -> reader.readAll(bad)).open().code(),
+                "line longer than LRECL: unreadable dataset");
+        assertEquals("30", InMemoryIndexedFile.deferred("F", 4, 0, 2, () -> reader.readAll(tmp)).open().code(),
+                "directory: I/O error");
+        assertEquals("35", InMemoryIndexedFile.deferred("F", 4, 0, 2,
+                () -> reader.readAll(tmp.resolve("absent.txt"))).open().code());
+        assertEquals("39", InMemoryIndexedFile.deferred("F", 4, 0, 2, () -> List.of("abc")).open().code(),
+                "wrong record length");
+        assertEquals("39", InMemoryIndexedFile.deferred("F", 4, 0, 2, () -> List.of("aa11", "aa22")).open().code(),
+                "duplicate key");
+        InMemoryIndexedFile ok = InMemoryIndexedFile.deferred("F", 4, 0, 2, () -> List.of("aa11"));
+        assertEquals("00", ok.open().code());
+        assertEquals("aa11", ok.readNext().record());
     }
 }
