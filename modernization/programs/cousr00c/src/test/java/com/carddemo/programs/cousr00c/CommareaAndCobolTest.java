@@ -78,12 +78,13 @@ class CommareaAndCobolTest {
 
     @Test
     void numericDisplayIgnoresDefaultLocaleDigits() {
-        java.util.Locale saved = java.util.Locale.getDefault();
+        java.util.Locale.Category format = java.util.Locale.Category.FORMAT;
+        java.util.Locale saved = java.util.Locale.getDefault(format);
         try {
-            java.util.Locale.setDefault(java.util.Locale.forLanguageTag("ar-EG-u-nu-arab"));
+            java.util.Locale.setDefault(format, java.util.Locale.forLanguageTag("ar-EG-u-nu-arab"));
             assertEquals("00000001", Cobol.numericDisplay(1, 8));
         } finally {
-            java.util.Locale.setDefault(saved);
+            java.util.Locale.setDefault(format, saved);
         }
     }
 
