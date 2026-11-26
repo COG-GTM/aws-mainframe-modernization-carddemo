@@ -3,6 +3,7 @@ package com.carddemo.programs.cobtupdt;
 import com.carddemo.programs.cobtupdt.copybook.Sqlca;
 
 import java.io.PrintStream;
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.sql.Connection;
@@ -34,6 +35,7 @@ public final class Cobtupdt {
     public static final String ENV_JDBC_USER = "CARDDEMO_JDBC_USER";
     public static final String ENV_JDBC_PASSWORD = "CARDDEMO_JDBC_PASSWORD";
     public static final String ENV_INPFILE_LAYOUT = "CARDDEMO_INPFILE_LAYOUT";
+    public static final String ENV_INPFILE_CHARSET = "CARDDEMO_INPFILE_CHARSET";
 
     static final int WS_RETURN_MSG_LENGTH = 80;
 
@@ -254,7 +256,8 @@ public final class Cobtupdt {
      * (the JAR bundles no JDBC driver, e.g. add IBM db2jcc4.jar for DB2). DB2 connection from CARDDEMO_JDBC_URL /
      * CARDDEMO_JDBC_USER / CARDDEMO_JDBC_PASSWORD; without a URL the step ends with RC 12.
      * CARDDEMO_INPFILE_LAYOUT selects LINE_SEQUENTIAL (default, as in app/data/ASCII) or FIXED_BLOCK
-     * (separator-free 53-byte records, as in the RECFM=F dataset).
+     * (separator-free 53-byte records, as in the RECFM=F dataset). CARDDEMO_INPFILE_CHARSET defaults to UTF-8 for
+     * LINE_SEQUENTIAL and ISO-8859-1 for FIXED_BLOCK, which accepts only single-byte charsets (e.g. IBM037 for EBCDIC).
      */
     public static void main(String[] args) {
         System.exit(execute(args, System.getenv(), System.out, System.err));
@@ -273,7 +276,22 @@ public final class Cobtupdt {
             err.println("COBTUPDT: invalid " + ENV_INPFILE_LAYOUT + ", expected LINE_SEQUENTIAL or FIXED_BLOCK");
             return RC_SEVERE;
         }
-        TrRecordReader reader = FixedWidthTrRecordReader.of(Path.of(args[0]), StandardCharsets.UTF_8, layout);
+        boolean fixedBlock = layout == FixedWidthTrRecordReader.Layout.FIXED_BLOCK;
+        Charset charset;
+        try {
+            String name = env.get(ENV_INPFILE_CHARSET);
+            charset = name == null || name.isBlank()
+                    ? (fixedBlock ? StandardCharsets.ISO_8859_1 : StandardCharsets.UTF_8)
+                    : Charset.forName(name);
+        } catch (IllegalArgumentException e) {
+            err.println("COBTUPDT: unsupported " + ENV_INPFILE_CHARSET);
+            return RC_SEVERE;
+        }
+        if (fixedBlock && (!charset.canEncode() || charset.newEncoder().maxBytesPerChar() > 1)) {
+            err.println("COBTUPDT: FIXED_BLOCK needs a single-byte " + ENV_INPFILE_CHARSET + " (e.g. ISO-8859-1, IBM037)");
+            return RC_SEVERE;
+        }
+        TrRecordReader reader = FixedWidthTrRecordReader.of(Path.of(args[0]), charset, layout);
         String url = env.get(ENV_JDBC_URL);
         if (url == null || url.isBlank()) {
             err.println("COBTUPDT: " + ENV_JDBC_URL + " not set, no DB2 connection");

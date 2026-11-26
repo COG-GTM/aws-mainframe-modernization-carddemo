@@ -90,4 +90,44 @@ class MainTest {
         int rc = Cobtupdt.execute(new String[] {"INPFILE"}, Map.of(Cobtupdt.ENV_INPFILE_LAYOUT, "VSAM"), out, err);
         assertEquals(12, rc);
     }
+
+    @Test
+    void fixedBlockReadsEbcdicWithIbm037(@TempDir Path dir) throws Exception {
+        String url = "jdbc:h2:mem:ebc" + System.nanoTime() + ";DB_CLOSE_DELAY=-1";
+        try (Connection c = DriverManager.getConnection(url)) {
+            JdbcTransactionTypeGatewayTest.createSchema(c);
+            Path f = dir.resolve("INPFILE");
+            String data = TrRecord.parse("A01Purchase").toFixedWidth() + TrRecord.parse("A02Refund").toFixedWidth();
+            Files.write(f, data.getBytes(java.nio.charset.Charset.forName("IBM037")));
+            int rc = Cobtupdt.execute(new String[] {f.toString()}, Map.of(Cobtupdt.ENV_JDBC_URL, url,
+                    Cobtupdt.ENV_INPFILE_LAYOUT, "FIXED_BLOCK", Cobtupdt.ENV_INPFILE_CHARSET, "IBM037"), out, err);
+            assertEquals(0, rc);
+            assertEquals("Refund" + " ".repeat(44), JdbcTransactionTypeGatewayTest.rows(c).get("02"));
+        }
+    }
+
+    @Test
+    void fixedBlockDefaultCharsetKeepsByteAlignmentWithMultibyteText(@TempDir Path dir) throws Exception {
+        String url = "jdbc:h2:mem:mb" + System.nanoTime() + ";DB_CLOSE_DELAY=-1";
+        try (Connection c = DriverManager.getConnection(url)) {
+            JdbcTransactionTypeGatewayTest.createSchema(c);
+            byte[] rec1 = ("A01Caf\u00e9" + " ".repeat(45)).getBytes(StandardCharsets.UTF_8);
+            byte[] rec2 = TrRecord.parse("A02Refund").toFixedWidth().getBytes(StandardCharsets.UTF_8);
+            assertEquals(53, rec1.length);
+            Path f = dir.resolve("INPFILE");
+            Files.write(f, java.nio.ByteBuffer.allocate(106).put(rec1).put(rec2).array());
+            int rc = Cobtupdt.execute(new String[] {f.toString()},
+                    Map.of(Cobtupdt.ENV_JDBC_URL, url, Cobtupdt.ENV_INPFILE_LAYOUT, "FIXED_BLOCK"), out, err);
+            assertEquals(0, rc);
+            assertEquals(2, JdbcTransactionTypeGatewayTest.rows(c).size());
+        }
+    }
+
+    @Test
+    void fixedBlockRejectsMultibyteCharset() {
+        int rc = Cobtupdt.execute(new String[] {"INPFILE"}, Map.of(Cobtupdt.ENV_INPFILE_LAYOUT, "FIXED_BLOCK",
+                Cobtupdt.ENV_INPFILE_CHARSET, "UTF-8"), out, err);
+        assertEquals(12, rc);
+        assertTrue(errBytes.toString(StandardCharsets.UTF_8).contains("single-byte"));
+    }
 }
