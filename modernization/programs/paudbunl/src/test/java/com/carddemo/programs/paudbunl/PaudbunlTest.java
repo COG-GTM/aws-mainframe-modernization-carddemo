@@ -19,6 +19,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class PaudbunlTest {
@@ -237,6 +238,16 @@ class PaudbunlTest {
         };
         run(spy);
         assertEquals(List.of("  ", "  ", "  "), statusesSeenByGn);
+    }
+
+    @Test
+    void secondRunOnSameInstanceIsRejectedBeforeReopeningFiles() {
+        Paudbunl program = new Paudbunl(twoAccounts(), Paudbunl.pautbunlPcb(), opfile1, opfile2, CLOCK,
+                sysout::add, CobolData.EBCDIC);
+        assertEquals(0, program.run().returnCode());
+        assertThrows(IllegalStateException.class, program::run);
+        assertEquals(1, opfile1.openCount());
+        assertEquals(2, opfile1.records().size());
     }
 
     @Test

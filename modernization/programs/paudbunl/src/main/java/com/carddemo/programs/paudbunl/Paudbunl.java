@@ -67,6 +67,7 @@ public final class Paudbunl {
     private final byte[] opfil1Rec = new byte[PendingAuthSummary.LENGTH];
     private final Opfil2Rec opfil2Rec;
 
+    private boolean started;
     private int rootRecordsWritten;
     private int childRecordsWritten;
 
@@ -87,8 +88,12 @@ public final class Paudbunl {
         return new PautbPcb("DBPAUTP0", "GOTP", 2);
     }
 
-    /** Runs the program and returns RETURN-CODE plus counters. */
+    /** Runs the program once (one run unit) and returns RETURN-CODE plus counters. */
     public PaudbunlResult run() {
+        if (started) {
+            throw new IllegalStateException("PAUDBUNL run unit already executed; create a new instance");
+        }
+        started = true;
         int returnCode = 0;
         try {
             mainPara();
