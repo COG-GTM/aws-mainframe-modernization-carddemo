@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -74,7 +75,11 @@ class Cbtrn03cMainTest {
         Map<String, String> dd = allocate(RecordFormat.LINE);
         Path target = dir.resolve("protected.txt");
         Files.writeString(target, "keep");
-        Files.createSymbolicLink(Path.of(dd.get("TRANREPT")), target);
+        try {
+            Files.createSymbolicLink(Path.of(dd.get("TRANREPT")), target);
+        } catch (UnsupportedOperationException | IOException e) {
+            org.junit.jupiter.api.Assumptions.abort("symbolic links not available: " + e);
+        }
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         assertEquals(999, Cbtrn03cMain.execute(dd::get, new PrintStream(out, true, StandardCharsets.ISO_8859_1)));
         assertTrue(out.toString(StandardCharsets.ISO_8859_1).contains("ERROR OPENING REPTFILE"));
@@ -90,6 +95,28 @@ class Cbtrn03cMainTest {
         assertEquals(0, Cbtrn03cMain.execute(dd::get, quietSysout()));
         assertEquals("rw-------", java.nio.file.attribute.PosixFilePermissions.toString(
                 Files.getPosixFilePermissions(Path.of(dd.get("TRANREPT")))));
+    }
+
+    @Test
+    void replacedReportIsMadeOwnerOnly() throws Exception {
+        org.junit.jupiter.api.Assumptions.assumeTrue(
+                java.nio.file.FileSystems.getDefault().supportedFileAttributeViews().contains("posix"));
+        Map<String, String> dd = allocate(RecordFormat.LINE);
+        Path report = Path.of(dd.get("TRANREPT"));
+        Files.writeString(report, "old");
+        Files.setPosixFilePermissions(report, java.nio.file.attribute.PosixFilePermissions.fromString("rw-r--r--"));
+        assertEquals(0, Cbtrn03cMain.execute(dd::get, quietSysout()));
+        assertEquals("rw-------", java.nio.file.attribute.PosixFilePermissions.toString(Files.getPosixFilePermissions(report)));
+    }
+
+    @Test
+    void recordFormatCanBeOverriddenPerDd() throws Exception {
+        Map<String, String> dd = allocate(RecordFormat.LINE);
+        write("tranfile.dat", Fixtures.dailyTransactionsForReport("2022-01-01", "2022-07-06"), RecordFormat.FIXED);
+        dd.put("RECFM_TRANFILE", "FIXED");
+        assertEquals(0, Cbtrn03cMain.execute(dd::get, quietSysout()));
+        List<String> expected = Files.readAllLines(Fixtures.path("tranrept-gnucobol-full.txt"), StandardCharsets.ISO_8859_1);
+        assertEquals(expected, Files.readAllLines(Path.of(dd.get("TRANREPT")), StandardCharsets.ISO_8859_1));
     }
 
     @Test

@@ -4,7 +4,9 @@ import com.carddemo.programs.cbtrn03c.support.Fixed;
 
 import java.io.BufferedWriter;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.nio.channels.Channels;
+import java.nio.channels.SeekableByteChannel;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
@@ -12,12 +14,14 @@ import java.nio.file.OpenOption;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.nio.file.attribute.FileAttribute;
+import java.nio.file.attribute.PosixFilePermission;
 import java.nio.file.attribute.PosixFilePermissions;
 import java.util.Set;
 
 /**
  * Sequential output data set of fixed-length records (records are space-padded/truncated to LRECL).
- * The file is never opened through a symbolic link and, on POSIX file systems, is created owner-only.
+ * The file is never opened through a symbolic link and, on POSIX file systems, is owner-only (rw-------),
+ * including when an existing file is replaced.
  */
 public final class FixedWidthSequentialOutputFile implements SequentialOutputFile {
     private final Path path;
@@ -25,6 +29,7 @@ public final class FixedWidthSequentialOutputFile implements SequentialOutputFil
     private final RecordFormat format;
     private static final Set<OpenOption> OPEN_OPTIONS = Set.of(StandardOpenOption.CREATE, StandardOpenOption.WRITE,
             StandardOpenOption.TRUNCATE_EXISTING, LinkOption.NOFOLLOW_LINKS);
+    private static final Set<PosixFilePermission> OWNER_ONLY = PosixFilePermissions.fromString("rw-------");
     private BufferedWriter writer;
     private boolean opened;
 
@@ -37,10 +42,20 @@ public final class FixedWidthSequentialOutputFile implements SequentialOutputFil
     @Override
     public String open() {
         try {
-            FileAttribute<?>[] attrs = FileSystems.getDefault().supportedFileAttributeViews().contains("posix")
-                    ? new FileAttribute<?>[] {PosixFilePermissions.asFileAttribute(PosixFilePermissions.fromString("rw-------"))}
+            boolean posix = FileSystems.getDefault().supportedFileAttributeViews().contains("posix");
+            FileAttribute<?>[] attrs = posix
+                    ? new FileAttribute<?>[] {PosixFilePermissions.asFileAttribute(OWNER_ONLY)}
                     : new FileAttribute<?>[0];
-            writer = new BufferedWriter(Channels.newWriter(Files.newByteChannel(path, OPEN_OPTIONS, attrs),
+            SeekableByteChannel channel = Files.newByteChannel(path, OPEN_OPTIONS, attrs);
+            if (posix) {
+                try {
+                    Files.setPosixFilePermissions(path, OWNER_ONLY);
+                } catch (IOException e) {
+                    channel.close();
+                    throw e;
+                }
+            }
+            writer = new BufferedWriter(new OutputStreamWriter(Channels.newOutputStream(channel),
                     FixedWidthRecords.CHARSET));
             opened = true;
             return FileStatus.OK;
