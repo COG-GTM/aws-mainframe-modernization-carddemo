@@ -10,6 +10,7 @@ import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
@@ -82,7 +83,8 @@ public final class KsdsCustomerFile implements CustomerFile {
                     }
                 }
             }
-            records.sort(Comparator.comparing(FdCustfileRec::fdCustId));
+            // KSDS key sequence is the unsigned byte order of the key in the file's encoding.
+            records.sort(Comparator.comparing((FdCustfileRec r) -> r.fdCustId().getBytes(charset), Arrays::compareUnsigned));
             cursor = records.iterator();
             return FileStatus.SUCCESS;
         } catch (NoSuchFileException e) {

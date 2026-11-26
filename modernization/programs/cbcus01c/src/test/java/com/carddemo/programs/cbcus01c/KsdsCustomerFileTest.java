@@ -90,4 +90,17 @@ class KsdsCustomerFileTest {
         assertEquals("47", file.readNext().status());
         assertEquals("42", file.close());
     }
+
+    @Test
+    void fixedBlockKeysCollateInEbcdicByteOrder() throws IOException {
+        Path f = dir.resolve("cust.ps");
+        String digitKey = String.format("%-500s", "000000001");
+        String letterKey = String.format("%-500s", "A00000000");
+        Files.write(f, (digitKey + letterKey).getBytes(Cbcus01c.EBCDIC));
+        KsdsCustomerFile file = KsdsCustomerFile.fixedBlock(f, Cbcus01c.EBCDIC);
+
+        assertEquals("00", file.open());
+        assertEquals("A00000000", file.readNext().record().fdCustId());
+        assertEquals("000000001", file.readNext().record().fdCustId());
+    }
 }
