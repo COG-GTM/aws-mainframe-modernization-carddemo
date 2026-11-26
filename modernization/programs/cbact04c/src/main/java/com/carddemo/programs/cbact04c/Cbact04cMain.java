@@ -9,9 +9,6 @@ import com.carddemo.programs.cbact04c.io.FixedWidthIndexedFile;
 import com.carddemo.programs.cbact04c.io.FixedWidthSequentialInputFile;
 import com.carddemo.programs.cbact04c.io.FixedWidthSequentialOutputFile;
 
-import java.io.IOException;
-import java.io.UncheckedIOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Clock;
 import java.util.HashMap;
@@ -45,27 +42,21 @@ public final class Cbact04cMain {
                 return 16;
             }
         }
+        FixedWidthSequentialOutputFile<TranRecord> transact =
+                new FixedWidthSequentialOutputFile<>(Path.of(dd.get("TRANSACT")), TranRecord.CODEC);
         Cbact04cFiles files = new Cbact04cFiles(
                 new FixedWidthSequentialInputFile<>(Path.of(dd.get("TCATBALF")), TranCatBalRecord.CODEC),
                 new FixedWidthIndexedFile<>(Path.of(dd.get("XREFFILE")), CardXrefRecord.CODEC,
                         CardXrefRecord::xrefAcctId),
                 new FixedWidthIndexedFile<>(Path.of(dd.get("DISCGRP")), DisGroupRecord.CODEC, DisGroupRecord::key),
                 new FixedWidthIndexedFile<>(Path.of(dd.get("ACCTFILE")), AccountRecord.CODEC, AccountRecord::acctId),
-                new FixedWidthSequentialOutputFile<>(Path.of(dd.get("TRANSACT")), TranRecord.CODEC));
-        Path transact = Path.of(dd.get("TRANSACT"));
-        boolean transactExisted = Files.exists(transact);
+                transact);
         try {
             return new Cbact04c(files, clock, System.out::println).run(dd.get("PARM"));
         } catch (AbendException e) {
             System.err.println(e.getMessage());
             // TRANSACT DD DISP=(NEW,CATLG,DELETE): an abend deletes the new generation
-            if (!transactExisted) {
-                try {
-                    Files.deleteIfExists(transact);
-                } catch (IOException io) {
-                    throw new UncheckedIOException(io);
-                }
-            }
+            transact.deleteIfCreated();
             return e.abendCode();
         }
     }

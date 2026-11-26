@@ -137,6 +137,13 @@ class FixtureTest {
     }
 
     @Test
+    void danglingTransactSymlinkIsNotDeletedOnAbend() throws IOException {
+        Files.createSymbolicLink(transact, transact.resolveSibling("missing-target"));
+        assertEquals(999, runJob());
+        assertTrue(Files.isSymbolicLink(transact));
+    }
+
+    @Test
     void overlongInputRecordAbendsWith999() throws IOException {
         Files.writeString(tcatbal, "X".repeat(51) + "\n", FixedWidth.CHARSET);
         assertEquals(999, runJob());

@@ -4,6 +4,7 @@ import com.carddemo.programs.cbact04c.copybook.RecordCodec;
 
 import java.io.BufferedWriter;
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
@@ -17,6 +18,7 @@ public class FixedWidthSequentialOutputFile<T> implements SequentialOutputFile<T
     private final Path path;
     private final RecordCodec<T> codec;
     private BufferedWriter writer;
+    private boolean created;
 
     public FixedWidthSequentialOutputFile(Path path, RecordCodec<T> codec) {
         this.path = path;
@@ -27,6 +29,7 @@ public class FixedWidthSequentialOutputFile<T> implements SequentialOutputFile<T
     public String open() {
         try {
             writer = Files.newBufferedWriter(path, FixedWidth.CHARSET, StandardOpenOption.CREATE_NEW, StandardOpenOption.WRITE);
+            created = true;
             return FileStatus.OK;
         } catch (IOException e) {
             return FileStatus.PERMANENT_ERROR;
@@ -59,6 +62,23 @@ public class FixedWidthSequentialOutputFile<T> implements SequentialOutputFile<T
             return FileStatus.PERMANENT_ERROR;
         } finally {
             writer = null;
+        }
+    }
+
+    /** Deletes the output only if this instance created it (DISP=(NEW,CATLG,DELETE) on abend). */
+    public void deleteIfCreated() {
+        if (!created) {
+            return;
+        }
+        try {
+            if (writer != null) {
+                writer.close();
+                writer = null;
+            }
+            Files.deleteIfExists(path);
+            created = false;
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
         }
     }
 }
