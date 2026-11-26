@@ -9,6 +9,7 @@ import java.io.StringWriter;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class FixedWidthIoTest {
@@ -33,9 +34,15 @@ class FixedWidthIoTest {
     }
 
     @Test
-    void indexedFileRejectsDuplicateKeysAndBadLengths() {
-        assertThrows(IllegalArgumentException.class,
-                () -> InMemoryIndexedFile.of("F", 4, 0, 2, List.of("aa11", "aa22")));
+    void indexedFileRejectsDuplicateKeysWithoutExposingTheKey() {
+        IllegalArgumentException dup = assertThrows(IllegalArgumentException.class,
+                () -> InMemoryIndexedFile.of("F", 18, 0, 16, List.of("4000000000000001AA", "4000000000000001BB")));
+        assertEquals("F: duplicate key at record 2", dup.getMessage());
+        assertFalse(dup.getMessage().contains("4000000000000001"));
+    }
+
+    @Test
+    void indexedFileRejectsBadLengths() {
         assertThrows(IllegalArgumentException.class,
                 () -> InMemoryIndexedFile.of("F", 4, 0, 2, List.of("aa1")));
     }

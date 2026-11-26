@@ -31,14 +31,17 @@ public final class InMemoryIndexedFile implements IndexedFile {
         this.keyOffset = keyOffset;
         this.keyLength = keyLength;
         this.exists = exists;
+        int recordNo = 0;
         for (String rec : data) {
+            recordNo++;
             if (rec.length() != recordLength) {
-                throw new IllegalArgumentException(name + ": record length " + rec.length()
+                throw new IllegalArgumentException(name + ": record " + recordNo + " length " + rec.length()
                         + " != " + recordLength);
             }
             String key = rec.substring(keyOffset, keyOffset + keyLength);
             if (records.putIfAbsent(key, rec) != null) {
-                throw new IllegalArgumentException(name + ": duplicate key '" + key + "'");
+                // Key value deliberately omitted: keys hold card numbers and customer/account ids.
+                throw new IllegalArgumentException(name + ": duplicate key at record " + recordNo);
             }
         }
     }
