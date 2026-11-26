@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
+import java.nio.file.Files;
 import java.nio.file.OpenOption;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
@@ -27,11 +28,13 @@ public final class FixedWidthGsamFile implements DliCallHandler, AutoCloseable {
 
     private final int recordLength;
     private final FileChannel channel;
+    private final boolean regularFile;
 
     public FixedWidthGsamFile(Path path, int recordLength) {
         this.recordLength = recordLength;
         try {
             this.channel = open(path);
+            this.regularFile = Files.isRegularFile(path);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
@@ -45,7 +48,11 @@ public final class FixedWidthGsamFile implements DliCallHandler, AutoCloseable {
         return FileChannel.open(path, OPEN_OPTIONS);
     }
 
+    /** Empties a regular file; non-seekable targets (pipes, devices) are left as-is. */
     public void truncate() throws IOException {
+        if (!regularFile) {
+            return;
+        }
         channel.truncate(0);
         channel.position(0);
     }
@@ -58,14 +65,31 @@ public final class FixedWidthGsamFile implements DliCallHandler, AutoCloseable {
         }
         byte[] rec = new byte[recordLength];
         System.arraycopy(ioArea, 0, rec, 0, Math.min(recordLength, ioArea.length));
+        long start = -1;
         try {
+            if (regularFile) {
+                start = channel.position();
+            }
             ByteBuffer buf = ByteBuffer.wrap(rec);
             while (buf.hasRemaining()) {
                 channel.write(buf);
             }
             pcb.setPcbStatus("  ");
         } catch (IOException e) {
+            discardPartialRecord(start);
             pcb.setPcbStatus("AO");
+        }
+    }
+
+    private void discardPartialRecord(long start) {
+        if (start < 0) {
+            return;
+        }
+        try {
+            channel.truncate(start);
+            channel.position(start);
+        } catch (IOException ignored) {
+            // status AO already reports the failed ISRT
         }
     }
 
