@@ -78,6 +78,7 @@ public final class Cbexport {
 
     /** 0000-MAIN-PROCESSING. Throws {@link CbexportAbendException} where COBOL calls CEE3ABD. */
     public ExportStatistics run() {
+        resetWorkingStorage();
         initialize();
         exportCustomers();
         exportAccounts();
@@ -86,6 +87,20 @@ public final class Cbexport {
         exportCards();
         finalizeExport();
         return statistics();
+    }
+
+    // Re-applies the WORKING-STORAGE VALUE clauses so a reused instance starts like a fresh load module.
+    private void resetWorkingStorage() {
+        wsExportDate = " ".repeat(10);
+        wsExportTime = " ".repeat(8);
+        wsFormattedTimestamp = " ".repeat(26);
+        wsSequenceCounter = 0;
+        wsCustomerRecordsExported = 0;
+        wsAccountRecordsExported = 0;
+        wsXrefRecordsExported = 0;
+        wsTranRecordsExported = 0;
+        wsCardRecordsExported = 0;
+        wsTotalRecordsExported = 0;
     }
 
     public ExportStatistics statistics() {

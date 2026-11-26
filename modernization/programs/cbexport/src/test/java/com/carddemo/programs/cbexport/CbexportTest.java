@@ -230,6 +230,14 @@ class CbexportTest {
     }
 
     @Test
+    void rerunningAnInstanceStartsFromFreshWorkingStorage() {
+        Cbexport p = program();
+        assertEquals(new ExportStatistics(1, 1, 1, 1, 1, 5), p.run());
+        // Second run over the now-exhausted readers: counters must not carry over.
+        assertEquals(new ExportStatistics(0, 0, 0, 0, 0, 0), p.run());
+    }
+
+    @Test
     void counterAddIsTruncatedToNineDigits() {
         assertEquals(1, Cbexport.addOne(0));
         assertEquals(0, Cbexport.addOne(999_999_999L));
