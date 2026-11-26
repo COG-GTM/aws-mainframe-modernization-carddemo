@@ -18,6 +18,7 @@ import java.time.Clock;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 /**
@@ -53,7 +54,7 @@ public final class CbimportMain {
                 sysout.println("CBIMPORT: Invalid argument: " + arg);
                 return USAGE_EXIT_CODE;
             }
-            opts.put(arg.substring(2, eq).toUpperCase(), arg.substring(eq + 1));
+            opts.put(arg.substring(2, eq).toUpperCase(Locale.ROOT), arg.substring(eq + 1));
         }
         Charset exportCharset = Charset.forName(opts.getOrDefault("EXPORT-ENCODING", "IBM037"));
         Charset outputCharset = Charset.forName(opts.getOrDefault("OUTPUT-ENCODING", "IBM037"));
