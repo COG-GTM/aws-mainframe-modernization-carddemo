@@ -37,7 +37,11 @@ public class LineSequentialReader implements SequentialReader {
         if (!Files.exists(path)) {
             return FileStatus.FILE_NOT_FOUND;
         }
-        it = LineFiles.readRecords(path, recordLength).iterator();
+        try {
+            it = LineFiles.readRecords(path, recordLength).iterator();
+        } catch (RuntimeException e) {
+            return FileStatus.PERMANENT_ERROR;
+        }
         return FileStatus.OK;
     }
 

@@ -63,6 +63,17 @@ class InMemoryIndexedFileTest {
     }
 
     @Test
+    void fileBackedKsdsRefusesDuplicateKeysAndUnreadablePaths() throws Exception {
+        Path dir = Files.createTempDirectory("ksds");
+        Path p = dir.resolve("dup.txt");
+        Files.writeString(p, "AAA1\nAAA2\n");
+        assertEquals("30", new FileIndexedFile(p, 6, 0, 3).open(OpenMode.I_O));
+        assertEquals("30", new FileIndexedFile(dir, 6, 0, 3).open(OpenMode.INPUT));
+        assertEquals("30", new LineSequentialReader(dir, 6).open());
+        assertEquals(List.of("AAA1", "AAA2"), Files.readAllLines(p));
+    }
+
+    @Test
     void sequentialReaderAndWriterStatuses() throws Exception {
         LineSequentialReader r = new LineSequentialReader(List.of("AB", "CD"), 4);
         assertEquals("47", r.read().status());

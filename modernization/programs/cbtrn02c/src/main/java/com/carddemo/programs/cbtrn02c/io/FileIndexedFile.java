@@ -2,6 +2,7 @@ package com.carddemo.programs.cbtrn02c.io;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
 
 /** KSDS backed by a line-per-record file: loaded on OPEN INPUT / I-O, saved in key order on CLOSE. */
 public class FileIndexedFile extends InMemoryIndexedFile {
@@ -26,8 +27,15 @@ public class FileIndexedFile extends InMemoryIndexedFile {
         if (!Files.exists(path)) {
             return FileStatus.FILE_NOT_FOUND;
         }
-        load(LineFiles.readRecords(path, recordLength));
-        return FileStatus.OK;
+        List<String> loaded;
+        try {
+            loaded = LineFiles.readRecords(path, recordLength);
+        } catch (RuntimeException e) {
+            return FileStatus.PERMANENT_ERROR;
+        }
+        load(loaded);
+        // a KSDS cannot hold duplicate keys; refuse to open rather than silently drop records
+        return records.size() == loaded.size() ? FileStatus.OK : FileStatus.PERMANENT_ERROR;
     }
 
     @Override
