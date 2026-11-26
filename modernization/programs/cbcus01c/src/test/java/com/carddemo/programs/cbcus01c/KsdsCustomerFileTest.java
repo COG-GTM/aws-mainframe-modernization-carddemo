@@ -42,6 +42,7 @@ class KsdsCustomerFileTest {
         InMemoryCustomerFile file = new InMemoryCustomerFile(java.util.List.of(Fixtures.customer("000000001", "A")));
         assertEquals("00", file.open());
         assertEquals("000000001", file.readNext().record().fdCustId());
+        assertEquals("41", file.open());
         assertEquals("10", file.readNext().status());
         assertEquals("00", file.close());
         assertEquals("00", file.open());

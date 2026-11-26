@@ -49,6 +49,9 @@ public final class InMemoryCustomerFile implements CustomerFile {
 
     @Override
     public String open() {
+        if (open) {
+            return "41";
+        }
         if (FileStatus.SUCCESS.equals(openStatus)) {
             open = true;
             reads = 0;
