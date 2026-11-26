@@ -78,6 +78,19 @@ class CopybookTest {
         assertEquals(MainMenuOptions.MenuOption.BLANK, m.option(99));
         assertThrows(IllegalArgumentException.class,
                 () -> new MainMenuOptions(13, java.util.Collections.nCopies(13, MainMenuOptions.MenuOption.BLANK)));
+        assertThrows(IllegalArgumentException.class,
+                () -> new MainMenuOptions(12, java.util.List.of(MainMenuOptions.MenuOption.BLANK)));
+    }
+
+    @Test
+    void symbolicMapFieldNamesIgnoreDefaultLocale() {
+        java.util.Locale saved = java.util.Locale.getDefault();
+        try {
+            java.util.Locale.setDefault(java.util.Locale.forLanguageTag("ar-EG"));
+            assertEquals("OPTN012", new Comen01Map().optn(12).name());
+        } finally {
+            java.util.Locale.setDefault(saved);
+        }
     }
 
     @Test

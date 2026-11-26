@@ -40,6 +40,9 @@ public final class MainMenuOptions {
         if (configured.size() > MAX_OPTIONS) {
             throw new IllegalArgumentException("CDEMO-MENU-OPT OCCURS 12 TIMES");
         }
+        if (count < 0 || count > configured.size()) {
+            throw new IllegalArgumentException("CDEMO-MENU-OPT-COUNT exceeds configured options");
+        }
         this.count = count % 100;
         List<MenuOption> slots = new ArrayList<>(configured);
         while (slots.size() < MAX_OPTIONS) {
