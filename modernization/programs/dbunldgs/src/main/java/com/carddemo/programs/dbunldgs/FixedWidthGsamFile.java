@@ -7,6 +7,8 @@ import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
+import java.nio.channels.FileLock;
+import java.nio.channels.OverlappingFileLockException;
 import java.nio.file.Files;
 import java.nio.file.OpenOption;
 import java.nio.file.Path;
@@ -20,7 +22,8 @@ import java.util.Set;
  * <p>
  * Opening (allocation) does not discard existing content; call {@link #truncate()} once every
  * dataset of the step is allocated, mirroring DISP=OLD load-mode GSAM. New files are created
- * owner-only (0600) on POSIX file systems because they carry card and account data.
+ * owner-only (0600) on POSIX file systems because they carry card and account data. Regular files
+ * are locked exclusively while open, like the DISP=OLD enqueue in UNLDGSAM.
  */
 public final class FixedWidthGsamFile implements DliCallHandler, AutoCloseable {
 
@@ -35,8 +38,25 @@ public final class FixedWidthGsamFile implements DliCallHandler, AutoCloseable {
         try {
             this.channel = open(path);
             this.regularFile = Files.isRegularFile(path);
+            if (regularFile) {
+                lockExclusive(channel, path);
+            }
         } catch (IOException e) {
             throw new UncheckedIOException(e);
+        }
+    }
+
+    /** DISP=OLD: exclusive enqueue on the dataset for the life of the step. */
+    private static void lockExclusive(FileChannel channel, Path path) throws IOException {
+        FileLock lock;
+        try {
+            lock = channel.tryLock();
+        } catch (OverlappingFileLockException e) {
+            lock = null;
+        }
+        if (lock == null) {
+            channel.close();
+            throw new IOException("Dataset in use: " + path);
         }
     }
 

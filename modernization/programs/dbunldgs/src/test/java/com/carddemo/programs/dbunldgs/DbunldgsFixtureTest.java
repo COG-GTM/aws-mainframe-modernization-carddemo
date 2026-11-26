@@ -228,4 +228,20 @@ class DbunldgsFixtureTest {
                 in.toString(), root.toString(), child.toString()}));
         assertEquals(0, Files.size(root));
     }
+
+    @Test
+    void batchMainRejectsOutputHeldByAnotherJob(@TempDir Path dir) throws IOException {
+        Path in = dir.resolve("DBPAUTP0.dat");
+        Files.write(in, fixtureBytes());
+        Path root = dir.resolve("PASFILOP");
+        byte[] previous = {9, 9, 9};
+        Files.write(root, previous);
+        try (java.nio.channels.FileChannel other = java.nio.channels.FileChannel.open(root,
+                java.nio.file.StandardOpenOption.WRITE);
+             java.nio.channels.FileLock held = other.lock()) {
+            assertEquals(DbunldgsMain.RC_SETUP_ERROR, DbunldgsMain.run(new String[] {
+                    in.toString(), root.toString(), dir.resolve("PADFILOP").toString()}));
+        }
+        assertArrayEquals(previous, Files.readAllBytes(root));
+    }
 }
