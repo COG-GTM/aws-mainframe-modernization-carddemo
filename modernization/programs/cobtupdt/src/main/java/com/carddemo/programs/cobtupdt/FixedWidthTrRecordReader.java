@@ -82,22 +82,24 @@ public final class FixedWidthTrRecordReader implements TrRecordReader {
 
     // Keeps at most RECORD_LENGTH characters per line so an oversized line cannot exhaust the heap.
     private Optional<String> readLine() throws IOException {
-        StringBuilder line = new StringBuilder(TrRecord.RECORD_LENGTH + 1);
+        StringBuilder line = new StringBuilder(TrRecord.RECORD_LENGTH);
         int c = reader.read();
         if (c < 0) {
             return Optional.empty();
         }
-        while (c >= 0 && c != '\n') {
-            if (line.length() <= TrRecord.RECORD_LENGTH) {
+        while (c >= 0 && c != '\n' && c != '\r') {
+            if (line.length() < TrRecord.RECORD_LENGTH) {
                 line.append((char) c);
             }
             c = reader.read();
         }
-        int end = line.length();
-        if (end > 0 && line.charAt(end - 1) == '\r') {
-            end--;
+        if (c == '\r') {
+            reader.mark(1);
+            if (reader.read() != '\n') {
+                reader.reset();
+            }
         }
-        return Optional.of(line.substring(0, Math.min(end, TrRecord.RECORD_LENGTH)));
+        return Optional.of(line.toString());
     }
 
     private Optional<String> readBlock() throws IOException {

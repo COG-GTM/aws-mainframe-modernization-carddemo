@@ -49,6 +49,19 @@ class FixedWidthTrRecordReaderTest {
     }
 
     @Test
+    void lineSequentialAcceptsCrOnlyAndMixedTerminators() {
+        FixedWidthTrRecordReader r = new FixedWidthTrRecordReader(
+                () -> new StringReader("*Comment\rA01One\r\nD02\n\rU03"), FixedWidthTrRecordReader.Layout.LINE_SEQUENTIAL);
+        r.open();
+        assertEquals(Optional.of("*Comment"), r.readNext());
+        assertEquals(Optional.of("A01One"), r.readNext());
+        assertEquals(Optional.of("D02"), r.readNext());
+        assertEquals(Optional.of(""), r.readNext());
+        assertEquals(Optional.of("U03"), r.readNext());
+        assertEquals(Optional.empty(), r.readNext());
+    }
+
+    @Test
     void fixedBlockReads53CharRecords() {
         String rec1 = TrRecord.parse("A01One").toFixedWidth();
         String rec2 = TrRecord.parse("U02Two").toFixedWidth();
