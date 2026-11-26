@@ -3,7 +3,10 @@ package com.carddemo.programs.cotrn00c;
 import com.carddemo.programs.cotrn00c.copybook.CobolText;
 import com.carddemo.programs.cotrn00c.copybook.TranRecord;
 
+import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.Collection;
 import java.util.EnumMap;
 import java.util.HashMap;
@@ -22,7 +25,13 @@ public final class InMemoryTransactFile implements TransactFileGateway {
 
     private enum Direction { NONE, NEXT, PREV }
 
-    private final TreeMap<String, TranRecord> records = new TreeMap<>();
+    private static final Charset EBCDIC = Charset.forName("IBM037");
+
+    /** VSAM KSDS keys collate in EBCDIC (CP037) byte order: letters sort before digits. */
+    static final Comparator<String> EBCDIC_ORDER =
+            (a, b) -> Arrays.compareUnsigned(a.getBytes(EBCDIC), b.getBytes(EBCDIC));
+
+    private final TreeMap<String, TranRecord> records = new TreeMap<>(EBCDIC_ORDER);
     private final Map<Op, Map<Integer, CicsResponse>> injected = new EnumMap<>(Op.class);
     private final Map<Op, Integer> calls = new EnumMap<>(Op.class);
     private final List<String> log = new ArrayList<>();

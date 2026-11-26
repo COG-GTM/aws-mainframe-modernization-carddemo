@@ -1,7 +1,10 @@
 package com.carddemo.programs.cotrn00c;
 
 import com.carddemo.programs.cotrn00c.copybook.CobolText;
+import com.carddemo.programs.cotrn00c.copybook.TranRecord;
 import org.junit.jupiter.api.Test;
+
+import java.util.List;
 
 import static com.carddemo.programs.cotrn00c.Fixtures.id;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -64,5 +67,17 @@ class InMemoryTransactFileTest {
         file.injectFailure(InMemoryTransactFile.Op.STARTBR, new CicsResponse(CicsResp.NOTOPEN, 60));
         assertEquals(new CicsResponse(CicsResp.NOTOPEN, 60), file.startBr(id(1)));
         assertEquals(CicsResp.NORMAL, file.startBr(id(1)).resp());
+    }
+
+    @Test
+    void keysCollateInEbcdicOrderLettersBeforeDigits() {
+        TranRecord digits = Fixtures.tran(1, "1.00");
+        TranRecord letters = TranRecord.parse("A000000000000001" + digits.toFixedWidth().substring(16));
+        InMemoryTransactFile f = new InMemoryTransactFile(List.of(digits, letters));
+        assertEquals(CicsResp.NORMAL, f.startBr("A000000000000000").resp());
+        assertEquals("A000000000000001", f.readNext().record().tranId());
+        assertEquals(id(1), f.readNext().record().tranId());
+        assertEquals(CicsResp.ENDFILE, f.readNext().response().resp());
+        assertEquals(CicsResp.NOTFND, f.startBr(id(2)).resp());
     }
 }
