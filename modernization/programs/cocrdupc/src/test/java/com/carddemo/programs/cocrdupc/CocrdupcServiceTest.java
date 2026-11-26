@@ -10,6 +10,7 @@ import static com.carddemo.programs.cocrdupc.copybook.CcrdupaMap.Field.ERRMSG;
 import static com.carddemo.programs.cocrdupc.copybook.CcrdupaMap.Field.EXPDAY;
 import static com.carddemo.programs.cocrdupc.copybook.CcrdupaMap.Field.EXPMON;
 import static com.carddemo.programs.cocrdupc.copybook.CcrdupaMap.Field.EXPYEAR;
+import static com.carddemo.programs.cocrdupc.copybook.CcrdupaMap.Field.FKEYS;
 import static com.carddemo.programs.cocrdupc.copybook.CcrdupaMap.Field.FKEYSC;
 import static com.carddemo.programs.cocrdupc.copybook.CcrdupaMap.Field.INFOMSG;
 import static com.carddemo.programs.cocrdupc.copybook.CcrdupaMap.Field.PGMNAME;
@@ -387,6 +388,8 @@ class CocrdupcServiceTest {
                 assertEquals(DFHBMPRF, r.screen().field(f).attribute(), f.name());
             }
             assertEquals(DFHBMBRY, r.screen().field(FKEYSC).attribute());
+            assertEquals("F5=Save F12=Cancel", r.screen().text(FKEYSC));
+            assertEquals("ENTER=Process F3=Exit", r.screen().text(FKEYS));
             assertEquals(ACCTSID, r.screen().cursorField());
         }
 

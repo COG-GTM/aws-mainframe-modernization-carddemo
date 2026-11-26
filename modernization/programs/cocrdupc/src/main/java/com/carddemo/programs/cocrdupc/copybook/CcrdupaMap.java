@@ -14,18 +14,30 @@ import java.util.Map;
 public final class CcrdupaMap {
 
     public enum Field {
-        TRNNAME(4), TITLE01(40), CURDATE(8), PGMNAME(8), TITLE02(40), CURTIME(8),
-        ACCTSID(11), CARDSID(16), CRDNAME(50), CRDSTCD(1), EXPMON(2), EXPYEAR(4), EXPDAY(2),
-        INFOMSG(40), ERRMSG(80), FKEYS(21), FKEYSC(18);
+        TRNNAME(4), TITLE01(40), CURDATE(8, "mm/dd/yy"), PGMNAME(8), TITLE02(40),
+        CURTIME(8, "hh:mm:ss"), ACCTSID(11), CARDSID(16), CRDNAME(50), CRDSTCD(1), EXPMON(2),
+        EXPYEAR(4), EXPDAY(2), INFOMSG(40), ERRMSG(80), FKEYS(21, "ENTER=Process F3=Exit"),
+        FKEYSC(18, "F5=Save F12=Cancel");
 
         private final int length;
+        private final String initial;
 
         Field(int length) {
+            this(length, "");
+        }
+
+        Field(int length, String initial) {
             this.length = length;
+            this.initial = alnum(initial, length);
         }
 
         public int length() {
             return length;
+        }
+
+        /** Physical map (app/bms/COCRDUP.bms) INITIAL= default data. */
+        public String initial() {
+            return initial;
         }
     }
 

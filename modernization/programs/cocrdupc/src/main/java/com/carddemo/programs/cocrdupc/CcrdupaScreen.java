@@ -10,11 +10,18 @@ import java.util.Map;
 /** Response DTO for EXEC CICS SEND MAP('CCRDUPA') MAPSET('COCRDUP') FROM(CCRDUPAO) CURSOR ERASE. */
 public record CcrdupaScreen(String mapset, String map, Map<Field, ScreenField> fields) {
 
-    /** One output field: data (raw, may hold LOW-VALUES), attribute byte, colour byte, cursor. */
-    public record ScreenField(String value, int attribute, int color, boolean cursor) {
-        /** Data as a 3270 would display it (LOW-VALUES shown as blanks), right-trimmed. */
+    /**
+     * One output field: symbolic data (raw, may hold LOW-VALUES), physical-map default data,
+     * attribute byte, colour byte, cursor.
+     */
+    public record ScreenField(String value, String initial, int attribute, int color, boolean cursor) {
+        /**
+         * Data as the 3270 shows it: BMS sends the physical-map default when the symbolic field
+         * starts with LOW-VALUES; remaining LOW-VALUES display as blanks. Right-trimmed.
+         */
         public String text() {
-            return value.replace(Cobol.LOW_VALUE, ' ').stripTrailing();
+            String shown = !value.isEmpty() && value.charAt(0) == Cobol.LOW_VALUE ? initial : value;
+            return shown.replace(Cobol.LOW_VALUE, ' ').stripTrailing();
         }
     }
 
@@ -22,7 +29,7 @@ public record CcrdupaScreen(String mapset, String map, Map<Field, ScreenField> f
         Map<Field, ScreenField> m = new EnumMap<>(Field.class);
         for (Field f : Field.values()) {
             CcrdupaMap.MapField mf = symbolic.get(f);
-            m.put(f, new ScreenField(mf.data(), mf.attribute(), mf.color(), mf.hasCursor()));
+            m.put(f, new ScreenField(mf.data(), f.initial(), mf.attribute(), mf.color(), mf.hasCursor()));
         }
         return new CcrdupaScreen(mapset, map, Collections.unmodifiableMap(m));
     }
