@@ -32,6 +32,6 @@ public final class ThisProgCommarea {
     }
 
     public String toFixedWidth() {
-        return caFromProgram + caFromTranid;
+        return CobolText.pic(caFromProgram, 8) + CobolText.pic(caFromTranid, 4);
     }
 }

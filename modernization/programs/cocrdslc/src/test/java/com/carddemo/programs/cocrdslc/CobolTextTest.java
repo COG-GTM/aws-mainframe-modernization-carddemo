@@ -50,4 +50,13 @@ class CobolTextTest {
         assertEquals("AB\u0000\u0000", CobolText.slice("XAB", 1, 4));
         assertEquals(CobolText.lowValues(3), CobolText.slice(null, 0, 3));
     }
+
+    @Test
+    void thisProgCommareaPadsShortFieldsToTheirPictures() {
+        ThisProgCommarea t = ThisProgCommarea.lowValues();
+        t.caFromProgram = "MENU";
+        t.caFromTranid = "CM00";
+        assertEquals("MENU    CM00", t.toFixedWidth());
+        assertEquals("CM00", ThisProgCommarea.parse(t.toFixedWidth()).caFromTranid);
+    }
 }
