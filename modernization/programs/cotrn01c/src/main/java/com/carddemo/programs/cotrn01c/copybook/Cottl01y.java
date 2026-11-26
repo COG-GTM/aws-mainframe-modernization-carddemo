@@ -1,0 +1,15 @@
+package com.carddemo.programs.cotrn01c.copybook;
+
+/** COTTL01Y - 01 CCDA-SCREEN-TITLE. Each title is PIC X(40). */
+public final class Cottl01y {
+
+    /** CCDA-TITLE01 PIC X(40). */
+    public static final String CCDA_TITLE01 = "      AWS Mainframe Modernization       ";
+    /** CCDA-TITLE02 PIC X(40). */
+    public static final String CCDA_TITLE02 = "              CardDemo                  ";
+    /** CCDA-THANK-YOU PIC X(40). */
+    public static final String CCDA_THANK_YOU = "Thank you for using CCDA application... ";
+
+    private Cottl01y() {
+    }
+}
