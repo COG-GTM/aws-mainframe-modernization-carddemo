@@ -49,6 +49,13 @@ class KsdsCustomerFileTest {
     }
 
     @Test
+    void fixedBlockFileWithPartialRecordFailsOpenWith39() throws IOException {
+        Path f = dir.resolve("cust.ps");
+        Files.write(f, new byte[501]);
+        assertEquals("39", KsdsCustomerFile.fixedBlock(f, Cbcus01c.EBCDIC).open());
+    }
+
+    @Test
     void fdRecordSplitsKeyAndData() {
         FdCustfileRec rec = FdCustfileRec.fromFixedWidth("000000009REST");
         assertEquals("000000009", rec.fdCustId());

@@ -205,6 +205,33 @@ class Cbcus01cTest {
         assertEquals("FILE STATUS IS: NNNN0035", sysout.get(2));
     }
 
+    // Fixture-based: RECFM=FB EBCDIC feed loaded by app/jcl/CUSTFILE.jcl
+    @Test
+    void ebcdicFixedBlockFeedPrintsSameRecordsAsAsciiSample() throws IOException {
+        Path ebcdic = Fixtures.CUSTDATA.resolve("../../EBCDIC/AWS.M2.CARDDEMO.CUSTDATA.PS").normalize();
+        List<String> lines = Fixtures.custdataLines();
+
+        int rc = program(KsdsCustomerFile.fixedBlock(ebcdic, Cbcus01c.EBCDIC)).run();
+
+        assertEquals(0, rc);
+        assertEquals(2 + 2 * lines.size(), sysout.size());
+        for (int i = 0; i < lines.size(); i++) {
+            assertEquals(lines.get(i), sysout.get(1 + 2 * i));
+        }
+    }
+
+    @Test
+    void sysoutWriteFailureIsNotReportedAsSuccess() {
+        java.io.PrintStream broken = new java.io.PrintStream(new java.io.OutputStream() {
+            @Override
+            public void write(int b) throws IOException {
+                throw new IOException("disk full");
+            }
+        });
+        CustomerFile file = new InMemoryCustomerFile(List.of(Fixtures.customer("000000001", "A")));
+        assertEquals(Cbcus01cMain.RC_SYSOUT_ERROR, Cbcus01cMain.execute(file, broken));
+    }
+
     @Test
     void mainReturnsZeroForSampleAndAbendCodeForMissingFile() {
         assertEquals(0, Cbcus01cMain.execute(Fixtures.CUSTDATA));

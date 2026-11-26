@@ -12,14 +12,21 @@ import java.util.Iterator;
 import java.util.List;
 
 /**
- * File-backed CUSTFILE: a text file of fixed-width 500-byte customer records (one per line, as in
- * app/data/ASCII/custdata.txt), presented in ascending FD-CUST-ID order like a KSDS read with
- * ACCESS MODE SEQUENTIAL. Short lines are space padded and long lines truncated to 500 bytes.
+ * File-backed CUSTFILE presented in ascending FD-CUST-ID order like a KSDS read with ACCESS MODE
+ * SEQUENTIAL. Two layouts are supported:
+ * <ul>
+ *   <li>line sequential (default): one record per line, as in app/data/ASCII/custdata.txt; short
+ *       lines are space padded and long lines truncated to 500 bytes;</li>
+ *   <li>fixed block ({@link #fixedBlock}): consecutive 500-byte records with no delimiters, as in
+ *       the RECFM=FB feed app/data/EBCDIC/AWS.M2.CARDDEMO.CUSTDATA.PS (charset IBM037). A file whose
+ *       length is not a multiple of 500 fails OPEN with status '39'.</li>
+ * </ul>
  */
 public final class KsdsCustomerFile implements CustomerFile {
 
     private final Path path;
     private final Charset charset;
+    private final boolean fixedBlock;
     private Iterator<FdCustfileRec> cursor;
 
     public KsdsCustomerFile(Path path) {
@@ -27,8 +34,18 @@ public final class KsdsCustomerFile implements CustomerFile {
     }
 
     public KsdsCustomerFile(Path path, Charset charset) {
+        this(path, charset, false);
+    }
+
+    private KsdsCustomerFile(Path path, Charset charset, boolean fixedBlock) {
         this.path = path;
         this.charset = charset;
+        this.fixedBlock = fixedBlock;
+    }
+
+    /** Fixed-block (RECFM=FB, LRECL=500) file with no record delimiters. */
+    public static KsdsCustomerFile fixedBlock(Path path, Charset charset) {
+        return new KsdsCustomerFile(path, charset, true);
     }
 
     @Override
@@ -38,9 +55,20 @@ public final class KsdsCustomerFile implements CustomerFile {
         }
         try {
             List<FdCustfileRec> records = new ArrayList<>();
-            for (String line : Files.readAllLines(path, charset)) {
-                if (!line.isEmpty()) {
-                    records.add(FdCustfileRec.fromFixedWidth(line));
+            if (fixedBlock) {
+                byte[] bytes = Files.readAllBytes(path);
+                if (bytes.length % FdCustfileRec.RECORD_LENGTH != 0) {
+                    return "39";
+                }
+                for (int off = 0; off < bytes.length; off += FdCustfileRec.RECORD_LENGTH) {
+                    records.add(FdCustfileRec.fromFixedWidth(
+                            new String(bytes, off, FdCustfileRec.RECORD_LENGTH, charset)));
+                }
+            } else {
+                for (String line : Files.readAllLines(path, charset)) {
+                    if (!line.isEmpty()) {
+                        records.add(FdCustfileRec.fromFixedWidth(line));
+                    }
                 }
             }
             records.sort(Comparator.comparing(FdCustfileRec::fdCustId));

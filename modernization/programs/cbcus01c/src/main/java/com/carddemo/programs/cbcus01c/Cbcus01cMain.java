@@ -1,30 +1,68 @@
 package com.carddemo.programs.cbcus01c;
 
+import java.io.PrintStream;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 
 /**
- * Command-line entry equivalent to JCL READCUST STEP05: {@code java -jar cbcus01c.jar <CUSTFILE>}.
- * Exit code is RETURN-CODE (0) or the abend code (999; the OS reports it modulo 256).
+ * Command-line entry equivalent to JCL READCUST STEP05:
+ * {@code java -jar cbcus01c.jar [--fixed-block] [--charset=NAME] <CUSTFILE>}.
+ *
+ * <p>Default input is line-sequential ASCII (app/data/ASCII/custdata.txt). For the RECFM=FB EBCDIC
+ * feed use {@code --fixed-block --charset=IBM037}. Exit code is RETURN-CODE (0), the abend code
+ * (999; the OS reports it modulo 256), or {@value #RC_SYSOUT_ERROR} if SYSOUT could not be written.
  */
 public final class Cbcus01cMain {
+
+    static final int RC_USAGE = 16;
+    static final int RC_SYSOUT_ERROR = 12;
 
     private Cbcus01cMain() {
     }
 
     public static void main(String[] args) {
-        if (args.length != 1) {
-            System.err.println("usage: Cbcus01cMain <CUSTFILE path>");
-            System.exit(16);
+        Path custfile = null;
+        boolean fixedBlock = false;
+        Charset charset = StandardCharsets.US_ASCII;
+        for (String arg : args) {
+            if (arg.equals("--fixed-block")) {
+                fixedBlock = true;
+            } else if (arg.startsWith("--charset=")) {
+                charset = Charset.forName(arg.substring("--charset=".length()));
+            } else if (custfile == null && !arg.startsWith("--")) {
+                custfile = Path.of(arg);
+            } else {
+                custfile = null;
+                break;
+            }
         }
-        System.exit(execute(Path.of(args[0])));
+        if (custfile == null) {
+            System.err.println("usage: Cbcus01cMain [--fixed-block] [--charset=NAME] <CUSTFILE path>");
+            System.exit(RC_USAGE);
+        }
+        CustomerFile file = fixedBlock
+                ? KsdsCustomerFile.fixedBlock(custfile, charset)
+                : new KsdsCustomerFile(custfile, charset);
+        System.exit(execute(file, System.out));
     }
 
     static int execute(Path custfile) {
-        Cbcus01c program = new Cbcus01c(new KsdsCustomerFile(custfile), System.out::println);
+        return execute(new KsdsCustomerFile(custfile), System.out);
+    }
+
+    static int execute(CustomerFile custfile, PrintStream sysout) {
+        Cbcus01c program = new Cbcus01c(custfile, sysout::println);
+        int rc;
         try {
-            return program.run();
+            rc = program.run();
         } catch (AbendException e) {
-            return e.abendCode();
+            rc = e.abendCode();
         }
+        if (sysout.checkError()) {
+            System.err.println("CBCUS01C: error writing SYSOUT");
+            return rc == 0 ? RC_SYSOUT_ERROR : rc;
+        }
+        return rc;
     }
 }
