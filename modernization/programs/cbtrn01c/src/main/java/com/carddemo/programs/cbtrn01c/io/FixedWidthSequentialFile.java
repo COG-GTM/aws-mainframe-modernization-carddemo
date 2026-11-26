@@ -5,7 +5,6 @@ import com.carddemo.programs.cbtrn01c.copybook.RecordCodec;
 
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -69,7 +68,7 @@ public final class FixedWidthSequentialFile<R> implements SequentialInputFile<R>
             reader.close();
             return FileStatus.OK;
         } catch (IOException e) {
-            throw new UncheckedIOException(e);
+            return FileStatus.PERMANENT_ERROR;
         } finally {
             reader = null;
         }
