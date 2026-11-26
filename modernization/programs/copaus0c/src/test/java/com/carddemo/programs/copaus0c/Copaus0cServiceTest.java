@@ -477,6 +477,26 @@ class Copaus0cServiceTest {
         }
 
         @Test
+        void invalidSelectionIsNotResentOnceRowAttributeIsOverridden() {
+            Copaus0cResult first = firstPage();
+            Copaus0cResult bad = data.service.execute(Aid.ENTER, first.commarea(),
+                    Copau0aInput.of(ACCT).withSelection(1, "X"));
+            Copau0aInput in = Copau0aInput.none().withSelection(3, "S").withFsetFrom(bad.screen());
+            assertEquals(null, in.sel1());
+            Copaus0cResult r = data.service.execute(Aid.ENTER, bad.commarea(), in);
+            assertEquals("COPAUS1C", r.xctlProgram());
+            assertEquals(TestData.key(3), r.commarea().cdemoCpvsPauSelected);
+        }
+
+        @Test
+        void forcedFwStatusStillReturnsSegments() {
+            data.ims.force(Call.GNP, "FW");
+            Copaus0cResult r = firstPage();
+            assertEquals("TXN000000000001 ", r.screen().row(1).trnid());
+            assertEquals(msg(""), r.screen().errmsg());
+        }
+
+        @Test
         void detailsAreReadInPaut9ctsKeyOrderNotInsertionOrder() {
             data.ims.addSummary(new com.carddemo.programs.copaus0c.copybook.PendingAuthSummary(2, 7, "A",
                     java.util.List.of("  ", "  ", "  ", "  ", "  "), java.math.BigDecimal.ZERO,

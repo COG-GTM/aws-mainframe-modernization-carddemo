@@ -48,15 +48,19 @@ public record Copau0aInput(String acctId, String sel1, String sel2, String sel3,
         }
         echo.put("ERRMSG", screen.errmsg());
         echo.values().removeIf(Copau0aInput::isNulls);
-        List<Copau0aScreen.Row> r = rows;
-        return new Copau0aInput(echoed(acctId, screen.acctid()), echoed(sel1, r.get(0).sel()),
-                echoed(sel2, r.get(1).sel()), echoed(sel3, r.get(2).sel()), echoed(sel4, r.get(3).sel()),
-                echoed(sel5, r.get(4).sel()), echo);
+        return new Copau0aInput(echoed(acctId, screen.acctid()), echoedSel(sel1, rows.get(0)),
+                echoedSel(sel2, rows.get(1)), echoedSel(sel3, rows.get(2)), echoedSel(sel4, rows.get(3)),
+                echoedSel(sel5, rows.get(4)), echo);
     }
 
     /** ACCTID and SEL000n are FSET too: an unmodified field comes back with the value last displayed. */
     private static String echoed(String typed, String shown) {
         return typed != null || isNulls(shown) ? typed : shown;
+    }
+
+    /** SEL000nA overridden with DFHBMUNP/DFHBMPRO clears the BMS FSET bit, so the old value is not resent. */
+    private static String echoedSel(String typed, Copau0aScreen.Row row) {
+        return row.selAttr() == '\0' ? echoed(typed, row.sel()) : typed;
     }
 
     private static boolean isNulls(String v) {
