@@ -23,7 +23,7 @@ public final class InMemoryProgramControlGateway implements ProgramControlGatewa
         this.installed = Set.copyOf(installed);
     }
 
-    /** Every program CardDemo's admin menu and sign-on can transfer to. */
+    /** Every program COADM01C itself can XCTL to: its admin options and the sign-on screen. */
     public static InMemoryProgramControlGateway allCardDemoPrograms() {
         return new InMemoryProgramControlGateway(Set.of(
                 "COSGN00C", "COUSR00C", "COUSR01C", "COUSR02C", "COUSR03C", "COTRTLIC", "COTRTUPC"));
