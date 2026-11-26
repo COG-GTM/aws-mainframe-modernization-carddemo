@@ -12,6 +12,7 @@ import java.nio.file.Path;
 import java.util.Locale;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class LocaleIndependenceTest {
 
@@ -34,11 +35,14 @@ class LocaleIndependenceTest {
     @Test
     void encodingOptionsAreRecognisedUnderTurkishLocale() throws Exception {
         Locale.setDefault(Locale.forLanguageTag("tr-TR"));
-        Path empty = Files.createFile(dir.resolve("exp"));
         PrintStream out = new PrintStream(new ByteArrayOutputStream(), true, StandardCharsets.UTF_8);
-        String[] args = {"--expfile=" + empty, "--custout=" + dir.resolve("c"), "--acctout=" + dir.resolve("a"),
-                "--xrefout=" + dir.resolve("x"), "--trnxout=" + dir.resolve("t"), "--cardout=" + dir.resolve("d"),
-                "--errout=" + dir.resolve("e"), "--output-encoding=US-ASCII", "--record-separator=lf"};
+        String[] args = {"--expfile=" + CbimportFixtureTest.EXPORT, "--custout=" + dir.resolve("c"),
+                "--acctout=" + dir.resolve("a"), "--xrefout=" + dir.resolve("x"), "--trnxout=" + dir.resolve("t"),
+                "--cardout=" + dir.resolve("d"), "--errout=" + dir.resolve("e"),
+                "--output-encoding=US-ASCII", "--record-separator=lf"};
         assertEquals(0, CbimportMain.run(args, CbimportTest.CLOCK, out));
+        var lines = Files.readAllLines(dir.resolve("a"), StandardCharsets.US_ASCII);
+        assertEquals(50, lines.size());
+        assertTrue(lines.get(0).startsWith("00000000001Y00000000000{"));
     }
 }
