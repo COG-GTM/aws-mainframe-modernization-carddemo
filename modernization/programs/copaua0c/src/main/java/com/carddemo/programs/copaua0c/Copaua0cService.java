@@ -26,6 +26,7 @@ import com.carddemo.programs.copaua0c.gateway.TransientDataQueue;
 import com.carddemo.programs.copaua0c.support.Cobol;
 import java.math.BigDecimal;
 import java.util.Arrays;
+import java.util.Locale;
 import java.util.Optional;
 
 /**
@@ -338,7 +339,7 @@ public final class Copaua0cService {
     // 5200-READ-ACCT-RECORD
     private void readAcctRecord() {
         wsCardRidAcctId = cardXref.acctId();
-        String key = String.format("%011d", wsCardRidAcctId);
+        String key = String.format(Locale.ROOT, "%011d", wsCardRidAcctId);
         CicsKsdsFile.ReadResult<AccountRecord> r = acctFile.read(key);
         if (r.resp() == CicsKsdsFile.RESP_NORMAL) {
             account = r.record();
@@ -366,7 +367,7 @@ public final class Copaua0cService {
     // 5300-READ-CUST-RECORD
     private void readCustRecord() {
         wsCardRidCustId = cardXref.custId();
-        String key = String.format("%09d", wsCardRidCustId);
+        String key = String.format(Locale.ROOT, "%09d", wsCardRidCustId);
         CicsKsdsFile.ReadResult<CustomerRecord> r = custFile.read(key);
         if (r.resp() == CicsKsdsFile.RESP_NORMAL) {
             customer = r.record();

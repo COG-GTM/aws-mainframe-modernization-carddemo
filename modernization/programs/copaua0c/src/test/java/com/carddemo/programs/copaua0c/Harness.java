@@ -10,6 +10,7 @@ import com.carddemo.programs.copaua0c.gateway.inmemory.InMemoryKsdsFile;
 import com.carddemo.programs.copaua0c.gateway.inmemory.InMemoryMqGateway;
 import com.carddemo.programs.copaua0c.gateway.inmemory.InMemoryTdQueue;
 import java.math.BigDecimal;
+import java.util.Locale;
 import java.util.Optional;
 
 /** Wires COPAUA0C to in-memory gateways with a fixed clock. */
@@ -25,8 +26,8 @@ final class Harness {
 
     final InMemoryMqGateway mq = new InMemoryMqGateway();
     final InMemoryKsdsFile<CardXrefRecord> xref = new InMemoryKsdsFile<>(CardXrefRecord::cardNum);
-    final InMemoryKsdsFile<AccountRecord> acct = new InMemoryKsdsFile<>(a -> String.format("%011d", a.acctId()));
-    final InMemoryKsdsFile<CustomerRecord> cust = new InMemoryKsdsFile<>(c -> String.format("%09d", c.custId()));
+    final InMemoryKsdsFile<AccountRecord> acct = new InMemoryKsdsFile<>(a -> String.format(Locale.ROOT, "%011d", a.acctId()));
+    final InMemoryKsdsFile<CustomerRecord> cust = new InMemoryKsdsFile<>(c -> String.format(Locale.ROOT, "%09d", c.custId()));
     final InMemoryImsGateway ims = new InMemoryImsGateway();
     final InMemoryTdQueue tdq = new InMemoryTdQueue();
     int syncpoints;

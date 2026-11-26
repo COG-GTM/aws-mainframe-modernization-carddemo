@@ -3,6 +3,7 @@ package com.carddemo.programs.copaua0c.support;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.math.RoundingMode;
+import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -55,7 +56,7 @@ public final class Cobol {
     /** MOVE of a numeric value to PIC 9(9) DISPLAY (WS-CODE-DISPLAY): sign dropped, 9 digits. */
     public static String unsignedDisplay9(long value) {
         long abs = Math.abs(value) % 1_000_000_000L;
-        return String.format("%09d", abs);
+        return String.format(Locale.ROOT, "%09d", abs);
     }
 
     /** FUNCTION NUMVAL. Non-conforming arguments yield zero (IBM leaves the result undefined). */

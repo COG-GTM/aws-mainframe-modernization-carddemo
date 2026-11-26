@@ -14,6 +14,7 @@ import com.carddemo.programs.copaua0c.copybook.PendingAuthSummary;
 import com.carddemo.programs.copaua0c.gateway.inmemory.InMemoryMqGateway.Reply;
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -131,6 +132,21 @@ class Copaua0cServiceTest {
             assertEquals(new BigDecimal("100.00"), s.creditBalance());
             assertEquals(List.of("SCHD PSBPAUTB", "GU PAUTSUM0 " + ACCT, "ISRT PAUTSUM0 " + ACCT,
                     "ISRT PAUTDTL1 " + ACCT), h.ims.calls());
+        }
+
+        @Test
+        void vsamKeysAndErrorCodesUseAsciiDigitsUnderAnyLocale() {
+            Locale saved = Locale.getDefault();
+            Locale.setDefault(Locale.forLanguageTag("th-TH-u-nu-thai"));
+            try {
+                Harness h = new Harness().withStandardCard("1000.00", "0.00").send(CARD, "10.00", TXN1);
+                h.cust.failWith(84, 0);
+                h.run();
+                assertLog(onlyLog(h), "C003", 'C', 'C', "000000084", "000000000", "FAILED TO READ CUST FILE",
+                        "123456789");
+            } finally {
+                Locale.setDefault(saved);
+            }
         }
 
         @Test
