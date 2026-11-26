@@ -18,6 +18,7 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /** Drives COPAUS1C against the sample IMS unload AWS.M2.CARDDEMO.IMSDATA.DBPAUTP0.dat (EBCDIC). */
 class FixtureDataTest {
@@ -41,7 +42,8 @@ class FixtureDataTest {
     void unloadDecodesRootsAndChildren() {
         List<PendingAuthSummary> roots = List.copyOf(db.summaries());
         int children = roots.stream().mapToInt(r -> db.details(r.getAcctId()).size()).sum();
-        assertEquals(22, roots.size());
+        assertEquals(21, roots.size());
+        assertTrue(roots.stream().allMatch(r -> r.getAcctId() < 100));
         assertEquals(202, children);
         PendingAuthSummary first = roots.get(0);
         assertEquals(1L, first.getAcctId());
@@ -56,6 +58,35 @@ class FixtureDataTest {
         assertEquals(new BigDecimal("1.24"), d.get(0).getApprovedAmt());
         assertEquals('P', d.get(0).getMatchStatus());
         assertEquals("000000", d.get(0).getProcessingCodeDisplay());
+    }
+
+    @Test
+    void everyValidSegmentRoundTripsByteForByteAndInvalidRootKeyIsDetected() {
+        int roundTripped = 0;
+        int invalidRoots = 0;
+        for (String nameText : List.of("PAUTSUM0", "PAUTDTL1")) {
+            byte[] name = nameText.getBytes(com.carddemo.programs.copaus1c.copybook.Cobol.EBCDIC);
+            int len = nameText.equals("PAUTSUM0") ? PendingAuthSummary.LENGTH : PendingAuthDetails.LENGTH;
+            for (int at = indexOf(raw, name, 2); at >= 0; at = indexOf(raw, name, at + 8)) {
+                int declared = ((raw[at - 2] & 0xFF) << 8) | (raw[at - 1] & 0xFF);
+                if (declared != len) {
+                    continue;
+                }
+                byte[] seg = java.util.Arrays.copyOfRange(raw, at + 29, at + 29 + len);
+                if (len == PendingAuthSummary.LENGTH) {
+                    if (!com.carddemo.programs.copaus1c.copybook.Cobol.isValidPacked(seg, 0, 6)) {
+                        invalidRoots++;
+                        continue;
+                    }
+                    assertArrayEquals(seg, PendingAuthSummary.fromEbcdic(seg).toEbcdic());
+                } else {
+                    assertArrayEquals(seg, PendingAuthDetails.fromEbcdic(seg).toEbcdic());
+                }
+                roundTripped++;
+            }
+        }
+        assertEquals(223, roundTripped);
+        assertEquals(1, invalidRoots);
     }
 
     @Test

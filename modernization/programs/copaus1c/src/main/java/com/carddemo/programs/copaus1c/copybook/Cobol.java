@@ -104,6 +104,17 @@ public final class Cobol {
         return new BigDecimal(unscaled, scale);
     }
 
+    /** True when every digit nibble is 0-9 and the sign nibble is A-F (a valid COMP-3 value). */
+    public static boolean isValidPacked(byte[] rec, int off, int len) {
+        for (int i = 0; i < len; i++) {
+            int b = rec[off + i] & 0xFF;
+            if ((b >> 4) > 9 || (i < len - 1 && (b & 0x0F) > 9) || (i == len - 1 && (b & 0x0F) < 0x0A)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     /** Write packed decimal; high-order digits beyond the field size are truncated as in a COBOL MOVE. */
     public static void writePacked(byte[] rec, int off, int len, int scale, BigDecimal value) {
         BigInteger unscaled = value.setScale(scale, java.math.RoundingMode.DOWN).unscaledValue();

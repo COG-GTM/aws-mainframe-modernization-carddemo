@@ -11,7 +11,8 @@ import java.util.Arrays;
 /**
  * Loads an IMS HD unload of DBPAUTP0 (e.g. AWS.M2.CARDDEMO.IMSDATA.DBPAUTP0.dat) into an
  * {@link InMemoryPendingAuthDb}. Each segment record carries a 2-byte segment length immediately before the
- * 8-byte EBCDIC segment name; the segment image starts 29 bytes after the start of the name.
+ * 8-byte EBCDIC segment name; the segment image starts 29 bytes after the start of the name. A root whose
+ * ACCNTID is not valid packed decimal (e.g. the space-filled dummy root in the sample) is skipped with its children.
  */
 public final class ImsUnloadReader {
 
@@ -41,7 +42,9 @@ public final class ImsUnloadReader {
                 break;
             }
             byte[] seg = Arrays.copyOfRange(data, start, start + len);
-            if (sum) {
+            if (sum && !Cobol.isValidPacked(seg, 0, 6)) {
+                currentAcct = null;
+            } else if (sum) {
                 PendingAuthSummary s = PendingAuthSummary.fromEbcdic(seg);
                 db.addSummary(s);
                 currentAcct = s.getAcctId();
