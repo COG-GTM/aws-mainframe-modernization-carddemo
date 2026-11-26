@@ -19,6 +19,9 @@ public final class InMemoryCardXrefRepository implements CardXrefRepository {
         records.forEach(this::put);
     }
 
+    /** CICS READ DUPKEY RESP2: another record with the same non-unique alternate-index key follows. */
+    static final int DUPKEY_RESP2_NONUNIQUE_AIX = 140;
+
     public void put(CardXrefRecord r) {
         byCardNum.put(r.xrefCardNum(), r);
     }
@@ -30,7 +33,7 @@ public final class InMemoryCardXrefRepository implements CardXrefRepository {
             return FileReadResult.notFound();
         }
         if (hits.size() > 1) {
-            return new FileReadResult<>(CicsResp.DUPKEY, 0, hits.get(0));
+            return new FileReadResult<>(CicsResp.DUPKEY, DUPKEY_RESP2_NONUNIQUE_AIX, hits.get(0));
         }
         return FileReadResult.normal(hits.get(0));
     }
