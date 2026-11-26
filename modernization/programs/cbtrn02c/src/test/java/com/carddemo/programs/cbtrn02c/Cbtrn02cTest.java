@@ -242,6 +242,16 @@ class Cbtrn02cTest {
     }
 
     @Test
+    void unknownCardIsRejectedEvenWhenNumericFieldsAreNotNumeric() {
+        String raw = daily("T1", "0000000000000000", "1.00", "2022-06-10 19:27:53.000000");
+        raw = raw.substring(0, 143) + "ABCDEFGHI" + raw.substring(152);
+        daily.add(raw);
+        assertEquals(4, run());
+        assertEquals(raw, rejs.records().get(0).substring(0, 350));
+        assertEquals("0100", rejs.records().get(0).substring(350, 354));
+    }
+
+    @Test
     void rejectsMissingAccountWith101() {
         xref.load(List.of(new CardXrefRecord("1111222233334444", 1, 99, "").format()));
         daily.add(daily("T1", "1111222233334444", "1.00", "2022-06-10 19:27:53.000000"));
@@ -450,6 +460,17 @@ class Cbtrn02cTest {
         assertEquals("9050", Cbtrn02c.formatIoStatus04("92"));
         assertEquals("9065", Cbtrn02c.formatIoStatus04("9A"));
         assertEquals("3066", Cbtrn02c.formatIoStatus04("3B"));
+    }
+
+    @Test
+    void db2TimestampUsesAsciiDigitsWhateverTheDefaultLocale() {
+        java.util.Locale saved = java.util.Locale.getDefault();
+        try {
+            java.util.Locale.setDefault(java.util.Locale.forLanguageTag("ar-EG"));
+            assertEquals(PROC_TS, program().getDb2FormatTimestamp());
+        } finally {
+            java.util.Locale.setDefault(saved);
+        }
     }
 
     @Test

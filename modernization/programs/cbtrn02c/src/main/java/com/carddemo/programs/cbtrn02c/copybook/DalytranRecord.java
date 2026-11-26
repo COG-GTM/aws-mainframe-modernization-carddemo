@@ -20,6 +20,7 @@ public record DalytranRecord(
         String filler) {             // FILLER                 PIC X(20)
 
     public static final int RECORD_LENGTH = 350;
+    public static final int CARD_NUM_OFFSET = 262;
     public static final int AMT_INT_DIGITS = 9;
     public static final int AMT_SCALE = 2;
 

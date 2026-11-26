@@ -17,6 +17,7 @@ import com.carddemo.programs.cbtrn02c.io.SequentialWriter;
 import java.math.BigDecimal;
 import java.time.Clock;
 import java.time.LocalDateTime;
+import java.util.Locale;
 import java.util.function.Consumer;
 
 /**
@@ -174,13 +175,21 @@ public class Cbtrn02c {
         checkStatus(tcatbalfStatus, "ERROR OPENING TRANSACTION BALANCE FILE", tcatbalfStatus);
     }
 
+    /** Numeric fields are only interpreted when referenced, as in COBOL (the xref lookup reads just the card). */
+    private DalytranRecord dalytran() {
+        if (dalytranRecord == null) {
+            dalytranRecord = DalytranRecord.parse(dalytranRaw);
+        }
+        return dalytranRecord;
+    }
+
     // 1000-DALYTRAN-GET-NEXT
     void dalytranGetNext() {
         ReadResult r = dalytranFile.read();
         dalytranStatus = r.status();
         if (FileStatus.OK.equals(dalytranStatus)) {
             dalytranRaw = r.record();
-            dalytranRecord = DalytranRecord.parse(dalytranRaw);
+            dalytranRecord = null;
             applResult = ApplResult.AOK;
         } else if (FileStatus.END_OF_FILE.equals(dalytranStatus)) {
             applResult = ApplResult.EOF;
@@ -209,7 +218,7 @@ public class Cbtrn02c {
 
     // 1500-A-LOOKUP-XREF
     void lookupXref() {
-        ReadResult r = xrefFile.read(Pic.alnum(dalytranRecord.dalytranCardNum(), CardXrefRecord.KEY_LENGTH));
+        ReadResult r = xrefFile.read(dalytranRaw.substring(DalytranRecord.CARD_NUM_OFFSET, DalytranRecord.CARD_NUM_OFFSET + CardXrefRecord.KEY_LENGTH));
         xreffileStatus = r.status();
         if (FileStatus.isInvalidKey(xreffileStatus)) {
             wsValidationFailReason = 100;
@@ -230,12 +239,12 @@ public class Cbtrn02c {
             accountRecord = AccountRecord.parse(r.record());
             BigDecimal wsTempBal = Pic.truncate(accountRecord.acctCurrCycCredit()
                     .subtract(accountRecord.acctCurrCycDebit())
-                    .add(dalytranRecord.dalytranAmt()), 9, 2);
+                    .add(dalytran().dalytranAmt()), 9, 2);
             if (accountRecord.acctCreditLimit().compareTo(wsTempBal) < 0) {
                 wsValidationFailReason = 102;
                 wsValidationFailReasonDesc = "OVERLIMIT TRANSACTION";
             }
-            if (accountRecord.acctExpiraionDate().compareTo(dalytranRecord.dalytranOrigTs().substring(0, 10)) < 0) {
+            if (accountRecord.acctExpiraionDate().compareTo(dalytran().dalytranOrigTs().substring(0, 10)) < 0) {
                 wsValidationFailReason = 103;
                 wsValidationFailReasonDesc = "TRANSACTION RECEIVED AFTER ACCT EXPIRATION";
             }
@@ -244,7 +253,7 @@ public class Cbtrn02c {
 
     // 2000-POST-TRANSACTION
     void postTransaction() {
-        DalytranRecord d = dalytranRecord;
+        DalytranRecord d = dalytran();
         tranRecord = new TranRecord(d.dalytranId(), d.dalytranTypeCd(), d.dalytranCatCd(), d.dalytranSource(),
                 d.dalytranDesc(), d.dalytranAmt(), d.dalytranMerchantId(), d.dalytranMerchantName(),
                 d.dalytranMerchantCity(), d.dalytranMerchantZip(), d.dalytranCardNum(), d.dalytranOrigTs(),
@@ -269,8 +278,8 @@ public class Cbtrn02c {
 
     // 2700-UPDATE-TCATBAL
     void updateTcatbal() {
-        TranCatKey key = new TranCatKey(cardXrefRecord.xrefAcctId(), dalytranRecord.dalytranTypeCd(),
-                dalytranRecord.dalytranCatCd());
+        TranCatKey key = new TranCatKey(cardXrefRecord.xrefAcctId(), dalytran().dalytranTypeCd(),
+                dalytran().dalytranCatCd());
         String fdTranCatKey = key.format();
         wsCreateTrancatRec = false;
         ReadResult r = tcatbalFile.read(fdTranCatKey);
@@ -300,9 +309,9 @@ public class Cbtrn02c {
 
     // 2700-A-CREATE-TCATBAL-REC (INITIALIZE leaves FILLER untouched)
     void createTcatbalRec() {
-        TranCatKey key = new TranCatKey(cardXrefRecord.xrefAcctId(), dalytranRecord.dalytranTypeCd(),
-                dalytranRecord.dalytranCatCd());
-        BigDecimal bal = Pic.truncate(BigDecimal.ZERO.setScale(2).add(dalytranRecord.dalytranAmt()),
+        TranCatKey key = new TranCatKey(cardXrefRecord.xrefAcctId(), dalytran().dalytranTypeCd(),
+                dalytran().dalytranCatCd());
+        BigDecimal bal = Pic.truncate(BigDecimal.ZERO.setScale(2).add(dalytran().dalytranAmt()),
                 TranCatBalRecord.BAL_INT_DIGITS, TranCatBalRecord.BAL_SCALE);
         tranCatBalRecord = new TranCatBalRecord(key, bal, tranCatBalRecord.filler());
         tcatbalfStatus = tcatbalFile.write(tranCatBalRecord.format());
@@ -311,7 +320,7 @@ public class Cbtrn02c {
 
     // 2700-B-UPDATE-TCATBAL-REC
     void updateTcatbalRec() {
-        BigDecimal bal = Pic.truncate(tranCatBalRecord.tranCatBal().add(dalytranRecord.dalytranAmt()),
+        BigDecimal bal = Pic.truncate(tranCatBalRecord.tranCatBal().add(dalytran().dalytranAmt()),
                 TranCatBalRecord.BAL_INT_DIGITS, TranCatBalRecord.BAL_SCALE);
         tranCatBalRecord = new TranCatBalRecord(tranCatBalRecord.tranCatKey(), bal, tranCatBalRecord.filler());
         tcatbalfStatus = tcatbalFile.rewrite(tranCatBalRecord.format());
@@ -320,7 +329,7 @@ public class Cbtrn02c {
 
     // 2800-UPDATE-ACCOUNT-REC
     void updateAccountRec() {
-        BigDecimal amt = dalytranRecord.dalytranAmt();
+        BigDecimal amt = dalytran().dalytranAmt();
         BigDecimal currBal = acctAdd(accountRecord.acctCurrBal(), amt);
         BigDecimal cycCredit = accountRecord.acctCurrCycCredit();
         BigDecimal cycDebit = accountRecord.acctCurrCycDebit();
@@ -384,7 +393,7 @@ public class Cbtrn02c {
     // Z-GET-DB2-FORMAT-TIMESTAMP: FUNCTION CURRENT-DATE -> YYYY-MM-DD-HH.MM.SS.hh0000
     String getDb2FormatTimestamp() {
         LocalDateTime now = LocalDateTime.now(clock);
-        return String.format("%04d-%02d-%02d-%02d.%02d.%02d.%02d0000", now.getYear(), now.getMonthValue(),
+        return String.format(Locale.ROOT, "%04d-%02d-%02d-%02d.%02d.%02d.%02d0000", now.getYear(), now.getMonthValue(),
                 now.getDayOfMonth(), now.getHour(), now.getMinute(), now.getSecond(), now.getNano() / 10_000_000);
     }
 
