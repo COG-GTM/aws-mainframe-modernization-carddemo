@@ -92,6 +92,21 @@ class CopybookTest {
     }
 
     @Test
+    void ebcdicEncodingRejectsUnmappableCharacters() {
+        SecUserData u = new SecUserData("USER0009", "\u4E2D\u6587", "X", "P", "U", null);
+        org.junit.jupiter.api.Assertions.assertThrows(IllegalArgumentException.class, u::toEbcdic);
+        SecUserData emoji = new SecUserData("USER0009", "A\uD83D\uDE00", "X", "P", "U", null);
+        org.junit.jupiter.api.Assertions.assertThrows(IllegalArgumentException.class, emoji::toEbcdic);
+    }
+
+    @Test
+    void ebcdicKeyOrderPutsLettersBeforeDigits() {
+        assertTrue(SecUserData.compareEbcdicKeys("A0000001", "00000001") < 0);
+        assertTrue(SecUserData.compareEbcdicKeys("ADMIN001", "USER0001") < 0);
+        assertTrue(SecUserData.compareEbcdicKeys("a0000001", "A0000001") < 0);
+    }
+
+    @Test
     void dateTimeFormatting() {
         DateTimeFields d = new DateTimeFields();
         d.moveCurrentDate(LocalDateTime.of(1999, 12, 31, 23, 59, 58, 990_000_000));

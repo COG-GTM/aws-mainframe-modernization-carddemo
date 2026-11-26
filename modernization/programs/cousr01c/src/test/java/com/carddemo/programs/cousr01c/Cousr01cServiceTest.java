@@ -131,6 +131,17 @@ class Cousr01cServiceTest {
             assertEquals(Pic.x("JOHN", 20), o.fname(), "received input is echoed back");
             assertEquals(0, repo.size());
         }
+
+        @ParameterizedTest
+        @EnumSource(value = Dfhaid.class, names = {"DFHCLEAR", "DFHPA1", "DFHPA2", "DFHPA3"})
+        void shortReadKeysWithNoFieldDataShowInvalidKeyMessage(Dfhaid aid) {
+            UserAddScreenOutput o = send(aid, UserAddScreenInput.empty()).screen();
+            assertEquals("Invalid key pressed. Please see below...", o.errmsgText());
+            assertEquals(Field.FNAME, o.cursor());
+            assertEquals(Pic.lowValues(20), o.fname());
+            assertEquals(Pic.lowValues(8), o.userid());
+            assertEquals(0, repo.size());
+        }
     }
 
     @Nested

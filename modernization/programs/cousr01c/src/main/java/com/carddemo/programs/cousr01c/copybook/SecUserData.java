@@ -1,6 +1,10 @@
 package com.carddemo.programs.cousr01c.copybook;
 
+import java.nio.ByteBuffer;
+import java.nio.CharBuffer;
+import java.nio.charset.CharacterCodingException;
 import java.nio.charset.Charset;
+import java.nio.charset.CodingErrorAction;
 
 /** CSUSR01Y - SEC-USER-DATA, the 80-byte USRSEC VSAM KSDS record (key SEC-USR-ID). */
 public record SecUserData(
@@ -39,7 +43,33 @@ public record SecUserData(
         return secUsrId + secUsrFname + secUsrLname + secUsrPwd + secUsrType + secUsrFiller;
     }
 
+    /** Encodes the record as 80 Cp037 bytes; characters with no EBCDIC code point are rejected. */
     public byte[] toEbcdic() {
-        return toFixedWidth().getBytes(EBCDIC);
+        return encodeEbcdic(toFixedWidth(), LENGTH);
+    }
+
+    static byte[] encodeEbcdic(String s, int expectedLength) {
+        try {
+            ByteBuffer buf = EBCDIC.newEncoder()
+                    .onMalformedInput(CodingErrorAction.REPORT)
+                    .onUnmappableCharacter(CodingErrorAction.REPORT)
+                    .encode(CharBuffer.wrap(s));
+            byte[] out = new byte[buf.remaining()];
+            buf.get(out);
+            if (out.length != expectedLength) {
+                throw new IllegalArgumentException(
+                        "EBCDIC record is " + out.length + " bytes, expected " + expectedLength);
+            }
+            return out;
+        } catch (CharacterCodingException e) {
+            throw new IllegalArgumentException("Value has characters not representable in Cp037: " + s, e);
+        }
+    }
+
+    /** Compares two keys by their Cp037 byte values, i.e. VSAM KSDS key sequence. */
+    public static int compareEbcdicKeys(String a, String b) {
+        byte[] x = encodeEbcdic(a, a.length());
+        byte[] y = encodeEbcdic(b, b.length());
+        return java.util.Arrays.compareUnsigned(x, y);
     }
 }

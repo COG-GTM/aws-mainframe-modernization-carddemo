@@ -10,10 +10,10 @@ import java.util.List;
 import java.util.Optional;
 import java.util.TreeMap;
 
-/** In-memory USRSEC KSDS keyed by the 8-byte SEC-USR-ID, in key order like VSAM. */
+/** In-memory USRSEC KSDS keyed by the 8-byte SEC-USR-ID, in EBCDIC key order like VSAM. Thread-safe. */
 public final class InMemoryUserSecRepository implements UserSecRepository {
 
-    private final TreeMap<String, SecUserData> records = new TreeMap<>();
+    private final TreeMap<String, SecUserData> records = new TreeMap<>(SecUserData::compareEbcdicKeys);
     private WriteResult forcedResult;
 
     /** Loads a fixed-width 80-byte-record EBCDIC (Cp037) USRSEC unload, e.g. AWS.M2.CARDDEMO.USRSEC.PS. */
@@ -35,12 +35,12 @@ public final class InMemoryUserSecRepository implements UserSecRepository {
     }
 
     /** Makes every following write return the given RESP without storing (fault injection). */
-    public void forceResult(WriteResult result) {
+    public synchronized void forceResult(WriteResult result) {
         this.forcedResult = result;
     }
 
     @Override
-    public WriteResult write(SecUserData record) {
+    public synchronized WriteResult write(SecUserData record) {
         if (forcedResult != null) {
             return forcedResult;
         }
@@ -51,15 +51,15 @@ public final class InMemoryUserSecRepository implements UserSecRepository {
         return WriteResult.normal();
     }
 
-    public Optional<SecUserData> find(String secUsrId) {
+    public synchronized Optional<SecUserData> find(String secUsrId) {
         return Optional.ofNullable(records.get(Pic.x(secUsrId, 8)));
     }
 
-    public List<SecUserData> all() {
+    public synchronized List<SecUserData> all() {
         return new ArrayList<>(records.values());
     }
 
-    public int size() {
+    public synchronized int size() {
         return records.size();
     }
 }
