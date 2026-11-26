@@ -1,6 +1,7 @@
 package com.carddemo.programs.cbimport.io;
 
 import com.carddemo.programs.cbimport.FileStatus;
+import com.carddemo.programs.cbimport.copybook.EbcdicNewlines;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -37,6 +38,7 @@ public final class FixedWidthRecordFileWriter implements RecordWriter {
     private final int recordLength;
     private final Charset charset;
     private final byte[] separator;
+    private final boolean collapsesNewlines;
     private SeekableByteChannel out;
     private boolean created;
 
@@ -45,6 +47,7 @@ public final class FixedWidthRecordFileWriter implements RecordWriter {
         this.recordLength = recordLength;
         this.charset = charset;
         this.separator = recordSeparator.getBytes(charset);
+        this.collapsesNewlines = EbcdicNewlines.collapses(charset);
     }
 
     public Path path() {
@@ -90,6 +93,9 @@ public final class FixedWidthRecordFileWriter implements RecordWriter {
         }
         if (encoded.remaining() != recordLength) {
             return FileStatus.BOUNDARY_VIOLATION;
+        }
+        if (collapsesNewlines) {
+            EbcdicNewlines.restoreLineFeeds(record, encoded);
         }
         ByteBuffer buf = ByteBuffer.allocate(recordLength + separator.length).put(encoded).put(separator).flip();
         long start = -1;

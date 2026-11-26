@@ -11,6 +11,7 @@ public final class FieldCursor {
     private final byte[] data;
     private final Charset charset;
     private final boolean zonedEbcdic;
+    private final boolean collapsesNewlines;
     private int pos;
 
     public FieldCursor(byte[] data, int offset, Charset charset) {
@@ -18,6 +19,7 @@ public final class FieldCursor {
         this.charset = charset;
         byte[] zero = "0".getBytes(charset);
         this.zonedEbcdic = zero.length == 1 && (zero[0] & 0xFF) == 0xF0;
+        this.collapsesNewlines = EbcdicNewlines.collapses(charset);
         this.pos = offset;
     }
 
@@ -27,7 +29,7 @@ public final class FieldCursor {
 
     /** PIC X(n). */
     public String alnum(int len) {
-        String s = new String(data, pos, len, charset);
+        String s = EbcdicNewlines.decode(data, pos, len, charset, collapsesNewlines);
         pos += len;
         return s;
     }

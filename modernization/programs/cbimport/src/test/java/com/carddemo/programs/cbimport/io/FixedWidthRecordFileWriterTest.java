@@ -97,4 +97,18 @@ class FixedWidthRecordFileWriterTest {
         w.close();
         assertEquals(3, Files.size(p));
     }
+
+    @Test
+    void ebcdicTextBytesSurviveDecodeAndEncode() throws Exception {
+        Charset ibm037 = Charset.forName("IBM037");
+        byte[] source = {(byte) 0xC1, 0x25, 0x15, (byte) 0xC2};
+        Path p = dir.resolve("out");
+        var w = new FixedWidthRecordFileWriter(p, 4, ibm037, "");
+        w.open();
+        String text = new com.carddemo.programs.cbimport.copybook.FieldCursor(source, 0, ibm037).alnum(4);
+        assertEquals("A\n\u0085B", text);
+        assertEquals("00", w.write(text));
+        w.close();
+        assertArrayEquals(source, Files.readAllBytes(p));
+    }
 }
