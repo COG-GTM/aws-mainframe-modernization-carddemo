@@ -79,12 +79,18 @@ public final class Cbexport {
     /** 0000-MAIN-PROCESSING. Throws {@link CbexportAbendException} where COBOL calls CEE3ABD. */
     public ExportStatistics run() {
         resetWorkingStorage();
-        initialize();
-        exportCustomers();
-        exportAccounts();
-        exportXrefs();
-        exportTransactions();
-        exportCards();
+        try {
+            initialize();
+            exportCustomers();
+            exportAccounts();
+            exportXrefs();
+            exportTransactions();
+            exportCards();
+        } catch (CbexportAbendException e) {
+            // CEE3ABD ends the enclave and the runtime closes open files; do the same for callers.
+            files.closeAll();
+            throw e;
+        }
         finalizeExport();
         return statistics();
     }

@@ -40,6 +40,7 @@ final class InMemoryFiles {
         @Override
         public String open() {
             opened = true;
+            reads = 0;
             return openStatus;
         }
 
@@ -80,6 +81,7 @@ final class InMemoryFiles {
         @Override
         public String open() {
             opened = true;
+            written.clear();
             return openStatus;
         }
 

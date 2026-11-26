@@ -233,8 +233,11 @@ class CbexportTest {
     void rerunningAnInstanceStartsFromFreshWorkingStorage() {
         Cbexport p = program();
         assertEquals(new ExportStatistics(1, 1, 1, 1, 1, 5), p.run());
-        // Second run over the now-exhausted readers: counters must not carry over.
-        assertEquals(new ExportStatistics(0, 0, 0, 0, 0, 0), p.run());
+        assertEquals(new ExportStatistics(1, 1, 1, 1, 1, 5), p.run());
+        assertEquals(5, exp.written.size());
+        for (int i = 0; i < 5; i++) {
+            assertEquals(i + 1, written(i).sequenceNum());
+        }
     }
 
     @Test
@@ -270,7 +273,8 @@ class CbexportTest {
         if (file < 5) {
             assertFalse(exp.opened, "later files are not opened after an abend");
         }
-        assertFalse(cust.closed, "6000-FINALIZE does not run after CEE3ABD");
+        assertFalse(sysout.contains("CBEXPORT: Export completed"), "6000-FINALIZE does not run after CEE3ABD");
+        assertTrue(cust.closed && exp.closed, "files opened before the abend are closed");
     }
 
     @ParameterizedTest
