@@ -117,12 +117,17 @@ public final class Cobol {
 
     /** Write packed decimal; high-order digits beyond the field size are truncated as in a COBOL MOVE. */
     public static void writePacked(byte[] rec, int off, int len, int scale, BigDecimal value) {
+        writePacked(rec, off, len, scale, value, len * 2 - 1);
+    }
+
+    /** Write packed decimal for a PIC with {@code digits} digits (an even count leaves the pad nibble zero). */
+    public static void writePacked(byte[] rec, int off, int len, int scale, BigDecimal value, int digits) {
         BigInteger unscaled = value.setScale(scale, java.math.RoundingMode.DOWN).unscaledValue();
         boolean negative = unscaled.signum() < 0;
         int ndigits = len * 2 - 1;
         String d = unscaled.abs().toString();
-        if (d.length() > ndigits) {
-            d = d.substring(d.length() - ndigits);
+        if (d.length() > digits) {
+            d = d.substring(d.length() - digits);
         }
         d = "0".repeat(ndigits - d.length()) + d + (negative ? "D" : "C");
         for (int i = 0; i < len; i++) {

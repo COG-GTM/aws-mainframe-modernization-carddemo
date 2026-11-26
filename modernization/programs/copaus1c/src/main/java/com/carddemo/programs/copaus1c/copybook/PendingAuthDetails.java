@@ -180,8 +180,8 @@ public final class PendingAuthDetails {
         Cobol.writeX(rec, 62, 2, authRespCode);
         Cobol.writeX(rec, 64, 4, authRespReason);
         Cobol.writeX(rec, 68, 6, processingCode);
-        Cobol.writePacked(rec, 74, 7, 2, transactionAmt);
-        Cobol.writePacked(rec, 81, 7, 2, approvedAmt);
+        Cobol.writePacked(rec, 74, 7, 2, transactionAmt, 12);
+        Cobol.writePacked(rec, 81, 7, 2, approvedAmt, 12);
         Cobol.writeX(rec, 88, 4, merchantCategoryCode);
         Cobol.writeX(rec, 92, 3, acqrCountryCode);
         Cobol.writeX(rec, 95, 2, posEntryMode);

@@ -16,6 +16,15 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class CopybookTest {
 
     @Test
+    void s9_10v99AmountTruncatesToTwelveDigitsAndKeepsPadNibbleZero() {
+        PendingAuthDetails d = PendingAuthDetails.lowValues();
+        d.setTransactionAmt(new BigDecimal("12345678901.23"));
+        byte[] rec = d.toEbcdic();
+        assertEquals(0, (rec[74] & 0xF0) >> 4);
+        assertEquals(new BigDecimal("2345678901.23"), PendingAuthDetails.fromEbcdic(rec).getTransactionAmt());
+    }
+
+    @Test
     void packedDecimalRoundTripsSignedValues() {
         byte[] rec = new byte[7];
         Cobol.writePacked(rec, 0, 7, 2, new BigDecimal("-12345.67"));
