@@ -166,6 +166,37 @@ class CocrdupcServiceTest {
         }
 
         @Test
+        void exitSyncpointsExactlyOnce() {
+            int[] syncpoints = {0};
+            CardFileGateway counting = new CardFileGateway() {
+                @Override
+                public FileResult read(String cardNum) {
+                    return file.read(cardNum);
+                }
+
+                @Override
+                public FileResult readForUpdate(String cardNum) {
+                    return file.readForUpdate(cardNum);
+                }
+
+                @Override
+                public FileResult rewrite(CardRecord record) {
+                    return file.rewrite(record);
+                }
+
+                @Override
+                public void syncpoint() {
+                    syncpoints[0]++;
+                }
+            };
+            CocrdupcService svc = new CocrdupcService(counting, () -> NOW);
+            String commarea = svc.process(new CocrdupcRequest(null, AidKey.ENTER, null)).commarea();
+            assertEquals(1, syncpoints[0]);
+            svc.process(new CocrdupcRequest(commarea, AidKey.PF3, null));
+            assertEquals(2, syncpoints[0]);
+        }
+
+        @Test
         void pf15FoldsOntoPf03() {
             assertEquals(Kind.XCTL, send(fresh().commarea(), AidKey.PF15, null).kind());
         }

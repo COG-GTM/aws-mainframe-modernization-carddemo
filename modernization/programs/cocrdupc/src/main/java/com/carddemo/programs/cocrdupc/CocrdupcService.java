@@ -32,8 +32,11 @@ public final class CocrdupcService {
             }
             throw e;
         }
-        // Implicit syncpoint of RETURN / XCTL at task end, outside HANDLE ABEND as in CICS.
-        cardFile.syncpoint();
+        // Implicit syncpoint of RETURN at task end, outside HANDLE ABEND as in CICS; the XCTL exit
+        // has already issued EXEC CICS SYNCPOINT inside the program.
+        if (response.kind() != CocrdupcResponse.Kind.XCTL) {
+            cardFile.syncpoint();
+        }
         return response;
     }
 }
