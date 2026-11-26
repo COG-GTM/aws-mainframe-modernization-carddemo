@@ -15,8 +15,6 @@ import com.carddemo.programs.codate01.gateway.MqGateway;
 import com.carddemo.programs.codate01.gateway.MqGetResult;
 import com.carddemo.programs.codate01.gateway.MqOpenResult;
 import com.carddemo.programs.codate01.gateway.RetrieveResult;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Objects;
 import java.util.function.Consumer;
 
@@ -101,7 +99,7 @@ public final class Codate01Program {
     private String errorMessage;
     private RequestMsgCopy requestMsgCopy;
     private boolean replyBuilt;
-    private final List<RequestMsgCopy> requestsSeen = new ArrayList<>();
+    private Consumer<RequestMsgCopy> requestListener = request -> { };
 
     private int terminationDepth;
 
@@ -115,6 +113,12 @@ public final class Codate01Program {
         this(mq, cics, System.out::println);
     }
 
+    /** Observer called with REQUEST-MSG-COPY at the start of each 4000-PROCESS-REQUEST-REPLY. */
+    public Codate01Program onRequest(Consumer<RequestMsgCopy> listener) {
+        this.requestListener = Objects.requireNonNull(listener);
+        return this;
+    }
+
     /** Runs one CDRD task to EXEC CICS RETURN. */
     public Codate01Result run() {
         initializeWorkingStorage();
@@ -124,7 +128,7 @@ public final class Codate01Program {
             // EXEC CICS RETURN ends the task
         }
         return new Codate01Result(mqMsgCount, inputQueueName, replyQueueName, errorQueueName,
-                errDisplay.render(), requestMsgCopy, requestsSeen,
+                errDisplay.render(), requestMsgCopy,
                 replyBuilt ? new DateReplyMessage(replyMessage) : null);
     }
 
@@ -175,7 +179,6 @@ public final class Codate01Program {
         errorMessage = alnum("", MESSAGE_LENGTH);
         requestMsgCopy = RequestMsgCopy.initial();
         replyBuilt = false;
-        requestsSeen.clear();
         terminationDepth = 0;
     }
 
@@ -338,7 +341,7 @@ public final class Codate01Program {
 
     // 4000-PROCESS-REQUEST-REPLY
     private void processRequestReply4000() {
-        requestsSeen.add(requestMsgCopy);
+        requestListener.accept(requestMsgCopy);
         replyMessage = alnum("", MESSAGE_LENGTH);
         absTime = 0; // INITIALIZE WS-DATE-TIME REPLACING NUMERIC BY ZEROES
         absTime = cics.askTime();

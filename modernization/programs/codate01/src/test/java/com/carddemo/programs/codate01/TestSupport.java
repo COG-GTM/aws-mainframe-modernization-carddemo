@@ -18,11 +18,12 @@ final class TestSupport {
             .defineQueue(Codate01Program.REPLY_QUEUE_NAME)
             .defineQueue(Codate01Program.ERROR_QUEUE_NAME);
     final List<String> displayed = new ArrayList<>();
+    final List<RequestMsgCopy> requests = new ArrayList<>();
     InMemoryCicsGateway cics = new InMemoryCicsGateway(
             RetrieveResult.normal(MqTriggerMessage.forQueue(INPUT_QUEUE, "CDRD")), () -> NOW);
 
     Codate01Program program() {
-        return new Codate01Program(mq, cics, displayed::add);
+        return new Codate01Program(mq, cics, displayed::add).onRequest(requests::add);
     }
 
     Codate01Result run() {

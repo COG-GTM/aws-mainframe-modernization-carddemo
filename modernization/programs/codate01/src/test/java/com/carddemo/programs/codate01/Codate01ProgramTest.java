@@ -171,10 +171,10 @@ class Codate01ProgramTest {
                     "SYSTEM DATE : 02-29-2000SYSTEM TIME : 00:00:00",
                     "SYSTEM DATE : 12-31-1999SYSTEM TIME : 12:00:01",
                     "SYSTEM DATE : 11-26-2026SYSTEM TIME : 09:30:00"), replies);
-            assertEquals(requests, r.requests().stream().map(q -> q.func() + q.key()).toList());
+            assertEquals(requests, t.requests.stream().map(q -> q.func() + q.key()).toList());
             // bytes past MQ-DATA-LENGTH keep the previous reply that 4100-PUT-REPLY moved into MQ-BUFFER
-            assertTrue(r.requests().get(1).filler().startsWith("1-02-2026SYSTEM TIME : 03:04:05"));
-            assertEquals("00000000005", r.requests().get(4).key());
+            assertTrue(t.requests.get(1).filler().startsWith("1-02-2026SYSTEM TIME : 03:04:05"));
+            assertEquals("00000000005", t.requests.get(4).key());
             // the final (empty) MQGET re-initializes WS-KEY only
             assertEquals("INQA", r.lastRequest().func());
             assertEquals("00000000000", r.lastRequest().key());
@@ -195,8 +195,8 @@ class Codate01ProgramTest {
             t.mq.enqueue(INPUT_QUEUE, "INQA00000000003", "");
             Codate01Result second = program.run();
             assertEquals(1, second.messagesProcessed());
-            assertEquals(1, second.requests().size());
-            assertEquals("00000000003", second.requests().get(0).key());
+            assertEquals(3, t.requests.size());
+            assertEquals("00000000003", t.requests.get(2).key());
         }
 
         @Test
@@ -208,7 +208,7 @@ class Codate01ProgramTest {
             Codate01Result r = t.run();
 
             // MQGET overwrites only MQ-DATA-LENGTH bytes; MQ-BUFFER still holds the first reply
-            RequestMsgCopy second = r.requests().get(1);
+            RequestMsgCopy second = t.requests.get(1);
             assertEquals("DATE", second.func());
             assertEquals(EXPECTED_REPLY.substring(4, 15), second.key());
             assertTrue(second.filler().startsWith(EXPECTED_REPLY.substring(15)));
@@ -223,8 +223,8 @@ class Codate01ProgramTest {
             Codate01Result r = t.run();
 
             assertEquals(1, r.messagesProcessed());
-            assertEquals("XXXX", r.requests().get(0).func());
-            assertEquals(false, r.requests().get(0).keyIsNumeric());
+            assertEquals("XXXX", t.requests.get(0).func());
+            assertEquals(false, t.requests.get(0).keyIsNumeric());
             assertEquals(EXPECTED_REPLY, t.mq.messages(REPLY_Q).get(0).data().trim());
         }
     }
