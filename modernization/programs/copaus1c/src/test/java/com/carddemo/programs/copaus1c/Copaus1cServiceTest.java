@@ -442,8 +442,28 @@ class Copaus1cServiceTest {
             service = new Copaus1cService(db, failingCommit, link, Fixtures.CLOCK);
             org.junit.jupiter.api.Assertions.assertThrows(IllegalStateException.class,
                     () -> service.execute(req(KEY1, AidKey.DFHPF5)));
+            assertEquals(1, link.calls().size());
+            assertTrue(db.calls().stream().anyMatch(c -> c.startsWith("REPL PAUTDTL1")));
             assertEquals(1, db.rollbackCount());
             assertEquals(' ', db.findDetail(ACCT, KEY1).getAuthFraud());
+        }
+
+        @Test
+        void forcedFwOnReplStillWritesTheFraudFlag() {
+            db.forceNext(Op.REPL, "FW");
+            AuthViewResult r = service.execute(req(KEY1, AidKey.DFHPF5));
+            assertEquals(msg("AUTH MARKED FRAUD..."), r.lastScreen().errmsg());
+            assertEquals('F', db.findDetail(ACCT, KEY1).getAuthFraud());
+            assertEquals(1, db.syncpointCount());
+        }
+
+        @Test
+        void screenToStringMasksCardData() {
+            AuthViewScreen s = service.execute(req(KEY1, AidKey.DFHENTER)).lastScreen();
+            String card = s.cardnum();
+            assertFalse(s.toString().contains(card));
+            assertTrue(s.toString().contains(card.substring(12)));
+            assertFalse(s.toString().contains(s.crdexp()));
         }
 
         @Test
