@@ -18,6 +18,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
@@ -103,7 +104,7 @@ class GnuCobolGoldenTest {
         for (String label : NUMERIC_DISPLAY_LABELS) {
             if (line.startsWith(label)) {
                 BigDecimal v = ZonedDecimal.decode(line.substring(label.length()), 2);
-                String digits = String.format("%012d", v.unscaledValue().abs());
+                String digits = String.format(Locale.ROOT, "%012d", v.unscaledValue().abs());
                 return label + digits + (v.signum() < 0 ? "-" : "+");
             }
         }
