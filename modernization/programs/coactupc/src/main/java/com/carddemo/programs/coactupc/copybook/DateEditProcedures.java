@@ -1,5 +1,6 @@
 package com.carddemo.programs.coactupc.copybook;
 
+import java.util.Locale;
 import com.carddemo.programs.coactupc.gateway.DateValidationResult;
 import com.carddemo.programs.coactupc.gateway.DateValidator;
 import com.carddemo.programs.coactupc.support.Cobol;
@@ -172,7 +173,7 @@ public final class DateEditProcedures {
 
     // EDIT-DATE-OF-BIRTH
     public static void editDateOfBirth(DateEditWorkArea wa, EditMessages ctx, LocalDate today) {
-        wa.currentDateYyyymmdd = String.format("%04d%02d%02d", today.getYear(), today.getMonthValue(),
+        wa.currentDateYyyymmdd = String.format(Locale.ROOT, "%04d%02d%02d", today.getYear(), today.getMonthValue(),
                 today.getDayOfMonth());
         wa.editDateBinary = integerOfDate(wa.ccyymmddN());
         wa.currentDateBinary = integerOfDate(Cobol.unsignedValue(wa.currentDateYyyymmdd));

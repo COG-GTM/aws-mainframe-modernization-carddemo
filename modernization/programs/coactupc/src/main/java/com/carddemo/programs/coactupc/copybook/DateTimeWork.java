@@ -1,5 +1,6 @@
 package com.carddemo.programs.coactupc.copybook;
 
+import java.util.Locale;
 import java.time.LocalDateTime;
 
 /**
@@ -16,16 +17,16 @@ public final class DateTimeWork {
 
     /** WS-CURDATE-MM-DD-YY. */
     public String curdateMmDdYy() {
-        return String.format("%02d/%02d/%02d", now.getMonthValue(), now.getDayOfMonth(), now.getYear() % 100);
+        return String.format(Locale.ROOT, "%02d/%02d/%02d", now.getMonthValue(), now.getDayOfMonth(), now.getYear() % 100);
     }
 
     /** WS-CURTIME-HH-MM-SS. */
     public String curtimeHhMmSs() {
-        return String.format("%02d:%02d:%02d", now.getHour(), now.getMinute(), now.getSecond());
+        return String.format(Locale.ROOT, "%02d:%02d:%02d", now.getHour(), now.getMinute(), now.getSecond());
     }
 
     /** WS-CURDATE-N (YYYYMMDD). */
     public String curdateYyyymmdd() {
-        return String.format("%04d%02d%02d", now.getYear(), now.getMonthValue(), now.getDayOfMonth());
+        return String.format(Locale.ROOT, "%04d%02d%02d", now.getYear(), now.getMonthValue(), now.getDayOfMonth());
     }
 }
