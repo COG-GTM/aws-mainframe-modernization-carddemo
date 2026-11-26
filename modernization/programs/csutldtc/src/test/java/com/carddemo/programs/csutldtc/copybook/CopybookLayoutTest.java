@@ -57,6 +57,8 @@ class CopybookLayoutTest {
     @Test
     void numericDisplayIgnoresDefaultLocale() {
         java.util.Locale saved = java.util.Locale.getDefault();
+        java.util.Locale savedFormat = java.util.Locale.getDefault(java.util.Locale.Category.FORMAT);
+        java.util.Locale savedDisplay = java.util.Locale.getDefault(java.util.Locale.Category.DISPLAY);
         try {
             java.util.Locale.setDefault(java.util.Locale.forLanguageTag("ar-EG"));
             WsMessage m = new WsMessage();
@@ -66,6 +68,8 @@ class CopybookLayoutTest {
             assertEquals("2513", m.msgNo());
         } finally {
             java.util.Locale.setDefault(saved);
+            java.util.Locale.setDefault(java.util.Locale.Category.FORMAT, savedFormat);
+            java.util.Locale.setDefault(java.util.Locale.Category.DISPLAY, savedDisplay);
         }
     }
 
