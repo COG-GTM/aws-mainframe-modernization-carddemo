@@ -246,18 +246,29 @@ class DbunldgsFixtureTest {
     }
 
     @Test
-    void secondAllocationInSameJvmKeepsFirstHoldersLock(@TempDir Path dir) throws IOException {
+    void secondAllocationInSameJvmKeepsFirstHoldersLock(@TempDir Path dir) throws Exception {
         Path root = dir.resolve("PASFILOP");
-        try (FixedWidthGsamFile first = new FixedWidthGsamFile(root, PendingAuthSummary.LENGTH)) {
+        FixedWidthGsamFile first = new FixedWidthGsamFile(root, PendingAuthSummary.LENGTH);
+        try {
             assertThrows(java.io.UncheckedIOException.class,
                     () -> new FixedWidthGsamFile(root, PendingAuthSummary.LENGTH));
-            try (java.nio.channels.FileChannel probe = java.nio.channels.FileChannel.open(root,
-                    java.nio.file.StandardOpenOption.WRITE)) {
-                assertThrows(java.nio.channels.OverlappingFileLockException.class, probe::tryLock);
-            }
+            assertEquals(3, probeLockFromAnotherProcess(root));
+        } finally {
+            first.close();
         }
+        first.close();
+        assertEquals(0, probeLockFromAnotherProcess(root));
         try (FixedWidthGsamFile again = new FixedWidthGsamFile(root, PendingAuthSummary.LENGTH)) {
-            assertNotNull(again);
+            first.close();
+            assertThrows(java.io.UncheckedIOException.class,
+                    () -> new FixedWidthGsamFile(root, PendingAuthSummary.LENGTH));
         }
+    }
+
+    private static int probeLockFromAnotherProcess(Path file) throws Exception {
+        Path java = Path.of(System.getProperty("java.home"), "bin", "java");
+        Process p = new ProcessBuilder(java.toString(), "-cp", System.getProperty("java.class.path"),
+                LockProbe.class.getName(), file.toString()).inheritIO().start();
+        return p.waitFor();
     }
 }

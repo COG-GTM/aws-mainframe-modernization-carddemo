@@ -15,8 +15,9 @@ import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.nio.file.attribute.PosixFilePermissions;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * GSAM output dataset backed by a RECFM=F file: each ISRT writes exactly {@code recordLength}
@@ -35,19 +36,25 @@ public final class FixedWidthGsamFile implements DliCallHandler, AutoCloseable {
     private final FileChannel channel;
     private final boolean regularFile;
     private final Object lockedKey;
+    private final Object owner = new Object();
 
-    private static final Set<Object> LOCKED_IN_JVM = ConcurrentHashMap.newKeySet();
+    private static final Map<Object, Object> LOCKED_IN_JVM = new HashMap<>();
 
     public FixedWidthGsamFile(Path path, int recordLength) {
         this.recordLength = recordLength;
         try {
-            Object existingKey = fileKey(path);
-            if (existingKey != null && LOCKED_IN_JVM.contains(existingKey)) {
-                throw new IOException("Dataset in use: " + path);
+            synchronized (LOCKED_IN_JVM) {
+                Object existingKey = fileKey(path);
+                if (existingKey != null && LOCKED_IN_JVM.containsKey(existingKey)) {
+                    throw new IOException("Dataset in use: " + path);
+                }
+                this.channel = open(path);
+                this.regularFile = Files.isRegularFile(path);
+                this.lockedKey = regularFile ? lockExclusive(channel, path) : null;
+                if (lockedKey != null) {
+                    LOCKED_IN_JVM.put(lockedKey, owner);
+                }
             }
-            this.channel = open(path);
-            this.regularFile = Files.isRegularFile(path);
-            this.lockedKey = regularFile ? lockExclusive(channel, path) : null;
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
@@ -58,16 +65,12 @@ public final class FixedWidthGsamFile implements DliCallHandler, AutoCloseable {
     }
 
     /**
-     * DISP=OLD: exclusive enqueue on the dataset for the life of the step. A JVM-wide registry
-     * rejects a second allocation before it opens the file, because closing a duplicate channel
-     * would release the first holder's OS lock.
+     * DISP=OLD: exclusive enqueue on the dataset for the life of the step. Allocation is
+     * serialized through a JVM-wide registry so a second allocation is rejected before it opens
+     * the file: on Linux, closing a duplicate channel would release the first holder's OS lock.
      */
     private static Object lockExclusive(FileChannel channel, Path path) throws IOException {
         try {
-            Object key = fileKey(path);
-            if (key != null && !LOCKED_IN_JVM.add(key)) {
-                throw new IOException("Dataset in use: " + path);
-            }
             FileLock lock;
             try {
                 lock = channel.tryLock();
@@ -75,12 +78,9 @@ public final class FixedWidthGsamFile implements DliCallHandler, AutoCloseable {
                 lock = null;
             }
             if (lock == null) {
-                if (key != null) {
-                    LOCKED_IN_JVM.remove(key);
-                }
                 throw new IOException("Dataset in use: " + path);
             }
-            return key;
+            return fileKey(path);
         } catch (IOException | RuntimeException e) {
             channel.close();
             throw e;
@@ -146,7 +146,9 @@ public final class FixedWidthGsamFile implements DliCallHandler, AutoCloseable {
             channel.close();
         } finally {
             if (lockedKey != null) {
-                LOCKED_IN_JVM.remove(lockedKey);
+                synchronized (LOCKED_IN_JVM) {
+                    LOCKED_IN_JVM.remove(lockedKey, owner);
+                }
             }
         }
     }
