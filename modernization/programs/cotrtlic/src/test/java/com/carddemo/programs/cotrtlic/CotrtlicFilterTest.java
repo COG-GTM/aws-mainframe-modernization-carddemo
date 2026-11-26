@@ -98,4 +98,23 @@ class CotrtlicFilterTest {
         h.pressForMap(Dfhaid.DFHENTER, m -> m.trtype.receive("01"));
         assertEquals("No Records found for these filter conditions", h.errmsg());
     }
+
+    @Test
+    void unchangedDescriptionFilterKeepsPagingAndUpdateConfirmation() {
+        Harness h = new Harness().withRows(1, 20);
+        h.start();
+        h.pressForMap(Dfhaid.DFHENTER, m -> m.trdesc.receive("Type"));
+        assertEquals("01", h.rowType(1));
+        CicsResponse.SendMapAndReturn p2 = h.pressForMap(Dfhaid.DFHPF8);
+        assertEquals("08", h.rowType(1));
+        assertEquals(2, p2.commarea().thisProg().caScreenNum);
+        h.pressForMap(Dfhaid.DFHENTER, m -> {
+            m.row(1).trtsel.receive("U");
+            m.row(1).trtypd.receive("Type eight");
+        });
+        assertEquals("Update HIGHLIGHTED row. Press F10 to save", h.infomsg());
+        h.pressForMap(Dfhaid.DFHPF10);
+        assertEquals("HIGHLIGHTED row was updated", h.infomsg());
+        assertEquals("Type eight", h.table.description("08").stripTrailing());
+    }
 }

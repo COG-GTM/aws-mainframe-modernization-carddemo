@@ -12,7 +12,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.regex.Pattern;
 
 /**
  * In-memory CARDDEMO.TRANSACTION_TYPE with DB2 cursor semantics (EBCDIC collation on TR_TYPE,
@@ -99,16 +98,28 @@ public final class InMemoryTransactionTypeTable implements TransactionTypeDb2Gat
         return Cob.trim(s);
     }
 
+    /** SQL LIKE ('%' any run, '_' one character) as an O(n*m) table match, without regex backtracking. */
     static boolean like(String value, String pattern) {
-        StringBuilder re = new StringBuilder();
-        for (char c : pattern.toCharArray()) {
-            switch (c) {
-                case '%' -> re.append(".*");
-                case '_' -> re.append('.');
-                default -> re.append(Pattern.quote(String.valueOf(c)));
+        int n = value.length();
+        int m = pattern.length();
+        boolean[] prev = new boolean[n + 1];
+        boolean[] cur = new boolean[n + 1];
+        prev[0] = true;
+        for (int j = 1; j <= m; j++) {
+            char p = pattern.charAt(j - 1);
+            cur[0] = prev[0] && p == '%';
+            for (int i = 1; i <= n; i++) {
+                cur[i] = switch (p) {
+                    case '%' -> cur[i - 1] || prev[i];
+                    case '_' -> prev[i - 1];
+                    default -> prev[i - 1] && value.charAt(i - 1) == p;
+                };
             }
+            boolean[] t = prev;
+            prev = cur;
+            cur = t;
         }
-        return Pattern.compile(re.toString(), Pattern.DOTALL).matcher(value).matches();
+        return prev[n];
     }
 
     private List<Map.Entry<String, String>> select(TypeFilter f, boolean forwardDirection) {
