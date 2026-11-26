@@ -6,7 +6,7 @@ HERE=$(cd "$(dirname "$0")" && pwd)
 REPO=$(cd "$HERE/../../../.." && pwd)
 D=$REPO/app/data/ASCII
 OUT=${1:-$HERE/../src/test/resources/golden}
-mkdir -p "$OUT"; OUT=$(cd "$OUT" && pwd)
+mkdir -p "$OUT"; OUT=$(CDPATH= cd -- "$OUT" && pwd)
 W=$(mktemp -d); trap 'rm -rf "$W"' EXIT
 cd "$W"
 cobc -x -std=ibm -fsign=EBCDIC "$HERE/LOADKS.cbl" -o LOADKS
