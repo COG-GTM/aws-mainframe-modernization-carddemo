@@ -19,6 +19,8 @@ class CsutldtcTest {
         "2022-13-01, 0003, 2517, Invalid month",
         "1582-10-14, 0003, 2513, Unsupp. Range",
         "1582-10-15, 0000, 0000, Date is valid",
+        "1582-10-00, 0003, 2508, Datevalue error",
+        "1500-02-30, 0003, 2508, Datevalue error",
         "20AB-01-01, 0003, 2520, Nonnumeric data"
     })
     void feedbackCodes(String date, String sev, String msg, String text) {

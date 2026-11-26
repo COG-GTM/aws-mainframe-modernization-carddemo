@@ -291,7 +291,7 @@ class Cotrn02cServiceTest extends TestSupport {
         }
 
         @ParameterizedTest
-        @CsvSource({"2023-02-29", "2022-13-01", "2022-04-31", "2022-00-10", "2022-01-00"})
+        @CsvSource({"2023-02-29", "2022-13-01", "2022-04-31", "2022-00-10", "2022-01-00", "1582-10-00", "1500-02-30"})
         void origDateMustBeACalendarDate(String date) {
             Cotrn2aResponse r = screen(enter(valid().origDate(date).build()));
             assertEquals("Orig Date - Not a valid date...", r.message());

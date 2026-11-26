@@ -76,11 +76,11 @@ public final class Csutldtc implements DateValidator {
         if (month < 1 || month > 12) {
             return new int[] {3, MSG_INVALID_MONTH};
         }
-        if (year < 1582 || (year == 1582 && (month < 10 || (month == 10 && day < 15)))) {
-            return new int[] {3, MSG_UNSUPP_RANGE};
-        }
         if (day < 1 || day > YearMonth.of(year, month).lengthOfMonth()) {
             return new int[] {3, MSG_BAD_DATE_VALUE};
+        }
+        if (year < 1582 || (year == 1582 && (month < 10 || (month == 10 && day < 15)))) {
+            return new int[] {3, MSG_UNSUPP_RANGE};
         }
         return new int[] {0, 0};
     }
