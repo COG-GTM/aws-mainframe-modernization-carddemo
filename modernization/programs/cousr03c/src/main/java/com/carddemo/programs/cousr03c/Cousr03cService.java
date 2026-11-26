@@ -20,6 +20,7 @@ import java.time.Clock;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.function.Consumer;
 
 /** COUSR03C (transaction CU03): delete a user from the USRSEC file. */
@@ -372,6 +373,6 @@ public final class Cousr03cService {
     }
 
     private static String signed9(int v) {
-        return (v < 0 ? "-" : "+") + String.format("%09d", Math.abs((long) v) % 1_000_000_000L);
+        return (v < 0 ? "-" : "+") + String.format(Locale.ROOT, "%09d", Math.abs((long) v) % 1_000_000_000L);
     }
 }

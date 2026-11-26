@@ -140,4 +140,23 @@ class CopybookLayoutTest {
         assertEquals(0xF5, Dfhaid.DFHPF5.ebcdic);
         assertEquals(0x7D, Dfhaid.DFHENTER.ebcdic);
     }
+
+    @org.junit.jupiter.api.Test
+    void dateTimeDigitsIgnoreDefaultLocale() {
+        java.util.Locale saved = java.util.Locale.getDefault(java.util.Locale.Category.FORMAT);
+        try {
+            java.util.Locale.setDefault(java.util.Locale.Category.FORMAT, java.util.Locale.forLanguageTag("ar-EG-u-nu-arab"));
+            WsDateTime dt = new WsDateTime();
+            dt.setCurdateMm(11);
+            dt.setCurdateDd(26);
+            dt.setCurdateYy(26);
+            dt.setCurtimeHh(7);
+            dt.setCurtimeMm(5);
+            dt.setCurtimeSs(9);
+            org.junit.jupiter.api.Assertions.assertEquals("11/26/26", dt.curdateMmDdYy());
+            org.junit.jupiter.api.Assertions.assertEquals("07:05:09", dt.curtimeHhMmSs());
+        } finally {
+            java.util.Locale.setDefault(java.util.Locale.Category.FORMAT, saved);
+        }
+    }
 }

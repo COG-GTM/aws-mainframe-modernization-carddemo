@@ -1,6 +1,7 @@
 package com.carddemo.programs.cousr03c.copybook;
 
 import java.time.LocalDateTime;
+import java.util.Locale;
 
 /** CSDAT01Y: 01 WS-DATE-TIME, populated from FUNCTION CURRENT-DATE. */
 public final class WsDateTime {
@@ -57,17 +58,17 @@ public final class WsDateTime {
 
     /** WS-CURDATE-MM-DD-YY, PIC X(08) "mm/dd/yy". */
     public String curdateMmDdYy() {
-        return String.format("%02d/%02d/%02d", curdateMm, curdateDd, curdateYy);
+        return String.format(Locale.ROOT, "%02d/%02d/%02d", curdateMm, curdateDd, curdateYy);
     }
 
     /** WS-CURTIME-HH-MM-SS, PIC X(08) "hh:mm:ss". */
     public String curtimeHhMmSs() {
-        return String.format("%02d:%02d:%02d", curtimeHh, curtimeMm, curtimeSs);
+        return String.format(Locale.ROOT, "%02d:%02d:%02d", curtimeHh, curtimeMm, curtimeSs);
     }
 
     /** WS-TIMESTAMP "yyyy-mm-dd hh:mm:ss.ffffff" (26 bytes); microseconds derived from WS-CURTIME-MILSEC. */
     public String timestamp() {
-        return String.format("%04d-%02d-%02d %02d:%02d:%02d.%06d",
+        return String.format(Locale.ROOT, "%04d-%02d-%02d %02d:%02d:%02d.%06d",
                 curdateYear, curdateMonth, curdateDay, curtimeHours, curtimeMinute, curtimeSecond, curtimeMilsec * 10000);
     }
 }
