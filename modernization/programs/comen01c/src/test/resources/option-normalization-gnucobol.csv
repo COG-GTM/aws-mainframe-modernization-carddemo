@@ -1,0 +1,15 @@
+# PROCESS-ENTER-KEY option normalisation, captured by running the COBOL statements verbatim under
+# GnuCOBOL 3 (cobc -std=ibm). Columns: OPTIONI | WS-OPTION-X after INSPECT | OPTIONO (MOVE WS-OPTION)
+1 |01|01
+ 1|01|01
+01|01|01
+11|11|11
+12|12|12
+  |00|00
+00|00|00
+0 |00|00
+ 0|00|00
+9 |09|09
+99|99|99
+10|10|10
+5 |05|05
