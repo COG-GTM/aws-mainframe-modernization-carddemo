@@ -25,7 +25,7 @@ import java.util.Map;
  * Job step equivalent of app/jcl/CBIMPORT.jcl (STEP01 EXEC PGM=CBIMPORT).
  *
  * <pre>
- * java -jar cbimport.jar --EXPFILE=export.dat --CUSTOUT=cust.dat --ACCTOUT=acct.dat --XREFOUT=xref.dat
+ * java -jar target/cbimport-1.0.0-SNAPSHOT.jar --EXPFILE=export.dat --CUSTOUT=cust.dat --ACCTOUT=acct.dat --XREFOUT=xref.dat
  *      --TRNXOUT=tran.dat --CARDOUT=card.dat --ERROUT=err.dat
  *      [--export-encoding=IBM037] [--output-encoding=IBM037] [--record-separator=none|lf]
  * </pre>
