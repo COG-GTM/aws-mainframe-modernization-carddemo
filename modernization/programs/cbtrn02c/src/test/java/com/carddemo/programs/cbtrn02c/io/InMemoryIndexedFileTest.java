@@ -3,10 +3,13 @@ package com.carddemo.programs.cbtrn02c.io;
 import org.junit.jupiter.api.Test;
 
 import java.nio.file.Files;
+import java.io.UncheckedIOException;
 import java.nio.file.Path;
+import java.nio.file.attribute.PosixFilePermissions;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class InMemoryIndexedFileTest {
@@ -60,6 +63,43 @@ class InMemoryIndexedFileTest {
         assertEquals(List.of("AAA1  ", "BBB2  ", "CCC3  "), Files.readAllLines(p));
         assertEquals("35", new FileIndexedFile(dir.resolve("missing"), 6, 0, 3).open(OpenMode.INPUT));
         assertTrue(Files.exists(p));
+    }
+
+    @Test
+    void savesFollowSymlinksKeepPermissionsAndCreateOwnerOnlyFiles() throws Exception {
+        Path dir = Files.createTempDirectory("ksds");
+        Path real = dir.resolve("real.txt");
+        Files.writeString(real, "AAA1\n");
+        Files.setPosixFilePermissions(real, PosixFilePermissions.fromString("rw-rw----"));
+        Path link = Files.createSymbolicLink(dir.resolve("link.txt"), real);
+        FileIndexedFile f = new FileIndexedFile(link, 6, 0, 3);
+        assertEquals("00", f.open(OpenMode.I_O));
+        f.write("BBB2");
+        f.close();
+        assertTrue(Files.isSymbolicLink(link));
+        assertEquals(List.of("AAA1  ", "BBB2  "), Files.readAllLines(real));
+        assertEquals("rw-rw----", PosixFilePermissions.toString(Files.getPosixFilePermissions(real)));
+
+        Path created = dir.resolve("new.txt");
+        LineFiles.writeRecords(created, List.of("CCC3"));
+        assertEquals("rw-------", PosixFilePermissions.toString(Files.getPosixFilePermissions(created)));
+        try (var files = Files.list(dir)) {
+            assertEquals(3, files.count());
+        }
+    }
+
+    @Test
+    void failedSaveLeavesThePreviousFileIntact() throws Exception {
+        Path dir = Files.createTempDirectory("ksds");
+        Path p = dir.resolve("f.txt");
+        Files.writeString(p, "AAA1\n");
+        Files.setPosixFilePermissions(dir, PosixFilePermissions.fromString("r-x------"));
+        try {
+            assertThrows(UncheckedIOException.class, () -> LineFiles.writeRecords(p, List.of("BBB2")));
+        } finally {
+            Files.setPosixFilePermissions(dir, PosixFilePermissions.fromString("rwx------"));
+        }
+        assertEquals("AAA1\n", Files.readString(p));
     }
 
     @Test
