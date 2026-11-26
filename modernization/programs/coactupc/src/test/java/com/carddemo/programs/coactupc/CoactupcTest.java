@@ -286,13 +286,15 @@ class CoactupcTest {
     void openDateEdits() {
         assertEquals("Open Date : Century is not valid.", err(change(fetch(), Map.of(CactupaField.OPNYEAR, "1814"))));
         assertEquals("Open Date must be 4 digit number.", err(change(fetch(), Map.of(CactupaField.OPNYEAR, "20X4"))));
-        assertEquals("Open Date : Year must be supplied.", err(change(fetch(), Map.of(CactupaField.OPNYEAR, "*"))));
+        assertEquals("Open Date : Year must be supplied.", err(change(fetch(), Map.of(CactupaField.OPNYEAR, ""))));
+        // JUSTIFY=(RIGHT): '*' arrives as "   *", so the "= '*'" blank test in 1100 does not fire
+        assertEquals("Open Date must be 4 digit number.", err(change(fetch(), Map.of(CactupaField.OPNYEAR, "*"))));
         assertEquals("Open Date: Month must be a number between 1 and 12.",
                 err(change(fetch(), Map.of(CactupaField.OPNMON, "13"))));
         assertEquals("Open Date : Month must be supplied.", err(change(fetch(), Map.of(CactupaField.OPNMON, ""))));
         assertEquals("Open Date:day must be a number between 1 and 31.",
                 err(change(fetch(), Map.of(CactupaField.OPNDAY, "32"))));
-        assertEquals("Open Date : Day must be supplied.", err(change(fetch(), Map.of(CactupaField.OPNDAY, "*"))));
+        assertEquals("Open Date : Day must be supplied.", err(change(fetch(), Map.of(CactupaField.OPNDAY, ""))));
         assertEquals("Open Date:Cannot have 31 days in this month.",
                 err(change(fetch(), Map.of(CactupaField.OPNMON, "04", CactupaField.OPNDAY, "31"))));
         assertEquals("Open Date:Cannot have 30 days in this month.",
@@ -310,6 +312,30 @@ class CoactupcTest {
                 err(change(fetch(), Map.of(CactupaField.EXPMON, "00"))));
         assertEquals("Reissue Date:day must be a number between 1 and 31.",
                 err(change(fetch(), Map.of(CactupaField.RISDAY, "AB"))));
+    }
+
+    // JUSTIFY=(RIGHT) date fields: a one-digit month arrives as " 2" and passes EDIT-MONTH
+    @Test
+    void oneDigitMonthIsRightJustified() {
+        CicsResult r = change(fetch(), Map.of(CactupaField.OPNMON, "2", CactupaField.OPNDAY, "30"));
+        assertEquals("Open Date:Cannot have 30 days in this month.", err(r));
+        assertEquals(" 2", CactupaInput.empty().with(CactupaField.OPNMON, "2").get(CactupaField.OPNMON));
+        assertEquals("AB   ", CactupaInput.empty().with(CactupaField.ACSZIPC, "AB").get(CactupaField.ACSZIPC));
+    }
+
+    // FUNCTION CURRENT-DATE digits are locale independent
+    @Test
+    void dateOfBirthCheckIgnoresDefaultLocale() {
+        java.util.Locale saved = java.util.Locale.getDefault();
+        try {
+            java.util.Locale.setDefault(java.util.Locale.forLanguageTag("bn-BD-u-nu-beng"));
+            CicsResult r = change(fetch(), Map.of(CactupaField.DOBYEAR, "2027"));
+            assertEquals("Date of Birth:cannot be in the future", err(r));
+            assertEquals("Phone Number 2: Not valid North America general purpose area code",
+                    err(change(fetch(), Map.of(CactupaField.ACSTFCO, "700"))));
+        } finally {
+            java.util.Locale.setDefault(saved);
+        }
     }
 
     // EDIT-DATE-OF-BIRTH
@@ -396,7 +422,7 @@ class CoactupcTest {
         assertEquals("Phone Number 1: Not valid North America general purpose area code",
                 err(change(fetch(), with(base, CactupaField.ACSPH1A, "211"))));
         assertEquals("Phone Number 1: Prefix code must be supplied.",
-                err(change(fetch(), with(base, CactupaField.ACSPH1B, "*"))));
+                err(change(fetch(), with(base, CactupaField.ACSPH1B, ""))));
         assertEquals("Phone Number 1: Line number code cannot be zero",
                 err(change(fetch(), with(base, CactupaField.ACSPH1C, "0000"))));
         assertEquals("Phone Number 2: Not valid North America general purpose area code",
@@ -407,9 +433,9 @@ class CoactupcTest {
     @Test
     void blankPhoneNumberIsAccepted() {
         Map<CactupaField, String> m = new java.util.EnumMap<>(validChange("2020"));
-        m.put(CactupaField.ACSPH2A, "*");
-        m.put(CactupaField.ACSPH2B, "*");
-        m.put(CactupaField.ACSPH2C, "*");
+        m.put(CactupaField.ACSPH2A, "");
+        m.put(CactupaField.ACSPH2B, "");
+        m.put(CactupaField.ACSPH2C, "");
         CicsResult r = change(fetch(), m);
         assertEquals("", err(r));
         assertTrue(r.programCommarea().isChangesOkNotConfirmed());
