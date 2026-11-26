@@ -274,8 +274,11 @@ class Copaus0cServiceTest {
         void xrefDupkeyOnAlternateIndexIsTreatedAsSystemError() {
             data.xref.add(new com.carddemo.programs.copaus0c.copybook.CardXrefRecord("4000000000000002", 7, 1));
             Copaus0cResult r = firstPage();
-            assertEquals(msg("Account:00000000001 System error while reading XREF file. Resp:000000015 Reas:000000000"),
-                    r.screens().get(0).errmsg());
+            String dupkey = msg("Account:00000000001 System error while reading XREF file. Resp:000000015 Reas:000000000");
+            assertEquals(dupkey, r.screens().get(0).errmsg());
+            // the DUPKEY record still keys the ACCT/CUST reads, so no NOTFND message overwrites the error
+            assertEquals(dupkey, r.screen().errmsg());
+            assertEquals("000000007", r.screen().custid());
         }
 
         @Test
@@ -462,6 +465,15 @@ class Copaus0cServiceTest {
             assertEquals(first.screen().declamt(), r.screen().declamt());
             assertEquals(first.screen().row(1).trnid(), r.screen().row(1).trnid());
             assertEquals(first.screen().row(5).pamt(), r.screen().row(5).pamt());
+        }
+
+        @Test
+        void selectionWithUnchangedAccountIdUsesFsetEcho() {
+            Copaus0cResult first = firstPage();
+            Copau0aInput in = Copau0aInput.none().withSelection(2, "S").withFsetFrom(first.screen());
+            Copaus0cResult r = data.service.execute(Aid.ENTER, first.commarea(), in);
+            assertEquals("COPAUS1C", r.xctlProgram());
+            assertEquals(TestData.key(2), r.commarea().cdemoCpvsPauSelected);
         }
 
         @Test

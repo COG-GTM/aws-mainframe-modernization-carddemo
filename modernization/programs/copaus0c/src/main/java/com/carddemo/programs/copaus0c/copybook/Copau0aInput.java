@@ -47,8 +47,20 @@ public record Copau0aInput(String acctId, String sel1, String sel2, String sel3,
             echo.put("PAMT00" + n, r.pamt());
         }
         echo.put("ERRMSG", screen.errmsg());
-        echo.values().removeIf(v -> v.chars().allMatch(c -> c == 0));
-        return new Copau0aInput(acctId, sel1, sel2, sel3, sel4, sel5, echo);
+        echo.values().removeIf(Copau0aInput::isNulls);
+        List<Copau0aScreen.Row> r = rows;
+        return new Copau0aInput(echoed(acctId, screen.acctid()), echoed(sel1, r.get(0).sel()),
+                echoed(sel2, r.get(1).sel()), echoed(sel3, r.get(2).sel()), echoed(sel4, r.get(3).sel()),
+                echoed(sel5, r.get(4).sel()), echo);
+    }
+
+    /** ACCTID and SEL000n are FSET too: an unmodified field comes back with the value last displayed. */
+    private static String echoed(String typed, String shown) {
+        return typed != null || isNulls(shown) ? typed : shown;
+    }
+
+    private static boolean isNulls(String v) {
+        return v.chars().allMatch(c -> c == 0);
     }
 
     public static Copau0aInput of(String acctId) {
