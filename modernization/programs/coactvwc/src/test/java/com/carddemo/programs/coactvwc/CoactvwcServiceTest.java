@@ -313,6 +313,11 @@ class CoactvwcServiceTest {
         // 9000 only stops on DID-NOT-FIND-ACCT-IN-ACCTDAT, which is never set, so the customer is still shown.
         assertEquals("777000111", r.screen().acstnumo());
         assertEquals("+           .00", r.screen().acurbalo());
+        assertNull(r.screen().acsttuso());
+        assertNull(r.screen().adtopeno());
+        assertNull(r.screen().aexpdto());
+        assertNull(r.screen().areisdto());
+        assertNull(r.screen().aaddgrpo());
     }
 
     @Test
