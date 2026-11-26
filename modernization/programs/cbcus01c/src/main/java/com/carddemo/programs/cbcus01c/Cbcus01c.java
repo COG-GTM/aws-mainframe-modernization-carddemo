@@ -157,7 +157,12 @@ public final class Cbcus01c {
         return applResult;
     }
 
-    /** Typed view of the last record read into CUSTOMER-RECORD (CVCUS01Y). */
+    /**
+     * Typed view of the last record read into CUSTOMER-RECORD (CVCUS01Y). The dump itself prints the raw
+     * image and accepts any bytes; this typed view is stricter than COBOL.
+     *
+     * @throws IllegalArgumentException if a PIC 9 field is not NUMERIC (e.g. a short record padded with spaces)
+     */
     public CustomerRecord customerRecord() {
         return CustomerRecord.fromFixedWidth(customerRecord);
     }
