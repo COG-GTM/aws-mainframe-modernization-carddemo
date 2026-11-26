@@ -57,8 +57,8 @@ class GoldenFixtureTest {
 
     private static List<String> golden(String name) throws IOException {
         try (InputStream in = GoldenFixtureTest.class.getResourceAsStream("/golden/" + name)) {
-            String text = new String(in.readAllBytes(), StandardCharsets.ISO_8859_1);
-            return text.isEmpty() ? List.of() : List.of(text.split("\n", -1)).subList(0, text.split("\n", -1).length - 1);
+            String text = new String(in.readAllBytes(), StandardCharsets.ISO_8859_1).replace("\r\n", "\n");
+            return text.isEmpty() ? List.of() : List.of(text.substring(0, text.length() - 1).split("\n", -1));
         }
     }
 
