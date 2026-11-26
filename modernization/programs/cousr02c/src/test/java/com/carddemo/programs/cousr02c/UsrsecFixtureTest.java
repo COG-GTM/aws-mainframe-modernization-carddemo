@@ -11,6 +11,7 @@ import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Clock;
@@ -20,6 +21,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /** Runs the program against the repository's USRSEC sample unload (app/data/EBCDIC, EBCDIC cp037, LRECL 80). */
 class UsrsecFixtureTest {
@@ -73,5 +75,34 @@ class UsrsecFixtureTest {
         assertEquals("A", after.getSecUsrType());
         assertEquals(before.toRecord().substring(0, 56), after.toRecord().substring(0, 56));
         assertEquals(before.getSecUsrFiller(), after.getSecUsrFiller());
+    }
+
+    @Test
+    void fixedBlockReadKeepsEbcdicLineFeedBytesInsideRecords() {
+        byte[] copy = raw.clone();
+        copy[60] = 0x25; // IBM037 LF inside SEC-USR-FILLER of record 1
+        List<SecUserData> parsed = UsrsecRecordReader.read(copy, EBCDIC);
+        assertEquals(10, parsed.size());
+        assertEquals("USER0005", parsed.get(9).getSecUsrId());
+        assertEquals('\n', parsed.get(0).getSecUsrFiller().charAt(3));
+    }
+
+    @Test
+    void readLinesPadsTextRecords() {
+        List<SecUserData> parsed = UsrsecRecordReader.readLines(
+                "ADMIN001ADA\nUSER0001BOB\r\n".getBytes(StandardCharsets.US_ASCII), StandardCharsets.US_ASCII);
+        assertEquals(2, parsed.size());
+        assertEquals("USER0001", parsed.get(1).getSecUsrId());
+        assertEquals(80, parsed.get(1).toRecord().length());
+    }
+
+    @Test
+    void writeRejectsRecordsThatAreNotExactly80Bytes() {
+        SecUserData r = records.get(0).copy();
+        r.setSecUsrFname("Jos\u00e9");
+        assertThrows(IllegalArgumentException.class, () -> UsrsecRecordReader.write(List.of(r), StandardCharsets.UTF_8));
+        r.setSecUsrFname("\u20ac");
+        assertThrows(IllegalArgumentException.class, () -> UsrsecRecordReader.write(List.of(r), EBCDIC));
+        assertThrows(IllegalArgumentException.class, () -> UsrsecRecordReader.read(new byte[81], EBCDIC));
     }
 }
