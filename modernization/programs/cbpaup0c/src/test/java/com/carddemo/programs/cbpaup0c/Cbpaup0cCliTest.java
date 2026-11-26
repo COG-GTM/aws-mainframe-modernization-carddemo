@@ -1,6 +1,7 @@
 package com.carddemo.programs.cbpaup0c;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.carddemo.programs.cbpaup0c.copybook.CobolCodec;
@@ -8,6 +9,7 @@ import com.carddemo.programs.cbpaup0c.ims.HdUnloadFile;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
@@ -68,6 +70,46 @@ class Cbpaup0cCliTest {
         }
         if (db.getFileSystem().supportedFileAttributeViews().contains("posix")) {
             assertEquals(PosixFilePermissions.fromString("rw-------"), Files.getPosixFilePermissions(db));
+        }
+    }
+
+    @Test
+    void inPlaceRunThroughSymlinkUpdatesTheLinkedUnload() throws Exception {
+        Path db = tmp.resolve("db.dat");
+        try (InputStream fixture = getClass().getResourceAsStream(GoldenFixtureTest.FIXTURE)) {
+            Files.copy(fixture, db);
+        }
+        Path link;
+        try {
+            link = Files.createSymbolicLink(tmp.resolve("link.dat"), db);
+        } catch (UnsupportedOperationException | IOException e) {
+            return;
+        }
+        Clock clock = Clock.fixed(Instant.parse("2026-11-26T10:00:00Z"), ZoneOffset.UTC);
+        Cbpaup0c.runCli(new String[] {link.toString(), link.toString()},
+                new ByteArrayInputStream("00,00001,00001,N\n".getBytes(StandardCharsets.UTF_8)),
+                new PrintStream(new ByteArrayOutputStream(), true, StandardCharsets.UTF_8), clock);
+        assertTrue(Files.isSymbolicLink(link));
+        try (InputStream w = Files.newInputStream(db)) {
+            assertEquals(1, HdUnloadFile.read(w, CobolCodec.EBCDIC).database().roots().size());
+        }
+    }
+
+    @Test
+    void failedPublishLeavesExistingTargetUntouched() throws Exception {
+        Path in = tmp.resolve("in.dat");
+        try (InputStream fixture = getClass().getResourceAsStream(GoldenFixtureTest.FIXTURE)) {
+            Files.copy(fixture, in);
+        }
+        Path target = Files.createDirectory(tmp.resolve("out.dat"));
+        Files.writeString(target.resolve("keep"), "x");
+        Clock clock = Clock.fixed(Instant.parse("2026-11-26T10:00:00Z"), ZoneOffset.UTC);
+        assertThrows(IOException.class, () -> Cbpaup0c.runCli(new String[] {in.toString(), target.toString()},
+                new ByteArrayInputStream("00,00001,00001,N\n".getBytes(StandardCharsets.UTF_8)),
+                new PrintStream(new ByteArrayOutputStream(), true, StandardCharsets.UTF_8), clock));
+        assertEquals("x", Files.readString(target.resolve("keep")));
+        try (var files = Files.list(tmp)) {
+            assertEquals(2, files.count(), "temp file cleaned up");
         }
     }
 

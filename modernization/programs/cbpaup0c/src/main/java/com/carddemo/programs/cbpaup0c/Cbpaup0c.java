@@ -19,12 +19,19 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.PrintStream;
+import java.nio.channels.Channels;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.nio.file.StandardOpenOption;
+import java.nio.file.attribute.FileAttribute;
+import java.nio.file.attribute.PosixFilePermissions;
 import java.time.Clock;
 import java.time.LocalDate;
+import java.util.EnumSet;
+import java.util.Set;
+import java.util.UUID;
 import java.util.function.Consumer;
 
 /**
@@ -337,14 +344,23 @@ public final class Cbpaup0c {
         return rc;
     }
 
-    /** Writes to an owner-only temp file beside the target, then renames it, so the old file survives a failure. */
+    /**
+     * Writes to a new owner-only temp file beside the target (following a symlinked target), then renames it over
+     * the target, so the old file survives a failure.
+     */
     private static void writeUnload(HdUnloadFile unload, Path target) throws IOException {
-        Path tmp = Files.createTempFile(target.getParent(), target.getFileName() + ".", ".tmp");
+        Path real = Files.exists(target) ? target.toRealPath() : target;
+        Path tmp = real.resolveSibling(real.getFileName() + "." + UUID.randomUUID() + ".tmp");
+        Set<StandardOpenOption> options = EnumSet.of(StandardOpenOption.CREATE_NEW, StandardOpenOption.WRITE);
+        boolean posix = real.getFileSystem().supportedFileAttributeViews().contains("posix");
+        FileAttribute<?>[] attrs = posix
+                ? new FileAttribute<?>[] {PosixFilePermissions.asFileAttribute(PosixFilePermissions.fromString("rw-------"))}
+                : new FileAttribute<?>[0];
         try {
-            try (OutputStream out = Files.newOutputStream(tmp)) {
+            try (OutputStream out = Channels.newOutputStream(Files.newByteChannel(tmp, options, attrs))) {
                 unload.write(out);
             }
-            Files.move(tmp, target, StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.ATOMIC_MOVE);
+            Files.move(tmp, real, StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.ATOMIC_MOVE);
         } finally {
             Files.deleteIfExists(tmp);
         }
