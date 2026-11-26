@@ -88,7 +88,7 @@ class CopybookLayoutTest {
         assertEquals("0003", p.resultSevCd());
         assertEquals("2513", p.resultMsgNum());
         assertEquals(61, p.resultMsg().length());
-        assertTrue(p.acceptedByCallers());
-        assertFalse(new CsutldtcParm("x", "y", "0003Mesg Code: 2508").acceptedByCallers());
+        assertTrue(p.acceptedByTrnAndReportCallers());
+        assertFalse(new CsutldtcParm("x", "y", "0003Mesg Code: 2508").acceptedByTrnAndReportCallers());
     }
 }

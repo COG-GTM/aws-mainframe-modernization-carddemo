@@ -44,8 +44,8 @@ class DailyTranFixtureTest {
         for (String d : origDates().subList(0, 20)) {
             CsutldtcResult r = program.call(d.substring(0, 8) + "32", "YYYY-MM-DD");
             assertEquals("Datevalue error", r.resultText());
-            assertFalse(r.toParm(d, "YYYY-MM-DD").acceptedByCallers());
-            assertTrue(program.call(d, "YYYY-MM-DD").toParm(d, "YYYY-MM-DD").acceptedByCallers());
+            assertFalse(r.toParm(d, "YYYY-MM-DD").acceptedByTrnAndReportCallers());
+            assertTrue(program.call(d, "YYYY-MM-DD").toParm(d, "YYYY-MM-DD").acceptedByTrnAndReportCallers());
         }
     }
 }

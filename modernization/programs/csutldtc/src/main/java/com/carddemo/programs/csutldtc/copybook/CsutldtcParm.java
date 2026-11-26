@@ -44,10 +44,18 @@ public record CsutldtcParm(String date, String dateFormat, String result) {
     }
 
     /**
-     * The check both callers apply after CALL 'CSUTLDTC':
+     * The check COTRN02C and CORPT00C apply after CALL 'CSUTLDTC':
      * {@code IF CSUTLDTC-RESULT-SEV-CD = '0000' ... ELSE IF CSUTLDTC-RESULT-MSG-NUM NOT = '2513' -> error}.
      */
-    public boolean acceptedByCallers() {
+    public boolean acceptedByTrnAndReportCallers() {
         return "0000".equals(resultSevCd()) || UNSUPPORTED_RANGE_MSG_NUM.equals(resultMsgNum());
+    }
+
+    /**
+     * The stricter check in CSUTLDPY EDIT-DATE-LE (account updates):
+     * {@code IF WS-SEVERITY-N = 0 CONTINUE ELSE -> error}; message 2513 is not exempt.
+     */
+    public boolean acceptedByEditDateLe() {
+        return "0000".equals(resultSevCd());
     }
 }

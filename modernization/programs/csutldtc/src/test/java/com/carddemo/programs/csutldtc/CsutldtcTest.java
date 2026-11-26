@@ -143,11 +143,12 @@ class CsutldtcTest {
 
     @Test
     void callersAcceptValidAndUnsupportedRangeButRejectOthers() {
-        assertTrue(program.call("2023-01-01", FMT).toParm("2023-01-01", FMT).acceptedByCallers());
+        assertTrue(program.call("2023-01-01", FMT).toParm("2023-01-01", FMT).acceptedByTrnAndReportCallers());
         CsutldtcParm range = program.call("1500-01-01", FMT).toParm("1500-01-01", FMT);
         assertEquals("2513", range.resultMsgNum());
-        assertTrue(range.acceptedByCallers());
-        assertFalse(program.call("2023-02-30", FMT).toParm("2023-02-30", FMT).acceptedByCallers());
-        assertFalse(program.call("2023-13-01", FMT).toParm("2023-13-01", FMT).acceptedByCallers());
+        assertTrue(range.acceptedByTrnAndReportCallers());
+        assertFalse(range.acceptedByEditDateLe());
+        assertFalse(program.call("2023-02-30", FMT).toParm("2023-02-30", FMT).acceptedByTrnAndReportCallers());
+        assertFalse(program.call("2023-13-01", FMT).toParm("2023-13-01", FMT).acceptedByTrnAndReportCallers());
     }
 }
