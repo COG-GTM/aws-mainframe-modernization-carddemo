@@ -79,4 +79,15 @@ class KsdsCustomerFileTest {
         assertEquals(491, rec.fdCustData().length());
         assertEquals(500, rec.toFixedWidth().length());
     }
+
+    @Test
+    void inMemoryMisuseStatusesMatchFileBackend() {
+        InMemoryCustomerFile file = new InMemoryCustomerFile(java.util.List.of(Fixtures.customer("000000001", "A")));
+        assertEquals("47", file.readNext().status());
+        assertEquals("42", file.close());
+        assertEquals("00", file.open());
+        assertEquals("00", file.close());
+        assertEquals("47", file.readNext().status());
+        assertEquals("42", file.close());
+    }
 }

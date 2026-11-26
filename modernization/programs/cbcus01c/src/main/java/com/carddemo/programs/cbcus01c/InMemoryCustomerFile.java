@@ -61,6 +61,9 @@ public final class InMemoryCustomerFile implements CustomerFile {
 
     @Override
     public ReadResult readNext() {
+        if (!open) {
+            return ReadResult.status(FileStatus.LOGIC_ERROR_READ_NOT_OPEN);
+        }
         reads++;
         if (reads == failReadAt) {
             return ReadResult.status(failReadStatus);
@@ -71,6 +74,9 @@ public final class InMemoryCustomerFile implements CustomerFile {
 
     @Override
     public String close() {
+        if (!open) {
+            return FileStatus.NOT_OPEN;
+        }
         if (FileStatus.SUCCESS.equals(closeStatus)) {
             open = false;
         }
