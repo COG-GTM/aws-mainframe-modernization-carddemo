@@ -3,6 +3,7 @@ package com.carddemo.programs.cobtupdt;
 import com.carddemo.programs.cobtupdt.copybook.Sqlca;
 
 import java.io.PrintStream;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -32,6 +33,7 @@ public final class Cobtupdt {
     public static final String ENV_JDBC_URL = "CARDDEMO_JDBC_URL";
     public static final String ENV_JDBC_USER = "CARDDEMO_JDBC_USER";
     public static final String ENV_JDBC_PASSWORD = "CARDDEMO_JDBC_PASSWORD";
+    public static final String ENV_INPFILE_LAYOUT = "CARDDEMO_INPFILE_LAYOUT";
 
     static final int WS_RETURN_MSG_LENGTH = 80;
 
@@ -248,8 +250,11 @@ public final class Cobtupdt {
     }
 
     /**
-     * Usage: {@code java -jar cobtupdt.jar <INPFILE>}. DB2 connection from CARDDEMO_JDBC_URL /
+     * Usage: {@code java -cp cobtupdt.jar:<jdbc-driver.jar> com.carddemo.programs.cobtupdt.Cobtupdt <INPFILE>}
+     * (the JAR bundles no JDBC driver, e.g. add IBM db2jcc4.jar for DB2). DB2 connection from CARDDEMO_JDBC_URL /
      * CARDDEMO_JDBC_USER / CARDDEMO_JDBC_PASSWORD; without a URL the step ends with RC 12.
+     * CARDDEMO_INPFILE_LAYOUT selects LINE_SEQUENTIAL (default, as in app/data/ASCII) or FIXED_BLOCK
+     * (separator-free 53-byte records, as in the RECFM=F dataset).
      */
     public static void main(String[] args) {
         System.exit(execute(args, System.getenv(), System.out, System.err));
@@ -260,7 +265,15 @@ public final class Cobtupdt {
             err.println("Usage: cobtupdt <INPFILE>");
             return RC_SEVERE;
         }
-        TrRecordReader reader = FixedWidthTrRecordReader.of(Path.of(args[0]));
+        FixedWidthTrRecordReader.Layout layout;
+        try {
+            layout = FixedWidthTrRecordReader.Layout.valueOf(
+                    env.getOrDefault(ENV_INPFILE_LAYOUT, FixedWidthTrRecordReader.Layout.LINE_SEQUENTIAL.name()));
+        } catch (IllegalArgumentException e) {
+            err.println("COBTUPDT: invalid " + ENV_INPFILE_LAYOUT + ", expected LINE_SEQUENTIAL or FIXED_BLOCK");
+            return RC_SEVERE;
+        }
+        TrRecordReader reader = FixedWidthTrRecordReader.of(Path.of(args[0]), StandardCharsets.UTF_8, layout);
         String url = env.get(ENV_JDBC_URL);
         if (url == null || url.isBlank()) {
             err.println("COBTUPDT: " + ENV_JDBC_URL + " not set, no DB2 connection");

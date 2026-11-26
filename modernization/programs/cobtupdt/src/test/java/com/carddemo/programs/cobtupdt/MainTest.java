@@ -70,4 +70,24 @@ class MainTest {
         assertTrue(e.contains("DB2 connection failed"));
         assertTrue(!e.contains("s3cret") && !e.contains("nosuchdriver"));
     }
+
+    @Test
+    void fixedBlockLayoutAppliesEverySeparatorFreeRecord(@TempDir Path dir) throws Exception {
+        String url = "jdbc:h2:mem:fb" + System.nanoTime() + ";DB_CLOSE_DELAY=-1";
+        try (Connection c = DriverManager.getConnection(url)) {
+            JdbcTransactionTypeGatewayTest.createSchema(c);
+            Path f = dir.resolve("INPFILE");
+            Files.writeString(f, TrRecord.parse("A01Purchase").toFixedWidth() + TrRecord.parse("A02Refund").toFixedWidth());
+            int rc = Cobtupdt.execute(new String[] {f.toString()},
+                    Map.of(Cobtupdt.ENV_JDBC_URL, url, Cobtupdt.ENV_INPFILE_LAYOUT, "FIXED_BLOCK"), out, err);
+            assertEquals(0, rc);
+            assertEquals(2, JdbcTransactionTypeGatewayTest.rows(c).size());
+        }
+    }
+
+    @Test
+    void invalidLayoutIsSevere() {
+        int rc = Cobtupdt.execute(new String[] {"INPFILE"}, Map.of(Cobtupdt.ENV_INPFILE_LAYOUT, "VSAM"), out, err);
+        assertEquals(12, rc);
+    }
 }
