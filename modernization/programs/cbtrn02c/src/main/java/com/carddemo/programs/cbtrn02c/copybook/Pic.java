@@ -40,7 +40,7 @@ public final class Pic {
         for (int i = 0; i < field.length(); i++) {
             char c = field.charAt(i);
             if (c < '0' || c > '9') {
-                throw new NumberFormatException("Non-numeric PIC 9 field: '" + field + "'");
+                throw new NumberFormatException("Non-numeric PIC 9 field of length " + field.length());
             }
             v = v * 10 + (c - '0');
         }
@@ -82,7 +82,7 @@ public final class Pic {
             lastDigit = ASCII_NEGATIVE.indexOf(lastChar);
             negative = true;
         } else {
-            throw new NumberFormatException("Invalid sign position in PIC S9 field: '" + field + "'");
+            throw new NumberFormatException("Invalid sign position in PIC S9 field of length " + field.length());
         }
         long unscaled = parseUnsigned(field.substring(0, field.length() - 1)) * 10 + lastDigit;
         BigDecimal v = BigDecimal.valueOf(unscaled, scale);
