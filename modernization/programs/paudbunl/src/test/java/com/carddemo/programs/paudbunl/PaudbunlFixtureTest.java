@@ -19,9 +19,11 @@ import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -39,6 +41,7 @@ class PaudbunlFixtureTest {
     @TempDir
     Path tmp;
 
+    private byte[] data;
     private InMemoryPendingAuthDatabase db;
     private Path outfil1;
     private Path outfil2;
@@ -47,7 +50,6 @@ class PaudbunlFixtureTest {
 
     @BeforeEach
     void runUnload() throws Exception {
-        byte[] data;
         try (InputStream in = getClass().getResourceAsStream("/fixtures/AWS.M2.CARDDEMO.IMSDATA.DBPAUTP0.dat")) {
             data = in.readAllBytes();
         }
@@ -109,6 +111,30 @@ class PaudbunlFixtureTest {
             }
         }
         assertEquals(children.size(), idx);
+    }
+
+    @Test
+    void childPayloadsMatchSourceSegmentsInOrder() throws Exception {
+        List<byte[]> source = sourceChildSegments(data);
+        List<byte[]> children = readAll(outfil2, 206);
+        // children of the skipped 22nd root (non-numeric PA-ACCT-ID) are not unloaded
+        assertEquals(202, source.size());
+        for (int i = 0; i < children.size(); i++) {
+            assertArrayEquals(source.get(i), Opfil2Rec.childSegRecOf(children.get(i)), "child " + i);
+        }
+    }
+
+    /** Child segment payloads in file order, read straight from the unload with RDW framing. */
+    private static List<byte[]> sourceChildSegments(byte[] data) {
+        List<byte[]> out = new ArrayList<>();
+        for (int pos = 0; pos + 2 <= data.length; ) {
+            int recLen = ((data[pos] & 0xFF) << 8) | (data[pos + 1] & 0xFF);
+            if (recLen > 39 && "PAUTDTL1".equals(CobolData.decodeAlpha(data, pos + 10, 8, CobolData.EBCDIC))) {
+                out.add(Arrays.copyOfRange(data, pos + 39, pos + 39 + 200));
+            }
+            pos += recLen;
+        }
+        return out;
     }
 
     @Test
