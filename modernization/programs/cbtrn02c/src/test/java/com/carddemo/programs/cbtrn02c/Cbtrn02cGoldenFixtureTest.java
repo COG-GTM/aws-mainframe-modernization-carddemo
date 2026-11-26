@@ -56,6 +56,12 @@ class Cbtrn02cGoldenFixtureTest {
                 .filter(s -> !s.isEmpty()).toList();
     }
 
+    /** Golden dumps are stored with trailing spaces stripped, so pin the exact LRECL of Java output separately. */
+    static void assertFixedLength(String file, int lrecl) throws Exception {
+        List<String> raw = Files.readAllLines(work.resolve(file), StandardCharsets.ISO_8859_1);
+        assertTrue(raw.stream().allMatch(r -> r.length() == lrecl), file + " records must be " + lrecl + " bytes");
+    }
+
     @Test
     void returnCodeMatchesCobol() throws Exception {
         assertEquals(Integer.parseInt(Files.readString(GOLDEN.resolve("return-code.txt")).trim()), rc);
@@ -79,11 +85,13 @@ class Cbtrn02cGoldenFixtureTest {
     @Test
     void accountMasterMatchesCobol() throws Exception {
         assertEquals(lines(GOLDEN.resolve("acctdata.txt")), lines(work.resolve("acctdata.txt")));
+        assertFixedLength("acctdata.txt", 300);
     }
 
     @Test
     void categoryBalancesMatchCobol() throws Exception {
         assertEquals(lines(GOLDEN.resolve("tcatbal.txt")), lines(work.resolve("tcatbal.txt")));
+        assertFixedLength("tcatbal.txt", 50);
     }
 
     @Test
@@ -91,6 +99,7 @@ class Cbtrn02cGoldenFixtureTest {
         List<String> expected = lines(GOLDEN.resolve("transact.txt"));
         List<String> actual = lines(work.resolve("transact.txt"));
         assertEquals(262, actual.size());
+        assertFixedLength("transact.txt", 350);
         assertEquals(expected.size(), actual.size());
         for (int i = 0; i < expected.size(); i++) {
             String e = expected.get(i);
