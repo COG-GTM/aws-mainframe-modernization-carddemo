@@ -45,6 +45,8 @@ public final class Cbtrn01c {
 
     // WORKING-STORAGE
     private DalytranRecord dalytranRecord = DalytranRecord.initial();
+    // DALYTRAN-RECORD bytes as read, so DISPLAY echoes them unchanged (e.g. unsigned trailing digit).
+    private String dalytranImage = dalytranRecord.toFixedWidth();
     private CardXrefRecord cardXrefRecord = CardXrefRecord.initial();
     private AccountRecord accountRecord = AccountRecord.initial();
     private String dalytranStatus = "  ";
@@ -111,7 +113,7 @@ public final class Cbtrn01c {
             if (endOfDailyTransFile == 'N') {
                 dalytranGetNext1000();
                 if (endOfDailyTransFile == 'N') {
-                    display.accept(dalytranRecord.toFixedWidth());
+                    display.accept(dalytranImage);
                 }
                 // Not guarded by the EOF check above: after EOF the last record (unchanged by the
                 // failed READ INTO) is looked up once more, exactly as the COBOL does.
@@ -149,6 +151,7 @@ public final class Cbtrn01c {
         dalytranStatus = result.status();
         if (FileStatus.OK.equals(dalytranStatus)) {
             dalytranRecord = result.record();
+            dalytranImage = result.image() != null ? result.image() : dalytranRecord.toFixedWidth();
             applResult.set(0);
         } else if (FileStatus.END_OF_FILE.equals(dalytranStatus)) {
             applResult.set(16);

@@ -56,7 +56,8 @@ public final class FixedWidthSequentialFile<R> implements SequentialInputFile<R>
         if (line.length() > codec.length()) {
             return ReadResult.of(FileStatus.WRONG_LENGTH);
         }
-        return new ReadResult<>(FileStatus.OK, codec.parse(Pic.alpha(line, codec.length())));
+        String image = Pic.alpha(line, codec.length());
+        return new ReadResult<>(FileStatus.OK, codec.parse(image), image);
     }
 
     @Override

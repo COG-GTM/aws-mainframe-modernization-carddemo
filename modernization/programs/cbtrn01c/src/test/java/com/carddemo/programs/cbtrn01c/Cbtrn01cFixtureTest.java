@@ -62,6 +62,20 @@ class Cbtrn01cFixtureTest {
     }
 
     @Test
+    void dailyRecordIsDisplayedAsRead() throws Exception {
+        String first = Files.readAllLines(Path.of(dd.get("DALYTRAN")), StandardCharsets.ISO_8859_1).get(0);
+        // DALYTRAN-AMT last byte as an unsigned digit instead of the overpunch 'G'
+        String unsignedAmt = first.substring(0, 142) + '7' + first.substring(143);
+        dd.put("DALYTRAN", Files.writeString(tmp.resolve("d.txt"), unsignedAmt + "\n",
+                StandardCharsets.ISO_8859_1).toString());
+        List<String> out = new ArrayList<>();
+
+        assertEquals(0, Cbtrn01c.execute(dd, out::add));
+
+        assertEquals(Pic.alpha(unsignedAmt, 350), out.get(1));
+    }
+
+    @Test
     void missingAccountFileAbendsWithStatus35() {
         dd.put("ACCTFILE", tmp.resolve("missing.txt").toString());
         List<String> out = new ArrayList<>();
