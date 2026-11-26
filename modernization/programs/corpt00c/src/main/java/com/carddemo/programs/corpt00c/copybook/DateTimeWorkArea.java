@@ -61,17 +61,17 @@ public final class DateTimeWorkArea {
 
     /** WS-CURDATE-MM-DD-YY: MM/DD/YY. */
     public String curdateMmDdYy() {
-        return String.format("%02d/%02d/%02d", curdateMm, curdateDd, curdateYy);
+        return String.format(java.util.Locale.ROOT, "%02d/%02d/%02d", curdateMm, curdateDd, curdateYy);
     }
 
     /** WS-CURTIME-HH-MM-SS: HH:MM:SS. */
     public String curtimeHhMmSs() {
-        return String.format("%02d:%02d:%02d", curtimeHh, curtimeMm, curtimeSs);
+        return String.format(java.util.Locale.ROOT, "%02d:%02d:%02d", curtimeHh, curtimeMm, curtimeSs);
     }
 
     /** WS-TIMESTAMP: YYYY-MM-DD HH:MM:SS.NNNNNN. */
     public String timestamp() {
-        return String.format("%04d-%02d-%02d %02d:%02d:%02d.%06d", timestampDtYyyy, timestampDtMm,
+        return String.format(java.util.Locale.ROOT, "%04d-%02d-%02d %02d:%02d:%02d.%06d", timestampDtYyyy, timestampDtMm,
                 timestampDtDd, timestampTmHh, timestampTmMm, timestampTmSs, timestampTmMs6);
     }
 }

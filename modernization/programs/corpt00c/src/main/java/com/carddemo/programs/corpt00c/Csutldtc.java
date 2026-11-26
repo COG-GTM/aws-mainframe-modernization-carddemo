@@ -51,9 +51,9 @@ public final class Csutldtc implements DateValidator {
         Feedback fc = r.feedback();
         // WS-MESSAGE: SEVERITY X(4) 'Mesg Code:' X(11) MSG-NO X(4) ' ' RESULT X(15) ' ' 'TstDate:' X(9)
         //             DATE X(10) ' ' 'Mask used:' X(10) FMT X(10) ' ' X(3)
-        String wsMessage = String.format("%04d", fc.severity)
+        String wsMessage = String.format(java.util.Locale.ROOT, "%04d", fc.severity)
                 + CobolText.move("Mesg Code:", 11)
-                + String.format("%04d", fc.msgNo)
+                + String.format(java.util.Locale.ROOT, "%04d", fc.msgNo)
                 + " "
                 + CobolText.move(fc.resultText, 15)
                 + " "

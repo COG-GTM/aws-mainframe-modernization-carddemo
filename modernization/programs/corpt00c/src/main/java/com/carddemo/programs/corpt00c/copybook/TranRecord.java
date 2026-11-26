@@ -59,11 +59,11 @@ public record TranRecord(
     public String toFixedWidth() {
         return CobolText.move(tranId, 16)
                 + CobolText.move(tranTypeCd, 2)
-                + String.format("%04d", tranCatCd)
+                + String.format(java.util.Locale.ROOT, "%04d", tranCatCd)
                 + CobolText.move(tranSource, 10)
                 + CobolText.move(tranDesc, 100)
                 + CobolText.encodeZonedSigned(tranAmt, 9, 2)
-                + String.format("%09d", tranMerchantId)
+                + String.format(java.util.Locale.ROOT, "%09d", tranMerchantId)
                 + CobolText.move(tranMerchantName, 50)
                 + CobolText.move(tranMerchantCity, 50)
                 + CobolText.move(tranMerchantZip, 10)
