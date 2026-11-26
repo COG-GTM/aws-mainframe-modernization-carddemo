@@ -42,6 +42,7 @@ public final class InMemoryUserSecurityRepository implements UserSecurityReposit
     /**
      * Loads an undelimited RECFM=FB stream (e.g. USRSEC.PS) as consecutive 80-character records. No
      * character is treated as a record separator, so CR/LF bytes inside a record keep their position.
+     * Every 80-byte record is loaded, including all-spaces ones (key of 8 spaces), as REPRO would.
      * A trailing record shorter than 80 bytes is rejected rather than space padded.
      */
     public static InMemoryUserSecurityRepository loadFixedBlock(Reader reader) throws IOException {
@@ -60,10 +61,7 @@ public final class InMemoryUserSecurityRepository implements UserSecurityReposit
                 throw new IOException("RECFM=FB stream ends with a short record of " + filled
                         + " bytes; expected " + SecUserData.LENGTH);
             }
-            String rec = new String(buf, 0, filled);
-            if (!rec.isBlank()) {
-                repo.insert(SecUserData.fromRecord(rec));
-            }
+            repo.insert(SecUserData.fromRecord(new String(buf, 0, filled)));
         }
         return repo;
     }

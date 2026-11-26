@@ -115,6 +115,14 @@ class UsrsecFixtureTest {
     }
 
     @Test
+    void fixedBlockLoadKeepsAllSpacesRecordsSoRepeatsHitTheDuplicateKeyCheck() throws IOException {
+        String blank = " ".repeat(SecUserData.LENGTH);
+        assertEquals(1, InMemoryUserSecurityRepository.loadFixedBlock(new StringReader(blank)).size());
+        assertThrows(IOException.class,
+                () -> InMemoryUserSecurityRepository.loadFixedBlock(new StringReader(blank + blank)));
+    }
+
+    @Test
     void seededUserWithWrongPasswordIsRejected() {
         SignonOutcome.ScreenSent s = assertInstanceOf(SignonOutcome.ScreenSent.class,
                 service().run(SignonRequest.enter("USER0003", "NOTRIGHT")));
