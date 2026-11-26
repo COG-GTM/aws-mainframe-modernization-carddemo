@@ -475,6 +475,15 @@ class Cousr00cServiceTest {
     }
 
     @Test
+    void endbrIoErrorAbendsWithAeiq() {
+        with(users(25));
+        file.injectFailure(Op.ENDBR, new CicsResponse(CicsResp.IOERR, 0));
+        CicsAbendException e = assertThrows(CicsAbendException.class, () -> service.execute(firstEntry()));
+        assertEquals("AEIQ", e.abendCode());
+        assertEquals(CicsResp.IOERR, e.response().resp());
+    }
+
+    @Test
     void displaysAreEmptyOnHappyPath() {
         assertTrue(with(users(5)).execute(firstEntry()).displays().isEmpty());
     }

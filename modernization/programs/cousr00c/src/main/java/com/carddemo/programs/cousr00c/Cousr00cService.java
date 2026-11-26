@@ -427,7 +427,7 @@ public class Cousr00cService {
         void endbrUserSecFile() {
             CicsResponse r = usrsec.endBr();
             if (r.resp() != CicsResp.NORMAL) {
-                throw new CicsAbendException("AEIP", r, sends);
+                throw new CicsAbendException(r.resp().abendCode(), r, sends);
             }
         }
     }
