@@ -94,7 +94,11 @@ class InMemoryPendingAuthDatabaseTest {
         db.cbltdli(com.carddemo.programs.paudbunl.copybook.ImsFunctionCodes.GN, first, io, Ssa.ROOT_UNQUAL_SSA);
         org.junit.jupiter.api.Assertions.assertEquals(ImsStatus.END_OF_DB, first.pcbStatus());
         com.carddemo.programs.paudbunl.copybook.PautbPcb second = com.carddemo.programs.paudbunl.Paudbunl.pautbunlPcb();
+        second.pcbStatus("XX");
+        java.util.Arrays.fill(io, (byte) 0);
         db.cbltdli(com.carddemo.programs.paudbunl.copybook.ImsFunctionCodes.GN, second, io, Ssa.ROOT_UNQUAL_SSA);
         org.junit.jupiter.api.Assertions.assertTrue(second.isStatusSpaces());
+        org.junit.jupiter.api.Assertions.assertEquals(InMemoryPendingAuthDatabase.ROOT_SEGMENT, second.segName());
+        org.junit.jupiter.api.Assertions.assertArrayEquals(com.carddemo.programs.paudbunl.TestSegments.summaryBytes(1), io);
     }
 }
