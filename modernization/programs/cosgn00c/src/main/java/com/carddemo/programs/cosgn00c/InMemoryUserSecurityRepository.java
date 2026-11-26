@@ -19,14 +19,20 @@ public final class InMemoryUserSecurityRepository implements UserSecurityReposit
         return this;
     }
 
-    /** Loads every non-blank line as one SEC-USER-DATA record (the DUSRSECJ / REPRO input format). */
+    /**
+     * Loads 80-byte SEC-USER-DATA records. Each line is cut into consecutive 80-character records, so
+     * newline-delimited input (DUSRSECJ SYSUT1) and an undelimited RECFM=FB stream (USRSEC.PS) both load.
+     */
     public static InMemoryUserSecurityRepository load(Reader reader) throws IOException {
         InMemoryUserSecurityRepository repo = new InMemoryUserSecurityRepository();
         BufferedReader br = new BufferedReader(reader);
         String line;
         while ((line = br.readLine()) != null) {
-            if (!line.isBlank()) {
-                repo.put(SecUserData.fromRecord(line));
+            for (int pos = 0; pos < line.length(); pos += SecUserData.LENGTH) {
+                String rec = line.substring(pos, Math.min(line.length(), pos + SecUserData.LENGTH));
+                if (!rec.isBlank()) {
+                    repo.put(SecUserData.fromRecord(rec));
+                }
             }
         }
         return repo;

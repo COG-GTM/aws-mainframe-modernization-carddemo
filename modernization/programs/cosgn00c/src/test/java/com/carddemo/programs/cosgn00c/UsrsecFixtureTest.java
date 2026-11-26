@@ -8,6 +8,7 @@ import com.carddemo.programs.cosgn00c.copybook.SecUserData;
 
 import java.io.IOException;
 import java.io.StringReader;
+import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Clock;
@@ -66,6 +67,19 @@ class UsrsecFixtureTest {
             assertEquals(expected, x.program(), user.usrId());
             assertEquals(user.usrId(), x.commarea().userId());
             assertEquals(user.type(), x.commarea().userType());
+        }
+    }
+
+    @Test
+    void ebcdicFixedBlockSampleLoadsSameUsersAsJclSeed() throws IOException {
+        Path ps = Path.of("..", "..", "..", "app", "data", "EBCDIC", "AWS.M2.CARDDEMO.USRSEC.PS");
+        String fb = new String(Files.readAllBytes(ps), Charset.forName("IBM037"));
+        InMemoryUserSecurityRepository fbRepo = InMemoryUserSecurityRepository.load(new StringReader(fb));
+
+        assertEquals(10, fbRepo.size());
+        for (String line : seedRecords) {
+            SecUserData user = SecUserData.fromRecord(line);
+            assertEquals(user, fbRepo.read(user.usrId()).record(), user.usrId());
         }
     }
 
