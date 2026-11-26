@@ -19,6 +19,13 @@ public final class InMemoryUserSecurityRepository implements UserSecurityReposit
         return this;
     }
 
+    /** REPRO into a KSDS: a record whose key is already loaded is a duplicate-key error, not an update. */
+    private void insert(SecUserData record) throws IOException {
+        if (records.putIfAbsent(record.usrId(), record) != null) {
+            throw new IOException("Duplicate SEC-USR-ID key in USRSEC input: " + record.usrId());
+        }
+    }
+
     /** Loads every non-blank line as one SEC-USER-DATA record (the DUSRSECJ / REPRO input format). */
     public static InMemoryUserSecurityRepository load(Reader reader) throws IOException {
         InMemoryUserSecurityRepository repo = new InMemoryUserSecurityRepository();
@@ -26,7 +33,7 @@ public final class InMemoryUserSecurityRepository implements UserSecurityReposit
         String line;
         while ((line = br.readLine()) != null) {
             if (!line.isBlank()) {
-                repo.put(SecUserData.fromRecord(line));
+                repo.insert(SecUserData.fromRecord(line));
             }
         }
         return repo;
@@ -55,7 +62,7 @@ public final class InMemoryUserSecurityRepository implements UserSecurityReposit
             }
             String rec = new String(buf, 0, filled);
             if (!rec.isBlank()) {
-                repo.put(SecUserData.fromRecord(rec));
+                repo.insert(SecUserData.fromRecord(rec));
             }
         }
         return repo;

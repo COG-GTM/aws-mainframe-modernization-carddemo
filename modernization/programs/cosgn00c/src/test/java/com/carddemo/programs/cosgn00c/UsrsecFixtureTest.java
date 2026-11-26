@@ -105,6 +105,16 @@ class UsrsecFixtureTest {
     }
 
     @Test
+    void duplicateUserIdInInputIsRejectedLikeReproIntoKsds() {
+        String first = SecUserData.of("ADMIN001", "AL", "BEE", "PASSWORD", "A").toRecord();
+        String dup = SecUserData.of("ADMIN001", "EVE", "X", "HIJACKED", "A").toRecord();
+        assertThrows(IOException.class,
+                () -> InMemoryUserSecurityRepository.load(new StringReader(first + "\n" + dup)));
+        assertThrows(IOException.class,
+                () -> InMemoryUserSecurityRepository.loadFixedBlock(new StringReader(first + dup)));
+    }
+
+    @Test
     void seededUserWithWrongPasswordIsRejected() {
         SignonOutcome.ScreenSent s = assertInstanceOf(SignonOutcome.ScreenSent.class,
                 service().run(SignonRequest.enter("USER0003", "NOTRIGHT")));
