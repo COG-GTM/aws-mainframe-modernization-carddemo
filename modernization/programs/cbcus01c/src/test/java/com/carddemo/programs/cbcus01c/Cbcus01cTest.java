@@ -265,4 +265,17 @@ class Cbcus01cTest {
             assertEquals(lines.get(i), printed.get(1 + 2 * i));
         }
     }
+
+    @Test
+    void interruptedSysoutWriteIsNotReportedAsSuccess() {
+        java.io.PrintStream interrupted = new java.io.PrintStream(new java.io.OutputStream() {
+            @Override
+            public void write(int b) throws IOException {
+                throw new java.io.InterruptedIOException("interrupted");
+            }
+        });
+        CustomerFile file = new InMemoryCustomerFile(List.of(Fixtures.customer("000000001", "A")));
+        assertEquals(Cbcus01cMain.RC_SYSOUT_ERROR, Cbcus01cMain.execute(file, interrupted));
+        assertFalse(Thread.currentThread().isInterrupted());
+    }
 }

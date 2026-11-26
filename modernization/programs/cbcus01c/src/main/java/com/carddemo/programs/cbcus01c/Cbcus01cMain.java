@@ -71,7 +71,8 @@ public final class Cbcus01cMain {
         } catch (AbendException e) {
             rc = e.abendCode();
         }
-        if (sysout.checkError()) {
+        // PrintStream swallows InterruptedIOException and only re-interrupts the thread.
+        if (sysout.checkError() | Thread.interrupted()) {
             System.err.println("CBCUS01C: error writing SYSOUT");
             return rc == 0 ? RC_SYSOUT_ERROR : rc;
         }
