@@ -353,10 +353,12 @@ public final class Cbtrn01c {
             }
         }
         PrintStream sysout = new PrintStream(stdout, false, StandardCharsets.ISO_8859_1);
+        boolean interruptedBefore = Thread.currentThread().isInterrupted();
         int rc = execute(dd, sysout::println);
         sysout.flush();
-        // PrintStream reports an InterruptedIOException only through the thread's interrupt flag.
-        boolean sysoutFailed = sysout.checkError() || Thread.currentThread().isInterrupted();
+        // PrintStream reports an InterruptedIOException only by setting the thread's interrupt flag.
+        boolean sysoutFailed = sysout.checkError()
+                || (!interruptedBefore && Thread.currentThread().isInterrupted());
         return rc == 0 && sysoutFailed ? ABEND_CODE : rc;
     }
 
