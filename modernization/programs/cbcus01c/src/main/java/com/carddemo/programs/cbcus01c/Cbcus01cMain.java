@@ -64,7 +64,9 @@ public final class Cbcus01cMain {
     }
 
     static int execute(CustomerFile custfile, PrintStream sysout) {
-        boolean interruptedBefore = Thread.currentThread().isInterrupted();
+        // PrintStream swallows InterruptedIOException and only re-interrupts the thread, so the caller's
+        // interrupt is set aside during the run to tell the two apart, then restored.
+        boolean callerInterrupted = Thread.interrupted();
         Cbcus01c program = new Cbcus01c(custfile, sysout::println);
         int rc;
         try {
@@ -72,8 +74,10 @@ public final class Cbcus01cMain {
         } catch (AbendException e) {
             rc = e.abendCode();
         }
-        // PrintStream swallows InterruptedIOException and only re-interrupts the thread.
-        boolean interruptedDuringRun = !interruptedBefore && Thread.currentThread().isInterrupted();
+        boolean interruptedDuringRun = Thread.interrupted();
+        if (callerInterrupted || interruptedDuringRun) {
+            Thread.currentThread().interrupt();
+        }
         if (sysout.checkError() || interruptedDuringRun) {
             System.err.println("CBCUS01C: error writing SYSOUT");
             return rc == 0 ? RC_SYSOUT_ERROR : rc;

@@ -299,4 +299,22 @@ class Cbcus01cTest {
             Thread.interrupted();
         }
     }
+
+    @Test
+    void interruptedSysoutWriteIsDetectedEvenIfCallerWasAlreadyInterrupted() {
+        java.io.PrintStream interrupted = new java.io.PrintStream(new java.io.OutputStream() {
+            @Override
+            public void write(int b) throws IOException {
+                throw new java.io.InterruptedIOException("interrupted");
+            }
+        });
+        CustomerFile file = new InMemoryCustomerFile(List.of(Fixtures.customer("000000001", "A")));
+        Thread.currentThread().interrupt();
+        try {
+            assertEquals(Cbcus01cMain.RC_SYSOUT_ERROR, Cbcus01cMain.execute(file, interrupted));
+            assertTrue(Thread.currentThread().isInterrupted());
+        } finally {
+            Thread.interrupted();
+        }
+    }
 }
