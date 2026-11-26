@@ -58,6 +58,16 @@ public final class HdUnloadFile {
             String name = len >= 18 ? new String(rec, 10, 8, charset) : "";
             int segLen = len >= 10 ? ((rec[8] & 0xFF) << 8) | (rec[9] & 0xFF) : 0;
             boolean fits = len >= SEGMENT_DATA_OFFSET + segLen;
+            // Byte 4 is the segment code in data records and X'00' in the header/statistics records.
+            boolean dataRecord = len >= 18 && rec[4] != 0;
+            boolean namedSegment = PendingAuthSummary.SEGMENT_NAME.equals(name)
+                    || PendingAuthDetails.SEGMENT_NAME.equals(name);
+            int expectedLen = PendingAuthSummary.SEGMENT_NAME.equals(name)
+                    ? PendingAuthSummary.LENGTH : PendingAuthDetails.LENGTH;
+            if (dataRecord && namedSegment && !(segLen == expectedLen && fits)) {
+                throw new IOException("Damaged " + name + " record at offset " + (pos - len)
+                        + ": segment length " + segLen + ", record length " + len);
+            }
             if (PendingAuthSummary.SEGMENT_NAME.equals(name) && segLen == PendingAuthSummary.LENGTH && fits) {
                 db.addSummary(Arrays.copyOfRange(rec, SEGMENT_DATA_OFFSET, SEGMENT_DATA_OFFSET + segLen), rec);
                 seenSegment = true;

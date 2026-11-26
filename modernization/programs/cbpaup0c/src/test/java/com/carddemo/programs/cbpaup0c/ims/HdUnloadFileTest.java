@@ -52,6 +52,17 @@ class HdUnloadFileTest {
     }
 
     @Test
+    void damagedSegmentRecordIsRejectedInsteadOfReparentingItsChildren() throws IOException {
+        byte[] bytes = fixtureBytes();
+        bytes[88 + 9] = 99; // first PAUTSUM0 data record (after the 88-byte header): segment length 100 -> 99
+        IOException e = assertThrows(IOException.class,
+                () -> HdUnloadFile.read(new ByteArrayInputStream(bytes), CobolCodec.EBCDIC));
+        assertEquals("Damaged PAUTSUM0 record at offset 88: segment length 99, record length 140", e.getMessage());
+        bytes[88 + 9] = (byte) 150; // longer than the record
+        assertThrows(IOException.class, () -> HdUnloadFile.read(new ByteArrayInputStream(bytes), CobolCodec.EBCDIC));
+    }
+
+    @Test
     void invalidRdwIsRejected() {
         assertThrows(IOException.class,
                 () -> HdUnloadFile.read(new ByteArrayInputStream(new byte[] {0x00, 0x02, 0x00, 0x00}), CobolCodec.EBCDIC));
