@@ -23,7 +23,7 @@ import java.util.Map;
  * Command-line stand-in for JCL step STEP02 of app/jcl/CBEXPORT.jcl.
  *
  * <pre>
- * java -jar cbexport.jar CUSTFILE=custdata.txt ACCTFILE=acctdata.txt XREFFILE=cardxref.txt \
+ * java -jar target/cbexport-1.0.0-SNAPSHOT.jar CUSTFILE=custdata.txt ACCTFILE=acctdata.txt XREFFILE=cardxref.txt \
  *      TRANSACT=transact.txt CARDFILE=carddata.txt EXPFILE=export.dat [--input-format=line|fixed]
  * </pre>
  *
