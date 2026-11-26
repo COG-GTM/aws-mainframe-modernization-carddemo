@@ -1,6 +1,7 @@
 package com.carddemo.programs.cbpaup0c;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -91,6 +92,30 @@ class Cbpaup0cCliTest {
                 new PrintStream(new ByteArrayOutputStream(), true, StandardCharsets.UTF_8), clock);
         assertTrue(Files.isSymbolicLink(link));
         try (InputStream w = Files.newInputStream(db)) {
+            assertEquals(1, HdUnloadFile.read(w, CobolCodec.EBCDIC).database().roots().size());
+        }
+    }
+
+    @Test
+    void separateOutputSymlinkIsReplacedNotFollowed() throws Exception {
+        Path in = tmp.resolve("in.dat");
+        try (InputStream fixture = getClass().getResourceAsStream(GoldenFixtureTest.FIXTURE)) {
+            Files.copy(fixture, in);
+        }
+        Path victim = Files.writeString(tmp.resolve("victim.txt"), "keep");
+        Path link;
+        try {
+            link = Files.createSymbolicLink(tmp.resolve("out.dat"), victim);
+        } catch (UnsupportedOperationException | IOException e) {
+            return;
+        }
+        Clock clock = Clock.fixed(Instant.parse("2026-11-26T10:00:00Z"), ZoneOffset.UTC);
+        Cbpaup0c.runCli(new String[] {in.toString(), link.toString()},
+                new ByteArrayInputStream("00,00001,00001,N\n".getBytes(StandardCharsets.UTF_8)),
+                new PrintStream(new ByteArrayOutputStream(), true, StandardCharsets.UTF_8), clock);
+        assertEquals("keep", Files.readString(victim));
+        assertFalse(Files.isSymbolicLink(link));
+        try (InputStream w = Files.newInputStream(link)) {
             assertEquals(1, HdUnloadFile.read(w, CobolCodec.EBCDIC).database().roots().size());
         }
     }

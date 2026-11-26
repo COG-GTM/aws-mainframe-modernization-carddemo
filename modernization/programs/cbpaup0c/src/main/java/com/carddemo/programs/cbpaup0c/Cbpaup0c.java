@@ -339,17 +339,18 @@ public final class Cbpaup0c {
         String card = reader.readLine();
         int rc = new Cbpaup0c(unload.database(), card, clock, sysout::println).run();
         if (args.length == 2) {
-            writeUnload(unload, Path.of(args[1]).toAbsolutePath());
+            writeUnload(unload, Path.of(args[1]).toAbsolutePath(), Path.of(args[0]));
         }
         return rc;
     }
 
     /**
-     * Writes to a new owner-only temp file beside the target (following a symlinked target), then renames it over
-     * the target, so the old file survives a failure.
+     * Writes to a new owner-only temp file beside the target, then renames it over the target, so the old file
+     * survives a failure. A symlinked target is followed only for an in-place run (target is the input file);
+     * otherwise the link itself is replaced, so a planted link cannot redirect the write.
      */
-    private static void writeUnload(HdUnloadFile unload, Path target) throws IOException {
-        Path real = Files.exists(target) ? target.toRealPath() : target;
+    private static void writeUnload(HdUnloadFile unload, Path target, Path input) throws IOException {
+        Path real = Files.exists(target) && Files.isSameFile(target, input) ? target.toRealPath() : target;
         Path tmp = real.resolveSibling(real.getFileName() + "." + UUID.randomUUID() + ".tmp");
         Set<StandardOpenOption> options = EnumSet.of(StandardOpenOption.CREATE_NEW, StandardOpenOption.WRITE);
         boolean posix = real.getFileSystem().supportedFileAttributeViews().contains("posix");
