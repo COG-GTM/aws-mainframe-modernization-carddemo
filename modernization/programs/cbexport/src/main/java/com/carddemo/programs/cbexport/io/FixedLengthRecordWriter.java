@@ -2,9 +2,17 @@ package com.carddemo.programs.cbexport.io;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.nio.channels.Channels;
 import java.nio.file.Files;
+import java.nio.file.OpenOption;
+import java.nio.file.StandardOpenOption;
+import java.nio.file.attribute.FileAttribute;
+import java.nio.file.attribute.PosixFileAttributeView;
+import java.nio.file.attribute.PosixFilePermission;
+import java.nio.file.attribute.PosixFilePermissions;
 import java.nio.file.Path;
 import java.util.Arrays;
+import java.util.Set;
 
 /**
  * Writes RECFM=F records with no delimiters. When a key position is given it behaves like a
@@ -17,6 +25,11 @@ public final class FixedLengthRecordWriter implements RecordWriter {
     private final int recordLength;
     private final int keyOffset;
     private final int keyLength;
+    // The export carries SSNs and CVVs: create it readable by the owner only.
+    private static final Set<PosixFilePermission> OWNER_READ_WRITE = PosixFilePermissions.fromString("rw-------");
+    private static final Set<OpenOption> OPTIONS = Set.of(
+            StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.WRITE);
+
     private byte[] lastKey;
     private OutputStream out;
 
@@ -34,12 +47,24 @@ public final class FixedLengthRecordWriter implements RecordWriter {
     @Override
     public String open() {
         try {
-            out = Files.newOutputStream(path);
+            out = Channels.newOutputStream(Files.newByteChannel(path, OPTIONS, ownerOnly()));
+            if (Files.getFileStore(path).supportsFileAttributeView(PosixFileAttributeView.class)) {
+                Files.setPosixFilePermissions(path, OWNER_READ_WRITE);
+            }
             lastKey = null;
             return FileStatus.OK;
         } catch (IOException e) {
             return FileStatus.PERMANENT_ERROR;
         }
+    }
+
+    private FileAttribute<?>[] ownerOnly() throws IOException {
+        Path dir = path.toAbsolutePath().getParent();
+        if (dir != null && Files.isDirectory(dir)
+                && Files.getFileStore(dir).supportsFileAttributeView(PosixFileAttributeView.class)) {
+            return new FileAttribute<?>[] {PosixFilePermissions.asFileAttribute(OWNER_READ_WRITE)};
+        }
+        return new FileAttribute<?>[0];
     }
 
     @Override

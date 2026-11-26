@@ -60,6 +60,21 @@ class RecordIoTest {
     }
 
     @Test
+    void writerCreatesOwnerOnlyFile() throws Exception {
+        Path f = dir.resolve("perm.dat");
+        org.junit.jupiter.api.Assumptions.assumeTrue(
+                Files.getFileStore(dir).supportsFileAttributeView("posix"));
+        Files.writeString(f, "old");
+        Files.setPosixFilePermissions(f, java.nio.file.attribute.PosixFilePermissions.fromString("rw-r--r--"));
+        FixedLengthRecordWriter w = new FixedLengthRecordWriter(f, 1);
+        assertEquals(FileStatus.OK, w.open());
+        w.close();
+        assertEquals("rw-------", java.nio.file.attribute.PosixFilePermissions.toString(
+                Files.getPosixFilePermissions(f)));
+        assertEquals(0, Files.size(f));
+    }
+
+    @Test
     void writerOpenFailureReturnsStatus30() {
         assertEquals(FileStatus.PERMANENT_ERROR,
                 new FixedLengthRecordWriter(dir.resolve("missing/dir/out.dat"), 3).open());
