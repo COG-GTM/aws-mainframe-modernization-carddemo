@@ -13,6 +13,7 @@ import java.util.Deque;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 /** In-memory queue manager with failure injection, for tests and local runs. */
@@ -69,8 +70,8 @@ public final class InMemoryMqGateway implements MqGateway {
     /** Puts a request message on {@code queue} as another application would. */
     public InMemoryMqGateway enqueue(String queue, String data, String replyToQ) {
         MqMessageDescriptor md = new MqMessageDescriptor();
-        md.msgId(String.format("REQMSG%018d", nextMsgSeq));
-        md.correlId(String.format("REQCOR%018d", nextMsgSeq));
+        md.msgId(String.format(Locale.ROOT, "REQMSG%018d", nextMsgSeq));
+        md.correlId(String.format(Locale.ROOT, "REQCOR%018d", nextMsgSeq));
         nextMsgSeq++;
         md.replyToQ(replyToQ == null ? "" : replyToQ);
         md.format(MqConstants.MQFMT_STRING);

@@ -24,6 +24,7 @@ import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -179,7 +180,7 @@ class Codate01ProgramTest {
             assertEquals("INQA", r.lastRequest().func());
             assertEquals("00000000000", r.lastRequest().key());
             for (int i = 0; i < 5; i++) {
-                assertEquals(pad(String.format("REQCOR%018d", i + 1), 24),
+                assertEquals(pad(String.format(Locale.ROOT, "REQCOR%018d", i + 1), 24),
                         t.mq.messages(REPLY_Q).get(i).descriptor().correlId());
             }
         }
