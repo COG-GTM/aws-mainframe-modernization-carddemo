@@ -1,0 +1,102 @@
+package com.carddemo.programs.cbimport;
+
+import com.carddemo.programs.cbimport.copybook.AccountRecord;
+import com.carddemo.programs.cbimport.copybook.CardRecord;
+import com.carddemo.programs.cbimport.copybook.CardXrefRecord;
+import com.carddemo.programs.cbimport.copybook.CustomerRecord;
+import com.carddemo.programs.cbimport.copybook.TranRecord;
+import com.carddemo.programs.cbimport.io.FixedWidthExportFileReader;
+import com.carddemo.programs.cbimport.io.FixedWidthRecordFileWriter;
+import com.carddemo.programs.cbimport.io.RecordWriter;
+
+import java.io.IOException;
+import java.io.PrintStream;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.time.Clock;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+/**
+ * Job step equivalent of app/jcl/CBIMPORT.jcl (STEP01 EXEC PGM=CBIMPORT).
+ *
+ * <pre>
+ * java -jar cbimport.jar --EXPFILE=export.dat --CUSTOUT=cust.dat --ACCTOUT=acct.dat --XREFOUT=xref.dat
+ *      --TRNXOUT=tran.dat --CARDOUT=card.dat --ERROUT=err.dat
+ *      [--export-encoding=IBM037] [--output-encoding=IBM037] [--record-separator=none|lf]
+ * </pre>
+ *
+ * A DD omitted from the arguments behaves as a DD missing from the JCL (OPEN status '35'). On ABEND
+ * the output datasets are deleted, mirroring DISP=(NEW,CATLG,DELETE), and the step ends with
+ * {@link #ABEND_EXIT_CODE}.
+ */
+public final class CbimportMain {
+
+    public static final int ABEND_EXIT_CODE = 16;
+    public static final int USAGE_EXIT_CODE = 8;
+
+    private CbimportMain() {
+    }
+
+    public static void main(String[] args) {
+        System.exit(run(args, Clock.systemDefaultZone(), System.out));
+    }
+
+    public static int run(String[] args, Clock clock, PrintStream sysout) {
+        Map<String, String> opts = new HashMap<>();
+        for (String arg : args) {
+            int eq = arg.indexOf('=');
+            if (!arg.startsWith("--") || eq < 0) {
+                sysout.println("CBIMPORT: Invalid argument: " + arg);
+                return USAGE_EXIT_CODE;
+            }
+            opts.put(arg.substring(2, eq).toUpperCase(), arg.substring(eq + 1));
+        }
+        Charset exportCharset = Charset.forName(opts.getOrDefault("EXPORT-ENCODING", "IBM037"));
+        Charset outputCharset = Charset.forName(opts.getOrDefault("OUTPUT-ENCODING", "IBM037"));
+        String separator = "lf".equalsIgnoreCase(opts.getOrDefault("RECORD-SEPARATOR", "none")) ? "\n" : "";
+
+        List<FixedWidthRecordFileWriter> created = new ArrayList<>();
+        CbimportFiles files = new CbimportFiles(
+                new FixedWidthExportFileReader(path(opts, "EXPFILE")),
+                writer(opts, "CUSTOUT", CustomerRecord.LENGTH, outputCharset, separator, created),
+                writer(opts, "ACCTOUT", AccountRecord.LENGTH, outputCharset, separator, created),
+                writer(opts, "XREFOUT", CardXrefRecord.LENGTH, outputCharset, separator, created),
+                writer(opts, "TRNXOUT", TranRecord.LENGTH, outputCharset, separator, created),
+                writer(opts, "CARDOUT", CardRecord.LENGTH, outputCharset, separator, created),
+                writer(opts, "ERROUT", ErrorRecord.OUTPUT_LENGTH, outputCharset, separator, created));
+        try {
+            return new Cbimport(files, exportCharset, clock, sysout).run();
+        } catch (AbendException e) {
+            files.expfile().close();
+            for (FixedWidthRecordFileWriter w : created) {
+                w.close();
+                try {
+                    Files.deleteIfExists(w.path());
+                } catch (IOException ignored) {
+                    // best effort, as with DISP abnormal-termination processing
+                }
+            }
+            return ABEND_EXIT_CODE;
+        }
+    }
+
+    private static Path path(Map<String, String> opts, String dd) {
+        String p = opts.get(dd);
+        return p == null ? null : Path.of(p);
+    }
+
+    private static RecordWriter writer(Map<String, String> opts, String dd, int lrecl, Charset cs,
+                                       String separator, List<FixedWidthRecordFileWriter> created) {
+        Path p = path(opts, dd);
+        if (p == null) {
+            return RecordWriter.unallocated();
+        }
+        FixedWidthRecordFileWriter w = new FixedWidthRecordFileWriter(p, lrecl, cs, separator);
+        created.add(w);
+        return w;
+    }
+}
