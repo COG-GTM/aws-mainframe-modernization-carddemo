@@ -7,10 +7,10 @@ import java.nio.file.Path;
 
 /**
  * Command-line entry equivalent to JCL READCUST STEP05:
- * {@code java -jar cbcus01c.jar [--fixed-block] [--charset=NAME] <CUSTFILE>}.
+ * {@code java -jar target/cbcus01c.jar [--fixed-block] [--charset=NAME] <CUSTFILE>}.
  *
- * <p>Default input is line-sequential ASCII (app/data/ASCII/custdata.txt). For the RECFM=FB EBCDIC
- * feed use {@code --fixed-block --charset=IBM037}. Exit code is RETURN-CODE (0), the abend code
+ * <p>Default input is line-sequential ASCII (app/data/ASCII/custdata.txt). {@code --fixed-block}
+ * reads the RECFM=FB feed and defaults the charset to EBCDIC (IBM037). Exit code is RETURN-CODE (0), the abend code
  * (999; the OS reports it modulo 256), or {@value #RC_SYSOUT_ERROR} if SYSOUT could not be written.
  */
 public final class Cbcus01cMain {
@@ -24,7 +24,7 @@ public final class Cbcus01cMain {
     public static void main(String[] args) {
         Path custfile = null;
         boolean fixedBlock = false;
-        Charset charset = StandardCharsets.US_ASCII;
+        Charset charset = null;
         for (String arg : args) {
             if (arg.equals("--fixed-block")) {
                 fixedBlock = true;
@@ -40,6 +40,9 @@ public final class Cbcus01cMain {
         if (custfile == null) {
             System.err.println("usage: Cbcus01cMain [--fixed-block] [--charset=NAME] <CUSTFILE path>");
             System.exit(RC_USAGE);
+        }
+        if (charset == null) {
+            charset = fixedBlock ? Cbcus01c.EBCDIC : StandardCharsets.US_ASCII;
         }
         CustomerFile file = fixedBlock
                 ? KsdsCustomerFile.fixedBlock(custfile, charset)

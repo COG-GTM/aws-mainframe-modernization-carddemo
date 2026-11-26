@@ -1,6 +1,9 @@
 package com.carddemo.programs.cbcus01c;
 
 import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.charset.CharsetDecoder;
+import java.nio.charset.CodingErrorAction;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -21,6 +24,8 @@ import java.util.List;
  *       the RECFM=FB feed app/data/EBCDIC/AWS.M2.CARDDEMO.CUSTDATA.PS (charset IBM037). A file whose
  *       length is not a multiple of 500 fails OPEN with status '39'.</li>
  * </ul>
+ * Records are byte-oriented, so only single-byte charsets are accepted. Bytes the charset cannot
+ * decode fail OPEN with status '30' instead of being replaced.
  */
 public final class KsdsCustomerFile implements CustomerFile {
 
@@ -38,6 +43,9 @@ public final class KsdsCustomerFile implements CustomerFile {
     }
 
     private KsdsCustomerFile(Path path, Charset charset, boolean fixedBlock) {
+        if (charset.newEncoder().maxBytesPerChar() > 1.0f) {
+            throw new IllegalArgumentException("CUSTFILE charset must be single-byte (1 char = 1 byte): " + charset);
+        }
         this.path = path;
         this.charset = charset;
         this.fixedBlock = fixedBlock;
@@ -60,9 +68,12 @@ public final class KsdsCustomerFile implements CustomerFile {
                 if (bytes.length % FdCustfileRec.RECORD_LENGTH != 0) {
                     return "39";
                 }
+                CharsetDecoder decoder = charset.newDecoder()
+                        .onMalformedInput(CodingErrorAction.REPORT)
+                        .onUnmappableCharacter(CodingErrorAction.REPORT);
                 for (int off = 0; off < bytes.length; off += FdCustfileRec.RECORD_LENGTH) {
-                    records.add(FdCustfileRec.fromFixedWidth(
-                            new String(bytes, off, FdCustfileRec.RECORD_LENGTH, charset)));
+                    records.add(FdCustfileRec.fromFixedWidth(decoder.decode(
+                            ByteBuffer.wrap(bytes, off, FdCustfileRec.RECORD_LENGTH)).toString()));
                 }
             } else {
                 for (String line : Files.readAllLines(path, charset)) {

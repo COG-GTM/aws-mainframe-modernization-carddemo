@@ -56,6 +56,22 @@ class KsdsCustomerFileTest {
     }
 
     @Test
+    void undecodableBytesFailOpenInsteadOfBeingReplaced() throws IOException {
+        Path f = dir.resolve("cust.ps");
+        byte[] bytes = new byte[500];
+        java.util.Arrays.fill(bytes, (byte) 0xF1);
+        Files.write(f, bytes);
+        assertEquals("30", KsdsCustomerFile.fixedBlock(f, java.nio.charset.StandardCharsets.US_ASCII).open());
+        assertEquals("00", KsdsCustomerFile.fixedBlock(f, Cbcus01c.EBCDIC).open());
+    }
+
+    @Test
+    void multiByteCharsetIsRejected() {
+        org.junit.jupiter.api.Assertions.assertThrows(IllegalArgumentException.class,
+                () -> new KsdsCustomerFile(dir.resolve("x"), java.nio.charset.StandardCharsets.UTF_8));
+    }
+
+    @Test
     void fdRecordSplitsKeyAndData() {
         FdCustfileRec rec = FdCustfileRec.fromFixedWidth("000000009REST");
         assertEquals("000000009", rec.fdCustId());
