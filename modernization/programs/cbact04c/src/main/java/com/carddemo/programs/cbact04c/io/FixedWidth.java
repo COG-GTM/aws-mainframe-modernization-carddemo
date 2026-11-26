@@ -52,12 +52,27 @@ public final class FixedWidth {
         for (T r : records) {
             sb.append(codec.encode(r)).append('\n');
         }
-        Path tmp = path.resolveSibling(path.getFileName() + ".tmp");
         try {
-            Files.writeString(tmp, sb.toString(), CHARSET);
-            Files.move(tmp, path, StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.ATOMIC_MOVE);
+            // Replace the real target via a fresh (0600, CREATE_NEW) temp file so a failed write keeps the old file.
+            Path target = path.toRealPath();
+            Path tmp = Files.createTempFile(target.getParent(), target.getFileName() + ".", ".tmp");
+            try {
+                copyPosixPermissions(target, tmp);
+                Files.writeString(tmp, sb.toString(), CHARSET);
+                Files.move(tmp, target, StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.ATOMIC_MOVE);
+            } finally {
+                Files.deleteIfExists(tmp);
+            }
         } catch (IOException e) {
             throw new UncheckedIOException(e);
+        }
+    }
+
+    private static void copyPosixPermissions(Path from, Path to) throws IOException {
+        try {
+            Files.setPosixFilePermissions(to, Files.getPosixFilePermissions(from));
+        } catch (UnsupportedOperationException ignored) {
+            // non-POSIX file system
         }
     }
 }
