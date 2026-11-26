@@ -53,6 +53,21 @@ class CopybookLayoutTest {
     }
 
     @Test
+    void numericDisplayIgnoresDefaultLocale() {
+        java.util.Locale saved = java.util.Locale.getDefault();
+        try {
+            java.util.Locale.setDefault(java.util.Locale.forLanguageTag("ar-EG"));
+            WsMessage m = new WsMessage();
+            m.setSeverityN(0);
+            m.setMsgNoN(2513);
+            assertEquals("0000", m.severity());
+            assertEquals("2513", m.msgNo());
+        } finally {
+            java.util.Locale.setDefault(saved);
+        }
+    }
+
+    @Test
     void vstringBoundsAndPadding() {
         assertEquals("2023      ", new VString((short) 10, "2023").text());
         assertThrows(IllegalArgumentException.class, () -> new VString((short) 257, ""));

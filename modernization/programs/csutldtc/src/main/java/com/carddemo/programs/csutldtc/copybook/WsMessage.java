@@ -1,5 +1,7 @@
 package com.carddemo.programs.csutldtc.copybook;
 
+import java.util.Locale;
+
 /**
  * WS-MESSAGE (80 bytes), moved to LS-RESULT:
  * <pre>
@@ -91,6 +93,6 @@ public final class WsMessage {
     }
 
     private static String toUnsignedDisplay4(int value) {
-        return String.format("%04d", Math.abs(value) % 10_000);
+        return String.format(Locale.ROOT, "%04d", Math.abs(value) % 10_000);
     }
 }
