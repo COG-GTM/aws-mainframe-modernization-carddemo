@@ -69,6 +69,10 @@ class FixtureLoadTest {
         ByteArrayOutputStream f1 = new ByteArrayOutputStream();
         ByteArrayOutputStream f2 = new ByteArrayOutputStream();
         for (byte[] root : ROOTS) {
+            // PAUDBUNL: IF PA-ACCT-ID IS NUMERIC WRITE OPFIL1-REC (and its children).
+            if (!CobolFields.isPackedNumeric(root, 0, Paudblod.ROOT_SEG_KEY_LENGTH)) {
+                continue;
+            }
             f1.writeBytes(root);
             for (byte[] child : SOURCE.get(CobolFields.hex(root, 0, 6))) {
                 f2.writeBytes(Arrays.copyOf(root, Paudblod.ROOT_SEG_KEY_LENGTH));
@@ -109,14 +113,15 @@ class FixtureLoadTest {
         int rc = load(db, writeUnloadFiles(), out);
 
         assertEquals(0, rc);
-        assertEquals(22, db.rootCount());
+        assertEquals(21, db.rootCount());
         assertEquals(202, db.childCount());
-        assertEquals(22, out.stream().filter("ROOT INSERT SUCCESS    "::equals).count());
+        assertEquals(21, out.stream().filter("ROOT INSERT SUCCESS    "::equals).count());
         assertEquals(202, out.stream().filter("CHILD SEGMENT INSERTED SUCCESS"::equals).count());
         assertEquals("CLOSING THE FILE", out.get(out.size() - 1));
 
         Map<String, List<byte[]>> loaded = db.childSegmentsByRoot();
-        for (byte[] root : ROOTS) {
+        assertTrue(db.rootSegments().stream().noneMatch(r -> CobolFields.hex(r, 0, 6).equals("404040404040")));
+        for (byte[] root : ROOTS.subList(0, 21)) {
             String key = CobolFields.hex(root, 0, 6);
             assertTrue(db.rootSegments().stream().anyMatch(r -> Arrays.equals(r, root)), key);
             List<byte[]> expected = new ArrayList<>(SOURCE.get(key));
@@ -139,7 +144,7 @@ class FixtureLoadTest {
         int rc = load(db, files, out);
 
         assertEquals(0, rc);
-        assertEquals(22, out.stream().filter("ROOT SEGMENT ALREADY IN DB"::equals).count());
+        assertEquals(21, out.stream().filter("ROOT SEGMENT ALREADY IN DB"::equals).count());
         assertEquals(202, out.stream().filter("CHILD SEGMENT ALREADY IN DB"::equals).count());
         assertEquals(202, db.childCount());
     }
