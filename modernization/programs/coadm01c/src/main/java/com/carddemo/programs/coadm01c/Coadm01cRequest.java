@@ -17,6 +17,11 @@ public record Coadm01cRequest(String dfhCommarea, Dfhaid eibAid, Coadm1aInput re
         return dfhCommarea == null ? 0 : dfhCommarea.length();
     }
 
+    @Override
+    public String toString() {
+        return "Coadm01cRequest[eibcalen=" + eibcalen() + ", eibAid=" + eibAid() + ", receivedMap=" + receivedMap() + "]";
+    }
+
     public static Coadm01cRequest withoutCommarea() {
         return new Coadm01cRequest(null, Dfhaid.DFHENTER, null);
     }

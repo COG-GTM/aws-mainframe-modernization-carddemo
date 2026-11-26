@@ -26,4 +26,10 @@ public record SecUserData(String usrId, String fname, String lname, String pwd, 
     public String toRecord() {
         return usrId + fname + lname + pwd + usrType + filler;
     }
+
+    @Override
+    public String toString() {
+        return "SecUserData[usrId=" + usrId + ", fname=" + fname + ", lname=" + lname
+                + ", pwd=********, usrType=" + usrType + "]";
+    }
 }

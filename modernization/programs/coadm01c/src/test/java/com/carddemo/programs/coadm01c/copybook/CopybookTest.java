@@ -124,4 +124,17 @@ class CopybookTest {
         assertEquals("12", o.option());
         assertThrows(IllegalArgumentException.class, () -> Coadm1aInput.keyed("123"));
     }
+
+    @Test
+    void diagnosticsOmitPasswordsAndCardholderData() {
+        SecUserData u = new SecUserData("ADMIN001", "Ann", "Admin", "PASSWORD", "A", "");
+        assertFalse(u.toString().contains("PASSWORD"));
+        CardDemoCommarea c = CardDemoCommarea.fromRecord("");
+        c.setUserId("ADMIN001");
+        c.setCardNum(4111111111111111L);
+        c.setCustFname("Immanuel");
+        assertTrue(c.toString().contains("ADMIN001"));
+        assertFalse(c.toString().contains("4111111111111111"));
+        assertFalse(c.toString().contains("Immanuel"));
+    }
 }

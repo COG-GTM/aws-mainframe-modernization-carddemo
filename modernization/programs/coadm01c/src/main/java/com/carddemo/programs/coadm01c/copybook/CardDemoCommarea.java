@@ -161,6 +161,11 @@ public final class CardDemoCommarea {
 
     @Override
     public String toString() {
-        return "CardDemoCommarea[" + toRecord().replace(CobolFields.LOW_VALUE, '.') + "]";
+        // Customer, account and card fields are omitted so diagnostics never carry PII or PANs.
+        return ("CardDemoCommarea[fromTranid=" + fromTranid() + ", fromProgram=" + fromProgram()
+                + ", toTranid=" + toTranid() + ", toProgram=" + toProgram() + ", userId=" + userId()
+                + ", userType=" + userType() + ", pgmContext=" + pgmContext()
+                + ", lastMap=" + lastMap() + ", lastMapset=" + lastMapset() + "]")
+                .replace(CobolFields.LOW_VALUE, '.');
     }
 }
