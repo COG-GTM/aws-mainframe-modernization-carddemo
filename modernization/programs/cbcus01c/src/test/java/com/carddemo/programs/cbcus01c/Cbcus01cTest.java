@@ -317,4 +317,32 @@ class Cbcus01cTest {
             Thread.interrupted();
         }
     }
+
+    @Test
+    void callerInterruptIsRestoredWhenRunThrows() {
+        java.io.PrintStream healthy = new java.io.PrintStream(java.io.OutputStream.nullOutputStream());
+        CustomerFile file = new CustomerFile() {
+            @Override
+            public String open() {
+                throw new IllegalStateException("boom");
+            }
+
+            @Override
+            public ReadResult readNext() {
+                return ReadResult.status(FileStatus.END_OF_FILE);
+            }
+
+            @Override
+            public String close() {
+                return FileStatus.SUCCESS;
+            }
+        };
+        Thread.currentThread().interrupt();
+        try {
+            assertThrows(IllegalStateException.class, () -> Cbcus01cMain.execute(file, healthy));
+            assertTrue(Thread.currentThread().isInterrupted());
+        } finally {
+            Thread.interrupted();
+        }
+    }
 }

@@ -69,14 +69,16 @@ public final class Cbcus01cMain {
         boolean callerInterrupted = Thread.interrupted();
         Cbcus01c program = new Cbcus01c(custfile, sysout::println);
         int rc;
+        boolean interruptedDuringRun;
         try {
             rc = program.run();
         } catch (AbendException e) {
             rc = e.abendCode();
-        }
-        boolean interruptedDuringRun = Thread.interrupted();
-        if (callerInterrupted || interruptedDuringRun) {
-            Thread.currentThread().interrupt();
+        } finally {
+            interruptedDuringRun = Thread.interrupted();
+            if (callerInterrupted || interruptedDuringRun) {
+                Thread.currentThread().interrupt();
+            }
         }
         if (sysout.checkError() || interruptedDuringRun) {
             System.err.println("CBCUS01C: error writing SYSOUT");
