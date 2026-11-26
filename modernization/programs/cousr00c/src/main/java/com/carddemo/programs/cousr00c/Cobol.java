@@ -2,6 +2,7 @@ package com.carddemo.programs.cousr00c;
 
 import java.nio.charset.Charset;
 import java.util.Comparator;
+import java.util.Locale;
 
 /** COBOL MOVE / figurative-constant / collation semantics used by the port. */
 public final class Cobol {
@@ -75,7 +76,7 @@ public final class Cobol {
             mod *= 10;
         }
         long v = Math.abs(value) % mod;
-        return String.format("%0" + digits + "d", v);
+        return String.format(Locale.ROOT, "%0" + digits + "d", v);
     }
 
     /** Unsigned PIC 9(n) arithmetic result: high-order digits are truncated. */

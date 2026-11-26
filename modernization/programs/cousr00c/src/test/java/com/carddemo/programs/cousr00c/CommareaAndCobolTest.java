@@ -77,6 +77,17 @@ class CommareaAndCobolTest {
     }
 
     @Test
+    void numericDisplayIgnoresDefaultLocaleDigits() {
+        java.util.Locale saved = java.util.Locale.getDefault();
+        try {
+            java.util.Locale.setDefault(java.util.Locale.forLanguageTag("ar-EG-u-nu-arab"));
+            assertEquals("00000001", Cobol.numericDisplay(1, 8));
+        } finally {
+            java.util.Locale.setDefault(saved);
+        }
+    }
+
+    @Test
     void ebcdicOrderPutsSpaceBeforeDigitsAndLettersBeforeDigits() {
         assertTrue(Cobol.EBCDIC_ORDER.compare("USER002 ", "USER0020") < 0);
         assertTrue(Cobol.EBCDIC_ORDER.compare("ZZZZZZZZ", "00000000") < 0, "letters < digits in EBCDIC");
