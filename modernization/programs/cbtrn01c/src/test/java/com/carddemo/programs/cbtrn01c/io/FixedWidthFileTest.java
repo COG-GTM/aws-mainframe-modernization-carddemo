@@ -41,7 +41,10 @@ class FixedWidthFileTest {
         FixedWidthIndexedFile<CardXrefRecord> file = new FixedWidthIndexedFile<>(f, CardXrefRecord.CODEC, 16);
         assertEquals("47", file.read("1111111111111111").status());
         assertEquals("00", file.open());
-        assertEquals(4, file.read("2222222222222222").record().acctId());
+        ReadResult<CardXrefRecord> hit = file.read("2222222222222222");
+        assertEquals(4, hit.record().acctId());
+        assertEquals(com.carddemo.programs.cbtrn01c.copybook.Pic.alpha("222222222222222200000000300000000004", 50),
+                hit.image());
         ReadResult<CardXrefRecord> miss = file.read("3333333333333333");
         assertEquals("23", miss.status());
         assertNull(miss.record());

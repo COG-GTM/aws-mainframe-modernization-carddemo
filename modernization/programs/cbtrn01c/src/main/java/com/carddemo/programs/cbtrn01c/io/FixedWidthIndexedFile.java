@@ -59,7 +59,7 @@ public final class FixedWidthIndexedFile<R> implements IndexedInputFile<R> {
         }
         String image = index.get(Pic.alpha(key, keyLength));
         return image == null ? ReadResult.of(FileStatus.RECORD_NOT_FOUND)
-                : new ReadResult<>(FileStatus.OK, codec.parse(image));
+                : new ReadResult<>(FileStatus.OK, codec.parse(image), image);
     }
 
     @Override
