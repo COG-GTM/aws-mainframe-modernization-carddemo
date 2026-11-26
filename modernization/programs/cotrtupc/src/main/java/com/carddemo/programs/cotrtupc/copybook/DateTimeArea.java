@@ -1,6 +1,7 @@
 package com.carddemo.programs.cotrtupc.copybook;
 
 import java.time.LocalDateTime;
+import java.util.Locale;
 
 /** CSDAT01Y - WS-DATE-TIME. Numeric display fields are held as zero-padded strings. */
 public final class DateTimeArea {
@@ -32,13 +33,13 @@ public final class DateTimeArea {
 
     /** MOVE FUNCTION CURRENT-DATE TO WS-CURDATE-DATA (first 16 bytes: YYYYMMDDHHMMSShh). */
     public void moveCurrentDate(LocalDateTime now) {
-        wsCurdateYear = String.format("%04d", now.getYear());
-        wsCurdateMonth = String.format("%02d", now.getMonthValue());
-        wsCurdateDay = String.format("%02d", now.getDayOfMonth());
-        wsCurtimeHours = String.format("%02d", now.getHour());
-        wsCurtimeMinute = String.format("%02d", now.getMinute());
-        wsCurtimeSecond = String.format("%02d", now.getSecond());
-        wsCurtimeMilsec = String.format("%02d", now.getNano() / 10_000_000);
+        wsCurdateYear = String.format(Locale.ROOT, "%04d", now.getYear());
+        wsCurdateMonth = String.format(Locale.ROOT, "%02d", now.getMonthValue());
+        wsCurdateDay = String.format(Locale.ROOT, "%02d", now.getDayOfMonth());
+        wsCurtimeHours = String.format(Locale.ROOT, "%02d", now.getHour());
+        wsCurtimeMinute = String.format(Locale.ROOT, "%02d", now.getMinute());
+        wsCurtimeSecond = String.format(Locale.ROOT, "%02d", now.getSecond());
+        wsCurtimeMilsec = String.format(Locale.ROOT, "%02d", now.getNano() / 10_000_000);
     }
 
     public String wsCurdateN() { return wsCurdateYear + wsCurdateMonth + wsCurdateDay; }
