@@ -470,6 +470,13 @@ class Cotrn02cServiceTest extends TestSupport {
         }
 
         @Test
+        void fileNotFoundLogsRawRespCode() {
+            transact.inject(Command.STARTBR, CicsResp.FILENOTFOUND);
+            assertEquals("Unable to lookup Transaction...", screen(enter(valid().build())).message());
+            assertEquals("RESP:000000012REAS:000000000", displayed.get(0));
+        }
+
+        @Test
         void readPrevError() {
             transact.inject(Command.READPREV, CicsResp.IOERR);
             Cotrn2aResponse r = screen(enter(valid().build()));
