@@ -123,6 +123,13 @@ class FixtureTest {
     }
 
     @Test
+    void abendAfterTransactOpenDeletesNewTransactFile() throws IOException {
+        Files.writeString(tcatbal, "99999999999010001" + "0000000100{" + "\n", FixedWidth.CHARSET);
+        assertEquals(999, runJob());
+        assertTrue(Files.notExists(transact));
+    }
+
+    @Test
     void overlongInputRecordAbendsWith999() throws IOException {
         Files.writeString(tcatbal, "X".repeat(51) + "\n", FixedWidth.CHARSET);
         assertEquals(999, runJob());
