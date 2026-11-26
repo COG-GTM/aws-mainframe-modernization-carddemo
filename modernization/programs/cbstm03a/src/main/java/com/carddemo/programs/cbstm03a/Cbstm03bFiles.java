@@ -10,11 +10,13 @@ import com.carddemo.programs.cbstm03a.io.LineSequentialFileReader;
 import com.carddemo.programs.cbstm03a.io.RecordReader;
 import com.carddemo.programs.cbstm03a.support.Pic;
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -141,12 +143,15 @@ public final class Cbstm03bFiles implements Cbstm03bCall {
                 for (Optional<String> r = reader.read(); r.isPresent(); r = reader.read()) {
                     records.add(r.get());
                 }
-            } catch (IOException e) {
+            } catch (IOException | UncheckedIOException e) {
                 status = "35";
                 return;
             }
             records.sort(Comparator.comparing(r -> r.substring(0, keyLength)));
-            cursor = records.iterator();
+            // A KSDS holds unique keys: REPRO rejects later duplicates, so keep the first.
+            Map<String, String> unique = new LinkedHashMap<>();
+            records.forEach(r -> unique.putIfAbsent(r.substring(0, keyLength), r));
+            cursor = List.copyOf(unique.values()).iterator();
             atEnd = false;
             status = "00";
         }
@@ -196,7 +201,7 @@ public final class Cbstm03bFiles implements Cbstm03bCall {
                 for (Optional<String> r = reader.read(); r.isPresent(); r = reader.read()) {
                     loaded.putIfAbsent(r.get().substring(0, keyLength), r.get());
                 }
-            } catch (IOException e) {
+            } catch (IOException | UncheckedIOException e) {
                 status = "35";
                 return;
             }
