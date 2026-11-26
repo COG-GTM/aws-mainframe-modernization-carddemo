@@ -21,6 +21,7 @@ import java.math.BigDecimal;
  * @param currCycDebit       ACCT-CURR-CYC-DEBIT    PIC S9(10)V99
  * @param addrZip            ACCT-ADDR-ZIP          PIC X(10)
  * @param groupId            ACCT-GROUP-ID          PIC X(10)
+ * @param filler             FILLER                 PIC X(178)
  */
 public record AccountRecord(
         long acctId,
@@ -34,7 +35,8 @@ public record AccountRecord(
         BigDecimal currCycCredit,
         BigDecimal currCycDebit,
         String addrZip,
-        String groupId) {
+        String groupId,
+        String filler) {
 
     public static final int RECORD_LENGTH = 300;
     public static final int ACCT_ID_LENGTH = 11;
@@ -58,6 +60,15 @@ public record AccountRecord(
         currCycDebit = amount(currCycDebit);
         addrZip = CobolText.pic(addrZip, 10);
         groupId = CobolText.pic(groupId, 10);
+        filler = CobolText.pic(filler, FILLER_LENGTH);
+    }
+
+    public AccountRecord(long acctId, String activeStatus, BigDecimal currBal, BigDecimal creditLimit,
+                         BigDecimal cashCreditLimit, String openDate, String expirationDate,
+                         String reissueDate, BigDecimal currCycCredit, BigDecimal currCycDebit,
+                         String addrZip, String groupId) {
+        this(acctId, activeStatus, currBal, creditLimit, cashCreditLimit, openDate, expirationDate,
+                reissueDate, currCycCredit, currCycDebit, addrZip, groupId, "");
     }
 
     private static BigDecimal amount(BigDecimal v) {
@@ -85,7 +96,8 @@ public record AccountRecord(
                 ZonedDecimal.parse(take(r, p, AMOUNT_WIDTH), AMOUNT_SCALE),
                 ZonedDecimal.parse(take(r, p, AMOUNT_WIDTH), AMOUNT_SCALE),
                 take(r, p, 10),
-                take(r, p, 10));
+                take(r, p, 10),
+                take(r, p, FILLER_LENGTH));
     }
 
     private static String take(String r, int[] pos, int len) {
@@ -107,6 +119,6 @@ public record AccountRecord(
                 + ZonedDecimal.format(currCycDebit, AMOUNT_INT_DIGITS, AMOUNT_SCALE)
                 + addrZip
                 + groupId
-                + CobolText.spaces(FILLER_LENGTH);
+                + filler;
     }
 }

@@ -34,6 +34,16 @@ class AccountRecordTest {
         assertEquals(new BigDecimal("0.00"), a.currCycDebit());
         assertEquals("A000000000", a.addrZip());
         assertEquals("          ", a.groupId());
+        assertEquals(" ".repeat(AccountRecord.FILLER_LENGTH), a.filler());
+    }
+
+    @Test
+    void nonBlankFillerSurvivesRoundTrip() throws Exception {
+        String line = fixtureLines().get(0);
+        String withFiller = line.substring(0, 122) + "RESERVED" + line.substring(130);
+        AccountRecord a = AccountRecord.parse(withFiller);
+        assertEquals("RESERVED", a.filler().substring(0, 8));
+        assertEquals(withFiller, a.toFixedWidth());
     }
 
     @Test
