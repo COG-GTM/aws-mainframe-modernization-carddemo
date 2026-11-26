@@ -299,7 +299,8 @@ public final class Cbstm03a {
         writeHtml(HtmlFixedLine.HTML_L10);
 
         // HTML-L11: '<h3>Statement for Account Number: ' L11-ACCT X(20) '</h3>'
-        htmlFile.write("<h3>Statement for Account Number: " + Pic.x(accountRecord.acctIdDisplay(), 20) + "</h3>");
+        htmlFile.write(Pic.x("<h3>Statement for Account Number: " + Pic.x(accountRecord.acctIdDisplay(), 20) + "</h3>",
+                HtmlFixedLine.LENGTH));
         writeHtml(HtmlFixedLine.HTML_LTDE);
         writeHtml(HtmlFixedLine.HTML_LTRE);
         writeHtml(HtmlFixedLine.HTML_LTRS);
