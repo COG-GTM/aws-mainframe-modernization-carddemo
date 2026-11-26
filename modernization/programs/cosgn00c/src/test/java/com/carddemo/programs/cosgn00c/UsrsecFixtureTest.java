@@ -14,6 +14,7 @@ import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneOffset;
 import java.util.List;
+import java.util.Locale;
 import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.BeforeAll;
@@ -57,7 +58,7 @@ class UsrsecFixtureTest {
     void everySeededUserSignsOnAndIsRoutedByType() {
         for (String line : seedRecords) {
             SecUserData user = SecUserData.fromRecord(line);
-            SignonOutcome out = service().run(SignonRequest.enter(user.usrId().toLowerCase(), user.pwd().toLowerCase()));
+            SignonOutcome out = service().run(SignonRequest.enter(user.usrId().toLowerCase(Locale.ROOT), user.pwd().toLowerCase(Locale.ROOT)));
 
             SignonOutcome.ControlTransferred x = assertInstanceOf(SignonOutcome.ControlTransferred.class, out,
                     user.usrId());
