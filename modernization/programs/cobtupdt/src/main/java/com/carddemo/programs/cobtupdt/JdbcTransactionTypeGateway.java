@@ -59,11 +59,17 @@ public final class JdbcTransactionTypeGateway implements TransactionTypeGateway 
         }
     }
 
+    /** DB2 SQLCODE for a DELETE blocked by an ON DELETE RESTRICT foreign key (TRNTYCAT). */
+    public static final int SQLCODE_DELETE_RESTRICT = -532;
+
     static int toSqlcode(SQLException e) {
         if (e.getErrorCode() < 0) {
             return e.getErrorCode();
         }
         String state = e.getSQLState();
+        if ("23503".equals(state) || "23504".equals(state)) {
+            return SQLCODE_DELETE_RESTRICT;
+        }
         if (state != null && state.startsWith("23")) {
             return InMemoryTransactionTypeGateway.SQLCODE_DUPLICATE_KEY;
         }
