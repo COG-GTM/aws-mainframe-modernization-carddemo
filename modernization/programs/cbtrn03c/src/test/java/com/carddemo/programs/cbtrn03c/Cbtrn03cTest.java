@@ -287,6 +287,24 @@ class Cbtrn03cTest {
     }
 
     @Test
+    void xrefLookupIsSkippedForARepeatedCardAndRedoneForANewCard() {
+        addTx("T1", CARD_A, "01", 1, "1.00", "2022-06-10");
+        addTx("T2", CARD_A, "01", 1, "1.00", "2022-06-10");
+        addTx("T3", CARD_B, "01", 1, "1.00", "2022-06-10");
+        addTx("T4", CARD_A, "01", 1, "1.00", "2022-06-10");
+        List<String> keys = new ArrayList<>();
+        InMemoryKeyedInputFile delegate = xrefFile;
+        com.carddemo.programs.cbtrn03c.io.KeyedInputFile counting = new com.carddemo.programs.cbtrn03c.io.KeyedInputFile() {
+            public String open() { return delegate.open(); }
+            public com.carddemo.programs.cbtrn03c.io.ReadResult read(String key) { keys.add(key); return delegate.read(key); }
+            public String close() { return delegate.close(); }
+        };
+        assertEquals(0, new Cbtrn03c(tranFile(), counting, trantypeFile, trancatgFile, reportFile, dateparmFile,
+                new PrintStream(sysoutBytes, true, StandardCharsets.ISO_8859_1)).run());
+        assertEquals(List.of(CARD_A, CARD_B, CARD_A), keys);
+    }
+
+    @Test
     void nonInvalidKeyLookupErrorKeepsThePreviousRecordAreaAndContinues() {
         addTx("T1", CARD_A, "01", 1, "1.00", "2022-06-10");
         addTx("T2", CARD_B, "01", 1, "1.00", "2022-06-10");
