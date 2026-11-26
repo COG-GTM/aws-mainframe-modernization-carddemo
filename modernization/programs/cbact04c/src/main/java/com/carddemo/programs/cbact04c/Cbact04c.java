@@ -14,6 +14,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.Clock;
 import java.time.LocalDateTime;
+import java.util.Locale;
 import java.util.function.Consumer;
 
 /**
@@ -362,7 +363,7 @@ public class Cbact04c {
     // Z-GET-DB2-FORMAT-TIMESTAMP: FUNCTION CURRENT-DATE -> 'YYYY-MM-DD-HH.MM.SS.hh0000'
     String getDb2FormatTimestamp() {
         LocalDateTime now = LocalDateTime.now(clock);
-        return String.format("%04d-%02d-%02d-%02d.%02d.%02d.%02d0000",
+        return String.format(Locale.ROOT, "%04d-%02d-%02d-%02d.%02d.%02d.%02d0000",
                 now.getYear(), now.getMonthValue(), now.getDayOfMonth(),
                 now.getHour(), now.getMinute(), now.getSecond(), now.getNano() / 10_000_000);
     }

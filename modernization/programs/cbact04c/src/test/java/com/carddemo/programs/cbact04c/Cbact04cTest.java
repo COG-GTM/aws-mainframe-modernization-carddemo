@@ -249,6 +249,19 @@ class Cbact04cTest {
                     ZoneOffset.UTC), out::add);
             assertEquals("2023-01-02-03.04.05.980000", p.getDb2FormatTimestamp());
         }
+
+        @Test
+        void db2TimestampUsesAsciiDigitsRegardlessOfDefaultLocale() {
+            java.util.Locale saved = java.util.Locale.getDefault();
+            try {
+                java.util.Locale.setDefault(java.util.Locale.forLanguageTag("ar-EG"));
+                Cbact04c p = new Cbact04c(files(), Clock.fixed(Instant.parse("2023-01-02T03:04:05.987Z"),
+                        ZoneOffset.UTC), out::add);
+                assertEquals("2023-01-02-03.04.05.980000", p.getDb2FormatTimestamp());
+            } finally {
+                java.util.Locale.setDefault(saved);
+            }
+        }
     }
 
     @Nested
