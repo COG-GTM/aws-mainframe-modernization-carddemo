@@ -14,4 +14,5 @@ cd "$WORK"
 ACCTFILE="$ROOT/app/data/ASCII/acctdata.txt" OUTFILE=out.dat ARRYFILE=arry.dat VBRCFILE=vbrc.dat \
   ./cbact01g > sysout.txt 2> stderr.txt
 cp out.dat arry.dat vbrc.dat sysout.txt "$MOD/src/test/resources/golden/"
-echo "golden outputs written to $MOD/src/test/resources/golden"
+cp "$ROOT/app/data/ASCII/acctdata.txt" "$MOD/src/test/resources/fixtures/acctdata.txt"
+echo "fixture and golden outputs written to $MOD/src/test/resources/golden"
