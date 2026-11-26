@@ -1,10 +1,12 @@
 package com.carddemo.programs.cobtupdt;
 
 import com.carddemo.programs.cobtupdt.copybook.DclTransactionType;
+import com.carddemo.programs.cobtupdt.copybook.Sqlca;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.sql.SQLWarning;
 
 /**
  * JDBC implementation of the COBTUPDT static SQL. Commit scope is left to the caller
@@ -12,7 +14,7 @@ import java.sql.SQLException;
  *
  * <p>SQLCODE mapping: a negative vendor error code is returned as is (DB2 JDBC reports SQLCODE there);
  * otherwise SQLSTATE 23503/23504 (foreign key) maps to -532, the rest of class 23 to -803 and anything else to -1.
- * Zero rows on UPDATE/DELETE maps to +100.
+ * Zero rows on UPDATE/DELETE maps to +100; a positive SQLCODE warning on the statement is returned as is.
  */
 public final class JdbcTransactionTypeGateway implements TransactionTypeGateway {
 
@@ -33,7 +35,7 @@ public final class JdbcTransactionTypeGateway implements TransactionTypeGateway 
             ps.setString(1, trType);
             ps.setString(2, trDescription);
             ps.executeUpdate();
-            return 0;
+            return sqlcode(1, ps.getWarnings());
         } catch (SQLException e) {
             return toSqlcode(e);
         }
@@ -44,7 +46,7 @@ public final class JdbcTransactionTypeGateway implements TransactionTypeGateway 
         try (PreparedStatement ps = connection.prepareStatement(UPDATE_SQL)) {
             ps.setString(1, trDescription);
             ps.setString(2, trType);
-            return ps.executeUpdate() == 0 ? 100 : 0;
+            return sqlcode(ps.executeUpdate(), ps.getWarnings());
         } catch (SQLException e) {
             return toSqlcode(e);
         }
@@ -54,10 +56,23 @@ public final class JdbcTransactionTypeGateway implements TransactionTypeGateway 
     public int delete(String trType) {
         try (PreparedStatement ps = connection.prepareStatement(DELETE_SQL)) {
             ps.setString(1, trType);
-            return ps.executeUpdate() == 0 ? 100 : 0;
+            return sqlcode(ps.executeUpdate(), ps.getWarnings());
         } catch (SQLException e) {
             return toSqlcode(e);
         }
+    }
+
+    /** +100 for zero rows; otherwise the first positive SQLCODE warning (DB2 JDBC reports it as the error code), else 0. */
+    static int sqlcode(int rowCount, SQLWarning warnings) {
+        if (rowCount == 0) {
+            return Sqlca.SQLCODE_NOT_FOUND;
+        }
+        for (SQLWarning w = warnings; w != null; w = w.getNextWarning()) {
+            if (w.getErrorCode() > 0) {
+                return w.getErrorCode();
+            }
+        }
+        return Sqlca.SQLCODE_OK;
     }
 
     /** DB2 SQLCODE for a DELETE blocked by an ON DELETE RESTRICT foreign key (TRNTYCAT). */

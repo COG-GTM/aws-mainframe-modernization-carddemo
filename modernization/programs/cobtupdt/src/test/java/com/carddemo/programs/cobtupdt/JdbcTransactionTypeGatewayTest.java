@@ -79,6 +79,16 @@ class JdbcTransactionTypeGatewayTest {
     }
 
     @Test
+    void positiveSqlcodeWarningIsReturnedInsteadOfSuccess() {
+        java.sql.SQLWarning w = new java.sql.SQLWarning("info", "01000", 0);
+        w.setNextWarning(new java.sql.SQLWarning("trunc", "01004", 445));
+        assertEquals(445, JdbcTransactionTypeGateway.sqlcode(1, w));
+        assertEquals(0, JdbcTransactionTypeGateway.sqlcode(1, new java.sql.SQLWarning("info", "01000", 0)));
+        assertEquals(0, JdbcTransactionTypeGateway.sqlcode(1, null));
+        assertEquals(100, JdbcTransactionTypeGateway.sqlcode(0, w));
+    }
+
+    @Test
     void negativeVendorCodePassesThroughAndOthersMapToMinusOne() {
         assertEquals(-204, JdbcTransactionTypeGateway.toSqlcode(new SQLException("x", "42704", -204)));
         assertEquals(-803, JdbcTransactionTypeGateway.toSqlcode(new SQLException("x", "23505", 23505)));
