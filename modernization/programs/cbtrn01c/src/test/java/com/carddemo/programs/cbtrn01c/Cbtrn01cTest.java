@@ -293,4 +293,15 @@ class Cbtrn01cTest {
         assertEquals(0, p.run());
         assertThrows(IllegalStateException.class, p::run);
     }
+
+    @Test
+    void ioStatusDigitsIgnoreDefaultLocale() {
+        java.util.Locale saved = java.util.Locale.getDefault();
+        try {
+            java.util.Locale.setDefault(java.util.Locale.forLanguageTag("ar-EG-u-nu-arab"));
+            assertEquals("9065", Cbtrn01c.formatIoStatus("9A", java.nio.charset.StandardCharsets.ISO_8859_1));
+        } finally {
+            java.util.Locale.setDefault(saved);
+        }
+    }
 }

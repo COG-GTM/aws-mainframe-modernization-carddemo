@@ -22,6 +22,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.Consumer;
@@ -100,7 +101,8 @@ public final class Cbtrn01c {
     }
 
     /**
-     * MAIN-PARA. Returns RETURN-CODE 0 on GOBACK.
+     * MAIN-PARA. Returns RETURN-CODE 0 on GOBACK. An instance is one run unit: it can run once,
+     * so create a new instance (and new files) to run again.
      *
      * @throws AbendException         Z-ABEND-PROGRAM (CEE3ABD, code 999)
      * @throws CobolRuntimeException  unhandled keyed-READ I/O error
@@ -320,7 +322,7 @@ public final class Cbtrn01c {
                 && stat1 <= '9' && status.charAt(1) <= '9';
         if (!numeric || stat1 == '9') {
             int binary = status.substring(1, 2).getBytes(charset)[0] & 0xFF;
-            return stat1 + String.format("%03d", binary % 1000);
+            return stat1 + String.format(Locale.ROOT, "%03d", binary % 1000);
         }
         return "00" + status;
     }
@@ -353,7 +355,9 @@ public final class Cbtrn01c {
         PrintStream sysout = new PrintStream(stdout, false, StandardCharsets.ISO_8859_1);
         int rc = execute(dd, sysout::println);
         sysout.flush();
-        return rc == 0 && sysout.checkError() ? ABEND_CODE : rc;
+        // PrintStream reports an InterruptedIOException only through the thread's interrupt flag.
+        boolean sysoutFailed = sysout.checkError() || Thread.currentThread().isInterrupted();
+        return rc == 0 && sysoutFailed ? ABEND_CODE : rc;
     }
 
     static int execute(Map<String, String> dd, Consumer<String> display) {
