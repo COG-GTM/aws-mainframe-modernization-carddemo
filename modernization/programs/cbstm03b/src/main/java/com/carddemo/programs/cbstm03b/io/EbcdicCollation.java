@@ -17,6 +17,8 @@ public final class EbcdicCollation {
     }
 
     public static int compare(String a, String b) {
-        return java.util.Arrays.compareUnsigned(a.getBytes(CP037), b.getBytes(CP037));
+        int c = java.util.Arrays.compareUnsigned(a.getBytes(CP037), b.getBytes(CP037));
+        // Characters outside CP037 all encode to the same substitute byte; keep such keys distinct.
+        return c != 0 ? c : a.compareTo(b);
     }
 }

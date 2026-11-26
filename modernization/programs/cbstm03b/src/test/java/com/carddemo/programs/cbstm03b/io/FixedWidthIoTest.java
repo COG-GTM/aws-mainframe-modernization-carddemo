@@ -71,6 +71,10 @@ class FixedWidthIoTest {
         assertEquals("11", f.readNext().record());
         assertTrue(EbcdicCollation.compare("A", "1") < 0);
         assertTrue("A".compareTo("1") > 0, "ASCII order differs");
+        InMemoryIndexedFile unmappable = InMemoryIndexedFile.of("F", 3, 0, 1, List.of("\u20acAA", "\u0100BB"));
+        unmappable.open();
+        assertEquals("\u20acAA", unmappable.readByKey("\u20ac").record(), "keys outside CP037 do not collide");
+        assertEquals("\u0100BB", unmappable.readByKey("\u0100").record());
     }
 
     @Test
