@@ -16,6 +16,8 @@ public final class CtrtupaMap {
     public static final class BmsField {
         public final String name;
         public final int size;
+        /** INITIAL= value of the DFHMDF in the physical map (app-transaction-type-db2/bms/COTRTUP.bms), or null. */
+        public final String initial;
         /** xxxL COMP S9(4); -1 requests symbolic cursor positioning. */
         public short length;
         /** xxxF / xxxA. */
@@ -32,8 +34,13 @@ public final class CtrtupaMap {
         public String data;
 
         BmsField(String name, int size) {
+            this(name, size, null);
+        }
+
+        BmsField(String name, int size, String initial) {
             this.name = name;
             this.size = size;
+            this.initial = initial;
             lowValues();
         }
 
@@ -56,13 +63,20 @@ public final class CtrtupaMap {
             data = CobolText.lowValues(size);
         }
 
-        /** Data as rendered on a 3270 (LOW-VALUES are not transmitted and display as blanks). */
+        /**
+         * Data as rendered on a 3270 after SEND MAP (physical map + symbolic data): an O field whose first
+         * byte is LOW-VALUE is not sent, so the physical map INITIAL value shows; otherwise remaining
+         * LOW-VALUEs display as blanks. Visibility (DRK attribute) is not applied here.
+         */
         public String displayText() {
+            if (data.charAt(0) == CobolText.LOW_VALUE && initial != null) {
+                return CobolText.pic(initial, size);
+            }
             return data.replace(CobolText.LOW_VALUE, ' ');
         }
 
         BmsField copy() {
-            BmsField f = new BmsField(name, size);
+            BmsField f = new BmsField(name, size, initial);
             f.length = length;
             f.attribute = attribute;
             f.color = color;
@@ -76,19 +90,19 @@ public final class CtrtupaMap {
 
     public final BmsField trnname = new BmsField("TRNNAME", 4);
     public final BmsField title01 = new BmsField("TITLE01", 40);
-    public final BmsField curdate = new BmsField("CURDATE", 8);
+    public final BmsField curdate = new BmsField("CURDATE", 8, "mm/dd/yy");
     public final BmsField pgmname = new BmsField("PGMNAME", 8);
     public final BmsField title02 = new BmsField("TITLE02", 40);
-    public final BmsField curtime = new BmsField("CURTIME", 8);
+    public final BmsField curtime = new BmsField("CURTIME", 8, "hh:mm:ss");
     public final BmsField trtypcd = new BmsField("TRTYPCD", 2);
     public final BmsField trtydsc = new BmsField("TRTYDSC", 50);
     public final BmsField infomsg = new BmsField("INFOMSG", 45);
     public final BmsField errmsg = new BmsField("ERRMSG", 78);
-    public final BmsField fkeys = new BmsField("FKEYS", 21);
-    public final BmsField fkey04 = new BmsField("FKEY04", 9);
-    public final BmsField fkey05 = new BmsField("FKEY05", 8);
-    public final BmsField fkey06 = new BmsField("FKEY06", 6);
-    public final BmsField fkey12 = new BmsField("FKEY12", 10);
+    public final BmsField fkeys = new BmsField("FKEYS", 21, "ENTER=Process F3=Exit");
+    public final BmsField fkey04 = new BmsField("FKEY04", 9, "F4=Delete");
+    public final BmsField fkey05 = new BmsField("FKEY05", 8, "F5=Save");
+    public final BmsField fkey06 = new BmsField("FKEY06", 6, "F6=Add");
+    public final BmsField fkey12 = new BmsField("FKEY12", 10, "F12=Cancel");
 
     public BmsField[] fields() {
         return new BmsField[] {trnname, title01, curdate, pgmname, title02, curtime, trtypcd, trtydsc,

@@ -40,6 +40,12 @@ class CotrtupcNavigationTest {
         assertEquals(CobolText.LOW_VALUE, s.fkey04.attribute);
         assertEquals(CobolText.LOW_VALUE, s.fkey05.attribute);
         assertEquals(CobolText.LOW_VALUE, s.fkey12.attribute);
+        // function-key legends come from the physical map INITIAL values (attribute left to the map: DRK)
+        assertEquals("ENTER=Process F3=Exit", s.fkeys.displayText());
+        assertEquals("F4=Delete", s.fkey04.displayText());
+        assertEquals("F5=Save ", s.fkey05.displayText());
+        assertEquals("F12=Cancel", s.fkey12.displayText());
+        assertEquals("11/26/26", s.curdate.displayText());
 
         assertEquals(Cotrtupc.WS_COMMAREA_LENGTH, r.commarea().length());
         assertTrue(t.carddemo().isPgmReenter());
