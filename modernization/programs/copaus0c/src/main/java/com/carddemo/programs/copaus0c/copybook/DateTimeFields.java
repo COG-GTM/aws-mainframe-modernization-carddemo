@@ -1,5 +1,7 @@
 package com.carddemo.programs.copaus0c.copybook;
 
+import java.util.Locale;
+
 import java.time.LocalDateTime;
 
 /** CSDAT01Y - WS-DATE-TIME. Working storage; mutable like the COBOL group. */
@@ -23,13 +25,13 @@ public final class DateTimeFields {
 
     /** MOVE FUNCTION CURRENT-DATE TO WS-CURDATE-DATA. */
     public void setCurrentDate(LocalDateTime now) {
-        wsCurdateYear = String.format("%04d", now.getYear());
-        wsCurdateMonth = String.format("%02d", now.getMonthValue());
-        wsCurdateDay = String.format("%02d", now.getDayOfMonth());
-        wsCurtimeHours = String.format("%02d", now.getHour());
-        wsCurtimeMinute = String.format("%02d", now.getMinute());
-        wsCurtimeSecond = String.format("%02d", now.getSecond());
-        wsCurtimeMilsec = String.format("%02d", now.getNano() / 10_000_000);
+        wsCurdateYear = String.format(Locale.ROOT, "%04d", now.getYear());
+        wsCurdateMonth = String.format(Locale.ROOT, "%02d", now.getMonthValue());
+        wsCurdateDay = String.format(Locale.ROOT, "%02d", now.getDayOfMonth());
+        wsCurtimeHours = String.format(Locale.ROOT, "%02d", now.getHour());
+        wsCurtimeMinute = String.format(Locale.ROOT, "%02d", now.getMinute());
+        wsCurtimeSecond = String.format(Locale.ROOT, "%02d", now.getSecond());
+        wsCurtimeMilsec = String.format(Locale.ROOT, "%02d", now.getNano() / 10_000_000);
     }
 
     /** WS-CURDATE-MM-DD-YY as an 8-character group (MM/DD/YY). */

@@ -1,5 +1,7 @@
 package com.carddemo.programs.copaus0c.inmemory;
 
+import java.util.Locale;
+
 import com.carddemo.programs.copaus0c.copybook.CustomerRecord;
 import com.carddemo.programs.copaus0c.gateway.CustomerRepository;
 import com.carddemo.programs.copaus0c.gateway.FileReadResult;
@@ -16,7 +18,7 @@ public final class InMemoryCustomerRepository implements CustomerRepository {
     private FileReadResult<CustomerRecord> forced;
 
     public InMemoryCustomerRepository add(CustomerRecord record) {
-        records.put(String.format("%09d", record.custId()), record);
+        records.put(String.format(Locale.ROOT, "%09d", record.custId()), record);
         return this;
     }
 
