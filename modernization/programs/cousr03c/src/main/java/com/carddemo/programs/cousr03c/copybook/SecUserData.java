@@ -43,6 +43,7 @@ public class SecUserData extends FixedRecord {
 
     /** Fixed-width decode of one 80-byte record in the given code page (e.g. IBM037 for the EBCDIC sample data). */
     public static SecUserData parse(byte[] record, Charset charset) {
+        requireSingleByte(charset);
         SecUserData r = new SecUserData();
         r.moveFrom(new String(record, charset).getBytes(java.nio.charset.StandardCharsets.ISO_8859_1));
         return r;
@@ -50,7 +51,14 @@ public class SecUserData extends FixedRecord {
 
     /** Fixed-width encode of the record in the given code page. */
     public byte[] format(Charset charset) {
+        requireSingleByte(charset);
         return new String(toBytes(), java.nio.charset.StandardCharsets.ISO_8859_1).getBytes(charset);
+    }
+
+    private static void requireSingleByte(Charset charset) {
+        if (charset.newEncoder().maxBytesPerChar() != 1.0f) {
+            throw new IllegalArgumentException("USRSEC records are fixed-width; " + charset + " is not a single-byte code page");
+        }
     }
 
     public String usrId() { return getX(USR_ID, 8); }

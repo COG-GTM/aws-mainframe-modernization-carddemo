@@ -39,4 +39,14 @@ class InMemoryUserSecurityFileTest {
                 () -> InMemoryUserSecurityFile.load(bad, EBCDIC));
         assertEquals("USRSEC dataset length 90 is not a multiple of 80", e.getMessage());
     }
+
+    @Test
+    void multiByteCharsetIsRejectedToKeepRecordsFixedWidth() {
+        InMemoryUserSecurityFile f = new InMemoryUserSecurityFile();
+        f.put(SecUserData.of("USER0001", "JOS\u00c9", "B", "PASSWORD", "U"));
+        IllegalArgumentException e = assertThrows(IllegalArgumentException.class,
+                () -> f.unload(StandardCharsets.UTF_8));
+        assertEquals("USRSEC records are fixed-width; UTF-8 is not a single-byte code page", e.getMessage());
+        assertEquals(SecUserData.LENGTH, f.unload(EBCDIC).length);
+    }
 }
