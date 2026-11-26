@@ -9,13 +9,29 @@ import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Optional;
 
-/** Line-sequential SYSIN (one record per text line), e.g. an instream {@code //SYSIN DD *} deck. */
+/**
+ * Line-sequential SYSIN (one record per text line), e.g. an instream {@code //SYSIN DD *} deck.
+ * Only the first {@code lrecl} characters of each line are kept; the rest is skipped without
+ * being buffered.
+ */
 public final class LineSysinReader implements SysinReader {
 
+    /** LRECL of an instream SYSIN card. */
+    public static final int SYSIN_LRECL = 80;
+
     private final BufferedReader reader;
+    private final int lrecl;
 
     public LineSysinReader(Reader reader) {
+        this(reader, SYSIN_LRECL);
+    }
+
+    public LineSysinReader(Reader reader, int lrecl) {
+        if (lrecl <= 0) {
+            throw new IllegalArgumentException("lrecl must be positive");
+        }
         this.reader = reader instanceof BufferedReader b ? b : new BufferedReader(reader);
+        this.lrecl = lrecl;
     }
 
     public static LineSysinReader of(InputStream in) {
@@ -25,7 +41,26 @@ public final class LineSysinReader implements SysinReader {
     @Override
     public Optional<String> acceptRecord() {
         try {
-            return Optional.ofNullable(reader.readLine());
+            StringBuilder record = new StringBuilder(lrecl);
+            boolean any = false;
+            int c;
+            while ((c = reader.read()) != -1) {
+                any = true;
+                if (c == '\n') {
+                    break;
+                }
+                if (record.length() < lrecl) {
+                    record.append((char) c);
+                }
+            }
+            if (!any) {
+                return Optional.empty();
+            }
+            int last = record.length() - 1;
+            if (last >= 0 && record.charAt(last) == '\r') {
+                record.setLength(last);
+            }
+            return Optional.of(record.toString());
         } catch (IOException e) {
             throw new UncheckedIOException("SYSIN read failed", e);
         }
