@@ -10,6 +10,10 @@ import java.util.Set;
 public final class InMemoryProgramControlGateway implements ProgramControlGateway {
 
     public record Transfer(String program, CardDemoCommarea commarea) {
+        @Override
+        public CardDemoCommarea commarea() {
+            return commarea == null ? null : commarea.copy();
+        }
     }
 
     private final Set<String> installed;

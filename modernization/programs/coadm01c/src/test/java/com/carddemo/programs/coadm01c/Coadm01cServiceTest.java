@@ -158,6 +158,13 @@ class Coadm01cServiceTest {
             assertEquals(program, gateway.transfers().get(0).program());
         }
 
+        @Test
+        void transferHistoryCannotBeMutatedByCallers() {
+            enter("01");
+            gateway.transfers().get(0).commarea().setPgmContext(CardDemoCommarea.PgmContext.REENTER);
+            assertTrue(gateway.transfers().get(0).commarea().isPgmEnter());
+        }
+
         @ParameterizedTest(name = "[{0}] -> option {1}")
         @CsvSource(value = {"'3 ',03,COUSR02C", "' 3',03,COUSR02C", "'1 ',01,COUSR00C", "'06',06,COTRTUPC"})
         void trailingAndLeadingSpacesAreZeroFilled(String optionI, String expected, String program) {
