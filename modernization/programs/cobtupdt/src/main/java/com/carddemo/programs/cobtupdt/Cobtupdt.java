@@ -276,7 +276,7 @@ public final class Cobtupdt {
             }
             return rc;
         } catch (SQLException e) {
-            err.println("COBTUPDT: DB2 connection failed: " + e.getMessage());
+            err.println("COBTUPDT: DB2 connection failed: SQLSTATE=" + e.getSQLState() + " errorCode=" + e.getErrorCode());
             return RC_SEVERE;
         }
     }

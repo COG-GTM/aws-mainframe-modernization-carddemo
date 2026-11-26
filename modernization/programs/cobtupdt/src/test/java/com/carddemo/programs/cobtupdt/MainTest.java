@@ -56,4 +56,16 @@ class MainTest {
             assertEquals("Purchase" + " ".repeat(42), JdbcTransactionTypeGatewayTest.rows(c).get("01"));
         }
     }
+
+    @Test
+    void connectionFailureDoesNotPrintTheJdbcUrl(@TempDir Path dir) throws Exception {
+        Path f = dir.resolve("INPFILE");
+        Files.writeString(f, "A01Purchase\n");
+        String url = "jdbc:nosuchdriver://db?user=u&password=s3cret";
+        int rc = Cobtupdt.execute(new String[] {f.toString()}, Map.of(Cobtupdt.ENV_JDBC_URL, url), out, err);
+        assertEquals(12, rc);
+        String e = errBytes.toString(StandardCharsets.UTF_8);
+        assertTrue(e.contains("DB2 connection failed"));
+        assertTrue(!e.contains("s3cret") && !e.contains("nosuchdriver"));
+    }
 }
