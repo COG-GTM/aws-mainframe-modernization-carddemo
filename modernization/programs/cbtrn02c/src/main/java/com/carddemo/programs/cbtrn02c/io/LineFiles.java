@@ -6,9 +6,14 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.nio.file.attribute.PosixFileAttributeView;
+import java.nio.file.attribute.PosixFileAttributes;
+import java.nio.file.attribute.PosixFilePermission;
 import java.nio.file.attribute.PosixFilePermissions;
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.List;
+import java.util.Set;
 
 /** Line-per-record text files (the app/data/ASCII layout); CR is stripped, short lines are space padded. */
 public final class LineFiles {
@@ -51,7 +56,7 @@ public final class LineFiles {
             try {
                 if (tmp.getFileSystem().supportedFileAttributeViews().contains("posix")) {
                     Files.setPosixFilePermissions(tmp, exists
-                            ? Files.getPosixFilePermissions(target)
+                            ? inheritedPermissions(tmp, target)
                             : PosixFilePermissions.fromString("rw-------"));
                 }
                 Files.write(tmp, records, StandardCharsets.ISO_8859_1);
@@ -62,6 +67,20 @@ public final class LineFiles {
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
+    }
+
+    /** Gives tmp the target's group; if that is not allowed, the group gets no access rather than the old group's. */
+    private static Set<PosixFilePermission> inheritedPermissions(Path tmp, Path target) throws IOException {
+        Set<PosixFilePermission> perms = EnumSet.noneOf(PosixFilePermission.class);
+        perms.addAll(Files.getPosixFilePermissions(target));
+        try {
+            Files.getFileAttributeView(tmp, PosixFileAttributeView.class)
+                    .setGroup(Files.readAttributes(target, PosixFileAttributes.class).group());
+        } catch (IOException e) {
+            perms.removeAll(EnumSet.of(PosixFilePermission.GROUP_READ, PosixFilePermission.GROUP_WRITE,
+                    PosixFilePermission.GROUP_EXECUTE));
+        }
+        return perms;
     }
 
     /** Follows symlinks, including one whose target does not exist yet, so the link itself is never replaced. */
