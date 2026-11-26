@@ -93,7 +93,7 @@ public final class InMemoryImsGateway implements ImsGateway {
     @Override
     public String replaceSummary(PendingAuthSummary summary) {
         calls.add("REPL PAUTSUM0 " + summary.acctId());
-        if (replStatus != null) {
+        if (replStatus != null && !ImsReturnCode.isStatusOk(replStatus)) {
             return replStatus;
         }
         summaries.put(summary.acctId(), summary.copy());
@@ -103,7 +103,7 @@ public final class InMemoryImsGateway implements ImsGateway {
     @Override
     public String insertSummary(PendingAuthSummary summary) {
         calls.add("ISRT PAUTSUM0 " + summary.acctId());
-        if (isrtSummaryStatus != null) {
+        if (isrtSummaryStatus != null && !ImsReturnCode.isStatusOk(isrtSummaryStatus)) {
             return isrtSummaryStatus;
         }
         if (summaries.containsKey(summary.acctId())) {
@@ -116,7 +116,7 @@ public final class InMemoryImsGateway implements ImsGateway {
     @Override
     public String insertDetail(long acctId, PendingAuthDetails d) {
         calls.add("ISRT PAUTDTL1 " + acctId);
-        if (isrtDetailStatus != null) {
+        if (isrtDetailStatus != null && !ImsReturnCode.isStatusOk(isrtDetailStatus)) {
             return isrtDetailStatus;
         }
         if (!summaries.containsKey(acctId)) {

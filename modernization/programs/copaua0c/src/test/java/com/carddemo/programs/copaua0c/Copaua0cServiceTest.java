@@ -527,6 +527,16 @@ class Copaua0cServiceTest {
         }
 
         @Test
+        void injectedOkWriteStatusesStillPersist() {
+            Harness h = new Harness().withStandardCard("1000.00", "0.00").send(CARD, "10.00", TXN1);
+            h.ims.isrtSummaryStatus("  ");
+            h.ims.isrtDetailStatus("FW");
+            assertFalse(h.run().endedByCriticalError());
+            assertEquals(new BigDecimal("10.00"), h.ims.summary(ACCT).creditBalance());
+            assertEquals(1, h.ims.details(ACCT).size());
+        }
+
+        @Test
         void summaryInsertFailure() {
             Harness h = new Harness().withStandardCard("1000.00", "0.00").send(CARD, "10.00", TXN1);
             h.ims.isrtSummaryStatus("II");
