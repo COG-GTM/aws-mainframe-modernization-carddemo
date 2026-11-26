@@ -19,6 +19,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class Cbact02cFixtureTest {
 
     static final Path CARDDATA = Path.of("../../../app/data/ASCII/carddata.txt");
+    static final Path CARDDATA_EBCDIC = Path.of("../../../app/data/EBCDIC/AWS.M2.CARDDEMO.CARDDATA.PS");
 
     @Test
     void displaysAllFiftySampleCardsInKeyOrder() throws IOException {
@@ -35,6 +36,18 @@ class Cbact02cFixtureTest {
         assertEquals("START OF EXECUTION OF PROGRAM CBACT02C", sysout.get(0));
         assertEquals("END OF EXECUTION OF PROGRAM CBACT02C", sysout.get(51));
         assertEquals(expectedRecords, sysout.subList(1, 51));
+    }
+
+    @Test
+    void ebcdicFixedBlockDatasetGivesSameListingAsAsciiUnload() {
+        List<String> ascii = new ArrayList<>();
+        List<String> ebcdic = new ArrayList<>();
+
+        assertEquals(0, new Cbact02c(new FixedWidthCardFile(CARDDATA), ascii::add).run());
+        assertEquals(0, new Cbact02c(FixedWidthCardFile.fixedBlockEbcdic(CARDDATA_EBCDIC), ebcdic::add).run());
+
+        assertEquals(52, ebcdic.size());
+        assertEquals(ascii, ebcdic);
     }
 
     @Test

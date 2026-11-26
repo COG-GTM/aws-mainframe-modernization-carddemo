@@ -23,8 +23,24 @@ class FixedWidthCardFileTest {
     }
 
     @Test
-    void directoryIsNotAFile(@TempDir Path dir) {
-        assertEquals(FileStatus.FILE_NOT_FOUND, new FixedWidthCardFile(dir).open());
+    void unreadablePathGivesStatus30(@TempDir Path dir) {
+        assertEquals(FileStatus.PERMANENT_ERROR, new FixedWidthCardFile(dir).open());
+    }
+
+    @Test
+    void fixedBlockSplitsEvery150BytesAndFlagsShortTail(@TempDir Path dir) throws IOException {
+        Path file = dir.resolve("card.ps");
+        String a = rec("1111111111111111");
+        String b = rec("2222222222222222");
+        Files.write(file, (b + a + "TAIL").getBytes(FixedWidthCardFile.EBCDIC));
+        FixedWidthCardFile cardFile = FixedWidthCardFile.fixedBlockEbcdic(file);
+
+        assertEquals("00", cardFile.open());
+        assertEquals(a, cardFile.read().record());
+        assertEquals(b, cardFile.read().record());
+        CardFile.ReadResult tail = cardFile.read();
+        assertEquals("04", tail.status());
+        assertEquals("TAIL", tail.record());
     }
 
     @Test
