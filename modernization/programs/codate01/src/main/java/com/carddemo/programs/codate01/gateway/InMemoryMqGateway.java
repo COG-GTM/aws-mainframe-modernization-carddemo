@@ -148,18 +148,7 @@ public final class InMemoryMqGateway implements MqGateway {
                             m.data().length(), m.data().substring(0, bufferLength));
                 } else {
                     q.removeFirst();
-                    MqMessageDescriptor in = m.descriptor();
-                    md.msgId(in.msgId());
-                    md.correlId(in.correlId());
-                    md.replyToQ(in.replyToQ());
-                    md.replyToQMgr(in.replyToQMgr());
-                    md.format(in.format());
-                    md.msgType = in.msgType;
-                    md.persistence = in.persistence;
-                    md.priority = in.priority;
-                    md.putApplName(in.putApplName());
-                    md.putDate(in.putDate());
-                    md.putTime(in.putTime());
+                    md.copyFrom(m.descriptor());
                     gmo.resolvedQName(name);
                     gmo.returnedLength = m.data().length();
                     result = new MqGetResult(MqConstants.MQCC_OK, MqConstants.MQRC_NONE, m.data().length(), m.data());

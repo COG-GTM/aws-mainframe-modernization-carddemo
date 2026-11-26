@@ -97,36 +97,41 @@ public final class MqMessageDescriptor {
     public void groupId(String v) { groupId = alnum(v, 24); }
 
     public MqMessageDescriptor copy() {
-        MqMessageDescriptor c = new MqMessageDescriptor();
-        c.strucId = strucId;
-        c.version = version;
-        c.report = report;
-        c.msgType = msgType;
-        c.expiry = expiry;
-        c.feedback = feedback;
-        c.encoding = encoding;
-        c.codedCharSetId = codedCharSetId;
-        c.format = format;
-        c.priority = priority;
-        c.persistence = persistence;
-        c.msgId = msgId;
-        c.correlId = correlId;
-        c.backoutCount = backoutCount;
-        c.replyToQ = replyToQ;
-        c.replyToQMgr = replyToQMgr;
-        c.userIdentifier = userIdentifier;
-        c.accountingToken = accountingToken;
-        c.applIdentityData = applIdentityData;
-        c.putApplType = putApplType;
-        c.putApplName = putApplName;
-        c.putDate = putDate;
-        c.putTime = putTime;
-        c.applOriginData = applOriginData;
-        c.groupId = groupId;
-        c.msgSeqNumber = msgSeqNumber;
-        c.offset = offset;
-        c.msgFlags = msgFlags;
-        c.originalLength = originalLength;
+        return new MqMessageDescriptor().copyFrom(this);
+    }
+
+    /** Group MOVE of another MQMD into this one; returns {@code this}. */
+    public MqMessageDescriptor copyFrom(MqMessageDescriptor o) {
+        MqMessageDescriptor c = this;
+        c.strucId = o.strucId;
+        c.version = o.version;
+        c.report = o.report;
+        c.msgType = o.msgType;
+        c.expiry = o.expiry;
+        c.feedback = o.feedback;
+        c.encoding = o.encoding;
+        c.codedCharSetId = o.codedCharSetId;
+        c.format = o.format;
+        c.priority = o.priority;
+        c.persistence = o.persistence;
+        c.msgId = o.msgId;
+        c.correlId = o.correlId;
+        c.backoutCount = o.backoutCount;
+        c.replyToQ = o.replyToQ;
+        c.replyToQMgr = o.replyToQMgr;
+        c.userIdentifier = o.userIdentifier;
+        c.accountingToken = o.accountingToken;
+        c.applIdentityData = o.applIdentityData;
+        c.putApplType = o.putApplType;
+        c.putApplName = o.putApplName;
+        c.putDate = o.putDate;
+        c.putTime = o.putTime;
+        c.applOriginData = o.applOriginData;
+        c.groupId = o.groupId;
+        c.msgSeqNumber = o.msgSeqNumber;
+        c.offset = o.offset;
+        c.msgFlags = o.msgFlags;
+        c.originalLength = o.originalLength;
         return c;
     }
 }

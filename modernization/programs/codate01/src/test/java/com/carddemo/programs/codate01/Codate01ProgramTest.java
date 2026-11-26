@@ -9,6 +9,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.carddemo.programs.codate01.copybook.MqConstants;
+import com.carddemo.programs.codate01.copybook.MqMessageDescriptor;
 import com.carddemo.programs.codate01.gateway.CicsResp;
 import com.carddemo.programs.codate01.gateway.InMemoryCicsGateway;
 import com.carddemo.programs.codate01.gateway.InMemoryMqGateway.CloseCall;
@@ -72,6 +73,25 @@ class Codate01ProgramTest {
             assertEquals(MqConstants.MQCCSI_Q_MGR, put.descriptor().codedCharSetId);
             assertEquals(2 + 32 + 8192, put.options());
             assertEquals(1000, put.bufferLength());
+        }
+
+        @Test
+        void mqgetReturnsWholeRequestMqmdSoReplyReusesItsExpiryAndReport() {
+            TestSupport t = new TestSupport();
+            MqMessageDescriptor md = new MqMessageDescriptor();
+            md.msgId("M1");
+            md.expiry = 600;
+            md.report = 64;
+            md.encoding = 273;
+            t.mq.enqueue(INPUT_QUEUE, md, "INQA00000000001");
+
+            t.run();
+
+            MqMessageDescriptor out = t.mq.puts().get(0).descriptor();
+            assertEquals(600, out.expiry);
+            assertEquals(64, out.report);
+            assertEquals(273, out.encoding);
+            assertEquals(pad("M1", 24), out.msgId());
         }
 
         @Test
