@@ -71,7 +71,7 @@ class Cbtrn03cMainTest {
     }
 
     @Test
-    void reportIsNotOpenedThroughASymbolicLink() throws Exception {
+    void reportReplacesASymbolicLinkWithoutTouchingItsTarget() throws Exception {
         Map<String, String> dd = allocate(RecordFormat.LINE);
         Path target = dir.resolve("protected.txt");
         Files.writeString(target, "keep");
@@ -80,11 +80,10 @@ class Cbtrn03cMainTest {
         } catch (UnsupportedOperationException | IOException e) {
             org.junit.jupiter.api.Assumptions.abort("symbolic links not available: " + e);
         }
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        assertEquals(999, Cbtrn03cMain.execute(dd::get, new PrintStream(out, true, StandardCharsets.ISO_8859_1)));
-        assertTrue(out.toString(StandardCharsets.ISO_8859_1).contains("ERROR OPENING REPTFILE"));
+        assertEquals(0, Cbtrn03cMain.execute(dd::get, quietSysout()));
         assertEquals("keep", Files.readString(target));
-        assertTrue(Files.isSymbolicLink(Path.of(dd.get("TRANREPT"))));
+        assertFalse(Files.isSymbolicLink(Path.of(dd.get("TRANREPT"))));
+        assertTrue(Files.size(Path.of(dd.get("TRANREPT"))) > 0);
     }
 
     @Test
@@ -105,8 +104,21 @@ class Cbtrn03cMainTest {
         Path report = Path.of(dd.get("TRANREPT"));
         Files.writeString(report, "old");
         Files.setPosixFilePermissions(report, java.nio.file.attribute.PosixFilePermissions.fromString("rw-r--r--"));
-        assertEquals(0, Cbtrn03cMain.execute(dd::get, quietSysout()));
-        assertEquals("rw-------", java.nio.file.attribute.PosixFilePermissions.toString(Files.getPosixFilePermissions(report)));
+        try (java.io.InputStream oldHandle = Files.newInputStream(report)) {
+            assertEquals(0, Cbtrn03cMain.execute(dd::get, quietSysout()));
+            assertEquals("rw-------", java.nio.file.attribute.PosixFilePermissions.toString(Files.getPosixFilePermissions(report)));
+            assertEquals("old", new String(oldHandle.readAllBytes(), StandardCharsets.ISO_8859_1));
+        }
+    }
+
+    @Test
+    void unmappableCharacterFailsTheWrite() throws Exception {
+        Path out = dir.resolve("unmappable.txt");
+        com.carddemo.programs.cbtrn03c.io.FixedWidthSequentialOutputFile file =
+                new com.carddemo.programs.cbtrn03c.io.FixedWidthSequentialOutputFile(out, 10, com.carddemo.programs.cbtrn03c.io.RecordFormat.LINE);
+        assertEquals("00", file.open());
+        assertEquals("00", file.write("A\u20ac"));
+        assertEquals("30", file.close());
     }
 
     @Test
