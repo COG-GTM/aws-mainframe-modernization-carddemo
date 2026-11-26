@@ -62,6 +62,20 @@ class FixedWidthTrRecordReaderTest {
     }
 
     @Test
+    void closeFailureGivesStatus30() {
+        FixedWidthTrRecordReader r = new FixedWidthTrRecordReader(() -> new java.io.FilterReader(new StringReader("")) {
+            @Override
+            public void close() throws java.io.IOException {
+                throw new java.io.IOException("x");
+            }
+        }, FixedWidthTrRecordReader.Layout.LINE_SEQUENTIAL);
+        r.open();
+        assertEquals(Optional.empty(), r.readNext());
+        CobolFileStatusException e = assertThrows(CobolFileStatusException.class, r::close);
+        assertEquals("30", e.fileStatus());
+    }
+
+    @Test
     void fixedBlockReads53CharRecords() {
         String rec1 = TrRecord.parse("A01One").toFixedWidth();
         String rec2 = TrRecord.parse("U02Two").toFixedWidth();

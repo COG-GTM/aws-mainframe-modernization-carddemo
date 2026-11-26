@@ -4,7 +4,6 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
-import java.io.UncheckedIOException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -124,7 +123,7 @@ public final class FixedWidthTrRecordReader implements TrRecordReader {
             reader.close();
             return STATUS_OK;
         } catch (IOException e) {
-            throw new UncheckedIOException(e);
+            throw new CobolFileStatusException("30", "CLOSE TR-RECORD failed", e);
         } finally {
             reader = null;
         }
