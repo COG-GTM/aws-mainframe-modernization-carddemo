@@ -435,6 +435,12 @@ class CocrdupcServiceTest {
         }
 
         @Test
+        void tabIsNotTrimmedLikeASpace() {
+            CocrdupcResponse r = send(shown().commarea(), AidKey.ENTER, edit("Aniya\tSmith", "Y", "03", "2023"));
+            assertEquals("Card name can only contain alphabets and spaces", r.screen().text(ERRMSG));
+        }
+
+        @Test
         void lettersAndSpacesOnly() {
             CocrdupcResponse r = send(shown().commarea(), AidKey.ENTER, edit("Mary-Jane", "Y", "03", "2023"));
             assertEquals("Card name can only contain alphabets and spaces", r.screen().text(ERRMSG));

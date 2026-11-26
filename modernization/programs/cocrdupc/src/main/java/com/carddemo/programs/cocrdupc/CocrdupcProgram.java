@@ -417,7 +417,7 @@ final class CocrdupcProgram {
             check.append(LIT_ALL_ALPHA_FROM.indexOf(c) >= 0 ? ' ' : c);
         }
         ws.cardNameCheck = check.toString();
-        if (!ws.cardNameCheck.strip().isEmpty()) {
+        if (!isSpaces(ws.cardNameCheck)) {
             ws.setInputError();
             ws.wsEditCardnameFlag = EditFlag.NOT_OK.value;
             if (ws.isReturnMsgOff()) {
