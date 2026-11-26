@@ -20,7 +20,7 @@ import java.util.List;
  */
 public class FixedWidthCardFile implements CardFile {
 
-    public static final Charset EBCDIC = Charset.forName("IBM037");
+    private static final String EBCDIC_CHARSET = "IBM037";
 
     public enum RecordFormat { LINE, FIXED_BLOCK }
 
@@ -39,9 +39,14 @@ public class FixedWidthCardFile implements CardFile {
         this.format = format;
     }
 
+    /** IBM037 (EBCDIC US/Canada); needs the jdk.charsets module at runtime. */
+    public static Charset ebcdic() {
+        return Charset.forName(EBCDIC_CHARSET);
+    }
+
     /** RECFM=FB EBCDIC dataset, as shipped in app/data/EBCDIC. */
     public static FixedWidthCardFile fixedBlockEbcdic(Path path) {
-        return new FixedWidthCardFile(path, EBCDIC, RecordFormat.FIXED_BLOCK);
+        return new FixedWidthCardFile(path, ebcdic(), RecordFormat.FIXED_BLOCK);
     }
 
     @Override

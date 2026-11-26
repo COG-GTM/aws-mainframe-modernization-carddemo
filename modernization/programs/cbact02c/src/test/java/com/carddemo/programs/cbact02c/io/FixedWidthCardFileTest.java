@@ -32,7 +32,7 @@ class FixedWidthCardFileTest {
         Path file = dir.resolve("card.ps");
         String a = rec("1111111111111111");
         String b = rec("2222222222222222");
-        Files.write(file, (b + a + "TAIL").getBytes(FixedWidthCardFile.EBCDIC));
+        Files.write(file, (b + a + "TAIL").getBytes(FixedWidthCardFile.ebcdic()));
         FixedWidthCardFile cardFile = FixedWidthCardFile.fixedBlockEbcdic(file);
 
         assertEquals("00", cardFile.open());
