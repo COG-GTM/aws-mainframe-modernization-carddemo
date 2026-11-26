@@ -103,7 +103,7 @@ public final class InMemoryCardFileGateway implements CardFileGateway {
             return rewriteFailures.poll();
         }
         if (!lockedKeys.remove(record.cardNum())) {
-            return FileResult.of(CicsResp.INVREQ, 30);
+            return FileResult.of(CicsResp.INVREQ, lockedKeys.isEmpty() ? 30 : 32);
         }
         records.put(record.cardNum(), record);
         return FileResult.normal(record);

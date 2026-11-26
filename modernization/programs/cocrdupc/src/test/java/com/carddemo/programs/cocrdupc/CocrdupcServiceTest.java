@@ -558,6 +558,9 @@ class CocrdupcServiceTest {
             assertEquals(CicsResp.NORMAL, file.rewrite(ANIYA).resp());
             assertEquals(CicsResp.NORMAL, file.rewrite(other).resp());
             assertEquals(CicsResp.INVREQ, file.rewrite(other).resp());
+            assertEquals(30, file.rewrite(other).resp2());
+            file.readForUpdate(CARD);
+            assertEquals(32, file.rewrite(other).resp2());
         }
 
         @Test
