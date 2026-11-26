@@ -21,8 +21,10 @@ import java.util.function.Function;
  * <p>Each DD name (TRANFILE, CARDXREF, TRANTYPE, TRANCATG, DATEPARM, TRANREPT) is resolved from the
  * system property {@code dd.NAME} or the environment variable {@code DD_NAME}. Set {@code dd.RECFM}
  * / {@code DD_RECFM} to {@code FIXED} for undelimited RECFM=FB data sets (default {@code LINE}).
- * Exit code 0 on success; on ABEND the process exits with the abend code (999) and the TRANREPT data
- * set is deleted, mirroring {@code DISP=(NEW,CATLG,DELETE)}.
+ * {@link #execute} returns 0 on success and the abend code (999) on ABEND; POSIX shells see the process
+ * status modulo 256 (999 -> 231). If this run opened TRANREPT, it is deleted when the step fails
+ * (ABEND, or a data exception such as a non-numeric TRAN-AMT, which is rethrown), mirroring
+ * {@code DISP=(NEW,CATLG,DELETE)}.
  */
 public final class Cbtrn03cMain {
 
@@ -37,6 +39,7 @@ public final class Cbtrn03cMain {
         String recfmName = dd.apply("RECFM");
         RecordFormat recfm = recfmName == null ? RecordFormat.LINE : RecordFormat.valueOf(recfmName);
         Path report = Path.of(required(dd, "TRANREPT"));
+        FixedWidthSequentialOutputFile reportFile = new FixedWidthSequentialOutputFile(report, Cbtrn03c.TRANREPT_LRECL, recfm);
         Cbtrn03c program = new Cbtrn03c(
                 new FixedWidthSequentialInputFile(Path.of(required(dd, "TRANFILE")), Cbtrn03c.TRANFILE_LRECL, recfm),
                 new FixedWidthKeyedInputFile(Path.of(required(dd, "CARDXREF")), CardXrefRecord.LENGTH,
@@ -45,7 +48,7 @@ public final class Cbtrn03cMain {
                         TranTypeRecord.KEY_OFFSET, TranTypeRecord.KEY_LENGTH, recfm),
                 new FixedWidthKeyedInputFile(Path.of(required(dd, "TRANCATG")), TranCatRecord.LENGTH,
                         TranCatRecord.KEY_OFFSET, TranCatRecord.KEY_LENGTH, recfm),
-                new FixedWidthSequentialOutputFile(report, Cbtrn03c.TRANREPT_LRECL, recfm),
+                reportFile,
                 new FixedWidthSequentialInputFile(Path.of(required(dd, "DATEPARM")), Cbtrn03c.DATEPARM_LRECL, recfm),
                 sysout);
         try {
@@ -53,12 +56,24 @@ public final class Cbtrn03cMain {
         } catch (AbendException e) {
             sysout.flush();
             System.err.println(e.getMessage());
-            try {
-                Files.deleteIfExists(report);
-            } catch (IOException ignored) {
-                // best effort, as with DISP=(,,DELETE) on an abended step
-            }
+            deleteIfCreated(reportFile, report);
             return e.abendCode();
+        } catch (RuntimeException e) {
+            sysout.flush();
+            deleteIfCreated(reportFile, report);
+            throw e;
+        }
+    }
+
+    private static void deleteIfCreated(FixedWidthSequentialOutputFile reportFile, Path report) {
+        if (!reportFile.wasOpened()) {
+            return;
+        }
+        reportFile.close();
+        try {
+            Files.deleteIfExists(report);
+        } catch (IOException ignored) {
+            // best effort, as with DISP=(,,DELETE) on an abended step
         }
     }
 

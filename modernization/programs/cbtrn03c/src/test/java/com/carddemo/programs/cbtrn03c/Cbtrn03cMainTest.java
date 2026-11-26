@@ -50,6 +50,60 @@ class Cbtrn03cMainTest {
     }
 
     @Test
+    void abendBeforeTheReportIsOpenedKeepsAnExistingReport() throws Exception {
+        Map<String, String> dd = allocate(RecordFormat.LINE);
+        dd.put("TRANFILE", dir.resolve("missing.dat").toString());
+        Files.writeString(Path.of(dd.get("TRANREPT")), "previous report\n");
+        assertEquals(999, Cbtrn03cMain.execute(dd::get, quietSysout()));
+        assertEquals("previous report\n", Files.readString(Path.of(dd.get("TRANREPT"))));
+    }
+
+    @Test
+    void dataExceptionDeletesThePartialReportAndPropagates() throws Exception {
+        Map<String, String> dd = allocate(RecordFormat.LINE);
+        List<String> tran = new java.util.ArrayList<>(Fixtures.dailyTransactionsForReport("2022-01-01", "2022-07-06"));
+        String r = tran.get(5);
+        tran.set(5, r.substring(0, 132) + "00000ABC00#" + r.substring(143));
+        write("tranfile.dat", tran, RecordFormat.LINE);
+        assertThrows(IllegalArgumentException.class, () -> Cbtrn03cMain.execute(dd::get, quietSysout()));
+        assertFalse(Files.exists(Path.of(dd.get("TRANREPT"))));
+    }
+
+    @Test
+    void reportIsNotOpenedThroughASymbolicLink() throws Exception {
+        Map<String, String> dd = allocate(RecordFormat.LINE);
+        Path target = dir.resolve("protected.txt");
+        Files.writeString(target, "keep");
+        Files.createSymbolicLink(Path.of(dd.get("TRANREPT")), target);
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        assertEquals(999, Cbtrn03cMain.execute(dd::get, new PrintStream(out, true, StandardCharsets.ISO_8859_1)));
+        assertTrue(out.toString(StandardCharsets.ISO_8859_1).contains("ERROR OPENING REPTFILE"));
+        assertEquals("keep", Files.readString(target));
+        assertTrue(Files.isSymbolicLink(Path.of(dd.get("TRANREPT"))));
+    }
+
+    @Test
+    void newReportIsOwnerOnly() throws Exception {
+        org.junit.jupiter.api.Assumptions.assumeTrue(
+                java.nio.file.FileSystems.getDefault().supportedFileAttributeViews().contains("posix"));
+        Map<String, String> dd = allocate(RecordFormat.LINE);
+        assertEquals(0, Cbtrn03cMain.execute(dd::get, quietSysout()));
+        assertEquals("rw-------", java.nio.file.attribute.PosixFilePermissions.toString(
+                Files.getPosixFilePermissions(Path.of(dd.get("TRANREPT")))));
+    }
+
+    @Test
+    void truncatedFixedRecordIsAnOpenError() throws Exception {
+        Map<String, String> dd = allocate(RecordFormat.FIXED);
+        Path xref = Path.of(dd.get("CARDXREF"));
+        String content = Files.readString(xref, StandardCharsets.ISO_8859_1);
+        Files.writeString(xref, content.substring(0, content.length() - 20), StandardCharsets.ISO_8859_1);
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        assertEquals(999, Cbtrn03cMain.execute(dd::get, new PrintStream(out, true, StandardCharsets.ISO_8859_1)));
+        assertTrue(out.toString(StandardCharsets.ISO_8859_1).contains("ERROR OPENING CROSS REF FILE"));
+    }
+
+    @Test
     void missingDdAllocationIsRejected() {
         Map<String, String> dd = new HashMap<>();
         assertThrows(IllegalArgumentException.class, () -> Cbtrn03cMain.execute(dd::get, quietSysout()));
