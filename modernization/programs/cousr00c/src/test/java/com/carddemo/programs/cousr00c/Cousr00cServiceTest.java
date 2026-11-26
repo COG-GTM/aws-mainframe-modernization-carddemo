@@ -494,6 +494,16 @@ class Cousr00cServiceTest {
     }
 
     @Test
+    void startbrFileNotFoundIsALookupErrorWithResp12() {
+        with(users(25));
+        file.injectFailure(Op.STARTBR, new CicsResponse(CicsResp.FILENOTFOUND, 1));
+        Cousr00cResponse r = service.execute(firstEntry());
+        assertEquals("Unable to lookup User...", trim(r.screen().errmsg()));
+        assertEquals(List.of("RESP:000000012REAS:000000001"), r.displays());
+        assertEquals("AEIL", CicsResp.FILENOTFOUND.abendCode());
+    }
+
+    @Test
     void displaysAreEmptyOnHappyPath() {
         assertTrue(with(users(5)).execute(firstEntry()).displays().isEmpty());
     }

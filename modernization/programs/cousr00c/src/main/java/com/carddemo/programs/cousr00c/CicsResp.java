@@ -2,7 +2,7 @@ package com.carddemo.programs.cousr00c;
 
 /** DFHRESP condition values used by the file-control calls. */
 public enum CicsResp {
-    NORMAL(0, null), NOTFND(13, "AEIM"), INVREQ(16, "AEIP"), IOERR(17, "AEIQ"), NOTOPEN(19, "AEIS"),
+    NORMAL(0, null), FILENOTFOUND(12, "AEIL"), NOTFND(13, "AEIM"), INVREQ(16, "AEIP"), IOERR(17, "AEIQ"), NOTOPEN(19, "AEIS"),
     ENDFILE(20, "AEIT"), LENGERR(22, "AEIV"), MAPFAIL(36, "AEI9"), DISABLED(84, "AEXL");
 
     private final int code;
