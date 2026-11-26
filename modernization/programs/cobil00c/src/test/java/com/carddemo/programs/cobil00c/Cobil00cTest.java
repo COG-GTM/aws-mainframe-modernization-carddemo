@@ -407,6 +407,7 @@ class Cobil00cTest {
             transact.force(InMemoryTransactGateway.Op.STARTBR, CicsResp.NOTFND);
             CicsAbendException e = assertThrows(CicsAbendException.class, () -> enter("00000000001", "Y"));
             assertEquals("AEIP", e.abendCode());
+            assertEquals(List.of("RESP:00000001FREAS:00000000{"), e.displayLines());
             assertEquals(3, transact.records().size());
             assertEquals(new BigDecimal("194.00"), acctdat.find("00000000001").orElseThrow().acctCurrBal());
         }
@@ -424,7 +425,8 @@ class Cobil00cTest {
         @Test
         void startBrowseOtherErrorShowsLookupMessage() {
             transact.force(InMemoryTransactGateway.Op.STARTBR, CicsResp.IOERR);
-            assertThrows(CicsAbendException.class, () -> enter("00000000001", "Y"));
+            CicsAbendException e = assertThrows(CicsAbendException.class, () -> enter("00000000001", "Y"));
+            assertEquals(List.of("RESP:00000001GREAS:00000000{", "RESP:00000001FREAS:00000000{"), e.displayLines());
         }
 
         @Test

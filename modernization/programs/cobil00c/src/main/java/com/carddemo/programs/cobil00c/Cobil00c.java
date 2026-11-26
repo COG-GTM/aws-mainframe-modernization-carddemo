@@ -78,6 +78,8 @@ public final class Cobil00c {
         } catch (XctlSignal x) {
             return new BillPayResult(BillPayResult.Action.XCTL, x.program, null, task.commarea,
                     List.copyOf(task.screens), List.copyOf(task.displays));
+        } catch (CicsAbendException abend) {
+            throw abend.withDisplayLines(task.displays);
         }
         return new BillPayResult(BillPayResult.Action.RETURN, null, WS_TRANID, task.commarea,
                 List.copyOf(task.screens), List.copyOf(task.displays));
