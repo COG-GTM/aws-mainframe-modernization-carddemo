@@ -10,7 +10,9 @@ import com.carddemo.programs.cbexport.io.FixedLengthRecordReader;
 import com.carddemo.programs.cbexport.io.FixedLengthRecordWriter;
 import com.carddemo.programs.cbexport.io.LineSequentialRecordReader;
 import com.carddemo.programs.cbexport.io.RecordReader;
+import java.io.IOException;
 import java.io.PrintStream;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Clock;
 import java.util.HashMap;
@@ -68,6 +70,14 @@ public final class CbexportMain {
             }
         }
 
+        Path exp = dd.get("EXPFILE");
+        for (String name : DD_NAMES) {
+            if (!name.equals("EXPFILE") && sameFile(dd.get(name), exp)) {
+                err.println("EXPFILE must not be the same file as " + name);
+                return RC_ABEND;
+            }
+        }
+
         CbexportFiles files = new CbexportFiles(
                 reader(dd.get("CUSTFILE"), CustomerRecord.LENGTH, fixed),
                 reader(dd.get("ACCTFILE"), AccountRecord.LENGTH, fixed),
@@ -83,6 +93,17 @@ public final class CbexportMain {
             return RC_ABEND;
         } finally {
             files.closeAll();
+        }
+    }
+
+    private static boolean sameFile(Path a, Path b) {
+        if (a.toAbsolutePath().normalize().equals(b.toAbsolutePath().normalize())) {
+            return true;
+        }
+        try {
+            return Files.exists(a) && Files.exists(b) && Files.isSameFile(a, b);
+        } catch (IOException e) {
+            return false;
         }
     }
 

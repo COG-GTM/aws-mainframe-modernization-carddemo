@@ -52,6 +52,20 @@ class CbexportMainTest {
     }
 
     @Test
+    void exportOverAnInputFileIsRejectedBeforeTruncation() throws Exception {
+        Path cust = dir.resolve("cust");
+        Files.writeString(cust, "keep");
+        String[] a = args(cust);
+        a[5] = "EXPFILE=" + dir.resolve("./cust");
+        ByteArrayOutputStream err = new ByteArrayOutputStream();
+        int rc = CbexportMain.run(a, CbexportTest.CLOCK, System.out,
+                new PrintStream(err, true, StandardCharsets.UTF_8));
+        assertEquals(CbexportMain.RC_ABEND, rc);
+        assertTrue(err.toString(StandardCharsets.UTF_8).contains("EXPFILE must not be the same file as CUSTFILE"));
+        assertEquals("keep", Files.readString(cust));
+    }
+
+    @Test
     void invalidInvocationIsRejected() {
         ByteArrayOutputStream err = new ByteArrayOutputStream();
         PrintStream e = new PrintStream(err, true, StandardCharsets.UTF_8);
