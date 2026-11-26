@@ -80,7 +80,7 @@ public final class Comen01Map {
 
     public Comen01Map() {
         for (int i = 1; i <= OPTION_LINES; i++) {
-            optn.add(new MapField("OPTN%03d".formatted(i), 40));
+            optn.add(new MapField("OPTN" + CobolText.pic9(i, 3), 40));
         }
     }
 
