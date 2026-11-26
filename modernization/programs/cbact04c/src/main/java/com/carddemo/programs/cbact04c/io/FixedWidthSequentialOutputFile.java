@@ -6,8 +6,12 @@ import java.io.BufferedWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 
-/** Sequential output writing one fixed-width record image per line (RECFM=F, LRECL = codec length). */
+/**
+ * Sequential output writing one fixed-width record image per line (RECFM=F, LRECL = codec length).
+ * OPEN creates a new file and fails if the path already exists (DISP=NEW), so existing files and symlinks are never truncated.
+ */
 public class FixedWidthSequentialOutputFile<T> implements SequentialOutputFile<T> {
 
     private final Path path;
@@ -22,7 +26,7 @@ public class FixedWidthSequentialOutputFile<T> implements SequentialOutputFile<T
     @Override
     public String open() {
         try {
-            writer = Files.newBufferedWriter(path, FixedWidth.CHARSET);
+            writer = Files.newBufferedWriter(path, FixedWidth.CHARSET, StandardOpenOption.CREATE_NEW, StandardOpenOption.WRITE);
             return FileStatus.OK;
         } catch (IOException e) {
             return FileStatus.PERMANENT_ERROR;

@@ -130,6 +130,13 @@ class FixtureTest {
     }
 
     @Test
+    void existingTransactPathIsNotOverwritten() throws IOException {
+        Files.writeString(transact, "previous generation\n");
+        assertEquals(999, runJob());
+        assertEquals("previous generation\n", Files.readString(transact));
+    }
+
+    @Test
     void overlongInputRecordAbendsWith999() throws IOException {
         Files.writeString(tcatbal, "X".repeat(51) + "\n", FixedWidth.CHARSET);
         assertEquals(999, runJob());
