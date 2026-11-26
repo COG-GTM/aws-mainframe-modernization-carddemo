@@ -6,7 +6,8 @@ import java.nio.charset.Charset;
 /**
  * Java's IBM037 decodes both NL (X'15') and LF (X'25') as U+000A and encodes U+000A as X'15'. PIC X
  * moves copy bytes unchanged, so NL is decoded as U+0085 (which encodes back to X'15') and LF is
- * re-encoded as X'25'.
+ * re-encoded as X'25'. Writers whose charset has no NEL (e.g. US-ASCII) write it as LF, the standard
+ * EBCDIC-to-ASCII mapping, and line-sequential writers treat it as a line break.
  */
 public final class EbcdicNewlines {
 

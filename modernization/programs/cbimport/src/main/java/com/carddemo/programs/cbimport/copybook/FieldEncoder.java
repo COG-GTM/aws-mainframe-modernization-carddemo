@@ -4,6 +4,7 @@ import java.io.ByteArrayOutputStream;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.math.RoundingMode;
+import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 
 /** Sequential encoder that builds a byte record laid out per a copybook (inverse of {@link FieldCursor}). */
@@ -17,7 +18,12 @@ public final class FieldEncoder {
     }
 
     public FieldEncoder alnum(String value, int len) {
-        out.writeBytes(Pic.alnum(value, len).getBytes(charset));
+        String text = Pic.alnum(value, len);
+        byte[] bytes = text.getBytes(charset);
+        if (EbcdicNewlines.collapses(charset) && bytes.length == text.length()) {
+            EbcdicNewlines.restoreLineFeeds(text, ByteBuffer.wrap(bytes));
+        }
+        out.writeBytes(bytes);
         return this;
     }
 

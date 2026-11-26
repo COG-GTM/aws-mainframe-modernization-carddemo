@@ -27,7 +27,7 @@ import java.util.EnumSet;
  * on POSIX systems it is created readable by the owner only. Each record is written straight to the
  * channel so an out-of-space condition fails the WRITE, as an Sx37 abend would on z/OS; a partially
  * written record is truncated away so later records keep their boundaries. In line-sequential mode a
- * record containing CR or LF is rejected rather than split across lines.
+ * record containing CR, LF or NEL is rejected rather than split across lines.
  */
 public final class FixedWidthRecordFileWriter implements RecordWriter {
 
@@ -39,6 +39,7 @@ public final class FixedWidthRecordFileWriter implements RecordWriter {
     private final Charset charset;
     private final byte[] separator;
     private final boolean collapsesNewlines;
+    private final boolean encodesNel;
     private SeekableByteChannel out;
     private boolean created;
 
@@ -48,6 +49,7 @@ public final class FixedWidthRecordFileWriter implements RecordWriter {
         this.charset = charset;
         this.separator = recordSeparator.getBytes(charset);
         this.collapsesNewlines = EbcdicNewlines.collapses(charset);
+        this.encodesNel = charset.newEncoder().canEncode('\u0085');
     }
 
     public Path path() {
@@ -79,8 +81,12 @@ public final class FixedWidthRecordFileWriter implements RecordWriter {
         if (record.length() != recordLength) {
             return FileStatus.BOUNDARY_VIOLATION;
         }
-        if (separator.length > 0 && (record.indexOf('\n') >= 0 || record.indexOf('\r') >= 0)) {
+        if (separator.length > 0
+                && (record.indexOf('\n') >= 0 || record.indexOf('\r') >= 0 || record.indexOf('\u0085') >= 0)) {
             return FileStatus.PERMANENT_ERROR;
+        }
+        if (!encodesNel) {
+            record = record.replace('\u0085', '\n');
         }
         ByteBuffer encoded;
         try {

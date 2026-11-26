@@ -111,4 +111,27 @@ class FixedWidthRecordFileWriterTest {
         w.close();
         assertArrayEquals(source, Files.readAllBytes(p));
     }
+
+    @Test
+    void ebcdicNelIsALineBreakInLineSequentialAndLfInAscii() throws Exception {
+        Path ls = dir.resolve("ls");
+        var w = new FixedWidthRecordFileWriter(ls, 3, Charset.forName("IBM037"), "\n");
+        w.open();
+        assertEquals("30", w.write("A\u0085B"));
+        w.close();
+        assertEquals(0, Files.size(ls));
+        Path fb = dir.resolve("fb");
+        var a = new FixedWidthRecordFileWriter(fb, 3, StandardCharsets.US_ASCII, "");
+        a.open();
+        assertEquals("00", a.write("A\u0085B"));
+        a.close();
+        assertEquals("A\nB", Files.readString(fb));
+    }
+
+    @Test
+    void fieldEncoderWritesIbm037LineFeedAsX25() {
+        Charset ibm037 = Charset.forName("IBM037");
+        byte[] bytes = new com.carddemo.programs.cbimport.copybook.FieldEncoder(ibm037).alnum("A\n\u0085", 3).toBytes();
+        assertArrayEquals(new byte[] {(byte) 0xC1, 0x25, 0x15}, bytes);
+    }
 }
