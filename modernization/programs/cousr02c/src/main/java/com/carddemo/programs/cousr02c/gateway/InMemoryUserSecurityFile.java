@@ -50,11 +50,20 @@ public final class InMemoryUserSecurityFile implements UserSecurityFile {
     }
 
     public void injectNextRead(int resp, int resp2) {
+        requireError(resp);
         injectedReads.add(new CicsResult(resp, resp2));
     }
 
     public void injectNextRewrite(int resp, int resp2) {
+        requireError(resp);
         injectedRewrites.add(new CicsResult(resp, resp2));
+    }
+
+    /** Only error responses can be injected; NORMAL must go through the real record and lock handling. */
+    private static void requireError(int resp) {
+        if (resp == CicsResp.NORMAL) {
+            throw new IllegalArgumentException("inject only non-NORMAL responses");
+        }
     }
 
     private static boolean known(String dataset) {

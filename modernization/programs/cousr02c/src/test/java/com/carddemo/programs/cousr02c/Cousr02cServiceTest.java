@@ -19,6 +19,7 @@ import java.time.ZoneOffset;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -275,6 +276,12 @@ class Cousr02cServiceTest {
             assertEquals(Pic.spaces(8), s.passwd());
             assertEquals("USRIDIN", s.cursorField());
             assertEquals(Dfhbmsca.DFHDFCOL, s.errmsgColor());
+        }
+
+        @Test
+        void inMemoryFileRejectsInjectedNormalResponses() {
+            assertThrows(IllegalArgumentException.class, () -> usrsec.injectNextRead(CicsResp.NORMAL, 0));
+            assertThrows(IllegalArgumentException.class, () -> usrsec.injectNextRewrite(CicsResp.NORMAL, 0));
         }
 
         @Test
