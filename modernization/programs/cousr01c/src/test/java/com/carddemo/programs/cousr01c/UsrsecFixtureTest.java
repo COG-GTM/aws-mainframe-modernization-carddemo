@@ -89,23 +89,26 @@ class UsrsecFixtureTest {
         int n = 16;
         java.util.concurrent.ExecutorService pool = java.util.concurrent.Executors.newFixedThreadPool(n);
         java.util.concurrent.CountDownLatch start = new java.util.concurrent.CountDownLatch(1);
-        List<java.util.concurrent.Future<String>> results = new java.util.ArrayList<>();
-        for (int i = 0; i < n; i++) {
-            results.add(pool.submit(() -> {
-                start.await();
-                return enter(new UserAddScreenInput("RACE", "USER", "RACE0001", "PASSWORD", "U"));
-            }));
-        }
-        start.countDown();
         int added = 0;
-        for (java.util.concurrent.Future<String> f : results) {
-            if (f.get().equals("User RACE0001 has been added ...")) {
-                added++;
-            } else {
-                assertEquals("User ID already exist...", f.get());
+        try {
+            List<java.util.concurrent.Future<String>> results = new java.util.ArrayList<>();
+            for (int i = 0; i < n; i++) {
+                results.add(pool.submit(() -> {
+                    start.await();
+                    return enter(new UserAddScreenInput("RACE", "USER", "RACE0001", "PASSWORD", "U"));
+                }));
             }
+            start.countDown();
+            for (java.util.concurrent.Future<String> f : results) {
+                if (f.get().equals("User RACE0001 has been added ...")) {
+                    added++;
+                } else {
+                    assertEquals("User ID already exist...", f.get());
+                }
+            }
+        } finally {
+            pool.shutdownNow();
         }
-        pool.shutdown();
         assertEquals(1, added);
         assertEquals(11, repo.size());
     }
