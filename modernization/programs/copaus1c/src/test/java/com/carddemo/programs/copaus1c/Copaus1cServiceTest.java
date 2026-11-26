@@ -420,7 +420,9 @@ class Copaus1cServiceTest {
             AuthViewResult r = service.execute(req(missing, AidKey.DFHPF5));
             assertEquals(missing, r.commarea().cpvd().getPauSelected());
             assertEquals(1, link.calls().size());
-            assertEquals(1, db.rollbackCount() + db.syncpointCount());
+            assertEquals(missing, link.calls().get(0).authKey());
+            assertEquals(1, db.rollbackCount());
+            assertEquals(0, db.syncpointCount());
         }
 
         @Test
