@@ -46,14 +46,14 @@ final class TestData {
     }
 
     static PendingAuthDetails detail(int n, String respCode, BigDecimal approvedAmt) {
-        return new PendingAuthDetails(99999 - n, 999999999 - n, "26112" + n, "1015" + (10 + n),
+        return new PendingAuthDetails(99990 + n, 999999990 + n, "26112" + n, "1015" + (10 + n),
                 "4111111111111111", "SALE", "1227", "0100  ", "POS   ", "AB" + n + "   ", respCode, "0000",
                 "000000", approvedAmt, approvedAmt, "5411", "840", "01", pad("M" + n, 15), pad("Shop " + n, 22),
                 pad("City", 13), "IL", pad("62701", 9), pad("TXN00000000000" + n, 15), "P", " ", "        ");
     }
 
     static String key(int n) {
-        return PendingAuthDetails.authorizationKey(99999 - n, 999999999 - n);
+        return PendingAuthDetails.authorizationKey(99990 + n, 999999990 + n);
     }
 
     static String pad(String s, int n) {

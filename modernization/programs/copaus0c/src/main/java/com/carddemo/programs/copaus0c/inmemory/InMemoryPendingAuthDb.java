@@ -40,7 +40,14 @@ public final class InMemoryPendingAuthDb implements PendingAuthDbGateway {
     }
 
     public InMemoryPendingAuthDb addDetail(long acctId, PendingAuthDetails detail) {
-        roots.get(acctId).children().add(detail);
+        // PAUTDTL1 twins are kept in PAUT9CTS key sequence (unsigned byte compare of the packed key)
+        List<PendingAuthDetails> children = roots.get(acctId).children();
+        int pos = 0;
+        while (pos < children.size()
+                && children.get(pos).authorizationKey().compareTo(detail.authorizationKey()) <= 0) {
+            pos++;
+        }
+        children.add(pos, detail);
         return this;
     }
 
