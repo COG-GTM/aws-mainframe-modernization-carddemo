@@ -9,7 +9,7 @@ package com.carddemo.programs.codate01;
  * @param errorQueueName    ERROR-QUEUE-NAME
  * @param errDisplay        final MQ-ERR-DISPLAY contents
  * @param lastRequest       final REQUEST-MSG-COPY (WS-KEY is re-zeroed by every MQGET attempt)
- * @param lastReply         final REPLY-MESSAGE, or null when no request was processed
+ * @param lastReply         last REPLY-MESSAGE built by 4000-PROCESS-REQUEST-REPLY (even if its MQPUT failed), or null when none was built
  */
 public record Codate01Result(long messagesProcessed, String inputQueueName, String replyQueueName,
                              String errorQueueName, String errDisplay, RequestMsgCopy lastRequest,
