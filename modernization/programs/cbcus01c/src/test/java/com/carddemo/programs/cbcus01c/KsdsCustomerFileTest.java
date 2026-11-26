@@ -38,6 +38,17 @@ class KsdsCustomerFileTest {
     }
 
     @Test
+    void inMemoryReopenRestartsFromFirstRecordLikeFileBackend() {
+        InMemoryCustomerFile file = new InMemoryCustomerFile(java.util.List.of(Fixtures.customer("000000001", "A")));
+        assertEquals("00", file.open());
+        assertEquals("000000001", file.readNext().record().fdCustId());
+        assertEquals("10", file.readNext().status());
+        assertEquals("00", file.close());
+        assertEquals("00", file.open());
+        assertEquals("000000001", file.readNext().record().fdCustId());
+    }
+
+    @Test
     void fdRecordSplitsKeyAndData() {
         FdCustfileRec rec = FdCustfileRec.fromFixedWidth("000000009REST");
         assertEquals("000000009", rec.fdCustId());
