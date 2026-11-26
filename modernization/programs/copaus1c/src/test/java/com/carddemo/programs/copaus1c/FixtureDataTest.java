@@ -95,6 +95,19 @@ class FixtureDataTest {
         IllegalArgumentException e = org.junit.jupiter.api.Assertions.assertThrows(IllegalArgumentException.class,
                 () -> ImsUnloadReader.load(cut));
         assertTrue(e.getMessage().startsWith("Truncated IMS unload"));
+
+        // cut through the last real PAUTDTL1 (account 48), not just the trailing dummy root
+        byte[] name = "PAUTDTL1".getBytes(com.carddemo.programs.copaus1c.copybook.Cobol.EBCDIC);
+        int lastDetail = -1;
+        for (int at = indexOf(raw, name, 2); at >= 0; at = indexOf(raw, name, at + 8)) {
+            if ((((raw[at - 2] & 0xFF) << 8) | (raw[at - 1] & 0xFF)) == PendingAuthDetails.LENGTH) {
+                lastDetail = at;
+            }
+        }
+        byte[] midDetail = java.util.Arrays.copyOf(raw, lastDetail + 29 + 100);
+        IllegalArgumentException e2 = org.junit.jupiter.api.Assertions.assertThrows(IllegalArgumentException.class,
+                () -> ImsUnloadReader.load(midDetail));
+        assertTrue(e2.getMessage().startsWith("Truncated IMS unload: segment at offset " + lastDetail));
     }
 
     @Test
