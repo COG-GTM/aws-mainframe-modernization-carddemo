@@ -40,6 +40,15 @@ public record Cosgn0aInput(
         return new Cosgn0aInput(null, null, null, null, null, null, null, null, userId, password, null);
     }
 
+    /** Masks PASSWDI so the submitted password never appears in logs or diagnostics. */
+    @Override
+    public String toString() {
+        return "Cosgn0aInput[trnnameI=" + trnnameI + ", title01I=" + title01I + ", curdateI=" + curdateI
+                + ", pgmnameI=" + pgmnameI + ", title02I=" + title02I + ", curtimeI=" + curtimeI
+                + ", applidI=" + applidI + ", sysidI=" + sysidI + ", useridI=" + useridI
+                + ", passwdI=********, errmsgI=" + errmsgI + "]";
+    }
+
     private static String received(String value, Cosgn0aField field) {
         return value == null ? lowValues(field.length()) : picX(value, field.length());
     }

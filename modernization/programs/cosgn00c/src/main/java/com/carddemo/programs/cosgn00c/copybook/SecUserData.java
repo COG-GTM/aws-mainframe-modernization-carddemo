@@ -37,6 +37,13 @@ public record SecUserData(
                 r.substring(48, 56), r.substring(56, 57), r.substring(57, 80));
     }
 
+    /** Masks SEC-USR-PWD so stored passwords never appear in logs or diagnostics. */
+    @Override
+    public String toString() {
+        return "SecUserData[usrId=" + usrId + ", fname=" + fname + ", lname=" + lname
+                + ", pwd=********, type=" + type + ", filler=" + filler + "]";
+    }
+
     public String toRecord() {
         return usrId + fname + lname + pwd + type + filler;
     }

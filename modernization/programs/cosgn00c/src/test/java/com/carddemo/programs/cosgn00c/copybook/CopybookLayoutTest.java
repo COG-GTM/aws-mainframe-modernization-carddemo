@@ -114,6 +114,13 @@ class CopybookLayoutTest {
     }
 
     @Test
+    void toStringMasksPasswords() {
+        assertFalse(Cosgn0aInput.of("ADMIN001", "PASSWORD").toString().contains("PASSWORD"));
+        assertFalse(SecUserData.of("ADMIN001", "M", "G", "PASSWORD", "A").toString().contains("PASSWORD"));
+        assertTrue(SecUserData.of("ADMIN001", "M", "G", "PASSWORD", "A").toString().contains("ADMIN001"));
+    }
+
+    @Test
     void dfhaidCodes() {
         assertEquals('\'', CicsAid.DFHENTER.code());
         assertEquals('3', CicsAid.DFHPF3.code());
