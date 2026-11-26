@@ -20,6 +20,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 
 /** Uses the sample USRSEC unload app/data/EBCDIC/AWS.M2.CARDDEMO.USRSEC.PS (10 x 80-byte Cp037 records). */
@@ -120,6 +121,11 @@ class UsrsecFixtureTest {
         assertEquals("Unable to Add User...",
                 enter(new UserAddScreenInput("ALEX", "USER", "USER\u4E2D007", "PASSWORD", "U")));
         assertEquals(10, repo.size());
+    }
+
+    @Test
+    void findWithNonEbcdicIdReturnsEmpty() {
+        assertTrue(repo.find("USER\u4E2D007").isEmpty());
     }
 
     @Test

@@ -57,7 +57,11 @@ public final class InMemoryUserSecRepository implements UserSecRepository {
     }
 
     public synchronized Optional<SecUserData> find(String secUsrId) {
-        return Optional.ofNullable(records.get(Pic.x(secUsrId, 8)));
+        try {
+            return Optional.ofNullable(records.get(Pic.x(secUsrId, 8)));
+        } catch (IllegalArgumentException notRepresentable) {
+            return Optional.empty();
+        }
     }
 
     public synchronized List<SecUserData> all() {
