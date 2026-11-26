@@ -158,6 +158,30 @@ class CbimportFixtureTest {
     }
 
     @Test
+    void abendDoesNotDeleteOutputsThatExistedBeforeTheRun() throws IOException {
+        Path previous = Files.writeString(dir.resolve("cust"), "previous import");
+        String[] a = args(true);
+        a[0] = "--EXPFILE=" + dir.resolve("nope");
+        assertEquals(CbimportMain.ABEND_EXIT_CODE, CbimportMain.run(a, CbimportTest.CLOCK, sysout));
+        assertEquals("previous import", Files.readString(previous));
+
+        sysoutBytes.reset();
+        assertEquals(CbimportMain.ABEND_EXIT_CODE, CbimportMain.run(args(true), CbimportTest.CLOCK, sysout));
+        assertTrue(sysoutBytes.toString(StandardCharsets.UTF_8)
+                .contains("ERROR: Cannot open CUSTOMER-OUTPUT, Status: 30"));
+        assertEquals("previous import", Files.readString(previous));
+    }
+
+    @org.junit.jupiter.params.ParameterizedTest
+    @org.junit.jupiter.params.provider.ValueSource(strings = {"--output-encoding=UTF-16", "--output-encoding=UTF-8",
+            "--output-encoding=IBM273", "--export-encoding=IBM273", "--export-encoding=NO-SUCH-CHARSET"})
+    void encodingsThatBreakFixedWidthOrOverpunchAreRejected(String option) {
+        assertEquals(CbimportMain.USAGE_EXIT_CODE, CbimportMain.run(args(true, option), CbimportTest.CLOCK, sysout));
+        assertTrue(sysoutBytes.toString(StandardCharsets.UTF_8).contains("CBIMPORT: Unsupported encoding: "));
+        assertFalse(Files.exists(dir.resolve("cust")));
+    }
+
+    @Test
     void invalidArgumentIsRejected() {
         assertEquals(CbimportMain.USAGE_EXIT_CODE, CbimportMain.run(new String[] {"EXPFILE"}, CbimportTest.CLOCK, sysout));
     }

@@ -31,7 +31,7 @@ import java.util.Map;
  * </pre>
  *
  * A DD omitted from the arguments behaves as a DD missing from the JCL (OPEN status '35'). On ABEND
- * the output datasets are deleted, mirroring DISP=(NEW,CATLG,DELETE), and the step ends with
+ * the output datasets this run created are deleted, mirroring DISP=(NEW,CATLG,DELETE), and the step ends with
  * {@link #ABEND_EXIT_CODE}.
  */
 public final class CbimportMain {
@@ -56,8 +56,13 @@ public final class CbimportMain {
             }
             opts.put(arg.substring(2, eq).toUpperCase(Locale.ROOT), arg.substring(eq + 1));
         }
-        Charset exportCharset = Charset.forName(opts.getOrDefault("EXPORT-ENCODING", "IBM037"));
-        Charset outputCharset = Charset.forName(opts.getOrDefault("OUTPUT-ENCODING", "IBM037"));
+        Charset exportCharset = charset(opts.getOrDefault("EXPORT-ENCODING", "IBM037"));
+        Charset outputCharset = charset(opts.getOrDefault("OUTPUT-ENCODING", "IBM037"));
+        if (exportCharset == null || outputCharset == null) {
+            sysout.println("CBIMPORT: Unsupported encoding: " + opts.getOrDefault("EXPORT-ENCODING", "IBM037")
+                    + " / " + opts.getOrDefault("OUTPUT-ENCODING", "IBM037"));
+            return USAGE_EXIT_CODE;
+        }
         String separator = "lf".equalsIgnoreCase(opts.getOrDefault("RECORD-SEPARATOR", "none")) ? "\n" : "";
 
         List<FixedWidthRecordFileWriter> created = new ArrayList<>();
@@ -75,6 +80,9 @@ public final class CbimportMain {
             files.expfile().close();
             for (FixedWidthRecordFileWriter w : created) {
                 w.close();
+                if (!w.created()) {
+                    continue;
+                }
                 try {
                     Files.deleteIfExists(w.path());
                 } catch (IOException ignored) {
@@ -83,6 +91,37 @@ public final class CbimportMain {
             }
             return ABEND_EXIT_CODE;
         }
+    }
+
+    /**
+     * Returns the charset when it keeps one byte per character and, for EBCDIC code pages, maps the
+     * overpunch characters to the zoned sign nibbles ('{'/A-I = X'C0'-X'C9', '}'/J-R = X'D0'-X'D9'),
+     * as IBM037 does. Otherwise returns null.
+     */
+    static Charset charset(String name) {
+        Charset cs;
+        try {
+            cs = Charset.forName(name);
+        } catch (IllegalArgumentException e) {
+            return null;
+        }
+        if (!cs.canEncode() || cs.newEncoder().maxBytesPerChar() != 1f) {
+            return null;
+        }
+        String zoned = "{ABCDEFGHI}JKLMNOPQR0123456789";
+        byte[] b = zoned.getBytes(cs);
+        if (b.length != zoned.length()) {
+            return null;
+        }
+        if ((b[20] & 0xFF) != 0xF0) {
+            return cs;
+        }
+        for (int i = 0; i < 10; i++) {
+            if ((b[i] & 0xFF) != 0xC0 + i || (b[10 + i] & 0xFF) != 0xD0 + i || (b[20 + i] & 0xFF) != 0xF0 + i) {
+                return null;
+            }
+        }
+        return cs;
     }
 
     private static Path path(Map<String, String> opts, String dd) {
