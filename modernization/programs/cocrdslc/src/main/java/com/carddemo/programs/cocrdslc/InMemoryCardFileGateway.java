@@ -60,15 +60,15 @@ public final class InMemoryCardFileGateway implements CardFileGateway {
         if (forcedResponse != null) {
             return forcedResponse;
         }
-        long acct = CobolText.zonedValue(acctId11);
+        String key = CobolText.pic(acctId11, CardRecord.CARD_ACCT_ID_LEN);
         List<CardRecord> matches = byCardNum.values().stream()
-                .filter(c -> c.cardAcctId() == acct)
+                .filter(c -> CobolText.zoned(c.cardAcctId(), CardRecord.CARD_ACCT_ID_LEN).equals(key))
                 .toList();
         if (matches.isEmpty()) {
             return CardReadResponse.notFound();
         }
         return matches.size() == 1
                 ? CardReadResponse.normal(matches.get(0))
-                : new CardReadResponse(CicsResp.DUPKEY, 0, matches.get(0));
+                : new CardReadResponse(CicsResp.DUPKEY, CicsResp.DUPKEY_RESP2_MORE, matches.get(0));
     }
 }

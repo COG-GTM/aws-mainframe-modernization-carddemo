@@ -493,8 +493,17 @@ class CocrdslcTest {
             t.getCardByAcct9150();
             assertTrue(t.isInputError());
             assertFalse(t.isFoundCardsForAccount());
-            assertEquals("File Error: READ     on CARDAIX   returned RESP 000000015 ,RESP2 000000000 ",
+            assertEquals("File Error: READ     on CARDAIX   returned RESP 000000015 ,RESP2 000000140 ",
                     t.wsReturnMsg());
+        }
+
+        @Test
+        void alternateKeyMatchesAllElevenBytes() {
+            gateway.put(new CardRecord("1111222233334444", 51, 123, "Other", "2025-01-31", "Y"));
+            Cocrdslc.Task t = task();
+            t.wsCardRidAcctId = "0000000005A";
+            t.getCardByAcct9150();
+            assertEquals(pad(Cocrdslc.DID_NOT_FIND_ACCT_IN_CARDXREF, 75), t.wsReturnMsg());
         }
 
         @Test
