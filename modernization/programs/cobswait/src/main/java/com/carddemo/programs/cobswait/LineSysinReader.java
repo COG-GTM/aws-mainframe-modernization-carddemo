@@ -42,23 +42,22 @@ public final class LineSysinReader implements SysinReader {
     public Optional<String> acceptRecord() {
         try {
             StringBuilder record = new StringBuilder(lrecl);
-            boolean any = false;
+            long lineLength = 0;
+            int prev = -1;
             int c;
-            while ((c = reader.read()) != -1) {
-                any = true;
-                if (c == '\n') {
-                    break;
-                }
+            while ((c = reader.read()) != -1 && c != '\n') {
                 if (record.length() < lrecl) {
                     record.append((char) c);
                 }
+                lineLength++;
+                prev = c;
             }
-            if (!any) {
+            if (c == -1 && lineLength == 0) {
                 return Optional.empty();
             }
-            int last = record.length() - 1;
-            if (last >= 0 && record.charAt(last) == '\r') {
-                record.setLength(last);
+            // Drop the CR of a CRLF terminator only if it is the last kept character.
+            if (prev == '\r' && lineLength <= lrecl) {
+                record.setLength(record.length() - 1);
             }
             return Optional.of(record.toString());
         } catch (IOException e) {

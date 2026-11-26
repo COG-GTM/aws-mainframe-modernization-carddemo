@@ -55,6 +55,15 @@ class LineSysinReaderTest {
     }
 
     @Test
+    void carriageReturnInsideTruncatedRecordIsKept() {
+        LineSysinReader r = new LineSysinReader(new StringReader("1234567\r9\n"), 8);
+        assertEquals(Optional.of("1234567\r"), r.acceptRecord());
+        LineSysinReader crlf = new LineSysinReader(new StringReader("1234567\r\n12345678\r\n"), 8);
+        assertEquals(Optional.of("1234567"), crlf.acceptRecord());
+        assertEquals(Optional.of("12345678"), crlf.acceptRecord());
+    }
+
+    @Test
     void rejectsNonPositiveLrecl() {
         assertThrows(IllegalArgumentException.class, () -> new LineSysinReader(new StringReader(""), 0));
     }
