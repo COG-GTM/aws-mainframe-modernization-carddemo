@@ -84,10 +84,19 @@ public final class Cobtupdt {
 
     // 1001-READ-NEXT-RECORDS
     void readNextRecords1001() {
-        readRecords1002();
-        while (!"Y".equals(lastrec)) {
-            treatRecord1003();
+        try {
             readRecords1002();
+            while (!"Y".equals(lastrec)) {
+                treatRecord1003();
+                readRecords1002();
+            }
+        } catch (RuntimeException e) {
+            try {
+                trRecord.close();
+            } catch (RuntimeException suppressed) {
+                e.addSuppressed(suppressed);
+            }
+            throw e;
         }
         closeStop2001();
     }

@@ -85,6 +85,19 @@ class CobtupdtTest {
             p.run();
             assertEquals("00", p.wsInfStatus());
         }
+
+        @Test
+        void closesFileWhenAReadFails() {
+            List<String> calls = new ArrayList<>();
+            TrRecordReader failing = new TrRecordReader() {
+                @Override public String open() { calls.add("open"); return STATUS_OK; }
+                @Override public Optional<String> readNext() { throw new CobolFileStatusException("30", "boom"); }
+                @Override public String close() { calls.add("close"); return STATUS_OK; }
+            };
+            Cobtupdt p = new Cobtupdt(failing, table, sysout::add);
+            assertThrows(CobolFileStatusException.class, p::run);
+            assertEquals(List.of("open", "close"), calls);
+        }
     }
 
     @Nested
