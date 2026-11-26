@@ -90,6 +90,14 @@ class FixtureDataTest {
     }
 
     @Test
+    void truncatedUnloadIsRejected() {
+        byte[] cut = java.util.Arrays.copyOf(raw, raw.length - 150);
+        IllegalArgumentException e = org.junit.jupiter.api.Assertions.assertThrows(IllegalArgumentException.class,
+                () -> ImsUnloadReader.load(cut));
+        assertTrue(e.getMessage().startsWith("Truncated IMS unload"));
+    }
+
+    @Test
     void segmentImagesRoundTripByteForByte() {
         byte[] name = "PAUTDTL1".getBytes(com.carddemo.programs.copaus1c.copybook.Cobol.EBCDIC);
         int at = indexOf(raw, name, 200);

@@ -39,7 +39,8 @@ public final class ImsUnloadReader {
             int start = i + DATA_OFFSET_FROM_NAME;
             int len = sum ? PendingAuthSummary.LENGTH : PendingAuthDetails.LENGTH;
             if (start + len > data.length) {
-                break;
+                throw new IllegalArgumentException("Truncated IMS unload: segment at offset " + i + " needs "
+                        + len + " bytes but only " + Math.max(0, data.length - start) + " remain");
             }
             byte[] seg = Arrays.copyOfRange(data, start, start + len);
             if (sum && !Cobol.isValidPacked(seg, 0, 6)) {
