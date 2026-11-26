@@ -138,4 +138,59 @@ class FixtureTest {
         assertEquals(16, rc);
         assertTrue(berr.toString().startsWith("usage:"));
     }
+
+    @Test
+    void ebcdicKeysCollateOnRawBytesLettersBeforeDigits() throws Exception {
+        String digitKey = "1000000000000000000000001000000000001             ";
+        String letterKey = "A000000000000000000000002000000000002             ";
+        Path f = tmp.resolve("mixed.ebcdic");
+        Charset ibm037 = Charset.forName("IBM037");
+        Files.write(f, (digitKey + letterKey).getBytes(ibm037));
+        assertEquals(List.of("START OF EXECUTION OF PROGRAM CBACT03C", letterKey, letterKey, digitKey, digitKey,
+                "END OF EXECUTION OF PROGRAM CBACT03C"), run(FixedWidthXrefFile.ebcdic(f)));
+
+        Path a = tmp.resolve("mixed.txt");
+        Files.writeString(a, letterKey + "\n" + digitKey + "\n");
+        assertEquals(List.of("START OF EXECUTION OF PROGRAM CBACT03C", digitKey, digitKey, letterKey, letterKey,
+                "END OF EXECUTION OF PROGRAM CBACT03C"), run(FixedWidthXrefFile.ascii(a)));
+    }
+
+    @Test
+    void truncatedTailIsReadAfterAllCompleteRecords() throws Exception {
+        byte[] data = Files.readAllBytes(fixture("cardxref.ebcdic"));
+        Path bad = tmp.resolve("tail.ebcdic");
+        byte[] withTail = java.util.Arrays.copyOf(data, data.length + 3);
+        System.arraycopy("000".getBytes(Charset.forName("IBM037")), 0, withTail, data.length, 3);
+        Files.write(bad, withTail);
+        List<String> out = new ArrayList<>();
+        assertThrows(AbendException.class, () -> new Cbact03c(FixedWidthXrefFile.ebcdic(bad), out::add).run());
+        List<String> expected = new ArrayList<>(golden().subList(0, 101));
+        expected.addAll(List.of("ERROR READING XREFFILE", "FILE STATUS IS: NNNN0004", "ABENDING PROGRAM"));
+        assertEquals(expected, out);
+    }
+
+    @Test
+    void overlongLineSharingAKeyIsStatus04NotDuplicateKey() throws Exception {
+        Path bad = tmp.resolve("longdup.txt");
+        Files.writeString(bad, "050002445376574000000005000000000050\n"
+                + "0500024453765740000000050000000000500000000000000000\n");
+        List<String> out = new ArrayList<>();
+        assertThrows(AbendException.class, () -> new Cbact03c(FixedWidthXrefFile.ascii(bad), out::add).run());
+        assertEquals("FILE STATUS IS: NNNN0004", out.get(4));
+    }
+
+    @Test
+    void mainReportsSysoutWriteFailure() throws Exception {
+        PrintStream failing = new PrintStream(new java.io.OutputStream() {
+            @Override
+            public void write(int b) throws IOException {
+                throw new IOException("No space left on device");
+            }
+        }, true, StandardCharsets.US_ASCII);
+        ByteArrayOutputStream berr = new ByteArrayOutputStream();
+        int rc = Cbact03cMain.run(new String[] {fixture("cardxref.txt").toString()}, null, failing,
+                new PrintStream(berr, true, StandardCharsets.US_ASCII));
+        assertEquals(12, rc);
+        assertTrue(berr.toString(StandardCharsets.US_ASCII).contains("ERROR WRITING SYSOUT"));
+    }
 }
