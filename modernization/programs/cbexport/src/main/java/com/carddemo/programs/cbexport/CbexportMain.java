@@ -13,6 +13,7 @@ import com.carddemo.programs.cbexport.io.RecordReader;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.file.Files;
+import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.time.Clock;
 import java.util.HashMap;
@@ -24,7 +25,7 @@ import java.util.Map;
  *
  * <pre>
  * java -jar target/cbexport-1.0.0-SNAPSHOT.jar CUSTFILE=custdata.txt ACCTFILE=acctdata.txt XREFFILE=cardxref.txt \
- *      TRANSACT=transact.txt CARDFILE=carddata.txt EXPFILE=export.dat [--input-format=line|fixed]
+ *      TRANSACT=dailytran.txt CARDFILE=carddata.txt EXPFILE=export.dat [--input-format=line|fixed]
  * </pre>
  *
  * Inputs default to newline-delimited fixed-width text (app/data/ASCII); {@code fixed} reads
@@ -60,7 +61,12 @@ public final class CbexportMain {
                     err.println("Unrecognised argument: " + arg);
                     return RC_ABEND;
                 }
-                dd.put(arg.substring(0, eq), Path.of(arg.substring(eq + 1)));
+                try {
+                    dd.put(arg.substring(0, eq), Path.of(arg.substring(eq + 1)));
+                } catch (InvalidPathException e) {
+                    err.println("Invalid path for " + arg.substring(0, eq) + ": " + e.getMessage());
+                    return RC_ABEND;
+                }
             }
         }
         for (String name : DD_NAMES) {
@@ -78,16 +84,21 @@ public final class CbexportMain {
             }
         }
 
+        FixedLengthRecordWriter writer = new FixedLengthRecordWriter(dd.get("EXPFILE"), ExportRecord.LENGTH,
+                ExportRecord.SEQUENCE_NUM_OFFSET, ExportRecord.SEQUENCE_NUM_LENGTH);
         CbexportFiles files = new CbexportFiles(
                 reader(dd.get("CUSTFILE"), CustomerRecord.LENGTH, fixed),
                 reader(dd.get("ACCTFILE"), AccountRecord.LENGTH, fixed),
                 reader(dd.get("XREFFILE"), CardXrefRecord.LENGTH, fixed),
                 reader(dd.get("TRANSACT"), TranRecord.LENGTH, fixed),
                 reader(dd.get("CARDFILE"), CardRecord.LENGTH, fixed),
-                new FixedLengthRecordWriter(dd.get("EXPFILE"), ExportRecord.LENGTH,
-                        ExportRecord.SEQUENCE_NUM_OFFSET, ExportRecord.SEQUENCE_NUM_LENGTH));
+                writer);
         try {
             new Cbexport(files, clock, out::println).run();
+            if (writer.publishFailed()) {
+                err.println("EXPFILE could not be written: " + dd.get("EXPFILE"));
+                return RC_ABEND;
+            }
             return RC_OK;
         } catch (CbexportAbendException e) {
             return RC_ABEND;

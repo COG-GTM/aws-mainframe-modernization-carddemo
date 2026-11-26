@@ -66,6 +66,17 @@ class CbexportMainTest {
     }
 
     @Test
+    void invalidPathReturnsAbendCode() {
+        String[] a = args(dir.resolve("cust"));
+        a[0] = "CUSTFILE=bad\u0000path";
+        ByteArrayOutputStream err = new ByteArrayOutputStream();
+        int rc = CbexportMain.run(a, CbexportTest.CLOCK, System.out,
+                new PrintStream(err, true, StandardCharsets.UTF_8));
+        assertEquals(CbexportMain.RC_ABEND, rc);
+        assertTrue(err.toString(StandardCharsets.UTF_8).contains("Invalid path for CUSTFILE"));
+    }
+
+    @Test
     void invalidInvocationIsRejected() {
         ByteArrayOutputStream err = new ByteArrayOutputStream();
         PrintStream e = new PrintStream(err, true, StandardCharsets.UTF_8);
