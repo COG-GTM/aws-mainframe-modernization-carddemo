@@ -21,8 +21,11 @@ public final class FixedWidthRecords {
         String content = Files.readString(path, CHARSET);
         List<String> records = new ArrayList<>();
         if (format == RecordFormat.FIXED) {
+            if (content.length() % lrecl != 0) {
+                throw new IOException(path + ": length " + content.length() + " is not a multiple of LRECL " + lrecl);
+            }
             for (int i = 0; i < content.length(); i += lrecl) {
-                records.add(Fixed.pic(content.substring(i, Math.min(content.length(), i + lrecl)), lrecl));
+                records.add(content.substring(i, i + lrecl));
             }
             return records;
         }
