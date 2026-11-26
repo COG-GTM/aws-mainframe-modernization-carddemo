@@ -8,6 +8,7 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -51,8 +52,10 @@ public final class FixedWidth {
         for (T r : records) {
             sb.append(codec.encode(r)).append('\n');
         }
+        Path tmp = path.resolveSibling(path.getFileName() + ".tmp");
         try {
-            Files.writeString(path, sb.toString(), CHARSET);
+            Files.writeString(tmp, sb.toString(), CHARSET);
+            Files.move(tmp, path, StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.ATOMIC_MOVE);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
