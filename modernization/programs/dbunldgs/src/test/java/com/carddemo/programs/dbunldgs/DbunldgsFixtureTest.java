@@ -166,4 +166,44 @@ class DbunldgsFixtureTest {
                 () -> ImsUnloadReader.load(rec, CobolCodec.EBCDIC));
         assertTrue(e.getMessage().contains("exceeds unload record"));
     }
+
+    @Test
+    void batchMainRejectsAliasedDatasets(@TempDir Path dir) throws IOException {
+        Path in = dir.resolve("DBPAUTP0.dat");
+        Files.write(in, fixtureBytes());
+        Path out = dir.resolve("OUT");
+        assertEquals(DbunldgsMain.RC_SETUP_ERROR, DbunldgsMain.run(new String[] {
+                in.toString(), dir.resolve("x/../DBPAUTP0.dat").toString(), out.toString()}));
+        assertEquals(DbunldgsMain.RC_SETUP_ERROR, DbunldgsMain.run(new String[] {
+                in.toString(), out.toString(), out.toString()}));
+        assertArrayEquals(fixtureBytes(), Files.readAllBytes(in));
+        assertFalse(Files.exists(out));
+    }
+
+    @Test
+    void batchMainKeepsExistingSummaryWhenDetailCannotOpen(@TempDir Path dir) throws IOException {
+        Path in = dir.resolve("DBPAUTP0.dat");
+        Files.write(in, fixtureBytes());
+        Path root = dir.resolve("PASFILOP");
+        byte[] previous = {1, 2, 3, 4};
+        Files.write(root, previous);
+        assertEquals(DbunldgsMain.RC_SETUP_ERROR, DbunldgsMain.run(new String[] {
+                in.toString(), root.toString(), dir.resolve("missing-dir/PADFILOP").toString()}));
+        assertArrayEquals(previous, Files.readAllBytes(root));
+    }
+
+    @Test
+    void batchMainOverwritesExistingOutputsAndCreatesThemOwnerOnly(@TempDir Path dir) throws IOException {
+        Path in = dir.resolve("DBPAUTP0.dat");
+        Files.write(in, fixtureBytes());
+        Path root = dir.resolve("PASFILOP");
+        Path child = dir.resolve("PADFILOP");
+        Files.write(root, new byte[50_000]);
+        assertEquals(0, DbunldgsMain.run(new String[] {in.toString(), root.toString(), child.toString()}));
+        assertEquals(21 * 100, Files.size(root));
+        if (child.getFileSystem().supportedFileAttributeViews().contains("posix")) {
+            assertEquals("rw-------", java.nio.file.attribute.PosixFilePermissions.toString(
+                    Files.getPosixFilePermissions(child)));
+        }
+    }
 }

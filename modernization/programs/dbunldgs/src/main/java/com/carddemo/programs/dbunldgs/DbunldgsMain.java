@@ -5,6 +5,7 @@ import com.carddemo.programs.dbunldgs.copybook.PendingAuthDetails;
 import com.carddemo.programs.dbunldgs.copybook.PendingAuthSummary;
 
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Clock;
 
@@ -29,19 +30,39 @@ public final class DbunldgsMain {
             System.err.println("Usage: DbunldgsMain <DBPAUTP0-unload> <PASFILOP> <PADFILOP>");
             return RC_SETUP_ERROR;
         }
+        Path input = Path.of(args[0]);
+        Path pasfilop = Path.of(args[1]);
+        Path padfilop = Path.of(args[2]);
+        if (sameFile(input, pasfilop) || sameFile(input, padfilop) || sameFile(pasfilop, padfilop)) {
+            System.err.println("DBPAUTP0, PASFILOP and PADFILOP must be distinct files");
+            return RC_SETUP_ERROR;
+        }
         InMemoryPautDatabase db;
         try {
-            db = ImsUnloadReader.load(Path.of(args[0]), CobolCodec.EBCDIC);
+            db = ImsUnloadReader.load(input, CobolCodec.EBCDIC);
         } catch (IOException | IllegalArgumentException e) {
             System.err.println("Unable to load DBPAUTP0 unload: " + e.getMessage());
             return RC_SETUP_ERROR;
         }
-        try (FixedWidthGsamFile pasfl = new FixedWidthGsamFile(Path.of(args[1]), PendingAuthSummary.LENGTH);
-             FixedWidthGsamFile padfl = new FixedWidthGsamFile(Path.of(args[2]), PendingAuthDetails.LENGTH)) {
+        try (FixedWidthGsamFile pasfl = new FixedWidthGsamFile(pasfilop, PendingAuthSummary.LENGTH);
+             FixedWidthGsamFile padfl = new FixedWidthGsamFile(padfilop, PendingAuthDetails.LENGTH)) {
+            pasfl.truncate();
+            padfl.truncate();
             return new Dbunldgs(db, pasfl, padfl, System.out::println, Clock.systemDefaultZone(), CobolCodec.EBCDIC).run();
         } catch (IOException | RuntimeException e) {
             System.err.println("GSAM dataset error: " + e.getMessage());
             return RC_SETUP_ERROR;
+        }
+    }
+
+    static boolean sameFile(Path a, Path b) {
+        if (a.toAbsolutePath().normalize().equals(b.toAbsolutePath().normalize())) {
+            return true;
+        }
+        try {
+            return Files.exists(a) && Files.exists(b) && Files.isSameFile(a, b);
+        } catch (IOException e) {
+            return false;
         }
     }
 }
