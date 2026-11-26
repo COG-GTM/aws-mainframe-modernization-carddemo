@@ -62,7 +62,7 @@ public record SecUserData(
             }
             return out;
         } catch (CharacterCodingException e) {
-            throw new IllegalArgumentException("Value has characters not representable in Cp037: " + s, e);
+            throw new IllegalArgumentException("Value has characters not representable in Cp037", e);
         }
     }
 
