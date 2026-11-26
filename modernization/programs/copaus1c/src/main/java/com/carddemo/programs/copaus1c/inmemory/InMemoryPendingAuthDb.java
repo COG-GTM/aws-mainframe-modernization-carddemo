@@ -69,6 +69,11 @@ public final class InMemoryPendingAuthDb implements PendingAuthDbGateway, Syncpo
         forced.computeIfAbsent(op, k -> new ArrayDeque<>()).add(dibstat);
     }
 
+    /** A forced successful status (spaces/FW) still performs the call; only the returned status is replaced. */
+    private static String okOr(String forced) {
+        return forced != null ? forced : ImsStatus.OK;
+    }
+
     private String forcedStatus(Op op) {
         Deque<String> q = forced.get(op);
         return q == null ? null : q.poll();
@@ -103,7 +108,7 @@ public final class InMemoryPendingAuthDb implements PendingAuthDbGateway, Syncpo
     public DliResult<PendingAuthSummary> getUniqueSummary(long acctId) {
         calls.add("GU PAUTSUM0 " + acctId);
         String f = forcedStatus(Op.GU);
-        if (f != null) {
+        if (f != null && !ImsStatus.isStatusOk(f)) {
             return DliResult.of(f);
         }
         if (!psbScheduled) {
@@ -117,14 +122,14 @@ public final class InMemoryPendingAuthDb implements PendingAuthDbGateway, Syncpo
         }
         currentRoot = root;
         currentChild = -1;
-        return new DliResult<>(ImsStatus.OK, root.summary.copy());
+        return new DliResult<>(okOr(f), root.summary.copy());
     }
 
     @Override
     public DliResult<PendingAuthDetails> getNextDetailWhere(AuthorizationKey key) {
         calls.add("GNP PAUTDTL1 " + key);
         String f = forcedStatus(Op.GNP_WHERE);
-        if (f != null) {
+        if (f != null && !ImsStatus.isStatusOk(f)) {
             return DliResult.of(f);
         }
         if (!psbScheduled) {
@@ -136,7 +141,7 @@ public final class InMemoryPendingAuthDb implements PendingAuthDbGateway, Syncpo
         for (int i = currentChild + 1; i < currentRoot.children.size(); i++) {
             if (currentRoot.children.get(i).getAuthorizationKey().equals(key)) {
                 currentChild = i;
-                return new DliResult<>(ImsStatus.OK, currentRoot.children.get(i).copy());
+                return new DliResult<>(okOr(f), currentRoot.children.get(i).copy());
             }
         }
         return DliResult.of(ImsStatus.SEGMENT_NOT_FOUND);
@@ -146,7 +151,7 @@ public final class InMemoryPendingAuthDb implements PendingAuthDbGateway, Syncpo
     public DliResult<PendingAuthDetails> getNextDetail() {
         calls.add("GNP PAUTDTL1");
         String f = forcedStatus(Op.GNP);
-        if (f != null) {
+        if (f != null && !ImsStatus.isStatusOk(f)) {
             return DliResult.of(f);
         }
         if (!psbScheduled) {
@@ -157,7 +162,7 @@ public final class InMemoryPendingAuthDb implements PendingAuthDbGateway, Syncpo
         }
         if (currentChild + 1 < currentRoot.children.size()) {
             currentChild++;
-            return new DliResult<>(ImsStatus.OK, currentRoot.children.get(currentChild).copy());
+            return new DliResult<>(okOr(f), currentRoot.children.get(currentChild).copy());
         }
         return DliResult.of(ImsStatus.SEGMENT_NOT_FOUND);
     }
@@ -166,7 +171,7 @@ public final class InMemoryPendingAuthDb implements PendingAuthDbGateway, Syncpo
     public String replaceDetail(PendingAuthDetails details) {
         calls.add("REPL PAUTDTL1 " + details.getAuthorizationKey());
         String f = forcedStatus(Op.REPL);
-        if (f != null) {
+        if (f != null && !ImsStatus.isStatusOk(f)) {
             return f;
         }
         if (!psbScheduled) {
@@ -181,7 +186,7 @@ public final class InMemoryPendingAuthDb implements PendingAuthDbGateway, Syncpo
         }
         journal.add(new JournalEntry(currentRoot, currentChild, before));
         currentRoot.children.set(currentChild, details.copy());
-        return ImsStatus.OK;
+        return okOr(f);
     }
 
     @Override
