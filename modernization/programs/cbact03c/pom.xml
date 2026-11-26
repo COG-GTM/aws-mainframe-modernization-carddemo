@@ -27,6 +27,7 @@
   </dependencies>
 
   <build>
+    <finalName>cbact03c</finalName>
     <plugins>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>

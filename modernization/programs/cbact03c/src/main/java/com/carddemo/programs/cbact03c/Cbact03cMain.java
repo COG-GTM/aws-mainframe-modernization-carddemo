@@ -8,13 +8,15 @@ import java.nio.file.Path;
  * SYSOUT = stdout.
  *
  * <p>Usage: {@code java -jar cbact03c.jar <xreffile> [--ebcdic]}. The XREFFILE path may also come
- * from the {@code XREFFILE} environment variable. Exit code 0 on GOBACK; on ABEND the abend code
+ * from the {@code XREFFILE} environment variable. Exit code 0 on GOBACK, {@link #SYSOUT_ERROR_EXIT_CODE}
+ * if SYSOUT could not be fully written (e.g. disk full); on ABEND the abend code
  * (999) is reported and the process exits with {@link #ABEND_EXIT_CODE} (POSIX shells see 999 &amp; 0xFF = 231).
  */
 public final class Cbact03cMain {
 
     public static final int ABEND_EXIT_CODE = 999;
     public static final int USAGE_EXIT_CODE = 16;
+    public static final int SYSOUT_ERROR_EXIT_CODE = 12;
 
     private Cbact03cMain() {
     }
@@ -41,6 +43,10 @@ public final class Cbact03cMain {
         XrefFile xref = ebcdic ? FixedWidthXrefFile.ebcdic(path) : FixedWidthXrefFile.ascii(path);
         try {
             new Cbact03c(xref, out::println).run();
+            if (out.checkError()) {
+                err.println("ERROR WRITING SYSOUT");
+                return SYSOUT_ERROR_EXIT_CODE;
+            }
             return 0;
         } catch (AbendException e) {
             err.println(e.getMessage());
