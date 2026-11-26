@@ -56,7 +56,7 @@ public final class LineSysinReader implements SysinReader {
                 return Optional.empty();
             }
             // Drop the CR of a CRLF terminator only if it is the last kept character.
-            if (prev == '\r' && lineLength <= lrecl) {
+            if (c == '\n' && prev == '\r' && lineLength <= lrecl) {
                 record.setLength(record.length() - 1);
             }
             return Optional.of(record.toString());

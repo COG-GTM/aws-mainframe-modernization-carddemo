@@ -64,6 +64,13 @@ class LineSysinReaderTest {
     }
 
     @Test
+    void carriageReturnAtEofWithoutLineFeedIsKept() {
+        LineSysinReader r = new LineSysinReader(new StringReader("1234\r"));
+        assertEquals(Optional.of("1234\r"), r.acceptRecord());
+        assertEquals(Optional.empty(), r.acceptRecord());
+    }
+
+    @Test
     void rejectsNonPositiveLrecl() {
         assertThrows(IllegalArgumentException.class, () -> new LineSysinReader(new StringReader(""), 0));
     }
