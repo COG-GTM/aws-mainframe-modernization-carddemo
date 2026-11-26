@@ -5,7 +5,6 @@ import com.carddemo.programs.cbtrn02c.copybook.CardXrefRecord;
 import com.carddemo.programs.cbtrn02c.copybook.DalytranRecord;
 import com.carddemo.programs.cbtrn02c.copybook.Pic;
 import com.carddemo.programs.cbtrn02c.copybook.TranCatBalRecord;
-import com.carddemo.programs.cbtrn02c.copybook.TranCatBalRecord.TranCatKey;
 import com.carddemo.programs.cbtrn02c.copybook.TranRecord;
 import com.carddemo.programs.cbtrn02c.io.FileStatus;
 import com.carddemo.programs.cbtrn02c.io.IndexedFile;
@@ -44,8 +43,7 @@ public class Cbtrn02c {
 
     // WORKING-STORAGE
     private String dalytranRaw = " ".repeat(DalytranRecord.RECORD_LENGTH);
-    private DalytranRecord dalytranRecord;
-    private TranRecord tranRecord = TranRecord.parse(initialRecord(TranRecord.RECORD_LENGTH, 18, 4, 132, 11, 143, 9));
+    private String tranRecord = initialRecord(TranRecord.RECORD_LENGTH, 18, 4, 132, 11, 143, 9);
     private CardXrefRecord cardXrefRecord = CardXrefRecord.parse(initialRecord(CardXrefRecord.RECORD_LENGTH, 16, 9, 25, 11));
     private AccountRecord accountRecord = AccountRecord.parse(initialRecord(AccountRecord.RECORD_LENGTH,
             0, 11, 12, 36, 78, 24));
@@ -175,12 +173,9 @@ public class Cbtrn02c {
         checkStatus(tcatbalfStatus, "ERROR OPENING TRANSACTION BALANCE FILE", tcatbalfStatus);
     }
 
-    /** Numeric fields are only interpreted when referenced, as in COBOL (the xref lookup reads just the card). */
-    private DalytranRecord dalytran() {
-        if (dalytranRecord == null) {
-            dalytranRecord = DalytranRecord.parse(dalytranRaw);
-        }
-        return dalytranRecord;
+    /** DALYTRAN-AMT S9(09)V99: the only DALYTRAN numeric used in arithmetic; other fields are moved as bytes. */
+    private BigDecimal dalytranAmt() {
+        return Pic.parseSigned(dalytranRaw.substring(DalytranRecord.AMT_OFFSET, DalytranRecord.AMT_OFFSET + 11), 2);
     }
 
     // 1000-DALYTRAN-GET-NEXT
@@ -189,7 +184,6 @@ public class Cbtrn02c {
         dalytranStatus = r.status();
         if (FileStatus.OK.equals(dalytranStatus)) {
             dalytranRaw = r.record();
-            dalytranRecord = null;
             applResult = ApplResult.AOK;
         } else if (FileStatus.END_OF_FILE.equals(dalytranStatus)) {
             applResult = ApplResult.EOF;
@@ -239,12 +233,12 @@ public class Cbtrn02c {
             accountRecord = AccountRecord.parse(r.record());
             BigDecimal wsTempBal = Pic.truncate(accountRecord.acctCurrCycCredit()
                     .subtract(accountRecord.acctCurrCycDebit())
-                    .add(dalytran().dalytranAmt()), 9, 2);
+                    .add(dalytranAmt()), 9, 2);
             if (accountRecord.acctCreditLimit().compareTo(wsTempBal) < 0) {
                 wsValidationFailReason = 102;
                 wsValidationFailReasonDesc = "OVERLIMIT TRANSACTION";
             }
-            if (accountRecord.acctExpiraionDate().compareTo(dalytran().dalytranOrigTs().substring(0, 10)) < 0) {
+            if (accountRecord.acctExpiraionDate().compareTo(dalytranRaw.substring(DalytranRecord.ORIG_TS_OFFSET, DalytranRecord.ORIG_TS_OFFSET + 10)) < 0) {
                 wsValidationFailReason = 103;
                 wsValidationFailReasonDesc = "TRANSACTION RECEIVED AFTER ACCT EXPIRATION";
             }
@@ -253,11 +247,9 @@ public class Cbtrn02c {
 
     // 2000-POST-TRANSACTION
     void postTransaction() {
-        DalytranRecord d = dalytran();
-        tranRecord = new TranRecord(d.dalytranId(), d.dalytranTypeCd(), d.dalytranCatCd(), d.dalytranSource(),
-                d.dalytranDesc(), d.dalytranAmt(), d.dalytranMerchantId(), d.dalytranMerchantName(),
-                d.dalytranMerchantCity(), d.dalytranMerchantZip(), d.dalytranCardNum(), d.dalytranOrigTs(),
-                getDb2FormatTimestamp(), tranRecord.filler());
+        // the MOVEs copy TRAN-ID .. TRAN-ORIG-TS byte for byte (same layout in CVTRA06Y and CVTRA05Y)
+        tranRecord = dalytranRaw.substring(0, TranRecord.PROC_TS_OFFSET) + getDb2FormatTimestamp()
+                + tranRecord.substring(TranRecord.PROC_TS_OFFSET + 26);
         updateTcatbal();
         updateAccountRec();
         writeTransactionFile();
@@ -276,11 +268,14 @@ public class Cbtrn02c {
         return Pic.unsigned(wsValidationFailReason, 4) + Pic.alnum(wsValidationFailReasonDesc, 76);
     }
 
+    /** FD-TRAN-CAT-KEY: XREF-ACCT-ID, then DALYTRAN-TYPE-CD and DALYTRAN-CAT-CD moved as raw bytes. */
+    private String fdTranCatKey() {
+        return Pic.unsigned(cardXrefRecord.xrefAcctId(), 11) + dalytranRaw.substring(16, 22);
+    }
+
     // 2700-UPDATE-TCATBAL
     void updateTcatbal() {
-        TranCatKey key = new TranCatKey(cardXrefRecord.xrefAcctId(), dalytran().dalytranTypeCd(),
-                dalytran().dalytranCatCd());
-        String fdTranCatKey = key.format();
+        String fdTranCatKey = fdTranCatKey();
         wsCreateTrancatRec = false;
         ReadResult r = tcatbalFile.read(fdTranCatKey);
         tcatbalfStatus = r.status();
@@ -309,18 +304,17 @@ public class Cbtrn02c {
 
     // 2700-A-CREATE-TCATBAL-REC (INITIALIZE leaves FILLER untouched)
     void createTcatbalRec() {
-        TranCatKey key = new TranCatKey(cardXrefRecord.xrefAcctId(), dalytran().dalytranTypeCd(),
-                dalytran().dalytranCatCd());
-        BigDecimal bal = Pic.truncate(BigDecimal.ZERO.setScale(2).add(dalytran().dalytranAmt()),
+        BigDecimal bal = Pic.truncate(BigDecimal.ZERO.setScale(2).add(dalytranAmt()),
                 TranCatBalRecord.BAL_INT_DIGITS, TranCatBalRecord.BAL_SCALE);
-        tranCatBalRecord = new TranCatBalRecord(key, bal, tranCatBalRecord.filler());
-        tcatbalfStatus = tcatbalFile.write(tranCatBalRecord.format());
+        tcatbalfStatus = tcatbalFile.write(fdTranCatKey()
+                + Pic.signed(bal, TranCatBalRecord.BAL_INT_DIGITS, TranCatBalRecord.BAL_SCALE)
+                + tranCatBalRecord.filler());
         checkStatus(tcatbalfStatus, "ERROR WRITING TRANSACTION BALANCE FILE", tcatbalfStatus);
     }
 
     // 2700-B-UPDATE-TCATBAL-REC
     void updateTcatbalRec() {
-        BigDecimal bal = Pic.truncate(tranCatBalRecord.tranCatBal().add(dalytran().dalytranAmt()),
+        BigDecimal bal = Pic.truncate(tranCatBalRecord.tranCatBal().add(dalytranAmt()),
                 TranCatBalRecord.BAL_INT_DIGITS, TranCatBalRecord.BAL_SCALE);
         tranCatBalRecord = new TranCatBalRecord(tranCatBalRecord.tranCatKey(), bal, tranCatBalRecord.filler());
         tcatbalfStatus = tcatbalFile.rewrite(tranCatBalRecord.format());
@@ -329,7 +323,7 @@ public class Cbtrn02c {
 
     // 2800-UPDATE-ACCOUNT-REC
     void updateAccountRec() {
-        BigDecimal amt = dalytran().dalytranAmt();
+        BigDecimal amt = dalytranAmt();
         BigDecimal currBal = acctAdd(accountRecord.acctCurrBal(), amt);
         BigDecimal cycCredit = accountRecord.acctCurrCycCredit();
         BigDecimal cycDebit = accountRecord.acctCurrCycDebit();
@@ -350,7 +344,7 @@ public class Cbtrn02c {
     // 2900-WRITE-TRANSACTION-FILE
     void writeTransactionFile() {
         applResult = ApplResult.OTHER;
-        tranfileStatus = transactFile.write(tranRecord.format());
+        tranfileStatus = transactFile.write(tranRecord);
         checkStatus(tranfileStatus, "ERROR WRITING TO TRANSACTION FILE", tranfileStatus);
     }
 

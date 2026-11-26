@@ -22,6 +22,7 @@ public record TranRecord(
     public static final int RECORD_LENGTH = 350;
     public static final int KEY_OFFSET = 0;
     public static final int KEY_LENGTH = 16;
+    public static final int PROC_TS_OFFSET = 304;
 
     public static TranRecord parse(String raw) {
         Pic.Reader r = new Pic.Reader(raw, RECORD_LENGTH);

@@ -252,6 +252,17 @@ class Cbtrn02cTest {
     }
 
     @Test
+    void postedRecordCopiesNonNumericMerchantIdAndCategoryBytesLikeCobolMove() {
+        String raw = daily("T000000000000001", "1.00");
+        raw = raw.substring(0, 18) + "00AB" + raw.substring(22, 143) + "ABCDEFGHI" + raw.substring(152);
+        daily.add(raw);
+        assertEquals(0, run());
+        String posted = tran.asMap().get("T000000000000001");
+        assertEquals(raw.substring(0, 304), posted.substring(0, 304));
+        assertEquals("0000000004201" + "00AB" + "0000000010{" + " ".repeat(22), tcat.asMap().get("000000000420100AB"));
+    }
+
+    @Test
     void rejectsMissingAccountWith101() {
         xref.load(List.of(new CardXrefRecord("1111222233334444", 1, 99, "").format()));
         daily.add(daily("T1", "1111222233334444", "1.00", "2022-06-10 19:27:53.000000"));
