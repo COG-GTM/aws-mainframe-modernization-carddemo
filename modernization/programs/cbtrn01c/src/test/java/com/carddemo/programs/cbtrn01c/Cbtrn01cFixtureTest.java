@@ -137,6 +137,20 @@ class Cbtrn01cFixtureTest {
     }
 
     @Test
+    void lowercaseDdArgumentOverridesUnderTurkishLocale() {
+        java.util.Locale saved = java.util.Locale.getDefault();
+        try {
+            java.util.Locale.setDefault(java.util.Locale.forLanguageTag("tr-TR"));
+            Map<String, String> env = new HashMap<>(dd);
+            env.put("ACCTFILE", tmp.resolve("missing.txt").toString());
+            String[] args = {"acctfile=" + dd.get("ACCTFILE")};
+            assertEquals(0, Cbtrn01c.cli(args, env, new java.io.ByteArrayOutputStream()));
+        } finally {
+            java.util.Locale.setDefault(saved);
+        }
+    }
+
+    @Test
     void missingAccountFileAbendsWithStatus35() {
         dd.put("ACCTFILE", tmp.resolve("missing.txt").toString());
         List<String> out = new ArrayList<>();

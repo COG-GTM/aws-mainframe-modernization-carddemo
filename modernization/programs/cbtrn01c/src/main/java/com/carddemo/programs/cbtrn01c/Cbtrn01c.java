@@ -349,7 +349,7 @@ public final class Cbtrn01c {
         for (String arg : args) {
             int eq = arg.indexOf('=');
             if (eq > 0) {
-                dd.put(arg.substring(0, eq).toUpperCase(), arg.substring(eq + 1));
+                dd.put(arg.substring(0, eq).toUpperCase(Locale.ROOT), arg.substring(eq + 1));
             }
         }
         PrintStream sysout = new PrintStream(stdout, false, StandardCharsets.ISO_8859_1);
