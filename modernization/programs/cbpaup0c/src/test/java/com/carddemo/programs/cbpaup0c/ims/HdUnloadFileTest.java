@@ -63,6 +63,15 @@ class HdUnloadFileTest {
     }
 
     @Test
+    void segmentRecordWithDamagedNameIsRejected() throws IOException {
+        byte[] bytes = fixtureBytes();
+        bytes[88 + 10] = 0x00; // 'P' of PAUTSUM0 in the first data record
+        IOException e = assertThrows(IOException.class,
+                () -> HdUnloadFile.read(new ByteArrayInputStream(bytes), CobolCodec.EBCDIC));
+        assertEquals("Damaged segment record at offset 88: unknown segment code 1", e.getMessage());
+    }
+
+    @Test
     void invalidRdwIsRejected() {
         assertThrows(IOException.class,
                 () -> HdUnloadFile.read(new ByteArrayInputStream(new byte[] {0x00, 0x02, 0x00, 0x00}), CobolCodec.EBCDIC));

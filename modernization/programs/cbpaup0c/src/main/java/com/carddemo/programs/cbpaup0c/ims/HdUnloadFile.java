@@ -64,7 +64,11 @@ public final class HdUnloadFile {
                     || PendingAuthDetails.SEGMENT_NAME.equals(name);
             int expectedLen = PendingAuthSummary.SEGMENT_NAME.equals(name)
                     ? PendingAuthSummary.LENGTH : PendingAuthDetails.LENGTH;
-            if (dataRecord && namedSegment && !(segLen == expectedLen && fits)) {
+            if (dataRecord && !namedSegment) {
+                throw new IOException("Damaged segment record at offset " + (pos - len)
+                        + ": unknown segment code " + (rec[4] & 0xFF));
+            }
+            if (dataRecord && !(segLen == expectedLen && fits)) {
                 throw new IOException("Damaged " + name + " record at offset " + (pos - len)
                         + ": segment length " + segLen + ", record length " + len);
             }
