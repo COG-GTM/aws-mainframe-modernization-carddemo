@@ -111,7 +111,14 @@ public final class FixedWidthTrRecordReader implements TrRecordReader {
             }
             n += r;
         }
-        return n == 0 ? Optional.empty() : Optional.of(new String(buf, 0, n));
+        if (n == 0) {
+            return Optional.empty();
+        }
+        if (n < buf.length) {
+            throw new CobolFileStatusException("04",
+                    "READ TR-RECORD: short final record of " + n + " bytes, expected " + buf.length);
+        }
+        return Optional.of(new String(buf));
     }
 
     @Override
