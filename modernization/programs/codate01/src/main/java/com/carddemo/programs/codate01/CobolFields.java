@@ -1,5 +1,7 @@
 package com.carddemo.programs.codate01;
 
+import java.util.Locale;
+
 /** COBOL MOVE semantics for the field kinds CODATE01 uses. */
 public final class CobolFields {
 
@@ -22,7 +24,7 @@ public final class CobolFields {
         for (int i = 0; i < digits; i++) {
             mod *= 10;
         }
-        return String.format("%0" + digits + "d", abs % mod);
+        return String.format(Locale.ROOT, "%0" + digits + "d", abs % mod);
     }
 
     /** STRING ... DELIMITED BY SIZE INTO target: overlays from position 1, stops at target length, keeps the rest. */

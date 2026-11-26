@@ -1,5 +1,7 @@
 package com.carddemo.programs.codate01;
 
+import java.util.Locale;
+
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 
@@ -22,12 +24,12 @@ public final class CicsTime {
     /** FORMATTIME MMDDYYYY(..) DATESEP(sep): 'mm-dd-yyyy' (10 bytes). */
     public static String mmddyyyy(long absTime, char dateSep) {
         LocalDateTime t = toLocalDateTime(absTime);
-        return String.format("%02d%c%02d%c%04d", t.getMonthValue(), dateSep, t.getDayOfMonth(), dateSep, t.getYear());
+        return String.format(Locale.ROOT, "%02d%c%02d%c%04d", t.getMonthValue(), dateSep, t.getDayOfMonth(), dateSep, t.getYear());
     }
 
     /** FORMATTIME TIME(..) with the default TIMESEP ':' : 'hh:mm:ss' (8 bytes). */
     public static String time(long absTime, char timeSep) {
         LocalDateTime t = toLocalDateTime(absTime);
-        return String.format("%02d%c%02d%c%02d", t.getHour(), timeSep, t.getMinute(), timeSep, t.getSecond());
+        return String.format(Locale.ROOT, "%02d%c%02d%c%02d", t.getHour(), timeSep, t.getMinute(), timeSep, t.getSecond());
     }
 }
