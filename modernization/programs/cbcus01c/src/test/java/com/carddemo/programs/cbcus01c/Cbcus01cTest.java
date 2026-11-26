@@ -143,6 +143,19 @@ class Cbcus01cTest {
     }
 
     @Test
+    void ioStatusDigitsIgnoreDefaultLocale() {
+        java.util.Locale saved = java.util.Locale.getDefault();
+        try {
+            java.util.Locale.setDefault(java.util.Locale.forLanguageTag("ar-EG"));
+            CustomerFile file = new InMemoryCustomerFile(List.of()).withOpenStatus("93");
+            assertThrows(AbendException.class, () -> program(file).run());
+            assertEquals("FILE STATUS IS: NNNN9243", sysout.get(2));
+        } finally {
+            java.util.Locale.setDefault(saved);
+        }
+    }
+
+    @Test
     void ioStatusBinaryValueFollowsConfiguredCharset() {
         CustomerFile file = new InMemoryCustomerFile(List.of()).withOpenStatus("93");
         Cbcus01c p = new Cbcus01c(file, sysout::add, StandardCharsets.US_ASCII);

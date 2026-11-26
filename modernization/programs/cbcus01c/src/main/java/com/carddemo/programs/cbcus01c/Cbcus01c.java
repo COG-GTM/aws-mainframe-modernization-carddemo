@@ -2,6 +2,7 @@ package com.carddemo.programs.cbcus01c;
 
 import com.carddemo.programs.cbcus01c.copybook.CustomerRecord;
 import java.nio.charset.Charset;
+import java.util.Locale;
 import java.util.Objects;
 import java.util.function.Consumer;
 
@@ -134,7 +135,7 @@ public final class Cbcus01c {
         if (!isNumeric(status) || ioStat1 == '9') {
             // TWO-BYTES-BINARY PIC 9(4) BINARY with IO-STAT2 in the low-order byte
             int twoBytesBinary = String.valueOf(ioStat2).getBytes(statusCharset)[0] & 0xFF;
-            String ioStatus0403 = String.format("%03d", twoBytesBinary % 1000);
+            String ioStatus0403 = String.format(Locale.ROOT, "%03d", twoBytesBinary % 1000);
             ioStatus04 = ioStat1 + ioStatus0403;
         } else {
             ioStatus04 = "00" + status;
