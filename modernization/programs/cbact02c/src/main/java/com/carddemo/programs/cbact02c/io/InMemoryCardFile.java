@@ -2,13 +2,17 @@ package com.carddemo.programs.cbact02c.io;
 
 import com.carddemo.programs.cbact02c.copybook.FdCardfileRec;
 
+import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 
 /**
- * In-memory KSDS: records are delivered in ascending FD-CARD-NUM order, as a VSAM KSDS read
- * sequentially would. Records whose length is not 150 are returned with status 04.
+ * In-memory KSDS: records are delivered in ascending FD-CARD-NUM order using EBCDIC collation
+ * (space &lt; lowercase &lt; uppercase &lt; digits), as a VSAM KSDS read sequentially would.
+ * Records whose length is not 150 are not indexable; they are served after all keyed records,
+ * in input order, with status 04.
  */
 public class InMemoryCardFile implements CardFile {
 
@@ -17,13 +21,23 @@ public class InMemoryCardFile implements CardFile {
     private int next;
 
     public InMemoryCardFile(List<String> records) {
-        List<String> sorted = new ArrayList<>(records);
-        sorted.sort(Comparator.comparing(InMemoryCardFile::key));
+        List<String> sorted = new ArrayList<>();
+        List<String> wrongLength = new ArrayList<>();
+        for (String record : records) {
+            (record.length() == FdCardfileRec.RECORD_LENGTH ? sorted : wrongLength).add(record);
+        }
+        sorted.sort(Comparator.comparing(InMemoryCardFile::key, InMemoryCardFile::compareEbcdic));
+        sorted.addAll(wrongLength);
         this.records = List.copyOf(sorted);
     }
 
     static String key(String record) {
         return FdCardfileRec.fromFixedWidth(record).fdCardNum();
+    }
+
+    static int compareEbcdic(String a, String b) {
+        Charset ebcdic = FixedWidthCardFile.ebcdic();
+        return Arrays.compareUnsigned(a.getBytes(ebcdic), b.getBytes(ebcdic));
     }
 
     @Override

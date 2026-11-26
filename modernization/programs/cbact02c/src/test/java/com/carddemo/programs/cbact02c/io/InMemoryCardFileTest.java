@@ -20,6 +20,21 @@ class InMemoryCardFileTest {
     }
 
     @Test
+    void ordersKeysByEbcdicCollation() {
+        String digit = "1".repeat(150);
+        String upper = "A".repeat(150);
+        String lower = "a".repeat(150);
+        String space = " " + "Z".repeat(149);
+        InMemoryCardFile file = new InMemoryCardFile(List.of(digit, upper, lower, space));
+        file.open();
+
+        assertEquals(space, file.read().record());
+        assertEquals(lower, file.read().record());
+        assertEquals(upper, file.read().record());
+        assertEquals(digit, file.read().record());
+    }
+
+    @Test
     void reopenRestartsFromFirstKey() {
         String a = "A".repeat(150);
         InMemoryCardFile file = new InMemoryCardFile(List.of(a));
