@@ -46,6 +46,29 @@ class Cbact02cMainTest {
     }
 
     @Test
+    void readsEbcdicFixedBlockDatasetWithRecfmOption() {
+        int rc = Cbact02cMain.execute(
+                new String[] {"--recfm=FB", Cbact02cFixtureTest.CARDDATA_EBCDIC.toString()}, null, out);
+
+        assertEquals(0, rc);
+        assertEquals(52, output().split(System.lineSeparator()).length);
+    }
+
+    @Test
+    void returnsSysoutWriteErrorWhenOutputFails() {
+        PrintStream failing = new PrintStream(new java.io.OutputStream() {
+            @Override
+            public void write(int b) throws java.io.IOException {
+                throw new java.io.IOException("disk full");
+            }
+        }, true);
+
+        int rc = Cbact02cMain.execute(new String[] {Cbact02cFixtureTest.CARDDATA.toString()}, null, failing);
+
+        assertEquals(Cbact02cMain.SYSOUT_WRITE_ERROR, rc);
+    }
+
+    @Test
     void returnsUsageErrorWithoutCardfile() {
         assertEquals(Cbact02cMain.USAGE_ERROR, Cbact02cMain.execute(new String[0], null, out));
     }
