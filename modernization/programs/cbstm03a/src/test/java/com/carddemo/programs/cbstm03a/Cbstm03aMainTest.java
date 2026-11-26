@@ -1,6 +1,7 @@
 package com.carddemo.programs.cbstm03a;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -43,6 +44,9 @@ class Cbstm03aMainTest {
         Path trnx = tmp.resolve("empty.txt");
         Files.write(trnx, List.of());
         assertEquals(Cbstm03aMain.ABEND_EXIT_CODE, Cbstm03aMain.run(env(trnx)));
+        // DISP=(NEW,CATLG,DELETE): outputs are removed on abnormal end
+        assertFalse(Files.exists(tmp.resolve("stmt.txt")));
+        assertFalse(Files.exists(tmp.resolve("html.txt")));
     }
 
     @Test

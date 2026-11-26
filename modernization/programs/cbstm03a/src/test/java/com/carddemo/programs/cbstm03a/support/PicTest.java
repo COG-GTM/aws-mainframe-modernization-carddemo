@@ -32,7 +32,9 @@ class PicTest {
         assertEquals(new BigDecimal("12.30"), Pic.zoned("00000001230", 9, 2));
         assertEquals("0000000478Q", Pic.zoned(new BigDecimal("-47.88"), 9, 2));
         assertEquals("0000005047G", Pic.zoned(new BigDecimal("504.77"), 9, 2));
-        assertThrows(IllegalArgumentException.class, () -> Pic.zoned("00000000A00", 9, 2));
+        IllegalArgumentException e =
+                assertThrows(IllegalArgumentException.class, () -> Pic.zoned("12345678A00", 9, 2));
+        assertEquals("invalid zoned decimal byte at position 9 of 11", e.getMessage());
     }
 
     @Test

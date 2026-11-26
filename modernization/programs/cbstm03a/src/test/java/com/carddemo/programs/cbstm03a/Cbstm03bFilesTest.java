@@ -40,6 +40,36 @@ class Cbstm03bFilesTest {
     }
 
     @Test
+    void duplicateSequentialKeysKeepFirstRecordLikeAKsds() {
+        Cbstm03bFiles f = Cbstm03bFiles.inMemory(List.of(),
+                List.of(TestData.xref("1111111111111111", 1, 1), TestData.xref("1111111111111111", 2, 2)),
+                List.of(), List.of());
+        M03bArea a = new M03bArea();
+        call(f, "XREFFILE", M03bArea.Oper.OPEN, a);
+        assertEquals("00", call(f, "XREFFILE", M03bArea.Oper.READ, a));
+        assertTrue(a.fldt().startsWith("1111111111111111000000001"));
+        assertEquals("10", call(f, "XREFFILE", M03bArea.Oper.READ, a));
+    }
+
+    @Test
+    void uncheckedReadFailureDuringOpenIsStatus35() {
+        Cbstm03bFiles.Opener broken = () -> new com.carddemo.programs.cbstm03a.io.RecordReader() {
+            @Override
+            public java.util.Optional<String> read() {
+                throw new java.io.UncheckedIOException(new IOException("Is a directory"));
+            }
+
+            @Override
+            public void close() {
+            }
+        };
+        Cbstm03bFiles f = new Cbstm03bFiles(broken, broken, broken, broken);
+        M03bArea a = new M03bArea();
+        assertEquals("35", call(f, "XREFFILE", M03bArea.Oper.OPEN, a));
+        assertEquals("35", call(f, "ACCTFILE", M03bArea.Oper.OPEN, a));
+    }
+
+    @Test
     void keyedReadUsesKeyLengthAndReportsNotFound() {
         Cbstm03bFiles f = Cbstm03bFiles.inMemory(List.of(), List.of(), List.of(TestData.customer(7)),
                 List.of(TestData.account(9, "1.00")));
