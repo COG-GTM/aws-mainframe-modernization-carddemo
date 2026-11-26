@@ -51,6 +51,7 @@ public class Cbact04c {
     private long wsRecordCount;
     private int wsTranidSuffix;
     private String parmDate;
+    private boolean executed;
 
     // FD record keys (FD-ACCT-ID, FD-XREF-ACCT-ID, FD-DISCGRP-KEY)
     private long fdAcctId;
@@ -71,6 +72,10 @@ public class Cbact04c {
      * @return RETURN-CODE at GOBACK (always 0; failures abend)
      */
     public int run(String parm) {
+        if (executed) {
+            throw new IllegalStateException("Cbact04c runs once per instance (one job step); create a new instance");
+        }
+        executed = true;
         parmDate = Pic.alpha(parm, 10);
         display.accept("START OF EXECUTION OF PROGRAM CBACT04C");
         tcatbalfOpen0000();

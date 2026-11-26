@@ -244,6 +244,13 @@ class Cbact04cTest {
         }
 
         @Test
+        void instanceRunsOnlyOnce() {
+            Cbact04c p = new Cbact04c(files(), CLOCK, out::add);
+            p.run("2022071800");
+            assertThrows(IllegalStateException.class, () -> p.run("2022071800"));
+        }
+
+        @Test
         void db2TimestampFormat() {
             Cbact04c p = new Cbact04c(files(), Clock.fixed(Instant.parse("2023-01-02T03:04:05.987Z"),
                     ZoneOffset.UTC), out::add);
