@@ -247,4 +247,22 @@ class Cbcus01cTest {
         assertEquals(Cbcus01cMain.RC_USAGE, Cbcus01cMain.run(new String[] {"--charset=UTF-8", f}, nul, nul));
         assertEquals(Cbcus01cMain.RC_USAGE, Cbcus01cMain.run(new String[] {"--fixed-block"}, nul, nul));
     }
+
+    @Test
+    void cliFixedBlockDefaultsToEbcdic() throws IOException {
+        Path ebcdic = Fixtures.CUSTDATA.resolve("../../EBCDIC/AWS.M2.CARDDEMO.CUSTDATA.PS").normalize();
+        java.io.ByteArrayOutputStream out = new java.io.ByteArrayOutputStream();
+        java.io.PrintStream nul = new java.io.PrintStream(java.io.OutputStream.nullOutputStream());
+
+        int rc = Cbcus01cMain.run(new String[] {"--fixed-block", ebcdic.toString()},
+                new java.io.PrintStream(out, true, StandardCharsets.US_ASCII), nul);
+
+        assertEquals(0, rc);
+        List<String> printed = out.toString(StandardCharsets.US_ASCII).lines().toList();
+        List<String> lines = Fixtures.custdataLines();
+        assertEquals(2 + 2 * lines.size(), printed.size());
+        for (int i = 0; i < lines.size(); i++) {
+            assertEquals(lines.get(i), printed.get(1 + 2 * i));
+        }
+    }
 }
