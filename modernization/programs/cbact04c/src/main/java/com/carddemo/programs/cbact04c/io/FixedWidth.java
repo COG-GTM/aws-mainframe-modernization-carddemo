@@ -8,7 +8,6 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -53,26 +52,10 @@ public final class FixedWidth {
             sb.append(codec.encode(r)).append('\n');
         }
         try {
-            // Replace the real target via a fresh (0600, CREATE_NEW) temp file so a failed write keeps the old file.
-            Path target = path.toRealPath();
-            Path tmp = Files.createTempFile(target.getParent(), target.getFileName() + ".", ".tmp");
-            try {
-                copyPosixPermissions(target, tmp);
-                Files.writeString(tmp, sb.toString(), CHARSET);
-                Files.move(tmp, target, StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.ATOMIC_MOVE);
-            } finally {
-                Files.deleteIfExists(tmp);
-            }
+            // In-place rewrite (like a VSAM REWRITE): keeps the inode, owner, mode bits, ACLs and symlink target.
+            Files.writeString(path, sb.toString(), CHARSET);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
-        }
-    }
-
-    private static void copyPosixPermissions(Path from, Path to) throws IOException {
-        try {
-            Files.setPosixFilePermissions(to, Files.getPosixFilePermissions(from));
-        } catch (UnsupportedOperationException ignored) {
-            // non-POSIX file system
         }
     }
 }

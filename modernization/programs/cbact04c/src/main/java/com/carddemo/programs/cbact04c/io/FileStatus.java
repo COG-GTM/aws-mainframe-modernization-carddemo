@@ -8,6 +8,7 @@ public final class FileStatus {
     public static final String END_OF_FILE = "10";
     public static final String RECORD_NOT_FOUND = "23";
     public static final String FILE_NOT_FOUND = "35";
+    public static final String OPEN_MODE_NOT_ALLOWED = "37";
     public static final String CLOSE_NOT_OPEN = "42";
     public static final String READ_NOT_OPEN = "47";
     public static final String WRITE_NOT_OPEN = "48";
