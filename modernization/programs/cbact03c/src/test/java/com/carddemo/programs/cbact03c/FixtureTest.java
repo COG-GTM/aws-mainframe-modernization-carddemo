@@ -193,4 +193,70 @@ class FixtureTest {
         assertEquals(12, rc);
         assertTrue(berr.toString(StandardCharsets.US_ASCII).contains("ERROR WRITING SYSOUT"));
     }
+
+    @Test
+    void ebcdicControlByteKeysKeepRawByteOrder() throws Exception {
+        byte[] rec1 = "1000000000000000000000001000000000001             ".getBytes(Charset.forName("IBM037"));
+        byte[] rec2 = rec1.clone();
+        rec1[1] = 0x25;
+        rec2[1] = 0x16;
+        Path f = tmp.resolve("ctl.ebcdic");
+        byte[] both = new byte[100];
+        System.arraycopy(rec1, 0, both, 0, 50);
+        System.arraycopy(rec2, 0, both, 50, 50);
+        Files.write(f, both);
+        FixedWidthXrefFile file = FixedWidthXrefFile.ebcdic(f);
+        assertEquals("00", file.open());
+        String first = file.readNext().record();
+        String second = file.readNext().record();
+        assertEquals(new String(rec2, Charset.forName("IBM037")), first);
+        assertEquals(new String(rec1, Charset.forName("IBM037")), second);
+    }
+
+    @Test
+    void fixedAsciiFormatReadsUndelimitedRecords() throws Exception {
+        StringBuilder sb = new StringBuilder();
+        for (String line : Files.readAllLines(fixture("cardxref.txt"))) {
+            sb.append(line).append(" ".repeat(50 - line.length()));
+        }
+        Path f = tmp.resolve("cardxref.fixed");
+        Files.writeString(f, sb, StandardCharsets.US_ASCII);
+        assertEquals(golden(), run(FixedWidthXrefFile.fixedAscii(f)));
+
+        ByteArrayOutputStream bout = new ByteArrayOutputStream();
+        int rc = Cbact03cMain.run(new String[] {f.toString(), "--fixed"}, null,
+                new PrintStream(bout, true, StandardCharsets.US_ASCII), System.err);
+        assertEquals(0, rc);
+        assertEquals(golden(), bout.toString(StandardCharsets.US_ASCII).lines().toList());
+    }
+
+    @Test
+    void mainReportsSysoutWriteFailureOnAbendToo() {
+        PrintStream failing = new PrintStream(new java.io.OutputStream() {
+            @Override
+            public void write(int b) throws IOException {
+                throw new IOException("No space left on device");
+            }
+        }, true, StandardCharsets.US_ASCII);
+        ByteArrayOutputStream berr = new ByteArrayOutputStream();
+        int rc = Cbact03cMain.run(new String[] {tmp.resolve("missing.dat").toString()}, null, failing,
+                new PrintStream(berr, true, StandardCharsets.US_ASCII));
+        assertEquals(999, rc);
+        String err = berr.toString(StandardCharsets.US_ASCII);
+        assertTrue(err.contains("ERROR WRITING SYSOUT"));
+        assertTrue(err.contains("ABEND U0999"));
+    }
+
+    @Test
+    void diagnosticDigitsIgnoreDefaultLocale() {
+        java.util.Locale saved = java.util.Locale.getDefault(java.util.Locale.Category.FORMAT);
+        try {
+            java.util.Locale.setDefault(java.util.Locale.Category.FORMAT,
+                    java.util.Locale.forLanguageTag("ar-EG-u-nu-arab"));
+            assertEquals("ABEND U0999", new AbendException(999, 0).getMessage());
+            assertEquals("9035", Cbact03c.formatIoStatus04("9#", StandardCharsets.ISO_8859_1));
+        } finally {
+            java.util.Locale.setDefault(java.util.Locale.Category.FORMAT, saved);
+        }
+    }
 }
