@@ -249,7 +249,7 @@ public final class Cobtupdt {
 
     /**
      * Usage: {@code java -jar cobtupdt.jar <INPFILE>}. DB2 connection from CARDDEMO_JDBC_URL /
-     * CARDDEMO_JDBC_USER / CARDDEMO_JDBC_PASSWORD; without a URL an empty in-memory table is used.
+     * CARDDEMO_JDBC_USER / CARDDEMO_JDBC_PASSWORD; without a URL the step ends with RC 12.
      */
     public static void main(String[] args) {
         System.exit(execute(args, System.getenv(), System.out, System.err));
@@ -263,8 +263,8 @@ public final class Cobtupdt {
         TrRecordReader reader = FixedWidthTrRecordReader.of(Path.of(args[0]));
         String url = env.get(ENV_JDBC_URL);
         if (url == null || url.isBlank()) {
-            err.println("COBTUPDT: " + ENV_JDBC_URL + " not set, using an empty in-memory TRANSACTION_TYPE table");
-            return runStep(reader, new InMemoryTransactionTypeGateway(), out, err);
+            err.println("COBTUPDT: " + ENV_JDBC_URL + " not set, no DB2 connection");
+            return RC_SEVERE;
         }
         try (Connection c = DriverManager.getConnection(url, env.get(ENV_JDBC_USER), env.get(ENV_JDBC_PASSWORD))) {
             c.setAutoCommit(false);

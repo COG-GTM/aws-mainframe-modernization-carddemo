@@ -29,19 +29,21 @@ class MainTest {
 
     @Test
     void missingInputFileIsSevere() {
-        int rc = Cobtupdt.execute(new String[] {"no/such/INPFILE"}, Map.of(), out, err);
+        int rc = Cobtupdt.execute(new String[] {"no/such/INPFILE"},
+                Map.of(Cobtupdt.ENV_JDBC_URL, "jdbc:h2:mem:missing" + System.nanoTime()), out, err);
         assertEquals(12, rc);
         assertTrue(outBytes.toString(StandardCharsets.UTF_8).startsWith("OPEN FILE NOT OK"));
         assertTrue(errBytes.toString(StandardCharsets.UTF_8).contains("FILE STATUS 47"));
     }
 
     @Test
-    void inMemoryRunReturnsProgramReturnCode(@TempDir Path dir) throws Exception {
+    void missingJdbcUrlIsSevereAndAppliesNothing(@TempDir Path dir) throws Exception {
         Path f = dir.resolve("INPFILE");
         Files.writeString(f, "A01Purchase\nD02\n");
         int rc = Cobtupdt.execute(new String[] {f.toString()}, Map.of(), out, err);
-        assertEquals(4, rc);
-        assertTrue(outBytes.toString(StandardCharsets.UTF_8).contains("RECORD INSERTED SUCCESSFULLY"));
+        assertEquals(12, rc);
+        assertEquals("", outBytes.toString(StandardCharsets.UTF_8));
+        assertTrue(errBytes.toString(StandardCharsets.UTF_8).contains(Cobtupdt.ENV_JDBC_URL + " not set"));
     }
 
     @Test
