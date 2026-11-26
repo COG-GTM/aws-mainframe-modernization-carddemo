@@ -106,6 +106,7 @@ public final class SignonService {
         // PROCESS-ENTER-KEY
         private void processEnterKey() {
             mapIn = request.map() == null ? Cosgn0aInput.of(null, null) : request.map();
+            mapOut.overlayReceived(mapIn);
 
             if (isSpacesOrLowValues(mapIn.useridI())) {
                 errFlg = true;

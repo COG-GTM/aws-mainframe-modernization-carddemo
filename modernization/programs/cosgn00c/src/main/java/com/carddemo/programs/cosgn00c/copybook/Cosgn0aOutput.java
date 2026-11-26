@@ -57,6 +57,24 @@ public final class Cosgn0aOutput {
         cursorField = field;
     }
 
+    /**
+     * RECEIVE MAP INTO COSGN0AI: COSGN0AO REDEFINES COSGN0AI, so every received *I value
+     * occupies the bytes of the matching *O field and is sent back by the next SEND MAP.
+     */
+    public void overlayReceived(Cosgn0aInput in) {
+        trnnameO = in.trnnameI();
+        title01O = in.title01I();
+        curdateO = in.curdateI();
+        pgmnameO = in.pgmnameI();
+        title02O = in.title02I();
+        curtimeO = in.curtimeI();
+        applidO = in.applidI();
+        sysidO = in.sysidI();
+        useridO = in.useridI();
+        passwdO = in.passwdI();
+        errmsgO = in.errmsgI();
+    }
+
     /** MOVE LOW-VALUES TO COSGN0AO (the map shares storage with COSGN0AI, so the cursor flag resets too). */
     public void clearToLowValues() {
         Cosgn0aOutput fresh = new Cosgn0aOutput();

@@ -174,6 +174,13 @@ class SignonServiceTest {
         }
 
         @Test
+        void blankPasswordRedisplayKeepsTypedUserIdAndUntransmittedPasswordAsLowValues() {
+            SignonOutcome.ScreenSent s = screen(SignonRequest.enter("admin001", null));
+            assertEquals("admin001", s.map().useridO());
+            assertEquals(CobolText.lowValues(8), s.map().passwdO());
+        }
+
+        @Test
         void mixedSpacesAndLowValuesIsNotTreatedAsBlank() {
             Cosgn0aInput in = new Cosgn0aInput(null, null, null, null, null, null, null, null,
                     "    \u0000\u0000\u0000\u0000", "PASSWORD", null);
@@ -262,6 +269,15 @@ class SignonServiceTest {
             assertEquals("ADMIN001", s.commarea().userId());
             assertEquals("    ", s.commarea().fromTranid());
             assertEquals("CC00", s.returnTransId());
+        }
+
+        @Test
+        void wrongPasswordEchoesReceivedFieldsAsTypedBecauseOutputMapRedefinesInput() {
+            SignonOutcome.ScreenSent s = screen(SignonRequest.enter("admin001", "wrongpwd"));
+
+            assertEquals("admin001", s.map().useridO());
+            assertEquals("wrongpwd", s.map().passwdO());
+            assertEquals("COSGN00C", s.map().pgmnameO());
         }
 
         @Test
