@@ -136,4 +136,79 @@ class Cbstm03bFixtureTest {
         pgm.call(missing);
         assertEquals("23", missing.rc());
     }
+
+    /**
+     * Exact CBSTM03A call order with its single WS-M03B-AREA: 8100-TRNXFILE-OPEN (OPEN + first READ),
+     * 8500-READTRNX-READ until '10', 8200/8300/8400 OPENs, 1000-MAINLINE, 9100-9400 CLOSEs.
+     * CBSTM03A accepts '00' or '04' from OPEN/CLOSE and abends otherwise.
+     */
+    @Test
+    void cbstm03aCallSequenceWithOneSharedArea() {
+        LkM03bArea ws = new LkM03bArea();
+
+        // 8100-TRNXFILE-OPEN
+        ws.dd("TRNXFILE").set(M03bOper.OPEN).rc("00");
+        pgm.call(ws);
+        assertOpenOk(ws);
+        ws.set(M03bOper.READ).fldt("");
+        pgm.call(ws);
+        assertOpenOk(ws);
+        List<String> trnx = new ArrayList<>();
+        trnx.add(ws.fldt().substring(0, 350));
+
+        // 8500-READTRNX-READ
+        while (true) {
+            ws.dd("TRNXFILE").set(M03bOper.READ).fldt("");
+            pgm.call(ws);
+            if (ws.rc().equals("10")) {
+                break;
+            }
+            assertEquals("00", ws.rc());
+            trnx.add(ws.fldt().substring(0, 350));
+        }
+        assertEquals(trxfl, trnx, "all 300 TRXFL records in key order, first one read by 8100");
+        assertEquals(" ".repeat(1000), ws.fldt(), "FLDT stays as moved SPACES after the '10'");
+
+        // 8200-XREFFILE-OPEN, 8300-CUSTFILE-OPEN, 8400-ACCTFILE-OPEN
+        for (String dd : List.of("XREFFILE", "CUSTFILE", "ACCTFILE")) {
+            ws.dd(dd).set(M03bOper.OPEN).rc("00");
+            pgm.call(ws);
+            assertOpenOk(ws);
+        }
+
+        // 1000-MAINLINE: 1000-XREFFILE-GET-NEXT / 2000-CUSTFILE-GET / 3000-ACCTFILE-GET
+        int statements = 0;
+        while (true) {
+            ws.dd("XREFFILE").set(M03bOper.READ).rc("00").fldt("");
+            pgm.call(ws);
+            if (ws.rc().equals("10")) {
+                break;
+            }
+            assertEquals("00", ws.rc());
+            String xref = ws.fldt().substring(0, 50);
+
+            ws.dd("CUSTFILE").set(M03bOper.READ_K).key(xref.substring(16, 25)).keyLn(9).rc("00").fldt("");
+            pgm.call(ws);
+            assertEquals("00", ws.rc());
+            assertEquals(xref.substring(16, 25), ws.fldt().substring(0, 9));
+
+            ws.dd("ACCTFILE").set(M03bOper.READ_K).key(xref.substring(25, 36)).keyLn(11).rc("00").fldt("");
+            pgm.call(ws);
+            assertEquals("00", ws.rc());
+            assertEquals(xref.substring(25, 36), ws.fldt().substring(0, 11));
+            statements++;
+        }
+        assertEquals(50, statements);
+
+        // 9100-TRNXFILE-CLOSE .. 9400-ACCTFILE-CLOSE
+        for (String dd : List.of("TRNXFILE", "XREFFILE", "CUSTFILE", "ACCTFILE")) {
+            ws.dd(dd).set(M03bOper.CLOSE).rc("00");
+            pgm.call(ws);
+            assertOpenOk(ws);
+        }
+    }
+
+    private static void assertOpenOk(LkM03bArea ws) {
+        assertTrue(ws.rc().equals("00") || ws.rc().equals("04"), ws.dd() + " RETURN CODE: " + ws.rc());
+    }
 }
