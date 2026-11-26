@@ -27,7 +27,12 @@ public final class InMemoryAuthFrdsGateway implements AuthFrdsGateway {
     public static final Sqlca NOT_FOUND = new Sqlca(Sqlca.NOT_FOUND, "02000");
     public static final Sqlca INVALID_TIMESTAMP = new Sqlca(-20448, "22007");
 
-    /** A persisted AUTHFRDS row: the bound host variables plus the DB2-computed AUTH_TS and FRAUD_RPT_DATE. */
+    /**
+     * A persisted AUTHFRDS row. {@code row} is the host-variable image bound at INSERT time and is never
+     * changed; {@code authFraud} and {@code fraudRptDate} are the current AUTH_FRAUD / FRAUD_RPT_DATE
+     * column values (UPDATE in FRAUD-UPDATE changes only these), so read them instead of
+     * {@code row().authFraud()} / {@code row().fraudRptDate()}.
+     */
     public record StoredRow(AuthFrdsRow row, LocalDateTime authTs, String authFraud, LocalDate fraudRptDate) {
     }
 

@@ -168,6 +168,7 @@ class Copaus2cServiceTest {
             assertEquals(pad50("UPDT SUCCESS"), out.fraudStatusRecord().frdActMsg());
             assertEquals(1, db2.rows().size());
             assertEquals("R", db2.rows().iterator().next().authFraud());
+            assertEquals("F", db2.rows().iterator().next().row().authFraud());
         }
 
         @Test
