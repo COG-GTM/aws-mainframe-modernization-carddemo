@@ -252,7 +252,7 @@ public final class Cobtupdt {
     }
 
     /**
-     * Usage: {@code java -cp cobtupdt.jar:<jdbc-driver.jar> com.carddemo.programs.cobtupdt.Cobtupdt <INPFILE>}
+     * Usage: {@code java -cp target/cobtupdt-1.0.0-SNAPSHOT.jar:<jdbc-driver.jar> com.carddemo.programs.cobtupdt.Cobtupdt <INPFILE>}
      * (the JAR bundles no JDBC driver, e.g. add IBM db2jcc4.jar for DB2). DB2 connection from CARDDEMO_JDBC_URL /
      * CARDDEMO_JDBC_USER / CARDDEMO_JDBC_PASSWORD; without a URL the step ends with RC 12.
      * CARDDEMO_INPFILE_LAYOUT selects LINE_SEQUENTIAL (default, as in app/data/ASCII) or FIXED_BLOCK
