@@ -79,7 +79,7 @@ class CustomerRecordTest {
     void nonNumericPic9IsRejected() {
         IllegalArgumentException e = assertThrows(IllegalArgumentException.class,
                 () -> CustomerRecord.fromFixedWidth("00000000A"));
-        assertEquals("CUST-ID is not NUMERIC: '00000000A'", e.getMessage());
+        assertEquals("CUST-ID is not NUMERIC", e.getMessage());
     }
 
     @Test

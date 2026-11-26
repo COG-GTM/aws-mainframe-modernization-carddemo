@@ -150,7 +150,7 @@ public record CustomerRecord(
 
     private static void requireUnsigned(long value, int digits, String name) {
         if (value < 0 || Long.toString(value).length() > digits) {
-            throw new IllegalArgumentException(name + " must fit PIC 9(" + digits + "): " + value);
+            throw new IllegalArgumentException(name + " must fit PIC 9(" + digits + ")");
         }
     }
 
@@ -172,7 +172,7 @@ public record CustomerRecord(
             String s = alpha(len);
             for (int i = 0; i < s.length(); i++) {
                 if (s.charAt(i) < '0' || s.charAt(i) > '9') {
-                    throw new IllegalArgumentException(name + " is not NUMERIC: '" + s + "'");
+                    throw new IllegalArgumentException(name + " is not NUMERIC");
                 }
             }
             return Long.parseLong(s);
