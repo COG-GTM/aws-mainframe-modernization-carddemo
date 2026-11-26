@@ -75,4 +75,26 @@ class FixedWidthRecordFileWriterTest {
         assertEquals("44", w.write("A\u00e9B"));
         w.close();
     }
+
+    @Test
+    void lineSequentialRejectsEmbeddedLineBreaks() throws Exception {
+        Path p = dir.resolve("out");
+        var w = new FixedWidthRecordFileWriter(p, 3, StandardCharsets.US_ASCII, "\n");
+        w.open();
+        assertEquals("30", w.write("A\nB"));
+        assertEquals("30", w.write("A\rB"));
+        assertEquals("00", w.write("ABC"));
+        w.close();
+        assertEquals("ABC\n", Files.readString(p));
+    }
+
+    @Test
+    void fixedBlockKeepsLineBreakBytesAsData() throws Exception {
+        Path p = dir.resolve("out");
+        var w = new FixedWidthRecordFileWriter(p, 3, StandardCharsets.US_ASCII, "");
+        w.open();
+        assertEquals("00", w.write("A\nB"));
+        w.close();
+        assertEquals(3, Files.size(p));
+    }
 }
