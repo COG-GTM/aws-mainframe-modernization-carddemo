@@ -2,8 +2,8 @@
 # Builds CBTRN02C with GnuCOBOL (EBCDIC overpunch signs, as in app/data/ASCII),
 # loads the sample VSAM files into BDB indexed files, runs POSTTRAN and dumps outputs.
 set -euo pipefail
-HERE=$(cd "$(dirname "$0")" && pwd)
-REPO=$(cd "$HERE/../../../.." && pwd)
+HERE=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
+REPO=$(CDPATH= cd -- "$HERE/../../../.." && pwd)
 D=$REPO/app/data/ASCII
 OUT=${1:-$HERE/../src/test/resources/golden}
 mkdir -p "$OUT"; OUT=$(CDPATH= cd -- "$OUT" && pwd)
