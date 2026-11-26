@@ -54,7 +54,23 @@ public final class ImsUnloadReader {
             }
             i = start + len - 1;
         }
+        for (int i = Math.max(2, data.length - 7); i < data.length; i++) {
+            if (endsInsideName(data, i, SUM_NAME, PendingAuthSummary.LENGTH)
+                    || endsInsideName(data, i, DTL_NAME, PendingAuthDetails.LENGTH)) {
+                throw new IllegalArgumentException("Truncated IMS unload: segment name at offset " + i
+                        + " is cut off");
+            }
+        }
         return db;
+    }
+
+    private static boolean endsInsideName(byte[] data, int at, byte[] name, int segLen) {
+        for (int k = 0; at + k < data.length; k++) {
+            if (data[at + k] != name[k]) {
+                return false;
+            }
+        }
+        return (((data[at - 2] & 0xFF) << 8) | (data[at - 1] & 0xFF)) == segLen;
     }
 
     private static boolean matches(byte[] data, int at, byte[] name, int segLen) {

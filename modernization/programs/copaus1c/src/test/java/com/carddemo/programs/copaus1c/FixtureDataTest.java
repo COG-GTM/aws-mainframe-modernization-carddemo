@@ -108,6 +108,11 @@ class FixtureDataTest {
         IllegalArgumentException e2 = org.junit.jupiter.api.Assertions.assertThrows(IllegalArgumentException.class,
                 () -> ImsUnloadReader.load(midDetail));
         assertTrue(e2.getMessage().startsWith("Truncated IMS unload: segment at offset " + lastDetail));
+
+        byte[] midName = java.util.Arrays.copyOf(raw, lastDetail + 4);
+        IllegalArgumentException e3 = org.junit.jupiter.api.Assertions.assertThrows(IllegalArgumentException.class,
+                () -> ImsUnloadReader.load(midName));
+        assertEquals("Truncated IMS unload: segment name at offset " + lastDetail + " is cut off", e3.getMessage());
     }
 
     @Test
