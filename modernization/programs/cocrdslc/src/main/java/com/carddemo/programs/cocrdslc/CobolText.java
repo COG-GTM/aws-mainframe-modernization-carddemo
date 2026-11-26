@@ -40,6 +40,14 @@ public final class CobolText {
         return v.chars().allMatch(c -> c == LOW_VALUE);
     }
 
+    /**
+     * {@code numeric-display-item = ZERO(S)}: compared byte-for-byte against zero digits, as the
+     * CardDemo runtime does for unsigned DISPLAY items, so "0" + spaces is not zero.
+     */
+    public static boolean isZeros(String v) {
+        return !v.isEmpty() && v.chars().allMatch(c -> c == '0');
+    }
+
     /** {@code IS NUMERIC} on a PIC X / unsigned PIC 9 DISPLAY item: every byte is 0-9. */
     public static boolean isNumeric(String v) {
         return !v.isEmpty() && v.chars().allMatch(c -> c >= '0' && c <= '9');

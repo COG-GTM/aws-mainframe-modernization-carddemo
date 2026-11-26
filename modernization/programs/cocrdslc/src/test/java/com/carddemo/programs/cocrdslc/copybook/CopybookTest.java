@@ -49,9 +49,11 @@ class CopybookTest {
     }
 
     @Test
-    void lowValueCommareaIsNeitherEnterNorReenterNumericallyZero() {
+    void lowValueCommareaIsNeitherEnterNorReenter() {
         CarddemoCommarea c = CarddemoCommarea.lowValues();
-        assertTrue(c.isPgmEnter());
+        assertFalse(c.isPgmEnter());
+        assertFalse(c.isPgmReenter());
+        assertFalse(c.isAcctIdZero());
         assertFalse(c.isPgmReenter());
         c.cdemoPgmContext = "*";
         assertFalse(c.isPgmEnter());

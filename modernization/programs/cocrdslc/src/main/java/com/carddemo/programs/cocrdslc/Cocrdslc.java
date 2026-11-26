@@ -177,8 +177,8 @@ public final class Cocrdslc {
             } else if (commarea.isPgmEnter() && commarea.cdemoFromProgram.equals(LIT_CCLISTPGM)) {
                 // coming from credit card list screen: selection criteria already validated
                 wsInputFlag = '0';
-                cc.ccAcctIdN(commarea.acctId());
-                cc.ccCardNumN(commarea.cardNum());
+                cc.ccAcctId = commarea.cdemoAcctId;
+                cc.ccCardNum = commarea.cdemoCardNum;
                 readData9000();
                 sendMap1000();
                 commonReturn();
@@ -266,12 +266,12 @@ public final class Cocrdslc {
             if (eibcalen == 0) {
                 wsInfoMsg = pic(WS_PROMPT_FOR_INPUT, 40);
             } else {
-                if (commarea.acctId() == 0) {
+                if (commarea.isAcctIdZero()) {
                     mapOut.field(CcrdslaField.ACCTSID).lowValues();
                 } else {
                     out(CcrdslaField.ACCTSID, cc.ccAcctId);
                 }
-                if (commarea.cardNum() == 0) {
+                if (commarea.isCardNumZero()) {
                     mapOut.field(CcrdslaField.CARDSID).lowValues();
                 } else {
                     out(CcrdslaField.CARDSID, cc.ccCardNum);
@@ -390,7 +390,7 @@ public final class Cocrdslc {
         // 2210-EDIT-ACCOUNT
         void editAccount2210() {
             wsEditAcctFlag = '0';
-            if (isLowValues(cc.ccAcctId) || isSpaces(cc.ccAcctId) || cc.ccAcctIdN() == 0) {
+            if (isLowValues(cc.ccAcctId) || isSpaces(cc.ccAcctId) || CobolText.isZeros(cc.ccAcctId)) {
                 wsInputFlag = '1';
                 wsEditAcctFlag = ' ';
                 if (isReturnMsgOff()) {
@@ -415,7 +415,7 @@ public final class Cocrdslc {
         // 2220-EDIT-CARD
         void editCard2220() {
             wsEditCardFlag = '0';
-            if (isLowValues(cc.ccCardNum) || isSpaces(cc.ccCardNum) || cc.ccCardNumN() == 0) {
+            if (isLowValues(cc.ccCardNum) || isSpaces(cc.ccCardNum) || CobolText.isZeros(cc.ccCardNum)) {
                 wsInputFlag = '1';
                 wsEditCardFlag = ' ';
                 if (isReturnMsgOff()) {

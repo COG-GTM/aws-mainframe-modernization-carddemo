@@ -145,11 +145,26 @@ class CocrdslcTest {
         }
 
         @Test
-        void spaceInPgmContextComparesEqualToZeroAndIsTreatedAsEnter() {
+        void nonDigitPgmContextIsAnUnexpectedDataScenario() {
             CarddemoCommarea c = CarddemoCommarea.initialized();
             c.cdemoPgmContext = " ";
-            ScreenSent s = screen(program.execute(CocrdslcRequest.of(c, Dfhaid.DFHENTER, null)));
-            assertEquals(pad(Cocrdslc.WS_PROMPT_FOR_INPUT, 40), s.map().data(CcrdslaField.INFOMSG));
+            TextSent t = assertInstanceOf(TextSent.class, program.execute(CocrdslcRequest.of(c, Dfhaid.DFHENTER, null)));
+            assertEquals(pad(Cocrdslc.MSG_UNEXPECTED_DATA_SCENARIO, 75), t.text());
+        }
+
+        @Test
+        void searchUsesTheCommareaReturnedByTheFirstScreen() {
+            ScreenSent first = screen(program.execute(CocrdslcRequest.firstTime(Dfhaid.DFHENTER)));
+            ScreenSent second = screen(program.execute(new CocrdslcRequest(first.commarea(), Dfhaid.DFHENTER,
+                    CcrdslaInput.of("00000000050", CARD))));
+            assertEquals(pad("Aniya Von", 50), second.map().data(CcrdslaField.CRDNAME));
+            assertEquals(pad(Cocrdslc.FOUND_CARDS_FOR_ACCOUNT, 40), second.map().data(CcrdslaField.INFOMSG));
+            ScreenSent third = screen(program.execute(new CocrdslcRequest(second.commarea(), Dfhaid.DFHENTER,
+                    CcrdslaInput.of("", ""))));
+            assertEquals(pad(Cocrdslc.NO_SEARCH_CRITERIA_RECEIVED, 80), third.map().data(CcrdslaField.ERRMSG));
+            Xctl exit = assertInstanceOf(Xctl.class,
+                    program.execute(new CocrdslcRequest(third.commarea(), Dfhaid.DFHPF3, null)));
+            assertEquals("COMEN01C", exit.program());
         }
     }
 
@@ -325,9 +340,9 @@ class CocrdslcTest {
         }
 
         @Test
-        void singleZeroWithTrailingSpacesComparesEqualToZeros() {
+        void singleZeroWithTrailingSpacesIsNotZerosButNonNumeric() {
             ScreenSent s = submit("0", CARD);
-            assertEquals(pad(Cocrdslc.WS_PROMPT_FOR_ACCT, 80), s.map().data(CcrdslaField.ERRMSG));
+            assertEquals(pad(Cocrdslc.MSG_ACCT_FILTER_NOT_NUMERIC, 80), s.map().data(CcrdslaField.ERRMSG));
         }
 
         @Test

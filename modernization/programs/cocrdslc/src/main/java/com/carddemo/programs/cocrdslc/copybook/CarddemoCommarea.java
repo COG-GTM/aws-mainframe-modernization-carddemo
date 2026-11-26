@@ -123,14 +123,14 @@ public final class CarddemoCommarea {
         cdemoUserType = "A";
     }
 
-    /** 88 CDEMO-PGM-ENTER VALUE 0 (numeric comparison on a PIC 9(01) DISPLAY item). */
+    /** 88 CDEMO-PGM-ENTER VALUE 0. */
     public boolean isPgmEnter() {
-        return CobolText.zonedValue(cdemoPgmContext) == 0;
+        return "0".equals(cdemoPgmContext);
     }
 
     /** 88 CDEMO-PGM-REENTER VALUE 1. */
     public boolean isPgmReenter() {
-        return CobolText.zonedValue(cdemoPgmContext) == 1;
+        return "1".equals(cdemoPgmContext);
     }
 
     public void setPgmEnter() {
@@ -142,6 +142,16 @@ public final class CarddemoCommarea {
     }
 
     // numeric views
+    /** {@code CDEMO-ACCT-ID = 0}. */
+    public boolean isAcctIdZero() {
+        return CobolText.isZeros(cdemoAcctId);
+    }
+
+    /** {@code CDEMO-CARD-NUM = 0}. */
+    public boolean isCardNumZero() {
+        return CobolText.isZeros(cdemoCardNum);
+    }
+
     public long acctId() {
         return CobolText.zonedValue(cdemoAcctId);
     }
