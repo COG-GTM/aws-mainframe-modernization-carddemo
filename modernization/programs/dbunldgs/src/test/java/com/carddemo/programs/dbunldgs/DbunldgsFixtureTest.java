@@ -244,4 +244,20 @@ class DbunldgsFixtureTest {
         }
         assertArrayEquals(previous, Files.readAllBytes(root));
     }
+
+    @Test
+    void secondAllocationInSameJvmKeepsFirstHoldersLock(@TempDir Path dir) throws IOException {
+        Path root = dir.resolve("PASFILOP");
+        try (FixedWidthGsamFile first = new FixedWidthGsamFile(root, PendingAuthSummary.LENGTH)) {
+            assertThrows(java.io.UncheckedIOException.class,
+                    () -> new FixedWidthGsamFile(root, PendingAuthSummary.LENGTH));
+            try (java.nio.channels.FileChannel probe = java.nio.channels.FileChannel.open(root,
+                    java.nio.file.StandardOpenOption.WRITE)) {
+                assertThrows(java.nio.channels.OverlappingFileLockException.class, probe::tryLock);
+            }
+        }
+        try (FixedWidthGsamFile again = new FixedWidthGsamFile(root, PendingAuthSummary.LENGTH)) {
+            assertNotNull(again);
+        }
+    }
 }
