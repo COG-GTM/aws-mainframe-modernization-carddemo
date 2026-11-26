@@ -139,6 +139,16 @@ class Copaua0cServiceTest {
             Locale saved = Locale.getDefault();
             Locale.setDefault(Locale.forLanguageTag("th-TH-u-nu-thai"));
             try {
+                Harness ok = new Harness().send(CARD, "10.00", TXN1);
+                ok.xref.put(new com.carddemo.programs.copaua0c.copybook.CardXrefRecord(CARD, CUST, ACCT));
+                ok.acct.put(Harness.account(ACCT, "1000.00", "0.00", "0.00"));
+                ok.cust.put(Harness.customer(CUST));
+                ok.run();
+                assertTrue(ok.tdq.entries().isEmpty(), "ACCT/CUST keys must match ASCII-keyed records");
+                assertTrue(ok.replyFields(0).startsWith(reply(CARD, TXN1, "00", "0000", "         10.00")));
+                assertEquals(1, ok.acct.size());
+                assertEquals(1, ok.cust.size());
+
                 Harness h = new Harness().withStandardCard("1000.00", "0.00").send(CARD, "10.00", TXN1);
                 h.cust.failWith(84, 0);
                 h.run();
