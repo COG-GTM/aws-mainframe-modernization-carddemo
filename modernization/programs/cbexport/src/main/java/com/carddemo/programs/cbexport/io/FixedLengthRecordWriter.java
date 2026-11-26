@@ -2,13 +2,17 @@ package com.carddemo.programs.cbexport.io;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.nio.channels.Channels;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.nio.file.StandardOpenOption;
 import java.nio.file.attribute.FileAttribute;
 import java.nio.file.attribute.PosixFileAttributeView;
 import java.nio.file.attribute.PosixFilePermissions;
 import java.util.Arrays;
+import java.util.Set;
+import java.util.UUID;
 
 /**
  * Writes RECFM=F records with no delimiters. When a key position is given it behaves like a
@@ -43,14 +47,19 @@ public final class FixedLengthRecordWriter implements RecordWriter {
 
     @Override
     public String open() {
+        if (Files.isDirectory(path)) {
+            return FileStatus.PERMANENT_ERROR;
+        }
         try {
             Path dir = path.toAbsolutePath().getParent();
             FileAttribute<?>[] attrs = Files.getFileStore(dir).supportsFileAttributeView(PosixFileAttributeView.class)
                     ? new FileAttribute<?>[] {PosixFilePermissions.asFileAttribute(
                             PosixFilePermissions.fromString("rw-------"))}
                     : new FileAttribute<?>[0];
-            temp = Files.createTempFile(dir, "." + path.getFileName() + ".", ".tmp", attrs);
-            out = Files.newOutputStream(temp);
+            // CREATE_NEW (O_EXCL) never follows a pre-planted link and the stream is the creating handle.
+            temp = dir.resolve("." + path.getFileName() + "." + UUID.randomUUID() + ".tmp");
+            out = Channels.newOutputStream(Files.newByteChannel(temp,
+                    Set.of(StandardOpenOption.CREATE_NEW, StandardOpenOption.WRITE), attrs));
             lastKey = null;
             return FileStatus.OK;
         } catch (IOException | RuntimeException e) {

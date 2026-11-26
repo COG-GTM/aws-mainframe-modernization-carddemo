@@ -98,12 +98,21 @@ class RecordIoTest {
         Path victim = dir.resolve("victim.txt");
         Files.writeString(victim, "precious");
         Path link = dir.resolve("link.dat");
-        Files.createSymbolicLink(link, victim);
+        try {
+            Files.createSymbolicLink(link, victim);
+        } catch (UnsupportedOperationException | java.io.IOException e) {
+            org.junit.jupiter.api.Assumptions.abort("symlinks not supported: " + e);
+        }
         FixedLengthRecordWriter w = new FixedLengthRecordWriter(link, 1);
         assertEquals(FileStatus.OK, w.open());
         w.close();
         assertEquals("precious", Files.readString(victim));
         assertEquals(false, Files.isSymbolicLink(link));
+    }
+
+    @Test
+    void writerRejectsDirectoryTarget() {
+        assertEquals(FileStatus.PERMANENT_ERROR, new FixedLengthRecordWriter(dir, 3).open());
     }
 
     @Test
