@@ -13,6 +13,10 @@ import com.carddemo.programs.cbtrn01c.io.IndexedInputFile;
 import com.carddemo.programs.cbtrn01c.io.ReadResult;
 import com.carddemo.programs.cbtrn01c.io.SequentialInputFile;
 
+import java.io.FileDescriptor;
+import java.io.FileOutputStream;
+import java.io.OutputStream;
+import java.io.PrintStream;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
@@ -322,11 +326,16 @@ public final class Cbtrn01c {
      * failure also ends with the abend status.
      */
     public static void main(String[] args) {
+        System.exit(cli(args, System.getenv(), new FileOutputStream(FileDescriptor.out)));
+    }
+
+    /** SYSOUT is written in ISO-8859-1 so each record byte stays one output byte. */
+    static int cli(String[] args, Map<String, String> env, OutputStream stdout) {
         Map<String, String> dd = new HashMap<>();
         for (String name : DD_NAMES) {
-            String env = System.getenv(name);
-            if (env != null) {
-                dd.put(name, env);
+            String value = env.get(name);
+            if (value != null) {
+                dd.put(name, value);
             }
         }
         for (String arg : args) {
@@ -335,9 +344,10 @@ public final class Cbtrn01c {
                 dd.put(arg.substring(0, eq).toUpperCase(), arg.substring(eq + 1));
             }
         }
-        int rc = execute(dd, System.out::println);
-        System.out.flush();
-        System.exit(rc == 0 && System.out.checkError() ? ABEND_CODE : rc);
+        PrintStream sysout = new PrintStream(stdout, false, StandardCharsets.ISO_8859_1);
+        int rc = execute(dd, sysout::println);
+        sysout.flush();
+        return rc == 0 && sysout.checkError() ? ABEND_CODE : rc;
     }
 
     static int execute(Map<String, String> dd, Consumer<String> display) {

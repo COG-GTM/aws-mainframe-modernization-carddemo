@@ -76,6 +76,24 @@ class Cbtrn01cFixtureTest {
     }
 
     @Test
+    void cliWritesSysoutOneBytePerRecordByte() throws Exception {
+        String first = Files.readAllLines(Path.of(dd.get("DALYTRAN")), StandardCharsets.ISO_8859_1).get(0);
+        String latin1 = first.substring(0, 32) + '\u00e9' + first.substring(33);
+        Path daily = Files.writeString(tmp.resolve("d.txt"), latin1 + "\n", StandardCharsets.ISO_8859_1);
+        List<String> args = new ArrayList<>();
+        dd.forEach((k, v) -> args.add(k + "=" + (k.equals("DALYTRAN") ? daily : v)));
+        java.io.ByteArrayOutputStream stdout = new java.io.ByteArrayOutputStream();
+
+        assertEquals(0, Cbtrn01c.cli(args.toArray(String[]::new), Map.of(), stdout));
+
+        byte[] bytes = stdout.toByteArray();
+        String text = new String(bytes, StandardCharsets.ISO_8859_1);
+        String recordLine = text.split(System.lineSeparator())[1];
+        assertEquals(Pic.alpha(latin1, 350), recordLine);
+        assertEquals((byte) 0xE9, bytes[text.indexOf(recordLine) + 32]);
+    }
+
+    @Test
     void missingAccountFileAbendsWithStatus35() {
         dd.put("ACCTFILE", tmp.resolve("missing.txt").toString());
         List<String> out = new ArrayList<>();
