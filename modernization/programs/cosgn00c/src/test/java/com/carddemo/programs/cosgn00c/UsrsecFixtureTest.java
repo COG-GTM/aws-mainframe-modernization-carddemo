@@ -74,13 +74,25 @@ class UsrsecFixtureTest {
     void ebcdicFixedBlockSampleLoadsSameUsersAsJclSeed() throws IOException {
         Path ps = Path.of("..", "..", "..", "app", "data", "EBCDIC", "AWS.M2.CARDDEMO.USRSEC.PS");
         String fb = new String(Files.readAllBytes(ps), Charset.forName("IBM037"));
-        InMemoryUserSecurityRepository fbRepo = InMemoryUserSecurityRepository.load(new StringReader(fb));
+        InMemoryUserSecurityRepository fbRepo = InMemoryUserSecurityRepository.loadFixedBlock(new StringReader(fb));
 
         assertEquals(10, fbRepo.size());
         for (String line : seedRecords) {
             SecUserData user = SecUserData.fromRecord(line);
             assertEquals(user, fbRepo.read(user.usrId()).record(), user.usrId());
         }
+    }
+
+    @Test
+    void fixedBlockLoadKeepsAlignmentWhenARecordContainsLineBreakCharacters() throws IOException {
+        SecUserData first = SecUserData.of("USERA001", "AN\nN", "LEE\r", "PASSWORD", "U");
+        SecUserData second = SecUserData.of("USERA002", "BOB", "RAY", "PASSWORD", "U");
+        InMemoryUserSecurityRepository fbRepo = InMemoryUserSecurityRepository
+                .loadFixedBlock(new StringReader(first.toRecord() + second.toRecord()));
+
+        assertEquals(2, fbRepo.size());
+        assertEquals(first, fbRepo.read("USERA001").record());
+        assertEquals(second, fbRepo.read("USERA002").record());
     }
 
     @Test

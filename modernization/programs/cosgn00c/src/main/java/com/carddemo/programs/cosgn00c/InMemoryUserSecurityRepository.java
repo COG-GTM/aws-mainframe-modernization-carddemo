@@ -19,20 +19,38 @@ public final class InMemoryUserSecurityRepository implements UserSecurityReposit
         return this;
     }
 
-    /**
-     * Loads 80-byte SEC-USER-DATA records. Each line is cut into consecutive 80-character records, so
-     * newline-delimited input (DUSRSECJ SYSUT1) and an undelimited RECFM=FB stream (USRSEC.PS) both load.
-     */
+    /** Loads every non-blank line as one SEC-USER-DATA record (the DUSRSECJ / REPRO input format). */
     public static InMemoryUserSecurityRepository load(Reader reader) throws IOException {
         InMemoryUserSecurityRepository repo = new InMemoryUserSecurityRepository();
         BufferedReader br = new BufferedReader(reader);
         String line;
         while ((line = br.readLine()) != null) {
-            for (int pos = 0; pos < line.length(); pos += SecUserData.LENGTH) {
-                String rec = line.substring(pos, Math.min(line.length(), pos + SecUserData.LENGTH));
-                if (!rec.isBlank()) {
-                    repo.put(SecUserData.fromRecord(rec));
+            if (!line.isBlank()) {
+                repo.put(SecUserData.fromRecord(line));
+            }
+        }
+        return repo;
+    }
+
+    /**
+     * Loads an undelimited RECFM=FB stream (e.g. USRSEC.PS) as consecutive 80-character records. No
+     * character is treated as a record separator, so CR/LF bytes inside a record keep their position.
+     */
+    public static InMemoryUserSecurityRepository loadFixedBlock(Reader reader) throws IOException {
+        InMemoryUserSecurityRepository repo = new InMemoryUserSecurityRepository();
+        char[] buf = new char[SecUserData.LENGTH];
+        int filled;
+        while ((filled = reader.read(buf, 0, buf.length)) > 0) {
+            while (filled < buf.length) {
+                int n = reader.read(buf, filled, buf.length - filled);
+                if (n < 0) {
+                    break;
                 }
+                filled += n;
+            }
+            String rec = new String(buf, 0, filled);
+            if (!rec.isBlank()) {
+                repo.put(SecUserData.fromRecord(rec));
             }
         }
         return repo;
