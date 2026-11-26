@@ -28,6 +28,27 @@ class FixedWidthTrRecordReaderTest {
     }
 
     @Test
+    void lineSequentialTruncatesOversizedLinesOnRead() {
+        String longLine = "A01" + "x".repeat(1_000_000);
+        FixedWidthTrRecordReader r = FixedWidthTrRecordReader.ofLines(List.of(longLine, "D02"));
+        r.open();
+        assertEquals(Optional.of(longLine.substring(0, 53)), r.readNext());
+        assertEquals(Optional.of("D02"), r.readNext());
+        assertEquals(Optional.empty(), r.readNext());
+    }
+
+    @Test
+    void lineSequentialStripsCrOnExactly53CharLine() {
+        String rec = TrRecord.parse("A01One").toFixedWidth();
+        FixedWidthTrRecordReader r = new FixedWidthTrRecordReader(
+                () -> new StringReader(rec + "\r\nU02"), FixedWidthTrRecordReader.Layout.LINE_SEQUENTIAL);
+        r.open();
+        assertEquals(Optional.of(rec), r.readNext());
+        assertEquals(Optional.of("U02"), r.readNext());
+        assertEquals(Optional.empty(), r.readNext());
+    }
+
+    @Test
     void fixedBlockReads53CharRecords() {
         String rec1 = TrRecord.parse("A01One").toFixedWidth();
         String rec2 = TrRecord.parse("U02Two").toFixedWidth();

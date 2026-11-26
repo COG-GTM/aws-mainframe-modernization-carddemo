@@ -20,7 +20,7 @@ import java.util.Optional;
  *   <li>{@link Layout#LINE_SEQUENTIAL}: one record per line (CR/LF stripped), as in app/data/ASCII.</li>
  *   <li>{@link Layout#FIXED_BLOCK}: records are consecutive 53-character blocks with no separators.</li>
  * </ul>
- * Records are returned as read; {@link TrRecord#parse(String)} pads/truncates them to 53 bytes.
+ * Line records longer than 53 characters are truncated on read; {@link TrRecord#parse(String)} pads them to 53 bytes.
  */
 public final class FixedWidthTrRecordReader implements TrRecordReader {
 
@@ -80,15 +80,24 @@ public final class FixedWidthTrRecordReader implements TrRecordReader {
         }
     }
 
+    // Keeps at most RECORD_LENGTH characters per line so an oversized line cannot exhaust the heap.
     private Optional<String> readLine() throws IOException {
-        String line = reader.readLine();
-        if (line == null) {
+        StringBuilder line = new StringBuilder(TrRecord.RECORD_LENGTH + 1);
+        int c = reader.read();
+        if (c < 0) {
             return Optional.empty();
         }
-        if (line.endsWith("\r")) {
-            line = line.substring(0, line.length() - 1);
+        while (c >= 0 && c != '\n') {
+            if (line.length() <= TrRecord.RECORD_LENGTH) {
+                line.append((char) c);
+            }
+            c = reader.read();
         }
-        return Optional.of(line);
+        int end = line.length();
+        if (end > 0 && line.charAt(end - 1) == '\r') {
+            end--;
+        }
+        return Optional.of(line.substring(0, Math.min(end, TrRecord.RECORD_LENGTH)));
     }
 
     private Optional<String> readBlock() throws IOException {
