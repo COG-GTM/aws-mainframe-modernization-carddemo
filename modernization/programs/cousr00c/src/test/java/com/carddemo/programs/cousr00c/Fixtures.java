@@ -8,6 +8,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 final class Fixtures {
 
@@ -20,14 +21,14 @@ final class Fixtures {
     static List<SecUserData> users(int n) {
         List<SecUserData> out = new ArrayList<>();
         for (int i = 1; i <= n; i++) {
-            String id = String.format("USER%04d", i);
+            String id = String.format(Locale.ROOT, "USER%04d", i);
             out.add(SecUserData.of(id, "First" + i, "Last" + i, "pw", i % 2 == 0 ? "A" : "U"));
         }
         return out;
     }
 
     static String userId(int i) {
-        return String.format("USER%04d", i);
+        return String.format(Locale.ROOT, "USER%04d", i);
     }
 
     /** CARDDEMO-COMMAREA as COADM01C passes it on XCTL (160 bytes, context ENTER). */
