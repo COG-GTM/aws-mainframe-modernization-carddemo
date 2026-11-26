@@ -263,6 +263,16 @@ class Cbtrn02cTest {
     }
 
     @Test
+    void secondTransactionForNonNumericCategoryUpdatesTheBalanceInsteadOfAborting() {
+        String raw = daily("T000000000000001", "1.00");
+        raw = raw.substring(0, 18) + "00AB" + raw.substring(22);
+        daily.add(raw);
+        daily.add("T000000000000002" + raw.substring(16));
+        assertEquals(0, run());
+        assertEquals("0000000004201" + "00AB" + "0000000020{" + " ".repeat(22), tcat.asMap().get("000000000420100AB"));
+    }
+
+    @Test
     void rejectsMissingAccountWith101() {
         xref.load(List.of(new CardXrefRecord("1111222233334444", 1, 99, "").format()));
         daily.add(daily("T1", "1111222233334444", "1.00", "2022-06-10 19:27:53.000000"));

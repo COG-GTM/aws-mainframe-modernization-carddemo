@@ -47,8 +47,8 @@ public class Cbtrn02c {
     private CardXrefRecord cardXrefRecord = CardXrefRecord.parse(initialRecord(CardXrefRecord.RECORD_LENGTH, 16, 9, 25, 11));
     private AccountRecord accountRecord = AccountRecord.parse(initialRecord(AccountRecord.RECORD_LENGTH,
             0, 11, 12, 36, 78, 24));
-    private TranCatBalRecord tranCatBalRecord = TranCatBalRecord.parse(initialRecord(TranCatBalRecord.RECORD_LENGTH,
-            0, 11, 13, 15));
+    /** TRAN-CAT-BAL-RECORD kept as bytes: the key is moved, never computed on, so it may hold non-digits. */
+    private String tranCatBalRaw = initialRecord(TranCatBalRecord.RECORD_LENGTH, 0, 11, 13, 15);
     private String dalytranStatus = "00";
     private String tranfileStatus = "00";
     private String xreffileStatus = "00";
@@ -268,6 +268,8 @@ public class Cbtrn02c {
         return Pic.unsigned(wsValidationFailReason, 4) + Pic.alnum(wsValidationFailReasonDesc, 76);
     }
 
+    private static final int TCATBAL_FILLER_OFFSET = TranCatBalRecord.KEY_LENGTH + 11;
+
     /** FD-TRAN-CAT-KEY: XREF-ACCT-ID, then DALYTRAN-TYPE-CD and DALYTRAN-CAT-CD moved as raw bytes. */
     private String fdTranCatKey() {
         return Pic.unsigned(cardXrefRecord.xrefAcctId(), 11) + dalytranRaw.substring(16, 22);
@@ -283,7 +285,7 @@ public class Cbtrn02c {
             display("TCATBAL record not found for key : " + fdTranCatKey + ".. Creating.");
             wsCreateTrancatRec = true;
         } else if (r.ok()) {
-            tranCatBalRecord = TranCatBalRecord.parse(r.record());
+            tranCatBalRaw = Pic.alnum(r.record(), TranCatBalRecord.RECORD_LENGTH);
         }
         if (FileStatus.OK.equals(tcatbalfStatus) || FileStatus.RECORD_NOT_FOUND.equals(tcatbalfStatus)) {
             applResult = ApplResult.AOK;
@@ -308,16 +310,20 @@ public class Cbtrn02c {
                 TranCatBalRecord.BAL_INT_DIGITS, TranCatBalRecord.BAL_SCALE);
         tcatbalfStatus = tcatbalFile.write(fdTranCatKey()
                 + Pic.signed(bal, TranCatBalRecord.BAL_INT_DIGITS, TranCatBalRecord.BAL_SCALE)
-                + tranCatBalRecord.filler());
+                + tranCatBalRaw.substring(TCATBAL_FILLER_OFFSET));
         checkStatus(tcatbalfStatus, "ERROR WRITING TRANSACTION BALANCE FILE", tcatbalfStatus);
     }
 
     // 2700-B-UPDATE-TCATBAL-REC
     void updateTcatbalRec() {
-        BigDecimal bal = Pic.truncate(tranCatBalRecord.tranCatBal().add(dalytranAmt()),
+        BigDecimal tranCatBal = Pic.parseSigned(
+                tranCatBalRaw.substring(TranCatBalRecord.KEY_LENGTH, TCATBAL_FILLER_OFFSET), TranCatBalRecord.BAL_SCALE);
+        BigDecimal bal = Pic.truncate(tranCatBal.add(dalytranAmt()),
                 TranCatBalRecord.BAL_INT_DIGITS, TranCatBalRecord.BAL_SCALE);
-        tranCatBalRecord = new TranCatBalRecord(tranCatBalRecord.tranCatKey(), bal, tranCatBalRecord.filler());
-        tcatbalfStatus = tcatbalFile.rewrite(tranCatBalRecord.format());
+        tranCatBalRaw = tranCatBalRaw.substring(0, TranCatBalRecord.KEY_LENGTH)
+                + Pic.signed(bal, TranCatBalRecord.BAL_INT_DIGITS, TranCatBalRecord.BAL_SCALE)
+                + tranCatBalRaw.substring(TCATBAL_FILLER_OFFSET);
+        tcatbalfStatus = tcatbalFile.rewrite(tranCatBalRaw);
         checkStatus(tcatbalfStatus, "ERROR REWRITING TRANSACTION BALANCE FILE", tcatbalfStatus);
     }
 
