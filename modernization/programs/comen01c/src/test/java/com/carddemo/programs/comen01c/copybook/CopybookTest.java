@@ -84,12 +84,13 @@ class CopybookTest {
 
     @Test
     void symbolicMapFieldNamesIgnoreDefaultLocale() {
-        java.util.Locale saved = java.util.Locale.getDefault();
+        java.util.Locale.Category format = java.util.Locale.Category.FORMAT;
+        java.util.Locale saved = java.util.Locale.getDefault(format);
         try {
-            java.util.Locale.setDefault(java.util.Locale.forLanguageTag("ar-EG"));
+            java.util.Locale.setDefault(format, java.util.Locale.forLanguageTag("ar-EG"));
             assertEquals("OPTN012", new Comen01Map().optn(12).name());
         } finally {
-            java.util.Locale.setDefault(saved);
+            java.util.Locale.setDefault(format, saved);
         }
     }
 
