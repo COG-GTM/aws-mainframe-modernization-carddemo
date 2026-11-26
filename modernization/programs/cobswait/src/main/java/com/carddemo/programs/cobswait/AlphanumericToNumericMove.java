@@ -3,6 +3,7 @@ package com.carddemo.programs.cobswait;
 import com.carddemo.programs.cobswait.copybook.MvswaitTime;
 import com.carddemo.programs.cobswait.copybook.ParmValue;
 import java.nio.charset.Charset;
+import java.util.HexFormat;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -34,7 +35,8 @@ public enum AlphanumericToNumericMove {
                 if (digit > 9) {
                     throw new DataExceptionAbend(
                             "MOVE PARM-VALUE TO MVSWAIT-TIME: invalid digit at offset " + i
-                                    + " in '" + parm.value() + "'");
+                                    + " in X'" + HexFormat.of().withUpperCase().formatHex(ebcdic)
+                                    + "'");
                 }
                 result = result * 10 + digit;
             }

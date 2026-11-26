@@ -92,4 +92,15 @@ class AlphanumericToNumericMoveTest {
                 () -> AlphanumericToNumericMove.IBM_ENTERPRISE.apply(ParmValue.of(sysin)));
         assertTrue(abend.getMessage().startsWith("S0C7 MOVE PARM-VALUE TO MVSWAIT-TIME"));
     }
+
+    @org.junit.jupiter.api.Test
+    void ibmAbendMessageShowsEbcdicHexNotRawInput() {
+        DataExceptionAbend abend = assertThrows(DataExceptionAbend.class,
+                () -> AlphanumericToNumericMove.IBM_ENTERPRISE.apply(ParmValue.of("0000.100")));
+        assertEquals("S0C7 MOVE PARM-VALUE TO MVSWAIT-TIME: invalid digit at offset 4 in"
+                + " X'F0F0F0F04BF1F0F0'", abend.getMessage());
+        DataExceptionAbend esc = assertThrows(DataExceptionAbend.class,
+                () -> AlphanumericToNumericMove.IBM_ENTERPRISE.apply(ParmValue.of("\u001b[2J")));
+        assertTrue(esc.getMessage().chars().allMatch(c -> c >= 0x20 && c < 0x7f));
+    }
 }
