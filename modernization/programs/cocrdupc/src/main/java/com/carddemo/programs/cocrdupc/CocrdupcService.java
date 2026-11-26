@@ -21,10 +21,18 @@ public final class CocrdupcService {
 
     /** @throws AbendException when the program ends via ABEND-ROUTINE (ABCODE 9999). */
     public CocrdupcResponse process(CocrdupcRequest request) {
+        CocrdupcResponse response;
         try {
-            return new CocrdupcProgram(cardFile, clock).run(request);
-        } finally {
-            cardFile.syncpoint();
+            response = new CocrdupcProgram(cardFile, clock).run(request);
+        } catch (RuntimeException e) {
+            try {
+                cardFile.syncpoint();
+            } catch (RuntimeException cleanup) {
+                e.addSuppressed(cleanup);
+            }
+            throw e;
         }
+        cardFile.syncpoint();
+        return response;
     }
 }

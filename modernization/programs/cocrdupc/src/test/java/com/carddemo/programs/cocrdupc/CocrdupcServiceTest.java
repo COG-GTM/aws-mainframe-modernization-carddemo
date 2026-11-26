@@ -673,5 +673,36 @@ class CocrdupcServiceTest {
             assertEquals(" ".repeat(72), e.abendData().abendMsg());
             assertTrue(e.getCause() instanceof IllegalStateException);
         }
+
+        @Test
+        void syncpointFailureDoesNotHideTheAbend() {
+            CardFileGateway failing = new CardFileGateway() {
+                @Override
+                public FileResult read(String cardNum) {
+                    throw new IllegalStateException("file gone");
+                }
+
+                @Override
+                public FileResult readForUpdate(String cardNum) {
+                    throw new IllegalStateException();
+                }
+
+                @Override
+                public FileResult rewrite(CardRecord record) {
+                    throw new IllegalStateException();
+                }
+
+                @Override
+                public void syncpoint() {
+                    throw new IllegalStateException("syncpoint failed");
+                }
+            };
+            CocrdupcService svc = new CocrdupcService(failing, () -> NOW);
+            String commarea = fresh().commarea();
+            AbendException e = assertThrows(AbendException.class, () -> svc.process(
+                    new CocrdupcRequest(commarea, AidKey.ENTER, CcrdupaInput.search(ACCT, CARD))));
+            assertEquals("9999", e.abcode());
+            assertEquals("syncpoint failed", e.getSuppressed()[0].getMessage());
+        }
     }
 }
