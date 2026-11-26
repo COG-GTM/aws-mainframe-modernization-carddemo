@@ -31,6 +31,15 @@ final class Harness {
     final InMemoryImsGateway ims = new InMemoryImsGateway();
     final InMemoryTdQueue tdq = new InMemoryTdQueue();
     int syncpoints;
+    /** Each ASKTIME advances 1 ms so PAUT9CTS detail keys stay unique, as on a real CICS region. */
+    CicsClock clock = new CicsClock() {
+        private int ticks;
+
+        @Override
+        public FormattedTime now() {
+            return new FormattedTime(NOW.yymmdd(), NOW.yyddd(), NOW.hhmmss(), NOW.milliseconds() + ticks++);
+        }
+    };
 
     Harness withStandardCard(String limit, String balance) {
         xref.put(new CardXrefRecord(CARD, CUST, ACCT));
@@ -60,7 +69,7 @@ final class Harness {
     }
 
     Copaua0cService service() {
-        return new Copaua0cService(mq, xref, acct, cust, ims, tdq, () -> NOW, () -> {
+        return new Copaua0cService(mq, xref, acct, cust, ims, tdq, clock, () -> {
             syncpoints++;
             ims.release();
         });

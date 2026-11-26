@@ -79,10 +79,13 @@ public final class InMemoryImsGateway implements ImsGateway {
     @Override
     public GetResult getUniqueSummary(long acctId) {
         calls.add("GU PAUTSUM0 " + acctId);
-        if (getStatus != null) {
+        PendingAuthSummary s = summaries.get(acctId);
+        if (getStatus != null && (!ImsReturnCode.isStatusOk(getStatus) || s == null)) {
             return new GetResult(getStatus, null);
         }
-        PendingAuthSummary s = summaries.get(acctId);
+        if (getStatus != null) {
+            return new GetResult(getStatus, s.copy());
+        }
         return s == null ? new GetResult(ImsReturnCode.SEGMENT_NOT_FOUND, null)
                 : new GetResult(ImsReturnCode.OK, s.copy());
     }
@@ -119,7 +122,13 @@ public final class InMemoryImsGateway implements ImsGateway {
         if (!summaries.containsKey(acctId)) {
             return ImsReturnCode.SEGMENT_NOT_FOUND;
         }
-        details.computeIfAbsent(acctId, k -> new ArrayList<>()).add(d.copy());
+        List<PendingAuthDetails> children = details.computeIfAbsent(acctId, k -> new ArrayList<>());
+        boolean duplicateKey = children.stream()
+                .anyMatch(c -> c.authDate9c() == d.authDate9c() && c.authTime9c() == d.authTime9c());
+        if (duplicateKey) {
+            return ImsReturnCode.DUPLICATE_SEGMENT_FOUND;
+        }
+        children.add(d.copy());
         return ImsReturnCode.OK;
     }
 }

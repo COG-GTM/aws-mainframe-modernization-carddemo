@@ -496,6 +496,27 @@ class Copaua0cServiceTest {
         }
 
         @Test
+        void duplicateDetailKeyFailsInsert() {
+            Harness h = new Harness().withStandardCard("1000.00", "0.00")
+                    .send(CARD, "10.00", TXN1).send(CARD, "20.00", TXN2);
+            h.clock = () -> Harness.NOW;
+            Copaua0cRunResult r = h.run();
+            assertLog(onlyLog(h), "I004", 'C', 'I', "II", "", "IMS INSERT DETL FAILED", CARD);
+            assertEquals(1, r.messagesProcessed());
+            assertEquals(1, h.ims.details(ACCT).size());
+        }
+
+        @Test
+        void injectedOkGetStatusReturnsStoredSummary() {
+            Harness h = new Harness().withStandardCard("5000.00", "0.00").send(CARD, "100.00", TXN1);
+            h.ims.putSummary(summary("1000.00", "950.00"));
+            h.ims.getStatus("FW");
+            Copaua0cRunResult r = h.run();
+            assertFalse(r.endedByCriticalError());
+            assertTrue(h.replyFields(0).startsWith(reply(CARD, TXN1, "05", "4100", "          0.00")));
+        }
+
+        @Test
         void summaryInsertFailure() {
             Harness h = new Harness().withStandardCard("1000.00", "0.00").send(CARD, "10.00", TXN1);
             h.ims.isrtSummaryStatus("II");
