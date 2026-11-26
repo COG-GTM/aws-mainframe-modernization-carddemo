@@ -565,7 +565,8 @@ public final class CocrdlicService {
             } else {
                 readLoopExit = true;
                 setFileErrorMessage();
-                return; // GO TO 9100-READ-BACKWARDS-EXIT (the browse is not ended)
+                endBrowse(); // GO TO 9100-READ-BACKWARDS-EXIT: the EXIT paragraph itself issues ENDBR
+                return;
             }
 
             while (!readLoopExit) {
@@ -587,7 +588,7 @@ public final class CocrdlicService {
                     setFileErrorMessage();
                 }
             }
-            endBrowse();
+            endBrowse(); // 9100-READ-BACKWARDS-EXIT
         }
 
         /** 9500-FILTER-RECORDS; returns true when WS-EXCLUDE-THIS-RECORD. */

@@ -578,7 +578,7 @@ class CocrdlicServiceTest {
         }
 
         @Test
-        void readBackwardsFirstReadNotFoundSkipsEndBrowse() {
+        void readBackwardsFirstReadNotFoundStillEndsBrowseInExitParagraph() {
             givenCards(20);
             SendMapAndReturn p1 = first();
             ThisProgCommarea state = p1.programState();
@@ -589,7 +589,20 @@ class CocrdlicServiceTest {
             SendMapAndReturn r = screen(service.execute(CardListRequest.reenter(image, EibAid.PF7,
                     CardListScreenInput.empty())));
             assertTrue(r.screen().errmsg.text().contains("RESP 000000013"));
-            assertTrue(gateway.commandLog().stream().noneMatch(s -> s.startsWith("ENDBR")));
+            assertEquals("ENDBR CARDDAT", gateway.commandLog().get(gateway.commandLog().size() - 1));
+        }
+
+        @Test
+        void readBackwardsWithoutActiveBrowseAbendsOnEndBrowse() {
+            givenCards(20);
+            SendMapAndReturn p1 = first();
+            ThisProgCommarea state = p1.programState();
+            state.setScreenNum(3);
+            state.setFirstCardKey("9999999999999999", 0);
+            String image = p1.commarea().toFixedWidth() + state.toFixedWidth();
+            CicsAbendException e = assertThrows(CicsAbendException.class, () -> service.execute(
+                    CardListRequest.reenter(image, EibAid.PF7, CardListScreenInput.empty())));
+            assertEquals("AEIP", e.abendCode());
         }
     }
 
