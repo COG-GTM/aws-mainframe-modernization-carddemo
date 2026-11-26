@@ -4,7 +4,7 @@ import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
 
 /**
- * Command-line entry: {@code java -jar csutldtc.jar <date> <format>}.
+ * Command-line entry: {@code java -cp target/csutldtc-1.0.0-SNAPSHOT.jar com.carddemo.programs.csutldtc.CsutldtcMain <date> <format>}.
  * Writes LS-RESULT (80 bytes, ISO-8859-1) to stdout and exits with RETURN-CODE.
  */
 public final class CsutldtcMain {
