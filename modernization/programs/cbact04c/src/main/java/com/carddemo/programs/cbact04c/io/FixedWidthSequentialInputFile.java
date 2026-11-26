@@ -27,7 +27,7 @@ public class FixedWidthSequentialInputFile<T> implements SequentialInputFile<T> 
         try {
             List<T> records = FixedWidth.readAll(path, codec);
             delegate = new InMemorySequentialInputFile<>(records);
-        } catch (UncheckedIOException e) {
+        } catch (UncheckedIOException | IllegalArgumentException e) {
             return FileStatus.PERMANENT_ERROR;
         }
         return delegate.open();

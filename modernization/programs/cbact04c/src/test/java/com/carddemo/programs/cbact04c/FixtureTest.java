@@ -122,6 +122,18 @@ class FixtureTest {
         assertEquals(999, runJob());
     }
 
+    @Test
+    void overlongInputRecordAbendsWith999() throws IOException {
+        Files.writeString(tcatbal, "X".repeat(51) + "\n", FixedWidth.CHARSET);
+        assertEquals(999, runJob());
+    }
+
+    @Test
+    void invalidNumericInIndexedFileAbendsWith999() throws IOException {
+        Files.writeString(xref, "4111111111111111ABCDEFGHI00000000001\n", FixedWidth.CHARSET);
+        assertEquals(999, runJob());
+    }
+
     private static Map<Long, AccountRecord> byId(List<AccountRecord> records) {
         return records.stream().collect(Collectors.toMap(AccountRecord::acctId, Function.identity()));
     }

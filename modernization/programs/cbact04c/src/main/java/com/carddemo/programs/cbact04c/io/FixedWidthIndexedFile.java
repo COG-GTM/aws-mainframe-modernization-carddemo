@@ -32,7 +32,7 @@ public class FixedWidthIndexedFile<K, T> implements IndexedFile<K, T> {
         }
         try {
             delegate = new InMemoryIndexedFile<>(keyOf, FixedWidth.readAll(path, codec));
-        } catch (UncheckedIOException e) {
+        } catch (UncheckedIOException | IllegalArgumentException e) {
             return FileStatus.PERMANENT_ERROR;
         }
         this.mode = mode;
