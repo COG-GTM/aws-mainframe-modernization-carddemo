@@ -35,14 +35,18 @@ public final class LineFiles {
     }
 
     /**
-     * Replaces the file atomically: the records go to a temp file next to the real target (symlinks are
-     * followed), which takes the old file's permissions (owner-only for a new file) and is then moved over it,
-     * so a failed write leaves the previous dataset intact.
+     * Replaces the file atomically: the records go to a temp file next to the symlink-resolved target, which
+     * takes the old file's permissions (owner-only for a new file) and is then moved over it, so a failed write
+     * leaves the previous dataset intact. Non-regular targets such as /dev/null are written directly.
      */
     public static void writeRecords(Path path, List<String> records) {
         try {
-            boolean exists = Files.exists(path);
-            Path target = exists ? path.toRealPath() : path.toAbsolutePath();
+            Path target = resolveLinks(path);
+            boolean exists = Files.exists(target);
+            if (exists && !Files.isRegularFile(target)) {
+                Files.write(target, records, StandardCharsets.ISO_8859_1);
+                return;
+            }
             Path tmp = Files.createTempFile(target.getParent(), "." + target.getFileName(), ".tmp");
             try {
                 if (tmp.getFileSystem().supportedFileAttributeViews().contains("posix")) {
@@ -58,6 +62,18 @@ public final class LineFiles {
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
+    }
+
+    /** Follows symlinks, including one whose target does not exist yet, so the link itself is never replaced. */
+    private static Path resolveLinks(Path path) throws IOException {
+        Path p = path.toAbsolutePath();
+        for (int i = 0; i < 40 && Files.isSymbolicLink(p); i++) {
+            p = p.resolveSibling(Files.readSymbolicLink(p));
+        }
+        if (Files.isSymbolicLink(p)) {
+            throw new IOException("too many levels of symbolic links: " + path);
+        }
+        return p;
     }
 
     static String fit(String l, int recordLength) {

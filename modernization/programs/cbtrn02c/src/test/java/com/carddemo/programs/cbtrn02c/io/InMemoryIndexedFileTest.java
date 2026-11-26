@@ -89,6 +89,20 @@ class InMemoryIndexedFileTest {
     }
 
     @Test
+    void savesThroughDanglingSymlinksAndToDevices() throws Exception {
+        Path dir = Files.createTempDirectory("ksds");
+        Path link = Files.createSymbolicLink(dir.resolve("out.txt"), Path.of("sub", "rejects.txt"));
+        Files.createDirectory(dir.resolve("sub"));
+        LineFiles.writeRecords(link, List.of("REJ1"));
+        assertTrue(Files.isSymbolicLink(link));
+        assertEquals(List.of("REJ1"), Files.readAllLines(dir.resolve("sub").resolve("rejects.txt")));
+
+        Path devNull = Path.of("/dev/null");
+        LineFiles.writeRecords(devNull, List.of("REJ2"));
+        assertTrue(Files.exists(devNull) && !Files.isRegularFile(devNull));
+    }
+
+    @Test
     void failedSaveLeavesThePreviousFileIntact() throws Exception {
         Path dir = Files.createTempDirectory("ksds");
         Path p = dir.resolve("f.txt");
