@@ -69,6 +69,14 @@ class Cbact02cMainTest {
     }
 
     @Test
+    void returnsUsageErrorForMoreThanOneCardfile() {
+        String path = Cbact02cFixtureTest.CARDDATA.toString();
+
+        assertEquals(Cbact02cMain.USAGE_ERROR, Cbact02cMain.execute(new String[] {path, path}, null, out));
+        assertTrue(output().startsWith("USAGE:"));
+    }
+
+    @Test
     void returnsUsageErrorWithoutCardfile() {
         assertEquals(Cbact02cMain.USAGE_ERROR, Cbact02cMain.execute(new String[0], null, out));
     }
