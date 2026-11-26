@@ -27,7 +27,7 @@ class FixedWidthIoTest {
 
     @Test
     void readerRejectsOverlongLine() {
-        assertThrows(IOException.class, () -> new FixedWidthRecordReader(3).readAll(new StringReader("abcd\n")));
+        assertThrows(RecordLengthException.class, () -> new FixedWidthRecordReader(3).readAll(new StringReader("abcd\n")));
     }
 
     @Test
@@ -82,8 +82,8 @@ class FixedWidthIoTest {
         Path bad = tmp.resolve("bad.txt");
         Files.writeString(bad, "toolong\n");
         FixedWidthRecordReader reader = new FixedWidthRecordReader(4);
-        assertEquals("30", InMemoryIndexedFile.deferred("F", 4, 0, 2, () -> reader.readAll(bad)).open().code(),
-                "line longer than LRECL: unreadable dataset");
+        assertEquals("39", InMemoryIndexedFile.deferred("F", 4, 0, 2, () -> reader.readAll(bad)).open().code(),
+                "line longer than LRECL: wrong record length");
         assertEquals("30", InMemoryIndexedFile.deferred("F", 4, 0, 2, () -> reader.readAll(tmp)).open().code(),
                 "directory: I/O error");
         assertEquals("35", InMemoryIndexedFile.deferred("F", 4, 0, 2,

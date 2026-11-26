@@ -343,7 +343,7 @@ class Cbstm03bTest {
         assertEquals("30", trnx.rc(), "directory instead of dataset");
         LkM03bArea xref = area("XREFFILE", M03bOper.OPEN);
         p.call(xref);
-        assertEquals("30", xref.rc(), "record longer than LRECL 50");
+        assertEquals("39", xref.rc(), "record longer than LRECL 50");
     }
 
     @Test

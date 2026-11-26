@@ -104,6 +104,8 @@ public final class InMemoryIndexedFile implements IndexedFile {
                 records = index(loader.load());
             } catch (NoSuchFileException e) {
                 return FileStatus.FILE_NOT_FOUND;
+            } catch (RecordLengthException e) {
+                return ATTRIBUTE_CONFLICT;
             } catch (IOException e) {
                 return PERMANENT_ERROR;
             } catch (IllegalArgumentException e) {

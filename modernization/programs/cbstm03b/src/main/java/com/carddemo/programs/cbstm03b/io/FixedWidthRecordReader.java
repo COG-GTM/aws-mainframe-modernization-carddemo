@@ -38,7 +38,7 @@ public final class FixedWidthRecordReader {
                 continue;
             }
             if (line.length() > lrecl) {
-                throw new IOException("line " + lineNo + " is " + line.length() + " bytes, LRECL=" + lrecl);
+                throw new RecordLengthException("line " + lineNo + " is " + line.length() + " bytes, LRECL=" + lrecl);
             }
             out.add(line + " ".repeat(lrecl - line.length()));
         }
