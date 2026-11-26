@@ -83,4 +83,17 @@ class Cbact01cMainTest {
         assertFalse(Files.exists(dir.resolve("arryps")));
         assertFalse(Files.exists(dir.resolve("vbps")));
     }
+
+    @Test
+    void laterCollisionKeepsExistingDatasetAndDeletesOutputsCreatedByTheFailedRun() throws Exception {
+        Path existing = dir.resolve("arryps");
+        Files.writeString(existing, "keep");
+        String[] args = {"src/test/resources/fixtures/acctdata.txt", dir.resolve("pscomp").toString(),
+                existing.toString(), dir.resolve("vbps").toString()};
+        assertEquals(999, Cbact01cMain.execute(args, Map.of(), sysout));
+        assertEquals("keep", Files.readString(existing));
+        assertFalse(Files.exists(dir.resolve("pscomp")));
+        assertFalse(Files.exists(dir.resolve("vbps")));
+        assertTrue(captured.toString(StandardCharsets.ISO_8859_1).contains("ERROR OPENING ARRAYFILE30"));
+    }
 }
