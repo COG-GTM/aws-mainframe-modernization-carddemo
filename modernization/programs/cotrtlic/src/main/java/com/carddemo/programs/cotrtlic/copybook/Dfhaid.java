@@ -1,0 +1,8 @@
+package com.carddemo.programs.cotrtlic.copybook;
+
+/** IBM copybook DFHAID: attention identifiers delivered in EIBAID. */
+public enum Dfhaid {
+    DFHENTER, DFHCLEAR, DFHPA1, DFHPA2, DFHPA3,
+    DFHPF1, DFHPF2, DFHPF3, DFHPF4, DFHPF5, DFHPF6, DFHPF7, DFHPF8, DFHPF9, DFHPF10, DFHPF11, DFHPF12,
+    DFHPF13, DFHPF14, DFHPF15, DFHPF16, DFHPF17, DFHPF18, DFHPF19, DFHPF20, DFHPF21, DFHPF22, DFHPF23, DFHPF24
+}
