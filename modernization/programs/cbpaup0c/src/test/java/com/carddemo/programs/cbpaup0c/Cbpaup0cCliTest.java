@@ -13,6 +13,7 @@ import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.attribute.PosixFilePermissions;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneOffset;
@@ -46,6 +47,28 @@ class Cbpaup0cCliTest {
         }
         assertEquals(1, written.database().roots().size());
         assertTrue(written.database().roots().get(0).details().isEmpty());
+    }
+
+    @Test
+    void inPlaceRunReplacesInputAtomicallyWithOwnerOnlyFile() throws Exception {
+        Path db = tmp.resolve("db.dat");
+        try (InputStream fixture = getClass().getResourceAsStream(GoldenFixtureTest.FIXTURE)) {
+            Files.copy(fixture, db);
+        }
+        Clock clock = Clock.fixed(Instant.parse("2026-11-26T10:00:00Z"), ZoneOffset.UTC);
+        int rc = Cbpaup0c.runCli(new String[] {db.toString(), db.toString()},
+                new ByteArrayInputStream("00,00001,00001,N\n".getBytes(StandardCharsets.UTF_8)),
+                new PrintStream(new ByteArrayOutputStream(), true, StandardCharsets.UTF_8), clock);
+        assertEquals(0, rc);
+        try (InputStream w = Files.newInputStream(db)) {
+            assertEquals(1, HdUnloadFile.read(w, CobolCodec.EBCDIC).database().roots().size());
+        }
+        try (var files = Files.list(tmp)) {
+            assertEquals(1, files.count(), "temp file cleaned up");
+        }
+        if (db.getFileSystem().supportedFileAttributeViews().contains("posix")) {
+            assertEquals(PosixFilePermissions.fromString("rw-------"), Files.getPosixFilePermissions(db));
+        }
     }
 
     @Test

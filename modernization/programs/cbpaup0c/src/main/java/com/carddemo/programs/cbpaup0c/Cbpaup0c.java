@@ -22,6 +22,7 @@ import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.time.Clock;
 import java.time.LocalDate;
 import java.util.function.Consumer;
@@ -331,10 +332,21 @@ public final class Cbpaup0c {
         String card = reader.readLine();
         int rc = new Cbpaup0c(unload.database(), card, clock, sysout::println).run();
         if (args.length == 2) {
-            try (OutputStream out = Files.newOutputStream(Path.of(args[1]))) {
-                unload.write(out);
-            }
+            writeUnload(unload, Path.of(args[1]).toAbsolutePath());
         }
         return rc;
+    }
+
+    /** Writes to an owner-only temp file beside the target, then renames it, so the old file survives a failure. */
+    private static void writeUnload(HdUnloadFile unload, Path target) throws IOException {
+        Path tmp = Files.createTempFile(target.getParent(), target.getFileName() + ".", ".tmp");
+        try {
+            try (OutputStream out = Files.newOutputStream(tmp)) {
+                unload.write(out);
+            }
+            Files.move(tmp, target, StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.ATOMIC_MOVE);
+        } finally {
+            Files.deleteIfExists(tmp);
+        }
     }
 }
