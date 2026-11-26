@@ -72,9 +72,18 @@ class CobswaitTest {
 
     @Test
     void stopRunReturnsMvswaitR15AsReturnCode() {
-        Cobswait p = new Cobswait(() -> Optional.of("00000001"), t -> 0,
+        Cobswait p = new Cobswait(() -> Optional.of("00000001"), t -> 4,
                 AlphanumericToNumericMove.IBM_ENTERPRISE);
-        assertEquals(0, p.run());
+        assertEquals(4, p.run());
+    }
+
+    @Test
+    void rerunAtEndOfSysinStartsFromFreshWorkingStorage() {
+        Cobswait p = program("00000500\n", AlphanumericToNumericMove.IBM_ENTERPRISE);
+        p.run();
+        p.run();
+        assertEquals(List.of(new MvswaitTime(500), MvswaitTime.ZERO), calls);
+        assertEquals("        ", p.parmValue().value());
     }
 
     @Test

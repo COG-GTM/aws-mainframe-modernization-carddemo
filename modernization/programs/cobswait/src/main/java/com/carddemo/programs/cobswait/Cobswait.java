@@ -32,10 +32,18 @@ public final class Cobswait {
 
     /** PROCEDURE DIVISION. Returns the step return code. */
     public int run() {
+        initializeWorkingStorage();
         acceptParmValue();
         moveParmValueToMvswaitTime();
         callMvswait();
         return stopRun();
+    }
+
+    // Each STOP RUN ends the run unit, so every run starts with fresh WORKING-STORAGE.
+    private void initializeWorkingStorage() {
+        mvswaitTime = MvswaitTime.ZERO;
+        parmValue = ParmValue.SPACES;
+        returnCode = RC_OK;
     }
 
     // ACCEPT PARM-VALUE FROM SYSIN.
