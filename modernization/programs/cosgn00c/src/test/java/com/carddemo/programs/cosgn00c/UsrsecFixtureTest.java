@@ -2,6 +2,7 @@ package com.carddemo.programs.cosgn00c;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.carddemo.programs.cosgn00c.copybook.SecUserData;
@@ -93,6 +94,14 @@ class UsrsecFixtureTest {
         assertEquals(2, fbRepo.size());
         assertEquals(first, fbRepo.read("USERA001").record());
         assertEquals(second, fbRepo.read("USERA002").record());
+    }
+
+    @Test
+    void fixedBlockLoadRejectsTruncatedTrailingRecord() {
+        String admin = SecUserData.of("ADMIN009", "AL", "BEE", "PASSWORD", "A").toRecord();
+        String truncated = admin.substring(0, 56);
+        assertThrows(IOException.class, () -> InMemoryUserSecurityRepository
+                .loadFixedBlock(new StringReader(admin.replace("ADMIN009", "ADMIN008") + truncated)));
     }
 
     @Test
