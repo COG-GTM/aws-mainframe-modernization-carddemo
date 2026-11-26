@@ -10,11 +10,14 @@ public final class FieldCursor {
 
     private final byte[] data;
     private final Charset charset;
+    private final boolean zonedEbcdic;
     private int pos;
 
     public FieldCursor(byte[] data, int offset, Charset charset) {
         this.data = data;
         this.charset = charset;
+        byte[] zero = "0".getBytes(charset);
+        this.zonedEbcdic = zero.length == 1 && (zero[0] & 0xFF) == 0xF0;
         this.pos = offset;
     }
 
@@ -31,12 +34,34 @@ public final class FieldCursor {
 
     /** PIC 9(n) USAGE DISPLAY. */
     public BigInteger zonedUnsigned(int digits) {
-        return Pic.parseUnsigned(alnum(digits));
+        if (!zonedEbcdic) {
+            return Pic.parseUnsigned(alnum(digits));
+        }
+        BigInteger v = ebcdicDigits(digits);
+        pos += digits;
+        return v;
     }
 
     /** PIC S9(i)V9(s) USAGE DISPLAY. */
     public BigDecimal zonedSigned(int intDigits, int scale) {
-        return Pic.parseSigned(alnum(intDigits + scale), scale);
+        int len = intDigits + scale;
+        if (!zonedEbcdic) {
+            return Pic.parseSigned(alnum(len), scale);
+        }
+        BigInteger magnitude = ebcdicDigits(len);
+        int zone = (data[pos + len - 1] >> 4) & 0x0F;
+        pos += len;
+        boolean negative = zone == 0x0B || zone == 0x0D;
+        return new BigDecimal(negative ? magnitude.negate() : magnitude, scale);
+    }
+
+    /** EBCDIC zoned decimal: digit is the low nibble of each byte, zone of the last byte is the sign. */
+    private BigInteger ebcdicDigits(int len) {
+        BigInteger v = BigInteger.ZERO;
+        for (int i = 0; i < len; i++) {
+            v = v.multiply(BigInteger.TEN).add(BigInteger.valueOf((data[pos + i] & 0x0F) % 10));
+        }
+        return v;
     }
 
     /** PIC 9(n) COMP / COMP-4 / BINARY: big-endian unsigned. */

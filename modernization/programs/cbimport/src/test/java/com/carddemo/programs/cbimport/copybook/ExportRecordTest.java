@@ -75,4 +75,18 @@ class ExportRecordTest {
         assertEquals(new BigInteger("18446744073709551615"), r.cardData().acctId());
         assertEquals(BigInteger.valueOf(65535), r.cardData().cvvCd());
     }
+
+    @Test
+    void ebcdicZonedSignAcceptsAlternateNegativeAndPositiveZones() {
+        byte[] negB = HexFormat.of().parseHex("F0F0B1");
+        assertEquals(new BigDecimal("-0.01"), new FieldCursor(negB, 0, EBCDIC).zonedSigned(1, 2));
+        byte[] negD = HexFormat.of().parseHex("F1F2D3");
+        assertEquals(new BigDecimal("-1.23"), new FieldCursor(negD, 0, EBCDIC).zonedSigned(1, 2));
+        byte[] posA = HexFormat.of().parseHex("F4F5A6");
+        assertEquals(new BigDecimal("4.56"), new FieldCursor(posA, 0, EBCDIC).zonedSigned(1, 2));
+        byte[] posC = HexFormat.of().parseHex("F7F8C9");
+        assertEquals(new BigDecimal("7.89"), new FieldCursor(posC, 0, EBCDIC).zonedSigned(1, 2));
+        assertEquals(BigInteger.valueOf(201), new FieldCursor(HexFormat.of().parseHex("F2F0B1"), 0, EBCDIC)
+                .zonedUnsigned(3));
+    }
 }
