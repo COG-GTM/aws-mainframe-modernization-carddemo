@@ -43,6 +43,13 @@ public final class FixedWidthGsamFile implements DliCallHandler, AutoCloseable {
     public FixedWidthGsamFile(Path path, int recordLength) {
         this.recordLength = recordLength;
         try {
+            if (Files.exists(path) && !Files.isRegularFile(path)) {
+                // pipes/devices: no lock, and opening may block for a reader, so stay outside the monitor
+                this.channel = open(path);
+                this.regularFile = false;
+                this.lockedKey = null;
+                return;
+            }
             synchronized (LOCKED_IN_JVM) {
                 Object existingKey = fileKey(path);
                 if (existingKey != null && LOCKED_IN_JVM.containsKey(existingKey)) {
