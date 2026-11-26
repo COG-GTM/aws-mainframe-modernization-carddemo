@@ -28,7 +28,7 @@ public final class UsrsecRecordReader {
         }
         List<SecUserData> out = new ArrayList<>();
         for (int p = 0; p < data.length; p += SecUserData.RECORD_LENGTH) {
-            String rec = new String(data, p, SecUserData.RECORD_LENGTH, charset);
+            String rec = decode(data, p, SecUserData.RECORD_LENGTH, charset);
             if (rec.length() != SecUserData.RECORD_LENGTH) {
                 throw new IllegalArgumentException("charset " + charset + " is not single-byte");
             }
@@ -39,12 +39,24 @@ public final class UsrsecRecordReader {
 
     public static List<SecUserData> readLines(byte[] data, Charset charset) {
         List<SecUserData> out = new ArrayList<>();
-        for (String line : new String(data, charset).split("\r?\n")) {
+        for (String line : decode(data, 0, data.length, charset).split("\r?\n")) {
             if (!line.isEmpty()) {
                 out.add(SecUserData.fromRecord(line));
             }
         }
         return out;
+    }
+
+    private static String decode(byte[] data, int offset, int length, Charset charset) {
+        try {
+            return charset.newDecoder()
+                    .onMalformedInput(CodingErrorAction.REPORT)
+                    .onUnmappableCharacter(CodingErrorAction.REPORT)
+                    .decode(ByteBuffer.wrap(data, offset, length))
+                    .toString();
+        } catch (CharacterCodingException e) {
+            throw new IllegalArgumentException("USRSEC data at offset " + offset + " is not valid " + charset, e);
+        }
     }
 
     public static byte[] write(List<SecUserData> records, Charset charset) {

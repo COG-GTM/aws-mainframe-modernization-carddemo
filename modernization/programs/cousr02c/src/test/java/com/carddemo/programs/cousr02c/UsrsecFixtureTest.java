@@ -104,5 +104,10 @@ class UsrsecFixtureTest {
         r.setSecUsrFname("\u20ac");
         assertThrows(IllegalArgumentException.class, () -> UsrsecRecordReader.write(List.of(r), EBCDIC));
         assertThrows(IllegalArgumentException.class, () -> UsrsecRecordReader.read(new byte[81], EBCDIC));
+        byte[] highByte = new byte[80];
+        highByte[5] = (byte) 0xE9;
+        assertThrows(IllegalArgumentException.class, () -> UsrsecRecordReader.read(highByte, StandardCharsets.US_ASCII));
+        assertThrows(IllegalArgumentException.class,
+                () -> UsrsecRecordReader.readLines(highByte, StandardCharsets.US_ASCII));
     }
 }
