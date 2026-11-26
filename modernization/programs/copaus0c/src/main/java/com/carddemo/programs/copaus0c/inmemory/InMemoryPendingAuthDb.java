@@ -76,32 +76,32 @@ public final class InMemoryPendingAuthDb implements PendingAuthDbGateway {
     public String schedulePsb(String psbName) {
         callLog.add("SCHD " + psbName);
         String f = forced.remove(Call.SCHD);
-        if (f != null) {
+        if (isFailure(f)) {
             return f;
         }
         if (psbScheduled) {
             return "TC";
         }
         psbScheduled = true;
-        return "  ";
+        return f != null ? f : "  ";
     }
 
     @Override
     public String terminate() {
         callLog.add("TERM");
         String f = forced.remove(Call.TERM);
-        if (f != null) {
+        if (isFailure(f)) {
             return f;
         }
         releasePsb();
-        return "  ";
+        return f != null ? f : "  ";
     }
 
     @Override
     public DliResult<PendingAuthSummary> getUniqueSummary(long paAcctId) {
         callLog.add("GU PAUTSUM0 " + paAcctId);
         String f = forced.get(Call.GU);
-        if (f != null) {
+        if (isFailure(f)) {
             return DliResult.status(f);
         }
         if (!psbScheduled) {
@@ -115,14 +115,14 @@ public final class InMemoryPendingAuthDb implements PendingAuthDbGateway {
         }
         parent = root;
         childPos = -1;
-        return DliResult.ok(root.summary());
+        return ok(root.summary(), f);
     }
 
     @Override
     public DliResult<PendingAuthDetails> getNextDetail() {
         callLog.add("GNP PAUTDTL1");
         String f = forced.get(Call.GNP);
-        if (f != null) {
+        if (isFailure(f)) {
             return DliResult.status(f);
         }
         if (!psbScheduled) {
@@ -135,14 +135,14 @@ public final class InMemoryPendingAuthDb implements PendingAuthDbGateway {
             return DliResult.status("GE");
         }
         childPos++;
-        return DliResult.ok(parent.children().get(childPos));
+        return ok(parent.children().get(childPos), f);
     }
 
     @Override
     public DliResult<PendingAuthDetails> getNextDetailByKey(String paAuthorizationKey) {
         callLog.add("GNP PAUTDTL1 WHERE PAUT9CTS");
         String f = forced.get(Call.GNP_WHERE);
-        if (f != null) {
+        if (isFailure(f)) {
             return DliResult.status(f);
         }
         if (!psbScheduled) {
@@ -154,7 +154,7 @@ public final class InMemoryPendingAuthDb implements PendingAuthDbGateway {
         for (int i = childPos + 1; i < parent.children().size(); i++) {
             if (parent.children().get(i).authorizationKey().equals(paAuthorizationKey)) {
                 childPos = i;
-                return DliResult.ok(parent.children().get(i));
+                return ok(parent.children().get(i), f);
             }
         }
         childPos = parent.children().size();
@@ -166,6 +166,15 @@ public final class InMemoryPendingAuthDb implements PendingAuthDbGateway {
         callLog.add("SYNCPOINT");
         syncpoints++;
         releasePsb();
+    }
+
+    /** A forced blank/FW status still performs the call; any other status replaces it. */
+    private static boolean isFailure(String forcedStatus) {
+        return forcedStatus != null && !forcedStatus.equals("  ") && !forcedStatus.equals("FW");
+    }
+
+    private static <T> DliResult<T> ok(T segment, String forcedStatus) {
+        return forcedStatus != null ? new DliResult<>(forcedStatus, segment) : DliResult.ok(segment);
     }
 
     private void releasePsb() {
