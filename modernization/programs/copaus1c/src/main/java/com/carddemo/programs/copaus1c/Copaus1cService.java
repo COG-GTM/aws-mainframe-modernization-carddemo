@@ -117,6 +117,10 @@ public final class Copaus1cService {
             } catch (XctlTransfer x) {
                 return new AuthViewResult(List.copyOf(screens), new AuthViewResult.Xctl(x.program),
                         commarea.copy(), List.copyOf(displays));
+            } catch (RuntimeException abend) {
+                // A CICS task that abends has its uncommitted recoverable updates backed out.
+                syncpoints.rollback();
+                throw abend;
             }
             // EXEC CICS RETURN TRANSID(WS-CICS-TRANID) COMMAREA(CARDDEMO-COMMAREA)
             return new AuthViewResult(List.copyOf(screens), new AuthViewResult.ReturnTransid(WS_CICS_TRANID),

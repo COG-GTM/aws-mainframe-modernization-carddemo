@@ -8,6 +8,7 @@ import com.carddemo.programs.copaus1c.copybook.BmsColor;
 import com.carddemo.programs.copaus1c.copybook.Cobol;
 import com.carddemo.programs.copaus1c.copybook.Copau1aMap.Field;
 import com.carddemo.programs.copaus1c.copybook.PendingAuthDetails;
+import com.carddemo.programs.copaus1c.gateway.SyncpointGateway;
 import com.carddemo.programs.copaus1c.inmemory.InMemoryPendingAuthDb;
 import com.carddemo.programs.copaus1c.inmemory.InMemoryPendingAuthDb.Op;
 import com.carddemo.programs.copaus1c.inmemory.RecordingFraudLink;
@@ -423,6 +424,26 @@ class Copaus1cServiceTest {
             assertEquals(missing, link.calls().get(0).authKey());
             assertEquals(1, db.rollbackCount());
             assertEquals(0, db.syncpointCount());
+        }
+
+        @Test
+        void abendDuringSyncpointBacksOutFraudUpdate() {
+            SyncpointGateway failingCommit = new SyncpointGateway() {
+                @Override
+                public void syncpoint() {
+                    throw new IllegalStateException("ASP1");
+                }
+
+                @Override
+                public void rollback() {
+                    db.rollback();
+                }
+            };
+            service = new Copaus1cService(db, failingCommit, link, Fixtures.CLOCK);
+            org.junit.jupiter.api.Assertions.assertThrows(IllegalStateException.class,
+                    () -> service.execute(req(KEY1, AidKey.DFHPF5)));
+            assertEquals(1, db.rollbackCount());
+            assertEquals(' ', db.findDetail(ACCT, KEY1).getAuthFraud());
         }
 
         @Test
