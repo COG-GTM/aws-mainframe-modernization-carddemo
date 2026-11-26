@@ -41,7 +41,11 @@ public final class ImsUnloadReader {
             if (len >= SEG_DATA_OFFSET) {
                 String name = CobolCodec.decodeAlpha(data, pos + SEG_NAME_OFFSET, 8, charset);
                 int segLen = ((data[pos + SEG_LEN_OFFSET] & 0xFF) << 8) | (data[pos + SEG_LEN_OFFSET + 1] & 0xFF);
-                if (("PAUTSUM0".equals(name) || "PAUTDTL1".equals(name)) && SEG_DATA_OFFSET + segLen <= len) {
+                if ("PAUTSUM0".equals(name) || "PAUTDTL1".equals(name)) {
+                    if (SEG_DATA_OFFSET + segLen > len) {
+                        throw new IllegalArgumentException("Segment " + name + " length " + segLen
+                                + " exceeds unload record at offset " + pos);
+                    }
                     byte[] seg = new byte[segLen];
                     System.arraycopy(data, pos + SEG_DATA_OFFSET, seg, 0, segLen);
                     if ("PAUTSUM0".equals(name)) {
@@ -59,6 +63,9 @@ public final class ImsUnloadReader {
                 }
             }
             pos += len;
+        }
+        if (pos != data.length) {
+            throw new IllegalArgumentException("Truncated unload record at offset " + pos);
         }
         if (root != null) {
             db.addRecord(root, children);

@@ -140,4 +140,30 @@ class DbunldgsFixtureTest {
         assertEquals(DbunldgsMain.RC_SETUP_ERROR, DbunldgsMain.run(new String[] {
                 dir.resolve("missing").toString(), dir.resolve("a").toString(), dir.resolve("b").toString()}));
     }
+
+    @Test
+    void unloadReaderRejectsTruncatedTail() throws IOException {
+        byte[] data = fixtureBytes();
+        byte[] withPartialRdw = Arrays.copyOf(data, data.length + 2);
+        withPartialRdw[data.length] = 0x00;
+        withPartialRdw[data.length + 1] = 0x50;
+        IllegalArgumentException e = assertThrows(IllegalArgumentException.class,
+                () -> ImsUnloadReader.load(withPartialRdw, CobolCodec.EBCDIC));
+        assertTrue(e.getMessage().startsWith("Truncated unload record"));
+        assertThrows(IllegalArgumentException.class,
+                () -> ImsUnloadReader.load(Arrays.copyOf(data, data.length - 1), CobolCodec.EBCDIC));
+    }
+
+    @Test
+    void unloadReaderRejectsSegmentLongerThanRecord() {
+        int len = ImsUnloadReader.SEG_DATA_OFFSET + 10;
+        byte[] rec = new byte[len];
+        rec[0] = 0;
+        rec[1] = (byte) len;
+        rec[ImsUnloadReader.SEG_LEN_OFFSET + 1] = (byte) PendingAuthSummary.LENGTH;
+        CobolCodec.encodeAlpha("PAUTSUM0", rec, ImsUnloadReader.SEG_NAME_OFFSET, 8, CobolCodec.EBCDIC);
+        IllegalArgumentException e = assertThrows(IllegalArgumentException.class,
+                () -> ImsUnloadReader.load(rec, CobolCodec.EBCDIC));
+        assertTrue(e.getMessage().contains("exceeds unload record"));
+    }
 }
