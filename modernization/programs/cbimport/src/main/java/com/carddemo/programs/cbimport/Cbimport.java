@@ -46,9 +46,14 @@ public final class Cbimport {
 
     // 0000-MAIN-PROCESSING
     public int run() {
-        initialize();
-        processExportFile();
-        validateImport();
+        try {
+            initialize();
+            processExportFile();
+            validateImport();
+        } catch (AbendException e) {
+            closeFiles();
+            throw e;
+        }
         finalizeImport();
         return RETURN_CODE_OK;
     }
@@ -268,13 +273,7 @@ public final class Cbimport {
 
     // 4000-FINALIZE (close statuses are not checked, as in the COBOL)
     void finalizeImport() {
-        files.expfile().close();
-        files.custout().close();
-        files.acctout().close();
-        files.xrefout().close();
-        files.trnxout().close();
-        files.cardout().close();
-        files.errout().close();
+        closeFiles();
 
         display("CBIMPORT: Import completed");
         display("CBIMPORT: Total Records Read: " + ImportStatistics.display(stats.totalRecordsRead));
@@ -285,6 +284,17 @@ public final class Cbimport {
         display("CBIMPORT: Cards Imported: " + ImportStatistics.display(stats.cardRecordsImported));
         display("CBIMPORT: Errors Written: " + ImportStatistics.display(stats.errorRecordsWritten));
         display("CBIMPORT: Unknown Record Types: " + ImportStatistics.display(stats.unknownRecordTypeCount));
+    }
+
+    /** CLOSE of every file; on ABEND the runtime closes them at enclave termination. */
+    private void closeFiles() {
+        files.expfile().close();
+        files.custout().close();
+        files.acctout().close();
+        files.xrefout().close();
+        files.trnxout().close();
+        files.cardout().close();
+        files.errout().close();
     }
 
     // 9999-ABEND-PROGRAM

@@ -295,6 +295,16 @@ class CbimportTest {
         assertFalse(lines.contains("CBIMPORT: Import completed"));
     }
 
+    @Test
+    void abendClosesEveryFileBeforePropagating() {
+        InMemoryExportReader reader = new InMemoryExportReader(List.of(customer(1, BigInteger.ONE))).failRead(0, "30");
+        assertThrows(AbendException.class, program(reader)::run);
+        assertTrue(reader.isClosed());
+        for (InMemoryRecordWriter w : List.of(cust, acct, xref, tran, card, err)) {
+            assertTrue(w.isClosed());
+        }
+    }
+
     @ParameterizedTest
     @CsvSource({"C,customer", "A,account", "X,xref", "T,transaction", "D,card"})
     void writeFailureAbendsWithRecordKindAndStatus(String type, String kind) {

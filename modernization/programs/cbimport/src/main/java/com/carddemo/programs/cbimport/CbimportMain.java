@@ -77,9 +77,7 @@ public final class CbimportMain {
         try {
             return new Cbimport(files, exportCharset, clock, sysout).run();
         } catch (AbendException e) {
-            files.expfile().close();
             for (FixedWidthRecordFileWriter w : created) {
-                w.close();
                 if (!w.created()) {
                     continue;
                 }
