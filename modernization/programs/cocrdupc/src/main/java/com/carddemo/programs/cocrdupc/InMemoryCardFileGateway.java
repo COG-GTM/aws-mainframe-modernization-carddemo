@@ -8,8 +8,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayDeque;
 import java.util.Deque;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.TreeMap;
 
 /** In-memory KSDS for CARDDAT with injectable failure responses for tests. */
@@ -19,7 +21,7 @@ public final class InMemoryCardFileGateway implements CardFileGateway {
     private final Deque<FileResult> readFailures = new ArrayDeque<>();
     private final Deque<FileResult> readForUpdateFailures = new ArrayDeque<>();
     private final Deque<FileResult> rewriteFailures = new ArrayDeque<>();
-    private String lockedKey;
+    private final Set<String> lockedKeys = new HashSet<>();
     private CardRecord changeBeforeUpdate;
 
     public static InMemoryCardFileGateway fromFixedWidthFile(Path file) throws IOException {
@@ -62,7 +64,11 @@ public final class InMemoryCardFileGateway implements CardFileGateway {
     }
 
     public boolean isLocked() {
-        return lockedKey != null;
+        return !lockedKeys.isEmpty();
+    }
+
+    public boolean isLocked(String cardNum) {
+        return lockedKeys.contains(Cobol.alnum(cardNum, 16));
     }
 
     @Override
@@ -87,25 +93,25 @@ public final class InMemoryCardFileGateway implements CardFileGateway {
         if (r == null) {
             return FileResult.of(CicsResp.NOTFND, 80);
         }
-        lockedKey = cardNum;
+        lockedKeys.add(cardNum);
         return FileResult.normal(r);
     }
 
     @Override
     public FileResult rewrite(CardRecord record) {
         if (!rewriteFailures.isEmpty()) {
-            lockedKey = null;
             return rewriteFailures.poll();
         }
-        if (lockedKey == null) {
+        if (!lockedKeys.remove(record.cardNum())) {
             return FileResult.of(CicsResp.INVREQ, 30);
         }
-        if (!lockedKey.equals(record.cardNum())) {
-            lockedKey = null;
-            return FileResult.of(CicsResp.INVREQ, 32);
-        }
         records.put(record.cardNum(), record);
-        lockedKey = null;
         return FileResult.normal(record);
+    }
+
+    /** Task end: every lock still held is released (the gateway is a single-terminal test double). */
+    @Override
+    public void syncpoint() {
+        lockedKeys.clear();
     }
 }

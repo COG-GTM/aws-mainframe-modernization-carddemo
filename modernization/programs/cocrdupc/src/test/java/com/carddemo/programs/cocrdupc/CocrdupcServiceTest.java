@@ -543,6 +543,18 @@ class CocrdupcServiceTest {
             assertTrue(r.programArea().isChangesOkayedButFailed());
             assertEquals("Update of record failed", r.screen().text(ERRMSG));
             assertEquals("Changes unsuccessful. Please try again", r.screen().text(INFOMSG));
+            assertFalse(file.isLocked(CARD));
+        }
+
+        @Test
+        void locksOnDifferentCardsAreIndependent() {
+            CardRecord other = new CardRecord("4444333322221111", 51, 123, "Ward Jones", "2025-07-13", "Y", "");
+            file.put(other);
+            assertEquals(CicsResp.NORMAL, file.readForUpdate(CARD).resp());
+            assertEquals(CicsResp.NORMAL, file.readForUpdate(other.cardNum()).resp());
+            assertEquals(CicsResp.NORMAL, file.rewrite(ANIYA).resp());
+            assertEquals(CicsResp.NORMAL, file.rewrite(other).resp());
+            assertEquals(CicsResp.INVREQ, file.rewrite(other).resp());
         }
 
         @Test
@@ -571,6 +583,7 @@ class CocrdupcServiceTest {
             assertEquals("2024", r.screen().text(EXPYEAR));
             assertEquals("31", r.screen().text(EXPDAY));
             assertEquals("Aniya Jones", file.get(CARD).orElseThrow().cardEmbossedName().strip());
+            assertFalse(file.isLocked(CARD));
         }
     }
 

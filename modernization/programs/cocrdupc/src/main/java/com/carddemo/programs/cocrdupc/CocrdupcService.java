@@ -21,6 +21,10 @@ public final class CocrdupcService {
 
     /** @throws AbendException when the program ends via ABEND-ROUTINE (ABCODE 9999). */
     public CocrdupcResponse process(CocrdupcRequest request) {
-        return new CocrdupcProgram(cardFile, clock).run(request);
+        try {
+            return new CocrdupcProgram(cardFile, clock).run(request);
+        } finally {
+            cardFile.syncpoint();
+        }
     }
 }

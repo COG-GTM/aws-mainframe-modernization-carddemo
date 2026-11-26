@@ -14,6 +14,10 @@ public interface CardFileGateway {
     /** EXEC CICS REWRITE FILE('CARDDAT ') FROM(record): requires a prior READ UPDATE. */
     FileResult rewrite(CardRecord record);
 
+    /** Task end (CICS RETURN / SYNCPOINT / ABEND): releases any record locks the task still holds. */
+    default void syncpoint() {
+    }
+
     /** RESP / RESP2 plus the record read (null unless NORMAL). */
     record FileResult(CicsResp resp, int resp2, CardRecord record) {
         public static FileResult normal(CardRecord r) {
