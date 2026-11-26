@@ -265,6 +265,36 @@ class DbunldgsFixtureTest {
         }
     }
 
+    @Test
+    void concurrentFirstAllocationOfMissingOutputAdmitsOnlyOne(@TempDir Path dir) throws Exception {
+        Path root = dir.resolve("PASFILOP");
+        java.util.concurrent.CyclicBarrier barrier = new java.util.concurrent.CyclicBarrier(2);
+        java.util.concurrent.Callable<FixedWidthGsamFile> allocate = () -> {
+            barrier.await();
+            try {
+                return new FixedWidthGsamFile(root, PendingAuthSummary.LENGTH);
+            } catch (java.io.UncheckedIOException e) {
+                return null;
+            }
+        };
+        java.util.concurrent.ExecutorService pool = java.util.concurrent.Executors.newFixedThreadPool(2);
+        try {
+            var a = pool.submit(allocate);
+            var b = pool.submit(allocate);
+            FixedWidthGsamFile fa = a.get();
+            FixedWidthGsamFile fb = b.get();
+            assertEquals(1, (fa == null ? 0 : 1) + (fb == null ? 0 : 1));
+            FixedWidthGsamFile winner = fa != null ? fa : fb;
+            try {
+                assertEquals(3, probeLockFromAnotherProcess(root));
+            } finally {
+                winner.close();
+            }
+        } finally {
+            pool.shutdownNow();
+        }
+    }
+
     private static int probeLockFromAnotherProcess(Path file) throws Exception {
         Path java = Path.of(System.getProperty("java.home"), "bin", "java");
         Process p = new ProcessBuilder(java.toString(), "-cp", System.getProperty("java.class.path"),
