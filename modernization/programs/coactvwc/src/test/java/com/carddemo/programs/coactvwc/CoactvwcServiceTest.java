@@ -138,6 +138,23 @@ class CoactvwcServiceTest {
         assertEquals("No input received", err(assertInstanceOf(SendMapAndReturn.class, r)));
     }
 
+    @Test
+    void roundTripUsesEachTasksReturnedCommarea() {
+        SendMapAndReturn first = assertInstanceOf(SendMapAndReturn.class,
+                service.process(new CoactvwcRequest(DfhAid.DFHENTER, null, null)));
+        SendMapAndReturn view = assertInstanceOf(SendMapAndReturn.class, service.process(
+                new CoactvwcRequest(DfhAid.DFHENTER, first.commarea(), CactvwaInput.ofAcctsid("12345678901"))));
+        assertEquals(Cobol.spaces(78), view.screen().errmsgo());
+        assertEquals("777000111", view.screen().acstnumo());
+        assertEquals(12345678901L, view.carddemoCommarea().acctId());
+        Xctl back = assertInstanceOf(Xctl.class,
+                service.process(new CoactvwcRequest(DfhAid.DFHPF3, view.commarea(), null)));
+        assertEquals("COMEN01C", back.program());
+        assertEquals(12345678901L, back.commarea().acctId());
+        assertEquals(4111222233334444L, back.commarea().cardNum());
+        assertTrue(back.commarea().isPgmEnter());
+    }
+
     // ---- PF keys -------------------------------------------------------------------------------------
 
     @Test
@@ -275,8 +292,7 @@ class CoactvwcServiceTest {
     void xrefDuplicateKeyFallsIntoFileErrorBranch() {
         xrefs.put(new CardXrefRecord("4111222233335555", 777000111L, 12345678901L));
         SendMapAndReturn r = enter("12345678901");
-        assertEquals("File Error: READ     on CXACAIX   returned RESP 000000015 ,RESP2 000000000 ", r.screen().errmsgo()
-                .substring(0, 75));
+        assertEquals("File Error: READ     on CXACAIX   returned RESP 000000015 ,RESP2 000000140", err(r));
         assertNull(r.screen().acstnumo());
     }
 
