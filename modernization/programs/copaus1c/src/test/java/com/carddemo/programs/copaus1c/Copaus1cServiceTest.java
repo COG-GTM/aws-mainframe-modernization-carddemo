@@ -289,6 +289,18 @@ class Copaus1cServiceTest {
         }
 
         @Test
+        void forcedFwOnReadsStillDeliversSegmentsAndPosition() {
+            db.forceNext(Op.GU, "FW");
+            db.forceNext(Op.GNP_WHERE, "FW");
+            db.forceNext(Op.GNP, "FW");
+            AuthViewResult r = service.execute(req(KEY1, AidKey.DFHPF8));
+            assertEquals(1, r.screens().size());
+            assertEquals(KEY2, r.commarea().cpvd().getPauSelected());
+            assertFalse(r.lastScreen().cardnum().equals(low(16)));
+            assertEquals(msg(""), r.lastScreen().errmsg());
+        }
+
+        @Test
         void readNextErrorShowsSystemErrorMessage() {
             db.forceNext(Op.GNP, "AI");
             AuthViewResult r = service.execute(req(KEY1, AidKey.DFHPF8));
