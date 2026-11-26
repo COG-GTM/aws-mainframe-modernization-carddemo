@@ -70,6 +70,9 @@ class InMemoryIndexedFileTest {
         assertEquals("30", new FileIndexedFile(p, 6, 0, 3).open(OpenMode.I_O));
         assertEquals("30", new FileIndexedFile(dir, 6, 0, 3).open(OpenMode.INPUT));
         assertEquals("30", new LineSequentialReader(dir, 6).open());
+        Path blocked = dir.resolve("blocked.txt");
+        Files.writeString(blocked, "AAA1AAA2AAA3\n");
+        assertEquals("30", new LineSequentialReader(blocked, 6).open());
         assertEquals(List.of("AAA1", "AAA2"), Files.readAllLines(p));
     }
 
