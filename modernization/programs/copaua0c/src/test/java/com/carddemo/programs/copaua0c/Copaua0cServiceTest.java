@@ -398,6 +398,17 @@ class Copaua0cServiceTest {
         }
 
         @Test
+        void oversizedRequestIsLeftOnQueueAndLoggedAsReadFailure() {
+            Harness h = new Harness().withStandardCard("1000.00", "0.00");
+            h.mq.enqueue(Harness.request(CARD, "10.00", TXN1) + ",".repeat(400), "C1", Harness.REPLY_Q);
+            Copaua0cRunResult r = h.run();
+            assertLog(onlyLog(h), "M003", 'C', 'C', "000000001", "000002080", "FAILED TO READ REQUEST MQ", "");
+            assertEnded(h, r);
+            assertEquals(1, h.mq.pending());
+            assertTrue(h.ims.calls().isEmpty());
+        }
+
+        @Test
         void mqPutFailureSkipsDbWriteAndTerminatesPsb() {
             Harness h = new Harness().withStandardCard("1000.00", "0.00").send(CARD, "10.00", TXN1);
             h.mq.failPut(2, 2087);

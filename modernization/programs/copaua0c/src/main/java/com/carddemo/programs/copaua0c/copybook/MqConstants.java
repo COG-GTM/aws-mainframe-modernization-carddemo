@@ -9,12 +9,15 @@ public final class MqConstants {
 
     public static final int MQRC_NONE = 0;
     public static final int MQRC_NO_MSG_AVAILABLE = 2033;
+    public static final int MQRC_TRUNCATED_MSG_ACCEPTED = 2079;
+    public static final int MQRC_TRUNCATED_MSG_FAILED = 2080;
 
     public static final int MQOT_Q = 1;
     public static final int MQOO_INPUT_SHARED = 2;
     public static final int MQCO_NONE = 0;
 
     public static final int MQGMO_WAIT = 1;
+    public static final int MQGMO_ACCEPT_TRUNCATED_MSG = 64;
     public static final int MQGMO_NO_SYNCPOINT = 4;
     public static final int MQGMO_FAIL_IF_QUIESCING = 8192;
     public static final int MQGMO_CONVERT = 16384;

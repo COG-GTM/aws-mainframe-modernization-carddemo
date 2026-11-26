@@ -65,14 +65,25 @@ public final class InMemoryMqGateway implements MqGateway {
         if (getFailure != null) {
             return new GetResult(getFailure.compCode(), getFailure.reason(), "", 0);
         }
-        RequestMessage m = requests.poll();
+        RequestMessage m = requests.peek();
         if (m == null) {
             return new GetResult(MqConstants.MQCC_FAILED, MqConstants.MQRC_NO_MSG_AVAILABLE, "", 0);
         }
         md.correlId(m.correlId());
         md.replyToQ(m.replyToQ());
-        String data = m.data().length() > bufferLength ? m.data().substring(0, bufferLength) : m.data();
-        return new GetResult(MqConstants.MQCC_OK, MqConstants.MQRC_NONE, data, data.length());
+        int fullLength = m.data().length();
+        if (fullLength > bufferLength) {
+            String partial = m.data().substring(0, bufferLength);
+            if ((gmo.options() & MqConstants.MQGMO_ACCEPT_TRUNCATED_MSG) == 0) {
+                return new GetResult(MqConstants.MQCC_WARNING, MqConstants.MQRC_TRUNCATED_MSG_FAILED, partial,
+                        fullLength);
+            }
+            requests.poll();
+            return new GetResult(MqConstants.MQCC_WARNING, MqConstants.MQRC_TRUNCATED_MSG_ACCEPTED, partial,
+                    fullLength);
+        }
+        requests.poll();
+        return new GetResult(MqConstants.MQCC_OK, MqConstants.MQRC_NONE, m.data(), fullLength);
     }
 
     @Override
