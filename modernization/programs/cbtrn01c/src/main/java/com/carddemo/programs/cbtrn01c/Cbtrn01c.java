@@ -372,7 +372,7 @@ public final class Cbtrn01c {
         Cbtrn01c program = new Cbtrn01c(dalytran, cust, xref, card, acct, tran, display);
         try {
             return program.run();
-        } catch (AbendException e) {
+        } catch (RuntimeException e) {
             // Abnormal termination closes any files still open; statuses are not reported.
             dalytran.close();
             cust.close();
@@ -380,7 +380,10 @@ public final class Cbtrn01c {
             card.close();
             acct.close();
             tran.close();
-            return e.abendCode();
+            if (e instanceof AbendException abend) {
+                return abend.abendCode();
+            }
+            throw e;
         }
     }
 
