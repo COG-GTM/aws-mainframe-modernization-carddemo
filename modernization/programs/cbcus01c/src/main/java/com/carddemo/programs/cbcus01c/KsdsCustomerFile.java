@@ -44,7 +44,7 @@ public final class KsdsCustomerFile implements CustomerFile {
     }
 
     private KsdsCustomerFile(Path path, Charset charset, boolean fixedBlock) {
-        if (charset.newEncoder().maxBytesPerChar() > 1.0f) {
+        if (!charset.canEncode() || charset.newEncoder().maxBytesPerChar() > 1.0f) {
             throw new IllegalArgumentException("CUSTFILE charset must be single-byte (1 char = 1 byte): " + charset);
         }
         this.path = path;

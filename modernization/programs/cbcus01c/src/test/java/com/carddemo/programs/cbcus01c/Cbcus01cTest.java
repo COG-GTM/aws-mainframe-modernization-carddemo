@@ -245,6 +245,9 @@ class Cbcus01cTest {
         assertEquals(Cbcus01cMain.RC_USAGE, Cbcus01cMain.run(new String[] {"--charset=", f}, nul, nul));
         assertEquals(Cbcus01cMain.RC_USAGE, Cbcus01cMain.run(new String[] {"--charset=NO-SUCH-CS", f}, nul, nul));
         assertEquals(Cbcus01cMain.RC_USAGE, Cbcus01cMain.run(new String[] {"--charset=UTF-8", f}, nul, nul));
+        assertEquals(Cbcus01cMain.RC_USAGE, Cbcus01cMain.run(new String[] {"--charset=ISO-2022-CN", f}, nul, nul));
+        assertEquals(Cbcus01cMain.RC_USAGE,
+                Cbcus01cMain.run(new String[] {"--fixed-block", "--charset=ISO-2022-CN", f}, nul, nul));
         assertEquals(Cbcus01cMain.RC_USAGE, Cbcus01cMain.run(new String[] {"--fixed-block"}, nul, nul));
     }
 
