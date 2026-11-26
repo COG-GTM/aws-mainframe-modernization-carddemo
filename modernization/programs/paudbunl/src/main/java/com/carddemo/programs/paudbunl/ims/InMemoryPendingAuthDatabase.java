@@ -7,7 +7,9 @@ import com.carddemo.programs.paudbunl.copybook.PendingAuthSummary;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.IdentityHashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * In-memory stand-in for the HIDAM database DBPAUTP0 as seen through PSB PAUTBUNL
@@ -23,9 +25,14 @@ public final class InMemoryPendingAuthDatabase implements DliGateway {
     private record Root(byte[] summary, List<byte[]> details) {
     }
 
+    /** IMS keeps database position per PCB, so each PCB starts before the first root. */
+    private static final class Position {
+        int rootPos = -1;
+        int childPos = -1;
+    }
+
     private final List<Root> roots = new ArrayList<>();
-    private int rootPos = -1;
-    private int childPos = -1;
+    private final Map<PautbPcb, Position> positions = new IdentityHashMap<>();
 
     /** Adds a root segment (100 bytes); subsequent {@link #addChild} calls attach to it. */
     public InMemoryPendingAuthDatabase addRoot(byte[] summary) {
@@ -62,19 +69,20 @@ public final class InMemoryPendingAuthDatabase implements DliGateway {
     }
 
     private void getNext(PautbPcb pcb, byte[] ioArea, Ssa ssa) {
+        Position p = positions.computeIfAbsent(pcb, k -> new Position());
         if (!ROOT_SEGMENT.equals(ssa.segmentName())) {
             pcb.pcbStatus(ImsStatus.INVALID_CALL);
             return;
         }
-        if (rootPos + 1 >= roots.size()) {
-            rootPos = roots.size();
-            childPos = -1;
+        if (p.rootPos + 1 >= roots.size()) {
+            p.rootPos = roots.size();
+            p.childPos = -1;
             pcb.pcbStatus(ImsStatus.END_OF_DB);
             return;
         }
-        rootPos++;
-        childPos = -1;
-        byte[] seg = roots.get(rootPos).summary();
+        p.rootPos++;
+        p.childPos = -1;
+        byte[] seg = roots.get(p.rootPos).summary();
         System.arraycopy(seg, 0, ioArea, 0, seg.length);
         pcb.pcbStatus(ImsStatus.OK);
         pcb.segLevel("01");
@@ -83,22 +91,23 @@ public final class InMemoryPendingAuthDatabase implements DliGateway {
     }
 
     private void getNextWithinParent(PautbPcb pcb, byte[] ioArea, Ssa ssa) {
+        Position p = positions.computeIfAbsent(pcb, k -> new Position());
         if (!CHILD_SEGMENT.equals(ssa.segmentName())) {
             pcb.pcbStatus(ImsStatus.INVALID_CALL);
             return;
         }
-        if (rootPos < 0 || rootPos >= roots.size()) {
+        if (p.rootPos < 0 || p.rootPos >= roots.size()) {
             pcb.pcbStatus(ImsStatus.WRONG_PARENTAGE);
             return;
         }
-        Root root = roots.get(rootPos);
-        if (childPos + 1 >= root.details().size()) {
-            childPos = root.details().size();
+        Root root = roots.get(p.rootPos);
+        if (p.childPos + 1 >= root.details().size()) {
+            p.childPos = root.details().size();
             pcb.pcbStatus(ImsStatus.SEGMENT_NOT_FOUND);
             return;
         }
-        childPos++;
-        byte[] seg = root.details().get(childPos);
+        p.childPos++;
+        byte[] seg = root.details().get(p.childPos);
         System.arraycopy(seg, 0, ioArea, 0, seg.length);
         pcb.pcbStatus(ImsStatus.OK);
         pcb.segLevel("02");

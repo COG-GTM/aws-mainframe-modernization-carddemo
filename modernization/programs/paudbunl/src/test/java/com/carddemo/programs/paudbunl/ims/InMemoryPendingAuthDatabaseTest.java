@@ -83,4 +83,18 @@ class InMemoryPendingAuthDatabaseTest {
         assertTrue(ImsStatus.isStatusOk("FW"));
         assertTrue(ImsStatus.isRetryCondition("TE"));
     }
+
+    @Test
+    void positionIsKeptPerPcbSoAFreshPcbStartsAtTheFirstRoot() {
+        InMemoryPendingAuthDatabase db = new InMemoryPendingAuthDatabase()
+                .addRoot(com.carddemo.programs.paudbunl.TestSegments.summaryBytes(1));
+        byte[] io = new byte[100];
+        com.carddemo.programs.paudbunl.copybook.PautbPcb first = com.carddemo.programs.paudbunl.Paudbunl.pautbunlPcb();
+        db.cbltdli(com.carddemo.programs.paudbunl.copybook.ImsFunctionCodes.GN, first, io, Ssa.ROOT_UNQUAL_SSA);
+        db.cbltdli(com.carddemo.programs.paudbunl.copybook.ImsFunctionCodes.GN, first, io, Ssa.ROOT_UNQUAL_SSA);
+        org.junit.jupiter.api.Assertions.assertEquals(ImsStatus.END_OF_DB, first.pcbStatus());
+        com.carddemo.programs.paudbunl.copybook.PautbPcb second = com.carddemo.programs.paudbunl.Paudbunl.pautbunlPcb();
+        db.cbltdli(com.carddemo.programs.paudbunl.copybook.ImsFunctionCodes.GN, second, io, Ssa.ROOT_UNQUAL_SSA);
+        org.junit.jupiter.api.Assertions.assertTrue(second.isStatusSpaces());
+    }
 }
