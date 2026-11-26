@@ -69,7 +69,7 @@ public final class Pic {
             } else if (c == ' ') {
                 digits.append('0');
             } else {
-                throw new IllegalArgumentException("invalid zoned decimal byte '" + c + "' in '" + f + "'");
+                throw new IllegalArgumentException("invalid zoned decimal byte at position " + (i + 1) + " of " + width);
             }
         }
         BigInteger unscaled = new BigInteger(digits.toString());
