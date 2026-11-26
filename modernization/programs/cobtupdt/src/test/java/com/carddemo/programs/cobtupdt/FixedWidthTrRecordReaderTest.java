@@ -1,0 +1,57 @@
+package com.carddemo.programs.cobtupdt;
+
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
+
+import java.io.StringReader;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.List;
+import java.util.Optional;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
+class FixedWidthTrRecordReaderTest {
+
+    @Test
+    void lineSequentialStripsCrLf(@TempDir Path dir) throws Exception {
+        Path f = dir.resolve("inp.txt");
+        Files.writeString(f, "A01One\r\nD02\r\n", StandardCharsets.UTF_8);
+        FixedWidthTrRecordReader r = FixedWidthTrRecordReader.of(f);
+        assertEquals("00", r.open());
+        assertEquals(Optional.of("A01One"), r.readNext());
+        assertEquals(Optional.of("D02"), r.readNext());
+        assertEquals(Optional.empty(), r.readNext());
+        assertEquals("00", r.close());
+    }
+
+    @Test
+    void fixedBlockReads53CharRecords() {
+        String rec1 = TrRecord.parse("A01One").toFixedWidth();
+        String rec2 = TrRecord.parse("U02Two").toFixedWidth();
+        FixedWidthTrRecordReader r = new FixedWidthTrRecordReader(
+                () -> new StringReader(rec1 + rec2), FixedWidthTrRecordReader.Layout.FIXED_BLOCK);
+        r.open();
+        assertEquals(Optional.of(rec1), r.readNext());
+        assertEquals(Optional.of(rec2), r.readNext());
+        assertEquals(Optional.empty(), r.readNext());
+    }
+
+    @Test
+    void missingFileGivesStatus35AndReadGives47() {
+        FixedWidthTrRecordReader r = FixedWidthTrRecordReader.of(Path.of("no/such/file"));
+        assertEquals("35", r.open());
+        CobolFileStatusException e = assertThrows(CobolFileStatusException.class, r::readNext);
+        assertEquals("47", e.fileStatus());
+        assertEquals("42", r.close());
+    }
+
+    @Test
+    void doubleOpenGivesStatus41() {
+        FixedWidthTrRecordReader r = FixedWidthTrRecordReader.ofLines(List.of("A01"));
+        assertEquals("00", r.open());
+        assertEquals("41", r.open());
+    }
+}
