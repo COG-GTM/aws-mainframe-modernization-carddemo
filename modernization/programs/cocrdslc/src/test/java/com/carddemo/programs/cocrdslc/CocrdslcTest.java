@@ -486,6 +486,18 @@ class CocrdslcTest {
         }
 
         @Test
+        void duplicateAlternateKeyIsAFileError() {
+            gateway.put(new CardRecord("1111222233334444", ACCT, 123, "Second Card", "2025-01-31", "Y"));
+            Cocrdslc.Task t = task();
+            t.wsCardRidAcctId = CobolText.zoned(ACCT, 11);
+            t.getCardByAcct9150();
+            assertTrue(t.isInputError());
+            assertFalse(t.isFoundCardsForAccount());
+            assertEquals("File Error: READ     on CARDAIX   returned RESP 000000015 ,RESP2 000000000 ",
+                    t.wsReturnMsg());
+        }
+
+        @Test
         void notFoundSetsXrefMessage() {
             Cocrdslc.Task t = task();
             t.getCardByAcct9150();

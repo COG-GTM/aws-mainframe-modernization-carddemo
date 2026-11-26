@@ -7,10 +7,11 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
-/** In-memory KSDS keyed by CARD-NUM with a non-unique CARD-ACCT-ID alternate index (first match wins). */
+/** In-memory KSDS keyed by CARD-NUM with a non-unique CARD-ACCT-ID alternate index (first match wins;
+ * DUPKEY with the record when more cards share the key, as CICS reports for a non-unique path). */
 public final class InMemoryCardFileGateway implements CardFileGateway {
 
     private final Map<String, CardRecord> byCardNum = new LinkedHashMap<>();
@@ -60,9 +61,14 @@ public final class InMemoryCardFileGateway implements CardFileGateway {
             return forcedResponse;
         }
         long acct = CobolText.zonedValue(acctId11);
-        Optional<CardRecord> rec = byCardNum.values().stream()
+        List<CardRecord> matches = byCardNum.values().stream()
                 .filter(c -> c.cardAcctId() == acct)
-                .findFirst();
-        return rec.map(CardReadResponse::normal).orElseGet(CardReadResponse::notFound);
+                .toList();
+        if (matches.isEmpty()) {
+            return CardReadResponse.notFound();
+        }
+        return matches.size() == 1
+                ? CardReadResponse.normal(matches.get(0))
+                : new CardReadResponse(CicsResp.DUPKEY, 0, matches.get(0));
     }
 }
