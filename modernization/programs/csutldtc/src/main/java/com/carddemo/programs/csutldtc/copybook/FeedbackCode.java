@@ -22,9 +22,14 @@ import java.util.Arrays;
 public final class FeedbackCode {
     public static final int LENGTH = 12;
     public static final byte CEE_CASE_SEV_CTL = 0x59;
-    public static final byte[] CEE_FACILITY_EBCDIC = {(byte) 0xC3, (byte) 0xC5, (byte) 0xC5};
+    private static final byte[] CEE_FACILITY_EBCDIC = {(byte) 0xC3, (byte) 0xC5, (byte) 0xC5};
 
     private final byte[] bytes;
+
+    /** FACILITY-ID 'CEE' in EBCDIC (X'C3C5C5'); returns a copy. */
+    public static byte[] ceeFacilityEbcdic() {
+        return CEE_FACILITY_EBCDIC.clone();
+    }
 
     private FeedbackCode(byte[] bytes) {
         this.bytes = bytes;

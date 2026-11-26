@@ -34,7 +34,9 @@ class CopybookLayoutTest {
         assertEquals(3, fc.classCode());
         assertEquals(2513, fc.causeCode());
         assertEquals(0x59, fc.caseSevCtl());
-        assertArrayEquals(FeedbackCode.CEE_FACILITY_EBCDIC, fc.facilityId());
+        assertArrayEquals(FeedbackCode.ceeFacilityEbcdic(), fc.facilityId());
+        FeedbackCode.ceeFacilityEbcdic()[0] = 0;
+        assertEquals(Optional.of(FeedbackCondition.FC_UNSUPP_RANGE), FeedbackCondition.of(FeedbackCode.ofCondition(3, 2513)));
         assertEquals(0, fc.iSInfo());
         assertEquals(fc, FeedbackCode.fromBytes(fc.toBytes()));
         assertThrows(IllegalArgumentException.class, () -> FeedbackCode.fromBytes(new byte[8]));
