@@ -484,6 +484,16 @@ class Cousr00cServiceTest {
     }
 
     @Test
+    void displayFromReadErrorIsKeptWhenEndbrThenAbends() {
+        with(users(25));
+        file.injectFailure(Op.READNEXT, new CicsResponse(CicsResp.IOERR, 4));
+        file.injectFailure(Op.ENDBR, new CicsResponse(CicsResp.IOERR, 0));
+        CicsAbendException e = assertThrows(CicsAbendException.class, () -> service.execute(firstEntry()));
+        assertEquals(List.of("RESP:000000017REAS:000000004"), e.displaysBeforeAbend());
+        assertEquals("Unable to lookup User...", trim(e.sendsBeforeAbend().get(0).screen().errmsg()));
+    }
+
+    @Test
     void displaysAreEmptyOnHappyPath() {
         assertTrue(with(users(5)).execute(firstEntry()).displays().isEmpty());
     }
