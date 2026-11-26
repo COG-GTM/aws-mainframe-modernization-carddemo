@@ -205,6 +205,18 @@ class PaudbunlTest {
     }
 
     @Test
+    void writeErrorsAreNotCheckedLikeCobolButAreNotCountedAsWritten() {
+        opfile2.failWriteWith("34");
+        PaudbunlResult r = run(twoAccounts());
+        // PAUDBUNL never tests the FILE STATUS after WRITE, so the run still ends with RC 0
+        assertEquals(0, r.returnCode());
+        assertEquals(2, r.rootRecordsWritten());
+        assertEquals(0, r.childRecordsWritten());
+        assertEquals(4, r.wsNoSumryRead());
+        assertTrue(opfile2.records().isEmpty());
+    }
+
+    @Test
     void rootWithoutChildrenWritesOnlyOutfil1() {
         PaudbunlResult r = run(new InMemoryPendingAuthDatabase().addRoot(TestSegments.summaryBytes(8)));
         assertEquals(1, opfile1.records().size());

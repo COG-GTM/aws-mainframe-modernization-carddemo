@@ -10,6 +10,7 @@ public final class InMemoryRecordWriter implements RecordWriter {
     private final List<byte[]> records = new ArrayList<>();
     private String openStatus = FileStatus.SUCCESS;
     private String closeStatus = FileStatus.SUCCESS;
+    private String writeStatus = FileStatus.SUCCESS;
     private boolean open;
     private int openCount;
     private int closeCount;
@@ -20,6 +21,11 @@ public final class InMemoryRecordWriter implements RecordWriter {
 
     public InMemoryRecordWriter failOpenWith(String status) {
         this.openStatus = status;
+        return this;
+    }
+
+    public InMemoryRecordWriter failWriteWith(String status) {
+        this.writeStatus = status;
         return this;
     }
 
@@ -49,6 +55,9 @@ public final class InMemoryRecordWriter implements RecordWriter {
         }
         if (record.length != lrecl) {
             return FileStatus.RECORD_LENGTH_CONFLICT;
+        }
+        if (!FileStatus.isOk(writeStatus)) {
+            return writeStatus;
         }
         records.add(record.clone());
         return FileStatus.SUCCESS;

@@ -145,8 +145,10 @@ public final class Paudbunl {
             opfil2Rec.initializeChildSegRec();
             opfil2Rec.moveRootSegKey(pendingAuthSummary, PendingAuthSummary.ACCT_ID_OFFSET);
             if (PendingAuthSummary.isAcctIdNumeric(pendingAuthSummary)) {
-                opfile1.write(opfil1Rec.clone());
-                rootRecordsWritten++;
+                wsOutfl1Status = opfile1.write(opfil1Rec.clone());
+                if (FileStatus.isOk(wsOutfl1Status)) {
+                    rootRecordsWritten++;
+                }
                 wsEndOfChildSeg = " ";
                 while (!Y.equals(wsEndOfChildSeg)) {
                     findNextAuthDtl3000();
@@ -173,8 +175,10 @@ public final class Paudbunl {
             wsNoSumryRead = CobolData.addTruncating(wsNoSumryRead, 1, COUNTER_DIGITS);
             wsAuthSmryProcCnt = CobolData.addTruncating(wsAuthSmryProcCnt, 1, COUNTER_DIGITS);
             opfil2Rec.moveChildSegRec(pendingAuthDetails);
-            opfile2.write(opfil2Rec.toBytes());
-            childRecordsWritten++;
+            wsOutfl2Status = opfile2.write(opfil2Rec.toBytes());
+            if (FileStatus.isOk(wsOutfl2Status)) {
+                childRecordsWritten++;
+            }
         }
         if (ImsStatus.SEGMENT_NOT_FOUND.equals(pautbPcb.pcbStatus())) {
             wsEndOfChildSeg = Y;
