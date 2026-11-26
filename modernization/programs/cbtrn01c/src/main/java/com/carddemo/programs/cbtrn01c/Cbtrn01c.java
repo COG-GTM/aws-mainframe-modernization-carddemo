@@ -317,7 +317,9 @@ public final class Cbtrn01c {
 
     /**
      * Batch entry point. Each DD is bound by an argument {@code DDNAME=path} or, failing that, an
-     * environment variable named after the DD. Exit status 0 on success, 999 (abend U999) otherwise.
+     * environment variable named after the DD. Exit status 0 on success; on abend U999 the JVM is
+     * asked to exit with 999, which POSIX shells observe as 231 (999 mod 256). A SYSOUT write
+     * failure also ends with the abend status.
      */
     public static void main(String[] args) {
         Map<String, String> dd = new HashMap<>();
@@ -333,21 +335,29 @@ public final class Cbtrn01c {
                 dd.put(arg.substring(0, eq).toUpperCase(), arg.substring(eq + 1));
             }
         }
-        System.exit(execute(dd, System.out::println));
+        int rc = execute(dd, System.out::println);
+        System.out.flush();
+        System.exit(rc == 0 && System.out.checkError() ? ABEND_CODE : rc);
     }
 
     static int execute(Map<String, String> dd, Consumer<String> display) {
-        Cbtrn01c program = new Cbtrn01c(
-                new FixedWidthSequentialFile<>(path(dd, "DALYTRAN"), DalytranRecord.CODEC),
-                new FixedWidthIndexedFile<>(path(dd, "CUSTFILE"), CustomerRecord.CODEC, 9),
-                new FixedWidthIndexedFile<>(path(dd, "XREFFILE"), CardXrefRecord.CODEC, 16),
-                new FixedWidthIndexedFile<>(path(dd, "CARDFILE"), CardRecord.CODEC, 16),
-                new FixedWidthIndexedFile<>(path(dd, "ACCTFILE"), AccountRecord.CODEC, 11),
-                new FixedWidthIndexedFile<>(path(dd, "TRANFILE"), TranRecord.CODEC, 16),
-                display);
+        var dalytran = new FixedWidthSequentialFile<>(path(dd, "DALYTRAN"), DalytranRecord.CODEC);
+        var cust = new FixedWidthIndexedFile<>(path(dd, "CUSTFILE"), CustomerRecord.CODEC, 9);
+        var xref = new FixedWidthIndexedFile<>(path(dd, "XREFFILE"), CardXrefRecord.CODEC, 16);
+        var card = new FixedWidthIndexedFile<>(path(dd, "CARDFILE"), CardRecord.CODEC, 16);
+        var acct = new FixedWidthIndexedFile<>(path(dd, "ACCTFILE"), AccountRecord.CODEC, 11);
+        var tran = new FixedWidthIndexedFile<>(path(dd, "TRANFILE"), TranRecord.CODEC, 16);
+        Cbtrn01c program = new Cbtrn01c(dalytran, cust, xref, card, acct, tran, display);
         try {
             return program.run();
         } catch (AbendException e) {
+            // Abnormal termination closes any files still open; statuses are not reported.
+            dalytran.close();
+            cust.close();
+            xref.close();
+            card.close();
+            acct.close();
+            tran.close();
             return e.abendCode();
         }
     }
