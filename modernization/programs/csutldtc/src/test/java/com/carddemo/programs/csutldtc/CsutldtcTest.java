@@ -154,4 +154,16 @@ class CsutldtcTest {
         assertFalse(program.call("2023-13-01", FMT).toParm("2023-13-01", FMT).acceptedByTrnAndReportCallers());
         assertFalse(program.call("2023-02-30", FMT).toParm("2023-02-30", FMT).acceptedByEditDateLe());
     }
+
+    @Test
+    void accountUpdateLayoutEightByteDateWithYyyymmddMask() {
+        // CSUTLDPY EDIT-DATE-LE: WS-EDIT-DATE-CCYYMMDD (8 bytes) with 'YYYYMMDD'
+        CsutldtcParm valid = program.call("20230101", "YYYYMMDD").toParm("20230101", "YYYYMMDD");
+        assertTrue(valid.acceptedByEditDateLe());
+        CsutldtcParm badDay = program.call("20230230", "YYYYMMDD").toParm("20230230", "YYYYMMDD");
+        assertFalse(badDay.acceptedByEditDateLe());
+        CsutldtcParm range = program.call("15000101", "YYYYMMDD").toParm("15000101", "YYYYMMDD");
+        assertEquals("2513", range.resultMsgNum());
+        assertFalse(range.acceptedByEditDateLe());
+    }
 }
