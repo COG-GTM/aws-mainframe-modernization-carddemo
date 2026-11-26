@@ -157,6 +157,31 @@ class CotrtupcSqlErrorTest {
     }
 
     @Test
+    void failedSyncpointAbendsAndBacksOutTheUpdate() {
+        Terminal t = validated();
+        t.db.failSyncpoint(new IllegalStateException("commit failed"));
+
+        CicsAbendException e = assertThrows(CicsAbendException.class, () -> t.pressResending(Dfhaid.DFHPF5));
+
+        assertEquals("9999", e.abendCode());
+        assertEquals("PURCHASE", t.db.rows().get("01"));
+        assertEquals(1, t.db.rollbacks());
+        assertEquals(java.util.List.of("SELECT", "UPDATE", "SYNCPOINT", "ROLLBACK"), t.db.log());
+    }
+
+    @Test
+    void failedSyncpointBacksOutDelete() {
+        Terminal t = Terminal.withSeedData().start();
+        t.show("06");
+        t.press(Dfhaid.DFHPF4, "06", "REVERAL");
+        t.db.failSyncpoint(new IllegalStateException("commit failed"));
+
+        assertThrows(CicsAbendException.class, () -> t.press(Dfhaid.DFHPF4, "06", "REVERAL"));
+
+        assertEquals("REVERAL", t.db.rows().get("06"));
+    }
+
+    @Test
     void runtimeFailureInsideSqlCallGoesToAbendRoutine() {
         Terminal t = Terminal.withSeedData().start();
         t.db.fail(Statement.SELECT, new IllegalStateException("DB2 connection lost"));

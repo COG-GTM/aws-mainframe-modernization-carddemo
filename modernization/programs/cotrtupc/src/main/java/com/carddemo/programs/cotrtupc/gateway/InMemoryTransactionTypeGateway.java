@@ -16,7 +16,9 @@ import java.util.TreeMap;
 
 /**
  * In-memory CARDDEMO.TRANSACTION_TYPE with the TRANSACTION_TYPE_CATEGORY foreign key (ON DELETE
- * RESTRICT -> SQLCODE -532) and per-statement SQLCODE injection for error-path tests.
+ * RESTRICT -> SQLCODE -532) and per-statement SQLCODE injection for error-path tests. Writes are visible
+ * at once (the next task's first write implicitly commits them, as CICS does at task end) and are undone
+ * by {@link #syncpointRollback()} until {@link #syncpoint()} commits them.
  */
 public final class InMemoryTransactionTypeGateway implements TransactionTypeGateway, CicsSyncpoint {
 
@@ -28,6 +30,9 @@ public final class InMemoryTransactionTypeGateway implements TransactionTypeGate
     private final Map<Statement, RuntimeException> failures = new EnumMap<>(Statement.class);
     private final List<String> log = new ArrayList<>();
     private int syncpoints;
+    private int rollbacks;
+    private Map<String, String> uncommittedBase;
+    private RuntimeException syncpointFailure;
 
     public InMemoryTransactionTypeGateway put(String type, String description) {
         rows.put(type, description);
@@ -81,6 +86,16 @@ public final class InMemoryTransactionTypeGateway implements TransactionTypeGate
         return this;
     }
 
+    /** Next SYNCPOINT throws before committing (simulates an abend inside the commit). */
+    public InMemoryTransactionTypeGateway failSyncpoint(RuntimeException e) {
+        syncpointFailure = e;
+        return this;
+    }
+
+    public int rollbacks() {
+        return rollbacks;
+    }
+
     public Map<String, String> rows() {
         return rows;
     }
@@ -95,8 +110,31 @@ public final class InMemoryTransactionTypeGateway implements TransactionTypeGate
 
     @Override
     public void syncpoint() {
-        syncpoints++;
         log.add("SYNCPOINT");
+        RuntimeException e = syncpointFailure;
+        if (e != null) {
+            syncpointFailure = null;
+            throw e;
+        }
+        syncpoints++;
+        uncommittedBase = null;
+    }
+
+    @Override
+    public void syncpointRollback() {
+        log.add("ROLLBACK");
+        rollbacks++;
+        if (uncommittedBase != null) {
+            rows.clear();
+            rows.putAll(uncommittedBase);
+            uncommittedBase = null;
+        }
+    }
+
+    private void beforeWrite() {
+        if (uncommittedBase == null) {
+            uncommittedBase = new TreeMap<>(rows);
+        }
     }
 
     private Sqlca intercept(Statement s) {
@@ -132,6 +170,7 @@ public final class InMemoryTransactionTypeGateway implements TransactionTypeGate
         if (!rows.containsKey(dcl.trType)) {
             return Sqlca.notFound();
         }
+        beforeWrite();
         rows.put(dcl.trType, dcl.varcharValue());
         return Sqlca.ok();
     }
@@ -145,6 +184,7 @@ public final class InMemoryTransactionTypeGateway implements TransactionTypeGate
         if (rows.containsKey(dcl.trType)) {
             return Sqlca.of(-803, "1 CARDDEMO.TRANSACTION_TYPE", "23505");
         }
+        beforeWrite();
         rows.put(dcl.trType, dcl.varcharValue());
         return Sqlca.ok();
     }
@@ -159,9 +199,11 @@ public final class InMemoryTransactionTypeGateway implements TransactionTypeGate
         if (hasChildren) {
             return Sqlca.of(-532, "TRC_TYPE_CODE", "23504");
         }
-        if (rows.remove(dcl.trType) == null) {
+        if (!rows.containsKey(dcl.trType)) {
             return Sqlca.notFound();
         }
+        beforeWrite();
+        rows.remove(dcl.trType);
         return Sqlca.ok();
     }
 }

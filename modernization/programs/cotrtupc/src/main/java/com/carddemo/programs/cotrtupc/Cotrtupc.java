@@ -104,10 +104,13 @@ public final class Cotrtupc {
             } catch (TaskEnd end) {
                 return end.response;
             } catch (CicsAbendException e) {
+                cics.syncpointRollback();
                 throw e;
             } catch (RuntimeException e) {
                 // EXEC CICS HANDLE ABEND LABEL(ABEND-ROUTINE)
-                throw abendRoutine(e);
+                CicsAbendException abended = abendRoutine(e);
+                cics.syncpointRollback();
+                throw abended;
             }
         }
 
