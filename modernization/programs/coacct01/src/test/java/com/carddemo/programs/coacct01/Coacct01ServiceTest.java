@@ -145,12 +145,19 @@ class Coacct01ServiceTest {
         }
 
         @Test
-        void overpunchedKeyIsNormalisedForTheReadButEchoedRaw() {
-            mq.enqueue(INPUT_QUEUE, "INQA0000000009A");   // EBCDIC C1 -> digit 1 => account 91
+        void overpunchedKeyIsNormalisedForTheRead() {
+            mq.enqueue(INPUT_QUEUE, "INQA0000000000A");   // EBCDIC C1 -> digit 1 => account 1
+            run();
+            assertEquals(CobolText.pic(ACCOUNT_1_REPLY, 1000), replies().get(0).data());
+            assertEquals(1, accounts.readCount());
+        }
+
+        @Test
+        void overpunchedKeyIsEchoedRawWhenNotFound() {
+            mq.enqueue(INPUT_QUEUE, "INQA0000000009A");   // account 91 is not in the fixture
             run();
             assertEquals(CobolText.pic("INVALID REQUEST PARAMETERS ACCT ID : 0000000009A", 1000),
                     replies().get(0).data());
-            assertEquals(1, accounts.readCount());
         }
 
         @Test
