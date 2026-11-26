@@ -356,6 +356,8 @@ public final class Copaus1cService {
         // READ-AUTH-RECORD
         private void readAuthRecord() {
             schedulePsb();
+            pendingAuthSummary.setAcctId(wsAcctId % 100_000_000_000L);
+            pendingAuthDetails.setAuthorizationKey(wsAuthKey);
 
             DliResult<PendingAuthSummary> gu = ims.getUniqueSummary(wsAcctId % 100_000_000_000L);
             imsReturnCode = gu.dibstat();
