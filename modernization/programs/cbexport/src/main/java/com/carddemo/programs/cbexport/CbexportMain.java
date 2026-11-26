@@ -108,7 +108,8 @@ public final class CbexportMain {
     }
 
     private static boolean sameFile(Path a, Path b) {
-        if (a.toAbsolutePath().normalize().equals(b.toAbsolutePath().normalize())) {
+        // An input under EXPFILE (e.g. EXPFILE is a directory symlink) would lose its path on replace.
+        if (a.toAbsolutePath().normalize().startsWith(b.toAbsolutePath().normalize())) {
             return true;
         }
         try {
