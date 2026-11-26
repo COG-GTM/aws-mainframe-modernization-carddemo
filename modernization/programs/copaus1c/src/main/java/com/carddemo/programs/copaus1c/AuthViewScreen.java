@@ -17,6 +17,17 @@ public record AuthViewScreen(
         String merst, String merzip, String errmsg,
         char authrspColor, Field cursorField, boolean erase) {
 
+    /** Masks CARDNUM (all but the last 4) and CRDEXP so logging a screen does not leak card data. */
+    @Override
+    public String toString() {
+        String card = cardnum == null ? null
+                : "*".repeat(Math.max(0, cardnum.length() - 4)) + cardnum.substring(Math.max(0, cardnum.length() - 4));
+        return "AuthViewScreen[cardnum=" + card + ", crdexp=" + (crdexp == null ? null : "**/**")
+                + ", authdt=" + authdt + ", authtm=" + authtm + ", authrsp=" + authrsp + ", authrsn=" + authrsn
+                + ", authamt=" + authamt + ", authfrd=" + authfrd + ", errmsg=" + errmsg
+                + ", authrspColor=" + authrspColor + ", cursorField=" + cursorField + ", erase=" + erase + "]";
+    }
+
     static AuthViewScreen from(Copau1aMap m, boolean erase) {
         Map<Field, String> d = m.snapshot();
         Field cursor = null;
