@@ -103,4 +103,20 @@ class KsdsCustomerFileTest {
         assertEquals("A00000000", file.readNext().record().fdCustId());
         assertEquals("000000001", file.readNext().record().fdCustId());
     }
+
+    @Test
+    void fixedBlockCollatesOnStoredKeyBytesNotReEncodedText() throws IOException {
+        // IBM037 0x25 decodes to LF, which re-encodes differently; KSDS order uses the stored bytes.
+        byte[] data = new byte[2 * FdCustfileRec.RECORD_LENGTH];
+        java.util.Arrays.fill(data, (byte) 0x40);
+        data[0] = 0x25;
+        data[FdCustfileRec.RECORD_LENGTH] = 0x16;
+        Path f = dir.resolve("cust.ps");
+        Files.write(f, data);
+        KsdsCustomerFile file = KsdsCustomerFile.fixedBlock(f, Cbcus01c.EBCDIC);
+
+        assertEquals("00", file.open());
+        assertEquals(new String(new byte[] {0x16}, Cbcus01c.EBCDIC), file.readNext().record().fdCustId().substring(0, 1));
+        assertEquals(new String(new byte[] {0x25}, Cbcus01c.EBCDIC), file.readNext().record().fdCustId().substring(0, 1));
+    }
 }

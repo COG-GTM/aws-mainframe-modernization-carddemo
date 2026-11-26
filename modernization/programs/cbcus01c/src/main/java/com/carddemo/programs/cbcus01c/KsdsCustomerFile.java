@@ -11,9 +11,9 @@ import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 /**
  * File-backed CUSTFILE presented in ascending FD-CUST-ID order like a KSDS read with ACCESS MODE
@@ -63,7 +63,8 @@ public final class KsdsCustomerFile implements CustomerFile {
             return "41";
         }
         try {
-            List<FdCustfileRec> records = new ArrayList<>();
+            // KSDS key sequence is the unsigned byte order of the key as stored in the file.
+            List<Map.Entry<byte[], FdCustfileRec>> keyed = new ArrayList<>();
             if (fixedBlock) {
                 byte[] bytes = Files.readAllBytes(path);
                 if (bytes.length % FdCustfileRec.RECORD_LENGTH != 0) {
@@ -73,18 +74,20 @@ public final class KsdsCustomerFile implements CustomerFile {
                         .onMalformedInput(CodingErrorAction.REPORT)
                         .onUnmappableCharacter(CodingErrorAction.REPORT);
                 for (int off = 0; off < bytes.length; off += FdCustfileRec.RECORD_LENGTH) {
-                    records.add(FdCustfileRec.fromFixedWidth(decoder.decode(
-                            ByteBuffer.wrap(bytes, off, FdCustfileRec.RECORD_LENGTH)).toString()));
+                    FdCustfileRec rec = FdCustfileRec.fromFixedWidth(decoder.decode(
+                            ByteBuffer.wrap(bytes, off, FdCustfileRec.RECORD_LENGTH)).toString());
+                    keyed.add(Map.entry(Arrays.copyOfRange(bytes, off, off + FdCustfileRec.FD_CUST_ID_LEN), rec));
                 }
             } else {
                 for (String line : Files.readAllLines(path, charset)) {
                     if (!line.isEmpty()) {
-                        records.add(FdCustfileRec.fromFixedWidth(line));
+                        FdCustfileRec rec = FdCustfileRec.fromFixedWidth(line);
+                        keyed.add(Map.entry(rec.fdCustId().getBytes(charset), rec));
                     }
                 }
             }
-            // KSDS key sequence is the unsigned byte order of the key in the file's encoding.
-            records.sort(Comparator.comparing((FdCustfileRec r) -> r.fdCustId().getBytes(charset), Arrays::compareUnsigned));
+            keyed.sort(Map.Entry.comparingByKey(Arrays::compareUnsigned));
+            List<FdCustfileRec> records = keyed.stream().map(Map.Entry::getValue).toList();
             cursor = records.iterator();
             return FileStatus.SUCCESS;
         } catch (NoSuchFileException e) {
