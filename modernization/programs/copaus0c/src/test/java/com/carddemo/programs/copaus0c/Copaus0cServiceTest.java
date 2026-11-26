@@ -271,6 +271,14 @@ class Copaus0cServiceTest {
         }
 
         @Test
+        void xrefDupkeyOnAlternateIndexIsTreatedAsSystemError() {
+            data.xref.add(new com.carddemo.programs.copaus0c.copybook.CardXrefRecord("4000000000000002", 7, 1));
+            Copaus0cResult r = firstPage();
+            assertEquals(msg("Account:00000000001 System error while reading XREF file. Resp:000000015 Reas:000000000"),
+                    r.screens().get(0).errmsg());
+        }
+
+        @Test
         void xrefSystemErrorSetsErrorFlagAndSkipsPaging() {
             data.xref.forceResponse(22, 1);
             CardDemoCommarea ca = data.service.execute(Aid.ENTER, null, null).commarea();
@@ -443,6 +451,34 @@ class Copaus0cServiceTest {
             Copaus0cResult r = data.service.execute(Aid.PF7, ca, Copau0aInput.of(ACCT));
             assertEquals(msg("You are already at the top of the page..."), r.screen().errmsg());
             assertTrue(!r.screen().erase());
+        }
+
+        @Test
+        void pf7OnFirstPageResendsFsetFieldsReturnedByTerminal() {
+            Copaus0cResult first = firstPage();
+            Copau0aInput in = Copau0aInput.of(ACCT).withFsetFrom(first.screen());
+            Copaus0cResult r = data.service.execute(Aid.PF7, first.commarea(), in);
+            assertEquals(first.screen().credlim(), r.screen().credlim());
+            assertEquals(first.screen().declamt(), r.screen().declamt());
+            assertEquals(first.screen().row(1).trnid(), r.screen().row(1).trnid());
+            assertEquals(first.screen().row(5).pamt(), r.screen().row(5).pamt());
+        }
+
+        @Test
+        void detailsAreReadInPaut9ctsKeyOrderNotInsertionOrder() {
+            data.ims.addSummary(new com.carddemo.programs.copaus0c.copybook.PendingAuthSummary(2, 7, "A",
+                    java.util.List.of("  ", "  ", "  ", "  ", "  "), java.math.BigDecimal.ZERO,
+                    java.math.BigDecimal.ZERO, java.math.BigDecimal.ZERO, java.math.BigDecimal.ZERO, 0, 0,
+                    java.math.BigDecimal.ZERO, java.math.BigDecimal.ZERO));
+            for (int i : new int[] {3, 1, 2}) {
+                data.ims.addDetail(2, TestData.detail(i, "00", java.math.BigDecimal.ONE));
+            }
+            data.xref.add(new com.carddemo.programs.copaus0c.copybook.CardXrefRecord("4222222222222222", 7, 2));
+            CardDemoCommarea ca = data.service.execute(Aid.ENTER, null, null).commarea();
+            Copaus0cResult r = enter(Copau0aInput.of("00000000002"), ca);
+            assertEquals("TXN000000000001 ", r.screen().row(1).trnid());
+            assertEquals("TXN000000000002 ", r.screen().row(2).trnid());
+            assertEquals("TXN000000000003 ", r.screen().row(3).trnid());
         }
 
         @Test

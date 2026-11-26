@@ -132,6 +132,7 @@ public final class Copau0aMap {
      */
     public void receive(Copau0aInput input) {
         lowValues();
+        input.fsetEcho().forEach((name, value) -> receiveField(fields.get(name), value));
         receiveField(acctid, input.acctId());
         for (int i = 1; i <= 5; i++) {
             receiveField(row(i).sel, input.selection(i));
