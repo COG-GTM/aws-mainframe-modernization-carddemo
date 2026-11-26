@@ -16,6 +16,7 @@ import com.carddemo.programs.cbact01c.support.Pic;
 
 import java.math.BigDecimal;
 import java.util.Arrays;
+import java.util.Locale;
 import java.util.function.Consumer;
 
 /**
@@ -339,7 +340,7 @@ public final class Cbact01c {
         char ioStat2 = status.charAt(1);
         if (!Pic.isNumeric(status) || ioStat1 == '9') {
             int twoBytesBinary = ioStat2 & 0xFF;
-            return ioStat1 + String.format("%03d", twoBytesBinary % 1000);
+            return ioStat1 + String.format(Locale.ROOT, "%03d", twoBytesBinary % 1000);
         }
         return "00" + status;
     }

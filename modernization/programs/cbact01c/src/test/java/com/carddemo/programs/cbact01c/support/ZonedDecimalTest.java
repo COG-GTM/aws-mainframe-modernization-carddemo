@@ -45,4 +45,17 @@ class ZonedDecimalTest {
         assertThrows(DataException.class, () -> ZonedDecimal.decode("0000000 940{", 2));
         assertThrows(DataException.class, () -> ZonedDecimal.decode("00000001940*", 2));
     }
+
+    @Test
+    void encodingIgnoresDefaultLocaleDigits() {
+        java.util.Locale saved = java.util.Locale.getDefault();
+        try {
+            java.util.Locale.setDefault(java.util.Locale.forLanguageTag("ar-EG-u-nu-arab"));
+            assertEquals("00000025250{", ZonedDecimal.encode(new BigDecimal("2525.00"), 10, 2, true));
+            org.junit.jupiter.api.Assertions.assertArrayEquals(new byte[] {0x02, 0x52, 0x50, 0x0C},
+                    PackedDecimal.encode(new BigDecimal("2525.00"), 5, 2));
+        } finally {
+            java.util.Locale.setDefault(saved);
+        }
+    }
 }

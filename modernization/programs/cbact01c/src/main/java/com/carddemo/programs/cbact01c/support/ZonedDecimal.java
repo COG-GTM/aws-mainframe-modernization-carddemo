@@ -3,6 +3,7 @@ package com.carddemo.programs.cbact01c.support;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.math.RoundingMode;
+import java.util.Locale;
 
 /**
  * USAGE DISPLAY numerics ({@code PIC 9(n)} / {@code PIC S9(n)V9(m)}) with a trailing overpunched sign,
@@ -57,7 +58,7 @@ public final class ZonedDecimal {
         BigInteger unscaled = value.setScale(scale, RoundingMode.DOWN).unscaledValue();
         boolean negative = signed && unscaled.signum() < 0;
         BigInteger magnitude = unscaled.abs().mod(BigInteger.TEN.pow(total));
-        String digits = String.format("%0" + total + "d", magnitude);
+        String digits = String.format(Locale.ROOT, "%0" + total + "d", magnitude);
         if (!signed) {
             return digits;
         }

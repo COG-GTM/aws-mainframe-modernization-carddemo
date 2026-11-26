@@ -3,6 +3,7 @@ package com.carddemo.programs.cbact01c.support;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.math.RoundingMode;
+import java.util.Locale;
 
 /** USAGE COMP-3 (packed decimal): two digits per byte, sign in the low nibble of the last byte (C=+, D=-, F=unsigned). */
 public final class PackedDecimal {
@@ -19,7 +20,7 @@ public final class PackedDecimal {
         BigInteger unscaled = value.setScale(scale, RoundingMode.DOWN).unscaledValue();
         boolean negative = unscaled.signum() < 0;
         BigInteger magnitude = unscaled.abs().mod(BigInteger.TEN.pow(total));
-        String digits = String.format("%0" + (len * 2 - 1) + "d", magnitude);
+        String digits = String.format(Locale.ROOT, "%0" + (len * 2 - 1) + "d", magnitude);
         byte[] out = new byte[len];
         for (int i = 0; i < len; i++) {
             int hi = digits.charAt(i * 2) - '0';
