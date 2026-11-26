@@ -174,7 +174,8 @@ class CbimportFixtureTest {
 
     @org.junit.jupiter.params.ParameterizedTest
     @org.junit.jupiter.params.provider.ValueSource(strings = {"--output-encoding=UTF-16", "--output-encoding=UTF-8",
-            "--output-encoding=IBM273", "--export-encoding=IBM273", "--export-encoding=NO-SUCH-CHARSET"})
+            "--output-encoding=IBM273", "--export-encoding=IBM273", "--export-encoding=NO-SUCH-CHARSET",
+            "--export-encoding=x-MacSymbol", "--output-encoding=x-MacSymbol"})
     void encodingsThatBreakFixedWidthOrOverpunchAreRejected(String option) {
         assertEquals(CbimportMain.USAGE_EXIT_CODE, CbimportMain.run(args(true, option), CbimportTest.CLOCK, sysout));
         assertTrue(sysoutBytes.toString(StandardCharsets.UTF_8).contains("CBIMPORT: Unsupported encoding: "));

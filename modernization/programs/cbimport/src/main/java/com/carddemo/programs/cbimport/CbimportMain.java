@@ -108,6 +108,11 @@ public final class CbimportMain {
         if (!cs.canEncode() || cs.newEncoder().maxBytesPerChar() != 1f) {
             return null;
         }
+        String repertoire = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789 {}-.,/:";
+        if (!cs.newEncoder().canEncode(repertoire)
+                || !new String(repertoire.getBytes(cs), cs).equals(repertoire)) {
+            return null;
+        }
         String zoned = "{ABCDEFGHI}JKLMNOPQR0123456789";
         byte[] b = zoned.getBytes(cs);
         if (b.length != zoned.length()) {
