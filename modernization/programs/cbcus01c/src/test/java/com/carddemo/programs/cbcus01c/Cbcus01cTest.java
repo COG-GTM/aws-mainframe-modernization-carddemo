@@ -3,6 +3,7 @@ package com.carddemo.programs.cbcus01c;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -278,7 +279,24 @@ class Cbcus01cTest {
             }
         });
         CustomerFile file = new InMemoryCustomerFile(List.of(Fixtures.customer("000000001", "A")));
-        assertEquals(Cbcus01cMain.RC_SYSOUT_ERROR, Cbcus01cMain.execute(file, interrupted));
-        assertFalse(Thread.currentThread().isInterrupted());
+        try {
+            assertEquals(Cbcus01cMain.RC_SYSOUT_ERROR, Cbcus01cMain.execute(file, interrupted));
+            assertTrue(Thread.currentThread().isInterrupted());
+        } finally {
+            Thread.interrupted();
+        }
+    }
+
+    @Test
+    void callerInterruptIsPreservedAndNotMistakenForSysoutFailure() {
+        java.io.PrintStream healthy = new java.io.PrintStream(java.io.OutputStream.nullOutputStream());
+        CustomerFile file = new InMemoryCustomerFile(List.of(Fixtures.customer("000000001", "A")));
+        Thread.currentThread().interrupt();
+        try {
+            assertEquals(0, Cbcus01cMain.execute(file, healthy));
+            assertTrue(Thread.currentThread().isInterrupted());
+        } finally {
+            Thread.interrupted();
+        }
     }
 }
