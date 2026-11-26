@@ -111,6 +111,15 @@ class UsrsecFixtureTest {
     }
 
     @Test
+    void nonEbcdicCharactersAreRejectedAsUnableToAdd() {
+        assertEquals("Unable to Add User...",
+                enter(new UserAddScreenInput("\u4E2D\u6587", "USER", "USER0007", "PASSWORD", "U")));
+        assertEquals("Unable to Add User...",
+                enter(new UserAddScreenInput("ALEX", "USER", "USER\u4E2D007", "PASSWORD", "U")));
+        assertEquals(10, repo.size());
+    }
+
+    @Test
     void newUserIsAddedInKeyOrder() {
         assertEquals("User USER0006 has been added ...",
                 enter(new UserAddScreenInput("ALEX", "TEST", "USER0006", "PASSWORD", "U")));

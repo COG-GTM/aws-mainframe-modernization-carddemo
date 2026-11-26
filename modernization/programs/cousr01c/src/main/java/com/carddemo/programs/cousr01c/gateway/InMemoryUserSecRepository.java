@@ -44,6 +44,11 @@ public final class InMemoryUserSecRepository implements UserSecRepository {
         if (forcedResult != null) {
             return forcedResult;
         }
+        try {
+            record.toEbcdic();
+        } catch (IllegalArgumentException notRepresentable) {
+            return new WriteResult(CicsResp.INVREQ, 0);
+        }
         if (records.containsKey(record.secUsrId())) {
             return new WriteResult(CicsResp.DUPREC, 0);
         }
