@@ -280,6 +280,7 @@ class Copaus1cServiceTest {
         void atLastAuthorizationShowsMessageWithoutErase() {
             AuthViewResult r = service.execute(req(KEY3, AidKey.DFHPF8));
             AuthViewScreen s = r.lastScreen();
+            assertEquals(1, r.screens().size());
             assertEquals(msg("Already at the last Authorization..."), s.errmsg());
             assertFalse(s.erase());
             assertEquals(low(16), s.cardnum());
@@ -336,7 +337,11 @@ class Copaus1cServiceTest {
         void psbScheduleFailureShowsMessage() {
             db.forceNext(Op.SCHD, "TE");
             AuthViewResult r = service.execute(req(KEY1, AidKey.DFHENTER));
-            assertEquals(msg(" System error while scheduling PSB: Code:TE"), r.lastScreen().errmsg());
+            assertEquals(4, r.screens().size());
+            assertEquals(msg(" System error while scheduling PSB: Code:TE"), r.screens().get(0).errmsg());
+            assertEquals(msg(" System error while reading Auth Summary: Code:TH"), r.screens().get(1).errmsg());
+            assertEquals(msg(" System error while reading Auth Details: Code:TH"), r.lastScreen().errmsg());
+            assertEquals(low(16), r.lastScreen().cardnum());
             assertEquals(0, db.syncpointCount());
         }
 
@@ -407,6 +412,25 @@ class Copaus1cServiceTest {
             assertEquals(msg(""), r.lastScreen().errmsg());
             assertEquals(1, db.rollbackCount());
             assertEquals(0, db.syncpointCount());
+        }
+
+        @Test
+        void missingDetailKeepsRequestedKeyInSegmentPassedToLinkAndSelection() {
+            AuthorizationKey missing = AuthorizationKey.of(12345, 678L);
+            AuthViewResult r = service.execute(req(missing, AidKey.DFHPF5));
+            assertEquals(missing, r.commarea().cpvd().getPauSelected());
+            assertEquals(1, link.calls().size());
+            assertEquals(1, db.rollbackCount() + db.syncpointCount());
+        }
+
+        @Test
+        void scheduleFailureNeverCommitsFraudUpdate() {
+            db.forceNext(Op.SCHD, "TE");
+            AuthViewResult r = service.execute(req(KEY1, AidKey.DFHPF5));
+            assertEquals(msg(" System error while FRAUD Tagging, ROLLBACK||THTH"), r.lastScreen().errmsg());
+            assertEquals(0, db.syncpointCount());
+            assertEquals(1, db.rollbackCount());
+            assertEquals(' ', db.findDetail(ACCT, KEY1).getAuthFraud());
         }
 
         @Test

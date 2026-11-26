@@ -21,7 +21,8 @@ import java.util.Map;
 /**
  * In-memory stand-in for the HIDAM pending-authorization database (root PAUTSUM0 keyed by ACCNTID, child
  * PAUTDTL1 keyed by PAUT9CTS) plus CICS unit-of-work control. Keeps IMS position (parent + current child),
- * PSB scheduling state, and a journal so SYNCPOINT ROLLBACK undoes REPLs.
+ * PSB scheduling state, and a journal so SYNCPOINT ROLLBACK undoes REPLs. One instance models the PCB of a
+ * single CICS task at a time (as each CICS task schedules its own PSB); it is not meant for concurrent tasks.
  */
 public final class InMemoryPendingAuthDb implements PendingAuthDbGateway, SyncpointGateway {
 
@@ -105,6 +106,9 @@ public final class InMemoryPendingAuthDb implements PendingAuthDbGateway, Syncpo
         if (f != null) {
             return DliResult.of(f);
         }
+        if (!psbScheduled) {
+            return DliResult.of(ImsStatus.PSB_NOT_SCHEDULED);
+        }
         Root root = roots.get(acctId);
         if (root == null) {
             currentRoot = null;
@@ -122,6 +126,9 @@ public final class InMemoryPendingAuthDb implements PendingAuthDbGateway, Syncpo
         String f = forcedStatus(Op.GNP_WHERE);
         if (f != null) {
             return DliResult.of(f);
+        }
+        if (!psbScheduled) {
+            return DliResult.of(ImsStatus.PSB_NOT_SCHEDULED);
         }
         if (currentRoot == null) {
             return DliResult.of(ImsStatus.WRONG_PARENTAGE);
@@ -142,6 +149,9 @@ public final class InMemoryPendingAuthDb implements PendingAuthDbGateway, Syncpo
         if (f != null) {
             return DliResult.of(f);
         }
+        if (!psbScheduled) {
+            return DliResult.of(ImsStatus.PSB_NOT_SCHEDULED);
+        }
         if (currentRoot == null) {
             return DliResult.of(ImsStatus.WRONG_PARENTAGE);
         }
@@ -158,6 +168,9 @@ public final class InMemoryPendingAuthDb implements PendingAuthDbGateway, Syncpo
         String f = forcedStatus(Op.REPL);
         if (f != null) {
             return f;
+        }
+        if (!psbScheduled) {
+            return ImsStatus.PSB_NOT_SCHEDULED;
         }
         if (currentRoot == null || currentChild < 0) {
             return "DJ";

@@ -10,6 +10,8 @@ public final class ImsStatus {
     public static final String DATABASE_UNAVAILABLE = "BA";
     public static final String PSB_SCHEDULED_MORE_THAN_ONCE = "TC";
     public static final String COULD_NOT_SCHEDULE_PSB = "TE";
+    /** DIBSTAT returned for a DL/I database call issued while no PSB is scheduled. */
+    public static final String PSB_NOT_SCHEDULED = "TH";
 
     private ImsStatus() {
     }
