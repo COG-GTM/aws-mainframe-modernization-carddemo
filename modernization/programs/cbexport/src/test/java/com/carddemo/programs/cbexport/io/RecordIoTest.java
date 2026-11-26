@@ -2,6 +2,8 @@ package com.carddemo.programs.cbexport.io;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -108,6 +110,36 @@ class RecordIoTest {
         w.close();
         assertEquals("precious", Files.readString(victim));
         assertEquals(false, Files.isSymbolicLink(link));
+    }
+
+    @Test
+    void writerReplacesSymlinkToDirectory() throws Exception {
+        Path target = Files.createDirectory(dir.resolve("target"));
+        Path link = dir.resolve("link");
+        try {
+            Files.createSymbolicLink(link, target);
+        } catch (UnsupportedOperationException | java.io.IOException e) {
+            org.junit.jupiter.api.Assumptions.abort("symlinks not supported: " + e);
+        }
+        FixedLengthRecordWriter w = new FixedLengthRecordWriter(link, 3);
+        assertEquals(FileStatus.OK, w.open());
+        assertEquals(FileStatus.OK, w.write(new byte[] {1, 2, 3}));
+        w.close();
+        assertFalse(w.publishFailed());
+        assertTrue(Files.isRegularFile(link, java.nio.file.LinkOption.NOFOLLOW_LINKS));
+        assertTrue(Files.isDirectory(target));
+    }
+
+    @Test
+    void writerReportsPublishFailure() throws Exception {
+        Path target = dir.resolve("exp.dat");
+        FixedLengthRecordWriter w = new FixedLengthRecordWriter(target, 3);
+        assertEquals(FileStatus.OK, w.open());
+        Files.createDirectory(target);
+        Files.writeString(target.resolve("child"), "x");
+        w.close();
+        assertTrue(w.publishFailed());
+        assertTrue(Files.isDirectory(target));
     }
 
     @Test

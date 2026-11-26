@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.channels.Channels;
 import java.nio.file.Files;
+import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.StandardOpenOption;
@@ -26,6 +27,7 @@ import java.util.UUID;
  */
 public final class FixedLengthRecordWriter implements RecordWriter {
 
+    private boolean publishFailed;
     private final Path path;
     private final int recordLength;
     private final int keyOffset;
@@ -47,7 +49,7 @@ public final class FixedLengthRecordWriter implements RecordWriter {
 
     @Override
     public String open() {
-        if (Files.isDirectory(path)) {
+        if (Files.isDirectory(path, LinkOption.NOFOLLOW_LINKS)) {
             return FileStatus.PERMANENT_ERROR;
         }
         try {
@@ -88,6 +90,11 @@ public final class FixedLengthRecordWriter implements RecordWriter {
         }
     }
 
+    /** True when the last CLOSE could not publish the export to its destination. */
+    public boolean publishFailed() {
+        return publishFailed;
+    }
+
     @Override
     public void close() {
         if (out == null) {
@@ -96,8 +103,10 @@ public final class FixedLengthRecordWriter implements RecordWriter {
         try {
             out.close();
             Files.move(temp, path, StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.ATOMIC_MOVE);
-        } catch (IOException ignored) {
-            // CLOSE status is not checked by CBEXPORT.
+            publishFailed = false;
+        } catch (IOException e) {
+            // CBEXPORT does not check CLOSE status; callers can query publishFailed().
+            publishFailed = true;
         } finally {
             out = null;
             discardTemp();
