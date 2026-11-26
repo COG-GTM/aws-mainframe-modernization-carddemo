@@ -1,5 +1,7 @@
 package com.carddemo.programs.copaus0c.inmemory;
 
+import java.util.Locale;
+
 import com.carddemo.programs.copaus0c.copybook.CardXrefRecord;
 import com.carddemo.programs.copaus0c.gateway.CardXrefRepository;
 import com.carddemo.programs.copaus0c.gateway.FileReadResult;
@@ -40,10 +42,13 @@ public final class InMemoryCardXrefRepository implements CardXrefRepository {
         if (forced != null) {
             return forced;
         }
-        return records.stream()
-                .filter(r -> String.format("%011d", r.xrefAcctId()).equals(acctIdKey))
-                .findFirst()
-                .map(FileReadResult::normal)
-                .orElseGet(FileReadResult::notFound);
+        List<CardXrefRecord> matches = records.stream()
+                .filter(r -> String.format(Locale.ROOT, "%011d", r.xrefAcctId()).equals(acctIdKey))
+                .toList();
+        if (matches.isEmpty()) {
+            return FileReadResult.notFound();
+        }
+        // READ on a NONUNIQUEKEY path returns the first record and DUPKEY when more share the key
+        return matches.size() > 1 ? FileReadResult.dupKey(matches.get(0)) : FileReadResult.normal(matches.get(0));
     }
 }
