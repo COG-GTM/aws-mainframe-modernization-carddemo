@@ -28,14 +28,14 @@ class Cbtrn01cFixtureTest {
     void bindDds() throws Exception {
         Path data = SampleData.dir();
         assumeTrue(data != null, "sample data not available");
-        Path emptyTranfile = Files.createFile(tmp.resolve("transact.txt"));
         dd = new HashMap<>(Map.of(
                 "DALYTRAN", data.resolve("dailytran.txt").toString(),
                 "CUSTFILE", data.resolve("custdata.txt").toString(),
                 "XREFFILE", data.resolve("cardxref.txt").toString(),
                 "CARDFILE", data.resolve("carddata.txt").toString(),
                 "ACCTFILE", data.resolve("acctdata.txt").toString(),
-                "TRANFILE", emptyTranfile.toString()));
+                // TRANFILE.jcl seeds the transaction master from the daily transaction extract.
+                "TRANFILE", data.resolve("dailytran.txt").toString()));
     }
 
     @Test

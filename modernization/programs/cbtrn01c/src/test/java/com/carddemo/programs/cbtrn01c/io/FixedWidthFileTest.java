@@ -51,6 +51,17 @@ class FixedWidthFileTest {
     }
 
     @Test
+    void indexedOpenDoesNotDecodeRecords() throws Exception {
+        Path f = Files.writeString(tmp.resolve("tran.txt"),
+                "0".repeat(16) + "01" + "\u0000".repeat(4) + "\n", java.nio.charset.StandardCharsets.ISO_8859_1);
+        FixedWidthIndexedFile<com.carddemo.programs.cbtrn01c.copybook.TranRecord> file =
+                new FixedWidthIndexedFile<>(f, com.carddemo.programs.cbtrn01c.copybook.TranRecord.CODEC, 16);
+        assertEquals("00", file.open());
+        assertEquals("23", file.read("1".repeat(16)).status());
+        assertEquals("00", file.close());
+    }
+
+    @Test
     void indexedOverlongRecordFailsOpen() throws Exception {
         Path f = Files.writeString(tmp.resolve("x.txt"), "X".repeat(51) + "\n");
         assertEquals("04", new FixedWidthIndexedFile<>(f, CardXrefRecord.CODEC, 16).open());

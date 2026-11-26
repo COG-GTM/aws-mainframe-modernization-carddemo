@@ -14,13 +14,14 @@ import java.util.Map;
 /**
  * KSDS emulation over a line-per-record fixed-width file: the whole file is loaded on OPEN and
  * indexed by the record key, which is the first {@code keyLength} bytes of the record image.
+ * Records are decoded only when READ, so OPEN never validates field contents (as on VSAM).
  */
 public final class FixedWidthIndexedFile<R> implements IndexedInputFile<R> {
 
     private final Path path;
     private final RecordCodec<R> codec;
     private final int keyLength;
-    private Map<String, R> index;
+    private Map<String, String> index;
 
     public FixedWidthIndexedFile(Path path, RecordCodec<R> codec, int keyLength) {
         this.path = path;
@@ -39,13 +40,13 @@ public final class FixedWidthIndexedFile<R> implements IndexedInputFile<R> {
         } catch (IOException e) {
             return FileStatus.PERMANENT_ERROR;
         }
-        Map<String, R> loaded = new HashMap<>();
+        Map<String, String> loaded = new HashMap<>();
         for (String line : lines) {
             if (line.length() > codec.length()) {
                 return FileStatus.WRONG_LENGTH;
             }
             String image = Pic.alpha(line, codec.length());
-            loaded.putIfAbsent(image.substring(0, keyLength), codec.parse(image));
+            loaded.putIfAbsent(image.substring(0, keyLength), image);
         }
         index = loaded;
         return FileStatus.OK;
@@ -56,8 +57,9 @@ public final class FixedWidthIndexedFile<R> implements IndexedInputFile<R> {
         if (index == null) {
             return ReadResult.of(FileStatus.READ_NOT_OPEN);
         }
-        R record = index.get(Pic.alpha(key, keyLength));
-        return record == null ? ReadResult.of(FileStatus.RECORD_NOT_FOUND) : new ReadResult<>(FileStatus.OK, record);
+        String image = index.get(Pic.alpha(key, keyLength));
+        return image == null ? ReadResult.of(FileStatus.RECORD_NOT_FOUND)
+                : new ReadResult<>(FileStatus.OK, codec.parse(image));
     }
 
     @Override
