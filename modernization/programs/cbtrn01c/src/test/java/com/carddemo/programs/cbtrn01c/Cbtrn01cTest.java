@@ -286,4 +286,11 @@ class Cbtrn01cTest {
         assertFalse(r.isAok() || r.isEof());
         assertEquals(12, r.value());
     }
+
+    @Test
+    void instanceRunsOnlyOnce() {
+        Cbtrn01c p = program();
+        assertEquals(0, p.run());
+        assertThrows(IllegalStateException.class, p::run);
+    }
 }

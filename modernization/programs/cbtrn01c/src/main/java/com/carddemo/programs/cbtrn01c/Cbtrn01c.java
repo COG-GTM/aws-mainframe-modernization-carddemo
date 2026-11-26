@@ -64,6 +64,7 @@ public final class Cbtrn01c {
     private char endOfDailyTransFile = 'N';
     private int wsXrefReadStatus;
     private int wsAcctReadStatus;
+    private boolean started;
 
     public Cbtrn01c(SequentialInputFile<DalytranRecord> dalytranFile,
                     IndexedInputFile<CustomerRecord> customerFile,
@@ -105,6 +106,11 @@ public final class Cbtrn01c {
      * @throws CobolRuntimeException  unhandled keyed-READ I/O error
      */
     public int run() {
+        // One run unit per instance: WORKING-STORAGE is not re-initialised.
+        if (started) {
+            throw new IllegalStateException("CBTRN01C instance has already run");
+        }
+        started = true;
         display.accept("START OF EXECUTION OF PROGRAM CBTRN01C");
         dalytranOpen0000();
         custfileOpen0100();
