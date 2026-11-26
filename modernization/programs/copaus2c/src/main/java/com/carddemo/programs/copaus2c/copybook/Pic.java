@@ -42,7 +42,7 @@ public final class Pic {
 
     /** DISPLAY image of PIC 9(n). */
     public static String display9(long value, int digits) {
-        return String.format("%0" + digits + "d", unsigned(value, digits));
+        return String.format(java.util.Locale.ROOT, "%0" + digits + "d", unsigned(value, digits));
     }
 
     /** MOVE numeric to numeric-edited PIC +9(n): leading '+' (zero or positive) or '-', then n digits. */

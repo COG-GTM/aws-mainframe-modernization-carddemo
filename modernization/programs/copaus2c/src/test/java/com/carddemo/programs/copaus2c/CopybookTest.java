@@ -29,6 +29,17 @@ class CopybookTest {
     }
 
     @Test
+    void numericDisplayIgnoresDefaultLocale() {
+        java.util.Locale saved = java.util.Locale.getDefault(java.util.Locale.Category.FORMAT);
+        try {
+            java.util.Locale.setDefault(java.util.Locale.Category.FORMAT, java.util.Locale.forLanguageTag("ar-EG"));
+            assertEquals("+000803", Pic.plusEdited(803, 6));
+        } finally {
+            java.util.Locale.setDefault(java.util.Locale.Category.FORMAT, saved);
+        }
+    }
+
+    @Test
     void plusEditedSignAndTruncation() {
         assertEquals("+000000", Pic.plusEdited(0, 6));
         assertEquals("+000100", Pic.plusEdited(100, 6));
