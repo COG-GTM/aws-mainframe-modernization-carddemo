@@ -4,6 +4,7 @@ package com.carddemo.programs.cbact04c.io;
 public final class FileStatus {
 
     public static final String OK = "00";
+    public static final String DUPLICATE_KEY = "02";
     public static final String END_OF_FILE = "10";
     public static final String RECORD_NOT_FOUND = "23";
     public static final String FILE_NOT_FOUND = "35";

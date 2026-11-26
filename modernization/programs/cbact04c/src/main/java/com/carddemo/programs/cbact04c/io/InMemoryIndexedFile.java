@@ -1,22 +1,29 @@
 package com.carddemo.programs.cbact04c.io;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
-/** In-memory keyed file; insertion order is kept so the contents can be written back in load order. */
+/**
+ * In-memory keyed file; insertion order is kept so the contents can be written back in load order.
+ * Duplicate keys (non-unique AIX path) keep the first record, and READ returns status 02 like VSAM.
+ */
 public class InMemoryIndexedFile<K, T> implements IndexedFile<K, T> {
 
     private final Function<T, K> keyOf;
     private final Map<K, T> records = new LinkedHashMap<>();
+    private final Map<K, Integer> keyCounts = new HashMap<>();
     private OpenMode mode;
 
     public InMemoryIndexedFile(Function<T, K> keyOf, List<T> initial) {
         this.keyOf = keyOf;
         for (T r : initial) {
-            records.putIfAbsent(keyOf.apply(r), r);
+            K key = keyOf.apply(r);
+            records.putIfAbsent(key, r);
+            keyCounts.merge(key, 1, Integer::sum);
         }
     }
 
@@ -32,7 +39,10 @@ public class InMemoryIndexedFile<K, T> implements IndexedFile<K, T> {
             return ReadResult.status(FileStatus.READ_NOT_OPEN);
         }
         T r = records.get(key);
-        return r == null ? ReadResult.status(FileStatus.RECORD_NOT_FOUND) : ReadResult.ok(r);
+        if (r == null) {
+            return ReadResult.status(FileStatus.RECORD_NOT_FOUND);
+        }
+        return keyCounts.get(key) > 1 ? new ReadResult<>(FileStatus.DUPLICATE_KEY, r) : ReadResult.ok(r);
     }
 
     @Override

@@ -321,6 +321,15 @@ class Cbact04cTest {
             assertEquals(List.of("ACCOUNT NOT FOUND: 00000000002", "ERROR READING XREF FILE",
                     "FILE STATUS IS: NNNN0023", "ABENDING PROGRAM"), out.subList(out.size() - 4, out.size()));
         }
+
+        @Test
+        void duplicateXrefAlternateKeyStatus02Abends() {
+            xrefs.add(new CardXrefRecord("4999999999999999", 9, 2, ""));
+            tcatbal.add(tcb(2, "01", 1, "1.00"));
+            abend(files());
+            assertEquals(List.of("ERROR READING XREF FILE", "FILE STATUS IS: NNNN0002", "ABENDING PROGRAM"),
+                    out.subList(out.size() - 3, out.size()));
+        }
     }
 
     @Nested
