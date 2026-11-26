@@ -675,6 +675,38 @@ class CocrdupcServiceTest {
         }
 
         @Test
+        void explicitSyncpointFailureOnExitAbends9999() {
+            InMemoryCardFileGateway delegate = new InMemoryCardFileGateway();
+            CardFileGateway failing = new CardFileGateway() {
+                @Override
+                public FileResult read(String cardNum) {
+                    return delegate.read(cardNum);
+                }
+
+                @Override
+                public FileResult readForUpdate(String cardNum) {
+                    return delegate.readForUpdate(cardNum);
+                }
+
+                @Override
+                public FileResult rewrite(CardRecord record) {
+                    return delegate.rewrite(record);
+                }
+
+                @Override
+                public void syncpoint() {
+                    throw new IllegalStateException("syncpoint failed");
+                }
+            };
+            CocrdupcService svc = new CocrdupcService(failing, () -> NOW);
+            String commarea = fresh().commarea();
+            AbendException e = assertThrows(AbendException.class,
+                    () -> svc.process(new CocrdupcRequest(commarea, AidKey.PF3, null)));
+            assertEquals("9999", e.abcode());
+            assertEquals("COCRDUPC", e.abendData().abendCulprit());
+        }
+
+        @Test
         void syncpointFailureDoesNotHideTheAbend() {
             CardFileGateway failing = new CardFileGateway() {
                 @Override

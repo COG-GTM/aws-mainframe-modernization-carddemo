@@ -160,6 +160,7 @@ final class CocrdupcProgram {
             commarea.setPgmEnter();
             commarea.setLastMapset(LIT_THISMAPSET);
             commarea.setLastMap(LIT_THISMAP);
+            cardFile.syncpoint();
             return new CocrdupcResponse(CocrdupcResponse.Kind.XCTL, null, commarea.toProgram(),
                     commarea.encode(), commarea.copy(), CardUpdateProgramArea.decode(prog.encode()),
                     null, true);
