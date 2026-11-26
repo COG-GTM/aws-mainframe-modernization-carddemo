@@ -5,6 +5,7 @@ import com.carddemo.programs.cbact03c.copybook.Pic;
 
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.util.Locale;
 import java.util.Objects;
 import java.util.function.Consumer;
 
@@ -145,7 +146,7 @@ public class Cbact03c {
         if (!Pic.isNumeric(status) || stat1 == '9') {
             // TWO-BYTES-BINARY PIC 9(4) BINARY with IO-STAT2 in its low-order byte -> PIC 999
             int twoBytesBinary = String.valueOf(stat2).getBytes(nativeCharset)[0] & 0xFF;
-            return stat1 + String.format("%03d", twoBytesBinary % 1000);
+            return stat1 + String.format(Locale.ROOT, "%03d", twoBytesBinary % 1000);
         }
         return "00" + status;
     }
