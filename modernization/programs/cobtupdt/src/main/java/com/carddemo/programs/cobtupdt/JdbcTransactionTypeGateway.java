@@ -11,7 +11,8 @@ import java.sql.SQLException;
  * (the DSN RUN step commits once at normal program termination).
  *
  * <p>SQLCODE mapping: a negative vendor error code is returned as is (DB2 JDBC reports SQLCODE there);
- * otherwise SQLSTATE class 23 maps to -803 and anything else to -1. Zero rows on UPDATE/DELETE maps to +100.
+ * otherwise SQLSTATE 23503/23504 (foreign key) maps to -532, the rest of class 23 to -803 and anything else to -1.
+ * Zero rows on UPDATE/DELETE maps to +100.
  */
 public final class JdbcTransactionTypeGateway implements TransactionTypeGateway {
 
