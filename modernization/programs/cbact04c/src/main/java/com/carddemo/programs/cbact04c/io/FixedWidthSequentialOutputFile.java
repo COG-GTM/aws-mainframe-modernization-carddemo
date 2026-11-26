@@ -70,11 +70,15 @@ public class FixedWidthSequentialOutputFile<T> implements SequentialOutputFile<T
         if (!created) {
             return;
         }
-        try {
-            if (writer != null) {
+        if (writer != null) {
+            try {
                 writer.close();
-                writer = null;
+            } catch (IOException ignored) {
+                // the output is discarded anyway; a failed flush must not keep it
             }
+            writer = null;
+        }
+        try {
             Files.deleteIfExists(path);
             created = false;
         } catch (IOException e) {

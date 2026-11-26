@@ -85,4 +85,20 @@ class FixedWidthTest {
         assertEquals(FileStatus.OPEN_MODE_NOT_ALLOWED, f.open(OpenMode.I_O));
         assertEquals(FileStatus.OK, f.open(OpenMode.INPUT));
     }
+
+    @Test
+    void deleteIfCreatedDiscardsOpenOutputButNotForeignFiles() throws IOException {
+        Path out = dir.resolve("tran.txt");
+        FixedWidthSequentialOutputFile<CardXrefRecord> f = new FixedWidthSequentialOutputFile<>(out, CardXrefRecord.CODEC);
+        assertEquals(FileStatus.OK, f.open());
+        assertEquals(FileStatus.OK, f.write(XREF));
+        f.deleteIfCreated();
+        assertTrue(Files.notExists(out));
+
+        Files.writeString(out, "foreign\n");
+        FixedWidthSequentialOutputFile<CardXrefRecord> g = new FixedWidthSequentialOutputFile<>(out, CardXrefRecord.CODEC);
+        assertEquals(FileStatus.PERMANENT_ERROR, g.open());
+        g.deleteIfCreated();
+        assertEquals("foreign\n", Files.readString(out));
+    }
 }
