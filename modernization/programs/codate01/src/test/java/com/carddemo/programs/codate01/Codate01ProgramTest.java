@@ -463,8 +463,12 @@ class Codate01ProgramTest {
             Codate01AbendException e = assertThrows(Codate01AbendException.class, t::run);
 
             assertEquals("AICA", e.abendCode());
-            assertEquals(pad(errDisplay("", "MQCLOSE ERR", "02", "02161", ERROR_Q), 1000),
-                    t.mq.messages(ERROR_Q).get(0).data());
+            // The error record is put under MQPMO-SYNCPOINT; in CICS the AICA abend backs it out.
+            // The in-memory gateway has no unit of work, so assert the MQPUT call rather than queue content.
+            PutCall put = t.mq.puts().get(0);
+            assertEquals(ERROR_Q, put.queueName());
+            assertEquals(MqConstants.MQPMO_SYNCPOINT, put.options() & MqConstants.MQPMO_SYNCPOINT);
+            assertEquals(pad(errDisplay("", "MQCLOSE ERR", "02", "02161", ERROR_Q), 1000), put.data());
         }
     }
 
