@@ -22,14 +22,18 @@ public final class Cbcus01cMain {
     }
 
     public static void main(String[] args) {
+        System.exit(run(args, System.out, System.err));
+    }
+
+    static int run(String[] args, PrintStream sysout, PrintStream err) {
         Path custfile = null;
         boolean fixedBlock = false;
-        Charset charset = null;
+        String charsetName = null;
         for (String arg : args) {
             if (arg.equals("--fixed-block")) {
                 fixedBlock = true;
             } else if (arg.startsWith("--charset=")) {
-                charset = Charset.forName(arg.substring("--charset=".length()));
+                charsetName = arg.substring("--charset=".length());
             } else if (custfile == null && !arg.startsWith("--")) {
                 custfile = Path.of(arg);
             } else {
@@ -37,17 +41,22 @@ public final class Cbcus01cMain {
                 break;
             }
         }
-        if (custfile == null) {
-            System.err.println("usage: Cbcus01cMain [--fixed-block] [--charset=NAME] <CUSTFILE path>");
-            System.exit(RC_USAGE);
+        CustomerFile file = null;
+        if (custfile != null) {
+            try {
+                Charset charset = charsetName != null ? Charset.forName(charsetName)
+                        : fixedBlock ? Cbcus01c.EBCDIC : StandardCharsets.US_ASCII;
+                file = fixedBlock ? KsdsCustomerFile.fixedBlock(custfile, charset)
+                        : new KsdsCustomerFile(custfile, charset);
+            } catch (IllegalArgumentException e) {
+                err.println("CBCUS01C: invalid --charset: " + e.getMessage());
+            }
         }
-        if (charset == null) {
-            charset = fixedBlock ? Cbcus01c.EBCDIC : StandardCharsets.US_ASCII;
+        if (file == null) {
+            err.println("usage: Cbcus01cMain [--fixed-block] [--charset=NAME] <CUSTFILE path>");
+            return RC_USAGE;
         }
-        CustomerFile file = fixedBlock
-                ? KsdsCustomerFile.fixedBlock(custfile, charset)
-                : new KsdsCustomerFile(custfile, charset);
-        System.exit(execute(file, System.out));
+        return execute(file, sysout);
     }
 
     static int execute(Path custfile) {

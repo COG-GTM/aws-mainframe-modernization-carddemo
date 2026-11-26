@@ -237,4 +237,14 @@ class Cbcus01cTest {
         assertEquals(0, Cbcus01cMain.execute(Fixtures.CUSTDATA));
         assertEquals(999, Cbcus01cMain.execute(Path.of("does-not-exist.txt")));
     }
+
+    @Test
+    void invalidOrMultibyteCharsetIsAUsageError() {
+        java.io.PrintStream nul = new java.io.PrintStream(java.io.OutputStream.nullOutputStream());
+        String f = Fixtures.CUSTDATA.toString();
+        assertEquals(Cbcus01cMain.RC_USAGE, Cbcus01cMain.run(new String[] {"--charset=", f}, nul, nul));
+        assertEquals(Cbcus01cMain.RC_USAGE, Cbcus01cMain.run(new String[] {"--charset=NO-SUCH-CS", f}, nul, nul));
+        assertEquals(Cbcus01cMain.RC_USAGE, Cbcus01cMain.run(new String[] {"--charset=UTF-8", f}, nul, nul));
+        assertEquals(Cbcus01cMain.RC_USAGE, Cbcus01cMain.run(new String[] {"--fixed-block"}, nul, nul));
+    }
 }
