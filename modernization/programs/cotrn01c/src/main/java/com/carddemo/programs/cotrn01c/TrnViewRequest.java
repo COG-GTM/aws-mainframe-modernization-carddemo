@@ -12,7 +12,15 @@ import java.util.Map;
 public record TrnViewRequest(Map<Field, String> fields) {
 
     public TrnViewRequest {
-        fields = Map.copyOf(fields);
+        Map<Field, String> transmitted = new EnumMap<>(Field.class);
+        if (fields != null) {
+            fields.forEach((f, v) -> {
+                if (f != null && v != null) {
+                    transmitted.put(f, v);
+                }
+            });
+        }
+        fields = Map.copyOf(transmitted);
     }
 
     /** Only the "Enter Tran ID" (TRNIDIN, the sole unprotected field) entered. */

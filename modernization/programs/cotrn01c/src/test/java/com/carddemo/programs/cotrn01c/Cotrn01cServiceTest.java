@@ -17,10 +17,12 @@ import java.time.Instant;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.EnumMap;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -322,5 +324,14 @@ class Cotrn01cServiceTest {
         TrnViewScreen s = reenter(Dfhaid.DFHENTER, TrnViewRequest.ofTranId(ID)).screen();
         assertEquals(Cobol.spaces(78), s.errmsg());
         assertEquals(ID, s.trnid());
+    }
+
+    @Test
+    void receiveTrnviewScreen_nullFieldValueIsTreatedAsNotTransmitted() {
+        Map<Field, String> in = new HashMap<>();
+        in.put(Field.TRNIDIN, null);
+        TrnViewRequest req = new TrnViewRequest(in);
+        assertFalse(req.fields().containsKey(Field.TRNIDIN));
+        assertTrue(new TrnViewRequest(null).fields().isEmpty());
     }
 }
