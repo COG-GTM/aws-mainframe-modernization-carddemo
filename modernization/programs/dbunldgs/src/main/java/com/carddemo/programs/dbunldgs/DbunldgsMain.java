@@ -6,6 +6,7 @@ import com.carddemo.programs.dbunldgs.copybook.PendingAuthSummary;
 
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.time.Clock;
 
@@ -30,11 +31,18 @@ public final class DbunldgsMain {
             System.err.println("Usage: DbunldgsMain <DBPAUTP0-unload> <PASFILOP> <PADFILOP>");
             return RC_SETUP_ERROR;
         }
-        Path input = Path.of(args[0]);
-        Path pasfilop = Path.of(args[1]);
-        Path padfilop = Path.of(args[2]);
-        if (sameFile(input, pasfilop) || sameFile(input, padfilop) || sameFile(pasfilop, padfilop)) {
-            System.err.println("DBPAUTP0, PASFILOP and PADFILOP must be distinct files");
+        Path input;
+        Path pasfilop;
+        Path padfilop;
+        try {
+            input = Path.of(args[0]);
+            pasfilop = Path.of(args[1]);
+            padfilop = Path.of(args[2]);
+        } catch (InvalidPathException e) {
+            System.err.println("Invalid dataset path: " + e.getMessage());
+            return RC_SETUP_ERROR;
+        }
+        if (aliased(input, pasfilop, padfilop)) {
             return RC_SETUP_ERROR;
         }
         InMemoryPautDatabase db;
@@ -46,6 +54,9 @@ public final class DbunldgsMain {
         }
         try (FixedWidthGsamFile pasfl = new FixedWidthGsamFile(pasfilop, PendingAuthSummary.LENGTH);
              FixedWidthGsamFile padfl = new FixedWidthGsamFile(padfilop, PendingAuthDetails.LENGTH)) {
+            if (aliased(input, pasfilop, padfilop)) {
+                return RC_SETUP_ERROR;
+            }
             pasfl.truncate();
             padfl.truncate();
             return new Dbunldgs(db, pasfl, padfl, System.out::println, Clock.systemDefaultZone(), CobolCodec.EBCDIC).run();
@@ -53,6 +64,14 @@ public final class DbunldgsMain {
             System.err.println("GSAM dataset error: " + e.getMessage());
             return RC_SETUP_ERROR;
         }
+    }
+
+    private static boolean aliased(Path input, Path pasfilop, Path padfilop) {
+        if (sameFile(input, pasfilop) || sameFile(input, padfilop) || sameFile(pasfilop, padfilop)) {
+            System.err.println("DBPAUTP0, PASFILOP and PADFILOP must be distinct files");
+            return true;
+        }
+        return false;
     }
 
     static boolean sameFile(Path a, Path b) {

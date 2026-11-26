@@ -206,4 +206,26 @@ class DbunldgsFixtureTest {
                     Files.getPosixFilePermissions(child)));
         }
     }
+
+    @Test
+    void batchMainRejectsInvalidPath(@TempDir Path dir) {
+        assertEquals(DbunldgsMain.RC_SETUP_ERROR, DbunldgsMain.run(new String[] {
+                "bad\u0000path", dir.resolve("a").toString(), dir.resolve("b").toString()}));
+    }
+
+    @Test
+    void batchMainRejectsOutputSymlinkedToNotYetCreatedOutput(@TempDir Path dir) throws IOException {
+        Path in = dir.resolve("DBPAUTP0.dat");
+        Files.write(in, fixtureBytes());
+        Path root = dir.resolve("PASFILOP");
+        Path child = dir.resolve("PADFILOP");
+        try {
+            Files.createSymbolicLink(child, root);
+        } catch (UnsupportedOperationException | IOException e) {
+            return;
+        }
+        assertEquals(DbunldgsMain.RC_SETUP_ERROR, DbunldgsMain.run(new String[] {
+                in.toString(), root.toString(), child.toString()}));
+        assertEquals(0, Files.size(root));
+    }
 }
