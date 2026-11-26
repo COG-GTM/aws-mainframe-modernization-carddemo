@@ -97,7 +97,7 @@ public final class InMemoryImsGateway implements ImsGateway {
             return replStatus;
         }
         summaries.put(summary.acctId(), summary.copy());
-        return ImsReturnCode.OK;
+        return replStatus != null ? replStatus : ImsReturnCode.OK;
     }
 
     @Override
@@ -110,7 +110,7 @@ public final class InMemoryImsGateway implements ImsGateway {
             return ImsReturnCode.DUPLICATE_SEGMENT_FOUND;
         }
         summaries.put(summary.acctId(), summary.copy());
-        return ImsReturnCode.OK;
+        return isrtSummaryStatus != null ? isrtSummaryStatus : ImsReturnCode.OK;
     }
 
     @Override
@@ -129,6 +129,6 @@ public final class InMemoryImsGateway implements ImsGateway {
             return ImsReturnCode.DUPLICATE_SEGMENT_FOUND;
         }
         children.add(d.copy());
-        return ImsReturnCode.OK;
+        return isrtDetailStatus != null ? isrtDetailStatus : ImsReturnCode.OK;
     }
 }

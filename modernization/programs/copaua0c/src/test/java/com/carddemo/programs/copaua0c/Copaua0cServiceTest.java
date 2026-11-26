@@ -534,6 +534,7 @@ class Copaua0cServiceTest {
             assertFalse(h.run().endedByCriticalError());
             assertEquals(new BigDecimal("10.00"), h.ims.summary(ACCT).creditBalance());
             assertEquals(1, h.ims.details(ACCT).size());
+            assertTrue(h.tdq.entries().isEmpty(), "FW after ISRT is treated as success");
         }
 
         @Test
