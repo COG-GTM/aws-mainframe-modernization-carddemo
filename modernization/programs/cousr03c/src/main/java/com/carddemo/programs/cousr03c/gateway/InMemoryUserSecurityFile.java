@@ -5,6 +5,7 @@ import com.carddemo.programs.cousr03c.copybook.SecUserData;
 import java.io.ByteArrayOutputStream;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.TreeMap;
@@ -12,7 +13,8 @@ import java.util.TreeMap;
 /**
  * In-memory USRSEC KSDS. Mirrors CICS rules relevant to COUSR03C: READ UPDATE holds the record
  * for the task, DELETE without RIDFLD needs that hold (INVREQ otherwise). Responses can be forced
- * to exercise WHEN OTHER branches.
+ * to exercise WHEN OTHER branches. One instance models one task's view of the file; the READ UPDATE
+ * hold is not shared across concurrent tasks.
  */
 public final class InMemoryUserSecurityFile implements UserSecurityFile {
 
@@ -23,8 +25,12 @@ public final class InMemoryUserSecurityFile implements UserSecurityFile {
 
     /** Fixed-width reader: loads consecutive 80-byte records (e.g. the USRSEC sample dataset). */
     public static InMemoryUserSecurityFile load(byte[] dataset, Charset charset) {
+        if (dataset.length % SecUserData.LENGTH != 0) {
+            throw new IllegalArgumentException("USRSEC dataset length " + dataset.length
+                    + " is not a multiple of " + SecUserData.LENGTH);
+        }
         InMemoryUserSecurityFile f = new InMemoryUserSecurityFile();
-        for (int off = 0; off + SecUserData.LENGTH <= dataset.length; off += SecUserData.LENGTH) {
+        for (int off = 0; off < dataset.length; off += SecUserData.LENGTH) {
             byte[] rec = new byte[SecUserData.LENGTH];
             System.arraycopy(dataset, off, rec, 0, SecUserData.LENGTH);
             f.put(SecUserData.parse(rec, charset));
@@ -32,14 +38,17 @@ public final class InMemoryUserSecurityFile implements UserSecurityFile {
         return f;
     }
 
-    /** Fixed-width writer: dumps records in key sequence. */
+    /** Fixed-width writer: dumps records in KSDS key sequence (unsigned byte order in {@code charset}). */
     public byte[] unload(Charset charset) {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
-        records.values().forEach(r -> {
-            SecUserData d = new SecUserData();
-            d.moveFrom(r);
-            out.writeBytes(d.format(charset));
-        });
+        records.values().stream()
+                .map(r -> {
+                    SecUserData d = new SecUserData();
+                    d.moveFrom(r);
+                    return d.format(charset);
+                })
+                .sorted((a, b) -> Arrays.compareUnsigned(a, 0, SecUserData.KEY_LENGTH, b, 0, SecUserData.KEY_LENGTH))
+                .forEach(out::writeBytes);
         return out.toByteArray();
     }
 
