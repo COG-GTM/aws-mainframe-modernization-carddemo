@@ -151,6 +151,24 @@ class Cbtrn01cFixtureTest {
     }
 
     @Test
+    void cliInterruptedSysoutWriteOnInterruptedThreadEndsWithAbendCode() {
+        List<String> args = new ArrayList<>();
+        dd.forEach((k, v) -> args.add(k + "=" + v));
+        java.io.OutputStream interrupted = new java.io.OutputStream() {
+            @Override
+            public void write(int b) throws java.io.IOException {
+                throw new java.io.InterruptedIOException("SYSOUT interrupted");
+            }
+        };
+        Thread.currentThread().interrupt();
+        try {
+            assertEquals(999, Cbtrn01c.cli(args.toArray(String[]::new), Map.of(), interrupted));
+        } finally {
+            Thread.interrupted();
+        }
+    }
+
+    @Test
     void missingAccountFileAbendsWithStatus35() {
         dd.put("ACCTFILE", tmp.resolve("missing.txt").toString());
         List<String> out = new ArrayList<>();

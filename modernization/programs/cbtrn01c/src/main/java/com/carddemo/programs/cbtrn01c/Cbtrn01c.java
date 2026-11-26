@@ -15,6 +15,8 @@ import com.carddemo.programs.cbtrn01c.io.SequentialInputFile;
 
 import java.io.FileDescriptor;
 import java.io.FileOutputStream;
+import java.io.FilterOutputStream;
+import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.nio.charset.Charset;
@@ -352,14 +354,38 @@ public final class Cbtrn01c {
                 dd.put(arg.substring(0, eq).toUpperCase(Locale.ROOT), arg.substring(eq + 1));
             }
         }
-        PrintStream sysout = new PrintStream(stdout, false, StandardCharsets.ISO_8859_1);
-        boolean interruptedBefore = Thread.currentThread().isInterrupted();
+        // PrintStream hides InterruptedIOException from checkError(), so failures are recorded here.
+        boolean[] sysoutFailed = {false};
+        OutputStream recording = new FilterOutputStream(stdout) {
+            @Override
+            public void write(byte[] b, int off, int len) throws IOException {
+                try {
+                    out.write(b, off, len);
+                } catch (IOException e) {
+                    sysoutFailed[0] = true;
+                    throw e;
+                }
+            }
+
+            @Override
+            public void write(int b) throws IOException {
+                write(new byte[] {(byte) b}, 0, 1);
+            }
+
+            @Override
+            public void flush() throws IOException {
+                try {
+                    out.flush();
+                } catch (IOException e) {
+                    sysoutFailed[0] = true;
+                    throw e;
+                }
+            }
+        };
+        PrintStream sysout = new PrintStream(recording, false, StandardCharsets.ISO_8859_1);
         int rc = execute(dd, sysout::println);
         sysout.flush();
-        // PrintStream reports an InterruptedIOException only by setting the thread's interrupt flag.
-        boolean sysoutFailed = sysout.checkError()
-                || (!interruptedBefore && Thread.currentThread().isInterrupted());
-        return rc == 0 && sysoutFailed ? ABEND_CODE : rc;
+        return rc == 0 && (sysoutFailed[0] || sysout.checkError()) ? ABEND_CODE : rc;
     }
 
     static int execute(Map<String, String> dd, Consumer<String> display) {
