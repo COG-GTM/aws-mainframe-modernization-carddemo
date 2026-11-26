@@ -110,7 +110,15 @@ class SignonServiceTest {
             assertEquals("11/26/26", s.map().curdateO());
             assertEquals("09:05:07 ", s.map().curtimeO());
             assertEquals("CARDDEMO", s.map().applidO());
-            assertEquals("CICS    ", s.map().sysidO());
+            assertEquals("CICS" + CobolText.lowValues(4), s.map().sysidO());
+        }
+
+        @Test
+        void assignSysidKeepsReceivedSuffixOnEnterRedisplay() {
+            Cosgn0aInput in = new Cosgn0aInput(null, null, null, null, null, null, null, "OLDSYS99",
+                    "admin001", null, null);
+            SignonOutcome.ScreenSent s = screen(new SignonRequest(1, CicsAid.DFHENTER, in));
+            assertEquals("CICSYS99", s.map().sysidO());
         }
 
         @Test

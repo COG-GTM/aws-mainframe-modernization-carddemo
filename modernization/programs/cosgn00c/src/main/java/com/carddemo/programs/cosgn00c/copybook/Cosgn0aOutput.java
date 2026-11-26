@@ -41,6 +41,13 @@ public final class Cosgn0aOutput {
     public void applidO(String v) { applidO = picX(v, Cosgn0aField.APPLID.length()); }
     public String sysidO() { return sysidO; }
     public void sysidO(String v) { sysidO = picX(v, Cosgn0aField.SYSID.length()); }
+
+    /** ASSIGN SYSID(SYSIDO): CICS returns a 4-byte SYSID and leaves bytes 5-8 of SYSIDO unchanged. */
+    public void assignSysid(String sysid) {
+        sysidO = picX(sysid, SYSID_ASSIGN_LENGTH) + sysidO.substring(SYSID_ASSIGN_LENGTH);
+    }
+
+    private static final int SYSID_ASSIGN_LENGTH = 4;
     public String useridO() { return useridO; }
     public void useridO(String v) { useridO = picX(v, Cosgn0aField.USERID.length()); }
     public String passwdO() { return passwdO; }

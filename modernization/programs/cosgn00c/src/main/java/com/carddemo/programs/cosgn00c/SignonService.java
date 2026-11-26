@@ -159,7 +159,7 @@ public final class SignonService {
             mapOut.curtimeO(dateTime.curtimeHhMmSs());
 
             mapOut.applidO(systemInfo.applid());
-            mapOut.sysidO(systemInfo.sysid());
+            mapOut.assignSysid(systemInfo.sysid());
         }
 
         // READ-USER-SEC-FILE
