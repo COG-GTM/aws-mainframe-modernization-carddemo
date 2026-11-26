@@ -2,22 +2,23 @@ package com.carddemo.programs.cbexport.io;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.nio.channels.Channels;
 import java.nio.file.Files;
-import java.nio.file.OpenOption;
-import java.nio.file.StandardOpenOption;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.FileAttribute;
 import java.nio.file.attribute.PosixFileAttributeView;
-import java.nio.file.attribute.PosixFilePermission;
 import java.nio.file.attribute.PosixFilePermissions;
-import java.nio.file.Path;
 import java.util.Arrays;
-import java.util.Set;
 
 /**
  * Writes RECFM=F records with no delimiters. When a key position is given it behaves like a
  * KSDS loaded with ACCESS MODE SEQUENTIAL: keys must be strictly ascending (unsigned byte
  * comparison) or the WRITE returns status 21.
+ *
+ * <p>The export carries SSNs and CVVs, so records go to a new owner-only ({@code rw-------} on
+ * POSIX) temporary file in the target directory, which replaces the target on CLOSE. Like the
+ * JCL's DELETE/DEFINE of the cluster, an existing target is never truncated in place: it keeps
+ * its contents until CLOSE, and a symlink at the target is replaced rather than followed.
  */
 public final class FixedLengthRecordWriter implements RecordWriter {
 
@@ -25,12 +26,8 @@ public final class FixedLengthRecordWriter implements RecordWriter {
     private final int recordLength;
     private final int keyOffset;
     private final int keyLength;
-    // The export carries SSNs and CVVs: create it readable by the owner only.
-    private static final Set<PosixFilePermission> OWNER_READ_WRITE = PosixFilePermissions.fromString("rw-------");
-    private static final Set<OpenOption> OPTIONS = Set.of(
-            StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.WRITE);
-
     private byte[] lastKey;
+    private Path temp;
     private OutputStream out;
 
     public FixedLengthRecordWriter(Path path, int recordLength) {
@@ -47,24 +44,19 @@ public final class FixedLengthRecordWriter implements RecordWriter {
     @Override
     public String open() {
         try {
-            out = Channels.newOutputStream(Files.newByteChannel(path, OPTIONS, ownerOnly()));
-            if (Files.getFileStore(path).supportsFileAttributeView(PosixFileAttributeView.class)) {
-                Files.setPosixFilePermissions(path, OWNER_READ_WRITE);
-            }
+            Path dir = path.toAbsolutePath().getParent();
+            FileAttribute<?>[] attrs = Files.getFileStore(dir).supportsFileAttributeView(PosixFileAttributeView.class)
+                    ? new FileAttribute<?>[] {PosixFilePermissions.asFileAttribute(
+                            PosixFilePermissions.fromString("rw-------"))}
+                    : new FileAttribute<?>[0];
+            temp = Files.createTempFile(dir, "." + path.getFileName() + ".", ".tmp", attrs);
+            out = Files.newOutputStream(temp);
             lastKey = null;
             return FileStatus.OK;
-        } catch (IOException e) {
+        } catch (IOException | RuntimeException e) {
+            discardTemp();
             return FileStatus.PERMANENT_ERROR;
         }
-    }
-
-    private FileAttribute<?>[] ownerOnly() throws IOException {
-        Path dir = path.toAbsolutePath().getParent();
-        if (dir != null && Files.isDirectory(dir)
-                && Files.getFileStore(dir).supportsFileAttributeView(PosixFileAttributeView.class)) {
-            return new FileAttribute<?>[] {PosixFilePermissions.asFileAttribute(OWNER_READ_WRITE)};
-        }
-        return new FileAttribute<?>[0];
     }
 
     @Override
@@ -89,13 +81,28 @@ public final class FixedLengthRecordWriter implements RecordWriter {
 
     @Override
     public void close() {
-        if (out != null) {
-            try {
-                out.close();
-            } catch (IOException ignored) {
-                // CLOSE status is not checked by CBEXPORT.
-            }
+        if (out == null) {
+            return;
+        }
+        try {
+            out.close();
+            Files.move(temp, path, StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.ATOMIC_MOVE);
+        } catch (IOException ignored) {
+            // CLOSE status is not checked by CBEXPORT.
+        } finally {
             out = null;
+            discardTemp();
+        }
+    }
+
+    private void discardTemp() {
+        if (temp != null) {
+            try {
+                Files.deleteIfExists(temp);
+            } catch (IOException ignored) {
+                // best effort
+            }
+            temp = null;
         }
     }
 }

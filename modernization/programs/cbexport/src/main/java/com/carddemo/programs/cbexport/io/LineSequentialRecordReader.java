@@ -39,14 +39,29 @@ public final class LineSequentialRecordReader implements RecordReader {
     @Override
     public ReadResult read() {
         try {
-            String line = in.readLine();
-            if (line == null) {
+            // Buffers at most recordLength + 1 characters (the +1 allows a CR before LF).
+            char[] buf = new char[recordLength + 1];
+            int n = 0;
+            boolean overflow = false;
+            int c = in.read();
+            if (c < 0) {
                 return ReadResult.status(FileStatus.EOF);
             }
-            byte[] src = line.getBytes(CobolFieldCodec.CHARSET);
-            if (src.length > recordLength) {
+            while (c >= 0 && c != '\n') {
+                if (n < buf.length) {
+                    buf[n++] = (char) c;
+                } else {
+                    overflow = true;
+                }
+                c = in.read();
+            }
+            if (n > 0 && buf[n - 1] == '\r') {
+                n--;
+            }
+            if (overflow || n > recordLength) {
                 return ReadResult.status(FileStatus.LENGTH_MISMATCH);
             }
+            byte[] src = new String(buf, 0, n).getBytes(CobolFieldCodec.CHARSET);
             byte[] rec = new byte[recordLength];
             Arrays.fill(rec, CobolFieldCodec.SPACE);
             System.arraycopy(src, 0, rec, 0, src.length);

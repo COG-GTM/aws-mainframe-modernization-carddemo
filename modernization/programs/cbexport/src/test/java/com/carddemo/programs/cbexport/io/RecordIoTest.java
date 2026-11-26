@@ -28,6 +28,19 @@ class RecordIoTest {
     }
 
     @Test
+    void lineSequentialHandlesCrlfAndBoundsOversizedLines() throws Exception {
+        Path f = dir.resolve("crlf.txt");
+        Files.writeString(f, "ABCD\r\n" + "X".repeat(100_000) + "\nEF");
+        LineSequentialRecordReader r = new LineSequentialRecordReader(f, 4);
+        assertEquals(FileStatus.OK, r.open());
+        assertEquals("ABCD", new String(r.read().record()));
+        assertEquals(FileStatus.LENGTH_MISMATCH, r.read().status());
+        assertEquals("EF  ", new String(r.read().record()));
+        assertEquals(FileStatus.EOF, r.read().status());
+        r.close();
+    }
+
+    @Test
     void missingInputReturnsStatus35() {
         assertEquals(FileStatus.FILE_NOT_FOUND, new LineSequentialRecordReader(dir.resolve("nope"), 4).open());
         assertEquals(FileStatus.FILE_NOT_FOUND, new FixedLengthRecordReader(dir.resolve("nope"), 4).open());
@@ -68,10 +81,29 @@ class RecordIoTest {
         Files.setPosixFilePermissions(f, java.nio.file.attribute.PosixFilePermissions.fromString("rw-r--r--"));
         FixedLengthRecordWriter w = new FixedLengthRecordWriter(f, 1);
         assertEquals(FileStatus.OK, w.open());
+        assertEquals("old", Files.readString(f), "target untouched until CLOSE");
+        assertEquals(FileStatus.OK, w.write(new byte[] {'n'}));
+        w.close();
         w.close();
         assertEquals("rw-------", java.nio.file.attribute.PosixFilePermissions.toString(
                 Files.getPosixFilePermissions(f)));
-        assertEquals(0, Files.size(f));
+        assertEquals("n", Files.readString(f));
+        try (var s = Files.list(dir)) {
+            assertEquals(1, s.count(), "no temp files left behind");
+        }
+    }
+
+    @Test
+    void writerReplacesSymlinkInsteadOfFollowingIt() throws Exception {
+        Path victim = dir.resolve("victim.txt");
+        Files.writeString(victim, "precious");
+        Path link = dir.resolve("link.dat");
+        Files.createSymbolicLink(link, victim);
+        FixedLengthRecordWriter w = new FixedLengthRecordWriter(link, 1);
+        assertEquals(FileStatus.OK, w.open());
+        w.close();
+        assertEquals("precious", Files.readString(victim));
+        assertEquals(false, Files.isSymbolicLink(link));
     }
 
     @Test
