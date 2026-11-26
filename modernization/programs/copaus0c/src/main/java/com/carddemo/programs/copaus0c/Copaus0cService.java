@@ -496,8 +496,11 @@ public final class Copaus0cService {
             String ridAcctIdX = wsAcctId;
             FileReadResult<CardXrefRecord> r = cardXrefRepository.readByAcctId(ridAcctIdX);
             readResponse(r);
-            if (r.resp() == FileReadResult.NORMAL) {
+            if (r.record() != null) {
+                // INTO(CARD-XREF-RECORD) is filled for NORMAL and DUPKEY alike
                 cardXrefRecord = r.record();
+            }
+            if (r.resp() == FileReadResult.NORMAL) {
                 ca.cdemoCustId = Cobol.moveToUnsignedDisplay(cardXrefRecord.xrefCustId(), 9);
                 ca.cdemoCardNum = cardXrefRecord.xrefCardNum();
             } else if (r.resp() == FileReadResult.NOTFND) {
