@@ -55,4 +55,32 @@ class Cbact01cMainTest {
     void missingDdIsReported() {
         assertThrows(IllegalArgumentException.class, () -> Cbact01cMain.execute(new String[0], Map.of(), sysout));
     }
+
+    @Test
+    void existingOutputIsNeitherReplacedNorDeletedOnAbend() throws Exception {
+        Path existing = dir.resolve("pscomp");
+        Files.writeString(existing, "keep");
+        String[] args = {"src/test/resources/fixtures/acctdata.txt", existing.toString(),
+                dir.resolve("arryps").toString(), dir.resolve("vbps").toString()};
+        assertEquals(999, Cbact01cMain.execute(args, Map.of(), sysout));
+        assertEquals("keep", Files.readString(existing));
+        assertTrue(captured.toString(StandardCharsets.ISO_8859_1).contains("ERROR OPENING OUTFILE30"));
+    }
+
+    @Test
+    void invalidNumericDataDeletesCreatedOutputs() throws Exception {
+        String line = Files.readAllLines(Path.of("src/test/resources/fixtures/acctdata.txt"),
+                StandardCharsets.ISO_8859_1).get(0);
+        char[] chars = line.toCharArray();
+        chars[90] = 'X';
+        Path acct = dir.resolve("acct");
+        Files.writeString(acct, new String(chars) + "\n", StandardCharsets.ISO_8859_1);
+        String[] args = {acct.toString(), dir.resolve("pscomp").toString(), dir.resolve("arryps").toString(),
+                dir.resolve("vbps").toString()};
+        assertThrows(com.carddemo.programs.cbact01c.support.DataException.class,
+                () -> Cbact01cMain.execute(args, Map.of(), sysout));
+        assertFalse(Files.exists(dir.resolve("pscomp")));
+        assertFalse(Files.exists(dir.resolve("arryps")));
+        assertFalse(Files.exists(dir.resolve("vbps")));
+    }
 }

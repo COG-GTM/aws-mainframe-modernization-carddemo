@@ -5,12 +5,14 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 
 /** RECFM=FB sequential output: records of exactly {@code lrecl} bytes, written back to back with no delimiters. */
 public final class FixedRecordFileWriter implements RecordWriter {
     private final Path path;
     private final int lrecl;
     private OutputStream out;
+    private boolean created;
 
     public FixedRecordFileWriter(Path path, int lrecl) {
         this.path = path;
@@ -20,11 +22,23 @@ public final class FixedRecordFileWriter implements RecordWriter {
     @Override
     public String open() {
         try {
-            out = new BufferedOutputStream(Files.newOutputStream(path));
+            // DISP=NEW: never replace or follow an existing file or link.
+            out = new BufferedOutputStream(
+                    Files.newOutputStream(path, StandardOpenOption.CREATE_NEW, StandardOpenOption.WRITE));
+            created = true;
             return FileStatus.OK;
         } catch (IOException e) {
             return FileStatus.PERMANENT_ERROR;
         }
+    }
+
+    /** True once {@link #open()} has created the file, so only this job's output is deleted on abend. */
+    public boolean created() {
+        return created;
+    }
+
+    public Path path() {
+        return path;
     }
 
     @Override
