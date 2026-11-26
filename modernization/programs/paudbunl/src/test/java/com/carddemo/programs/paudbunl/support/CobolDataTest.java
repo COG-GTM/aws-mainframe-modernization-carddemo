@@ -104,4 +104,17 @@ class CobolDataTest {
         assertEquals(1, CobolData.addTruncating(0, 1, 8));
         assertEquals(0, CobolData.addTruncating(99_999_999L, 1, 8));
     }
+
+    @Test
+    void zonedEncodingUsesAsciiDigitsWhateverTheDefaultLocale() {
+        java.util.Locale saved = java.util.Locale.getDefault();
+        try {
+            java.util.Locale.setDefault(java.util.Locale.forLanguageTag("th-TH-u-nu-thai"));
+            byte[] b = new byte[5];
+            CobolData.encodeZoned(42, b, 0, 5, CobolData.EBCDIC);
+            assertEquals(42, CobolData.decodeZoned(b, 0, 5, CobolData.EBCDIC));
+        } finally {
+            java.util.Locale.setDefault(saved);
+        }
+    }
 }

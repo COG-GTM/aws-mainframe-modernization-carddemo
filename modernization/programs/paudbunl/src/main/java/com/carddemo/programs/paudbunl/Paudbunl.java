@@ -20,6 +20,7 @@ import java.nio.file.Path;
 import java.time.Clock;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.Locale;
 import java.util.Objects;
 import java.util.function.Consumer;
 
@@ -112,7 +113,7 @@ public final class Paudbunl {
     void initialize1000() {
         LocalDate today = LocalDate.now(clock);
         currentDate = today.format(DateTimeFormatter.ofPattern("yyMMdd"));
-        currentYyddd = today.format(DateTimeFormatter.ofPattern("yy")) + String.format("%03d", today.getDayOfYear());
+        currentYyddd = today.format(DateTimeFormatter.ofPattern("yy")) + String.format(Locale.ROOT, "%03d", today.getDayOfYear());
 
         display("STARTING PROGRAM PAUDBUNL::");
         display("*-------------------------------------*");

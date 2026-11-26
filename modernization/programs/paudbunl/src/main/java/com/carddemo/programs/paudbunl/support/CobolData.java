@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.math.RoundingMode;
 import java.nio.charset.Charset;
+import java.util.Locale;
 import java.util.Arrays;
 
 /** Byte-level codecs for the COBOL USAGE clauses used by the PAUDBUNL copybooks. */
@@ -128,7 +129,7 @@ public final class CobolData {
     /** Encodes an unsigned zoned PIC 9(n) DISPLAY field; high-order digits are truncated. */
     public static void encodeZoned(long value, byte[] buf, int off, int len, Charset cs) {
         long v = len >= 19 ? Math.abs(value) : Math.abs(value) % BigInteger.TEN.pow(len).longValueExact();
-        String s = String.format("%0" + len + "d", v);
+        String s = String.format(Locale.ROOT, "%0" + len + "d", v);
         encodeAlpha(s, buf, off, len, cs);
     }
 
@@ -144,7 +145,7 @@ public final class CobolData {
     public static String hex(byte[] buf, int off, int len) {
         StringBuilder sb = new StringBuilder(len * 2);
         for (int i = 0; i < len; i++) {
-            sb.append(String.format("%02X", buf[off + i] & 0xFF));
+            sb.append(String.format(Locale.ROOT, "%02X", buf[off + i] & 0xFF));
         }
         return sb.toString();
     }
